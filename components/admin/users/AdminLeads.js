@@ -45,6 +45,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminLeadDetails from "./AdminLeadDetails";
+import AdminGetProfileDetails from "../AdminGetProfileDetails";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -283,13 +284,10 @@ const AdminLeads = ({
   //code for get profile function
   const getProfile = async () => {
     try {
-      await getProfileDetails();
-
-      const Data = localStorage.getItem("User");
-      if (Data) {
-        const localData = JSON.parse(Data);
-        setUserLocalData(localData.user);
-      }
+     let data =  await AdminGetProfileDetails(selectedUser.id);
+     console.log('data', data)
+      setUserLocalData(data)
+     
     } catch (error) {
       // console.error("Error occured in api is error", error);
     }
@@ -1579,7 +1577,7 @@ const AdminLeads = ({
             }}
             className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
             onClick={() => {
-              if (userLocalData.plan) {
+              if (userLocalData?.plan) {
                 setAssignLeadModal(true);
               } else {
                 setSnackMessage("Add payment method to continue");
@@ -1665,6 +1663,7 @@ const AdminLeads = ({
                               handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
                             leadIs={toggleClick}
+                            userProfile={userLocalData}
                           />
                         </div>
 

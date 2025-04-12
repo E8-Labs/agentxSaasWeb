@@ -154,7 +154,7 @@ const Page = ({ params }) => {
       UserService,
       FocusArea,
       selectedComponent,
-      Congrats,
+      // Congrats,
     ].filter(Boolean);
 
     return finalComponents;

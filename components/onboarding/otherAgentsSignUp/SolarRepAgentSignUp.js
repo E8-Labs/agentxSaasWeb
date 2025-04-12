@@ -127,7 +127,7 @@ const SolarRepAgentSignUp = ({
       installationVolume ||
       projectSize ||
       ClientType ||
-      userTransaction ||
+      // userTransaction ||
       checkPhoneResponse?.status === false ||
       emailCheckResponse?.status === false
     ) {
@@ -373,7 +373,9 @@ const SolarRepAgentSignUp = ({
             // //console.log;
           } else {
             // //console.log;
-            handleContinue();
+            // handleContinue();
+            router.push("/createagent")
+
             // setCongratsPopup(true);
           }
         }

@@ -1065,13 +1065,13 @@ function Billing() {
       </div>
 
       <div className="w-full flex flex-row justify-between mt-10 px-10">
-        <div className="w-3/12">
+        <div className="w-5/12">
           <div style={styles.text}>Name</div>
         </div>
-        <div className="w-3/12">
+        <div className="w-2/12">
           <div style={styles.text}>Amount</div>
         </div>
-        <div className="w-3/12">
+        <div className="w-2/12">
           <div style={styles.text}>Status</div>
         </div>
         <div className="w-3/12">
@@ -1091,15 +1091,15 @@ function Billing() {
                 key={item.id}
                 className="w-full flex flex-row justify-between mt-10 px-10"
               >
-                <div className="w-3/12 flex flex-row gap-2">
+                <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
                     {item.title}
                   </div>
                 </div>
-                <div className="w-3/12">
+                <div className="w-2/12">
                   <div style={styles.text2}>${item.price.toFixed(2)}</div>
                 </div>
-                <div className="w-3/12 items-start">
+                <div className="w-2/12 items-start">
                   <div
                     className="p-2 flex flex-row gap-2 items-center"
                     style={{

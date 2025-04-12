@@ -80,7 +80,7 @@ function Page() {
     "Pipeline | Stages",
     "Knowledge Base",
   ]
-  const [AgentMenuOptions,setAgentMenuOptions] = useState(tabs);
+  const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
   //code for phonenumber
@@ -355,19 +355,19 @@ function Page() {
   ];
 
 
-  useEffect(()=>{
-    const updateAgentManueList = () =>{
+  useEffect(() => {
+    const updateAgentManueList = () => {
 
       if (showDrawerSelectedAgent?.agentType === "outbound") {
         let newTab = "Voicemail"
         setAgentMenuOptions(prev => [...prev, newTab]);
-      }else{
+      } else {
         setAgentMenuOptions(tabs)
       }
       // console.log('agent type is', showDrawerSelectedAgent?.agentType)
     }
     updateAgentManueList();
-  },[showDrawerSelectedAgent])
+  }, [showDrawerSelectedAgent])
 
   //call get numbers list api
   useEffect(() => {
@@ -2478,7 +2478,7 @@ function Page() {
                       name="Calls"
                       value={
 
-                        <div>{item.calls}</div>
+                        <div>{item.calls ? item.calls : '-'}</div>
 
                       }
                       icon="/svgIcons/selectedCallIcon.svg"
@@ -2488,9 +2488,7 @@ function Page() {
                     <Card
                       name="Convos"
                       value={
-
-                        <div>{item.callsGt10}</div>
-
+                        <div>{item.callsGt10 ? item.callsGt10 : "-"}</div>
                       }
                       icon="/svgIcons/convosIcon2.svg"
                       bgColor="bg-purple-100"
@@ -2498,7 +2496,7 @@ function Page() {
                     />
                     <Card
                       name="Hot Leads"
-                      value={item.hotleads}
+                      value={item.hotleads ? item.hotleads : "-"}
                       icon="/otherAssets/hotLeadsIcon2.png"
                       bgColor="bg-orange-100"
                       iconColor="text-orange-500"
@@ -2506,7 +2504,7 @@ function Page() {
 
                     <Card
                       name="Booked Meetings"
-                      value={item.booked}
+                      value={item.booked ? item.booked : '-'}
                       icon="/otherAssets/greenCalenderIcon.png"
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -2517,9 +2515,12 @@ function Page() {
                       value={
 
                         <div>
-                          {moment
-                            .utc((item?.totalDuration || 0) * 1000)
-                            .format("HH:mm:ss")}
+
+                          {item?.totalDuration ?
+                            moment
+                              .utc((item?.totalDuration || 0) * 1000)
+                              .format("HH:mm:ss") : "-"
+                          }
                         </div>
 
                       }
@@ -3175,7 +3176,7 @@ function Page() {
               <Card
                 name="Hot Leads"
                 value={
-                  <div>{showDrawerSelectedAgent?.hotleads}</div>
+                  <div>{showDrawerSelectedAgent?.hotleads ? showDrawerSelectedAgent?.hotleads : '-'}</div>
                 }
                 icon="/otherAssets/hotLeadsIcon2.png"
                 bgColor="bg-orange-100"
@@ -3184,7 +3185,7 @@ function Page() {
               <Card
                 name="Booked"
                 value={
-                  <div>{showDrawerSelectedAgent?.booked}</div>
+                  <div>{showDrawerSelectedAgent?.booked ? showDrawerSelectedAgent?.booked : '-'}</div>
                 }
                 icon="/otherAssets/greenCalenderIcon.png"
                 bgColor="bg-green-100"
@@ -3197,11 +3198,15 @@ function Page() {
                     showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
-                      {moment
+                      {
+                        showDrawerSelectedAgent?.totalDuration?
+                      moment
                         .utc(
                           (showDrawerSelectedAgent?.totalDuration || 0) * 1000
                         )
-                        .format("HH:mm:ss")}
+                        .format("HH:mm:ss"):'-'
+                      
+                      }
                     </div>
                   ) : (
                     "-"
@@ -4062,9 +4067,9 @@ function Page() {
             ) : (
               activeTab === "Voicemail" ? (
                 <div className="flex flex-col gap-4 w-full">
-                  <VoiceMailTab setMainAgentsList = {setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent ={setShowDrawerSelectedAgent}/>
+                  <VoiceMailTab setMainAgentsList={setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent={setShowDrawerSelectedAgent} />
                 </div>
-              ):""
+              ) : ""
             )}
 
             {/* Delete agent button */}
@@ -4657,7 +4662,7 @@ function Page() {
                         <PromptTagInput
                           promptTag={scriptTagInput}
                           kycsList={kycsData}
-                          from = {"Promt"}
+                          from={"Promt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={setScriptTagInput}
                           scrollOffset={scrollOffset}
@@ -4797,7 +4802,7 @@ function Page() {
                             tagValue={setObjective}
                             scrollOffset={scrollOffset}
                             showSaveChangesBtn={showObjectionsSaveBtn}
-                            from  = {"Objective"}
+                            from={"Objective"}
                             saveUpdates={async () => {
                               await updateAgent()
                               setShowObjectionsSaveBtn(false)

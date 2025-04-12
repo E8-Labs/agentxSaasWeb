@@ -335,7 +335,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             // //console.log;
           } else {
             //console.log;
-            handleContinue();
+            // handleContinue();
+            router.push("/createagent")
           }
         }
       }
@@ -460,6 +461,10 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
+              // onClick={()=>{
+              //   console.log('push',)
+              //   router.push("/createagent")
+              // }}
             >
               Your Contact Information
             </div>
