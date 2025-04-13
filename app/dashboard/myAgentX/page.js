@@ -2161,7 +2161,7 @@ function Page() {
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
-          isVisible={isVisibleSnack}
+          isVisible={isVisibleSnack }
           hide={() => {
             setIsVisibleSnack(false);
           }}

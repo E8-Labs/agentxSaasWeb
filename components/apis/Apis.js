@@ -157,6 +157,8 @@ const Apis = {
   connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
 
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
+  getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
+  pauseProfile:`${BasePath}api/user/pauseProfile`
 };
 
 export default Apis;

@@ -16,7 +16,7 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
-function SelectedUserDetails({ selectedUser,handleDel }) {
+function SelectedUserDetails({ selectedUser, handleDel }) {
 
     //console.log
 
@@ -71,7 +71,9 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
     const [minutes, setMinutes] = useState("")
     const [showSnackMessage, setShowSnackMessage] = useState(null)
     const [loading, setloading] = useState(false)
-    const [delLoader,setDelLoader]= useState(false)
+    const [delLoader, setDelLoader] = useState(false)
+    const [pauseLoader, setpauseLoader] = useState(false)
+
 
 
     const handleManuClick = (item) => {
@@ -119,7 +121,7 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
         }
     }
 
-    const handleDeleteUser = async() =>{
+    const handleDeleteUser = async () => {
         setDelLoader(true)
         try {
             const data = localStorage.getItem("User")
@@ -131,7 +133,7 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
 
                 let apidata = {
                     userId: selectedUser.id,
-                    
+
                 }
                 //console.log
 
@@ -162,9 +164,39 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
         }
     }
 
+    const handlePause = async () => {
+        setpauseLoader(true)
+        try {
+            const data = localStorage.getItem("User")
+            if (data) {
+                let u = JSON.parse(data)
+                let apidata = {
+                    userId: selectedUser.id
+                }
+
+                const response = await axios.post(Apis.pauseProfile, apidata, {
+                    headers: {
+                        "Authorization": 'Bearer ' + u.token,
+                        "Content-Type": 'application/json'
+                    }
+                })
+                setpauseLoader(false)
+                if (response.data) {
+                    if(response.data.status === true){
+                        setShowSnackMessage(response.data.message)
+                    }
+                    console.log('response.data.data', response.data)
+                }
+            }
+        } catch (e) {
+            setpauseLoader(false)
+        }
+
+    }
+
     return (
         <div className='w-full flex flex-col items-center justify-center'>
-            <AgentSelectSnackMessage isVisible={showSnackMessage} hide={() => { setShowSnackMessage(null) }}
+            <AgentSelectSnackMessage isVisible={showSnackMessage != null ? true : false} hide={() => { setShowSnackMessage(null) }}
                 type={SnackbarTypes.Success} message={showSnackMessage}
             />
 
@@ -195,6 +227,22 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
                         </div>
 
                         <div className='flex flex-row items-center gap-4'>
+                            {
+                                pauseLoader ? (
+                                    <CircularProgress size={25} />
+                                ) : (
+                                    <button
+                                        className="text-white bg-purple outline-none rounded-xl px-3"
+                                        style={{ height: "50px" }}
+                                        onClick={() => {
+                                            handlePause()
+                                        }}
+                                    >
+                                        Pause
+                                    </button>
+                                )
+                            }
+
                             <button
                                 className="text-white bg-purple outline-none rounded-xl px-3"
                                 style={{ height: "50px" }}
@@ -204,6 +252,7 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
                             >
                                 Add Minutes
                             </button>
+
 
                             <button
                                 className="text-red outline-none rounded-xl px-3"
@@ -344,7 +393,7 @@ function SelectedUserDetails({ selectedUser,handleDel }) {
                         </div>
 
                         <div className="flex flex-row items-center gap-4 mt-6">
-                            <button onClick={()=>setShowDeleteModal(false)} className="w-1/2">
+                            <button onClick={() => setShowDeleteModal(false)} className="w-1/2">
                                 Cancel
                             </button>
                             <div className="w-1/2">

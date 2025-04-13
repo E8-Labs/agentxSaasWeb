@@ -269,7 +269,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
 
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showMessage != null ? true : false}
+      <AgentSelectSnackMessage isVisible={showMessage != null &&  !showAddNewPopup && !showEditPopup ? true : false}
         message={showMessage} type={messageType} hide={() => {
           setShowMessage(null);
         }}

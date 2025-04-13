@@ -211,6 +211,13 @@ const ProfileNav = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
+      console.log('LocalData.user.profile_status', LocalData.user.profile_status)
+      if(LocalData.user.profile_status === "paused"){
+        setErrorSnack("Your account has been frozen.")
+        logout()
+        router.push("/");
+        return
+      }
       setUserDetails(LocalData);
       if (LocalData.user.plan == null) {
         // user haven't subscribed to any plan
@@ -894,7 +901,7 @@ const ProfileNav = () => {
                 </div> */}
 
                 <div
-                  className="flex justify-center items-center"
+                  className="flex  items-start"
                   style={{
                     fontSize: 22,
                     fontWeight: "600",
@@ -904,17 +911,17 @@ const ProfileNav = () => {
                   {`AI Agents from just $1.50/day`}
                 </div>
                 <div
-                  className="flex justify-center items-center"
+                  className="flex  items-start"
                   style={{
                     fontSize: 16,
                     fontWeight: "500",
-                    marginTop: 10,
+                    marginTop: 0,
                   }}
                 >
                   {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                 </div>
 
-                <div className="flex flex-row items-center justify-center ">
+                {/* <div className="flex flex-row items-center justify-center ">
                   <div
                     className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-2 px-4"
                     style={{
@@ -939,7 +946,7 @@ const ProfileNav = () => {
                       Enjoy these discounted rates
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div
                   style={{

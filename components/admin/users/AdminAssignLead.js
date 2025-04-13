@@ -17,7 +17,7 @@ import Image from "next/image";
 import React, { use, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
+import AgentSelectSnackMessage,{SnackbarTypes} from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -27,7 +27,7 @@ import dayjs from "dayjs"; // Import Day.js
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
-import DncConfirmationPopup from "./DncConfirmationPopup";
+import DncConfirmationPopup from "@/components/dashboard/leads/DncConfirmationPopup";
 import Tooltip from "@mui/material/Tooltip";
 
 dayjs.extend(utc);
@@ -40,6 +40,7 @@ const AdminAssignLead = ({
   filters = null,
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
+  selectedUser = {selectedUser}
 }) => {
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
@@ -74,6 +75,8 @@ const AdminAssignLead = ({
   const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
   const [isDncChecked, setIsDncChecked] = useState(false);
 
+  // console.log('assign lead')
+
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
@@ -82,15 +85,6 @@ const AdminAssignLead = ({
       }, SelectAgentErrorTimeout);
     }
   }, [errorMessage]);
-
-  // useEffect(() => {
-  //     let NewList = [];
-  //     item.agents.forEach((agent) => {
-  //         if (agent.agentType !== "inbound") {
-  //             NewList.push(agent);
-  //         }
-  //     });
-  // })
 
   useEffect(() => {
     if (SelectedAgents.length === 0) {
@@ -103,14 +97,13 @@ const AdminAssignLead = ({
   useEffect(() => {
     getAgents();
     // }
-  }, []);
+  }, [selectedUser]);
 
-  useEffect(() => {
-    // //console.log;
-  }, [SelectedAgents]);
-
+ 
   //get agents api
   const getAgents = async () => {
+    console.log('trying to get agents', )
+    setInitialLoader(true)
     try {
       
       const localData = localStorage.getItem("User");
@@ -133,10 +126,12 @@ const AdminAssignLead = ({
       });
 
       if (response) {
+    setInitialLoader(false)
+
         //console.log;
        
         // let filterredAgentsList = [];
-        //// //console.log);
+        console.log("trying to get agents")
         const filterredAgentsList = response.data.data.filter((mainAgent) => {
           // Check if all subagents are either outbound or both inbound and outbound
           const subAgents = mainAgent.agents;
@@ -151,11 +146,11 @@ const AdminAssignLead = ({
           return hasOutbound && (!hasInbound || hasInbound);
         });
         setAgentsList(filterredAgentsList);
-        //console.log;
+        console.log(filterredAgentsList)
         setStages(filterredAgentsList.stages);
       }
     } catch (error) {
-      // console.error("ERrror occured in agents api is :", error);
+      console.error("ERrror occured in agents api is :", error);
     } finally {
       setInitialLoader(false);
       // //console.log;
