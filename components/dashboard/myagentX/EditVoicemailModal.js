@@ -19,6 +19,8 @@ function EditVoicemailModal({
     messageType
 }) {
 
+    // console.log('defaulData', defaultData?.message)
+
 
     const voices = [
         {
@@ -41,6 +43,18 @@ function EditVoicemailModal({
     const [audio, setAudio] = useState(false)
     const [preview, setPreview] = useState(false)
     const [message, setMessage] = useState(defaultData?.message)
+
+
+    useEffect(()=>{
+        const updateData = () =>{
+            if(defaultData){
+                setSelectedVoice(defaultData.voiceId)
+                setMessage(defaultData.message)
+            }
+        }
+
+        updateData()
+    },[defaultData])
 
     // console.log('defaultData', defaultData)
 
@@ -133,8 +147,8 @@ function EditVoicemailModal({
                                 padding: 12,
                                 height: '156px',
                                 resize: "none",
-
                             }}
+                            maxLength={200}
 
                             value={message}
                             onChange={(e) => {
@@ -142,6 +156,13 @@ function EditVoicemailModal({
 
                             }}
                         />
+
+                        <div style={{
+                            fontSize: 14, fontWeight: '500', marginTop: -5, color: '#00000060'
+                        }}>
+                            {message?.length}/200
+                        </div>
+
 
 
 

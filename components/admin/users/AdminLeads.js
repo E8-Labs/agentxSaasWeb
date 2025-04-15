@@ -11,6 +11,7 @@ import {
   Popover,
   Select,
   Snackbar,
+  Switch,
   TextareaAutosize,
 } from "@mui/material";
 import {
@@ -45,6 +46,8 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminLeadDetails from "./AdminLeadDetails";
+import AdminGetProfileDetails from "../AdminGetProfileDetails";
+import AdminAssignLead from "./AdminAssignLead";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -63,6 +66,8 @@ const AdminLeads = ({
 
   //user local data
   const [userLocalData, setUserLocalData] = useState(null);
+    const [totalLeads, setTotalLeads] = useState(0);
+  
   const [snackMessage, setSnackMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
   const [showsnackMessage, setShowSnackMessage] = useState(false);
@@ -86,6 +91,8 @@ const AdminLeads = ({
   const requestVersion = useRef(0);
 
   const [filtersSelected, setFiltersSelected] = useState([]);
+  const [isInbound, setIsInbound] = useState(false);
+
 
   useEffect(() => {
     ////console.log;
@@ -283,13 +290,10 @@ const AdminLeads = ({
   //code for get profile function
   const getProfile = async () => {
     try {
-      await getProfileDetails();
+      let data = await AdminGetProfileDetails(selectedUser.id);
+      // console.log('data', data)
+      setUserLocalData(data)
 
-      const Data = localStorage.getItem("User");
-      if (Data) {
-        const localData = JSON.parse(Data);
-        setUserLocalData(localData.user);
-      }
     } catch (error) {
       // console.error("Error occured in api is error", error);
     }
@@ -711,7 +715,7 @@ const AdminLeads = ({
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
             let allLeads;
-
+            setTotalLeads(response.data.leadCount);
             setShowFilterModal(false);
             //   setShowNoLeadErr("No leads found");
 
@@ -1428,6 +1432,7 @@ const AdminLeads = ({
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
         userId: selectedUser.id,
+        inbound: isInbound,
       };
       //////console.log;
 
@@ -1568,7 +1573,7 @@ const AdminLeads = ({
       />
       <div
         className="flex flex-row items-center justify-between w-full px-10 pt-4"
-        // style={{ borderBottom: "1px solid #15151510" }}
+      // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>
         <div className="flex fex-row items-center gap-6">
@@ -1579,7 +1584,7 @@ const AdminLeads = ({
             }}
             className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
             onClick={() => {
-              if (userLocalData.plan) {
+              if (userLocalData?.plan) {
                 setAssignLeadModal(true);
               } else {
                 setSnackMessage("Add payment method to continue");
@@ -1659,12 +1664,15 @@ const AdminLeads = ({
                           </button>
                         </div>
                         <div className="w-full">
-                          <AssignLead
+                          <AdminAssignLead
                             selectedLead={toggleClick}
                             handleCloseAssignLeadModal={
                               handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
                             leadIs={toggleClick}
+                            userProfile={userLocalData}
+                            selectedUser ={selectedUser}
+                            totalLeads={totalLeads}
                           />
                         </div>
 
@@ -1842,8 +1850,8 @@ const AdminLeads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1874,8 +1882,8 @@ const AdminLeads = ({
                         color: SelectedSheetId === item.id ? "#7902DF" : "",
                         whiteSpace: "nowrap", // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -2044,11 +2052,10 @@ const AdminLeads = ({
                               return (
                                 <th
                                   key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
-                                      ? "sticky right-0 bg-white"
-                                      : ""
-                                  }`}
+                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                    ? "sticky right-0 bg-white"
+                                    : ""
+                                    }`}
                                   // style={isMoreColumn ? { zIndex: 1 } : {}}
                                   style={{
                                     whiteSpace: "nowrap",
@@ -2075,11 +2082,10 @@ const AdminLeads = ({
                                   // <td key={colIndex} className="border-none px-4 py-2">
                                   <td
                                     key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === "More"
-                                        ? "sticky right-0 bg-white"
-                                        : ""
-                                    }`}
+                                    className={`border-none px-4 py-2 ${column.title === "More"
+                                      ? "sticky right-0 bg-white"
+                                      : ""
+                                      }`}
                                     style={{
                                       whiteSpace: "nowrap",
                                       // overflow: "hidden",
@@ -2382,14 +2388,12 @@ const AdminLeads = ({
                                 onClick={() => {
                                   handleSelectStage(item);
                                 }}
-                                className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : "bg-transparent"
-                                } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : "text-black"
-                                                                    } rounded-2xl`}
+                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
+                                  } px-6
+                                                                    ${found >= 0
+                                    ? `text-white`
+                                    : "text-black"
+                                  } rounded-2xl`}
                               >
                                 {item.stageTitle}
                               </button>
@@ -2507,12 +2511,28 @@ const AdminLeads = ({
                       <div className="px-4 w-full">
                         <div className="flex flex-row items-center justify-start mt-6 gap-2">
                           <span style={styles.paragraph}>List Name</span>
-                          {/* <Image
-                            src={"/svgIcons/infoIcon.svg"}
-                            height={15}
-                            width={15}
-                            alt="*"
-                          /> */}
+                          <div className="">
+                            <span>Inbound?</span>
+                            <Switch
+                              checked={isInbound}
+                              // color="#7902DF"
+                              // exclusive
+                              onChange={(event) => {
+                                //console.log;
+                                setIsInbound(event.target.checked);
+                              }}
+                              sx={{
+                                "& .MuiSwitch-switchBase.Mui-checked": {
+                                  color: "#7902DF",
+                                },
+                                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                                {
+                                  backgroundColor: "#7902DF",
+                                },
+                              }}
+                            />
+                          </div>
+
                         </div>
                         <div className="mt-4">
                           <input

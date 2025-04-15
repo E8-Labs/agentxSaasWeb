@@ -9,6 +9,7 @@ import {
   Modal,
   Popover,
   Snackbar,
+  Switch,
   Typography,
 } from "@mui/material";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
@@ -67,6 +68,8 @@ const AdminLeads1 = ({ selectedUser }) => {
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
 
   const [newSheetName, setNewSheetName] = useState("");
+  const [isInbound, setIsInbound] = useState(false);
+
   const [inputs, setInputs] = useState([
     { id: 1, value: "First Name" },
     { id: 2, value: "Last Name" },
@@ -466,9 +469,9 @@ const AdminLeads1 = ({ selectedUser }) => {
           // //console.log;
           let value =
             d.extraColumns[
-              UpdateHeader.dbName
-                ? UpdateHeader.dbName
-                : UpdateHeader.ColumnNameInSheet
+            UpdateHeader.dbName
+              ? UpdateHeader.dbName
+              : UpdateHeader.ColumnNameInSheet
             ];
           delete d.extraColumns[
             UpdateHeader.dbName
@@ -582,83 +585,83 @@ const AdminLeads1 = ({ selectedUser }) => {
       .replace(/[\s\-]/g, "_")
       .replace(/[^\w]/g, "");
 
- const handleFileUpload = useCallback(
-        (file) => {
-          const reader = new FileReader();
-          const isCSV = file.name.toLowerCase().endsWith(".csv");
-          reader.onload = (event) => {
-            const binaryStr = event.target.result;
-            // const workbook = XLSX.read(binaryStr, { type: "binary" });
-    
-            const workbook = XLSX.read(binaryStr, {
-              type: "binary",
-              cellDates: false,
-              cellText: true, // important
-              raw: true, // VERY important for CSVs
+  const handleFileUpload = useCallback(
+    (file) => {
+      const reader = new FileReader();
+      const isCSV = file.name.toLowerCase().endsWith(".csv");
+      reader.onload = (event) => {
+        const binaryStr = event.target.result;
+        // const workbook = XLSX.read(binaryStr, { type: "binary" });
+
+        const workbook = XLSX.read(binaryStr, {
+          type: "binary",
+          cellDates: false,
+          cellText: true, // important
+          raw: true, // VERY important for CSVs
+        });
+
+        // Extract data from the first sheet
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
+        const data = XLSX.utils.sheet_to_json(sheet, {
+          header: 1,
+          raw: isCSV, // This forces Excel dates to be converted to readable format
+        });
+        if (data.length > 1) {
+          const headers = data[0]; // First row as headers
+          const rows = data.slice(1); // Data without headers
+
+          let mappedColumns = headers.map((header) => {
+            // Find matching column from LeadDefaultColumns
+            let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+              LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+            );
+
+            return {
+              ColumnNameInSheet: header, // Original header from the file
+              matchedColumn: matchedColumnKey
+                ? { ...LeadDefaultColumns[matchedColumnKey] }
+                : null, // Default column if matched
+              UserFacingName: null, // Can be updated manually by user
+            };
+          });
+
+          // Transform rows based on the new column mapping
+          const transformedData = rows.map((row) => {
+            let transformedRow = {};
+            // //console.log;
+
+            mappedColumns.forEach((col, index) => {
+              transformedRow[col.ColumnNameInSheet] = row[index] || null;
+              // if (col.matchedColumn) {
+              //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
+              // } else {
+              //   // Handle extra/unmatched columns
+              //   if (!transformedRow.extraColumns)
+              //     transformedRow.extraColumns = {};
+              //   transformedRow.extraColumns[col.ColumnNameInSheet] =
+              //     row[index] || null;
+              // }
             });
-    
-            // Extract data from the first sheet
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
-            const data = XLSX.utils.sheet_to_json(sheet, {
-              header: 1,
-              raw: isCSV, // This forces Excel dates to be converted to readable format
-            });
-            if (data.length > 1) {
-              const headers = data[0]; // First row as headers
-              const rows = data.slice(1); // Data without headers
-    
-              let mappedColumns = headers.map((header) => {
-                // Find matching column from LeadDefaultColumns
-                let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-                  LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
-                );
-    
-                return {
-                  ColumnNameInSheet: header, // Original header from the file
-                  matchedColumn: matchedColumnKey
-                    ? { ...LeadDefaultColumns[matchedColumnKey] }
-                    : null, // Default column if matched
-                  UserFacingName: null, // Can be updated manually by user
-                };
-              });
-    
-              // Transform rows based on the new column mapping
-              const transformedData = rows.map((row) => {
-                let transformedRow = {};
-                // //console.log;
-    
-                mappedColumns.forEach((col, index) => {
-                  transformedRow[col.ColumnNameInSheet] = row[index] || null;
-                  // if (col.matchedColumn) {
-                  //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
-                  // } else {
-                  //   // Handle extra/unmatched columns
-                  //   if (!transformedRow.extraColumns)
-                  //     transformedRow.extraColumns = {};
-                  //   transformedRow.extraColumns[col.ColumnNameInSheet] =
-                  //     row[index] || null;
-                  // }
-                });
-                //console.log;
-    
-                return transformedRow;
-              });
-    
-              // Update state
-              setProcessedData(transformedData);
-              setNewColumnsObtained(mappedColumns); // Store the column mappings
-    
-              //console.log;
-              //console.log;
-            }
-          };
-    
-          reader.readAsBinaryString(file);
-        },
-        [LeadDefaultColumns]
-      );
+            //console.log;
+
+            return transformedRow;
+          });
+
+          // Update state
+          setProcessedData(transformedData);
+          setNewColumnsObtained(mappedColumns); // Store the column mappings
+
+          //console.log;
+          //console.log;
+        }
+      };
+
+      reader.readAsBinaryString(file);
+    },
+    [LeadDefaultColumns]
+  );
   //csv file code ends
 
   //restrict user to only edit name of csv file
@@ -1079,7 +1082,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                    // style={{ marginBottom: "10px" }}
+                  // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -1308,8 +1311,8 @@ const AdminLeads1 = ({ selectedUser }) => {
                             {item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
-                                  item.ColumnNameInSheet
-                                ]}
+                              item.ColumnNameInSheet
+                              ]}
                           </div>
                         )}
                       </div>
@@ -1815,14 +1818,29 @@ const AdminLeads1 = ({ selectedUser }) => {
                 </div>
 
                 <div className="px-4 w-full">
-                  <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                  <div className="flex flex-row items-center justify-between mt-6 gap-2 w-full">
                     <span style={styles.paragraph}>List Name</span>
-                    {/* <Image
-                      src={"/svgIcons/infoIcon.svg"}
-                      height={15}
-                      width={15}
-                      alt="*"
-                    /> */}
+                    <div className="">
+                      <span>Inbound?</span>
+                      <Switch
+                        checked={isInbound}
+                        // color="#7902DF"
+                        // exclusive
+                        onChange={(event) => {
+                          //console.log;
+                          setIsInbound(event.target.checked);
+                        }}
+                        sx={{
+                          "& .MuiSwitch-switchBase.Mui-checked": {
+                            color: "#7902DF",
+                          },
+                          "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                          {
+                            backgroundColor: "#7902DF",
+                          },
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="mt-4">
                     <input

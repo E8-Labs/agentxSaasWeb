@@ -16,7 +16,7 @@ export const getSupportUrlFor = (user) => {
   } else {
     return PersistanceKeys.GlobalSupportUrl;
     window.open(
-      "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
+      "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
       "_blank"
     );
   }

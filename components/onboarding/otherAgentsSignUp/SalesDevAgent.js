@@ -332,7 +332,9 @@ const SalesDevAgent = ({
             //console.log;
           } else {
             //console.log;
-            handleContinue();
+            // handleContinue();
+            router.push("/createagent")
+
             // setCongratsPopup(true);
           }
         }

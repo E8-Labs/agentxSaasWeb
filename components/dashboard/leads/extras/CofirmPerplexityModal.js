@@ -50,8 +50,40 @@ export default function ConfirmPerplexityModal({
 
             {/* Modal Title */}
             <DialogTitle sx={{ fontWeight: "bold", fontSize: "20px", mt: 1 }}>
-                Confirm
+                Get 100 Enrichments
             </DialogTitle>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "start",
+                    // gap: 1.5,
+                    backgroundColor: "#F6F0FF",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    mb: 1,
+                }}
+            >
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 1.5,
+                        // backgroundColor: "#F6F0FF",
+                        // padding: "12px 16px",
+                        borderRadius: "8px",
+                        mb: 0,
+                    }}
+                >
+                    <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
+                    <Typography sx={{ fontSize: "14px", color: "#000" }}>
+                        {`Ea enrichment is $0.10.`}
+                    </Typography>
+
+                </Box>
+            </Box>
 
 
             {/* Modal Content */}
@@ -110,7 +142,7 @@ export default function ConfirmPerplexityModal({
                     onClick={() => setshowConfirmPerplexity(false)}
                     className=" flex w-[45%] text-black font-bold text-[16px] hover:text-[#7902DF] py-3 rounded-lg
                      items-center justify-center"
-                    style={{ textTransform: "none",cursor:'pointer' }}
+                    style={{ textTransform: "none", cursor: 'pointer' }}
                 >
                     Cancel
                 </div>

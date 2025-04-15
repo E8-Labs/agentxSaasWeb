@@ -420,12 +420,20 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setMsgType(
             data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
           );
+
           setSnackMessage(data.message);
         }
 
         setIsVisible(true);
 
         if (data.status === true) {
+
+          if (data.data.user.profile_status === "paused") {
+            setLoginLoader(false)
+            setMsgType(SnackbarTypes.Error)
+            setSnackMessage("Your account has been frozen.")
+            return
+          }
           setLoaderTitle("Redirecting to dashboard...");
           // if (
           //   response.data.data.user.userType !== "RealEstateAgent" &&
@@ -462,7 +470,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 } else {
                   if (data.data.user.userType == "admin") {
                     router.push("/admin");
-                  } else {
+                  } 
+                  
+                  else {
                     router.push("/dashboard/leads");
                   }
                 }

@@ -17,7 +17,7 @@ import Image from "next/image";
 import React, { use, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
+import AgentSelectSnackMessage,{SnackbarTypes} from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -27,19 +27,20 @@ import dayjs from "dayjs"; // Import Day.js
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
-import DncConfirmationPopup from "./DncConfirmationPopup";
+import DncConfirmationPopup from "@/components/dashboard/leads/DncConfirmationPopup";
 import Tooltip from "@mui/material/Tooltip";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-const AssignLead = ({
+const AdminAssignLead = ({
   leadIs,
   handleCloseAssignLeadModal,
   selectedAll = false,
   filters = null,
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
+  selectedUser = {selectedUser}
 }) => {
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
@@ -74,6 +75,8 @@ const AssignLead = ({
   const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false);
   const [isDncChecked, setIsDncChecked] = useState(false);
 
+  // console.log('assign lead')
+
   useEffect(() => {
     if (errorMessage) {
       setTimeout(() => {
@@ -83,77 +86,26 @@ const AssignLead = ({
     }
   }, [errorMessage]);
 
-  // useEffect(() => {
-  //     let NewList = [];
-  //     item.agents.forEach((agent) => {
-  //         if (agent.agentType !== "inbound") {
-  //             NewList.push(agent);
-  //         }
-  //     });
-  // })
-
   useEffect(() => {
     if (SelectedAgents.length === 0) {
       setShouldContinue(true);
     }
 
-    // if (ShouldContinue === true) {
-    //    // console.log(
-    //         "hit"
-    //     )
-    //     setShouldContinue(false);
-    // } else {
-    //     setShouldContinue(true);
-    // }
+   
   }, [SelectedAgents]);
 
   useEffect(() => {
-    // //console.log;
-
-    let agentsList = [];
-
-    const localAgents = localStorage.getItem("localAgentDetails");
-    if (localAgents) {
-      agentsList = JSON.parse(localAgents);
-      // //console.log;
-      let newAgenstList = [];
-
-      newAgenstList = agentsList.filter((mainAgent) => {
-        // Check if all subagents are either outbound or both inbound and outbound
-        const subAgents = mainAgent.agents;
-        const hasOutbound = subAgents.some(
-          (item) => item.agentType === "outbound"
-        );
-        const hasInbound = subAgents.some(
-          (item) => item.agentType === "inbound"
-        );
-
-        // Keep the main agent if it has only outbound agents or both inbound and outbound agents
-        return hasOutbound && (!hasInbound || hasInbound);
-      });
-
-      // //console.log;
-
-      setAgentsList(newAgenstList);
-      setStages(newAgenstList.stages);
-    }
-    // else {
-    // //console.log;
     getAgents();
     // }
-  }, []);
+  }, [selectedUser]);
 
-  useEffect(() => {
-    // //console.log;
-  }, [SelectedAgents]);
-
+ 
   //get agents api
   const getAgents = async () => {
+    console.log('trying to get agents', )
+    setInitialLoader(true)
     try {
-      const checkLocalAgentsList = localStorage.getItem("localAgentDetails");
-      if (!checkLocalAgentsList) {
-        setInitialLoader(true);
-      }
+      
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -164,7 +116,7 @@ const AssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents;
+      const ApiPath = Apis.getAgents + "?userId="+userProfile.id;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -174,13 +126,12 @@ const AssignLead = ({
       });
 
       if (response) {
+    setInitialLoader(false)
+
         //console.log;
-        localStorage.setItem(
-          "localAgentDetails",
-          JSON.stringify(response.data.data)
-        );
+       
         // let filterredAgentsList = [];
-        //// //console.log);
+        console.log("trying to get agents")
         const filterredAgentsList = response.data.data.filter((mainAgent) => {
           // Check if all subagents are either outbound or both inbound and outbound
           const subAgents = mainAgent.agents;
@@ -195,11 +146,11 @@ const AssignLead = ({
           return hasOutbound && (!hasInbound || hasInbound);
         });
         setAgentsList(filterredAgentsList);
-        //console.log;
+        console.log(filterredAgentsList)
         setStages(filterredAgentsList.stages);
       }
     } catch (error) {
-      // console.error("ERrror occured in agents api is :", error);
+      console.error("ERrror occured in agents api is :", error);
     } finally {
       setInitialLoader(false);
       // //console.log;
@@ -334,11 +285,11 @@ const AssignLead = ({
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
-      // setInvalidTimeMessage(
-      //   "Calls only between 7am-8:30pm"
-      //   // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
-      // );
-      // return;
+      setInvalidTimeMessage(
+        "Calls only between 7am-8:30pm"
+        // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
+      );
+      return;
     }
 
     // return;
@@ -351,8 +302,9 @@ const AssignLead = ({
 
       if (customLeadsToSend) {
         batchSize = customLeadsToSend;
-      } else if (NoOfLeadsToSend) {
-        batchSize = NoOfLeadsToSend;
+      } else {
+        let size = getLeadSelectedCount()
+        batchSize = size;
       }
 
       if (CallNow) {
@@ -379,7 +331,7 @@ const AssignLead = ({
         dncCheck: isDncChecked ? true : false,
       };
 
-      //console.log;
+      // console.log("apidata is", Apidata)
       // return;
       if (filters && selectedAll) {
         Apidata = {
@@ -746,7 +698,7 @@ const AssignLead = ({
             <AgentSelectSnackMessage
               className=""
               message={showSuccessSnack}
-              isVisible={showSuccessSnack === null ? false :true}
+              isVisible={showSuccessSnack === null ? false : true}
               hide={() => {
                 setShowSuccessSnack(null);
               }}
@@ -871,8 +823,8 @@ const AssignLead = ({
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
                     border: `${isFocustedCustomLeads
-                        ? "2px solid #7902Df"
-                        : "1px solid #00000040"
+                      ? "2px solid #7902Df"
+                      : "1px solid #00000040"
                       }`,
                     height: "50px",
                   }}
@@ -1271,4 +1223,4 @@ const AssignLead = ({
   );
 };
 
-export default AssignLead;
+export default AdminAssignLead;

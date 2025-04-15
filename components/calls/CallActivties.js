@@ -157,7 +157,7 @@ function SheduledCalls({ user }) {
       });
 
       if (response) {
-        //console.log;
+        console.log("response is",response.data.data.length)
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -412,6 +412,7 @@ function SheduledCalls({ user }) {
         //   JSON.stringify(data.data)
         // );
 
+        console.log('response is', response.data.length)
         if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);

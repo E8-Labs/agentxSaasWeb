@@ -960,7 +960,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                       // //console.log;
                     } else {
                       // //console.log;
-                      if (false) {
+                      if (selectedPlan.id === 1) {
                         setShowSubscribeplan2(true);
                       } else {
                         handleContinue();

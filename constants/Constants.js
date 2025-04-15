@@ -10,11 +10,11 @@ export const PersistanceKeys = {
   RegisterDetails: "registerDetails",
   LocalStoredAgentsListMain: "localAgentDetails",
   GlobalSupportUrl:
-    "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
+    "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   GlobalConsultationUrl:
     "https://api.leadconnectorhq.com/widget/booking/F1DtpvAR8fNf3RJM1akZ",
   GlobalWebinarUrl:
-    "https://api.leadconnectorhq.com/widget/booking/SMTp2AfgjdTcjLOIUBkR",
+    "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   ExternalCalendarLink:
     "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
   // LocalStoredAgentsList
@@ -51,17 +51,16 @@ export const isValidUrl = (url) => {
 export const isValidYoutubeUrl = (url) => {
   //console.log;
   const urlPattern =
-   /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(.*)$/;
+    /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(.*)$/;
 
   return urlPattern.test(url);
 };
 
-export const fromatMessageName = (name) =>{
-  let formatedName = name?.slice(0, 1).toUpperCase(0) + name?.slice(1)
-    // //console.log
-  return formatedName
-}
-
+export const fromatMessageName = (name) => {
+  let formatedName = name?.slice(0, 1).toUpperCase(0) + name?.slice(1);
+  // //console.log
+  return formatedName;
+};
 
 export const AgentLLmModels = {
   Gpt4o: "gpt-4o",

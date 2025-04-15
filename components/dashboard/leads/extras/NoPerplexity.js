@@ -26,15 +26,15 @@ function NoPerplexity({
     return (
         <div className="flex flex-col items-center gap-3 w-full h-[40vh] ">
 
-            {
-                userLocalData?.enrichCredits > 0 ? (
+            {/* {
+                userLocalData?.enrichCredits > 0 ? ( */}
                     <div style={{ fontSize: 14, fontWeight: '500', color: 'black', alignSelf: 'flex-end', marginTop: '10px',marginBottom: '100px'  }}>
-                        Credits: {userLocalData?.enrichCredits}
+                        Credits: {userLocalData?.enrichCredits||0}
                     </div>
-                ) : (
+                {/* ) : (
                     <div style={{ marginBottom: '100px' }}></div>
                 )
-            }
+            } */}
 
             {loading ? (
                 <CircularProgress size={27} />

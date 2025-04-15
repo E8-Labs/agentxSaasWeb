@@ -324,7 +324,9 @@ const InsuranceAgentSignUp = ({
             // //console.log;
           } else {
             // //console.log;
-            handleContinue();
+            // handleContinue();
+            router.push("/createagent")
+
             // setCongratsPopup(true);
           }
         }
@@ -440,7 +442,7 @@ const InsuranceAgentSignUp = ({
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="mb-6 bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[82svh]">
           {/* header */}
           <div className="h-[10%]">
@@ -687,7 +689,7 @@ const InsuranceAgentSignUp = ({
               </div>
               <input
                 placeholder="Brokerage"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 mb-6"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 name="not-a-username"
                 autoComplete="off"
