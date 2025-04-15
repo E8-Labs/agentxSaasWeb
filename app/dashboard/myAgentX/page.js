@@ -195,6 +195,7 @@ function Page() {
   const [inputValues, setInputValues] = useState({});
   //code for storing the agents data
   const [agentsListSeparated, setAgentsListSeparated] = useState([]); //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
+  const [agentsList, setAgentsList] = useState([]); 
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
@@ -246,6 +247,8 @@ function Page() {
   const [selectedNumber, setSelectedNumber] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [search,setSearch] = useState("")
 
   const playVoice = (url) => {
     if (audio) {
@@ -1679,6 +1682,12 @@ function Page() {
             (item) => item.id !== showDrawerSelectedAgent.id
           )
         );
+        setAgentsList(
+          agentsListSeparated.filter(
+            (item) => item.id !== showDrawerSelectedAgent.id
+          )
+        )
+
 
         setShowDrawerSelectedAgent(null);
         setActiveTab("Agent Info")
@@ -1958,6 +1967,7 @@ function Page() {
       }
     });
     setAgentsListSeparated(agents);
+    setAgentsList(agents)
 
     //console.log;
   }, [mainAgentsList]);
@@ -2032,6 +2042,30 @@ function Page() {
     } else {
       //// //console.log;
     }
+  };
+
+  const handleSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setSearch(searchTerm);
+
+    if (!searchTerm) {
+      setAgentsListSeparated(agentsList); // Reset to original data
+      return;
+    }
+
+    const filtered = agentsListSeparated.filter((item) => {
+      const name = item.name.toLowerCase();
+      const email = item.email?.toLowerCase() || "";
+      const phone = item.phone || "";
+
+      return (
+        name.includes(searchTerm) ||
+        email.includes(searchTerm) ||
+        phone.includes(searchTerm)
+      );
+    });
+
+    setAgentsListSeparated(filtered);
   };
 
   const styles = {
@@ -2161,7 +2195,7 @@ function Page() {
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
-          isVisible={isVisibleSnack }
+          isVisible={isVisibleSnack}
           hide={() => {
             setIsVisibleSnack(false);
           }}
@@ -2184,7 +2218,24 @@ function Page() {
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
 
-        <div>
+        <div className="flex flex-row gap-4 items-center">
+          <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
+            <input
+              // style={styles.paragraph}
+              className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+              placeholder="Search by name, email or phone"
+              value={search}
+              onChange={handleSearch}
+            />
+            <button className="outline-none border-none">
+              <Image
+                src={"/assets/searchIcon.png"}
+                height={24}
+                width={24}
+                alt="*"
+              />
+            </button>
+          </div>
           <NotficationsDrawer />
         </div>
       </div>
@@ -2934,7 +2985,7 @@ function Page() {
         // style={{  }}
         >
           <div
-            className="w-full flex flex-col h-full"
+            className="w-full flex flex-col h-[95%]"
             style={{
               overflowY: "auto",
               overflowX: "hidden",
@@ -3199,13 +3250,13 @@ function Page() {
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {
-                        showDrawerSelectedAgent?.totalDuration?
-                      moment
-                        .utc(
-                          (showDrawerSelectedAgent?.totalDuration || 0) * 1000
-                        )
-                        .format("HH:mm:ss"):'-'
-                      
+                        showDrawerSelectedAgent?.totalDuration ?
+                          moment
+                            .utc(
+                              (showDrawerSelectedAgent?.totalDuration || 0) * 1000
+                            )
+                            .format("HH:mm:ss") : '-'
+
                       }
                     </div>
                   ) : (
@@ -3234,11 +3285,7 @@ function Page() {
               ))}
             </div>
 
-            {/* <div className='w-full flex items-end justify-end mb-5'>
-            <button style={{ color: '#7902DF', fontSize: 15, fontWeight: '600' }}>
-              Save Changes
-            </button>
-          </div> */}
+
 
             {/* Code for agent info */}
             {activeTab === "Agent Info" ? (
@@ -4072,47 +4119,48 @@ function Page() {
               ) : ""
             )}
 
-            {/* Delete agent button */}
-            <button
-              className="flex flex-row gap-2 items-center"
-              onClick={() => {
-                setDelAgentModal(true);
-              }}
-              style={{
-                marginTop: 20,
-                alignSelf: "end",
-                position: "absolute",
-                bottom: "5%",
-              }}
-            >
-              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+
+          </div>
+          {/* Delete agent button */}
+          <button
+            className="flex flex-row gap-2 items-center"
+            onClick={() => {
+              setDelAgentModal(true);
+            }}
+            style={{
+              marginTop: 20,
+              alignSelf: "end",
+              position: "absolute",
+              bottom: "2%",
+            }}
+          >
+            {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
                 width={24}
                 alt='del'
               /> */}
 
-              <Image
-                src={"/otherAssets/redDeleteIcon.png"}
-                height={24}
-                width={24}
-                alt="del"
-                style={{
-                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-                }}
-              />
+            <Image
+              src={"/otherAssets/redDeleteIcon.png"}
+              height={24}
+              width={24}
+              alt="del"
+              style={{
+                filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+              }}
+            />
 
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                  color: "#15151590",
-                  textDecorationLine: "underline",
-                }}
-              >
-                Delete Agent
-              </div>
-            </button>
-          </div>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: "600",
+                color: "#15151590",
+                textDecorationLine: "underline",
+              }}
+            >
+              Delete Agent
+            </div>
+          </button>
         </div>
       </Drawer>
 

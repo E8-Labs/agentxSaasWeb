@@ -165,7 +165,7 @@ function Perplexity({
 
     return (
         <div
-            className="w-full flex flex-col items-center mt-3 gap-3 h-[50vh]"
+            className="w-full flex flex-col items-center mt-3 gap-3 h-[42vh]"
             style={{
                 overflow: "auto",
                 scrollbarWidth: "none",

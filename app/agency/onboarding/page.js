@@ -1,33 +1,48 @@
-// pages/connect-stripe.tsx
-"use client"
-import { useState } from "react";
-import axios from "axios";
+'use client'
+import AgencySignUp from '@/components/onboarding/agencyOnboarding/AgencySignUp'
+import ProgressBar from '@/components/onboarding/ProgressBar'
+import AgencyPlans from '@/components/plan/AgencyPlans'
+import Image from 'next/image'
+import React, { useState } from 'react'
 
-export default function Page() {
-  const [loading, setLoading] = useState(false);
+function Page() {
 
-  const handleConnect = async () => {
-    setLoading(true);
-    const {
-      data: { accountId },
-    } = await axios.post("/api/stripe/create-account", {
-      email: "test@example.com",
-    });
-    const {
-      data: { url },
-    } = await axios.post("/api/stripe/account-link", { accountId });
-    window.location.href = url;
-  };
+    const [currentIndex, setCurrentIndex] = useState(0)
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 text-blue-800">
-      <button
-        onClick={handleConnect}
-        disabled={loading}
-        className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition"
-      >
-        {loading ? "Redirecting..." : "Connect with Stripe"}
-      </button>
-    </div>
-  );
+    const handleContinue = () => {
+        setCurrentIndex(prev => prev + 1)
+    }
+    return (
+        <div className='flex flex-col w-full items-center justify-center p-5'>
+            <div className='flex w-full flex-row items-center justify-center gap-2 mt-4'>
+
+                <Image src={"/assets/agentX.png"}
+                    height={30} width={130} alt='*'
+                />
+
+                <div className='w-[80%]'>
+                    <ProgressBar value={
+                        currentIndex > 0 ? 100 : 50
+                    } />
+                </div>
+            </div>
+
+            {
+                currentIndex > 0 ? (
+                    <AgencyPlans />
+                ) : (
+                    <AgencySignUp
+                        handleContinue={handleContinue}
+                    />
+                )
+            }
+
+            {/* <AgencyPlans /> */}
+
+
+
+        </div>
+    )
 }
+
+export default Page

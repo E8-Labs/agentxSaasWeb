@@ -374,10 +374,8 @@ function AllCalls({ user }) {
 
       if (selectedFromDate && selectedToDate) {
         startDate = moment(selectedFromDate)
-          .startOf("day")
           .format("MM-DD-YYYY HH:mm:ss");
         endDate = moment(selectedToDate)
-          .endOf("day")
           .format("MM-DD-YYYY HH:mm:ss");
       }
 
@@ -426,7 +424,7 @@ function AllCalls({ user }) {
       // }
       ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}`;
 
-      // console.log("api path is ",ApiPath)
+      console.log("api path is ",ApiPath)
       //console.log;
 
       //// //console.log;
@@ -683,7 +681,7 @@ function AllCalls({ user }) {
           </div>
 
           <div
-            className={`h-[71vh] border overflow-auto`}
+            className={`h-[71vh] overflow-auto`}
             id="scrollableDiv1"
             style={{ scrollbarWidth: "none" }}
           >

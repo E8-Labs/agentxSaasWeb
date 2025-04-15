@@ -485,7 +485,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
 
                 <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
 
-                    <div className="h-[84svh] sm:h-[82svh] w-7/12">
+                    <div className="w-7/12">
 
                         <div className="flex flex-col items-start px-4 w-full h-[90%]">
                             <div

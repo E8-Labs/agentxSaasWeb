@@ -482,7 +482,7 @@ const AdminAssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
-            setShowSuccessSnack("Numbers will be checked agains DNC")
+            setShowSuccessSnack("Numbers will be checked on the DNC list")
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
