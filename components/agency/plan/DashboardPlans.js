@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import NotficationsDrawer from '../notofications/NotficationsDrawer'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 import moment from 'moment';
 import Image from 'next/image';
 
-function AgencyDashboard() {
+function DashboardPlans() {
 
     const [moreDropdown, setmoreDropdown] = useState(null)
 
@@ -74,7 +74,7 @@ function AgencyDashboard() {
                 <div style={{
                     fontSize: 22, fontWeight: '700'
                 }}>
-                    AgencyName
+                    {/* AgencyName */}
                 </div>
 
                 <div>
@@ -97,13 +97,13 @@ function AgencyDashboard() {
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Subaccounts: 6
+                        Total PLans: 6
                     </div>
 
                     <button
                         className='flex px-5 py-3 bg-white rounded-lg text-purple font-medium'
                     >
-                        Create Subaccount
+                        New Plan
                     </button>
 
 
@@ -112,7 +112,7 @@ function AgencyDashboard() {
 
 
                 <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
-                    <div className="w-4/12">
+                    <div className="w-3/12">
                         <div style={styles.text}>Name</div>
                     </div>
                     <div className="w-1/12 ">
@@ -127,7 +127,7 @@ function AgencyDashboard() {
                     <div className="w-1/12">
                         <div style={styles.text}>Leads</div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-2/12">
                         <div style={styles.text}>Renewal Date</div>
                     </div>
                     <div className="w-2/12">
@@ -139,7 +139,7 @@ function AgencyDashboard() {
                 </div>
 
                 <div
-                    className={`h-[71vh] border overflow-auto w-full`}
+                    className={`h-[71vh] overflow-auto w-full`}
                     id="scrollableDiv1"
                     style={{ scrollbarWidth: "none" }}
                 >
@@ -152,7 +152,7 @@ function AgencyDashboard() {
                                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                                 >
                                     <div
-                                        className="w-4/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                                        className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
                                         onClick={() => {
                                             // // //console.log;
                                             // setselectedLeadsDetails(item);
@@ -187,7 +187,7 @@ function AgencyDashboard() {
                                             {item.leads}
                                         </div>
                                     </div>
-                                    <div className="w-1/12">
+                                    <div className="w-2/12">
                                         <div style={styles.text2}>
                                             {moment(item.renewlDate).format("MMMM DD,YYYY")}
                                         </div>
@@ -265,7 +265,7 @@ function AgencyDashboard() {
     )
 }
 
-export default AgencyDashboard
+export default DashboardPlans
 
 
 const styles = {

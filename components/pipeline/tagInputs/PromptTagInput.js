@@ -87,7 +87,7 @@ export const PromptTagInput = ({
   }, []);
 
   useEffect(() => {
-    setText(promptTag);
+    setText(promptTag.trim());
   }, [promptTag]);
 
   const getTextScrollOffset = () => {

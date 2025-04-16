@@ -25,6 +25,7 @@ function AgencyPlans() {
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [plans, setPlans] = useState([]);
     const [addPaymentPopup, setAddPaymentPopup] = useState(false);
+    const [loading, setLoading] = useState(false)
     const [selectedDuration, setSelectedDuration] = useState(duration[0]);
 
 
@@ -34,6 +35,7 @@ function AgencyPlans() {
     }, [])
 
     const getPlans = async () => {
+        setLoading(true)
         try {
             console.log('trying to get plans')
             let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
@@ -47,6 +49,7 @@ function AgencyPlans() {
                 })
 
                 if (response.data) {
+                    setLoading(false)
                     if (response.data.status === true) {
                         console.log('plans list is: ', response.data.data);
                         setPlans(response.data.data);
@@ -56,6 +59,7 @@ function AgencyPlans() {
                 }
             }
         } catch (error) {
+            setLoading(false)
             console.log("Error in getPlans: ", error);
         }
     }
@@ -75,7 +79,6 @@ function AgencyPlans() {
             <div
                 className="flex flex-col items-center w-full"
                 style={{
-                    maxHeight: "90vh", // Restrict modal height to 90% of the viewport
                     overflow: "hidden", // Prevent scrolling on the entire modal
                 }}
             >
@@ -121,107 +124,123 @@ function AgencyPlans() {
                     </div>
                 </div>
 
+                <div className='flex flex-col items-center gap-6 h-[80vh] w-full'
+                    style={{ scrollbarWidth: 'none' }}>
 
-                <div
-                    className='w-full flex flex-row items-center gap-3 mt-10'
-                >
-                    {plans.map((item, index) => (
-                        <button
-                            key={item.id}
-                            onClick={() => handleTogglePlanClick(item)}
-                            className={`w-[20wh] ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
-                        >
-                            <div className="bg-white w-full h-full rounded-2xl p-6 flex flex-col items-start gap-2">
-                                {/* Top section */}
-                                <div className="w-full flex flex-row items-center justify-between">
-                                    <div style={{ fontSize: 20, fontWeight: '700' }}>
-                                        {item.title}
-                                    </div>
+                    {
+                        loading ? (
+                            <div className='mt-9'>
+                            <CircularProgress size={35} />
+                            </div>
+                        ) : (
+                            <div
+                                className='w-full flex flex-row items-start gap-3 mt-10'
+                                style={{overflowX:'auto',scrollbarWidth:'none'}}
+                            >
+                                {plans.map((item, index) => (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => handleTogglePlanClick(item)}
+                                        className={`w-[30wh] ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
+                                    >
+                                        <div className="bg-white w-full h-full rounded-2xl p-6 flex flex-col items-start gap-2">
+                                            {/* Top section */}
+                                            <div className="w-full flex flex-row items-center justify-between">
+                                                <div style={{ fontSize: 20, fontWeight: '700' }}>
+                                                    {item.title}
+                                                </div>
 
-                                    {!item.percentageDiscount ? (
-                                        <div className="px-4 py-2 bg-purple rounded-full shadow-md text-[13px] text-white font-semibold">
-                                            {item.percentageDiscount || 0}% off
+                                                {!item.percentageDiscount ? (
+                                                    <div className="px-4 py-2 bg-purple rounded-full shadow-md text-[13px] text-white font-semibold">
+                                                        {item.percentageDiscount || 0}% off
+                                                    </div>
+                                                ) : (
+                                                    <div></div>
+                                                )}
+                                            </div>
+
+                                            {/* Pricing */}
+                                            <div style={{ fontSize: 20, fontWeight: '700', textAlign: 'left' }}>
+                                                ${item.originalPrice}
+                                            </div>
+
+                                            {/* Features */}
+                                            {[
+                                                "Agents",
+                                                "Unlimited Agents",
+                                                "Unlimited Teams",
+                                                "1000+ Integrations",
+                                                "Mins roll over for 6 months",
+                                            ].map((label) => (
+                                                <div key={label} className="flex flex-row items-center gap-2 mt-2">
+                                                    <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                    <div style={{
+                                                        fontSize: 15, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
+                                                    }}>{label}</div>
+                                                </div>
+                                            ))}
+
+                                            {[
+                                                "Voicemails",
+                                                "Lead Enrichment (Perplexity)",
+                                                "DNC Checklist",
+                                                "AI Powered CRM",
+                                                "Custom Pipeline Steps",
+                                                "Calendar Integration",
+                                                "Support",
+                                            ].map((label) => (
+                                                <div key={label} className="flex flex-row items-center gap-2 mt-2">
+                                                    <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
+                                                    <div style={{
+                                                        fontSize: 15, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
+                                                    }}>{label}</div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ) : (
-                                        <div></div>
-                                    )}
-                                </div>
+                                    </button>
 
-                                {/* Pricing */}
-                                <div style={{ fontSize: 20, fontWeight: '700', textAlign: 'left' }}>
-                                    ${item.originalPrice}
-                                </div>
-
-                                {/* Features */}
-                                {[
-                                    "Agents",
-                                    "Unlimited Agents",
-                                    "Unlimited Teams",
-                                    "1000+ Integrations",
-                                    "Mins roll over for 6 months",
-                                ].map((label) => (
-                                    <div key={label} className="flex flex-row items-center gap-2 mt-2">
-                                        <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
-                                        <div style={{ fontSize: 15, fontWeight: '500' }}>{label}</div>
-                                    </div>
-                                ))}
-
-                                {[
-                                    "Voicemails",
-                                    "Lead Enrichment (Perplexity)",
-                                    "DNC Checklist",
-                                    "AI Powered CRM",
-                                    "Custom Pipeline Steps",
-                                    "Calendar Integration",
-                                    "Support",
-                                ].map((label) => (
-                                    <div key={label} className="flex flex-row items-center gap-2 mt-2">
-                                        <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
-                                        <div style={{ fontSize: 15, fontWeight: '500' }}>{label}</div>
-                                    </div>
                                 ))}
                             </div>
-                        </button>
+                        )
+                    }
 
-                    ))}
-                </div>
+                    <div>
+                        {false ? (
+                            <div>
+                                <CircularProgress size={30} />
+                            </div>
+                        ) : (
 
-                <div>
-                    {false ? (
-                        <div>
-                            <CircularProgress size={30} />
-                        </div>
-                    ) : (
-
-                        <button
-                            disabled={!togglePlan}
-                            className="px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white"
-                            style={{
-                                fontSize: 16.8,
-                                fontWeight: "600",
-                                backgroundColor: togglePlan ? "" : "#00000020",
-                                color: togglePlan ? "" : "#000000",
-                            }}
-                            onClick={() => {
-                                let localDetails = null;
-                                const localData = localStorage.getItem(
-                                    PersistanceKeys.LocalStorageUser
-                                );
-                                if (localData) {
-                                    const LocalDetails = JSON.parse(localData);
-                                    localDetails = LocalDetails;
-                                    // AuthToken = LocalDetails.token;
-                                }
-                                if (localDetails?.user?.cards?.length == 0) {
-                                    // setAddPaymentPopup(true);
-                                } else {
-                                    // handleSubscribePlan();
-                                }
-                            }}
-                        >
-                            Subscribe Plan
-                        </button>
-                    )}
+                            <button
+                                disabled={!togglePlan}
+                                className="px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white"
+                                style={{
+                                    fontSize: 16.8,
+                                    fontWeight: "600",
+                                    backgroundColor: togglePlan ? "" : "#00000020",
+                                    color: togglePlan ? "" : "#000000",
+                                }}
+                                onClick={() => {
+                                    let localDetails = null;
+                                    const localData = localStorage.getItem(
+                                        PersistanceKeys.LocalStorageUser
+                                    );
+                                    if (localData) {
+                                        const LocalDetails = JSON.parse(localData);
+                                        localDetails = LocalDetails;
+                                        // AuthToken = LocalDetails.token;
+                                    }
+                                    if (localDetails?.user?.cards?.length == 0) {
+                                        // setAddPaymentPopup(true);
+                                    } else {
+                                        // handleSubscribePlan();
+                                    }
+                                }}
+                            >
+                                Subscribe Plan
+                            </button>
+                        )}
+                    </div>
                 </div>
                 {/* 
                 <div className="w-full mt-2 flex flex-row items-center justify-center">

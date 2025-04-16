@@ -132,6 +132,8 @@ const LeadDetails = ({
   const [userLocalData, setUserLocalData] = useState("")
   const [loading, setLoading] = useState(false)
 
+  const [showDelModal, setShowDelModal] = useState(false)
+
 
   useEffect(() => {
     const getData = async () => {
@@ -151,7 +153,7 @@ const LeadDetails = ({
     getLeadDetails(selectedLead)
 
     console.log('pipelineId', pipelineId)
-    
+
     if (pipelineId) {
       // //console.log;
       getStagesList(selectedLead);
@@ -375,7 +377,7 @@ const LeadDetails = ({
         if (response.data.status === true) {
           // console.log("stages list are", response.data.data.stages);
           setStagesList(response.data.data.stages);
-        }else{
+        } else {
           // setShowErrorSnack(response.data.message);
           console.log("Error in stages list", response.data.message);
           // setShowErrorSnack2(true);
@@ -669,7 +671,8 @@ const LeadDetails = ({
         // //console.log;
         if (response.data.status === true) {
           handleDelLead(selectedLeadsDetails);
-          // setShowSuccessSnack2(response.data.message)
+          setShowSuccessSnack2(response.data.message)
+          setShowDelModal(false)
         }
       }
     } catch (error) {
@@ -2189,51 +2192,109 @@ const LeadDetails = ({
                         right: 20,
                       }}
                     >
-                      {delLeadLoader ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <div>
-                          {!hideDelete && (
-                            <button
-                              className="flex flex-row gap-2 items-center"
-                              onClick={() => {
-                                handleDeleteLead()
-                              }}
+
+                      <div>
+                        {!hideDelete && (
+                          <button
+                            className="flex flex-row gap-2 items-center"
+                            onClick={() => {
+                              // handleDeleteLead()
+                              
+                              setShowDelModal(true)
+                            }}
+                            style={{
+                              marginTop: 20,
+                              alignSelf: "end",
+                            }}
+                          >
+
+                            <Image
+                              src={"/otherAssets/redDeleteIcon.png"}
+                              height={24}
+                              width={24}
+                              alt="del"
                               style={{
-                                marginTop: 20,
-                                alignSelf: "end",
+                                filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                              }}
+                            />
+
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: "600",
+                                color: "#15151590",
+                                textDecorationLine: "underline",
                               }}
                             >
+                              Delete
+                            </div>
+                          </button>
+                        )}
+                      </div>
 
-                              <Image
-                                src={"/otherAssets/redDeleteIcon.png"}
-                                height={24}
-                                width={24}
-                                alt="del"
-                                style={{
-                                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-                                }}
-                              />
-
-                              <div
-                                style={{
-                                  fontSize: 15,
-                                  fontWeight: "600",
-                                  color: "#15151590",
-                                  textDecorationLine: "underline",
-                                }}
-                              >
-                                Delete
-                              </div>
-                            </button>
-                          )}
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* delete lead modal */}
+
+            <Modal
+              open={showDelModal}
+              onClose={() => setShowDelModal(false)}
+              closeAfterTransition
+              BackdropProps={{
+                timeout: 1000,
+                sx: {
+                  backgroundColor: "#00000020",
+                  // //backdropFilter: "blur(5px)",
+                },
+              }}
+            >
+              <Box
+                className="lg:w-4/12 sm:w-4/12 w-6/12"
+                sx={styles.modalsStyle}
+              >
+                <div className="flex flex-row justify-center w-full">
+                  <div
+                    className="w-full"
+                    style={{
+                      backgroundColor: "#ffffff",
+                      padding: 20,
+                      borderRadius: "13px",
+                    }}
+                  >
+                    <div className="font-bold text-xl mt-6">
+                      Are you sure you want to delete this lead
+                    </div>
+                    <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                      <button
+                        className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                        onClick={() => {
+                          setShowDelModal(false);
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      {delLeadLoader ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <button
+                          className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                          onClick={async() => {
+                           await handleDeleteLead(selectedLeadsDetails)
+                          //  setShowDelModal(false)
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Box>
+            </Modal>
           </div>
         </div>
       </Drawer>
