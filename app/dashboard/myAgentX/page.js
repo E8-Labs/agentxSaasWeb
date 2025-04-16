@@ -356,7 +356,9 @@ function Page() {
     const updateAgentManueList = () => {
       if (showDrawerSelectedAgent?.agentType === "outbound") {
         let newTab = "Voicemail";
-        setAgentMenuOptions((prev) => [...prev, newTab]);
+        if (!AgentMenuOptions.includes("Voicemail")) {
+          setAgentMenuOptions((prev) => [...prev, newTab]);
+        }
       } else {
         setAgentMenuOptions(tabs);
       }
