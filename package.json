@@ -17,6 +17,7 @@
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^3.10.0",
     "@lottiefiles/lottie-player": "^2.0.12",
+    "@madzadev/audio-player": "^2.1.14",
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
     "@mui/x-date-pickers": "^7.23.3",

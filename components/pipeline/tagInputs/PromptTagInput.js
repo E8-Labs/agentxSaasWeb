@@ -12,7 +12,7 @@ export const PromptTagInput = ({
   uniqueColumns,
   showSaveChangesBtn,
   saveUpdates,
-  from
+  from,
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -412,8 +412,7 @@ export const PromptTagInput = ({
   };
 
   return (
-    <div style={{ position: "relative" }}>
-
+    <div className="" style={{ position: "relative" }}>
       <div
         className="flex flex-row items-start gap-2 w-full outline-none rounded-xl focus:ring-0"
         style={{
@@ -422,7 +421,7 @@ export const PromptTagInput = ({
         }}
       >
         <textarea
-          className="outline-none rounded-xl focus:ring-0 border-none w-full"
+          className="outline-none rounded-xl focus:ring-0 border-none w-full  min-h-[50px]"
           onClick={() => {
             setShowScriptModal(true);
           }}
@@ -435,13 +434,17 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: showSaveChangesBtn ?window.innerHeight <= 900 ? "calc(100vh - 670px)": "calc(100vh - 730px)" : "calc(100vh - 650px)",
+            height: showSaveChangesBtn
+              ? window.innerHeight <= 900
+                ? "calc(100vh - 670px)"
+                : "calc(100vh - 730px)"
+              : "calc(100vh - 650px)",
             // maxHeight:"28vh",
             resize: "none",
             // backgroundColor:'red'
             // border: "1px solid #00000020",
           }}
-        // disabled={true}
+          // disabled={true}
         />
         <div className="h-[50px] flex flex-col justify-center">
           <button
@@ -453,8 +456,6 @@ export const PromptTagInput = ({
           </button>
         </div>
       </div>
-
-
 
       {popupVisible && filteredOptions.length > 0 && (
         <div
@@ -569,21 +570,18 @@ export const PromptTagInput = ({
                   }}
                 />
 
-                {
-                  showSaveChangesBtn && (
-                    <button
-                      className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
-                      style={{ fontWeight: "600", fontSize: 15 }}
-                      onClick={() => {
-                        setShowScriptModal(false)
-                        saveUpdates()
-                      }}
-                    >
-                      Save Changes
-                    </button>
-                  )
-                }
-
+                {showSaveChangesBtn && (
+                  <button
+                    className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
+                    style={{ fontWeight: "600", fontSize: 15 }}
+                    onClick={() => {
+                      setShowScriptModal(false);
+                      saveUpdates();
+                    }}
+                  >
+                    Save Changes
+                  </button>
+                )}
 
                 {/* <textarea
                   className="outline-none rounded-xl focus:ring-0"
