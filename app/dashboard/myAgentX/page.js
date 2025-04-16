@@ -1358,10 +1358,10 @@ function Page() {
             setIsVisibleSnack(true);
             let agent = response.data.data;
             if (agent.agents[0].id == showDrawerSelectedAgent.id) {
-              setShowDrawerSelectedAgent(agents.agents[0]);
+              setShowDrawerSelectedAgent(agent.agents[0]);
             } else if (agent.agents.length > 1) {
               if (agent.agents[1].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(agents.agents[1]);
+                setShowDrawerSelectedAgent(agent.agents[1]);
               }
             }
 
