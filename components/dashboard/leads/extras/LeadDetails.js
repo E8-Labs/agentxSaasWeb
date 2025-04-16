@@ -2426,7 +2426,7 @@ const LeadDetails = ({
           },
         }}
       >
-        <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+        <Box className="lg:w-5/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="w-full flex flex-col items-center"
