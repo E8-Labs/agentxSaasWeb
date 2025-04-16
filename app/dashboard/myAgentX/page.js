@@ -74,12 +74,7 @@ function Page() {
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
   const router = useRouter();
-  let tabs = [
-    "Agent Info",
-    "Calendar",
-    "Pipeline | Stages",
-    "Knowledge Base",
-  ]
+  let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
   const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
@@ -195,7 +190,7 @@ function Page() {
   const [inputValues, setInputValues] = useState({});
   //code for storing the agents data
   const [agentsListSeparated, setAgentsListSeparated] = useState([]); //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
-  const [agentsList, setAgentsList] = useState([]); 
+  const [agentsList, setAgentsList] = useState([]);
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
@@ -248,7 +243,7 @@ function Page() {
 
   const [loading, setLoading] = useState(false);
 
-  const [search,setSearch] = useState("")
+  const [search, setSearch] = useState("");
 
   const playVoice = (url) => {
     if (audio) {
@@ -357,20 +352,18 @@ function Page() {
     },
   ];
 
-
   useEffect(() => {
     const updateAgentManueList = () => {
-
       if (showDrawerSelectedAgent?.agentType === "outbound") {
-        let newTab = "Voicemail"
-        setAgentMenuOptions(prev => [...prev, newTab]);
+        let newTab = "Voicemail";
+        setAgentMenuOptions((prev) => [...prev, newTab]);
       } else {
-        setAgentMenuOptions(tabs)
+        setAgentMenuOptions(tabs);
       }
       // console.log('agent type is', showDrawerSelectedAgent?.agentType)
-    }
+    };
     updateAgentManueList();
-  }, [showDrawerSelectedAgent])
+  }, [showDrawerSelectedAgent]);
 
   //call get numbers list api
   useEffect(() => {
@@ -444,14 +437,13 @@ function Page() {
     }
   }, [greetingTagInput, scriptTagInput]); //scriptTagInput
 
-
   useEffect(() => {
     if (objective !== oldObjective) {
-      setShowObjectionsSaveBtn(true)
+      setShowObjectionsSaveBtn(true);
     } else {
-      setShowObjectionsSaveBtn(false)
+      setShowObjectionsSaveBtn(false);
     }
-  }, [objective])
+  }, [objective]);
 
   //function for numbers width
 
@@ -849,7 +841,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1198,8 +1191,6 @@ function Page() {
       });
 
       if (response) {
-        ////console.log;
-        //console.log;
         setShowSuccessSnack(
           `${fromatMessageName(
             showDrawerSelectedAgent
@@ -1209,7 +1200,7 @@ function Page() {
         );
         if (response.data.status === true) {
           setIsVisibleSnack(true);
-
+          console.log("Here status true");
           const localAgentsList = localStorage.getItem(
             PersistanceKeys.LocalStoredAgentsListMain
           );
@@ -1217,10 +1208,17 @@ function Page() {
           let agentsListDetails = [];
 
           if (localAgentsList) {
+            console.log("local agents List");
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 
             const updateAgentData = response.data.data;
+            console.log(
+              `Agent updated data ${
+                updateAgentData.agents.length
+              } ${!showScriptModal}`,
+              updateAgentData
+            );
 
             const updatedArray = agentsList.map((localItem) => {
               const apiItem =
@@ -1229,14 +1227,34 @@ function Page() {
               return apiItem ? { ...localItem, ...apiItem } : localItem;
             });
             // let updatedSubAgent = null
-            if (updateAgentData.agents.length > 0 && showDrawerSelectedAgent) {
-              if (updateAgentData.agents[0].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(updateAgentData.agents[0]);
-              } else if (updateAgentData.agents.length > 1) {
+            if (showDrawerSelectedAgent) {
+              if (updateAgentData.agents.length > 0) {
+                console.log("Updated showDrawerAgent");
                 if (
-                  updateAgentData.agents[1].id == showDrawerSelectedAgent.id
+                  updateAgentData.agents[0].id == showDrawerSelectedAgent.id
                 ) {
-                  setShowDrawerSelectedAgent(updateAgentData.agents[1]);
+                  console.log("Updated showDrawerAgent first subagent");
+                  setShowDrawerSelectedAgent(updateAgentData.agents[0]);
+                } else if (updateAgentData.agents.length > 1) {
+                  if (
+                    updateAgentData.agents[1].id == showDrawerSelectedAgent.id
+                  ) {
+                    console.log("Updated showDrawerAgent second subagent");
+                    setShowDrawerSelectedAgent(updateAgentData.agents[1]);
+                  }
+                }
+              }
+            } else if (showScriptModal) {
+              if (updateAgentData.agents.length > 0) {
+                console.log("Updated showScriptModal");
+                if (updateAgentData.agents[0].id == showScriptModal.id) {
+                  console.log("Updated showScriptModal first subagent");
+                  setShowScriptModal(updateAgentData.agents[0]);
+                } else if (updateAgentData.agents.length > 1) {
+                  if (updateAgentData.agents[1].id == showScriptModal.id) {
+                    console.log("Updated showScriptModal second subagent");
+                    setShowScriptModal(updateAgentData.agents[1]);
+                  }
                 }
               }
             }
@@ -1248,6 +1266,8 @@ function Page() {
             );
             setMainAgentsList(updatedArray);
             // agentsListDetails = updatedArray
+          } else {
+            console.log("No local agents list");
           }
 
           // setShowDrawer(null);
@@ -1436,7 +1456,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1686,11 +1707,10 @@ function Page() {
           agentsListSeparated.filter(
             (item) => item.id !== showDrawerSelectedAgent.id
           )
-        )
-
+        );
 
         setShowDrawerSelectedAgent(null);
-        setActiveTab("Agent Info")
+        setActiveTab("Agent Info");
         setDelAgentModal(false);
 
         //updating data on localstorage
@@ -1967,7 +1987,7 @@ function Page() {
       }
     });
     setAgentsListSeparated(agents);
-    setAgentsList(agents)
+    setAgentsList(agents);
 
     //console.log;
   }, [mainAgentsList]);
@@ -2037,7 +2057,7 @@ function Page() {
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
       //console.log;
-      getCalenders()
+      getCalenders();
       setMainAgentsList(agentData);
     } else {
       //// //console.log;
@@ -2368,8 +2388,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                ?.slice(0, 1)
-                                .toUpperCase()}${item.agentObjective?.slice(
+                                  ?.slice(0, 1)
+                                  .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2527,20 +2547,14 @@ function Page() {
                   <div className="w-full flex flex-row items-center justify-between">
                     <Card
                       name="Calls"
-                      value={
-
-                        <div>{item.calls ? item.calls : '-'}</div>
-
-                      }
+                      value={<div>{item.calls ? item.calls : "-"}</div>}
                       icon="/svgIcons/selectedCallIcon.svg"
                       bgColor="bg-blue-100"
                       iconColor="text-blue-500"
                     />
                     <Card
                       name="Convos"
-                      value={
-                        <div>{item.callsGt10 ? item.callsGt10 : "-"}</div>
-                      }
+                      value={<div>{item.callsGt10 ? item.callsGt10 : "-"}</div>}
                       icon="/svgIcons/convosIcon2.svg"
                       bgColor="bg-purple-100"
                       iconColor="text-purple-500"
@@ -2555,7 +2569,7 @@ function Page() {
 
                     <Card
                       name="Booked Meetings"
-                      value={item.booked ? item.booked : '-'}
+                      value={item.booked ? item.booked : "-"}
                       icon="/otherAssets/greenCalenderIcon.png"
                       bgColor="green"
                       iconColor="text-orange-500"
@@ -2564,16 +2578,13 @@ function Page() {
                     <Card
                       name="Mins Talked"
                       value={
-
                         <div>
-
-                          {item?.totalDuration ?
-                            moment
-                              .utc((item?.totalDuration || 0) * 1000)
-                              .format("HH:mm:ss") : "-"
-                          }
+                          {item?.totalDuration
+                            ? moment
+                                .utc((item?.totalDuration || 0) * 1000)
+                                .format("HH:mm:ss")
+                            : "-"}
                         </div>
-
                       }
                       icon="/otherAssets/minsCounter.png"
                       bgColor="green"
@@ -2867,7 +2878,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                    // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2898,8 +2909,9 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2956,8 +2968,8 @@ function Page() {
         anchor="right"
         open={showDrawerSelectedAgent != null}
         onClose={() => {
-          setShowDrawerSelectedAgent(null)
-          setActiveTab("Agent Info")
+          setShowDrawerSelectedAgent(null);
+          setActiveTab("Agent Info");
         }}
         PaperProps={{
           sx: {
@@ -2982,7 +2994,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-        // style={{  }}
+          // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -3200,7 +3212,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3214,7 +3226,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3227,7 +3239,11 @@ function Page() {
               <Card
                 name="Hot Leads"
                 value={
-                  <div>{showDrawerSelectedAgent?.hotleads ? showDrawerSelectedAgent?.hotleads : '-'}</div>
+                  <div>
+                    {showDrawerSelectedAgent?.hotleads
+                      ? showDrawerSelectedAgent?.hotleads
+                      : "-"}
+                  </div>
                 }
                 icon="/otherAssets/hotLeadsIcon2.png"
                 bgColor="bg-orange-100"
@@ -3236,7 +3252,11 @@ function Page() {
               <Card
                 name="Booked"
                 value={
-                  <div>{showDrawerSelectedAgent?.booked ? showDrawerSelectedAgent?.booked : '-'}</div>
+                  <div>
+                    {showDrawerSelectedAgent?.booked
+                      ? showDrawerSelectedAgent?.booked
+                      : "-"}
+                  </div>
                 }
                 icon="/otherAssets/greenCalenderIcon.png"
                 bgColor="bg-green-100"
@@ -3246,18 +3266,17 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
-                      {
-                        showDrawerSelectedAgent?.totalDuration ?
-                          moment
+                      {showDrawerSelectedAgent?.totalDuration
+                        ? moment
                             .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) * 1000
+                              (showDrawerSelectedAgent?.totalDuration || 0) *
+                                1000
                             )
-                            .format("HH:mm:ss") : '-'
-
-                      }
+                            .format("HH:mm:ss")
+                        : "-"}
                     </div>
                   ) : (
                     "-"
@@ -3274,18 +3293,17 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
                 </button>
               ))}
             </div>
-
-
 
             {/* Code for agent info */}
             {activeTab === "Agent Info" ? (
@@ -3526,9 +3544,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3625,9 +3643,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3729,9 +3747,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3883,37 +3901,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                              <div>
+                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                {reassignLoader === item ? (
+                                                  <CircularProgress size={15} />
+                                                ) : (
+                                                  <button
+                                                    className="text-purple underline"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setShowConfirmationModal(
+                                                        item
+                                                      );
+                                                    }}
+                                                  >
+                                                    Reassign
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -4111,15 +4129,17 @@ function Page() {
               <div className="flex flex-col gap-4">
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>
+            ) : activeTab === "Voicemail" ? (
+              <div className="flex flex-col gap-4 w-full">
+                <VoiceMailTab
+                  setMainAgentsList={setMainAgentsList}
+                  agent={showDrawerSelectedAgent}
+                  setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                />
+              </div>
             ) : (
-              activeTab === "Voicemail" ? (
-                <div className="flex flex-col gap-4 w-full">
-                  <VoiceMailTab setMainAgentsList={setMainAgentsList} agent={showDrawerSelectedAgent} setShowDrawerSelectedAgent={setShowDrawerSelectedAgent} />
-                </div>
-              ) : ""
+              ""
             )}
-
-
           </div>
           {/* Delete agent button */}
           <button
@@ -4706,7 +4726,7 @@ function Page() {
                           scrollOffset={scrollOffset}
                         />
                       </div>
-                      <div className="mt-4 w-full">
+                      <div className="mt-4 w-full ">
                         <PromptTagInput
                           promptTag={scriptTagInput}
                           kycsList={kycsData}
@@ -4716,9 +4736,9 @@ function Page() {
                           scrollOffset={scrollOffset}
                           showSaveChangesBtn={showSaveChangesBtn}
                           saveUpdates={async () => {
-                            await updateAgent()
-                            setShowSaveChangesBtn(false)
-                            setOldScriptTagInput(scriptTagInput)
+                            await updateAgent();
+                            setShowSaveChangesBtn(false);
+                            setOldScriptTagInput(scriptTagInput);
                           }}
                         />
 
@@ -4727,7 +4747,7 @@ function Page() {
                     </div>
                   </div>
 
-                  <div className="" style={{}}>
+                  <div className="absolute bottom-2 right-7 left-7" style={{}}>
                     {showSaveChangesBtn && (
                       <div className="w-full">
                         {UpdateAgentLoader ? (
@@ -4746,8 +4766,8 @@ function Page() {
                               setShowScript(false);
                               setSeledtedScriptKYC(false);
                               setSeledtedScriptAdvanceSetting(false);
-                              setShowSaveChangesBtn(false)
-                              setShowObjectionsSaveBtn(false)
+                              setShowSaveChangesBtn(false);
+                              setShowObjectionsSaveBtn(false);
                             }}
                           >
                             Save Changes
@@ -4852,9 +4872,9 @@ function Page() {
                             showSaveChangesBtn={showObjectionsSaveBtn}
                             from={"Objective"}
                             saveUpdates={async () => {
-                              await updateAgent()
-                              setShowObjectionsSaveBtn(false)
-                              setOldObjective(objective)
+                              await updateAgent();
+                              setShowObjectionsSaveBtn(false);
+                              setOldObjective(objective);
                             }}
                           />
 
@@ -4874,8 +4894,8 @@ function Page() {
                                   style={{ fontWeight: "600", fontSize: 15 }}
                                   onClick={async () => {
                                     await updateAgent();
-                                    setShowObjectionsSaveBtn(false)
-                                    setOldObjective(objective)
+                                    setShowObjectionsSaveBtn(false);
+                                    setOldObjective(objective);
                                   }}
                                 >
                                   Save Changes

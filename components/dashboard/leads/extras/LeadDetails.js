@@ -13,7 +13,7 @@ import {
   Select,
   Snackbar,
   TextareaAutosize,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 import {
   CaretDown,
@@ -45,6 +45,9 @@ import NoPerplexity from "./NoPerplexity";
 import ConfirmPerplexityModal from "./CofirmPerplexityModal";
 import { setUser } from "@sentry/nextjs";
 import getProfileDetails from "@/components/apis/GetProfile";
+
+import Player from "@madzadev/audio-player";
+import "@madzadev/audio-player/dist/index.css";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -127,32 +130,30 @@ const LeadDetails = ({
   //variable for gtteam loader
   const [getTeamLoader, setGetTeamLoader] = useState(false);
 
-  const [showConfirmPerplexity, setshowConfirmPerplexity] = useState(false)
+  const [showConfirmPerplexity, setshowConfirmPerplexity] = useState(false);
 
-  const [userLocalData, setUserLocalData] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [userLocalData, setUserLocalData] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [showDelModal, setShowDelModal] = useState(false)
-
+  const [showDelModal, setShowDelModal] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
-      let user = await getProfileDetails()
+      let user = await getProfileDetails();
       if (user) {
-        setUserLocalData(user.data.data)
+        setUserLocalData(user.data.data);
         // console.log('user', user)
       }
-    }
+    };
 
-    getData()
-
+    getData();
   }, []);
 
   useEffect(() => {
     if (!selectedLead) return;
-    getLeadDetails(selectedLead)
+    getLeadDetails(selectedLead);
 
-    console.log('pipelineId', pipelineId)
+    console.log("pipelineId", pipelineId);
 
     if (pipelineId) {
       // //console.log;
@@ -203,7 +204,10 @@ const LeadDetails = ({
       //console.log;
       handleClosePopup();
       setGlobalLoader(true);
-      let response = await AssignTeamMember(selectedLeadsDetails.id, item.invitingUserId);
+      let response = await AssignTeamMember(
+        selectedLeadsDetails.id,
+        item.invitingUserId
+      );
       if (response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
           return {
@@ -347,7 +351,6 @@ const LeadDetails = ({
 
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
-
     try {
       let AuthToken = null;
       setStagesListLoader(true);
@@ -671,8 +674,8 @@ const LeadDetails = ({
         // //console.log;
         if (response.data.status === true) {
           handleDelLead(selectedLeadsDetails);
-          setShowSuccessSnack2(response.data.message)
-          setShowDelModal(false)
+          setShowSuccessSnack2(response.data.message);
+          setShowDelModal(false);
         }
       }
     } catch (error) {
@@ -729,66 +732,60 @@ const LeadDetails = ({
     return count;
   }
 
-
-
   const handleEnrichLead = async () => {
     try {
-      setLoading(true)
-      const data = localStorage.getItem("User")
+      setLoading(true);
+      const data = localStorage.getItem("User");
 
       if (data) {
-        let u = JSON.parse(data)
+        let u = JSON.parse(data);
 
         let apidata = {
-          leadId: selectedLeadsDetails.id
-        }
+          leadId: selectedLeadsDetails.id,
+        };
         // console.log('apidata', apidata)
         // console.log('u.token', u.token)
 
         const response = await axios.post(Apis.enrichLead, apidata, {
           headers: {
-            "Authorization": 'Bearer ' + u.token
-          }
-        })
+            Authorization: "Bearer " + u.token,
+          },
+        });
 
         if (response.data) {
-          setLoading(false)
+          setLoading(false);
           if (response.data.status === true) {
-
             // console.log('response of enrich lead aip is', response.data.data)
-            setSelectedLeadsDetails(response.data.data)
-            let credits = u.user.enrichCredits
+            setSelectedLeadsDetails(response.data.data);
+            let credits = u.user.enrichCredits;
 
             setShowSuccessSnack(response.data.message);
             setShowSuccessSnack2(true);
 
             if (credits == 0) {
-              u.user.enrichCredits = 99
+              u.user.enrichCredits = 99;
             } else {
-              u.user.enrichCredits = credits - 1
+              u.user.enrichCredits = credits - 1;
             }
 
-            localStorage.setItem("User", JSON.stringify(u))
+            localStorage.setItem("User", JSON.stringify(u));
 
-
-            setshowConfirmPerplexity(false)
+            setshowConfirmPerplexity(false);
           } else {
             setShowErrorSnack(response.data.message);
             setShowErrorSnack2(true);
 
-            console.log('response.data.message', response.data.message)
+            console.log("response.data.message", response.data.message);
           }
         }
       }
     } catch (e) {
-      setLoading(false)
-      console.log('error in enrich lead is', e)
+      setLoading(false);
+      console.log("error in enrich lead is", e);
+    } finally {
+      setLoading(false);
     }
-    finally {
-      setLoading(false)
-    }
-  }
-
+  };
 
   // console.log('enrichData', enrichData)
 
@@ -928,9 +925,10 @@ const LeadDetails = ({
                                           >
                                             {selectedLeadsDetails?.emails
                                               ?.length > 1
-                                              ? `+${selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                              }`
+                                              ? `+${
+                                                  selectedLeadsDetails?.emails
+                                                    ?.length - 1
+                                                }`
                                               : ""}
                                           </button>
                                         </div>
@@ -976,9 +974,10 @@ const LeadDetails = ({
                                         >
                                           {selectedLeadsDetails?.emails
                                             ?.length > 1
-                                            ? `+${selectedLeadsDetails?.emails
-                                              ?.length - 1
-                                            }`
+                                            ? `+${
+                                                selectedLeadsDetails?.emails
+                                                  ?.length - 1
+                                              }`
                                             : ""}
                                         </button>
                                       </div>
@@ -1034,7 +1033,7 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.tags.length > 0 ? (
                                 <div
                                   className="text-end flex flex-row items-center gap-2 "
-                                // style={styles.paragraph}
+                                  // style={styles.paragraph}
                                 >
                                   {
                                     // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -1053,7 +1052,7 @@ const LeadDetails = ({
                                                 {tag}
                                               </div>
                                               {DelTagLoader &&
-                                                tag.includes(DelTagLoader) ? (
+                                              tag.includes(DelTagLoader) ? (
                                                 <div>
                                                   <CircularProgress size={15} />
                                                 </div>
@@ -1117,7 +1116,6 @@ const LeadDetails = ({
                           </div>
 
                           <div>
-
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
@@ -1180,30 +1178,25 @@ const LeadDetails = ({
                                   users={selectedLeadsDetails?.teamsAssigned}
                                 />
                               </div>
+                            ) : globalLoader ? (
+                              <CircularProgress size={25} />
                             ) : (
-
-                              globalLoader ? (
-                                <CircularProgress size={25} />
-                              ) : (
-                                <button
-                                  className="text-end outline-none"
-                                  style={styles.paragraph}
-                                  aria-describedby={id}
-                                  variant="contained"
-                                  onClick={(event) => {
-                                    handleShowPopup(event);
-                                  }}
-                                >
-                                  <Image
-                                    src={"/assets/manIcon.png"}
-                                    height={30}
-                                    width={30}
-                                    alt="man"
-                                  />
-                                </button>
-                              )
-
-
+                              <button
+                                className="text-end outline-none"
+                                style={styles.paragraph}
+                                aria-describedby={id}
+                                variant="contained"
+                                onClick={(event) => {
+                                  handleShowPopup(event);
+                                }}
+                              >
+                                <Image
+                                  src={"/assets/manIcon.png"}
+                                  height={30}
+                                  width={30}
+                                  alt="man"
+                                />
+                              </button>
                             )}
                           </div>
                         </div>
@@ -1299,39 +1292,39 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                              <div className="flex items-end justify-end min-w-[120px]">
-                                                <button
-                                                  style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 15,
-                                                  }}
-                                                  onClick={() => {
-                                                    setExpandedCustomFields(
-                                                      (prevFields) =>
-                                                        prevFields.includes(
-                                                          column?.title
-                                                        )
-                                                          ? prevFields.filter(
+                                            <div className="flex items-end justify-end min-w-[120px]">
+                                              <button
+                                                style={{
+                                                  fontWeight: "600",
+                                                  fontSize: 15,
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedCustomFields(
+                                                    (prevFields) =>
+                                                      prevFields.includes(
+                                                        column?.title
+                                                      )
+                                                        ? prevFields.filter(
                                                             (field) =>
                                                               field !==
                                                               column?.title
                                                           )
-                                                          : [
+                                                        : [
                                                             ...prevFields,
                                                             column?.title,
                                                           ]
-                                                    );
-                                                  }}
-                                                  className="text-black underline w-[120px]"
-                                                >
-                                                  {expandedCustomFields.includes(
-                                                    column?.title
-                                                  )
-                                                    ? "Read Less"
-                                                    : "Read More"}
-                                                </button>
-                                              </div>
-                                            )}
+                                                  );
+                                                }}
+                                                className="text-black underline w-[120px]"
+                                              >
+                                                {expandedCustomFields.includes(
+                                                  column?.title
+                                                )
+                                                  ? "Read Less"
+                                                  : "Read More"}
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
                                       </div>
                                     );
@@ -1476,7 +1469,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                            tag.includes(DelTagLoader) ? (
+                                          tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -1526,7 +1519,8 @@ const LeadDetails = ({
                           },
                         }}
                       >
-                        <button className="hover:bg-gray-50"
+                        <button
+                          className="hover:bg-gray-50"
                           onClick={() => {
                             handleAssignLeadToTeammember(myTeamAdmin);
                           }}
@@ -1762,8 +1756,9 @@ const LeadDetails = ({
                     />
 
                     <div style={{ paddingInline: 0 }}>
-                      {showPerplexityDetails && (
-                        selectedLeadsDetails && selectedLeadsDetails.enrichData ? (
+                      {showPerplexityDetails &&
+                        (selectedLeadsDetails &&
+                        selectedLeadsDetails.enrichData ? (
                           <Perplexity
                             selectedLeadsDetails={selectedLeadsDetails}
                           />
@@ -1774,8 +1769,6 @@ const LeadDetails = ({
                             handleEnrichLead={handleEnrichLead}
                             loading={loading}
                           />
-
-
                         ))}
 
                       <ConfirmPerplexityModal
@@ -2074,105 +2067,105 @@ const LeadDetails = ({
                                             {isExpandedActivity.includes(
                                               item.id
                                             ) && (
+                                              <div
+                                                className="mt-6"
+                                                style={{
+                                                  border: "1px solid #00000020",
+                                                  borderRadius: "10px",
+                                                  padding: 10,
+                                                  paddingInline: 15,
+                                                }}
+                                              >
                                                 <div
-                                                  className="mt-6"
+                                                  className="mt-4"
                                                   style={{
-                                                    border: "1px solid #00000020",
-                                                    borderRadius: "10px",
-                                                    padding: 10,
-                                                    paddingInline: 15,
+                                                    fontWeight: "500",
+                                                    fontSize: 12,
+                                                    color: "#00000070",
                                                   }}
                                                 >
+                                                  Transcript
+                                                </div>
+                                                <div className="flex flex-row items-center justify-between mt-4">
                                                   <div
-                                                    className="mt-4"
                                                     style={{
                                                       fontWeight: "500",
-                                                      fontSize: 12,
-                                                      color: "#00000070",
+                                                      fontSize: 15,
                                                     }}
                                                   >
-                                                    Transcript
+                                                    {moment(
+                                                      item?.duration * 1000
+                                                    ).format("mm:ss")}{" "}
                                                   </div>
-                                                  <div className="flex flex-row items-center justify-between mt-4">
+                                                  <button
+                                                    onClick={() => {
+                                                      if (item?.recordingUrl) {
+                                                        setShowAudioPlay(
+                                                          item?.recordingUrl
+                                                        );
+                                                      } else {
+                                                        setShowNoAudioPlay(
+                                                          true
+                                                        );
+                                                      }
+                                                      // window.open(item.recordingUrl, "_blank")
+                                                    }}
+                                                  >
+                                                    <Image
+                                                      src={"/assets/play.png"}
+                                                      height={35}
+                                                      width={35}
+                                                      alt="*"
+                                                    />
+                                                  </button>
+                                                </div>
+                                                {item.transcript ? (
+                                                  <div className="w-full">
                                                     <div
-                                                      style={{
-                                                        fontWeight: "500",
-                                                        fontSize: 15,
-                                                      }}
-                                                    >
-                                                      {moment(
-                                                        item?.duration * 1000
-                                                      ).format("mm:ss")}{" "}
-                                                    </div>
-                                                    <button
-                                                      onClick={() => {
-                                                        if (item?.recordingUrl) {
-                                                          setShowAudioPlay(
-                                                            item?.recordingUrl
-                                                          );
-                                                        } else {
-                                                          setShowNoAudioPlay(
-                                                            true
-                                                          );
-                                                        }
-                                                        // window.open(item.recordingUrl, "_blank")
-                                                      }}
-                                                    >
-                                                      <Image
-                                                        src={"/assets/play.png"}
-                                                        height={35}
-                                                        width={35}
-                                                        alt="*"
-                                                      />
-                                                    </button>
-                                                  </div>
-                                                  {item.transcript ? (
-                                                    <div className="w-full">
-                                                      <div
-                                                        className="mt-4"
-                                                        style={{
-                                                          fontWeight: "600",
-                                                          fontSize: 15,
-                                                        }}
-                                                      >
-                                                        {/* {item.transcript} */}
-                                                        {isExpanded.includes(
-                                                          item.id
-                                                        )
-                                                          ? `${item.transcript}`
-                                                          : `${initialText}...`}
-                                                      </div>
-                                                      <button
-                                                        style={{
-                                                          fontWeight: "600",
-                                                          fontSize: 15,
-                                                        }}
-                                                        onClick={() => {
-                                                          handleReadMoreToggle(
-                                                            item
-                                                          );
-                                                        }}
-                                                        className="mt-2 text-black underline"
-                                                      >
-                                                        {isExpanded.includes(
-                                                          item.id
-                                                        )
-                                                          ? "Read Less"
-                                                          : "Read more"}
-                                                      </button>
-                                                    </div>
-                                                  ) : (
-                                                    <div
+                                                      className="mt-4"
                                                       style={{
                                                         fontWeight: "600",
                                                         fontSize: 15,
                                                       }}
                                                     >
-                                                      No transcript
+                                                      {/* {item.transcript} */}
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`}
                                                     </div>
-                                                  )}
-                                                </div>
-                                              )}
+                                                    <button
+                                                      style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 15,
+                                                      }}
+                                                      onClick={() => {
+                                                        handleReadMoreToggle(
+                                                          item
+                                                        );
+                                                      }}
+                                                      className="mt-2 text-black underline"
+                                                    >
+                                                      {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? "Read Less"
+                                                        : "Read more"}
+                                                    </button>
+                                                  </div>
+                                                ) : (
+                                                  <div
+                                                    style={{
+                                                      fontWeight: "600",
+                                                      fontSize: 15,
+                                                    }}
+                                                  >
+                                                    No transcript
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         </div>
                                       </div>
@@ -2192,29 +2185,28 @@ const LeadDetails = ({
                         right: 20,
                       }}
                     >
-
                       <div>
                         {!hideDelete && (
                           <button
                             className="flex flex-row gap-2 items-center"
                             onClick={() => {
                               // handleDeleteLead()
-                              
-                              setShowDelModal(true)
+
+                              setShowDelModal(true);
                             }}
                             style={{
                               marginTop: 20,
                               alignSelf: "end",
                             }}
                           >
-
                             <Image
                               src={"/otherAssets/redDeleteIcon.png"}
                               height={24}
                               width={24}
                               alt="del"
                               style={{
-                                filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                                filter:
+                                  "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
                               }}
                             />
 
@@ -2231,7 +2223,6 @@ const LeadDetails = ({
                           </button>
                         )}
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -2282,9 +2273,9 @@ const LeadDetails = ({
                       ) : (
                         <button
                           className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                          onClick={async() => {
-                           await handleDeleteLead(selectedLeadsDetails)
-                          //  setShowDelModal(false)
+                          onClick={async () => {
+                            await handleDeleteLead(selectedLeadsDetails);
+                            //  setShowDelModal(false)
                           }}
                         >
                           Delete
@@ -2445,11 +2436,23 @@ const LeadDetails = ({
                 borderRadius: "13px",
               }}
             >
-              <audio controls>
+              <Player
+                trackList={[
+                  {
+                    url: showAudioPlay,
+                    title: "Call recording",
+                    tags: [],
+                  },
+                ]}
+                includeSearch={false}
+                showPlaylist={false}
+                sortTracks={false}
+              />
+              {/* <audio controls>
                 <source src={showAudioPlay} type="audio/mpeg" />
                 Your browser does not support the audio element.
-              </audio>
-              <button
+              </audio> */}
+              {/* <button
                 className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                 onClick={() => {
                   setShowAudioPlay(null);
@@ -2457,7 +2460,7 @@ const LeadDetails = ({
                 style={{ fontWeight: "600", fontSize: 15 }}
               >
                 Close
-              </button>
+              </button> */}
 
               {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
@@ -2465,7 +2468,6 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
-
     </div>
   );
 };
