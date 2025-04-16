@@ -107,12 +107,9 @@ const Leads1 = () => {
     LeadDefaultColumnsArray
   );
 
-
-  const [showenrichModal, setShowenrichModal] = useState(false)
-  const [showenrichConfirmModal, setShowenrichConfirmModal] = useState(false)
-  const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false)
-
-
+  const [showenrichModal, setShowenrichModal] = useState(false);
+  const [showenrichConfirmModal, setShowenrichConfirmModal] = useState(false);
+  const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false);
 
   useEffect(() => {
     //console.log;
@@ -669,7 +666,7 @@ const Leads1 = () => {
         leads: data,
         columnMappings: NewColumnsObtained,
         tags: tagsValue,
-        enrich: enrich
+        enrich: enrich,
       };
 
       const ApiPath = Apis.createLead;
@@ -695,8 +692,8 @@ const Leads1 = () => {
           setSelectedFile(null);
           localStorage.setItem("userLeads", JSON.stringify(response.data.data));
           setUserLeads(sheet);
-          setShowenrichModal(false)
-          setShowenrichConfirmModal(false)
+          setShowenrichModal(false);
+          setShowenrichConfirmModal(false);
           setAddNewLeadModal(false);
           setSetData(true);
           setSuccessSnack(response.data.message);
@@ -804,7 +801,7 @@ const Leads1 = () => {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
         inbound: isInbound,
-        enrich: isEnrich
+        enrich: isEnrich,
       };
       // //console.log;
 
@@ -849,21 +846,21 @@ const Leads1 = () => {
 
   const handleToogleChange = async (event) => {
     const checked = event.target.checked;
-    
+
     if (checked) {
-      let user = await getProfileDetails()
+      let user = await getProfileDetails();
       if (user) {
-        console.log('user credits are', user.data.data.enrichCredits)
+        console.log("user credits are", user.data.data.enrichCredits);
         if (user.data.data.enrichCredits === 0) {
           setShowenrichConfirmModal2(true);
-          return; 
+          return;
         }
       }
     }
-  
+
     setIsEnrich(checked);
-  }
-  
+  };
+
   return (
     <div className="w-full">
       {/* {
@@ -972,7 +969,6 @@ const Leads1 = () => {
           )}
         </div>
 
-
         {/* Modal to add lead */}
         <Modal
           open={showAddLeadModal}
@@ -1056,7 +1052,7 @@ const Leads1 = () => {
                       alt="Upload Icon"
                       height={30}
                       width={30}
-                    // style={{ marginBottom: "10px" }}
+                      // style={{ marginBottom: "10px" }}
                     />
                   </div>
                   <p style={{ ...styles.subHeadingStyle }}>
@@ -1311,7 +1307,9 @@ const Leads1 = () => {
                                 //   "Array selected is :",
                                 //   NewColumnsObtained
                                 // );
-                                setUpdateColumnValue(item.columnNameTransformed);
+                                setUpdateColumnValue(
+                                  item.columnNameTransformed
+                                );
                                 handleColumnPopoverClick(event);
                                 setUpdateHeader(item);
                                 // }
@@ -1387,7 +1385,7 @@ const Leads1 = () => {
                       className="bg-purple text-white rounded-lg h-[50px] w-4/12"
                       onClick={() => {
                         // validateColumns();
-                        setShowenrichModal(true)
+                        setShowenrichModal(true);
                       }}
                     >
                       Continue
@@ -1407,7 +1405,7 @@ const Leads1 = () => {
         <EnrichModal
           showenrichModal={showenrichModal}
           setShowenrichConfirmModal={(value) => {
-            setShowenrichConfirmModal(value)
+            setShowenrichConfirmModal(value);
             // setIsEnrich(value)
           }}
           setShowenrichModal={setShowenrichModal}
@@ -1420,26 +1418,22 @@ const Leads1 = () => {
           handleAddLead={() => handleAddLead(true)}
           processedData={processedData}
           Loader={Loader}
-
         />
-
 
         <ConfirmPerplexityModal
           showConfirmPerplexity={showenrichConfirmModal2}
           setshowConfirmPerplexity={(value) => {
-            console.log('value', value)
-            setShowenrichConfirmModal2(value)
-            setIsEnrich(value)
+            console.log("value", value);
+            setShowenrichConfirmModal2(value);
+            setIsEnrich(value);
           }}
           handleEnrichLead={(value) => {
-            console.log('value', value)
-            setIsEnrich(value)
-            setShowenrichConfirmModal2(false)
+            console.log("value", value);
+            setIsEnrich(value);
+            setShowenrichConfirmModal2(false);
           }}
           loading={Loader}
-
         />
-
 
         {/* Delete Column Modal */}
         <Modal
@@ -1832,7 +1826,6 @@ const Leads1 = () => {
                       <Image
                         src={"/assets/crossIcon.png"}
                         height={40}
-
                         width={40}
                         alt="*"
                       />
@@ -1859,33 +1852,33 @@ const Leads1 = () => {
                                 color: "#7902DF",
                               },
                               "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                              {
-                                backgroundColor: "#7902DF",
-                              },
+                                {
+                                  backgroundColor: "#7902DF",
+                                },
                             }}
                           />
                         </div>
 
-                        <div className="">
+                        {/* <div className="">
                           <span>Enrich Lead?</span>
                           <Switch
                             checked={isEnrich}
                             // color="#7902DF"
                             // exclusive
                             onChange={(event) => {
-                              handleToogleChange(event)
+                              handleToogleChange(event);
                             }}
                             sx={{
                               "& .MuiSwitch-switchBase.Mui-checked": {
                                 color: "#7902DF",
                               },
                               "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                              {
-                                backgroundColor: "#7902DF",
-                              },
+                                {
+                                  backgroundColor: "#7902DF",
+                                },
                             }}
                           />
-                        </div>
+                        </div> */}
                       </div>
                       {/* <Image
                       src={"/svgIcons/infoIcon.svg"}
@@ -1986,10 +1979,11 @@ const Leads1 = () => {
                     </div>
                   ) : (
                     <button
-                      className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                        ? "bg-purple text-white"
-                        : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
-                        }`}
+                      className={`h-[50px] rounded-xl w-full ${
+                        newSheetName && newSheetName.length > 0
+                          ? "bg-purple text-white"
+                          : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
+                      }`}
                       style={{
                         fontWeight: "600",
                         fontSize: 16.8,
@@ -2008,7 +2002,6 @@ const Leads1 = () => {
       </>
       {/* )
       } */}
-
     </div>
   );
 };
