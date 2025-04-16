@@ -1356,8 +1356,14 @@ function Page() {
           );
           if (response.data.status === true) {
             setIsVisibleSnack(true);
-
-            setShowDrawerSelectedAgent(response.data.data.agents[0]);
+            let agent = response.data.data;
+            if (agent.agents[0].id == showDrawerSelectedAgent.id) {
+              setShowDrawerSelectedAgent(agent.agents[0]);
+            } else if (agent.agents.length > 1) {
+              if (agent.agents[1].id == showDrawerSelectedAgent.id) {
+                setShowDrawerSelectedAgent(agent.agents[1]);
+              }
+            }
 
             const localAgentsList = localStorage.getItem(
               PersistanceKeys.LocalStoredAgentsListMain
