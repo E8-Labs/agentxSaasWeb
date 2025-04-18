@@ -8,6 +8,7 @@ import { AuthToken } from './AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 function DashboardPlans() {
 
@@ -18,6 +19,9 @@ function DashboardPlans() {
     const [planType, setPlanType] = useState("monthly");
     const [open, setOpen] = useState(false);
     const [initialLoader, setInitialLoader] = useState(true);
+    //code for snack messages    
+    const [snackMsg, setSnackMsg] = useState(null);
+    const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
     //handle add new plan click
     const handleAddPlan = () => {
@@ -130,9 +134,23 @@ function DashboardPlans() {
         }
     }
 
+    //code for closing popup
+    const handleClosePlanPopUp = (mesg) => {
+        setOpen(false);
+        setSnackMsg(mesg);
+        setSnackMsgType(SnackbarTypes.Success);
+    }
+
 
     return (
         <div className='w-full flex flex-col items-center '>
+            {/* Code for snack msg */}
+            <AgentSelectSnackMessage
+                isVisible={snackMsg !== null}
+                message={snackMsg}
+                hide={() => { setSnackMsg(null) }}
+                type={snackMsgType}
+            />
 
             <div className='flex w-full flex-row items-center justify-between px-5 py-5 border-b'>
 
@@ -177,16 +195,48 @@ function DashboardPlans() {
 
                 <div className='w-full'>
                     <div className='px-4 mt-6 flex flex-row gap-4 border-b' style={{ fontSize: "15", fontWeight: "500", width: "fit-content" }}>
-                        <button
-                            className={`${planType === "monthly" ? "text-purple border-b-2 border-purple" : "text-black"}`}
-                            onClick={() => { setPlanType("monthly") }}>
-                            Monthly Plans
-                        </button>
-                        <button
-                            className={`${planType === "Xbar" ? "text-purple border-b-2 border-purple" : "text-black"}`}
-                            onClick={() => { setPlanType("Xbar") }}>
-                            XBar Options
-                        </button>
+                        <div
+                            className={`flex flex-row items-center px-2 ${planType === "monthly" ? "text-purple border-b-2 border-purple" : "text-black"} gap-4`}>
+                            {
+                                planType === "monthly" ?
+                                    <Image
+                                        alt='focusMonthlyPln'
+                                        src={"/agencyIcons/focusMonthlyPln.jpg"}
+                                        width={23} height={25}
+                                    /> :
+                                    <Image
+                                        alt='unFocusMonthlyPln'
+                                        src={"/agencyIcons/unFocusMonthlyPln.jpg"}
+                                        width={23} height={25}
+                                    />
+                            }
+                            <button
+                                className={`${planType === "monthly" ? "text-purple" : "text-black"}`}
+                                onClick={() => { setPlanType("monthly") }}>
+                                Monthly Plans
+                            </button>
+                        </div>
+                        <div
+                            className={`${planType === "Xbar" ? "text-purple border-b-2 border-purple px-2" : "text-black"} flex flex-row items-center gap-4`}>
+                            {
+                                planType === "XBar" ?
+                                    <Image
+                                        alt='focusXBar'
+                                        src={"/agencyIcons/focusXBar.jpg"}
+                                        width={14} height={15}
+                                    /> :
+                                    <Image
+                                        alt='UnFocusXBar'
+                                        src={"/agencyIcons/UnFocusXBar.jpg"}
+                                        width={14} height={15}
+                                    />
+                            }
+                            <button
+                                className={`${planType === "Xbar" ? "text-purple" : "text-black"}`}
+                                onClick={() => { setPlanType("Xbar") }}>
+                                XBar Options
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -367,8 +417,10 @@ function DashboardPlans() {
 
                 {
                     planType === "monthly" ?
-                        <AddMonthlyPlan open={open} handleClose={() => { setOpen(false) }} onPlanCreated={handlePlanCreated} /> :
-                        <AddXBarPlan open={open} handleClose={() => { setOpen(false) }} onPlanCreated={handlePlanCreated} />
+                        <AddMonthlyPlan open={open}
+                            handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated} /> :
+                        <AddXBarPlan open={open}
+                            handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated} />
                 }
 
             </div>

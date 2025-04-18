@@ -110,7 +110,7 @@ const AgencyNavBar = () => {
     },{
       id: 2,
       name: "Sub Account",
-      href: "/agency/dashboard/",
+      href: "/agency/dashboard/subAccounts",
       selected: "/svgIcons/selectedSubAccountIcon.svg",
       uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
     },{

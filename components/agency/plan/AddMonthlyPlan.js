@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { AuthToken } from './AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddMonthlyPlan({ open, handleClose, onPlanCreated }) {
@@ -19,6 +20,8 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated }) {
     const [trialMinutes, setTrialMinutes] = useState("");
 
     const [createPlanLoader, setCreatePlanLoader] = useState(false);
+    const [snackMsg, setSnackMsg] = useState(null);
+    const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
     //code to create plan
     const handleCreatePlan = async () => {
@@ -57,8 +60,13 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated }) {
                 console.log("Response of Add plan is", response.data);
                 setCreatePlanLoader(false);
                 onPlanCreated(response);
-                if(response.data.status === true){
-                    handleClose();
+                if (response.data.status === true) {
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Success);
+                    handleClose(response.data.message);
+                } else if (response.data.status === false) {
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Error);
                 }
             }
 
@@ -82,16 +90,25 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated }) {
     }
 
     return (
-        <Modal open={open} onClose={handleClose}>
+        <Modal
+            open={open}
+            // onClose={handleClose}
+        >
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
             <Box
                 className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none overflow-y-auto shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scrollbar-hide"
                 sx={{
                     '&::-webkit-scrollbar': { display: 'none' },
-                    scrollbarWidth: 'none',       // Firefox
-                    msOverflowStyle: 'none'       // IE/Edge
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none'
                 }}
             >
+                <AgentSelectSnackMessage
+                    isVisible={snackMsg !== null}
+                    message={snackMsg}
+                    hide={() => { setSnackMsg(null) }}
+                    type={snackMsgType}
+                />
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">New Plan</h2>
                     <button onClick={handleClose} className="text-gray-400 hover:text-black">✕</button>

@@ -1,12 +1,11 @@
-'use client'
-
+"use client"
 import React from 'react';
 import AgencySubacount from '@/components/agency/subaccount/AgencySubacount';
 
-function Page() {
+const Page = () => {
   return (
-    <div className='w-full flex '>
-        <AgencySubacount />
+    <div>
+      <AgencySubacount />
     </div>
   )
 }
