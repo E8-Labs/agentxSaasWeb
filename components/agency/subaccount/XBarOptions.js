@@ -3,10 +3,10 @@ import { useState } from "react";
 import { Check } from "@phosphor-icons/react"; // Optional: replace with your own icon
 
 const plans = [
-    { name: "Starter", minutes: 100, price: 29, description: "Ideal for solo agents." },
-    { name: "Pro", minutes: 300, price: 69, description: "Perfect for growing teams." },
-    { name: "Elite", minutes: 1000, price: 149, description: "Built for power users." },
-    { name: "Enterprise", minutes: 5000, price: 299, description: "Custom usage plan." },
+    { name: "Plan name", minutes: "Xmins", price: "$amount", description: "Plan description goes here" },
+    { name: "Plan name", minutes: "Xmins", price: "$amount", description: "Plan description goes here" },
+    { name: "Plan name", minutes: "Xmins", price: "$amount", description: "Plan description goes here" },
+    { name: "Plan name", minutes: "Xmins", price: "$amount", description: "Plan description goes here" },
 ];
 
 export default function XBarOptions({ isOpen, onClose }) {
