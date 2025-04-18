@@ -12,6 +12,9 @@ import SetPricing from './SetPricing';
 export default function CreateSubAccountModal({ isOpen, onClose }) {
 
     const timerRef = useRef(null);
+
+    const [subAccountName, setSubAccountName] = useState("");
+
     //user email
     const [userEmail, setUserEmail] = useState("");
     const [emailCheckResponse, setEmailCheckResponse] = useState(null);
@@ -202,12 +205,12 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
             });
 
             if (response) {
-                // //console.log;
+                console.log("Response of check email is", response.data);
                 if (response.data.status === true) {
                     // console.log("response of check email", response);
                     setEmailCheckResponse(response.data);
-                } else if (response.data.status !== true) {
-                    setEmailCheckResponse(response.data.message);
+                } else if (response.data.status === false) {
+                    setEmailCheckResponse(response.data);
                 }
             }
         } catch (error) {
@@ -335,6 +338,8 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                     className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
                     placeholder="Type here..."
                     style={styles.inputs}
+                    value={subAccountName}
+                    onChange={(e) => { setSubAccountName(e.target.value) }}
                 />
 
                 <div className="flex flex-row items-center w-full justify-between">
@@ -358,10 +363,9 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                                                     : "red",
                                         }}
                                     >
-                                        {emailCheckResponse.message
-                                            .slice(0, 1)
+                                        {emailCheckResponse?.message?.slice(0, 1)
                                             .toUpperCase() +
-                                            emailCheckResponse.message.slice(1)}
+                                            emailCheckResponse?.message?.slice(1)}
                                     </p>
                                 ) : (
                                     <div />
@@ -462,10 +466,9 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                                                 height: "20px",
                                             }}
                                         >
-                                            {checkPhoneResponse.message
-                                                .slice(0, 1)
+                                            {checkPhoneResponse?.message?.slice(0, 1)
                                                 .toUpperCase() +
-                                                checkPhoneResponse.message.slice(1)}
+                                                checkPhoneResponse?.message?.slice(1)}
                                         </p>
                                     ) : (
                                         <div />
@@ -516,7 +519,7 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
 
                 <div className="mb-4">
                     <p
-                        className="mb-2"
+                        className="mb-2 mt-4"
                         style={styles.headings}
                     >
                         Invite Team Members
@@ -570,7 +573,7 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                                             <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
                                         )}
                                         {member.emailValid && !member.emailError && (
-                                            <p style={{ ...styles.errmsg, color: 'green' }}>Email is valid</p>
+                                            <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
                                         )}
                                     </div>
                                 </div>
@@ -612,9 +615,9 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                                             {member.phoneError && (
                                                 <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
                                             )}
-                                            {/*member.phoneValid && !member.phoneError && (
-                                                <p style={{ ...styles.errmsg, color: 'green' }}>Phone is valid</p>
-                                            )*/}
+                                            {member.phoneValid && !member.phoneError && (
+                                                <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
+                                            )}
                                         </div>
 
                                     </div>
@@ -650,7 +653,14 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                 </div>
 
                 {/* Pricing Modal */}
-                <SetPricing isOpen={openPricing} onClose={() => setOpenPricing(false)} />
+                <SetPricing
+                    isOpen={openPricing}
+                    onClose={() => setOpenPricing(false)}
+                    userEmail={userEmail}
+                    userPhoneNumber={userPhoneNumber}
+                    teamMembers={teamMembers}
+                    subAccountName={subAccountName}
+                />
 
             </Box>
         </Modal>

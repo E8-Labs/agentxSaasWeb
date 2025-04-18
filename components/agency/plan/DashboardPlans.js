@@ -19,14 +19,10 @@ function DashboardPlans() {
     const [planType, setPlanType] = useState("monthly");
     const [open, setOpen] = useState(false);
     const [initialLoader, setInitialLoader] = useState(true);
+    const [canAddPlan, setCanAddPlan] = useState(true);
     //code for snack messages    
     const [snackMsg, setSnackMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
-
-    //handle add new plan click
-    const handleAddPlan = () => {
-        setOpen(true);
-    }
 
     //auto get the data
     useEffect(() => {
@@ -37,6 +33,24 @@ function DashboardPlans() {
             getXBarOptions()
         }
     }, [planType]);
+
+    //check if plan has already trial true
+    useEffect(() => {
+        console.log("Trigered one 2");
+        for (let i = 0; i < plansList.length; i++) {
+            if (plansList[i].hasTrial === true) {
+                console.log("hasTrial is true at index", i);
+                setCanAddPlan(false);
+                break; // Stop looping after the first match
+            }
+        }
+
+    }, [plansList])
+
+    //handle add new plan click
+    const handleAddPlan = () => {
+        setOpen(true);
+    }
 
     //plan created
     const handlePlanCreated = (response) => {
@@ -134,11 +148,18 @@ function DashboardPlans() {
         }
     }
 
+    useEffect(() => {
+        console.log("Plan type is", planType);
+    }, [planType])
+
     //code for closing popup
     const handleClosePlanPopUp = (mesg) => {
         setOpen(false);
-        setSnackMsg(mesg);
-        setSnackMsgType(SnackbarTypes.Success);
+        console.log("test check 23", mesg);
+        if (mesg) {
+            setSnackMsg(mesg);
+            setSnackMsgType(SnackbarTypes.Success);
+        }
     }
 
 
@@ -180,7 +201,7 @@ function DashboardPlans() {
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total PLans: 6
+                        Total Plans: {plansList.length}
                     </div>
 
                     <button
@@ -196,7 +217,7 @@ function DashboardPlans() {
                 <div className='w-full'>
                     <div className='px-4 mt-6 flex flex-row gap-4 border-b' style={{ fontSize: "15", fontWeight: "500", width: "fit-content" }}>
                         <div
-                            className={`flex flex-row items-center px-2 ${planType === "monthly" ? "text-purple border-b-2 border-purple" : "text-black"} gap-4`}>
+                            className={`pb-2 flex flex-row items-center px-4 ${planType === "monthly" ? "text-purple border-b-2 border-purple" : "text-black"} gap-4`}>
                             {
                                 planType === "monthly" ?
                                     <Image
@@ -217,9 +238,9 @@ function DashboardPlans() {
                             </button>
                         </div>
                         <div
-                            className={`${planType === "Xbar" ? "text-purple border-b-2 border-purple px-2" : "text-black"} flex flex-row items-center gap-4`}>
+                            className={`pb-4 ${planType === "Xbar" ? "text-purple border-b-2 border-purple px-2" : "text-black"} flex flex-row items-center gap-4`}>
                             {
-                                planType === "XBar" ?
+                                planType === "Xbar" ?
                                     <Image
                                         alt='focusXBar'
                                         src={"/agencyIcons/focusXBar.jpg"}
@@ -268,9 +289,6 @@ function DashboardPlans() {
                         <div style={styles.text}>Strikethrough Price</div>
                     </div>
                     <div className="w-1/12">
-                        <div style={styles.text}>Sold</div>
-                    </div>
-                    <div className="w-1/12">
                         <div style={styles.text}>Minutes</div>
                     </div>
                     <div className="w-1/12">
@@ -295,7 +313,7 @@ function DashboardPlans() {
                                 <div className='w-full'>
                                     {plansList?.length > 0 ? (
                                         <div>
-                                            {plansList.map((item) => (
+                                            {plansList.slice().reverse().map((item) => (
                                                 <div
                                                     key={item.id}
                                                     style={{ cursor: "pointer" }}
@@ -335,12 +353,6 @@ function DashboardPlans() {
                                                     <div className="w-2/12">
                                                         <div style={styles.text2}>
                                                             ${item.discountedPrice || 0}
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-1/12">
-                                                        <div style={styles.text2}>
-                                                            {/*moment(item.renewlDate).format("MMMM DD,YYYY")*/}
-                                                            null
                                                         </div>
                                                     </div>
                                                     <div className="w-1/12">
@@ -418,7 +430,9 @@ function DashboardPlans() {
                 {
                     planType === "monthly" ?
                         <AddMonthlyPlan open={open}
-                            handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated} /> :
+                            handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated}
+                            canAddPlan={canAddPlan}
+                        /> :
                         <AddXBarPlan open={open}
                             handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated} />
                 }

@@ -165,6 +165,8 @@ const Apis = {
   getMonthlyPlan: `${BasePath}api/agency/getAgencyPlansList`,
   addXBarOptions: `${BasePath}api/agency/createAgencyXbarPlan`,
   getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
+  CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
+  getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
 
 
 };
