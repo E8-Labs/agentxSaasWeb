@@ -2426,8 +2426,8 @@ const LeadDetails = ({
           },
         }}
       >
-        <Box className="lg:w-5/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full">
+        <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center">
             <div
               className="w-full flex flex-col items-center"
               style={{
@@ -2436,7 +2436,7 @@ const LeadDetails = ({
                 borderRadius: "13px",
               }}
             >
-              <Player
+              {/* <Player
                 trackList={[
                   {
                     url: showAudioPlay,
@@ -2447,12 +2447,12 @@ const LeadDetails = ({
                 includeSearch={false}
                 showPlaylist={false}
                 sortTracks={false}
-              />
-              {/* <audio controls>
+              /> */}
+              <audio controls>
                 <source src={showAudioPlay} type="audio/mpeg" />
                 Your browser does not support the audio element.
-              </audio> */}
-              {/* <button
+              </audio>
+              <button
                 className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                 onClick={() => {
                   setShowAudioPlay(null);
@@ -2460,7 +2460,7 @@ const LeadDetails = ({
                 style={{ fontWeight: "600", fontSize: 15 }}
               >
                 Close
-              </button> */}
+              </button>
 
               {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
