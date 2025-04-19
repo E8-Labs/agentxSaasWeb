@@ -206,11 +206,11 @@ const ClaimNumber = ({
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
-                overflow: 'auto',
-                scrollbarWidth: 'none'
+                overflow: "auto",
+                scrollbarWidth: "none",
               }}
             >
-              <div>
+              <div className=" h-[88%] overflow-hidden">
                 {isSnackVisible && (
                   <AgentSelectSnackMessage
                     message={openPurchaseErrSnack}
@@ -301,11 +301,11 @@ const ClaimNumber = ({
                         style={{ scrollbarWidth: "none" }}
                       >
                         {foundeNumbers.length > 0 ? (
-                          <div className="w-full">
+                          <div className="w-full pb-12 ">
                             {foundeNumbers.map((item, index) => (
                               <div
                                 key={index}
-                                className="h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4"
+                                className="h-[10vh] rounded-2xl flex flex-col justify-center p-4 mb-4 "
                                 style={{
                                   border:
                                     index === selectedPurchasedIndex
@@ -374,31 +374,28 @@ const ClaimNumber = ({
                   </div>
                 )}
               </div>
-              {
-                !openPurchaseSuccessModal && (
-                  <div className="h-[50px]">
-                    <div>
-                      {purchaseLoader ? (
-                        <div className="w-full flex flex-row justify-center mt-4">
-                          <CircularProgress size={32} />
-                        </div>
-                      ) : (
-                        <div>
-                          {selectedPurchasedNumber && (
-                            <button
-                              className="text-white bg-purple w-full h-[50px] rounded-lg"
-                              onClick={handlePurchaseNumber}
-                            >
-                              Proceed to Buy
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
+              {!openPurchaseSuccessModal && (
+                <div className="h-[50px] ">
+                  <div>
+                    {purchaseLoader ? (
+                      <div className="w-full flex flex-row justify-center mt-4">
+                        <CircularProgress size={32} />
+                      </div>
+                    ) : (
+                      <div>
+                        {selectedPurchasedNumber && (
+                          <button
+                            className="text-white bg-purple w-full h-[50px] rounded-lg"
+                            onClick={handlePurchaseNumber}
+                          >
+                            Proceed to Buy
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
-                )
-              }
-
+                </div>
+              )}
             </div>
           </div>
         </Box>

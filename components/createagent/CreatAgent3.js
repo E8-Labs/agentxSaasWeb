@@ -759,7 +759,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
           </div>
           {selectedPlan && (
             <div className="flex flex-col absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[6%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
-              <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
+              <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div

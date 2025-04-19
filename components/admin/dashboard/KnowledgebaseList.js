@@ -34,8 +34,6 @@ const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
 
       <div className="flex flex-col gap-4">
         {kbList.map((kb, index) => (
-
-
           <KBCard key={index} kb={kb} onDelete={() => onDelete(kb)} />
         ))}
       </div>
@@ -43,21 +41,21 @@ const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
   );
 };
 
-const KBCard = ({ kb, onDelete ,isLoading}) => {
+const KBCard = ({ kb, onDelete, isLoading }) => {
   return (
     <div className="p-4 border rounded-lg shadow-sm bg-white relative ">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium text-gray-500">{kb.type}</span>
-        {
-          !isLoading === kb.id ? (
-            <CircularProgress size={25} />
-          ) : (
-            <button onClick={onDelete} className="text-gray-400 hover:text-red-500">
-              <Trash2 size={18} />
-            </button>
-          )
-        }
-
+        {!isLoading === kb.id ? (
+          <CircularProgress size={25} />
+        ) : (
+          <button
+            onClick={onDelete}
+            className="text-gray-400 hover:text-red-500"
+          >
+            <Trash2 size={18} />
+          </button>
+        )}
       </div>
 
       {kb.type === "Document" && <DocumentCard kb={kb} />}
@@ -72,11 +70,11 @@ const DocumentCard = ({ kb }) => {
   return (
     <div>
       <a
-        href={kb.documentUrl}
+        href={kb.documentUrl.trim()}
         target="_blank"
         className="text-purple font-medium "
       >
-        {kb.title}
+        {kb.title.trim()}
       </a>
       {/* {kb.uploading && <Progress value={kb.progress} className="mt-2" />} */}
     </div>
@@ -86,11 +84,11 @@ const DocumentCard = ({ kb }) => {
 const UrlCard = ({ kb }) => {
   return (
     <a
-      href={kb.originalContent}
+      href={kb.webUrl.trim()}
       target="_blank"
       className="text-purple underline"
     >
-      {kb.webUrl}
+      {kb.webUrl.trim()}
     </a>
   );
 };
@@ -106,11 +104,11 @@ const YoutubeCard = ({ kb }) => {
         overflowWrap: "break-word", // Ensures text wraps properly
         whiteSpace: "normal", // Allows text to wrap
       }}
-      href={kb.webUrl}
+      href={kb.webUrl.trim()}
       target="_blank"
       className="text-purple underline"
     >
-      {kb.webUrl}
+      {kb.webUrl.trim()}
     </a>
   );
 };
@@ -122,8 +120,8 @@ const TextCard = ({ kb }) => {
       <h3 className="font-semibold">{kb.title}</h3>
       <p className="text-gray-600">
         {expanded
-          ? kb.originalContent
-          : kb.originalContent.substring(0, 100) + "..."}
+          ? kb.originalContent.trim()
+          : kb.originalContent.trim().substring(0, 100) + "..."}
       </p>
       <button
         onClick={() => setExpanded(!expanded)}
