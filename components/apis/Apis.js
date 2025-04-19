@@ -158,7 +158,17 @@ const Apis = {
 
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
-  pauseProfile:`${BasePath}api/user/pauseProfile`
+  pauseProfile:`${BasePath}api/user/pauseProfile`,
+
+  //add and get agency plans
+  addMonthlyPlan: `${BasePath}api/agency/createAgencyPlan`,
+  getMonthlyPlan: `${BasePath}api/agency/getAgencyPlansList`,
+  addXBarOptions: `${BasePath}api/agency/createAgencyXbarPlan`,
+  getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
+  CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
+  getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
+
+
 };
 
 export default Apis;

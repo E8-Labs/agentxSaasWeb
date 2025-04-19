@@ -373,8 +373,8 @@ const CreatAgent3 = ({ handleContinue, user }) => {
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center  h-[100svh]"
     >
-      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 ">
-        <div className="flex flex-col h-[100%] ">
+      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 bg-red">
+        <div className="flex flex-col h-[100%]  ">
           {/*for small size screen i agreeto terms and conditions*/}
           <div className="overflow-auto sm:overflow-none">
             {/* header */}
@@ -401,7 +401,9 @@ const CreatAgent3 = ({ handleContinue, user }) => {
 
               {/*  Plans array start here  */}
               <div
-                className="sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center"
+                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${
+                  selectedPlan ? "pb-36" : ""
+                }`}
                 style={{ scrollbarWidth: "none" }}
               >
                 {/* For mobile view */}
@@ -679,7 +681,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                       <button
                         className="text-[#ffffff] pe-8"
                         style={{ fontSize: 14, fontWeight: "700" }}
-                        onClick={()=>{
+                        onClick={() => {
                           window.open(
                             "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
                             "_blank"
@@ -707,7 +709,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                 <CycleArray />
               </div>
               {/*for large size screen i agreeto terms and conditions*/}
-              <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
+              {/* <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
@@ -729,7 +731,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                   )}
                 </button>
                 <TermsText />
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="flex flex-row items-center  gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5 sm:hidden">
@@ -755,17 +757,75 @@ const CreatAgent3 = ({ handleContinue, user }) => {
             </button>
             <TermsText />
           </div>
-          <div className="w-full flex-col items-center flex h-[10%] sm:mt-4">
-            {selectedPlan && agreeTerms ? (
-              <div className="w-full flex-col items-center flex">
-                {selectedPlan?.id > 1 ? (
+          {selectedPlan && (
+            <div className="flex flex-col absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[6%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
+              <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
+                <button onClick={handleToggleTermsClick}>
+                  {agreeTerms ? (
+                    <div
+                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      style={{ height: "24px", width: "24px" }}
+                    >
+                      <Image
+                        src={"/assets/whiteTick.png"}
+                        height={8}
+                        width={10}
+                        alt="*"
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                      style={{ height: "24px", width: "24px" }}
+                    ></div>
+                  )}
+                </button>
+                <TermsText />
+              </div>
+              <div className=" w-full flex-col items-center flex h-[10%]">
+                {selectedPlan && agreeTerms ? (
+                  <div className="w-full flex-col items-center flex">
+                    {selectedPlan?.id > 1 ? (
+                      <button
+                        className="bg-purple w-full rounded-lg text-white h-[50px]"
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "600",
+                          // backgroundColor: selectedPlan && agreeTerms ? "#00000020" : "",
+                          // color: selectedPlan?.id > 1 && agreeTerms ? "#000000" : ""
+                        }}
+                        onClick={() => {
+                          setAddPaymentPopUp(true);
+                        }}
+                      >
+                        Continue
+                      </button>
+                    ) : (
+                      <button
+                        className="bg-purple w-full rounded-lg text-white h-[50px]"
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "600",
+                          // backgroundColor: selectedPlan && agreeTerms ? "#00000020" : "",
+                          // color: selectedPlan && agreeTerms ? "#000000" : ""
+                        }}
+                        onClick={() => {
+                          setAddPaymentPopUp(true);
+                        }}
+                      >
+                        Claim 30 mins
+                      </button>
+                    )}
+                  </div>
+                ) : (
                   <button
-                    className="bg-purple w-11/12 md:w-10/12 lg:w-6/12 rounded-lg text-white h-[50px]"
+                    disabled={true}
+                    className="w-full rounded-lg text-white h-[50px]"
                     style={{
                       fontSize: 16,
                       fontWeight: "600",
-                      // backgroundColor: selectedPlan && agreeTerms ? "#00000020" : "",
-                      // color: selectedPlan?.id > 1 && agreeTerms ? "#000000" : ""
+                      backgroundColor: "#00000020",
+                      color: "#000000",
                     }}
                     onClick={() => {
                       setAddPaymentPopUp(true);
@@ -773,41 +833,10 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                   >
                     Continue
                   </button>
-                ) : (
-                  <button
-                    className="bg-purple w-11/12 md:w-10/12 lg:w-6/12 rounded-lg text-white h-[50px]"
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                      // backgroundColor: selectedPlan && agreeTerms ? "#00000020" : "",
-                      // color: selectedPlan && agreeTerms ? "#000000" : ""
-                    }}
-                    onClick={() => {
-                      setAddPaymentPopUp(true);
-                    }}
-                  >
-                    Claim 30 mins
-                  </button>
                 )}
               </div>
-            ) : (
-              <button
-                disabled={true}
-                className="w-11/12 md:w-10/12 lg:w-6/12 rounded-lg text-white h-[50px]"
-                style={{
-                  fontSize: 16,
-                  fontWeight: "600",
-                  backgroundColor: "#00000020",
-                  color: "#000000",
-                }}
-                onClick={() => {
-                  setAddPaymentPopUp(true);
-                }}
-              >
-                Continue
-              </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Add Payment Modal */}
@@ -880,7 +909,11 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue={`${selectedPlan?.mints === 30 ? "Trial is limited to 30 mins":"" }`}
+                    textBelowContinue={`${
+                      selectedPlan?.mints === 30
+                        ? "Trial is limited to 30 mins"
+                        : ""
+                    }`}
                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>

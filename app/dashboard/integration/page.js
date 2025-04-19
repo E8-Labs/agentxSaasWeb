@@ -597,62 +597,69 @@ function Page() {
         </div> */}
 
         <div className="flex flex-row w-full flex-wrap gap-3 p-5">
-          {
-            integrations.length > 0 ?
-              integrations.map((integration, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg p-3 flex flex-row gap-3 items-start border"
-                >
-                  <img
-                    src={integration.icon}
-                    alt={integration.title}
-                    className="w-12 h-12 object-contain"
-                  />
-                  <div className="flex flex-col gap-2">
-                    <div style={{ fontSize: "1vw", fontWeight: "500" }}>
-                      {integration.title}
-                    </div>
-                    <div
-                      style={{ fontSize: "1vw", fontWeight: "500" }}
-                      className="flex-wrap text-gray-600 w-[20vw]"
-                    >
-                      {integration.description}
-                    </div>
-                    <button
-                      onClick={() => {
-                        // if (integration.title === "GHL") {
-                        //   setShowCopySnak("Comming soon");
-                        //   return;
-                        // }
-                        if (typeof window !== "undefined") {
-                          window.open(integration.url, "_blank");
-                        }
-                      }}
-                      className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      Add
-                    </button>
+          {integrations.length > 0 ? (
+            integrations.map((integration, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-lg p-3 flex flex-row gap-3 items-start border"
+              >
+                <img
+                  src={integration.icon}
+                  alt={integration.title}
+                  className="w-12 h-12 object-contain"
+                />
+                <div className="flex flex-col gap-2">
+                  <div style={{ fontSize: "1vw", fontWeight: "500" }}>
+                    {integration.title}
                   </div>
-                </div>
-              )) : (
-
-                <div className="flex flex-col gap-4 w-full items-center mt-10">
-                  <div>
-                    {`Can't find what you're looking for.`}
-                  </div>
-
-                  <button className="w-[20wh] px-4 py-2 rounded-lg bg-purple text-white text-[16px] font-meduim"
-                    onClick={()=>{
-                      window.open("https://zapier.com/apps/myagentx/integrations","_blank")
-                    }}
+                  <div
+                    style={{ fontSize: "1vw", fontWeight: "500" }}
+                    className="flex-wrap text-gray-600 w-[20vw]"
                   >
-                      Search here
+                    {integration.description}
+                  </div>
+                  <button
+                    onClick={() => {
+                      // if (integration.title === "GHL") {
+                      //   setShowCopySnak("Comming soon");
+                      //   return;
+                      // }
+                      if (typeof window !== "undefined") {
+                        window.open(integration.url, "_blank");
+                      }
+                    }}
+                    className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
+                  >
+                    Add
                   </button>
                 </div>
-              )
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col gap-0 w-full items-center mt-10">
+              <Image
+                className="grayscale"
+                height={220}
+                width={340}
+                alt="*"
+                src={"/assets/noIntegrationIcon.png"}
+              ></Image>
+              <div>{`No Results Found`}</div>
+              <div className="font-bold text-[22px] mt-2">{`Can't find what you're looking for.`}</div>
 
-          }
+              <button
+                className="w-[23wh] px-8 py-2 mt-4 rounded-md bg-purple text-white text-[16px] font-meduim"
+                onClick={() => {
+                  window.open(
+                    "https://zapier.com/apps/myagentx/integrations",
+                    "_blank"
+                  );
+                }}
+              >
+                Search Here
+              </button>
+            </div>
+          )}
         </div>
 
         <div></div>

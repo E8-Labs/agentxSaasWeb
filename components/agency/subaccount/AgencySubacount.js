@@ -1,11 +1,46 @@
-import React, { useState } from 'react'
-import NotficationsDrawer from '../notofications/NotficationsDrawer'
+"use client"
+import React, { useEffect, useState } from 'react'
+import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 import moment from 'moment';
 import Image from 'next/image';
+import CreateSubAccountModal from './CreateSubAccountModal';
+import Apis from '@/components/apis/Apis';
+import { AuthToken } from '../plan/AuthDetails';
+import axios from 'axios';
 
-function AgencyDashboard() {
+function AgencySubacount() {
 
-    const [moreDropdown, setmoreDropdown] = useState(null)
+    const [subAccountList, setSubAccountsList] = useState([]);
+    const [initialLoader, setInitialLoader] = useState([]);
+    const [moreDropdown, setmoreDropdown] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        getSubAccounts();
+    }, []);
+
+    // /code for getting the subaccouts list
+    const getSubAccounts = async () => {
+        try {
+            setInitialLoader(true);
+            const ApiPAth = Apis.getAgencySubAccount;
+            const Token = AuthToken();
+            const response = await axios.get(ApiPAth, {
+                headers: {
+                    "Authorization": "Bearer " + Token,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if(response){
+                console.log("Response of get subaccounts api is", response.data);
+            }
+
+        } catch (error) {
+            console.error("Error occured in getsub accounts is", error);
+        }
+    }
+
 
     const subAcccounts = [
         {
@@ -102,14 +137,13 @@ function AgencyDashboard() {
 
                     <button
                         className='flex px-5 py-3 bg-white rounded-lg text-purple font-medium'
+                        onClick={() => { setShowModal(true) }}
                     >
                         Create Subaccount
                     </button>
 
 
                 </div>
-
-
 
                 <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
                     <div className="w-3/12">
@@ -259,13 +293,19 @@ function AgencyDashboard() {
                     )}
                 </div>
 
+                {/* Code for modals */}
+                <CreateSubAccountModal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                />
+
             </div>
 
         </div>
     )
 }
 
-export default AgencyDashboard
+export default AgencySubacount
 
 
 const styles = {
