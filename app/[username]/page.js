@@ -236,7 +236,7 @@ const Page = ({ length = 6, onComplete }) => {
                 // //console.log;
                 router.push("/createagent/desktop");
               } else if (w > 540) {
-                // //console.log;
+                // console.log("Test check 123");
                 router.push("/dashboard/leads");
               }
             } else {

@@ -9,7 +9,7 @@ import UserType from "@/components/onboarding/UserType";
 
 
 
-export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNumber, teamMembers, subAccountName, selectedMonthlyPlans }) {
+export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNumber, teamMembers, subAccountName, selectedMonthlyPlans, selectedUserType }) {
 
     const [xBarPlans, setXBarPlans] = useState([]);
     const [selectedXBarPlans, setSelectedXBarPlans] = useState([]);
@@ -53,7 +53,7 @@ export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNu
                 name: subAccountName,
                 phone: userPhoneNumber,
                 email: userEmail,
-                UserType: "RealEstateAgent",
+                UserType: selectedUserType,
                 teams: teamMembers.map((item, index) => ({
                     name: `${item.name}`,
                     phone: `+${item.phone}`,

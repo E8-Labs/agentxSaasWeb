@@ -6,7 +6,7 @@ import { getMonthlyPlan } from "./GetPlansList";
 
 
 
-export default function SetPricing({ isOpen, onClose, userEmail, userPhoneNumber, teamMembers, subAccountName }) {
+export default function SetPricing({ isOpen, onClose, userEmail, userPhoneNumber, teamMembers, subAccountName, selectedUserType }) {
 
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [selectedPlans, setSelectedPlans] = useState([]);
@@ -125,6 +125,7 @@ export default function SetPricing({ isOpen, onClose, userEmail, userPhoneNumber
                     userPhoneNumber={userPhoneNumber}
                     teamMembers={teamMembers}
                     subAccountName={subAccountName}
+                    selectedUserType={selectedUserType}
                 />
 
             </Box>

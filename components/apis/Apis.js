@@ -157,7 +157,6 @@ const Apis = {
   connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
 
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
-  getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
   pauseProfile:`${BasePath}api/user/pauseProfile`,
 
   //add and get agency plans
@@ -167,6 +166,11 @@ const Apis = {
   getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
   CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
   getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
+
+  //subaccount plan apis
+  getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,
+  subAgencyAndSubAccountPlans: `${BasePath}api/agency/subscribeAgencyPlan`,
+
 
 
 };

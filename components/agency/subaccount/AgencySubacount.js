@@ -7,11 +7,12 @@ import CreateSubAccountModal from './CreateSubAccountModal';
 import Apis from '@/components/apis/Apis';
 import { AuthToken } from '../plan/AuthDetails';
 import axios from 'axios';
+import { CircularProgress } from '@mui/material';
 
 function AgencySubacount() {
 
     const [subAccountList, setSubAccountsList] = useState([]);
-    const [initialLoader, setInitialLoader] = useState([]);
+    const [initialLoader, setInitialLoader] = useState(false);
     const [moreDropdown, setmoreDropdown] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
@@ -32,12 +33,15 @@ function AgencySubacount() {
                 }
             });
 
-            if(response){
+            if (response) {
                 console.log("Response of get subaccounts api is", response.data);
+                setSubAccountsList(response.data.data);
+                setInitialLoader(false);
             }
 
         } catch (error) {
             console.error("Error occured in getsub accounts is", error);
+            setInitialLoader(false);
         }
     }
 
@@ -132,7 +136,7 @@ function AgencySubacount() {
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Subaccounts: 6
+                        Total Subaccounts: {subAccountList?.length || 0}
                     </div>
 
                     <button
@@ -172,126 +176,133 @@ function AgencySubacount() {
                     </div>
                 </div>
 
-                <div
-                    className={`h-[71vh] overflow-auto w-full`}
-                    id="scrollableDiv1"
-                    style={{ scrollbarWidth: "none" }}
-                >
-                    {subAcccounts?.length > 0 ? (
-                        <div>
-                            {subAcccounts.map((item) => (
-                                <div
-                                    key={item.id}
-                                    style={{ cursor: "pointer" }}
-                                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
-                                >
-                                    <div
-                                        className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
-                                        onClick={() => {
-                                            // // //console.log;
-                                            // setselectedLeadsDetails(item);
-                                            // setShowDetailsModal(true);
-                                        }}
-                                    >
-                                        <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                            {item.name.slice(0, 1).toUpperCase()}
-                                        </div>
-                                        <div style={{ ...styles.text2, ...{ width: "80%", } }}>
-                                            {item.name}
-                                        </div>
-                                    </div>
-                                    <div className="w-1/12 ">
-                                        <div style={styles.text2}>
-                                            {item.plan}
-                                        </div>
-                                    </div>
-                                    <div className="w-1/12">
-                                        {/* (item.LeadModel?.phone) */}
-                                        <div style={styles.text2}>
-                                            ${item.totalSpent || 0}
-                                        </div>
-                                    </div>
-                                    <div className="w-1/12">
-                                        <div style={styles.text2}>
-                                            {item.balance || 0} minutes
-                                        </div>
-                                    </div>
-                                    <div className="w-1/12">
-                                        <div style={styles.text2}>
-                                            {item.leads}
-                                        </div>
-                                    </div>
-                                    <div className="w-2/12">
-                                        <div style={styles.text2}>
-                                            {moment(item.renewlDate).format("MMMM DD,YYYY")}
-                                        </div>
-                                    </div>
-                                    <div className="w-2/12">
-                                        {item.teamMembers}
-                                    </div>
-
-                                    <div className="w-1/12 relative">
-                                        <button
-                                            id={`dropdown-toggle-${item.id}`}
-                                            onClick={() =>
-                                                setmoreDropdown(
-                                                    moreDropdown === item.id ? null : item.id
-                                                )
-                                            }
+                {
+                    initialLoader ?
+                        <div className='w-full flex flex-row justify-center mt-4'>
+                            <CircularProgress size={35} />
+                        </div> :
+                        <div
+                            className={`h-[71vh] overflow-auto w-full`}
+                            id="scrollableDiv1"
+                            style={{ scrollbarWidth: "none" }}
+                        >
+                            {subAccountList?.length > 0 ? (
+                                <div>
+                                    {subAccountList.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            style={{ cursor: "pointer" }}
+                                            className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                                         >
-                                            <Image src={'/svgIcons/threeDotsIcon.svg'} height={24} width={24} alt="menu" />
-                                        </button>
-
-                                        {moreDropdown === item.id && (
-                                            <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
-                                                <div
-                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                    onClick={() => {
-                                                        setmoreDropdown(null)
-                                                    }}
-                                                >
-                                                    View Detail
+                                            <div
+                                                className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                                            // onClick={() => {
+                                            //     // // //console.log;
+                                            //     // setselectedLeadsDetails(item);
+                                            //     // setShowDetailsModal(true);
+                                            // }}
+                                            >
+                                                <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                                    {item.name.slice(0, 1).toUpperCase()}
                                                 </div>
-                                                <div
-                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                    onClick={() => {
-                                                        // Handle invite
-                                                    }}
-                                                >
-                                                    Invite Team
-                                                </div>
-                                                <div
-                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                    onClick={() => {
-                                                        // Handle view plans
-                                                    }}
-                                                >
-                                                    View Plans
-                                                </div>
-                                                <div
-                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                    onClick={() => {
-                                                        // Handle redirect
-                                                    }}
-                                                >
-                                                    To the advertisement
+                                                <div style={{ ...styles.text2, ...{ width: "80%", } }}>
+                                                    {item.name}
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
+                                            <div className="w-1/12 ">
+                                                <div style={styles.text2}>
+                                                    {item.plan}
+                                                </div>
+                                            </div>
+                                            <div className="w-1/12">
+                                                {/* (item.LeadModel?.phone) */}
+                                                <div style={styles.text2}>
+                                                    ${item.totalSpent || 0}
+                                                </div>
+                                            </div>
+                                            <div className="w-1/12">
+                                                <div style={styles.text2}>
+                                                    {item.balance || 0} minutes
+                                                </div>
+                                            </div>
+                                            <div className="w-1/12">
+                                                <div style={styles.text2}>
+                                                    {item.totalLeads}
+                                                </div>
+                                            </div>
+                                            <div className="w-2/12">
+                                                <div style={styles.text2}>
+                                                    {moment(item.renewlDate).format("MMMM DD,YYYY")}
+                                                </div>
+                                            </div>
+                                            <div className="w-2/12">
+                                                {item.teamMembers}
+                                            </div>
 
+                                            <div className="w-1/12 relative">
+                                                <button
+                                                    id={`dropdown-toggle-${item.id}`}
+                                                    onClick={() =>
+                                                        setmoreDropdown(
+                                                            moreDropdown === item.id ? null : item.id
+                                                        )
+                                                    }
+                                                >
+                                                    <Image src={'/svgIcons/threeDotsIcon.svg'} height={24} width={24} alt="menu" />
+                                                </button>
+
+                                                {moreDropdown === item.id && (
+                                                    <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
+                                                        <div
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => {
+                                                                setmoreDropdown(null)
+                                                            }}
+                                                        >
+                                                            View Detail
+                                                        </div>
+                                                        <div
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => {
+                                                                // Handle invite
+                                                            }}
+                                                        >
+                                                            Invite Team
+                                                        </div>
+                                                        <div
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => {
+                                                                // Handle view plans
+                                                            }}
+                                                        >
+                                                            View Plans
+                                                        </div>
+                                                        <div
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => {
+                                                                // Handle redirect
+                                                            }}
+                                                        >
+                                                            To the advertisement
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
+                            ) : (
+                                <div
+                                    className="text-center mt-4"
+                                    style={{ fontWeight: "bold", fontSize: 20 }}
+                                >
+                                    No sub-account found
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <div
-                            className="text-center mt-4"
-                            style={{ fontWeight: "bold", fontSize: 20 }}
-                        >
-                            No call log found
-                        </div>
-                    )}
-                </div>
+                }
+
 
                 {/* Code for modals */}
                 <CreateSubAccountModal

@@ -332,6 +332,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
         if (response.data.status === true) {
           setLoaderTitle("Redirecting to dashboard...");
+          // if (response.data.data.user.userRole == "AgencySubAccount"){
+          //   setLoaderTitle("Redirecting to invite...");
+          // }else{
+          //   setLoaderTitle("Redirecting to dashboard...");
+          // }
           // if (
           //   response.data.data.user.userType !== "RealEstateAgent" &&
           //   response.data.data.user.userRole !== "Invitee"
@@ -366,8 +371,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   router.push(redirect);
                 } else {
                   // setUserType()
+                  console.log("user role is", response.data.data.user.userRole);
+                  // return
                   if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
+                  } else if (response.data.data.user.userRole == "AgencySubAccount") {
+                    router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/leads");
                   }
@@ -471,7 +480,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   if (data.data.user.userType == "admin") {
                     router.push("/admin");
                   } 
-                  
+                  else if (data.data.user.userRole == "AgencySubAccount") {
+                    router.push("/subaccountInvite");
+                  }   
                   else {
                     router.push("/dashboard/leads");
                   }
