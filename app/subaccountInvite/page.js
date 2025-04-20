@@ -7,6 +7,19 @@ const Page = () => {
 
     const router = useRouter();
 
+    const handleSkip = () => {
+        const data = localStorage.getItem("User");
+        console.log("Working");
+        if(data){
+            const D = JSON.parse(data);
+            if(D.user.plan){
+                router.push("/dashboard")
+            }else{
+                router.push("/subaccountInvite/subscribeSubAccountPlan")
+            }
+        }
+    }
+
     const styles = {
         btnText: {
             fontSize: "15px",
@@ -44,7 +57,7 @@ const Page = () => {
                 <button
                     className='underline mt-4'
                     style={styles.btnText}
-                    onClick={() => {router.push("/subaccountInvite/subscribeSubAccountPlan")}}
+                    onClick={() => {handleSkip()}}
                     >
                     Skip for now
                 </button>

@@ -212,7 +212,7 @@ const ProfileNav = () => {
     if (data) {
       const LocalData = JSON.parse(data);
       console.log('LocalData.user.profile_status', LocalData.user.profile_status)
-      if(LocalData.user.profile_status === "paused"){
+      if (LocalData.user.profile_status === "paused") {
         setErrorSnack("Your account has been frozen.")
         logout()
         router.push("/");
@@ -378,13 +378,13 @@ const ProfileNav = () => {
       href: "/dashboard",
       selected: "/svgIcons/selectdDashboardIcon.svg",
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
-    },{
+    }, {
       id: 1,
       name: "Sub Account",
       href: "/dashboard",
       selected: "/svgIcons/selectedSubAccountIcon.svg",
       uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
-    },{
+    }, {
       id: 1,
       name: "Plans",
       href: "/dashboard",
@@ -425,7 +425,7 @@ const ProfileNav = () => {
       if (response) {
         // //console.log;
         if (response?.data?.status) {
-          // //console.log;
+          console.log("Response of get profile api is", response);
           setUserType(response?.data?.data.userType);
           if (response?.data?.data.userType != "admin") {
             if (
@@ -438,7 +438,15 @@ const ProfileNav = () => {
                 Data?.plan?.status == "active" &&
                 Data?.totalSecondsAvailable <= 120)
             ) {
-              setShowPlansPopup(true);
+              if (Data?.userRole === "AgencySubAccount") {
+                const fromDashboard = {
+                  fromDashboard: true
+                }
+                localStorage.setItem("fromDashboard", JSON.stringify(fromDashboard));
+                router.push("/subaccountInvite/subscribeSubAccountPlan");
+              } else {
+                setShowPlansPopup(true);
+              }
             } else {
               setShowPlansPopup(false);
             }
@@ -742,7 +750,7 @@ const ProfileNav = () => {
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}
-                // onClick={(e) => handleOnClick(e, item.href)}
+              // onClick={(e) => handleOnClick(e, item.href)}
               >
                 <div
                   className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -1185,7 +1193,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

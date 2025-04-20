@@ -2,18 +2,39 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import ProgressBar from '@/components/onboarding/ProgressBar';
-import { CircularProgress, LinearProgress } from '@mui/material';
+import { Box, CircularProgress, LinearProgress, Modal } from '@mui/material';
 import { AuthToken } from '../plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails';
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import { useRouter } from 'next/navigation';
+
+//code for add card
+let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+        ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+        : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = loadStripe(stripePublickKey);
 
 const SubAccountPlan = () => {
 
+    const router = useRouter();
+
+    const [initialLoader, setInitialLoader] = useState(true);
     const [togglePlan, setTogglePlan] = useState("");
     const [userPlans, setUserPlans] = useState([]);
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [subPlanLoader, setSubPlanLoader] = useState(false);
     const [canSubPlan, setCanSubPlan] = useState(false);
+    const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
+
+
+    const [errorMsg, setErrorMsg] = useState(null);
+    const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+
 
     useEffect(() => {
         getPlans();
@@ -23,7 +44,7 @@ const SubAccountPlan = () => {
     useEffect(() => {
         if (togglePlan && agreeTerms === true) {
             setCanSubPlan(true);
-        }else{
+        } else {
             setCanSubPlan(false);
         }
     }, [togglePlan, agreeTerms])
@@ -38,9 +59,15 @@ const SubAccountPlan = () => {
         setAgreeTerms(!agreeTerms);
     };
 
+    //close add card popup
+    const handleClose = (data) => {
+        setAddPaymentPopUp(false);
+    };
+
     //get plans apis
     const getPlans = async () => {
         try {
+            setInitialLoader(true);
             const Token = AuthToken();
             const ApiPath = Apis.getSubAccountPlans;
             const response = await axios.get(ApiPath, {
@@ -53,9 +80,11 @@ const SubAccountPlan = () => {
             if (response) {
                 console.log("Response of get plans api is", response.data.data.monthlyPlans);
                 setUserPlans(response.data.data.monthlyPlans);
+                setInitialLoader(false);
             }
 
         } catch (error) {
+            setInitialLoader(false);
             console.error("Error occured in getting plans", error);
         }
     }
@@ -68,9 +97,9 @@ const SubAccountPlan = () => {
             const ApiPath = Apis.subAgencyAndSubAccountPlans;
             const formData = new FormData();
             formData.append("planId", togglePlan);
-            // for (let [key, value] of formData.entries()) {
-            //     console.log(`${key} = ${value}`);
-            // }
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key} = ${value}`);
+            }
             const response = await axios.post(ApiPath, formData, {
                 headers: {
                     "Authorization": "Bearer " + Token
@@ -80,6 +109,23 @@ const SubAccountPlan = () => {
             if (response) {
                 console.log("Response of subscribe subaccount plan is", response.data);
                 setSubPlanLoader(false);
+                if (response.data.status === true) {
+                    setErrorMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Success);
+                    const D = localStorage.getItem("fromDashboard");
+                    if(D){
+                        localStorage.removeItem("fromDashboard");
+                    }
+
+                    router.push("/dashboard");
+
+                } else if (response.data.status === false) {
+                    setErrorMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Error);
+                    if (response.data.message === "No payment method added") {
+                        setAddPaymentPopUp(true);
+                    }
+                }
             }
 
         } catch (error) {
@@ -163,6 +209,13 @@ const SubAccountPlan = () => {
         <div className="w-full flex flex-row justify-center">
             <div className="w-10/12">
 
+                <AgentSelectSnackMessage
+                    isVisible={errorMsg !== null}
+                    message={errorMsg}
+                    hide={() => { setErrorMsg(null) }}
+                    type={snackMsgType}
+                />
+
                 {/* Progress bar */}
                 <div className="w-full flex flex-row items-center gap-4 mt-24">
                     <Image
@@ -196,123 +249,137 @@ const SubAccountPlan = () => {
                             }}>
                             Select a Plan
                         </div>
-                        <div className='mt-4'>
-                            {userPlans?.map((item) => (
-                                <button
-                                    key={item.id}
-                                    className="w-full mt-4"
-                                    onClick={(e) => handleTogglePlanClick2(item)}
-                                >
-                                    <div
-                                        className="px-4 py-1 pb-4"
-                                        style={{
-                                            ...styles.pricingBox,
-                                            border:
-                                                item.id === togglePlan
-                                                    ? "2px solid #7902DF"
-                                                    : "1px solid #15151520",
-                                            backgroundColor:
-                                                item.id === togglePlan ? "#402FFF05" : "",
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                ...styles.triangleLabel,
-                                                borderTopRightRadius: "7px",
-                                            }}
-                                        ></div>
-                                        <span style={styles.labelText}>{item.discountedPrice / item.originalPrice * 100}%</span>
-                                        <div
-                                            className="flex flex-row items-start gap-3"
-                                            style={styles.content}
-                                        >
-                                            <div className="mt-1">
-                                                <div>
-                                                    {item.id === togglePlan ? (
-                                                        <Image
-                                                            src={"/svgIcons/checkMark.svg"}
-                                                            height={24}
-                                                            width={24}
-                                                            alt="*"
-                                                        />
-                                                    ) : (
-                                                        <Image
-                                                            src={"/svgIcons/unCheck.svg"}
-                                                            height={24}
-                                                            width={24}
-                                                            alt="*"
-                                                        />
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div className="w-full">
-                                                {/*item.id === 1 && (
-                                                    <div
-                                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                                                        style={{
-                                                            fontSize: 11.6,
-                                                            fontWeight: "500",
-                                                            width: "fit-content",
-                                                        }}
+                        {
+                            initialLoader ?
+                                <div className='mt-6 flex flex-row justify-center w-full'>
+                                    <CircularProgress size={35} />
+                                </div> :
+                                <div className='max-height-[30vh] overflow-y-auto'>
+                                    {
+                                        userPlans.length > 0 ?
+                                            <div className='mt-4'>
+                                                {userPlans?.map((item) => (
+                                                    <button
+                                                        key={item.id}
+                                                        className="w-full mt-4"
+                                                        onClick={(e) => handleTogglePlanClick2(item)}
                                                     >
-                                                        Current Plan
-                                                    </div>
-                                                )*/}
-                                                {item.status && (
-                                                    <div
-                                                        className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
-                                                        style={{
-                                                            fontSize: 11.6,
-                                                            fontWeight: "500",
-                                                            width: "fit-content",
-                                                        }}
-                                                    >
-                                                        {item.status}
-                                                    </div>
-                                                )}
-                                                <div
-                                                    style={{
-                                                        color: "#151515",
-                                                        fontSize: 20,
-                                                        fontWeight: "600",
-                                                    }}
-                                                    className="flex flex-row items-center gap-1"
-                                                >
-                                                    {item.title}
-                                                </div>
-                                                <div className="flex flex-row items-center justify-between">
-                                                    <div
-                                                        className="mt-2"
-                                                        style={{
-                                                            color: "#15151590",
-                                                            fontSize: 12,
-                                                            width: "80%",
-                                                            fontWeight: "600",
-                                                        }}
-                                                    >
-                                                        {item.planDescription}
-                                                    </div>
-                                                    <div className="flex flex-row items-center">
-                                                        {item.originalPrice && (
-                                                            <div style={styles.originalPrice}>
-                                                                ${item.originalPrice}
+                                                        <div
+                                                            className="px-4 py-1 pb-4"
+                                                            style={{
+                                                                ...styles.pricingBox,
+                                                                border:
+                                                                    item.id === togglePlan
+                                                                        ? "2px solid #7902DF"
+                                                                        : "1px solid #15151520",
+                                                                backgroundColor:
+                                                                    item.id === togglePlan ? "#402FFF05" : "",
+                                                            }}
+                                                        >
+                                                            <div
+                                                                style={{
+                                                                    ...styles.triangleLabel,
+                                                                    borderTopRightRadius: "7px",
+                                                                }}
+                                                            ></div>
+                                                            <span style={styles.labelText}>{item.discountedPrice / item.originalPrice * 100}%</span>
+                                                            <div
+                                                                className="flex flex-row items-start gap-3"
+                                                                style={styles.content}
+                                                            >
+                                                                <div className="mt-1">
+                                                                    <div>
+                                                                        {item.id === togglePlan ? (
+                                                                            <Image
+                                                                                src={"/svgIcons/checkMark.svg"}
+                                                                                height={24}
+                                                                                width={24}
+                                                                                alt="*"
+                                                                            />
+                                                                        ) : (
+                                                                            <Image
+                                                                                src={"/svgIcons/unCheck.svg"}
+                                                                                height={24}
+                                                                                width={24}
+                                                                                alt="*"
+                                                                            />
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="w-full">
+                                                                    {/*item.id === 1 && (
+                                                            <div
+                                                                className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                                                style={{
+                                                                    fontSize: 11.6,
+                                                                    fontWeight: "500",
+                                                                    width: "fit-content",
+                                                                }}
+                                                            >
+                                                                Current Plan
                                                             </div>
-                                                        )}
-                                                        <div className="flex flex-row justify-start items-start">
-                                                            <div style={styles.discountedPrice}>
-                                                                {/*item.hasTrial ? "" : "$"*/}
-                                                                {item.discountedPrice}
+                                                        )*/}
+                                                                    {item.status && (
+                                                                        <div
+                                                                            className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                                                                            style={{
+                                                                                fontSize: 11.6,
+                                                                                fontWeight: "500",
+                                                                                width: "fit-content",
+                                                                            }}
+                                                                        >
+                                                                            {item.status}
+                                                                        </div>
+                                                                    )}
+                                                                    <div
+                                                                        style={{
+                                                                            color: "#151515",
+                                                                            fontSize: 20,
+                                                                            fontWeight: "600",
+                                                                        }}
+                                                                        className="flex flex-row items-center gap-1"
+                                                                    >
+                                                                        {item.title}
+                                                                    </div>
+                                                                    <div className="flex flex-row items-center justify-between">
+                                                                        <div
+                                                                            className="mt-2"
+                                                                            style={{
+                                                                                color: "#15151590",
+                                                                                fontSize: 12,
+                                                                                width: "80%",
+                                                                                fontWeight: "600",
+                                                                            }}
+                                                                        >
+                                                                            {item.planDescription}
+                                                                        </div>
+                                                                        <div className="flex flex-row items-center">
+                                                                            {item.originalPrice && (
+                                                                                <div style={styles.originalPrice}>
+                                                                                    ${item.originalPrice}
+                                                                                </div>
+                                                                            )}
+                                                                            <div className="flex flex-row justify-start items-start">
+                                                                                <div style={styles.discountedPrice}>
+                                                                                    {/*item.hasTrial ? "" : "$"*/}
+                                                                                    {item.discountedPrice}
+                                                                                </div>
+                                                                                <p style={{ color: "#15151580" }}>/mo*</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <p style={{ color: "#15151580" }}>/mo*</p>
                                                         </div>
-                                                    </div>
-                                                </div>
+                                                    </button>
+                                                ))}
+                                            </div> :
+                                            <div className='mt-6 text-center text-lg font-bold'>
+                                                No Plans found
                                             </div>
-                                        </div>
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
+                                    }
+                                </div>
+                        }
                         <div className="flex flex-row items-center  gap-4 justify-start w-full mt-4">
                             <button onClick={handleToggleTermsClick}>
                                 {agreeTerms ? (
@@ -342,7 +409,7 @@ const SubAccountPlan = () => {
                                     <CircularProgress size={35} />
                                 </div> :
                                 <button
-                                    className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan ? "bg-purple text-white":"bg-[#00000030] text-black"}`}
+                                    className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan ? "bg-purple text-white" : "bg-[#00000030] text-black"}`}
                                     onClick={subscribePlanClick}
                                 >
                                     Continue
@@ -350,6 +417,66 @@ const SubAccountPlan = () => {
                         }
                     </div>
                 </div>
+
+                {/* Code for add card */}
+                {/* Add Payment Modal */}
+                <Modal
+                    open={addPaymentPopUp} //addPaymentPopUp
+                    // open={true}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 100,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // //backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box
+                        className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+                        sx={styles.paymentModal}
+                    >
+                        <div className="flex flex-row justify-center w-full ">
+                            <div
+                                className="sm:w-7/12 w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className="flex flex-row justify-between items-center">
+                                    <div
+                                        style={{
+                                            fontSize: 18,
+                                            fontWeight: "600",
+                                        }}
+                                    >
+                                        Add new card
+                                    </div>
+                                    <button onClick={() => setAddPaymentPopUp(false)}>
+                                        <Image
+                                            src={"/assets/crossIcon.png"}
+                                            height={40}
+                                            width={40}
+                                            alt="*"
+                                        />
+                                    </button>
+                                </div>
+                                <Elements stripe={stripePromise}>
+                                    <AddCardDetails
+                                        //selectedPlan={selectedPlan}
+                                        // stop={stop}
+                                        // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                                        handleClose={handleClose}
+                                        togglePlan={togglePlan}
+                                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                                    />
+                                </Elements>
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
 
             </div>
         </div>
