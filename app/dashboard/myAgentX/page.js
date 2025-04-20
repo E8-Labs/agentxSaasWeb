@@ -4735,7 +4735,12 @@ function Page() {
                           greetTag={showScriptModal?.prompt?.greeting}
                           kycsList={kycsData}
                           uniqueColumns={uniqueColumns}
-                          tagValue={setGreetingTagInput}
+                          tagValue={(text) => {
+                            setGreetingTagInput(text);
+                            let agent = showScriptModal;
+                            agent.prompt.greeting = text;
+                            setShowScriptModal(agent);
+                          }}
                           scrollOffset={scrollOffset}
                         />
                       </div>
@@ -4745,7 +4750,12 @@ function Page() {
                           kycsList={kycsData}
                           from={"Promt"}
                           uniqueColumns={uniqueColumns}
-                          tagValue={setScriptTagInput}
+                          tagValue={(text) => {
+                            setScriptTagInput(text);
+                            // let agent = showScriptModal;
+                            // agent.prompt.callScript = text;
+                            // setShowScriptModal(agent);
+                          }}
                           scrollOffset={scrollOffset}
                           showSaveChangesBtn={showSaveChangesBtn}
                           saveUpdates={async () => {

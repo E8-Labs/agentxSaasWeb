@@ -48,6 +48,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 
 import Player from "@madzadev/audio-player";
 import "@madzadev/audio-player/dist/index.css";
+import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -88,7 +89,7 @@ const LeadDetails = ({
   const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false);
 
   //code for call activity transcript text
-  const [isExpanded, setIsExpanded] = useState([]);
+  const [isExpanded, setIsExpanded] = useState(null); // earlier it was empty array
   const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
   const [expandedCustomFields, setExpandedCustomFields] = useState([]); // check if the custom fields Read More or Read less should show
@@ -626,15 +627,16 @@ const LeadDetails = ({
   const handleReadMoreToggle = (item) => {
     // setIsExpanded(!isExpanded);
 
-    setIsExpanded((prevIds) => {
-      if (prevIds.includes(item.id)) {
-        // Unselect the item if it's already selected
-        return prevIds.filter((prevId) => prevId !== item.id);
-      } else {
-        // Select the item if it's not already selected
-        return [...prevIds, item.id];
-      }
-    });
+    setIsExpanded(item);
+    // setIsExpanded((prevIds) => {
+    //   if (prevIds.includes(item.id)) {
+    //     // Unselect the item if it's already selected
+    //     return prevIds.filter((prevId) => prevId !== item.id);
+    //   } else {
+    //     // Select the item if it's not already selected
+    //     return [...prevIds, item.id];
+    //   }
+    // });
   };
 
   const handleDeleteLead = async () => {
@@ -2129,11 +2131,12 @@ const LeadDetails = ({
                                                       }}
                                                     >
                                                       {/* {item.transcript} */}
-                                                      {isExpanded.includes(
+                                                      {`${initialText}...`}
+                                                      {/* {isExpanded.includes(
                                                         item.id
                                                       )
                                                         ? `${item.transcript}`
-                                                        : `${initialText}...`}
+                                                        : `${initialText}...`} */}
                                                     </div>
                                                     <button
                                                       style={{
@@ -2147,11 +2150,14 @@ const LeadDetails = ({
                                                       }}
                                                       className="mt-2 text-black underline"
                                                     >
-                                                      {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? "Read Less"
-                                                        : "Read more"}
+                                                      {
+                                                        // isExpanded.includes(
+                                                        //   item.id
+                                                        // )
+                                                        //   ? "Read Less"
+                                                        // :
+                                                        "Read more"
+                                                      }
                                                     </button>
                                                   </div>
                                                 ) : (
@@ -2229,6 +2235,50 @@ const LeadDetails = ({
               )}
             </div>
 
+            {/* Show Transcript UI Modal*/}
+
+            <Modal
+              open={isExpanded}
+              onClose={() => setIsExpanded(null)}
+              closeAfterTransition
+              BackdropProps={{
+                timeout: 1000,
+                sx: {
+                  backgroundColor: "#00000020",
+                },
+              }}
+            >
+              <Box
+                className="lg:w-4/12 sm:w-4/12 w-6/12"
+                sx={styles.modalsStyle}
+              >
+                <div className="flex flex-row justify-center w-full">
+                  <div
+                    className="w-full"
+                    style={{
+                      backgroundColor: "#ffffff",
+                      padding: 20,
+                      borderRadius: "13px",
+                    }}
+                  >
+                    <div className="font-bold text-xl mt-4 mb-4">
+                      Call Transcript
+                    </div>
+                    <TranscriptViewer
+                      transcript={isExpanded?.transcript || ""}
+                    />
+                    <div className="flex flex-row justify-end mt-6">
+                      <button
+                        className="font-bold border border-[#00000020] rounded-xl px-4 py-2"
+                        onClick={() => setIsExpanded(null)}
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Box>
+            </Modal>
             {/* delete lead modal */}
 
             <Modal
