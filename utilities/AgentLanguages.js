@@ -7,6 +7,10 @@ export const AgentLanguages = {
     title: "Spanish",
     value: "es",
   },
+  Bilingual: {
+    title: "Bilingual",
+    value: "es",
+  },
   // French: {
   //   title: "French",
   //   value: "fr",
@@ -20,4 +24,5 @@ export const AgentLanguages = {
 export const AgentLanguagesList = [
   AgentLanguages.English,
   AgentLanguages.Spanish,
+  AgentLanguages.Bilingual,
 ];
