@@ -6,7 +6,13 @@ import {
   ChatBubble,
 } from "@mui/icons-material";
 
-export function TranscriptBubble({ message, sender, index, onCommentClick, comment }) {
+export function TranscriptBubble({
+  message,
+  sender,
+  index,
+  onCommentClick,
+  comment,
+}) {
   const isBot = sender === "bot";
   const commentBtnRef = useRef(null);
 
@@ -18,8 +24,9 @@ export function TranscriptBubble({ message, sender, index, onCommentClick, comme
     <div className={`flex ${isBot ? "justify-start" : "justify-end"} mb-2`}>
       <div>
         <div
-          className={`max-w-xs px-4 py-2 shadow text-sm ${bubbleClasses} ${isBot ? "text-black" : "text-white"
-            }`}
+          className={`max-w-xs px-4 py-2 shadow text-sm ${bubbleClasses} ${
+            isBot ? "text-black" : "text-white"
+          }`}
           style={{
             backgroundColor: isBot ? "#F6F7F9" : "#7902DF",
           }}
@@ -39,24 +46,25 @@ export function TranscriptBubble({ message, sender, index, onCommentClick, comme
               className="text-gray-500 hover:text-black border-none outline-none"
               onClick={() => onCommentClick(index, commentBtnRef)}
             >
-              {
-                comment ?
-                  <div className="flex flex-row items-center gap-2">
-                    <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} />
-                    <i>
-                      <div
-                        className="text-purple"
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: "500"
-                        }}
-                      >
-                        {comment}
-                      </div>
-                    </i>
-                  </div> :
-                  <ChatBubbleOutlineOutlined fontSize="small" />
-              }
+              {comment ? (
+                <div className="flex flex-row items-center gap-2">
+                  {/* <ChatBubble fontSize="small" sx={{ color: "#7902DF" }} /> */}
+                  <i>
+                    <div
+                      className="text-purple"
+                      style={{
+                        fontSize: "13px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {comment}
+                    </div>
+                  </i>
+                </div>
+              ) : (
+                // <ChatBubbleOutlineOutlined fontSize="small" />
+                <div></div>
+              )}
             </button>
           </div>
         )}
@@ -64,8 +72,6 @@ export function TranscriptBubble({ message, sender, index, onCommentClick, comme
     </div>
   );
 }
-
-
 
 import { useState } from "react";
 import { parseTranscript } from "@/utilities/parseTranscript";
@@ -75,7 +81,8 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 
 export function TranscriptViewer({ transcript }) {
-  const [messages, setMessages] = useState(parseTranscript(transcript || ""));
+  console.log("Received transcript is ", transcript);
+  const [messages, setMessages] = useState(transcript); //parseTranscript(transcript || "")
   const [activeIndex, setActiveIndex] = useState(null);
   const [popoverPos, setPopoverPos] = useState(null); // null = closed
   const [comment, setComment] = useState("");
@@ -123,9 +130,7 @@ export function TranscriptViewer({ transcript }) {
         onClose={() => setPopoverPos(null)}
       >
         <div className="p-4 w-80">
-          <div style={{ fontWeight: "500", fontSize: "15px" }}>
-            Add Comment
-          </div>
+          <div style={{ fontWeight: "500", fontSize: "15px" }}>Add Comment</div>
           <TextField
             placeholder="Tell the AI how you really feel.."
             variant="outlined"
@@ -171,7 +176,8 @@ export function TranscriptViewer({ transcript }) {
           </Button>*/}
             <button
               className="bg-purple p-2 text-white rounded-md"
-              onClick={handleAddComment}>
+              onClick={handleAddComment}
+            >
               Comment
             </button>
           </div>

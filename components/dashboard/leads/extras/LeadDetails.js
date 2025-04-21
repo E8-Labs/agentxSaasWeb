@@ -2265,7 +2265,7 @@ const LeadDetails = ({
                       Call Transcript
                     </div>
                     <TranscriptViewer
-                      transcript={isExpanded?.transcript || ""}
+                      transcript={isExpanded?.messageTranscript || []}
                     />
                     <div className="flex flex-row justify-end mt-6">
                       <button
