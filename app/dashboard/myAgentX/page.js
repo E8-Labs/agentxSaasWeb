@@ -4864,6 +4864,7 @@ function Page() {
                           from={"Promt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={(text) => {
+                            console.log("Text updated ", text);
                             setScriptTagInput(text);
                             // let agent = showScriptModal;
                             // agent.prompt.callScript = text;

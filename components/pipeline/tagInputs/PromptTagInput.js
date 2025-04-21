@@ -14,6 +14,7 @@ export const PromptTagInput = ({
   saveUpdates,
   from,
 }) => {
+  console.log("Text received ", promptTag);
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
@@ -87,7 +88,7 @@ export const PromptTagInput = ({
   }, []);
 
   useEffect(() => {
-    setText(promptTag.trim());
+    setText(promptTag);
   }, [promptTag]);
 
   const getTextScrollOffset = () => {
@@ -228,6 +229,8 @@ export const PromptTagInput = ({
   };
 
   const handleKeyUp = (e) => {
+    // console.log("Handle key up");
+    // return;
     const input = textFieldRef.current;
 
     if (!input) return;
@@ -235,8 +238,12 @@ export const PromptTagInput = ({
     const cursorPos = input.selectionStart;
     const textBeforeCursor = input.value.substring(0, cursorPos);
     const lastOpenBraceIndex = textBeforeCursor.lastIndexOf("{");
+    const lastClosingBraceIndex = textBeforeCursor.lastIndexOf("}");
+    // console.log("Last open ", lastOpenBraceIndex);
+    // console.log("Last closing brace ", lastClosingBraceIndex);
 
     if (lastOpenBraceIndex !== -1) {
+      // console.log("Last open brace index != -1");
       const searchTerm = textBeforeCursor
         .substring(lastOpenBraceIndex + 1)
         .toLowerCase();
@@ -264,10 +271,11 @@ export const PromptTagInput = ({
         setPopupVisible(false);
       }
     } else {
+      // console.log("Last open brace index == -1");
       setPopupVisible(false);
     }
 
-    setCursorPosition(cursorPos);
+    // setCursorPosition(cursorPos);
   };
 
   function removeCharacterAt(string, position) {
@@ -280,6 +288,8 @@ export const PromptTagInput = ({
   }
 
   const handleKeyDown = (e) => {
+    // console.log("Handle key down");
+    // return;
     const input = textFieldRef.current;
 
     if (!input) return;
@@ -396,6 +406,10 @@ export const PromptTagInput = ({
     setText(e.target.value);
     tagValue(e.target.value);
   };
+
+  useEffect(() => {
+    console.log("Text changed ", text);
+  }, [text]);
 
   const styles = {
     modalsStyle: {
