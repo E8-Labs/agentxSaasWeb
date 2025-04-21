@@ -68,6 +68,7 @@ import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import { PauseCircle } from "@mui/icons-material";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
 import VoiceMailTab from "../../../components/dashboard/myagentX/VoiceMailTab";
+import { AgentLanguagesList } from "@/utilities/AgentLanguages";
 
 function Page() {
   const timerRef = useRef();
@@ -224,12 +225,14 @@ function Page() {
   const [voiceExpressiveness, setVoiceExpressiveness] = useState("");
   const [startingPace, setStartingPace] = useState("");
   const [patienceValue, setPatienceValue] = useState("");
+  const [languageValue, setLanguageValue] = useState("");
 
   const [callRecordingPermition, setCallRecordingPermition] = useState("");
 
   const [showCallRecordingLoader, setShowCallRecordingLoader] = useState(false);
   const [showStartingPaceLoader, setShowStartingPaceLoader] = useState(false);
   const [showPatienceLoader, setShowPatienceLoader] = useState(false);
+  const [showLanguageLoader, setShowLanguageLoader] = useState(false);
   const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] =
     useState(false);
 
@@ -253,6 +256,8 @@ function Page() {
     ad.play();
     setAudio(ad); // Play the audio
   };
+
+  // const Languages  = AgentLanguagesList
 
   const models = [
     {
@@ -671,6 +676,7 @@ function Page() {
     setStartingPace(item.initialPauseSeconds);
     //console.log;
     setPatienceValue(item.patienceLevel);
+    setLanguageValue(item.agentLanguage);
 
     let modelValue = item.agentLLmModel;
     if (modelValue) {
@@ -1305,6 +1311,9 @@ function Page() {
           if (voiceData.voiceExpressiveness) {
             formData.append("voiceStability", voiceData.voiceExpressiveness);
           }
+          if (voiceData.agentLanguage) {
+            formData.append("agentLanguage", voiceData.agentLanguage);
+          }
           if (voiceData.startingPace) {
             formData.append("initialPauseSeconds", voiceData.startingPace);
           }
@@ -1334,8 +1343,9 @@ function Page() {
           formData.append("agentLLmModel", model);
         }
 
+        console.log("Data to update");
         for (let [key, value] of formData.entries()) {
-          //console.log;
+          console.log(`${key}: ${value}`);
         }
 
         const response = await axios.post(ApiPath, formData, {
@@ -3779,6 +3789,109 @@ function Page() {
                                   value={item.value}
                                   key={index}
                                   disabled={patienceValue === item.title}
+                                >
+                                  <div>{item.title}</div>
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Language */}
+                  <div className="flex w-full justify-between items-center -mt-4">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Language
+                    </div>
+
+                    <div
+                      style={{
+                        // width: "115px",
+                        display: "flex",
+                        alignItems: "center",
+                        // borderWidth:1,
+                        marginRight: -15,
+                      }}
+                    >
+                      {showLanguageLoader ? (
+                        <div
+                          style={{
+                            width: "115px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CircularProgress size={15} />
+                        </div>
+                      ) : (
+                        <FormControl>
+                          <Select
+                            value={languageValue}
+                            onChange={async (event) => {
+                              setShowLanguageLoader(true);
+                              let value = event.target.value;
+                              //console.log;
+                              let voiceData = {
+                                agentLanguage: value,
+                              };
+                              await updateSubAgent(voiceData);
+                              setShowLanguageLoader(false);
+                              // setSelectedVoice(event.target.value);
+                              setLanguageValue(value);
+                            }}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                ); // Placeholder style
+                              }
+                              const selectedVoice = AgentLanguagesList.find(
+                                (lang) => lang.title === selected
+                              );
+                              console.log(
+                                `Selected Language for ${selected} is ${selectedVoice.title}`
+                              );
+                              return selectedVoice ? selectedVoice.title : null;
+                            }}
+                            sx={{
+                              border: "none", // Default border
+                              "&:hover": {
+                                border: "none", // Same border on hover
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none", // Remove the default outline
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                              "&.MuiSelect-select": {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: "30vh", // Limit dropdown height
+                                  overflow: "auto", // Enable scrolling in dropdown
+                                  scrollbarWidth: "none",
+                                  // borderRadius: "10px"
+                                },
+                              },
+                            }}
+                          >
+                            {AgentLanguagesList.map((item, index) => {
+                              return (
+                                <MenuItem
+                                  value={item.title}
+                                  key={index}
+                                  disabled={languageValue === item.title}
                                 >
                                   <div>{item.title}</div>
                                 </MenuItem>
