@@ -4,6 +4,8 @@ import {
   ThumbDownOutlined,
   ChatBubbleOutlineOutlined,
   ChatBubble,
+  ThumbDown,
+  ThumbUp,
 } from "@mui/icons-material";
 
 export function TranscriptBubble({
@@ -12,9 +14,12 @@ export function TranscriptBubble({
   index,
   onCommentClick,
   comment,
+  msgId,
+  liked
 }) {
   const isBot = sender === "bot";
   const commentBtnRef = useRef(null);
+  let isLike = null;
 
   const bubbleClasses = isBot
     ? "rounded-br-2xl rounded-tr-2xl rounded-bl-2xl"
@@ -24,9 +29,8 @@ export function TranscriptBubble({
     <div className={`flex ${isBot ? "justify-start" : "justify-end"} mb-2`}>
       <div>
         <div
-          className={`max-w-xs px-4 py-2 shadow text-sm ${bubbleClasses} ${
-            isBot ? "text-black" : "text-white"
-          }`}
+          className={`max-w-xs px-4 py-2 shadow text-sm ${bubbleClasses} ${isBot ? "text-black" : "text-white"
+            }`}
           style={{
             backgroundColor: isBot ? "#F6F7F9" : "#7902DF",
           }}
@@ -35,16 +39,32 @@ export function TranscriptBubble({
         </div>
         {isBot && (
           <div className="flex gap-2 mt-1 pl-2">
-            <button className="text-gray-500 hover:text-black">
-              <ThumbUpOutlined fontSize="small" />
+            <button
+              className="text-gray-500 hover:text-black border-none outline-none"
+              ref={commentBtnRef}
+              onClick={() => onCommentClick(index, msgId, commentBtnRef, isLike = true)}
+            >
+              {(comment && liked === true) ? (
+                <ThumbUp fontSize="small" sx={{ color: "#7902DF" }} />
+              ) : (
+                <ThumbUpOutlined fontSize="small" />
+              )}
             </button>
-            <button className="text-gray-500 hover:text-black">
-              <ThumbDownOutlined fontSize="small" />
+            <button
+              className="text-gray-500 hover:text-black border-none outline-none"
+              ref={commentBtnRef}
+              onClick={() => onCommentClick(index, msgId, commentBtnRef, isLike = false)}
+            >
+              {(comment && liked === false) ? (
+                <ThumbDown fontSize="small" sx={{ color: "#7902DF" }} />
+              ) : (
+                <ThumbDownOutlined fontSize="small" />
+              )}
             </button>
             <button
               ref={commentBtnRef}
               className="text-gray-500 hover:text-black border-none outline-none"
-              onClick={() => onCommentClick(index, commentBtnRef)}
+              // onClick={() => onCommentClick(index, msgId, commentBtnRef)}
             >
               {comment ? (
                 <div className="flex flex-row items-center gap-2">
@@ -79,6 +99,11 @@ import { parseTranscript } from "@/utilities/parseTranscript";
 import Popover from "@mui/material/Popover";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
+import { AuthToken } from "../agency/plan/AuthDetails";
+import Apis from "../apis/Apis";
+import { entries } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import axios from "axios";
+import { CircularProgress } from "@mui/material";
 
 export function TranscriptViewer({ transcript }) {
   console.log("Received transcript is ", transcript);
@@ -86,8 +111,13 @@ export function TranscriptViewer({ transcript }) {
   const [activeIndex, setActiveIndex] = useState(null);
   const [popoverPos, setPopoverPos] = useState(null); // null = closed
   const [comment, setComment] = useState("");
+  const [msgIsLike, setMsgIsLike] = useState(null);
+  const [commentMsgId, setCommentMsgId] = useState(null);
+  const [addCommentLoader, setAddCommentLoader] = useState(false);
 
-  const handleCommentClick = (index, buttonRef) => {
+  const handleCommentClick = (index, msgId, buttonRef, isLike) => {
+    setMsgIsLike(isLike);
+    setCommentMsgId(msgId);
     if (buttonRef?.current) {
       const rect = buttonRef.current.getBoundingClientRect();
       setPopoverPos({
@@ -98,13 +128,50 @@ export function TranscriptViewer({ transcript }) {
     }
   };
 
-  const handleAddComment = () => {
-    if (activeIndex !== null) {
-      const updatedMessages = [...messages];
-      updatedMessages[activeIndex].comment = comment;
-      setMessages(updatedMessages);
-      setPopoverPos(null);
-      setComment("");
+  //api to add comment
+  const handleAddComment = async () => {
+    try {
+      setAddCommentLoader(true);
+      const Token = AuthToken();
+      const ApiPath = Apis.addComment;
+      const formData = new FormData();
+      formData.append("comment", comment);
+      formData.append("messageId", commentMsgId);
+      formData.append("like", msgIsLike);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} = ${value}`);
+      }
+
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          "Authorization": "Bearer " + Token
+        }
+      });
+
+      if (response) {
+        setAddCommentLoader(false);
+        console.log("Response of add comment api is", response.data);
+        if (response.data.status === true) {
+          if (activeIndex !== null) {
+            const updatedMessages = [...messages];
+            // updatedMessages[activeIndex].comment = response.data.data.comment;
+            updatedMessages[activeIndex] = {
+              ...updatedMessages[activeIndex],
+              comment: response.data.data.comment,
+              liked: response.data.data.liked,
+            };
+            setMessages(updatedMessages);
+            setPopoverPos(null);
+            setComment("");
+          }
+        }
+      }
+
+
+    } catch (error) {
+      setAddCommentLoader(false);
+      console.error("Error of add comment api is", error);
     }
   };
 
@@ -117,6 +184,8 @@ export function TranscriptViewer({ transcript }) {
           sender={msg.sender}
           comment={msg.comment}
           index={index}
+          msgId={msg.id}
+          liked={msg.liked}
           onCommentClick={handleCommentClick}
         />
       ))}
@@ -174,12 +243,16 @@ export function TranscriptViewer({ transcript }) {
             {/*<Button size="small" onClick={() => setPopoverPos(null)}>
               Cancel
           </Button>*/}
-            <button
-              className="bg-purple p-2 text-white rounded-md"
-              onClick={handleAddComment}
-            >
-              Comment
-            </button>
+            {
+              addCommentLoader ?
+                <CircularProgress size={35} /> :
+                <button
+                  className="bg-purple p-2 text-white rounded-md"
+                  onClick={handleAddComment}
+                >
+                  Comment
+                </button>
+            }
           </div>
         </div>
       </Popover>

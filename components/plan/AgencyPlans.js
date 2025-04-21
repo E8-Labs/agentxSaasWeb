@@ -4,10 +4,25 @@ import Image from 'next/image';
 import { PersistanceKeys } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '../apis/Apis';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import AddCardDetails from '../createagent/addpayment/AddCardDetails';
+import getProfileDetails from "@/components/apis/GetProfile";
+import { AuthToken } from '../agency/plan/AuthDetails';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
+import { useRouter } from 'next/navigation';
+
+//code for add card
+let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+        ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+        : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+const stripePromise = loadStripe(stripePublickKey);
 
 function AgencyPlans() {
-
+    
+    const router = useRouter();
     const duration = [
         {
             id: 1,
@@ -23,17 +38,56 @@ function AgencyPlans() {
 
     const [togglePlan, setTogglePlan] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
-    const [plans, setPlans] = useState([]);
-    const [addPaymentPopup, setAddPaymentPopup] = useState(false);
+    const [monthlyPlans, setMonthlyPlans] = useState([]);
+    const [quaterlyPlans, setQuaterlyPlans] = useState([]);
+    const [yearlyPlans, setYearlyPlans] = useState([]);
     const [loading, setLoading] = useState(false)
     const [selectedDuration, setSelectedDuration] = useState(duration[0]);
-
+    //code for add card
+    const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
+    const [subPlanLoader, setSubPlanLoader] = useState(false);
+    const [errorMsg, setErrorMsg] = useState(null);
+    const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
 
     useEffect(() => {
+        const D = localStorage.getItem("User");
+        if (D) {
+            const userData = JSON.parse(D);
+            if (userData.user.cards.length > 0) {
+                console.log("Cards are available");
+            } else {
+                setAddPaymentPopUp(true);
+            }
+        }
         getPlans();
-    }, [])
+    }, []);
 
+    //handle select plan
+    const handleTogglePlanClick = (item) => {
+        setTogglePlan(item.id);
+        setSelectedPlan((prevId) => (prevId === item ? null : item));
+    };
+
+    //close add card popup
+    const handleClose = async (data) => {
+        console.log("Card added details are here", data);
+        if (data) {
+            const userProfile = await getProfileDetails();
+        }
+        setAddPaymentPopUp(false);
+    };
+
+    //show the selected plans list
+    const getCurrentPlans = () => {
+        if (selectedDuration.id === 1) return monthlyPlans;
+        if (selectedDuration.id === 2) return quaterlyPlans;
+        if (selectedDuration.id === 3) return yearlyPlans;
+        return [];
+    };
+
+
+    //api to get plans
     const getPlans = async () => {
         setLoading(true)
         try {
@@ -52,7 +106,30 @@ function AgencyPlans() {
                     setLoading(false)
                     if (response.data.status === true) {
                         console.log('plans list is: ', response.data.data);
-                        setPlans(response.data.data);
+                        let plansList = response.data.data;
+                        const monthly = [];
+                        const quarterly = [];
+                        const yearly = [];
+
+                        plansList.forEach(plan => {
+                            switch (plan.duration) {
+                                case "monthly":
+                                    monthly.push(plan);
+                                    break;
+                                case "quarterly":
+                                    quarterly.push(plan);
+                                    break;
+                                case "yearly":
+                                    yearly.push(plan);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+
+                        setMonthlyPlans(monthly);
+                        setQuaterlyPlans(quarterly);
+                        setYearlyPlans(yearly);
                     } else {
                         console.log('Error in getting plans: ', response.data.message);
                     }
@@ -64,10 +141,48 @@ function AgencyPlans() {
         }
     }
 
-    const handleTogglePlanClick = (item) => {
-        setTogglePlan(item.id);
-        setSelectedPlan((prevId) => (prevId === item ? null : item));
-    };
+    //code to subscribeplan handleSubscribePlan
+    //subscribe plan
+    const handleSubscribePlan = async () => {
+        try {
+            setSubPlanLoader(true);
+            const Token = AuthToken();
+            const ApiPath = Apis.subAgencyAndSubAccountPlans;
+            const formData = new FormData();
+            formData.append("planId", togglePlan);
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key} = ${value}`);
+            }
+
+            const response = await axios.post(ApiPath, formData, {
+                headers: {
+                    "Authorization": "Bearer " + Token
+                }
+            });
+
+            if (response) {
+                console.log("Response of subscribe subaccount plan is", response.data);
+                setSubPlanLoader(false);
+                if (response.data.status === true) {
+                    setErrorMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Success);
+                    localStorage.removeItem("subPlan");
+                    router.push("/agency/dashboard");
+
+                } else if (response.data.status === false) {
+                    setErrorMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Error);
+                    if (response.data.message === "No payment method added") {
+                        setAddPaymentPopUp(true);
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error("Error occured in sub plan api is", error);
+            setSubPlanLoader(false);
+        }
+    }
 
 
     return (
@@ -82,7 +197,12 @@ function AgencyPlans() {
                     overflow: "hidden", // Prevent scrolling on the entire modal
                 }}
             >
-
+                <AgentSelectSnackMessage
+                    isVisible={errorMsg !== null}
+                    message={errorMsg}
+                    hide={() => { setErrorMsg(null) }}
+                    type={snackMsgType}
+                />
 
                 <div className='flex flex-row w-full items-center justify-between'>
 
@@ -114,7 +234,8 @@ function AgencyPlans() {
                                 <button key={item.id}
                                     className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
-                                        setSelectedDuration(item)
+                                        setSelectedDuration(item);
+                                        getCurrentPlans();
                                     }}
                                 >
                                     {item.title}
@@ -130,14 +251,14 @@ function AgencyPlans() {
                     {
                         loading ? (
                             <div className='mt-9'>
-                            <CircularProgress size={35} />
+                                <CircularProgress size={35} />
                             </div>
                         ) : (
                             <div
                                 className='w-full flex flex-row items-start gap-3 mt-10'
-                                style={{overflowX:'auto',scrollbarWidth:'none'}}
+                                style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                             >
-                                {plans.map((item, index) => (
+                                {getCurrentPlans().map((item, index) => (
                                     <button
                                         key={item.id}
                                         onClick={() => handleTogglePlanClick(item)}
@@ -205,7 +326,7 @@ function AgencyPlans() {
                     }
 
                     <div>
-                        {false ? (
+                        {subPlanLoader ? (
                             <div>
                                 <CircularProgress size={30} />
                             </div>
@@ -220,28 +341,68 @@ function AgencyPlans() {
                                     backgroundColor: togglePlan ? "" : "#00000020",
                                     color: togglePlan ? "" : "#000000",
                                 }}
-                                onClick={() => {
-                                    let localDetails = null;
-                                    const localData = localStorage.getItem(
-                                        PersistanceKeys.LocalStorageUser
-                                    );
-                                    if (localData) {
-                                        const LocalDetails = JSON.parse(localData);
-                                        localDetails = LocalDetails;
-                                        // AuthToken = LocalDetails.token;
-                                    }
-                                    if (localDetails?.user?.cards?.length == 0) {
-                                        // setAddPaymentPopup(true);
-                                    } else {
-                                        // handleSubscribePlan();
-                                    }
-                                }}
-                            >
+                                onClick={() => { handleSubscribePlan() }}>
                                 Subscribe Plan
                             </button>
                         )}
                     </div>
                 </div>
+
+                {/* Code for add payment modal */}
+                <Modal
+                    open={addPaymentPopUp}
+                    // open={true}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 100,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            // //backdropFilter: "blur(20px)",
+                        },
+                    }}
+                >
+                    <Box
+                        className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+                        sx={styles.paymentModal}
+                    >
+                        <div className="flex flex-row justify-center w-full ">
+                            <div
+                                className="sm:w-7/12 w-full"
+                                style={{
+                                    backgroundColor: "#ffffff",
+                                    padding: 20,
+                                    borderRadius: "13px",
+                                }}
+                            >
+                                <div className="flex flex-row justify-between items-center">
+                                    <div
+                                        style={{
+                                            fontSize: 18,
+                                            fontWeight: "600",
+                                        }}
+                                    >
+                                        Add new card
+                                    </div>
+                                    <button onClick={() => setAddPaymentPopUp(false)}>
+                                        <Image
+                                            src={"/assets/crossIcon.png"}
+                                            height={40}
+                                            width={40}
+                                            alt="*"
+                                        />
+                                    </button>
+                                </div>
+                                <Elements stripe={stripePromise}>
+                                    <AddCardDetails
+                                        handleClose={handleClose}
+                                    // togglePlan={togglePlan}
+                                    />
+                                </Elements>
+                            </div>
+                        </div>
+                    </Box>
+                </Modal>
+
                 {/* 
                 <div className="w-full mt-2 flex flex-row items-center justify-center">
                     <button
@@ -259,7 +420,7 @@ function AgencyPlans() {
                     </button>
                 </div> */}
             </div>
-        </div>
+        </div >
     )
 }
 

@@ -29,7 +29,7 @@ const getProfileDetails = async () => {
       // //console.log;
       if (response?.data?.status === true) {
         localDetails.user = response.data.data;
-        //console.log;
+        // console.log("Get profile response is", response.data.data);
         localStorage.setItem("User", JSON.stringify(localDetails));
         return response;
       }

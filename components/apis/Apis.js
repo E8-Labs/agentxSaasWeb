@@ -171,6 +171,11 @@ const Apis = {
   getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,
   subAgencyAndSubAccountPlans: `${BasePath}api/agency/subscribeAgencyPlan`,
 
+  //add comment
+  addComment:`${BasePath}api/leads/addCommentOnTranscript`,
+  //create onboarding link
+  createOnboardingLink:`${BasePath}api/agency/createConnectLink`,
+
 
 
 };

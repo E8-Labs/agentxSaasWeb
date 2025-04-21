@@ -11,6 +11,7 @@ import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useRouter } from 'next/navigation';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 //code for add card
 let stripePublickKey =
@@ -60,7 +61,11 @@ const SubAccountPlan = () => {
     };
 
     //close add card popup
-    const handleClose = (data) => {
+    const handleClose = async (data) => {
+        console.log("Card added details are here", data);
+        if (data) {
+            const userProfile = await getProfileDetails();
+        }
         setAddPaymentPopUp(false);
     };
 
@@ -113,7 +118,7 @@ const SubAccountPlan = () => {
                     setErrorMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Success);
                     const D = localStorage.getItem("fromDashboard");
-                    if(D){
+                    if (D) {
                         localStorage.removeItem("fromDashboard");
                     }
 

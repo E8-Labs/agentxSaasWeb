@@ -479,10 +479,16 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 } else {
                   if (data.data.user.userType == "admin") {
                     router.push("/admin");
-                  } 
+                  }
                   else if (data.data.user.userRole == "AgencySubAccount") {
                     router.push("/subaccountInvite");
-                  }   
+                  } else if (data.data.user.userRole == "Agency") {
+                    if (data.data.user.plan && data.data.user.canAcceptPaymentsAgencyccount === false) {
+                      router.push("/agency/congrats")
+                    } else {
+                      router.push("/agency/dashboard");
+                    }
+                  }
                   else {
                     router.push("/dashboard/leads");
                   }

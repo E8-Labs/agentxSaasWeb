@@ -3,11 +3,21 @@ import AgencySignUp from '@/components/onboarding/agencyOnboarding/AgencySignUp'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import AgencyPlans from '@/components/plan/AgencyPlans'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 function Page() {
 
-    const [currentIndex, setCurrentIndex] = useState(0)
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    useEffect(() => {
+        const userData = localStorage.getItem("subPlan");
+        if (userData) {
+            const D = JSON.parse(userData);
+            if (D) {
+                setCurrentIndex(1)
+            }
+        }
+    }, []);
 
     const handleContinue = () => {
         setCurrentIndex(prev => prev + 1)

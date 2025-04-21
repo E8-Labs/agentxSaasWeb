@@ -241,7 +241,7 @@ const AddCardDetails = ({
       setAddCardLoader(false);
       if (result2.status) {
         setAddCardSuccess(true);
-        if (!togglePlan) handleClose(result.data);
+        if (!togglePlan) handleClose(result);
         if (togglePlan) handleSubscribePlan();
       } else {
         setAddCardFailure(true);
