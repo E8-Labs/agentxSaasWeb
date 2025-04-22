@@ -6,8 +6,11 @@ import { getMonthlyPlan } from "./GetPlansList";
 
 
 
-export default function SetPricing({ isOpen, onClose, userEmail, userPhoneNumber, teamMembers, subAccountName, selectedUserType }) {
-
+export default function SetPricing({
+    isOpen, onClose, userEmail, userPhoneNumber,
+    teamMembers, subAccountName, selectedUserType, closeAll
+}) {
+    
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [selectedPlans, setSelectedPlans] = useState([]);
 
@@ -119,13 +122,20 @@ export default function SetPricing({ isOpen, onClose, userEmail, userPhoneNumber
 
                 {/* Xbar Options Modal */}
                 <SetXBarOptions
-                    isOpen={openPricing} onClose={() => setOpenPricing(false)}
+                    isOpen={openPricing}
+                    onClose={() => {
+                        setOpenPricing(false);
+                    }}
                     selectedMonthlyPlans={selectedPlans}
                     userEmail={userEmail}
                     userPhoneNumber={userPhoneNumber}
                     teamMembers={teamMembers}
                     subAccountName={subAccountName}
                     selectedUserType={selectedUserType}
+                    closeAll={() => {
+                        setOpenPricing(false);
+                        closeAll();
+                    }}
                 />
 
             </Box>

@@ -62,8 +62,9 @@ const AgencyNavBar = () => {
   const [userType, setUserType] = useState("");
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
- 
-  
+  const [canAcceptPaymentsAgencyccount, setCanAcceptPaymentsAgencyccount] = useState(false);
+
+
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
     let windowWidth = 1000;
@@ -73,7 +74,7 @@ const AgencyNavBar = () => {
     if (windowWidth < 640) {
       router.push("/createagent/desktop");
     } else {
-      return;
+      const d = localStorage.getItem("User");
     }
   }, []);
 
@@ -81,8 +82,24 @@ const AgencyNavBar = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
+      const agencyProfile = await getProfileDetails()
+      if (agencyProfile) {
+        console.log("Agency profile details are", agencyProfile);
+        const agencyProfileData = agencyProfile.data.data
+        if (!agencyProfileData.plan) {
+          const d = {
+            subPlan: false
+          }
+          localStorage.setItem("subPlan", JSON.stringify(d));
+          router.push("/agency/onboarding");
+        } else if (agencyProfileData.plan && agencyProfileData.canAcceptPaymentsAgencyccount === false) {
+          setCanAcceptPaymentsAgencyccount(true);
+        }
+      } else {
+        console.log("No profile detail found yet");
+      }
       console.log('LocalData.user.profile_status', LocalData.user.profile_status)
-      if(LocalData.user.profile_status === "paused"){
+      if (LocalData.user.profile_status === "paused") {
         setErrorSnack("Your account has been frozen.")
         logout()
         router.push("/");
@@ -107,13 +124,13 @@ const AgencyNavBar = () => {
       href: "/agency/dashboard",
       selected: "/svgIcons/selectdDashboardIcon.svg",
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
-    },{
+    }, {
       id: 2,
       name: "Sub Account",
       href: "/agency/dashboard/subAccounts",
       selected: "/svgIcons/selectedSubAccountIcon.svg",
       uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
-    },{
+    }, {
       id: 3,
       name: "Plans",
       href: "/agency/dashboard/plans",
@@ -200,6 +217,33 @@ const AgencyNavBar = () => {
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
+
+      {/* Sticky Modal */}
+      <Modal
+        open={canAcceptPaymentsAgencyccount}
+        className="border-none outline-none"
+        BackdropProps={{
+          style: { backgroundColor: 'transparent' }
+        }}
+      >
+        <Box className="w-full flex flex-row items-center justify-center border-none outline-none" sx={{ backgroundColor: "transparent" }}>
+          <div className="flex flex-row items-center gap-4 bg-white mt-4 rounded-md shadow-lg p-2">
+            <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={40} width={40} />
+            <div className="text-red text-xl font-bold">
+              Verify your payments to explore more!
+            </div>
+            <button
+              className="bg-purple text-white text-lg rounded-md p-2 outline-none border-none"
+              onClick={() => {
+                router.push("/agency/verify");
+              }}
+            >
+              Verify now
+            </button>
+          </div>
+        </Box>
+      </Modal>
+
       <div
         className="w-full pt-5 flex flex-col items-center"
         style={{
@@ -227,7 +271,7 @@ const AgencyNavBar = () => {
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}
-                // onClick={(e) => handleOnClick(e, item.href)}
+              // onClick={(e) => handleOnClick(e, item.href)}
               >
                 <div
                   className="w-full flex flex-row gap-2 items-center py-2 rounded-full"

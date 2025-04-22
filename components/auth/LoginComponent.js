@@ -484,7 +484,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     router.push("/subaccountInvite");
                   } else if (data.data.user.userRole == "Agency") {
                     if (data.data.user.plan && data.data.user.canAcceptPaymentsAgencyccount === false) {
-                      router.push("/agency/congrats")
+                      router.push("/agency/verify")
                     } else {
                       router.push("/agency/dashboard");
                     }

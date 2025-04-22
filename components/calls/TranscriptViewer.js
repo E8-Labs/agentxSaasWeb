@@ -20,6 +20,8 @@ export function TranscriptBubble({
   const isBot = sender === "bot";
   const commentBtnRef = useRef(null);
   let isLike = null;
+  //code for read more comment modal
+  const [readMoreModal, setReadMoreModal] = useState(null);
 
   const bubbleClasses = isBot
     ? "rounded-br-2xl rounded-tr-2xl rounded-bl-2xl"
@@ -64,7 +66,7 @@ export function TranscriptBubble({
             <button
               ref={commentBtnRef}
               className="text-gray-500 hover:text-black border-none outline-none"
-              // onClick={() => onCommentClick(index, msgId, commentBtnRef)}
+            // onClick={() => onCommentClick(index, msgId, commentBtnRef)}
             >
               {comment ? (
                 <div className="flex flex-row items-center gap-2">
@@ -77,7 +79,27 @@ export function TranscriptBubble({
                         fontWeight: "500",
                       }}
                     >
-                      {comment}
+                      {comment?.slice(0, 1).toUpperCase()}{comment?.slice(1, 20)}
+                      {comment?.length > 5 && "... "}
+                      {comment?.length > 5 && (
+                        <button
+                          className="text-purple cursor-pointer outline-noe border-none text-bold"
+                          onClick={() => { setReadMoreModal(comment) }}
+                        >
+                          Read more
+                        </button>
+                      )}
+
+                      {/* Modal for full msg */}
+                      <Modal open={readMoreModal} onClose={() => { setReadMoreModal(null) }}>
+                        {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
+                        <Box
+                          className="bg-white rounded-xl p-6 w-[30vw] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col overflow-y-auto">
+                          <div className="text-purple text-large font-bold">
+                            {readMoreModal?.slice(0, 1).toUpperCase()}{readMoreModal?.slice(1)}
+                          </div>
+                        </Box>
+                      </Modal>
                     </div>
                   </i>
                 </div>
@@ -103,7 +125,7 @@ import { AuthToken } from "../agency/plan/AuthDetails";
 import Apis from "../apis/Apis";
 import { entries } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import axios from "axios";
-import { CircularProgress } from "@mui/material";
+import { Box, CircularProgress, Modal } from "@mui/material";
 
 export function TranscriptViewer({ transcript }) {
   console.log("Received transcript is ", transcript);

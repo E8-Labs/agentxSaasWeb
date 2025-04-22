@@ -9,7 +9,11 @@ import UserType from "@/components/onboarding/UserType";
 
 
 
-export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNumber, teamMembers, subAccountName, selectedMonthlyPlans, selectedUserType }) {
+export default function SetXBarOptions({
+    isOpen, onClose, userEmail, userPhoneNumber,
+    teamMembers, subAccountName, selectedMonthlyPlans,
+    selectedUserType, closeAll
+}) {
 
     const [xBarPlans, setXBarPlans] = useState([]);
     const [selectedXBarPlans, setSelectedXBarPlans] = useState([]);
@@ -42,7 +46,7 @@ export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNu
     };
 
     //code to create sub acoount
-    const handleCreateSubAccount = async () => {
+    const handleCreateSubAccount = async (close) => {
         try {
             setSubAccountLoader(true);
 
@@ -53,7 +57,7 @@ export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNu
                 name: subAccountName,
                 phone: userPhoneNumber,
                 email: userEmail,
-                UserType: selectedUserType,
+                userType: selectedUserType,
                 teams: teamMembers.map((item, index) => ({
                     name: `${item.name}`,
                     phone: `+${item.phone}`,
@@ -75,6 +79,9 @@ export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNu
 
             if (response) {
                 console.log("responese of create sub account api is", response.data);
+                if (response.data.status === true) {
+                    close();
+                }
             }
 
         } catch (error) {
@@ -140,14 +147,14 @@ export default function SetXBarOptions({ isOpen, onClose, userEmail, userPhoneNu
                         Back
                     </button>
                     {
-                        subAccountLoader ? 
-                        <CircularProgress size={30} /> :
-                    <button
-                        onClick={handleCreateSubAccount}
-                        className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
-                    >
-                        Continue
-                    </button>
+                        subAccountLoader ?
+                            <CircularProgress size={30} /> :
+                            <button
+                                onClick={() => { console.log("close all"); handleCreateSubAccount(closeAll); }}
+                                className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
+                            >
+                                Continue
+                            </button>
                     }
                 </div>
             </Box>

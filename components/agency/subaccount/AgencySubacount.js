@@ -20,8 +20,15 @@ function AgencySubacount() {
         getSubAccounts();
     }, []);
 
+    //code 
+    const handleCloseModal = () => {
+        getSubAccounts();
+        setShowModal(false);
+    }
+
     // /code for getting the subaccouts list
     const getSubAccounts = async () => {
+        console.log("Trigered get subaccounts");
         try {
             setInitialLoader(true);
             const ApiPAth = Apis.getAgencySubAccount;
@@ -188,7 +195,7 @@ function AgencySubacount() {
                         >
                             {subAccountList?.length > 0 ? (
                                 <div>
-                                    {subAccountList.map((item) => (
+                                    {subAccountList.reverse().map((item) => (
                                         <div
                                             key={item.id}
                                             style={{ cursor: "pointer" }}
@@ -308,6 +315,7 @@ function AgencySubacount() {
                 <CreateSubAccountModal
                     isOpen={showModal}
                     onClose={() => setShowModal(false)}
+                    closeAll={() => { handleCloseModal() }}
                 />
 
             </div>

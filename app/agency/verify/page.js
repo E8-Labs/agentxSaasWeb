@@ -34,7 +34,7 @@ const Page = () => {
                     }
                     // router.push("/agency/verify")
                 } else {
-                    consoSle.log("Need to subscribe plan");
+                    console.log("Need to subscribe plan");
                     const d = {
                         subPlan: false
                     }

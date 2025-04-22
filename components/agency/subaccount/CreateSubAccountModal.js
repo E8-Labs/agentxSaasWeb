@@ -10,7 +10,7 @@ import 'react-phone-input-2/lib/style.css';
 import SetPricing from './SetPricing';
 import Image from 'next/image';
 
-export default function CreateSubAccountModal({ isOpen, onClose }) {
+export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
     const timerRef = useRef(null);
 
@@ -808,6 +808,10 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                     teamMembers={teamMembers}
                     subAccountName={subAccountName}
                     selectedUserType={selectedUserType}
+                    closeAll={() => {
+                        setOpenPricing(false);
+                        closeAll();
+                    }}
                 />
 
             </Box>
