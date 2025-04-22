@@ -481,7 +481,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
         <div style={{ width: "100%" }}
             className="overflow-y-hidden flex flex-row justify-center items-center"
         >
-            <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
 
                 <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
 
@@ -492,10 +492,16 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                 className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
                                 style={{ textAlign: "left" }}
                             >
-                                Sign Up to your Agency Account
+                                Agency Account
                             </div>
                             <div
-                                className="mt-4 w-[80%] flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+                                className="mt-3 w-11/12 md:text-lg text-lg font-[500] text-[#00000060]"
+                                style={{ textAlign: "left" }}
+                            >
+                                Build your AI Agency
+                            </div>
+                            <div
+                                className="mt-6 w-[80%] flex flex-col max-h-[90%] sm:max-h-[85%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
                                 style={{ scrollbarWidth: "none" }}
                             >
                                 <div style={styles.headingStyle}>
@@ -741,8 +747,8 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                 </div>
 
 
-                                <div className="flex flex-row items-center justify-between w-full">
-                                    <div>
+                                <div className="flex flex-row items-center gap-4 w-full">
+                                    <div className="w-6/12">
 
                                         <div style={styles.headingStyle} className="mt-6">
                                             {`Comapany name`}
@@ -754,7 +760,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             spellCheck="false"
                                             enterKeyHint="done"
                                             placeholder="Company"
-                                            className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                                            className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
                                             style={{ ...styles.inputStyle, marginTop: "8px" }}
                                             value={company}
                                             onChange={(e) => {
@@ -767,7 +773,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             }}
                                         />
                                     </div>
-                                    <div>
+                                    <div className="w-6/12">
 
                                         <div style={styles.headingStyle} className="mt-6">
                                             Website (optional)
@@ -779,7 +785,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             spellCheck="false"
                                             enterKeyHint="done"
                                             placeholder="Website"
-                                            className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                                            className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
                                             style={{ ...styles.inputStyle, marginTop: "8px" }}
                                             value={website}
                                             onChange={(e) => {
@@ -855,10 +861,10 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
 
                                 <button
                                     disabled={shouldContinue}
-                                    className='rounded-lg text-white bg-purple mt-4' 
+                                    className='rounded-lg text-white bg-purple mt-4'
                                     style={{
                                         fontWeight: "700", fontSize: "16", backgroundColor: shouldContinue && "#00000020",
-                                        color: shouldContinue && "#000000", height: "40px", width: "100px",alignSelf:'flex-end'
+                                        color: shouldContinue && "#000000", height: "40px", width: "100px", alignSelf: 'flex-end'
                                     }}
                                     onClick={handleVerifyPopup}>
                                     Continue
