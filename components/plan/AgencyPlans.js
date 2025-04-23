@@ -21,7 +21,7 @@ let stripePublickKey =
 const stripePromise = loadStripe(stripePublickKey);
 
 function AgencyPlans() {
-    
+
     const router = useRouter();
     const duration = [
         {
@@ -45,21 +45,13 @@ function AgencyPlans() {
     const [selectedDuration, setSelectedDuration] = useState(duration[0]);
     //code for add card
     const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
-    const [subPlanLoader, setSubPlanLoader] = useState(false);
+    const [subPlanLoader, setSubPlanLoader] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
 
     useEffect(() => {
-        const D = localStorage.getItem("User");
-        if (D) {
-            const userData = JSON.parse(D);
-            if (userData.user.cards.length > 0) {
-                console.log("Cards are available");
-            } else {
-                setAddPaymentPopUp(true);
-            }
-        }
+
         getPlans();
     }, []);
 
@@ -76,6 +68,7 @@ function AgencyPlans() {
             const userProfile = await getProfileDetails();
         }
         setAddPaymentPopUp(false);
+        handleSubscribePlan()
     };
 
     //show the selected plans list
@@ -144,8 +137,23 @@ function AgencyPlans() {
     //code to subscribeplan handleSubscribePlan
     //subscribe plan
     const handleSubscribePlan = async () => {
+
+        // code for show plan add card popup
+        const D = localStorage.getItem("User");
+        if (D) {
+            const userData = JSON.parse(D);
+            if (userData.user.cards.length > 0) {
+                console.log("Cards are available");
+            } else {
+                setAddPaymentPopUp(true);
+                return
+            }
+        }
+
+
+
         try {
-            setSubPlanLoader(true);
+            setSubPlanLoader(togglePlan);
             const Token = AuthToken();
             const ApiPath = Apis.subAgencyAndSubAccountPlans;
             const formData = new FormData();
@@ -162,7 +170,7 @@ function AgencyPlans() {
 
             if (response) {
                 console.log("Response of subscribe subaccount plan is", response.data);
-                setSubPlanLoader(false);
+                setSubPlanLoader(null);
                 if (response.data.status === true) {
                     setErrorMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Success);
@@ -180,7 +188,35 @@ function AgencyPlans() {
 
         } catch (error) {
             console.error("Error occured in sub plan api is", error);
-            setSubPlanLoader(false);
+            setSubPlanLoader(null);
+        }
+    }
+
+
+    const getArray = (index) => {
+        let array1 = [
+            "Unlimited Minutes",
+            "Unlimited Agents",
+            "Unlimited Teams",
+            "LLMs (AgentX, OpenAI, Llama, Gemini) ",
+            "7000+ Integrations",
+            "Mins roll over for 6 months",
+            "Custom Monthly Plans",
+        ]
+
+        let array2 = [
+            "Agents",
+            "Unlimited Agents",
+            "Unlimited Teams",
+            "1000+ Integrations",
+            "Mins roll over for 6 months",
+        ]
+
+
+        if (index === 0) {
+            return array1
+        } else {
+            return array2
         }
     }
 
@@ -245,107 +281,203 @@ function AgencyPlans() {
                     </div>
                 </div>
 
-                <div className='flex flex-col items-center gap-6 h-[80vh] w-full'
-                    style={{ scrollbarWidth: 'none' }}>
+                <div className='flex flex-row items-start gap-6 h-[80vh] w-full'
+                    style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
+                >
+                    <div
+                        className='w-9/12  flex flex-row items-start gap-3 mt-10'
 
-                    {
-                        loading ? (
-                            <div className='mt-9'>
-                                <CircularProgress size={35} />
-                            </div>
-                        ) : (
-                            <div
-                                className='w-full flex flex-row items-start gap-3 mt-10'
-                                style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
-                            >
-                                {getCurrentPlans().map((item, index) => (
+                    >
+                        {
+                            loading ? (
+                                <div className='mt-9'>
+                                    <CircularProgress size={35} />
+                                </div>
+                            ) : (
+                                getCurrentPlans().map((item, index) => (
                                     <button
                                         key={item.id}
                                         onClick={() => handleTogglePlanClick(item)}
-                                        className={`w-[30wh] ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
+                                        className={`w-4/12 ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
                                     >
-                                        <div className="bg-white w-full h-full rounded-2xl p-6 flex flex-col items-start gap-2">
-                                            {/* Top section */}
-                                            <div className="w-full flex flex-row items-center justify-between">
-                                                <div style={{ fontSize: 20, fontWeight: '700' }}>
-                                                    {item.title}
-                                                </div>
+                                        <div className='flex flex-col items-center h-[75vh] w-full'>
+                                            {
+                                                item.tag ? (
+                                                    <div className=' flex flex-row items-center gap-2 pb-2'>
+                                                        <Image
+                                                            src={selectedPlan?.id === item.id ? "/svgIcons/powerWhite.svg" :
+                                                                "/svgIcons/power.svg"
+                                                            }
+                                                            height={24} width={24} alt='*'
+                                                        />
 
-                                                {!item.percentageDiscount ? (
-                                                    <div className="px-4 py-2 bg-purple rounded-full shadow-md text-[13px] text-white font-semibold">
-                                                        {item.percentageDiscount || 0}% off
+                                                        <div style={{
+                                                            fontSize: 16, fontWeight: '700', color: selectedPlan?.id === item.id ? "white" : '#7902df'
+                                                        }}>
+                                                            {item.tag}
+                                                        </div>
+                                                        <Image
+                                                            src={selectedPlan?.id === item.id ? "/svgIcons/enterArrowWhite.svg" :
+                                                                "/svgIcons/enterArrow.svg"
+                                                            }
+                                                            height={20} width={20} alt='*'
+                                                        />
+
                                                     </div>
                                                 ) : (
-                                                    <div></div>
-                                                )}
-                                            </div>
+                                                    <div className='h-[4vh]'></div>
+                                                )
+                                            }
+                                            <div className="bg-white w-full h-full rounded-2xl p-6 flex flex-col items-start gap-2">
+                                                <div className='flex flex-col item-center justify-between w-full h-full'>
+                                                    <div>
+                                                        {/* Top section */}
+                                                        <div className="w-full flex flex-row items-center justify-between">
+                                                            <div style={{ fontSize: 20, fontWeight: '700' }}>
+                                                                {item.title}
+                                                            </div>
 
-                                            {/* Pricing */}
-                                            <div style={{ fontSize: 20, fontWeight: '700', textAlign: 'left' }}>
-                                                ${item.originalPrice}
-                                            </div>
+                                                            {!item.percentageDiscount ? (
+                                                                <div className="px-4 py-2 bg-purple rounded-full shadow-md text-[13px] text-white font-semibold">
+                                                                    {item.ratePerMin || 0} per min
+                                                                </div>
+                                                            ) : (
+                                                                <div></div>
+                                                            )}
+                                                        </div>
 
-                                            {/* Features */}
-                                            {[
-                                                "Agents",
-                                                "Unlimited Agents",
-                                                "Unlimited Teams",
-                                                "1000+ Integrations",
-                                                "Mins roll over for 6 months",
-                                            ].map((label) => (
-                                                <div key={label} className="flex flex-row items-center gap-2 mt-2">
-                                                    <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                        {/* Pricing */}
+                                                        <div style={{ fontSize: 18, fontWeight: '600', textAlign: 'left' }}>
+                                                            ${item.originalPrice} + {item.fee}% Rev Share
+                                                        </div>
+
+                                                        <div className='flex flex-col gap-2'>
+
+                                                            {/* Features */}
+                                                            {
+                                                                getArray(index).map((label) => (
+                                                                    <div key={label} className="flex flex-row items-center gap-2 mt-2">
+                                                                        <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                                        <div style={{
+                                                                            fontSize: 13, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
+                                                                            width: '100%', borderWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
+                                                                        }}>{label}</div>
+                                                                    </div>
+                                                                ))}
+
+                                                            {
+                                                                item.index === 0 ? (
+                                                                    [
+                                                                        "Voicemails",
+                                                                        "Lead Enrichment",
+                                                                        "DNC Checklist",
+                                                                        "AI Powered CRM",
+                                                                        "Custom Pipeline Steps",
+                                                                        "Calendar Integration",
+                                                                        "Support",
+                                                                    ]
+                                                                ) : (
+                                                                    [
+                                                                        "Voicemails",
+                                                                        "Lead Enrichment (Perplexity)",
+                                                                        "DNC Checklist",
+                                                                        "AI Powered CRM",
+                                                                        "Custom Pipeline Steps",
+                                                                        "Calendar Integration",
+                                                                        "Support",
+                                                                    ]
+                                                                ).map((label) => (
+                                                                    <div key={label} className="flex flex-row items-center gap-2 mt-2">
+                                                                        <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
+                                                                        <div style={{
+                                                                            fontSize: 13, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
+                                                                            overflow: 'hidden', textOverflow: 'ellipsis',
+                                                                        }}>{label}</div>
+                                                                    </div>
+                                                                ))}
+
+                                                        </div>
+                                                    </div>
+
+
                                                     <div style={{
-                                                        fontSize: 15, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
-                                                    }}>{label}</div>
-                                                </div>
-                                            ))}
 
-                                            {[
-                                                "Voicemails",
-                                                "Lead Enrichment (Perplexity)",
-                                                "DNC Checklist",
-                                                "AI Powered CRM",
-                                                "Custom Pipeline Steps",
-                                                "Calendar Integration",
-                                                "Support",
-                                            ].map((label) => (
-                                                <div key={label} className="flex flex-row items-center gap-2 mt-2">
-                                                    <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
-                                                    <div style={{
-                                                        fontSize: 15, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
-                                                    }}>{label}</div>
+                                                    }}>
+                                                        {subPlanLoader === item.id ? (
+                                                            <div>
+                                                                <CircularProgress size={30} />
+                                                            </div>
+                                                        ) : (
+
+                                                            <button
+                                                                // disabled={!togglePlan}
+                                                                className="px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white"
+                                                                style={{
+                                                                    fontSize: 16.8,
+                                                                    fontWeight: "600",
+                                                                    // backgroundColor:  "#00000020",
+                                                                    // color:  "#000000",
+                                                                }}
+                                                                onClick={() => { handleSubscribePlan() }}>
+                                                                Claim Early Access
+                                                            </button>
+                                                        )}
+                                                    </div>
+
                                                 </div>
-                                            ))}
+
+
+                                            </div>
                                         </div>
                                     </button>
 
-                                ))}
-                            </div>
-                        )
-                    }
+                                ))
+                            )
+                        }
 
-                    <div>
-                        {subPlanLoader ? (
-                            <div>
-                                <CircularProgress size={30} />
+                    </div>
+
+
+                    <div className='w-3/12 h-full flex-col items-start gap-3 mt-10 p-8'>
+
+                        <div style={{ fontSize: 24, fontWeight: '700' }}>
+                            Whitelabel
+                        </div>
+
+                        <div style={{ fontSize: 20, fontWeight: '700' }}>
+                            Contact our team
+                        </div>
+
+                        <div
+                            style={{
+                                height: '448px',
+                                width: '335px',
+                                backgroundImage: "url('/svgIcons/contactTeamBg.svg')",
+                                backgroundSize: "cover",
+                                backgroundPosition: "center",
+                                borderRadius: 20,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: 30,
+                                marginTop: 40
+                            }}
+                        >
+                            <div style={{ fontSize: 40, fontWeight: '700', color: 'white', marginTop: 40 }}>
+                                Run your agency SaaS
                             </div>
-                        ) : (
 
                             <button
-                                disabled={!togglePlan}
-                                className="px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white"
-                                style={{
-                                    fontSize: 16.8,
-                                    fontWeight: "600",
-                                    backgroundColor: togglePlan ? "" : "#00000020",
-                                    color: togglePlan ? "" : "#000000",
-                                }}
-                                onClick={() => { handleSubscribePlan() }}>
-                                Subscribe Plan
+                                className='w-[90%] pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple'
+                            >
+                                Contact Our Team
                             </button>
-                        )}
+
+                        </div>
+
+
                     </div>
+
+
                 </div>
 
                 {/* Code for add payment modal */}

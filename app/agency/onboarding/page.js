@@ -2,6 +2,7 @@
 import AgencySignUp from '@/components/onboarding/agencyOnboarding/AgencySignUp'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import AgencyPlans from '@/components/plan/AgencyPlans'
+import { PersistanceKeys } from '@/constants/Constants'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -10,7 +11,7 @@ function Page() {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
-        const userData = localStorage.getItem("subPlan");
+        const userData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
         if (userData) {
             const D = JSON.parse(userData);
             if (D) {

@@ -90,7 +90,7 @@ const AgencyNavBar = () => {
           const d = {
             subPlan: false
           }
-          localStorage.setItem("subPlan", JSON.stringify(d));
+          localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
           router.push("/agency/onboarding");
         } else if (agencyProfileData.plan && agencyProfileData.canAcceptPaymentsAgencyccount === false) {
           setCanAcceptPaymentsAgencyccount(true);

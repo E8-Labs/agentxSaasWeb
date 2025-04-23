@@ -6,6 +6,7 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
+import { PersistanceKeys } from '@/constants/Constants';
 
 const Page = () => {
 
@@ -38,7 +39,7 @@ const Page = () => {
                     const d = {
                         subPlan: false
                     }
-                    localStorage.setItem("subPlan", JSON.stringify(d));
+                    localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
                     router.push("/agency/onboarding");
                 }
             }

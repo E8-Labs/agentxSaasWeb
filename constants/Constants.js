@@ -9,6 +9,7 @@ export const PersistanceKeys = {
   LocalStoragePipelines: "LocalStoragePipelines",
   RegisterDetails: "registerDetails",
   LocalStoredAgentsListMain: "localAgentDetails",
+  LocalStorageSubPlan:"subPlan",
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   GlobalConsultationUrl:
