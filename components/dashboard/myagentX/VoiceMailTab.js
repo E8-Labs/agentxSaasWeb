@@ -13,7 +13,7 @@ import EditVoicemailModal from './EditVoicemailModal';
 import { getAgentsListImage } from '@/utilities/agentUtilities';
 
 
-function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) {
+function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,selectedUser = null }) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
   // console.log('agent', agent)
@@ -86,7 +86,8 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList }) 
           message: data.message,
           agentType: data.agentType,
           voice: data.voiceId,
-          agentId: agent.id
+          agentId: agent.id,
+          
         }
         let response = await axios.post(Apis.setVoicemaeil, apidata, {
           headers: {

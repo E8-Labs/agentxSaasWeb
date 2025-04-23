@@ -396,7 +396,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       </div>
                                     )}
 
-                                    {selectedCall?.tags &&
+                                    {selectedCall?.tags.length > 0 &&
                                       (<div className="flex flex-row items--center w-full justify-between mt-4">
                                         <div className="flex flex-row items-center gap-4">
                                           <Image
@@ -467,71 +467,79 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                                         : "-"}
                                                                 </div>
                                                             </div> */}
+                                    {
+                                      selectedCall?.pipeline && (
+                                        <div className="flex flex-row items--center w-full justify-between mt-4">
+                                          <div className="flex flex-row items-center gap-2">
+                                            {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
+                                            <Image
 
-                                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                                      <div className="flex flex-row items-center gap-2">
-                                        {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
-                                        <Image
-
-                                          src="/assets/pipelineIcon.svg"
-                                          height={16}
-                                          width={16}
-                                          alt="*"
-                                          style={{
-                                            filter:
-                                              "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                          }}
-                                        />
-                                        <div style={styles.subHeading}>
-                                          Pipeline
+                                              src="/assets/pipelineIcon.svg"
+                                              height={16}
+                                              width={16}
+                                              alt="*"
+                                              style={{
+                                                filter:
+                                                  "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
+                                              }}
+                                            />
+                                            <div style={styles.subHeading}>
+                                              Pipeline
+                                            </div>
+                                          </div>
+                                          <div
+                                            className="text-end"
+                                            style={styles.paragraph}
+                                          >
+                                            {/* {selectedLeadsDetails?.phone} */}
+                                            {selectedCall?.pipeline
+                                              ? selectedCall.pipeline.title
+                                              : "-"}
+                                          </div>
                                         </div>
-                                      </div>
-                                      <div
-                                        className="text-end"
-                                        style={styles.paragraph}
-                                      >
-                                        {/* {selectedLeadsDetails?.phone} */}
-                                        {selectedCall?.pipeline
-                                          ? selectedCall.pipeline.title
-                                          : "-"}
-                                      </div>
-                                    </div>
-                                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                                      <div className="flex flex-row items-center gap-4">
-                                        <Image
-                                          src={"/svgIcons/arrow2.svg"}
-                                          height={25}
-                                          width={25}
-                                          alt="man"
+                                      )
+                                    }
 
-                                        />
-                                        <div style={styles.subHeading}>
-                                          Stage
+                                    {
+                                      selectedCall?.stage && (
+                                        <div className="flex flex-row items--center w-full justify-between mt-4">
+                                          <div className="flex flex-row items-center gap-4">
+                                            <Image
+                                              src={"/svgIcons/arrow2.svg"}
+                                              height={25}
+                                              width={25}
+                                              alt="man"
+
+                                            />
+                                            <div style={styles.subHeading}>
+                                              Stage
+                                            </div>
+                                          </div>
+                                          <div
+                                            className="text-end flex flex-row items-center gap-1"
+                                            style={styles.paragraph}
+                                          >
+                                            <div
+                                              className="h-[10px] max-w-[200px] "
+                                              style={{
+                                                // backgroundColor: "red",
+                                                overflow: "hidden", // Ensures content is clipped
+                                                whiteSpace: "nowrap", // Prevents text from wrapping
+                                                textOverflow: "ellipsis", // Adds the ellipsis
+                                                height: "50px",
+                                              }}
+                                              title={
+                                                selectedCall?.stage?.stageTitle
+                                              } // Optional: Show full text on hover
+                                            >
+                                              {selectedCall?.stage?.stageTitle}
+                                            </div>
+
+
+                                          </div>
                                         </div>
-                                      </div>
-                                      <div
-                                        className="text-end flex flex-row items-center gap-1"
-                                        style={styles.paragraph}
-                                      >
-                                        <div
-                                          className="h-[10px] max-w-[200px] "
-                                          style={{
-                                            // backgroundColor: "red",
-                                            overflow: "hidden", // Ensures content is clipped
-                                            whiteSpace: "nowrap", // Prevents text from wrapping
-                                            textOverflow: "ellipsis", // Adds the ellipsis
-                                            height: "50px",
-                                          }}
-                                          title={
-                                            selectedCall?.stage?.stageTitle
-                                          } // Optional: Show full text on hover
-                                        >
-                                          {selectedCall?.stage?.stageTitle}
-                                        </div>
-
-
-                                      </div>
-                                    </div>
+                                      )
+                                    }
 
                                     <div className="flex flex-row items--center w-full justify-between mt-4">
                                       <div className="flex flex-row items-center gap-4">

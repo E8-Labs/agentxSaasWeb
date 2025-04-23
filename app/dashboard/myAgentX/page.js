@@ -70,6 +70,7 @@ import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneN
 import VoiceMailTab from "../../../components/dashboard/myagentX/VoiceMailTab";
 import { AgentLanguagesList } from "@/utilities/AgentLanguages";
 
+
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
@@ -152,6 +153,7 @@ function Page() {
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] =
     useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
+  const [introVideoModal2, setIntroVideoModal2] = useState(false);
   const [kycsData, setKycsData] = useState(null);
   //greeting tag input
   const [greetingTagInput, setGreetingTagInput] = useState("");
@@ -247,6 +249,8 @@ function Page() {
   const [loading, setLoading] = useState(false);
 
   const [search, setSearch] = useState("");
+
+
 
   const playVoice = (url) => {
     if (audio) {
@@ -849,8 +853,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1222,8 +1225,7 @@ function Page() {
 
             const updateAgentData = response.data.data;
             console.log(
-              `Agent updated data ${
-                updateAgentData.agents.length
+              `Agent updated data ${updateAgentData.agents.length
               } ${!showScriptModal}`,
               updateAgentData
             );
@@ -1474,8 +1476,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -2085,26 +2086,27 @@ function Page() {
   const handleSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setSearch(searchTerm);
-
+  k
     if (!searchTerm) {
       setAgentsListSeparated(agentsList); // Reset to original data
       return;
     }
-
-    const filtered = agentsListSeparated.filter((item) => {
+  
+    const filtered = agentsList.filter((item) => {  // Use original list here
       const name = item.name.toLowerCase();
       const email = item.email?.toLowerCase() || "";
       const phone = item.phone || "";
-
+  
       return (
         name.includes(searchTerm) ||
         email.includes(searchTerm) ||
         phone.includes(searchTerm)
       );
     });
-
+  
     setAgentsListSeparated(filtered);
   };
+  
 
   const styles = {
     claimPopup: {
@@ -2406,8 +2408,8 @@ function Page() {
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -2599,8 +2601,8 @@ function Page() {
                         <div>
                           {item?.totalDuration
                             ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format("HH:mm:ss")
+                              .utc((item?.totalDuration || 0) * 1000)
+                              .format("HH:mm:ss")
                             : "-"}
                         </div>
                       }
@@ -2896,7 +2898,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2927,9 +2929,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -3012,7 +3013,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-          // style={{  }}
+        // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -3230,7 +3231,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3244,7 +3245,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3284,16 +3285,16 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                                1000
-                            )
-                            .format("HH:mm:ss")
+                          .utc(
+                            (showDrawerSelectedAgent?.totalDuration || 0) *
+                            1000
+                          )
+                          .format("HH:mm:ss")
                         : "-"}
                     </div>
                   ) : (
@@ -3311,11 +3312,10 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
-                  }`}
+                  className={`${activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                    }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3562,9 +3562,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3661,9 +3661,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3765,9 +3765,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3868,9 +3868,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -4022,37 +4022,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-purple underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowConfirmationModal(
+                                                          item
+                                                        );
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -4234,6 +4234,23 @@ function Page() {
               </div>
             ) : activeTab === "Calendar" ? (
               <div>
+                <div
+                  className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                  style={{
+
+                    // backgroundColor: "red"
+                  }}
+                >
+                  <VideoCard
+                    duration="2 min 42 sec"
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal2(true);
+                    }}
+                    title="Learn how to add a calendar"
+                  />
+                </div>
+
                 <UserCalender
                   calendarDetails={calendarDetails}
                   setUserDetails={setMainAgentsList}
@@ -5075,6 +5092,13 @@ function Page() {
         onClose={() => setIntroVideoModal(false)}
         videoTitle=" Learn how to customize your script"
         videoUrl={HowtoVideos.script}
+      />
+
+      <IntroVideoModal
+        open={introVideoModal2}
+        onClose={() => setIntroVideoModal2(false)}
+        videoTitle="Learn how to add a calendar"
+        videoUrl={HowtoVideos.Calendar}
       />
 
       {showClaimPopup && (

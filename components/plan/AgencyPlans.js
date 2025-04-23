@@ -339,7 +339,7 @@ function AgencyPlans() {
 
                                                             {!item.percentageDiscount ? (
                                                                 <div className="px-4 py-2 bg-purple rounded-full shadow-md text-[13px] text-white font-semibold">
-                                                                    {item.ratePerMin || 0} per min
+                                                                    ${item.ratePerMin || 0} per min
                                                                 </div>
                                                             ) : (
                                                                 <div></div>
@@ -411,12 +411,14 @@ function AgencyPlans() {
 
                                                             <button
                                                                 // disabled={!togglePlan}
-                                                                className="px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white"
+                                                                className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white
+                                                                flex items-center"
                                                                 style={{
                                                                     fontSize: 16.8,
                                                                     fontWeight: "600",
                                                                     // backgroundColor:  "#00000020",
                                                                     // color:  "#000000",
+                                                                    alignSelf:'center'
                                                                 }}
                                                                 onClick={() => { handleSubscribePlan() }}>
                                                                 Claim Early Access
@@ -467,7 +469,12 @@ function AgencyPlans() {
                             </div>
 
                             <button
-                                className='w-[90%] pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple'
+                                className='w-full pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple items-center
+
+                                '
+                                style={{
+                                    alignSelf:'center'
+                                }}
                             >
                                 Contact Our Team
                             </button>

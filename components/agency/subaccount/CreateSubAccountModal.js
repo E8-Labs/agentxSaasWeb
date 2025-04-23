@@ -14,50 +14,8 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
     const timerRef = useRef(null);
 
-    const [subAccountName, setSubAccountName] = useState("");
-
-    //user email
-    const [userEmail, setUserEmail] = useState("");
-    const [emailCheckResponse, setEmailCheckResponse] = useState(null);
-    const [emailLoader, setEmailLoader] = useState(false);
-    const [validEmail, setValidEmail] = useState("");
-
-    //user phone
-    const [locationLoader, setLocationLoader] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [countryCode, setCountryCode] = useState("");
-    const [userPhoneNumber, setUserPhoneNumber] = useState("");
-    const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
-    const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    //selected usertype
-    const [selectedUserType, setSelectedUserType] = useState(null);
-
-    //team members fields
-    const [teamMembers, setTeamMembers] = useState([
-        {
-            name: '',
-            email: '',
-            phone: '',
-            emailError: '',
-            emailValid: null,
-            phoneError: '',
-            phoneValid: null,
-        },
-        {
-            name: '',
-            email: '',
-            phone: '',
-            emailError: '',
-            emailValid: null,
-            phoneError: '',
-            phoneValid: null,
-        },
-    ]);
-
-    //array of user types
-    const userType = [
+     //array of user types
+     const userType = [
         {
             id: 1,
             title: "Real Estate Agent",
@@ -168,6 +126,50 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
             roundedImage: true,
         },
     ];
+
+    const [subAccountName, setSubAccountName] = useState("");
+
+    //user email
+    const [userEmail, setUserEmail] = useState("");
+    const [emailCheckResponse, setEmailCheckResponse] = useState(null);
+    const [emailLoader, setEmailLoader] = useState(false);
+    const [validEmail, setValidEmail] = useState("");
+
+    //user phone
+    const [locationLoader, setLocationLoader] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [countryCode, setCountryCode] = useState("");
+    const [userPhoneNumber, setUserPhoneNumber] = useState("");
+    const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
+    const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    //selected usertype
+    const [selectedUserType, setSelectedUserType] = useState(userType[0]);
+
+    //team members fields
+    const [teamMembers, setTeamMembers] = useState([
+        {
+            name: '',
+            email: '',
+            phone: '',
+            emailError: '',
+            emailValid: null,
+            phoneError: '',
+            phoneValid: null,
+        },
+        {
+            name: '',
+            email: '',
+            phone: '',
+            emailError: '',
+            emailValid: null,
+            phoneError: '',
+            phoneValid: null,
+        },
+    ]);
+
+   
 
     //just for adding loader on member email check api
     // const [memberEmailLoader, setMemberEMailLoader] = useState(false);
@@ -648,7 +650,7 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
                                     key={item.id}
                                     onClick={() => setSelectedUserType(item.userType)}
                                     className={`min-w-max bg-white text-black flex items-center gap-2 border rounded-md px-4 py-2 transition-all
-          ${selectedUserType?.id === item.id
+          ${selectedUserType === item.userType
                                             ? 'border-purple'
                                             : 'border-purple10 hover:border-purple'}
         `}

@@ -220,7 +220,7 @@ const AgencyNavBar = () => {
 
       {/* Sticky Modal */}
       <Modal
-        open={canAcceptPaymentsAgencyccount}
+        open={false}
         className="border-none outline-none"
         BackdropProps={{
           style: { backgroundColor: 'transparent' }
@@ -230,7 +230,7 @@ const AgencyNavBar = () => {
           <div className="flex flex-row items-center gap-4 bg-white mt-4 rounded-md shadow-lg p-2">
             <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={40} width={40} />
             <div className="text-red text-xl font-bold">
-              Verify your payments to explore more!
+              Verify your identity to use your account
             </div>
             <button
               className="bg-purple text-white text-lg rounded-md p-2 outline-none border-none"
