@@ -220,7 +220,7 @@ const AgencyNavBar = () => {
 
       {/* Sticky Modal */}
       <Modal
-        open={false}
+        open={canAcceptPaymentsAgencyccount}
         className="border-none outline-none"
         BackdropProps={{
           style: { backgroundColor: 'transparent' }
