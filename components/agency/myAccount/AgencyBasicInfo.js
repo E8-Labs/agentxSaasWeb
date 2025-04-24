@@ -10,7 +10,7 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
 
-function SubAccountBasicInfo() {
+function AgencyBasicInfo() {
   const router = useRouter();
   const [focusedName, setFocusedName] = useState(false);
   const [focusedFarm, setFocusedFarm] = useState(false);
@@ -2010,7 +2010,7 @@ function SubAccountBasicInfo() {
   );
 }
 
-export default SubAccountBasicInfo;
+export default AgencyBasicInfo;
 
 const styles = {
   headingStyle: {

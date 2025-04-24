@@ -18,7 +18,7 @@ import moment from "moment";
 import getProfileDetails from "@/components/apis/GetProfile";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from "../../leads/AgentSelectSnackMessage";
+} from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
@@ -28,7 +28,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function SubAccountBilling() {
+function AgencyBilling() {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -1608,7 +1608,7 @@ function SubAccountBilling() {
   );
 }
 
-export default SubAccountBilling;
+export default AgencyBilling;
 const styles = {
   text: {
     fontSize: 12,

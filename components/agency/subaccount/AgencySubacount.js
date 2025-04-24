@@ -218,7 +218,7 @@ function AgencySubacount() {
                                             </div>
                                             <div className="w-1/12 ">
                                                 <div style={styles.text2}>
-                                                    {item.plan}
+                                                    {item.plan?.type}
                                                 </div>
                                             </div>
                                             <div className="w-1/12">

@@ -11,15 +11,15 @@ import Billing from "@/components/myAccount/Billing";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter, useSearchParams } from "next/navigation";
 import BarServices from "@/components/myAccount/BarServices";
-import SubAccountBasicInfo from "./SubAccountBasicInfo";
-import SubAccountBilling from "./SubAccountBilling";
-import SubAccountMyPhoneNumber from "./SubAccountMyPhoneNumber";
-import SubAccountSupport from "./SubAccountSupport";
-import SubAccountSendFeedback from "./SubAccountSendFeedback";
-import SubAccountInviteAgentX from "./SubAccountInviteAgentX";
-import SubAccountBarServices from "./SubAccountBarServices";
+import AgencyBilling from "./AgencyBilling";
+import AgencyMyPhoneNumber from "./AgencyMyPhoneNumber";
+import AgencySupport from "./AgencySupport";
+import AgencySendFeedback from "./AgencySendFeedback";
+import AgencyInviteAgentX from "./AgencyInviteAgentX";
+import AgencyBarServices from "./AgencyBarServices";
+import AgencyBasicInfo from "./AgencyBasicInfo";
 
-function SubAccountMyAccount() {
+function AgencyMyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
@@ -89,7 +89,7 @@ function SubAccountMyAccount() {
     params.set("tab", index); // Set or update the 'tab' parameter
 
     // Push the updated URL
-    router.push(`/dashboard/myAccount?${params.toString()}`);
+    router.push(`/agency/dashboard/myAccount?${params.toString()}`);
 
     // //console.log;
   };
@@ -99,19 +99,19 @@ function SubAccountMyAccount() {
 
     switch (tabSelected) {
       case 1:
-        return <SubAccountBasicInfo />;
+        return <AgencyBasicInfo />;
       case 2:
-        return <SubAccountBilling />;
+        return <AgencyBilling />;
       case 3:
-        return <SubAccountMyPhoneNumber />;
+        return <AgencyMyPhoneNumber />;
       case 4:
-        return <SubAccountSupport />;
+        return <AgencySupport />;
       case 5:
-        return <SubAccountSendFeedback />;
+        return <AgencySendFeedback />;
       case 6:
-        return <SubAccountInviteAgentX />;
+        return <AgencyInviteAgentX />;
       case 7:
-        return <SubAccountBarServices />;
+        return <AgencyBarServices />;
       default:
         return <div>Please select an option.</div>;
     }
@@ -208,4 +208,4 @@ function SubAccountMyAccount() {
   );
 }
 
-export default SubAccountMyAccount;
+export default AgencyMyAccount;
