@@ -36,6 +36,8 @@ const SubAccountPlan = () => {
     const [errorMsg, setErrorMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
+    const [planSubscribed, setPlanSubscribed] = useState(false)
+
 
     useEffect(() => {
         getPlans();
@@ -61,14 +63,19 @@ const SubAccountPlan = () => {
     };
 
     //close add card popup
-    const handleClose = async (data) => {
+    const handleCardAddedClose = async (data) => {
+
+        await getProfileDetails()
         console.log("Card added details are here", data);
         if (data) {
-            const userProfile = await getProfileDetails();
+            console.log('try to close popup')
+            setAddPaymentPopUp(false);
+            if (togglePlan) {
+                console.log('trying to suubscribe',)
+                await subscribePlanClick();
+            }
         }
-        setAddPaymentPopUp(false);
     };
-
     //get plans apis
     const getPlans = async () => {
         try {
@@ -94,8 +101,29 @@ const SubAccountPlan = () => {
         }
     }
 
+    const isCardsAvailable = () => {
+
+        let data = localStorage.getItem("User")
+        if (data) {
+            let u = JSON.parse(data)
+
+            // console.log('data', u.user.cards)
+
+            if (u.user.cards.length > 0) {
+                return true
+            }
+            return false
+        }
+    }
+
     //subscribe plan
     const subscribePlanClick = async () => {
+
+        if (isCardsAvailable() === false) {
+            setAddPaymentPopUp(true)
+            return
+        }
+
         try {
             setSubPlanLoader(true);
             const Token = AuthToken();
@@ -115,6 +143,7 @@ const SubAccountPlan = () => {
                 console.log("Response of subscribe subaccount plan is", response.data);
                 setSubPlanLoader(false);
                 if (response.data.status === true) {
+                    setPlanSubscribed(true)
                     setErrorMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Success);
                     const D = localStorage.getItem("fromDashboard");
@@ -128,7 +157,7 @@ const SubAccountPlan = () => {
                     setErrorMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Error);
                     if (response.data.message === "No payment method added") {
-                        setAddPaymentPopUp(true);
+                        // setAddPaymentPopUp(true);
                     }
                 }
             }
@@ -409,16 +438,22 @@ const SubAccountPlan = () => {
                             <TermsText />
                         </div>
                         {
-                            subPlanLoader ?
-                                <div className='mt-4 w-full flex flex-row justify-center'>
-                                    <CircularProgress size={35} />
-                                </div> :
-                                <button
-                                    className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan ? "bg-purple text-white" : "bg-[#00000030] text-black"}`}
-                                    onClick={subscribePlanClick}
-                                >
-                                    Continue
-                                </button>
+                            planSubscribed ? (
+                                <div className='mt-4 w-full flex flex-row justify-center text-lg'>
+                                     Please wait while we are routing you to dashboard...
+                                </div>
+                            ) :
+                                subPlanLoader ?
+                                    <div className='mt-4 w-full flex flex-row justify-center'>
+                                        <CircularProgress size={35} />
+                                    </div> :
+                                    <button
+                                        className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan ? "bg-purple text-white" : "bg-[#00000030] text-black"}`}
+                                        onClick={subscribePlanClick}
+                                        disabled={!canSubPlan}
+                                    >
+                                        Continue
+                                    </button>
                         }
                     </div>
                 </div>
@@ -459,7 +494,9 @@ const SubAccountPlan = () => {
                                     >
                                         Add new card
                                     </div>
-                                    <button onClick={() => setAddPaymentPopUp(false)}>
+                                    <button onClick={() =>
+                                        setAddPaymentPopUp(false)
+                                    }>
                                         <Image
                                             src={"/assets/crossIcon.png"}
                                             height={40}
@@ -473,8 +510,8 @@ const SubAccountPlan = () => {
                                         //selectedPlan={selectedPlan}
                                         // stop={stop}
                                         // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
-                                        handleClose={handleClose}
-                                        togglePlan={togglePlan}
+                                        handleClose={handleCardAddedClose}
+                                    // togglePlan={togglePlan}
                                     // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                                     />
                                 </Elements>

@@ -316,7 +316,7 @@ const AgencyNavBar = () => {
         }}
       >
         <Link
-          href={"/dashboard/myAccount"}
+          href={"/agency/dashboard/myAccount"}
           className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
           style={{
             textOverflow: "ellipsis",

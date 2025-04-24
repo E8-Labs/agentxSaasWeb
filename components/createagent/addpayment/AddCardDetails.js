@@ -223,7 +223,7 @@ const AddCardDetails = ({
       // console.log("Result", JSON.stringify(result.setupIntent));
       let id = result.setupIntent.payment_method;
       // setStatus("Success! Card is ready for auto-payment.");
-      console.log("Payment method ID:", id);
+      // console.log("Payment method ID:", id);
 
       // Save paymentMethod ID to your server (for later cron charging)
       // Step 3: Send payment method ID to backend to attach to customer

@@ -428,26 +428,34 @@ const ProfileNav = () => {
           console.log("Response of get profile api is", response);
           setUserType(response?.data?.data.userType);
           if (response?.data?.data.userType != "admin") {
+
             if (
-              // Data?.totalSecondsAvailable <= 120 ||
-              Data?.plan == null ||
-              (Data?.plan &&
-                Data?.plan?.status !== "active" &&
-                Data?.totalSecondsAvailable <= 120) ||
-              (Data?.plan &&
-                Data?.plan?.status == "active" &&
-                Data?.totalSecondsAvailable <= 120)
+              Data?.userRole === "AgencySubAccount" &&
+              (
+                Data?.plan == null ||
+                (Data?.plan && Data?.plan?.status !== "active")
+              )
             ) {
-              if (Data?.userRole === "AgencySubAccount") {
-                const fromDashboard = {
-                  fromDashboard: true
-                }
-                localStorage.setItem("fromDashboard", JSON.stringify(fromDashboard));
-                router.push("/subaccountInvite/subscribeSubAccountPlan");
-              } else {
-                setShowPlansPopup(true);
-              }
-            } else {
+              const fromDashboard = { fromDashboard: true };
+              localStorage.setItem("fromDashboard", JSON.stringify(fromDashboard));
+              router.push("/subaccountInvite/subscribeSubAccountPlan");
+            }
+            else if (
+              (
+                Data?.userRole !== "AgencySubAccount" 
+              ) && ( Data?.plan == null ||
+                (
+                  Data?.plan && Data?.plan?.status !== "active" && Data?.totalSecondsAvailable <= 120
+                ) ||
+                (
+                  Data?.plan && Data?.plan?.status === "active" && Data?.totalSecondsAvailable <= 120
+                )
+              )
+            ) {
+              console.log('I am triggered');
+              setShowPlansPopup(true);
+            }
+            else {
               setShowPlansPopup(false);
             }
 
