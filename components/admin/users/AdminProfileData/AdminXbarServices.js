@@ -29,7 +29,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AgencyBarServices() {
+function AdminXbarServices() {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -354,7 +354,7 @@ function AgencyBarServices() {
               textOverflow: "ellipsis",
             }}
           >
-            X Bar Plans
+            X Bar Services
           </div>
           <div
             className=" "
@@ -367,11 +367,11 @@ function AgencyBarServices() {
               textOverflow: "ellipsis",
             }}
           >
-            {` Account > Bar Plans`}
+            {` Account > Bar Services`}
           </div>
         </div>
         <div
-          className="w-10/12 p-4 rounded-lg flex flex-row items-center"
+          className="w-10/12 p-6 rounded-lg flex flex-row items-center"
           style={{
             backgroundImage: "url(/svgIcons/cardBg.svg)",
             backgroundSize: "cover",
@@ -379,11 +379,11 @@ function AgencyBarServices() {
             backgroundRepeat: "no-repeat",
             color: "#fff",
             alignSelf: "center",
-            marginTop: "2vh",
+            marginTop: "7vh",
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <div className="flex flex-col">
+          <div className="flex flex-col pt-5">
             <div
               style={{
                 fontSize: "2vh",
@@ -391,7 +391,7 @@ function AgencyBarServices() {
                 marginBottom: "10px",
               }}
             >
-              X Bar Plans
+              X Bar Services
             </div>
             <p
               style={{
@@ -408,7 +408,7 @@ function AgencyBarServices() {
               faster and start closing more deals with confidence—all at
               affordable rates to meet you where you are.
             </p>
-            <div className="flex flex-row justify-between mt-2">
+            <div className="flex flex-row justify-between">
               <div></div>
               <button
                 className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
@@ -638,7 +638,7 @@ function AgencyBarServices() {
   );
 }
 
-export default AgencyBarServices;
+export default AdminXbarServices;
 const styles = {
   text: {
     fontSize: 12,

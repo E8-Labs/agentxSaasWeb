@@ -78,7 +78,7 @@ export default function ConfirmPerplexityModal({
         >
           <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
           <Typography sx={{ fontSize: "14px", color: "#000" }}>
-            {`Each enrichment is $0.10.`}
+            {`Each enrichment is $0.05.`}
           </Typography>
         </Box>
       </Box>

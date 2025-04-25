@@ -102,7 +102,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         router.push("/admin");
 
       } else if (d.user.userRole == "AgencySubAccount") {
-        router.push("/subaccountInvite");
+        if (d.user.plan && d.user.plan?.status === "active") {
+          router.push("/dashboard");
+        } else {
+          router.push("/subaccountInvite");
+        }
       } else if (d.user.userRole == "Agency") {
         if (d.user.plan && d.user.canAcceptPaymentsAgencyccount === false) {
           router.push("/agency/verify")
@@ -110,7 +114,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           router.push("/agency/dashboard");
         }
       }
-      
+
       else {
         router.push("/dashboard");
       }

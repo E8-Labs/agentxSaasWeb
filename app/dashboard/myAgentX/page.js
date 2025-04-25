@@ -69,6 +69,7 @@ import { PauseCircle } from "@mui/icons-material";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
 import VoiceMailTab from "../../../components/dashboard/myagentX/VoiceMailTab";
 import { AgentLanguagesList } from "@/utilities/AgentLanguages";
+import NoAgent from "@/components/dashboard/myagentX/NoAgent";
 
 
 function Page() {
@@ -2086,27 +2087,27 @@ function Page() {
   const handleSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setSearch(searchTerm);
-  k
+    k
     if (!searchTerm) {
       setAgentsListSeparated(agentsList); // Reset to original data
       return;
     }
-  
+
     const filtered = agentsList.filter((item) => {  // Use original list here
       const name = item.name.toLowerCase();
       const email = item.email?.toLowerCase() || "";
       const phone = item.phone || "";
-  
+
       return (
         name.includes(searchTerm) ||
         email.includes(searchTerm) ||
         phone.includes(searchTerm)
       );
     });
-  
+
     setAgentsListSeparated(filtered);
   };
-  
+
 
   const styles = {
     claimPopup: {
@@ -2291,49 +2292,53 @@ function Page() {
             className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
             style={{ scrollbarWidth: "none" }}
           >
-            {agentsListSeparated.map((item, index) => (
-              <div
-                key={index}
-                className="w-full px-10 py-2"
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#00000007",
-                  backgroundColor: "#FBFCFF",
-                  borderRadius: 20,
-                }}
-              >
-                <div className="w-12/12 flex flex-row items-center justify-between">
-                  <div className="flex flex-row gap-5 items-center">
-                    <div className="flex flex-row items-end">
-                      {selectedImages[index] ? (
-                        <div>
-                          <Image
-                            src={selectedImages[index]}
-                            height={70}
-                            width={70}
-                            alt="Profile"
-                            style={{
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                              height: "60px",
-                              width: "60px",
-                            }}
+            {
+              agentsListSeparated.length === 0 ? (
+                <NoAgent />
+              ) :
+                agentsListSeparated.map((item, index) => (
+                  <div
+                    key={index}
+                    className="w-full px-10 py-2"
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "#00000007",
+                      backgroundColor: "#FBFCFF",
+                      borderRadius: 20,
+                    }}
+                  >
+                    <div className="w-12/12 flex flex-row items-center justify-between">
+                      <div className="flex flex-row gap-5 items-center">
+                        <div className="flex flex-row items-end">
+                          {selectedImages[index] ? (
+                            <div>
+                              <Image
+                                src={selectedImages[index]}
+                                height={70}
+                                width={70}
+                                alt="Profile"
+                                style={{
+                                  borderRadius: "50%",
+                                  objectFit: "cover",
+                                  height: "60px",
+                                  width: "60px",
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            getAgentsListImage(item)
+                          )}
+
+                          <input
+                            type="file"
+                            value={""}
+                            accept="image/*"
+                            ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
+                            onChange={(e) => handleProfileImgChange(e, index)}
+                            style={{ display: "none" }}
                           />
-                        </div>
-                      ) : (
-                        getAgentsListImage(item)
-                      )}
 
-                      <input
-                        type="file"
-                        value={""}
-                        accept="image/*"
-                        ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
-                        onChange={(e) => handleProfileImgChange(e, index)}
-                        style={{ display: "none" }}
-                      />
-
-                      {/* <button
+                          {/* <button
                         style={{ marginLeft: -30 }}
                         onClick={() => {
                           handleSelectProfileImg(index);
@@ -2346,302 +2351,306 @@ function Page() {
                           alt="profile"
                         />
                       </button> */}
-                    </div>
+                        </div>
 
-                    <div className="flex flex-col gap-1">
-                      <div className="flex flex-row gap-3 items-center">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-row gap-3 items-center">
+                            <button
+                              onClick={() => {
+                                ////console.log;
+                                handleShowDrawer(item);
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: 24,
+                                  fontWeight: "600",
+                                  color: "#000",
+                                }}
+                              >
+                                {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
+                                {formatName(item)}
+                              </div>
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setShowRenameAgentPopup(true);
+                                setSelectedRenameAgent(item);
+                                setRenameAgent(item.name);
+                              }}
+                            >
+                              <Image
+                                src={"/svgIcons/editPen.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                            </button>
+                            <div
+                              style={{
+                                fontSize: 12,
+                                fontWeight: "600",
+                                color: "#00000080",
+                              }}
+                              className="flex flex-row items-center gap-1"
+                            >
+                              <div
+                                aria-owns={open ? "mouse-over-popover" : undefined}
+                                aria-haspopup="true"
+                                onMouseEnter={(event) => {
+                                  //// console.log(
+                                  //   "Agent hovered is",
+                                  //   item.agentObjectiveId
+                                  // );
+
+                                  if (item.agentObjectiveId === 3) {
+                                    handlePopoverOpen(event, item);
+                                  }
+                                }}
+                                onMouseLeave={handlePopoverClose}
+                                style={{ cursor: "pointer" }}
+                              >
+                                {user.user.userType == UserTypes.RealEstateAgent
+                                  ? `${item.agentObjective
+                                    ?.slice(0, 1)
+                                    .toUpperCase()}${item.agentObjective?.slice(
+                                      1
+                                    )}`
+                                  : `${item.agentRole}`}
+                              </div>
+                              <div>
+                                | {item.agentType?.slice(0, 1).toUpperCase(0)}
+                                {item.agentType?.slice(1)}
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            className="flex flex-row gap-3 items-center text-purple"
+                            style={{ fontSize: 15, fontWeight: "500" }}
+                          >
+                            <button
+                              onClick={() => {
+                                //// //console.log;
+                                setGreetingTagInput(item?.prompt?.greeting);
+                                setOldGreetingTagInput(item?.prompt?.greeting);
+                                setScriptTagInput(item?.prompt?.callScript);
+                                setOldScriptTagInput(item?.prompt?.callScript);
+                                setShowScriptModal(item);
+                                matchingAgent(item);
+                                setShowScript(true);
+                                if (item?.prompt?.objective) {
+                                  setObjective(item?.prompt?.objective);
+                                  setOldObjective(item?.prompt?.objective);
+                                }
+                              }}
+                            >
+                              <div>View Script</div>
+                            </button>
+
+                            <div>|</div>
+
+                            <button
+                              onClick={() => {
+                                //// //console.log;
+                                handleShowDrawer(item);
+                                // matchingAgent(item);
+                                ////// //console.log;
+                              }}
+                            >
+                              <div>More info</div>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-row items-start gap-8">
+                        {!item.phoneNumber && (
+                          <div className="flex flex-row items-center gap-2 -mt-1">
+                            <Image
+                              src={"/assets/warningFill.png"}
+                              height={18}
+                              width={18}
+                              alt="*"
+                            />
+                            <p>
+                              <i
+                                className="text-red"
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: "600",
+                                }}
+                              >
+                                No phone number assigned
+                              </i>
+                            </p>
+                          </div>
+                        )}
+
                         <button
+                          className="bg-purple px-4 py-2 rounded-lg"
                           onClick={() => {
                             ////console.log;
-                            handleShowDrawer(item);
+                            if (!item.phoneNumber) {
+                              setShowWarningModal(item);
+                            } else {
+                              setOpenTestAiModal(true);
+                            }
+                            let callScript =
+                              item.prompt.callScript + " " + item.prompt.greeting;
+
+                            // ////console.log;
+
+                            //function for extracting the keys
+                            const regex = /\{(.*?)\}/g;
+                            let match;
+                            let mainAgent = null;
+                            mainAgentsList.map((ma) => {
+                              if (ma.agents?.length > 0) {
+                                if (ma.agents[0].id == item.id) {
+                                  mainAgent = ma;
+                                } else if (ma.agents?.length >= 2) {
+                                  if (ma.agents[1].id == item.id) {
+                                    mainAgent = ma;
+                                  }
+                                }
+                              }
+                            });
+                            let kyc = (mainAgent?.kyc || []).map(
+                              (kyc) => kyc.question
+                            );
+                            ////console.log
+                            while ((match = regex.exec(callScript)) !== null) {
+                              // "Email", "Address",
+                              let defaultVariables = [
+                                "Full Name",
+                                "First Name",
+                                "Last Name",
+                                "firstName",
+                                "seller_kyc",
+                                "buyer_kyc",
+                                "CU_address",
+                                "CU_status",
+                                // "Address"
+                              ];
+                              if (
+                                !defaultVariables.includes(match[1]) &&
+                                match[1]?.length < 15
+                              ) {
+                                // match[1]?.length < 15
+                                if (
+                                  !keys.includes(match[1]) &&
+                                  !kyc.includes(match[1])
+                                ) {
+                                  keys.push(match[1]);
+                                }
+                              }
+                              // Add the variable name (without braces) to the array
+                            }
+                            setScriptKeys(keys);
+                            ////console.log;
+                            setSelectedAgent(item);
                           }}
                         >
                           <div
                             style={{
-                              fontSize: 24,
+                              fontSize: 16,
                               fontWeight: "600",
-                              color: "#000",
+                              color: "#fff",
                             }}
                           >
-                            {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
-                            {formatName(item)}
+                            Test AI
                           </div>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setShowRenameAgentPopup(true);
-                            setSelectedRenameAgent(item);
-                            setRenameAgent(item.name);
-                          }}
-                        >
-                          <Image
-                            src={"/svgIcons/editPen.svg"}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: "600",
-                            color: "#00000080",
-                          }}
-                          className="flex flex-row items-center gap-1"
-                        >
-                          <div
-                            aria-owns={open ? "mouse-over-popover" : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              //// console.log(
-                              //   "Agent hovered is",
-                              //   item.agentObjectiveId
-                              // );
-
-                              if (item.agentObjectiveId === 3) {
-                                handlePopoverOpen(event, item);
-                              }
-                            }}
-                            onMouseLeave={handlePopoverClose}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {user.user.userType == UserTypes.RealEstateAgent
-                              ? `${item.agentObjective
-                                ?.slice(0, 1)
-                                .toUpperCase()}${item.agentObjective?.slice(
-                                  1
-                                )}`
-                              : `${item.agentRole}`}
-                          </div>
-                          <div>
-                            | {item.agentType?.slice(0, 1).toUpperCase(0)}
-                            {item.agentType?.slice(1)}
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className="flex flex-row gap-3 items-center text-purple"
-                        style={{ fontSize: 15, fontWeight: "500" }}
-                      >
-                        <button
-                          onClick={() => {
-                            //// //console.log;
-                            setGreetingTagInput(item?.prompt?.greeting);
-                            setOldGreetingTagInput(item?.prompt?.greeting);
-                            setScriptTagInput(item?.prompt?.callScript);
-                            setOldScriptTagInput(item?.prompt?.callScript);
-                            setShowScriptModal(item);
-                            matchingAgent(item);
-                            setShowScript(true);
-                            if (item?.prompt?.objective) {
-                              setObjective(item?.prompt?.objective);
-                              setOldObjective(item?.prompt?.objective);
-                            }
-                          }}
-                        >
-                          <div>View Script</div>
-                        </button>
-
-                        <div>|</div>
-
-                        <button
-                          onClick={() => {
-                            //// //console.log;
-                            handleShowDrawer(item);
-                            // matchingAgent(item);
-                            ////// //console.log;
-                          }}
-                        >
-                          <div>More info</div>
                         </button>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex flex-row items-start gap-8">
-                    {!item.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2 -mt-1">
-                        <Image
-                          src={"/assets/warningFill.png"}
-                          height={18}
-                          width={18}
-                          alt="*"
-                        />
-                        <p>
-                          <i
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: "600",
-                            }}
-                          >
-                            No phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    )}
-
-                    <button
-                      className="bg-purple px-4 py-2 rounded-lg"
-                      onClick={() => {
-                        ////console.log;
-                        if (!item.phoneNumber) {
-                          setShowWarningModal(item);
-                        } else {
-                          setOpenTestAiModal(true);
-                        }
-                        let callScript =
-                          item.prompt.callScript + " " + item.prompt.greeting;
-
-                        // ////console.log;
-
-                        //function for extracting the keys
-                        const regex = /\{(.*?)\}/g;
-                        let match;
-                        let mainAgent = null;
-                        mainAgentsList.map((ma) => {
-                          if (ma.agents?.length > 0) {
-                            if (ma.agents[0].id == item.id) {
-                              mainAgent = ma;
-                            } else if (ma.agents?.length >= 2) {
-                              if (ma.agents[1].id == item.id) {
-                                mainAgent = ma;
-                              }
-                            }
-                          }
-                        });
-                        let kyc = (mainAgent?.kyc || []).map(
-                          (kyc) => kyc.question
-                        );
-                        ////console.log
-                        while ((match = regex.exec(callScript)) !== null) {
-                          // "Email", "Address",
-                          let defaultVariables = [
-                            "Full Name",
-                            "First Name",
-                            "Last Name",
-                            "firstName",
-                            "seller_kyc",
-                            "buyer_kyc",
-                            "CU_address",
-                            "CU_status",
-                            // "Address"
-                          ];
-                          if (
-                            !defaultVariables.includes(match[1]) &&
-                            match[1]?.length < 15
-                          ) {
-                            // match[1]?.length < 15
-                            if (
-                              !keys.includes(match[1]) &&
-                              !kyc.includes(match[1])
-                            ) {
-                              keys.push(match[1]);
-                            }
-                          }
-                          // Add the variable name (without braces) to the array
-                        }
-                        setScriptKeys(keys);
-                        ////console.log;
-                        setSelectedAgent(item);
-                      }}
+                    <div
+                      style={{ marginTop: 20 }}
+                      className="w-9.12 bg-white p-6 rounded-2xl mb-4"
                     >
-                      <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: "600",
-                          color: "#fff",
-                        }}
-                      >
-                        Test AI
+                      <div className="w-full flex flex-row items-center justify-between">
+                        <Card
+                          name="Calls"
+                          value={<div>{item.calls ? item.calls : "-"}</div>}
+                          icon="/svgIcons/selectedCallIcon.svg"
+                          bgColor="bg-blue-100"
+                          iconColor="text-blue-500"
+                        />
+                        <Card
+                          name="Convos"
+                          value={<div>{item.callsGt10 ? item.callsGt10 : "-"}</div>}
+                          icon="/svgIcons/convosIcon2.svg"
+                          bgColor="bg-purple-100"
+                          iconColor="text-purple-500"
+                        />
+                        <Card
+                          name="Hot Leads"
+                          value={item.hotleads ? item.hotleads : "-"}
+                          icon="/otherAssets/hotLeadsIcon2.png"
+                          bgColor="bg-orange-100"
+                          iconColor="text-orange-500"
+                        />
+
+                        <Card
+                          name="Booked Meetings"
+                          value={item.booked ? item.booked : "-"}
+                          icon="/otherAssets/greenCalenderIcon.png"
+                          bgColor="green"
+                          iconColor="text-orange-500"
+                        />
+
+                        <Card
+                          name="Mins Talked"
+                          value={
+                            <div>
+                              {item?.totalDuration
+                                ? moment
+                                  .utc((item?.totalDuration || 0) * 1000)
+                                  .format("HH:mm:ss")
+                                : "-"}
+                            </div>
+                          }
+                          icon="/otherAssets/minsCounter.png"
+                          bgColor="green"
+                          iconColor="text-orange-500"
+                        />
                       </div>
-                    </button>
+                    </div>
                   </div>
-                </div>
-
-                <div
-                  style={{ marginTop: 20 }}
-                  className="w-9.12 bg-white p-6 rounded-2xl mb-4"
-                >
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <Card
-                      name="Calls"
-                      value={<div>{item.calls ? item.calls : "-"}</div>}
-                      icon="/svgIcons/selectedCallIcon.svg"
-                      bgColor="bg-blue-100"
-                      iconColor="text-blue-500"
-                    />
-                    <Card
-                      name="Convos"
-                      value={<div>{item.callsGt10 ? item.callsGt10 : "-"}</div>}
-                      icon="/svgIcons/convosIcon2.svg"
-                      bgColor="bg-purple-100"
-                      iconColor="text-purple-500"
-                    />
-                    <Card
-                      name="Hot Leads"
-                      value={item.hotleads ? item.hotleads : "-"}
-                      icon="/otherAssets/hotLeadsIcon2.png"
-                      bgColor="bg-orange-100"
-                      iconColor="text-orange-500"
-                    />
-
-                    <Card
-                      name="Booked Meetings"
-                      value={item.booked ? item.booked : "-"}
-                      icon="/otherAssets/greenCalenderIcon.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-
-                    <Card
-                      name="Mins Talked"
-                      value={
-                        <div>
-                          {item?.totalDuration
-                            ? moment
-                              .utc((item?.totalDuration || 0) * 1000)
-                              .format("HH:mm:ss")
-                            : "-"}
-                        </div>
-                      }
-                      icon="/otherAssets/minsCounter.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+                ))}
           </div>
         )}
 
         {/* code to add new agent */}
-        <Link
-          className="w-full py-6 flex justify-center items-center"
-          href="/createagent"
-          style={{
-            marginTop: 40,
-            border: "1px dashed #7902DF",
-            borderRadius: "10px",
-            // borderColor: '#7902DF',
-            boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
-            backgroundColor: "#FBFCFF",
-          }}
-          onClick={handleAddNewAgent}
-        >
-          <div
-            className="flex flex-row items-center gap-1"
-            style={{
-              fontSize: 20,
-              fontWeight: "600",
-              color: "#000",
-            }}
-          >
-            <Plus weight="bold" size={22} /> Add New Agent
-          </div>
-        </Link>
+        {
+          agentsListSeparated.length > 0 && (
+            <Link
+              className="w-full py-6 flex justify-center items-center"
+              href="/createagent"
+              style={{
+                marginTop: 40,
+                border: "1px dashed #7902DF",
+                borderRadius: "10px",
+                // borderColor: '#7902DF',
+                boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+                backgroundColor: "#FBFCFF",
+              }}
+              onClick={handleAddNewAgent}
+            >
+              <div
+                className="flex flex-row items-center gap-1"
+                style={{
+                  fontSize: 20,
+                  fontWeight: "600",
+                  color: "#000",
+                }}
+              >
+                <Plus weight="bold" size={22} /> Add New Agent
+              </div>
+            </Link>
+          )
+        }
       </div>
 
       {/* Modal to rename the agent */}

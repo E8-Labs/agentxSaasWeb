@@ -39,16 +39,21 @@ export const getMonthlyPlan = async () => {
 
 //code to get the XBar Options
 export const getXBarOptions = async () => {
+    // console.log('trying to get x bar plans')
     try {
         // setInitialLoader(true);
         const localXbarPlans = localStorage.getItem("XBarOptions");
-        if (localXbarPlans) {
+        if ( false
+            // localXbarPlans
+        ) {
             const d = JSON.parse(localXbarPlans);
             console.log(d);
             return d;
         } else {
             const Token = AuthToken();
             const ApiPath = Apis.getXBarOptions
+            // console.log('ApiPath', ApiPath)
+
             const response = await axios.get(ApiPath,
                 {
                     headers: {

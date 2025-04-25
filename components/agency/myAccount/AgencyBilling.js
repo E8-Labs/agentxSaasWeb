@@ -67,8 +67,34 @@ function AgencyBilling() {
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
 
-    const [plans,setPlans] = useState([])
-    const [initialLoader,setInitialLoader] = useState(false)
+  const [plans, setPlans] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
+
+
+  const duration = [
+    {
+      id: 1,
+      title: "Monthly",
+      value: "monthly",
+    }, {
+      id: 2,
+      title: "Quarterly",
+      value: "quarterly",
+
+    }, {
+      id: 3,
+      title: "Yearly",
+      value: "yearly",
+
+    },
+  ]
+
+
+  const [monthlyPlans, setMonthlyPlans] = useState([]);
+  const [quaterlyPlans, setQuaterlyPlans] = useState([]);
+  const [yearlyPlans, setYearlyPlans] = useState([]);
+  const [selectedDuration, setSelectedDuration] = useState(duration[0]);
+
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -79,7 +105,7 @@ function AgencyBilling() {
     setScreenWidth(screenWidth);
   }, []);
 
-  
+
 
   //cancel plan reasons
   const cancelPlanReasons = [
@@ -106,36 +132,62 @@ function AgencyBilling() {
   ];
 
   useEffect(() => {
-    getProfile();
     getPlans()
     getPaymentHistory();
+    
+    
     getCardsList();
   }, []);
 
-   //get plans apis
-      const getPlans = async () => {
-          try {
-              setInitialLoader(true);
-              const Token = AuthToken();
-              const ApiPath = Apis.getSubAccountPlans;
-              const response = await axios.get(ApiPath, {
-                  headers: {
-                      "Authorization": "Bearer " + Token,
-                      "Content-Type": "application/json"
-                  }
-              });
-  
-              if (response) {
-                  console.log("Response of get plans api is", response.data.data);
-                  setPlans(response.data.data.monthlyPlans);
-                  setInitialLoader(false);
-              }
-  
-          } catch (error) {
-              setInitialLoader(false);
-              console.error("Error occured in getting plans", error);
+  useEffect(()=>{
+    getProfile();
+  },[plans])
+  //get plans apis
+  const getPlans = async () => {
+    try {
+      setInitialLoader(true);
+      const Token = AuthToken();
+      const ApiPath = Apis.getPlansForAgency;
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of get plans api is", response.data.data);
+        const monthly = [];
+        const quarterly = [];
+        const yearly = [];
+        let plansList = response.data.data;
+        plansList.forEach(plan => {
+          switch (plan.duration) {
+            case "monthly":
+              monthly.push(plan);
+              break;
+            case "quarterly":
+              quarterly.push(plan);
+              break;
+            case "yearly":
+              yearly.push(plan);
+              break;
+            default:
+              break;
           }
+        });
+        setPlans(response.data.data)
+        setMonthlyPlans(monthly);
+        setQuaterlyPlans(quarterly);
+        setYearlyPlans(yearly);
+        setInitialLoader(false);
       }
+
+    } catch (error) {
+      setInitialLoader(false);
+      console.error("Error occured in getting plans", error);
+    }
+  }
 
   const getProfile = async () => {
     try {
@@ -144,7 +196,6 @@ function AgencyBilling() {
       //console.log;
       if (response) {
         let plan = response?.data?.data?.plan;
-        console.log('response?.data?.data?.plan', response?.data?.data?.plan)
         let togglePlan = plan?.planId;
         let planType = null;
         // if (plan.status == "active") {
@@ -162,6 +213,23 @@ function AgencyBilling() {
         // //console.log;
         setTogglePlan(togglePlan);
         setCurrentPlan(togglePlan);
+        let userPlanDuration = response?.data?.data?.plan?.duration;
+        console.log('response?.data?.data?.plan', plans)
+
+        const matchedDuration = plans.find(d => d.id === togglePlan);
+
+        console.log('plans find', plans.find(d => d.id === togglePlan))
+        if (matchedDuration) {
+          if (matchedDuration.duration === "monthly") {
+            setSelectedDuration(duration[0]);
+          }else  if (matchedDuration.duration === "quarterly") {
+            setSelectedDuration(duration[1]);
+          } else  if (matchedDuration.duration === "yearly") {
+            setSelectedDuration(duration[2]);
+          }
+        } else {
+          setSelectedDuration(duration[0]);  // Default to Monthly if no match
+        }
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
@@ -292,7 +360,7 @@ function AgencyBilling() {
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-     
+
       console.log("ssubscribe")
 
       setSubscribePlanLoader(true);
@@ -317,7 +385,7 @@ function AgencyBilling() {
       const formData = new FormData();
       formData.append("planId", togglePlan);
       for (let [key, value] of formData.entries()) {
-          console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`);
       }
       // //console.log;
       // //console.log;
@@ -334,7 +402,7 @@ function AgencyBilling() {
         // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          console.log("response.data.data",response.data)
+          console.log("response.data.data", response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
@@ -492,7 +560,7 @@ function AgencyBilling() {
       if (response) {
         // //console.log;
         let response2 = await getProfileDetails();
-        console.log("response2?.data?.data?.plan?.id",response2?.data?.data?.plan?.id)
+        console.log("response2?.data?.data?.plan?.id", response2?.data?.data?.plan?.id)
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.planId;
           // let planType = null;
@@ -608,6 +676,14 @@ function AgencyBilling() {
         // //console.log;
       }
   };
+
+  const getCurrentPlans = () => {
+    if (selectedDuration.id === 1) return monthlyPlans;
+    if (selectedDuration.id === 2) return quaterlyPlans;
+    if (selectedDuration.id === 3) return yearlyPlans;
+    return [];
+  };
+
 
   return (
     <div
@@ -794,9 +870,31 @@ function AgencyBilling() {
         )}
       </div>
 
+
+
+      <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+        style={{
+          alignSelf: 'flex-end'
+        }}
+      >
+        {
+          duration.map((item) => (
+            <button key={item.id}
+              className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+              onClick={() => {
+                setSelectedDuration(item);
+                getCurrentPlans();
+              }}
+            >
+              {item.title}
+            </button>
+          ))
+        }
+      </div>
+
       {/* code for current plans available */}
 
-      {plans.map((item, index) => (
+      {getCurrentPlans().map((item, index) => (
         <button
           key={item.id}
           className="w-9/12 mt-4 outline-none"
@@ -886,7 +984,7 @@ function AgencyBilling() {
                     {item.planDescription}
                   </div>
                   <div className="flex flex-row items-center">
-                   
+
                     <div className="flex flex-row justify-start items-start ">
                       <div style={styles.discountedPrice}>
                         ${item.originalPrice}
@@ -901,53 +999,6 @@ function AgencyBilling() {
         </button>
       ))}
 
-      <div
-        className="w-9/12 mt-4 flex flex-row items-start gap-2"
-        style={{
-          borderRadius: "7px",
-          border: "1px solid #15151540",
-          padding: "15px",
-          backgroundColor: "#330864",
-        }}
-      >
-        <Image
-          src={"/assets/diamond.png"}
-          className="mt-2"
-          height={18}
-          width={20}
-          alt="*"
-        />
-        <div>
-          <div style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}>
-            Enterprise Plan
-          </div>
-          <div className="flex flex-row items-start justify-between w-full">
-            <div
-              style={{
-                color: "#ffffff",
-                fontSize: 12,
-                fontWeight: "600",
-                width: "60%",
-              }}
-            >
-              Custom solution specific to your business. Integrate AgentX into
-              your sales operation.
-            </div>
-            <button
-              className="text-[#ffffff] pe-8"
-              style={{ fontSize: 14, fontWeight: "700" }}
-              onClick={() => {
-                window.open(
-                  "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
-                  "_blank"
-                );
-              }}
-            >
-              Contact Team
-            </button>
-          </div>
-        </div>
-      </div>
 
       {userLocalData?.plan && (
         <div className="w-full">
@@ -1509,7 +1560,7 @@ function AgencyBilling() {
                       className="flex flex-row items-center gap-2"
                     >
                       <div
-                        
+
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
@@ -1584,17 +1635,17 @@ function AgencyBilling() {
                         fontSize: 16.8,
                         outline: "none",
                         backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                        ? "#7902df"
-                        : "#00000050",
+                          ? "#7902df"
+                          : "#00000050",
                         color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                        ? "#ffffff"
-                        : "#000000",
+                          ? "#ffffff"
+                          : "#000000",
                       }}
                       onClick={() => {
                         handleDelReason();
                       }}
-                      disabled={! selectReason && (selectReason !== "Others" || otherReasonInput)}
-                      >
+                      disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
+                    >
                       Continue
                     </button>
                   )}

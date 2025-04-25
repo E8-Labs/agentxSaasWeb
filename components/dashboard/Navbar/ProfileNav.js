@@ -428,7 +428,7 @@ const ProfileNav = () => {
 
       if (response) {
         // //console.log;
-        if (response?.data?.status) {
+        if (response?.data) {
           console.log("Response of get profile api is", response);
           setUserType(response?.data?.data.userType);
           if (response?.data?.data.userType != "admin") {

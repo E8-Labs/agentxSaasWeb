@@ -26,7 +26,7 @@ function AgencyPlans() {
     const duration = [
         {
             id: 1,
-            title: "Montly",
+            title: "Monthly",
         }, {
             id: 2,
             title: "Quarterly",

@@ -19,18 +19,22 @@ export default function SetXBarOptions({
     const [selectedXBarPlans, setSelectedXBarPlans] = useState([]);
     const [subAccountLoader, setSubAccountLoader] = useState(false);
 
+    const [loading, setLoading] = useState(false)
+
     //getting the plans list
     useEffect(() => {
         getPlansList();
-    }, []);
+    }, [isOpen]);
 
 
     //function to get plans list
     const getPlansList = async () => {
         try {
+            setLoading(true)
             const plans = await getXBarOptions();
-            console.log("Plans list recieved is", plans);
-            setXBarPlans(plans);
+            setLoading(false)
+            console.log("x bar Plans list recieved is", plans);
+            setXBarPlans(plans); 
         } catch (error) {
             console.error("Error occured in getting plans on  sub act is", error);
         }
@@ -58,8 +62,9 @@ export default function SetXBarOptions({
                 phone: userPhoneNumber,
                 email: userEmail,
                 userType: selectedUserType,
-                teams: teamMembers.map((item, index) => ({
-                    name: `${item.name}`,
+                teams: teamMembers.filter(item => item.name && item.email && item.phone)   // Filter members with all fields present
+                .map(item => ({
+                    name: item.name,
                     phone: `+${item.phone}`,
                     email: item.email
                 })),
@@ -109,34 +114,40 @@ export default function SetXBarOptions({
                         scrollbarWidth: 'none',
                         msOverflowStyle: 'none'
                     }}>
-                    {xBarPlans.map((plan, index) => (
-                        <div
-                            key={index}
-                            className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition"
-                            onClick={() => toggleSelection(plan.id)}
-                        >
-                            <div>
-                                <h3 className="font-semibold text-gray-900">
-                                    {plan.title} | {plan.minutes || "X"}mins
-                                </h3>
-                                <p className="text-sm text-gray-500">{plan.planDescription}</p>
-                                <p className="mt-1 font-medium text-lg text-gray-800">
-                                    ${plan.discountedPrice}/<span className="text-sm text-gray-400">Mo*</span>
-                                </p>
-                            </div>
 
-                            <div className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
-                                style={{
-                                    borderColor: selectedXBarPlans.includes(plan.id) ? "#7e22ce" : "#ccc",
-                                    backgroundColor: selectedXBarPlans.includes(plan.id) ? "#7e22ce" : "transparent",
-                                }}
-                            >
-                                {selectedXBarPlans.includes(plan.id) && (
-                                    <Check size={16} color="#fff" />
-                                )}
-                            </div>
-                        </div>
-                    ))}
+                    {
+                        loading ? (
+                            <CircularProgress size={35} />
+                        ) :
+
+                            xBarPlans.map((plan, index) => (
+                                <div
+                                    key={index}
+                                    className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition"
+                                    onClick={() => toggleSelection(plan.id)}
+                                >
+                                    <div>
+                                        <h3 className="font-semibold text-gray-900">
+                                            {plan.title} | {plan.minutes || "X"}mins
+                                        </h3>
+                                        <p className="text-sm text-gray-500">{plan.planDescription}</p>
+                                        <p className="mt-1 font-medium text-lg text-gray-800">
+                                            ${plan.discountedPrice}/<span className="text-sm text-gray-400">Mo*</span>
+                                        </p>
+                                    </div>
+
+                                    <div className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
+                                        style={{
+                                            borderColor: selectedXBarPlans.includes(plan.id) ? "#7e22ce" : "#ccc",
+                                            backgroundColor: selectedXBarPlans.includes(plan.id) ? "#7e22ce" : "transparent",
+                                        }}
+                                    >
+                                        {selectedXBarPlans.includes(plan.id) && (
+                                            <Check size={16} color="#fff" />
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
                 </div>
 
                 <div className="flex justify-between mt-6">

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AdminBasicInfo from "./AdminProfileData/AdminBasicInfo";
 import AdminBilling from "./AdminProfileData/AdminBilling";
 import AdminPhoneNumber from "./AdminProfileData/AdminPhoneNumber";
+import AdminXbarServices from "./AdminProfileData/AdminXbarServices";
 
 function AdminProfileData({ selectedUser }) {
     let searchParams = useSearchParams();
@@ -28,6 +29,11 @@ function AdminProfileData({ selectedUser }) {
             heading: "Phone Numbers",
             subHeading: "All agent phone numbers",
             icon: "/assets/unSelectedCallIcon.png",
+        }, {
+            id: 4,
+            heading: "Bar Services",
+            subHeading: "Our version of the genius bar",
+            icon: "/assets/X.svg",
         },
     ];
 
@@ -49,6 +55,8 @@ function AdminProfileData({ selectedUser }) {
                 return <AdminBilling selectedUser={selectedUser} />;
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
+            case 4:
+                return <AdminXbarServices selectedUser={selectedUser} />;
 
             default:
                 return <div>Please select an option.</div>;

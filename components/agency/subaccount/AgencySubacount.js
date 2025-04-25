@@ -239,7 +239,7 @@ function AgencySubacount() {
                                             </div>
                                             <div className="w-2/12">
                                                 <div style={styles.text2}>
-                                                    {moment(item.renewlDate).format("MMMM DD,YYYY")}
+                                                    {item.nextChargeDate?moment(item.nextChargeDate).format("MMMM DD,YYYY"):"-"}
                                                 </div>
                                             </div>
                                             <div className="w-2/12">

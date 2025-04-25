@@ -13,7 +13,7 @@ function Perplexity({
     let profiles = enrichData?.profiles
 
     profiles = [
-        ...profiles.length > 0 ? profiles : [],
+        ...profiles?.length > 0 ? profiles : [],
         ...enrichData?.images?.length > 0 ? enrichData?.images : [],
         ...enrichData?.videos?.length > 0 ? enrichData?.videos : [],
         ...enrichData?.citations?.length > 0 ? enrichData?.citations : []]

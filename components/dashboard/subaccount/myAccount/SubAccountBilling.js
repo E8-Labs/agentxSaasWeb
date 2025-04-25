@@ -900,55 +900,7 @@ function SubAccountBilling() {
           </div>
         </button>
       ))}
-
-      <div
-        className="w-9/12 mt-4 flex flex-row items-start gap-2"
-        style={{
-          borderRadius: "7px",
-          border: "1px solid #15151540",
-          padding: "15px",
-          backgroundColor: "#330864",
-        }}
-      >
-        <Image
-          src={"/assets/diamond.png"}
-          className="mt-2"
-          height={18}
-          width={20}
-          alt="*"
-        />
-        <div>
-          <div style={{ color: "#ffffff", fontSize: 20, fontWeight: "600" }}>
-            Enterprise Plan
-          </div>
-          <div className="flex flex-row items-start justify-between w-full">
-            <div
-              style={{
-                color: "#ffffff",
-                fontSize: 12,
-                fontWeight: "600",
-                width: "60%",
-              }}
-            >
-              Custom solution specific to your business. Integrate AgentX into
-              your sales operation.
-            </div>
-            <button
-              className="text-[#ffffff] pe-8"
-              style={{ fontSize: 14, fontWeight: "700" }}
-              onClick={() => {
-                window.open(
-                  "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
-                  "_blank"
-                );
-              }}
-            >
-              Contact Team
-            </button>
-          </div>
-        </div>
-      </div>
-
+      
       {userLocalData?.plan && (
         <div className="w-full">
           <div className="w-full">

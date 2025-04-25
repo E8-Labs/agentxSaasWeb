@@ -23,7 +23,7 @@ function AgencyMyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(6);
+  const [tabSelected, setTabSelected] = useState(5);
 
   const manuBar = [
     {
@@ -38,36 +38,31 @@ function AgencyMyAccount() {
       subHeading: "Manage your billing and payment methods",
       icon: "/otherAssets/walletIcon.png",
     },
+    
     {
       id: 3,
-      heading: "My Phone Numbers",
-      subHeading: "All agent phone numbers",
-      icon: "/assets/unSelectedCallIcon.png",
-    },
-    {
-      id: 4,
       heading: "Support",
       subHeading: "Get in touch with our team and get help",
       icon: "/otherAssets/headPhoneIcon.png",
     },
     {
-      id: 5,
+      id: 4,
       heading: "Send Feedback",
       subHeading: "Report bugs, new features and more",
       icon: "/otherAssets/feedbackIcon.png",
     },
     {
-      id: 6,
+      id: 5,
       heading: "Invite Agents",
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
-    {
-      id: 7,
-      heading: "Bar Services",
-      subHeading: "Our version of the genius bar",
-      icon: "/assets/X.svg",
-    },
+    // {
+    //   id: 6,
+    //   heading: "Bar Plans",
+    //   subHeading: "Our version of the genius bar",
+    //   icon: "/assets/X.svg",
+    // },
   ];
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
@@ -75,7 +70,7 @@ function AgencyMyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 6;
+    let number = Number(tab) || 5;
     // //console.log;
     setTabSelected(number);
     if (!tab) {
@@ -102,16 +97,15 @@ function AgencyMyAccount() {
         return <AgencyBasicInfo />;
       case 2:
         return <AgencyBilling />;
+     
       case 3:
-        return <AgencyMyPhoneNumber />;
-      case 4:
         return <AgencySupport />;
-      case 5:
+      case 4:
         return <AgencySendFeedback />;
-      case 6:
+      case 5:
         return <AgencyInviteAgentX />;
-      case 7:
-        return <AgencyBarServices />;
+      // case 6:
+      //   return <AgencyBarServices />;
       default:
         return <div>Please select an option.</div>;
     }

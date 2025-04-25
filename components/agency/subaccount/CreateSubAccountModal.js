@@ -9,10 +9,32 @@ import parsePhoneNumberFromString from 'libphonenumber-js';
 import 'react-phone-input-2/lib/style.css';
 import SetPricing from './SetPricing';
 import Image from 'next/image';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
     const timerRef = useRef(null);
+
+    const defaultMembers = [
+        {
+            name: '',
+            email: '',
+            phone: '',
+            emailError: '',
+            emailValid: null,
+            phoneError: '',
+            phoneValid: null,
+        },
+        {
+            name: '',
+            email: '',
+            phone: '',
+            emailError: '',
+            emailValid: null,
+            phoneError: '',
+            phoneValid: null,
+        },
+    ]
 
      //array of user types
      const userType = [
@@ -144,30 +166,31 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
     const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const [showErrorSnack,setShowErrorSnack] = useState(null)
+
     //selected usertype
-    const [selectedUserType, setSelectedUserType] = useState(userType[0]);
+    const [selectedUserType, setSelectedUserType] = useState(null);
 
     //team members fields
-    const [teamMembers, setTeamMembers] = useState([
-        {
-            name: '',
-            email: '',
-            phone: '',
-            emailError: '',
-            emailValid: null,
-            phoneError: '',
-            phoneValid: null,
-        },
-        {
-            name: '',
-            email: '',
-            phone: '',
-            emailError: '',
-            emailValid: null,
-            phoneError: '',
-            phoneValid: null,
-        },
-    ]);
+
+
+    const [teamMembers, setTeamMembers] = useState([defaultMembers]);
+    
+
+    useEffect(()=>{
+        const resetValues = () =>{
+            setSubAccountName("")
+            setUserEmail("")
+            setUserPhoneNumber("")
+            setSelectedUserType(null)
+            setTeamMembers(defaultMembers)
+            setErrorMessage("")
+            setValidEmail("")
+            
+        }
+
+        resetValues()
+    },[isOpen])
 
    
 
@@ -411,6 +434,36 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
         }
     };
 
+
+    const handleContinue = () =>{
+
+        console.log('selectedtype', selectedUserType)
+
+        // return
+
+        if(!subAccountName){
+            setShowErrorSnack("Enter SubAccount Name")
+            return
+        }
+
+        if(!userEmail){
+            setShowErrorSnack("Enter SubAccount Email")
+            return
+        }
+        if(!userPhoneNumber){
+            setShowErrorSnack("Enter SubAccount Phone Number")
+            return
+        }
+        if(!selectedUserType){
+            setShowErrorSnack("Select SubAccount Agent Type")
+            return
+        }
+
+        setOpenPricing(true)
+
+
+    }
+
     //styles 
     const styles = {
         inputs: {
@@ -442,6 +495,13 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
                         scrollbarWidth: 'none',
                         msOverflowStyle: 'none',
                     }}>
+
+                        <AgentSelectSnackMessage 
+                            isVisible={showErrorSnack != null ? true : false}
+                            hide={()=>setShowErrorSnack(null)}
+                            type={SnackbarTypes.Error} message={showErrorSnack}
+                        
+                        />
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create SubAccount</h2>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
@@ -795,7 +855,7 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
                     <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
                     <button
                         className="bg-purple w-1/2 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
-                        onClick={() => { setOpenPricing(true) }}
+                        onClick={() => {handleContinue()}}
                     >
                         Continue
                     </button>

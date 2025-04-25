@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Check } from "@phosphor-icons/react"; // Optional: replace with your own icon
 import SetXBarOptions from "./SetXBarOptions";
 import { getMonthlyPlan } from "./GetPlansList";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 
 
@@ -10,12 +11,15 @@ export default function SetPricing({
     isOpen, onClose, userEmail, userPhoneNumber,
     teamMembers, subAccountName, selectedUserType, closeAll
 }) {
-    
+
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [selectedPlans, setSelectedPlans] = useState([]);
 
     //code for XBar MOdal
     const [openPricing, setOpenPricing] = useState(false);
+
+    const [showErrorSnack, setShowErrorSnack] = useState(null)
+
 
     //printing data recieved
     useEffect(() => {
@@ -55,11 +59,27 @@ export default function SetPricing({
         );
     };
 
+
+    const handleContinue = () => {
+        if (selectedPlans.length === 0) {
+            setShowErrorSnack("Select a plan")
+            return
+        }
+
+        setOpenPricing(true)
+    }
+
     return (
         <Modal open={isOpen} onClose={onClose}>
             <Box
                 className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl bg-white rounded-xl shadow-xl p-6"
             >
+                <AgentSelectSnackMessage
+                    isVisible={showErrorSnack != null ? true : false}
+                    hide={() => setShowErrorSnack(null)}
+                    type={SnackbarTypes.Error} message={showErrorSnack}
+
+                />
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">Set Pricing Plans</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
@@ -110,9 +130,7 @@ export default function SetPricing({
                     </button>
                     <button
                         onClick={() => {
-                            // console.log(`Selected Plans: ${selectedPlans.join(', ')}`);
-                            console.log(`Selected Plans: `, selectedPlans);
-                            setOpenPricing(true);
+                            handleContinue()
                         }}
                         className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
                     >
