@@ -39,7 +39,7 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
         }
     }, [minutes, originalPrice]);
 
-   
+
 
     //code to create plan
     const handleCreatePlan = async () => {
@@ -110,7 +110,7 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
     return (
         <Modal
             open={open}
-        // onClose={handleClose}
+            onClose={() => { handleClose("") }}
         >
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
             <Box

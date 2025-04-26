@@ -347,12 +347,12 @@ function DashboardPlans() {
                                                     </div>
                                                     <div className="w-1/12">
                                                         <div style={styles.text2}>
-                                                            ${item.originalPrice || 0}
+                                                            ${item.discountedPrice || 0}
                                                         </div>
                                                     </div>
                                                     <div className="w-2/12">
                                                         <div style={styles.text2}>
-                                                            ${item.discountedPrice || 0}
+                                                            ${item.originalPrice || 0}
                                                         </div>
                                                     </div>
                                                     <div className="w-1/12">

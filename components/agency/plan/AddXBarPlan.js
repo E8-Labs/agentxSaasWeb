@@ -94,7 +94,7 @@ export default function AddXBarPlan({ open, handleClose, onPlanCreated }) {
     }
 
     return (
-        <Modal open={open} onClose={handleClose}>
+        <Modal open={open} onClose={() => { handleClose("") }}>
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
             <Box
                 className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">

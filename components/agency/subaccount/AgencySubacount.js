@@ -7,7 +7,7 @@ import CreateSubAccountModal from './CreateSubAccountModal';
 import Apis from '@/components/apis/Apis';
 import { AuthToken } from '../plan/AuthDetails';
 import axios from 'axios';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 
 function AgencySubacount() {
 
@@ -15,6 +15,7 @@ function AgencySubacount() {
     const [initialLoader, setInitialLoader] = useState(false);
     const [moreDropdown, setmoreDropdown] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(false);
 
     useEffect(() => {
         getSubAccounts();
@@ -199,7 +200,8 @@ function AgencySubacount() {
                                         <div
                                             key={item.id}
                                             style={{ cursor: "pointer" }}
-                                            className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                                            className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer"
+                                            onClick={() => { setSelectedUser(item) }}
                                         >
                                             <div
                                                 className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
@@ -239,7 +241,7 @@ function AgencySubacount() {
                                             </div>
                                             <div className="w-2/12">
                                                 <div style={styles.text2}>
-                                                    {item.nextChargeDate?moment(item.nextChargeDate).format("MMMM DD,YYYY"):"-"}
+                                                    {item.nextChargeDate ? moment(item.nextChargeDate).format("MMMM DD,YYYY") : "-"}
                                                 </div>
                                             </div>
                                             <div className="w-2/12">
@@ -318,6 +320,47 @@ function AgencySubacount() {
                     closeAll={() => { handleCloseModal() }}
                 />
 
+                {/* Code for subaccount modal */}
+                <Modal
+                    open={selectedUser ? true : false}
+                    onClose={() => {
+                        setSelectedUser(null);
+                    }}
+                    BackdropProps={{
+                        timeout: 200,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            zIndex: 1200, // Keep backdrop below Drawer
+                        },
+                    }}
+                    sx={{
+                        zIndex: 1300, // Keep Modal below the Drawer
+                    }}
+
+                >
+                    <Box
+                        className="w-11/12 p-8 rounded-[15px]"
+                        sx={{
+                            ...styles.modalsStyle,
+                            backgroundColor: "white",
+                            position: "relative",
+                            zIndex: 1301, // Keep modal content above its backdrop
+                        }}
+
+                    >
+                        <SelectedUserDetails
+                            selectedUser={selectedUser}
+                            handleDel={() => {
+                                setUsers((prev) => prev.filter((u) =>
+                                    u.id != selectedUser.id
+                                ))
+                                setSelectedUser(null)
+                            }}
+
+                        />
+                    </Box>
+                </Modal>
+
             </div>
 
         </div>
@@ -341,5 +384,16 @@ const styles = {
         whiteSpace: "nowrap", // Prevent text from wrapping
         overflow: "hidden", // Hide overflow text
         textOverflow: "ellipsis", // Add ellipsis for overflow text
+    },
+    modalsStyle: {
+        height: "auto",
+        bgcolor: "transparent",
+        p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-50%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
     },
 }

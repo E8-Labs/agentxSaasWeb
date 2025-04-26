@@ -1988,7 +1988,7 @@ const LeadDetails = ({
                                   );
                                   return (
                                     <div key={index}>
-                                      {(item.status === "voicemail" || item.callOutcome === "voicemail") ?
+                                      {(item.status === "voicemail" || item.callOutcome === "Voicemail") ?
                                         <div>
                                           {
                                             item.voicemail ? (
