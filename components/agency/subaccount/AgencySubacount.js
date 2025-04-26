@@ -8,6 +8,7 @@ import Apis from '@/components/apis/Apis';
 import { AuthToken } from '../plan/AuthDetails';
 import axios from 'axios';
 import { Box, CircularProgress, Modal } from '@mui/material';
+import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails';
 
 function AgencySubacount() {
 
@@ -349,12 +350,13 @@ function AgencySubacount() {
 
                     >
                         <SelectedUserDetails
+                            from = "subaccount"
                             selectedUser={selectedUser}
                             handleDel={() => {
-                                setUsers((prev) => prev.filter((u) =>
-                                    u.id != selectedUser.id
-                                ))
-                                setSelectedUser(null)
+                                // setUsers((prev) => prev.filter((u) =>
+                                //     u.id != selectedUser.id
+                                // ))
+                                // setSelectedUser(null)
                             }}
 
                         />

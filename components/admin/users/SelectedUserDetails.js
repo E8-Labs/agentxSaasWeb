@@ -16,7 +16,11 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
-function SelectedUserDetails({ selectedUser, handleDel }) {
+function SelectedUserDetails({
+     selectedUser, 
+     handleDel,
+     from = "admin"
+    }) {
 
     //console.log
 
@@ -213,9 +217,16 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
 
                             <button
                                 onClick={() => {
+                                    console.log('selectedUser.id', selectedUser.id)
                                     if (selectedUser?.id) {
                                         // Open a new tab with user ID as query param
-                                        let url = ` admin/users?userId=${selectedUser.id}`
+                                        let url = ""
+                                        if(from === "admin"){
+                                          url =  `/admin/users?userId=${selectedUser.id}`
+                                        }else if( from === "subaccount"){
+                                            url = `/agency/users?userId=${selectedUser.id}`
+                                        }
+                                        // url = `admin/users?userId=${selectedUser.id}`
                                         //console.log
                                         window.open(url, "_blank");
                                     }
