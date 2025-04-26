@@ -282,6 +282,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
               setShowAddNewPopup(true)
               // console.log('open')
             }}
+            showAddBtn={true}
           />
 
         ) : (
