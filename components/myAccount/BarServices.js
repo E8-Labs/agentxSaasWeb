@@ -315,13 +315,7 @@ function BarServices() {
 
   return (
     <div
-      className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
-      style={{
-        paddingBottom: "50px",
-        scrollbarWidth: "none", // For Firefox
-        WebkitOverflowScrolling: "touch",
-      }}
-    >
+      className="w-full flex flex-col items-start px-8 py-2 h-[100%] overflow-none overflow-hidden">
       <AgentSelectSnackMessage
         isVisible={errorSnack == null ? false : true}
         hide={() => {
@@ -341,7 +335,7 @@ function BarServices() {
 
       {/* code for current plans available */}
 
-      <div className="flex flex-col w-full justify-center items-center ">
+      <div className="flex flex-col w-full items-center overflow-none overflow-hidden">
         <div className=" w-full flex flex-col">
           <div
             className=""
@@ -367,11 +361,11 @@ function BarServices() {
               textOverflow: "ellipsis",
             }}
           >
-            {` Account > Bar Services`}
+            {` Account > XBar Services`}
           </div>
         </div>
         <div
-          className="w-10/12 p-6 rounded-lg flex flex-row items-center"
+          className="w-10/12 p-4 rounded-lg flex flex-row items-center"
           style={{
             backgroundImage: "url(/svgIcons/cardBg.svg)",
             backgroundSize: "cover",
@@ -379,11 +373,11 @@ function BarServices() {
             backgroundRepeat: "no-repeat",
             color: "#fff",
             alignSelf: "center",
-            marginTop: "7vh",
+            marginTop: "2vh",
             // boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
           }}
         >
-          <div className="flex flex-col pt-5">
+          <div className="flex flex-col">
             <div
               style={{
                 fontSize: "2vh",
@@ -397,18 +391,18 @@ function BarServices() {
               style={{
                 fontSize: "15px",
                 fontWeight: "400",
-                lineHeight: "1.5",
+                // lineHeight: "1.5",
                 width: "90%",
               }}
             >
               This is like the Apple Genius Bar but better. Get up and running
-              the right way. We’ll work alongside to set up your entire AI sales
+              the right way. We'll work alongside to set up your entire AI sales
               system. This can include integrating your systems, ensuring
               everything is optimized for success from the start. See results
               faster and start closing more deals with confidence—all at
               affordable rates to meet you where you are.
             </p>
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row justify-between mt-2">
               <div></div>
               <button
                 className="px-4 py-2 rounded-lg bg-white text-purple font-medium"
@@ -426,52 +420,57 @@ function BarServices() {
           </div>
         </div>
 
-        {plans.map((item, index) => (
-          <button
-            key={item.id}
-            className="w-9/12 mt-4 outline-none"
-            onClick={(e) => handleTogglePlanClick(item)}
-          >
-            <div
-              className="px-4 py-1 pb-4"
-              style={{
-                ...styles.pricingBox,
-                border:
-                  item.id === togglePlan
-                    ? "2px solid #7902DF"
-                    : "1px solid #15151520",
-                backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-              }}
+        <div className="w-9/12 max-h-[20%] overflow-y-auto scrollbar-hide md:max-h-[33%] lg:max-h-[45%]"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}>
+          {plans.map((item, index) => (
+            <button
+              key={item.id}
+              className="w-full mt-4 outline-none"
+              onClick={(e) => handleTogglePlanClick(item)}
             >
               <div
-                style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-              ></div>
-              <span style={styles.labelText}>{item.planStatus}</span>
-              <div
-                className="flex flex-row items-start gap-3"
-                style={styles.content}
+                className="px-4 py-1 pb-4"
+                style={{
+                  ...styles.pricingBox,
+                  border:
+                    item.id === togglePlan
+                      ? "2px solid #7902DF"
+                      : "1px solid #15151520",
+                  backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                }}
               >
-                <div className="mt-1">
-                  <div>
-                    {item.id === togglePlan ? (
-                      <Image
-                        src={"/svgIcons/checkMark.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/svgIcons/unCheck.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
+                <div
+                  style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                ></div>
+                <span style={styles.labelText}>{item.planStatus}</span>
+                <div
+                  className="flex flex-row items-start gap-3"
+                  style={styles.content}
+                >
+                  <div className="mt-1">
+                    <div>
+                      {item.id === togglePlan ? (
+                        <Image
+                          src={"/svgIcons/checkMark.svg"}
+                          height={24}
+                          width={24}
+                          alt="*"
+                        />
+                      ) : (
+                        <Image
+                          src={"/svgIcons/unCheck.svg"}
+                          height={24}
+                          width={24}
+                          alt="*"
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="w-full">
-                  {/* {item.id === currentPlan && (
+                  <div className="w-full">
+                    {/* {item.id === currentPlan && (
                     <div
                       className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                       style={{
@@ -484,63 +483,64 @@ function BarServices() {
                     </div>
                   )} */}
 
-                  <div className="flex flex-row items-center gap-3">
-                    <div
-                      style={{
-                        color: "#151515",
-                        fontSize: 20,
-                        fontWeight: "600",
-                      }}
-                    >
-                      {item.PlanTitle}
-                    </div>
-                    {item.status && (
+                    <div className="flex flex-row items-center gap-3">
                       <div
-                        className="flex px-2 py-1 bg-purple rounded-full text-white"
-                        style={{ fontSize: 11.6, fontWeight: "500" }}
+                        style={{
+                          color: "#151515",
+                          fontSize: 20,
+                          fontWeight: "600",
+                        }}
                       >
-                        {item.status}
+                        {item.PlanTitle}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center justify-between">
-                    <div className="flex flex-col justify-start">
-                      {item.details.map((det, index) => {
-                        return (
-                          <div
-                            className=""
-                            style={{
-                              color: "#15151590",
-                              fontSize: 12,
-                              //   width: "60%",
-                              fontWeight: "600",
-                            }}
-                            key={index}
-                          >
-                            {det}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="flex flex-row items-center">
-                      <div style={styles.originalPrice}>
-                        {item.originalPrice && <div>${item.originalPrice}</div>}
-                      </div>
-                      <div className="flex flex-row justify-start items-start ">
-                        <div style={styles.discountedPrice}>
-                          ${item.discountPrice}
+                      {item.status && (
+                        <div
+                          className="flex px-2 py-1 bg-purple rounded-full text-white"
+                          style={{ fontSize: 11.6, fontWeight: "500" }}
+                        >
+                          {item.status}
                         </div>
-                        <p style={{ color: "#15151580" }}></p>
+                      )}
+                    </div>
+                    <div className="flex flex-row items-center justify-between">
+                      <div className="flex flex-col justify-start">
+                        {item.details.map((det, index) => {
+                          return (
+                            <div
+                              className=""
+                              style={{
+                                color: "#15151590",
+                                fontSize: 12,
+                                //   width: "60%",
+                                fontWeight: "600",
+                              }}
+                              key={index}
+                            >
+                              {det}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="flex flex-row items-center">
+                        <div style={styles.originalPrice}>
+                          {item.originalPrice && <div>${item.originalPrice}</div>}
+                        </div>
+                        <div className="flex flex-row justify-start items-start ">
+                          <div style={styles.discountedPrice}>
+                            ${item.discountPrice}
+                          </div>
+                          <p style={{ color: "#15151580" }}></p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          ))}
+        </div>
 
-        <div className="flex flex-col w-full items-center justify-center">
+        <div className="flex flex-col w-full pb-6 items-center justify-center">
           {subscribePlanLoader ? (
             <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
               <CircularProgress size={25} />
@@ -627,7 +627,7 @@ function BarServices() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>

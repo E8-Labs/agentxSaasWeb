@@ -1076,14 +1076,13 @@ function Page() {
 
         const ApiPath = Apis.updateSubAgent;
 
-        //console.log;
-
         let apidata = {
           agentId: selectedRenameAgent.id,
           name: renameAgent, //selectedRenameAgent?.name,
         };
-        //console.log;
-
+        // console.log("Selected agent ", showDrawerSelectedAgent);
+        // console.log("data sending in api is", apidata);
+        // return
         const response = await axios.post(ApiPath, apidata, {
           headers: {
             Authorization: "Bearer " + AuthToken,
@@ -1092,7 +1091,7 @@ function Page() {
 
         if (response) {
           setShowRenameAgentPopup(false);
-          //console.log;
+          // console.log("Response of api is", response);
           // //console.log;
           setShowSuccessSnack(
             `${fromatMessageName(selectedRenameAgent.name)} updated`
@@ -1104,11 +1103,29 @@ function Page() {
               PersistanceKeys.LocalStoredAgentsListMain
             );
 
+            if (showDrawerSelectedAgent) {
+              const updateAgentData = response.data.data;
+
+              const matchedAgent = updateAgentData.agents.find(
+                (localItem) => localItem.id === showDrawerSelectedAgent.id
+              );
+
+              if (matchedAgent) {
+                setShowDrawerSelectedAgent(matchedAgent);
+                console.log("Matched Agent Stored:");//, matchedAgent
+              } else {
+                console.log("No matching agent found.");
+              }
+
+            }
+
             if (localAgentsList) {
               const agentsList = JSON.parse(localAgentsList);
               // agentsListDetails = agentsList;
 
               const updateAgentData = response.data.data;
+
+              // showDrawerSelectedAgent();
 
               const updatedArray = agentsList.map((localItem) => {
                 const apiItem =
@@ -2289,7 +2306,7 @@ function Page() {
           </div>
         ) : (
           <div
-            className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
+            className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10 pb-12"
             style={{ scrollbarWidth: "none" }}
           >
             {
@@ -2629,7 +2646,7 @@ function Page() {
               className="w-full py-6 flex justify-center items-center"
               href="/createagent"
               style={{
-                marginTop: 40,
+                // marginTop: 40,
                 border: "1px dashed #7902DF",
                 borderRadius: "10px",
                 // borderColor: '#7902DF',
@@ -2657,7 +2674,7 @@ function Page() {
       <Modal
         open={showRenameAgentPopup}
         onClose={() => {
-          showRenameAgentPopup(false);
+          setShowRenameAgentPopup(false);
         }}
         BackdropProps={{
           timeout: 100,
@@ -2726,9 +2743,10 @@ function Page() {
                     setRenameAgent(e.target.value);
                   }}
                   placeholder={
-                    selectedRenameAgent?.name
-                      ? selectedRenameAgent.name
-                      : "Enter agent title"
+                    "Enter agent title"
+                    // selectedRenameAgent?.name
+                    //   ? selectedRenameAgent.name
+                    //   : "Enter agent title"
                   }
                   className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
                   style={{ border: "1px solid #00000020" }}
@@ -3106,10 +3124,16 @@ function Page() {
                 </div>
                 <div className="flex flex-col gap-1 items-start">
                   <div className="flex flex-row justify-center items-center gap-2">
-                    <div style={{ fontSize: 22, fontWeight: "600" }}>
+                    <button
+                      style={{ fontSize: 22, fontWeight: "600" }}
+                      onClick={() => {
+                        setShowRenameAgentPopup(true);
+                        setSelectedRenameAgent(showDrawerSelectedAgent);
+                        setRenameAgent(showDrawerSelectedAgent?.name);
+                      }}>
                       {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
                       {showDrawerSelectedAgent?.name?.slice(1)}
-                    </div>
+                    </button>
                     <div
                       className="text-purple"
                       style={{ fontSize: 11, fontWeight: "600" }}

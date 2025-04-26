@@ -221,44 +221,14 @@ export function TranscriptViewer({ transcript }) {
         onClose={() => setPopoverPos(null)}
       >
         <div className="p-4 w-80">
-          <div style={{ fontWeight: "500", fontSize: "15px" }}>Add Comment</div>
-          <TextField
+          <div style={{ fontWeight: "500", fontSize: "15px" }}>Add Feedback</div>
+
+          <textarea
+          className="w-full mt-4 rounded-md p-2 focus:border-purple outline-none border"
             placeholder="Tell the AI how you really feel.."
-            variant="outlined"
-            size="small"
-            fullWidth
-            multiline
-            minRows={4}
-            maxRows={6}
+            rows={4}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                fontWeight: 500,
-                fontSize: "15px",
-                marginTop: 1,
-
-                "& fieldset": {
-                  borderColor: "#ccc", // default border
-                },
-                "&:hover fieldset": {
-                  borderColor: "#aaa", // hover effect
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "#ccc", // no blue border
-                },
-
-                // Remove focus ring entirely
-                "&.Mui-focused": {
-                  boxShadow: "none",
-                },
-              },
-
-              // This ensures no extra blue ring around the input
-              "& .MuiOutlinedInput-inputMultiline": {
-                outline: "none !important",
-              },
-            }}
           />
 
           <div className="flex justify-end gap-2 mt-2">
@@ -272,7 +242,7 @@ export function TranscriptViewer({ transcript }) {
                   className="bg-purple p-2 text-white rounded-md"
                   onClick={handleAddComment}
                 >
-                  Comment
+                  Add
                 </button>
             }
           </div>

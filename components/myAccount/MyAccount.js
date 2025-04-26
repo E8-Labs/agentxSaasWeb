@@ -127,8 +127,8 @@ function MyAccount() {
         </div>
       </div>
 
-      <div className="w-full flex flex-row item-center pl-4">
-        <div className="w-4/12 items-center flex flex-col pt-4 pr-2">
+      <div className="w-full flex flex-row item-center pl-4 h-[100%]">
+        <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
               <button

@@ -367,7 +367,7 @@ function AgencyBarServices() {
               textOverflow: "ellipsis",
             }}
           >
-            {` Account > Bar Plans`}
+            {` Account > XBar Plans`}
           </div>
         </div>
         <div
@@ -402,7 +402,7 @@ function AgencyBarServices() {
               }}
             >
               This is like the Apple Genius Bar but better. Get up and running
-              the right way. We’ll work alongside to set up your entire AI sales
+              the right way. We'll work alongside to set up your entire AI sales
               system. This can include integrating your systems, ensuring
               everything is optimized for success from the start. See results
               faster and start closing more deals with confidence—all at

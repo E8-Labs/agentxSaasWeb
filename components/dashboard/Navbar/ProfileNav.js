@@ -33,6 +33,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
+import CheckList from "./CheckList";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -731,135 +732,142 @@ const ProfileNav = () => {
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
-      <div
-        className="w-full pt-5 flex flex-col items-center"
-        style={{
-          height: "90vh",
-          overflow: "auto",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <div className="w-full flex flex-row gap-3 items-center justify-center">
-          <div className="w-9/12">
-            <Image
-              src={"/assets/agentX.png"}
-              alt="profile"
-              height={33}
-              width={140}
-              objectFit="contain"
-            />
-          </div>
-        </div>
 
-        <div className="w-full mt-8 flex flex-col items-center gap-3">
-          {showLinks().map((item) => (
-            <div key={item.id} className="w-full flex flex-col gap-3 pl-3">
-              <Link
-                sx={{ cursor: "pointer", textDecoration: "none" }}
-                href={item.href}
-                // onClick={(e) => handleOnClick(e, item.href)}
-              >
-                <div
-                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                  style={{}}
-                >
-                  <Image
-                    src={
-                      pathname === item.href ? item.selected : item.uneselected
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                  />
-                  <div
-                    className={
-                      pathname === item.href ? "text-purple" : "text-black"
-                    }
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                    }}
-                  >
-                    {item.name}
-                  </div>
-                </div>
-              </Link>
+      <div className="w-full flex flex-col items-center justify-between h-screen">
+        <div
+          className="w-full pt-5 flex flex-col items-center"
+          style={{
+            // height: "90vh",
+            overflow: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          <div className="w-full flex flex-row gap-3 items-center justify-center">
+            <div className="w-9/12">
+              <Image
+                src={"/assets/agentX.png"}
+                alt="profile"
+                height={33}
+                width={140}
+                objectFit="contain"
+              />
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* <div>
+          <div className="w-full mt-8 flex flex-col items-center gap-3">
+            {showLinks().map((item) => (
+              <div key={item.id} className="w-full flex flex-col gap-3 pl-3">
+                <Link
+                  sx={{ cursor: "pointer", textDecoration: "none" }}
+                  href={item.href}
+                // onClick={(e) => handleOnClick(e, item.href)}
+                >
+                  <div
+                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    style={{}}
+                  >
+                    <Image
+                      src={
+                        pathname === item.href ? item.selected : item.uneselected
+                      }
+                      height={24}
+                      width={24}
+                      alt="icon"
+                    />
+                    <div
+                      className={
+                        pathname === item.href ? "text-purple" : "text-black"
+                      }
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          {/* <div>
           <button onClick={requestNotificationPermission}>
             Req Not
           </button>
         </div> */}
-      </div>
-
-      <div
-        className="w-full flex flex-row items-start justify-center h-[10%] pt-2"
-        style={{
-          borderTop: "1px solid #00000010",
-        }}
-      >
-        <Link
-          href={"/dashboard/myAccount"}
-          className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
-          style={{
-            textOverflow: "ellipsis",
-            textDecoration: "none",
-          }}
-        >
-          {userDetails?.user?.thumb_profile_image ? (
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%", // Ensures circular shape
-                overflow: "hidden", // Clips any overflow from the image
-                display: "flex", // Centers the image if needed
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src={userDetails?.user?.thumb_profile_image}
-                alt="*"
-                style={{ height: "100%", width: "100%" }}
-              />
-            </div>
-          ) : (
-            <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-              {userDetails?.user?.name.slice(0, 1).toUpperCase()}
-            </div>
-          )}
-
+        </div>
+        {/* Lower body */}
+        <div>
+          {/* Code for Check list menu bar */}
           <div>
-            <div
-              className="truncate"
-              style={{
-                fontSize: 15,
-                fontWeight: "500",
-                color: "",
-                width: "100px",
-                color: "black",
-              }}
-            >
-              {userDetails?.user?.name?.split(" ")[0]}
-            </div>
-            <div
-              className="truncate w-[120px]"
-              style={{
-                fontSize: 15,
-                fontWeight: "500",
-                color: "#15151560",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {userDetails?.user?.email}
-            </div>
+            {userDetails && (
+              <CheckList
+                userDetails={userDetails}
+              />
+            )}
           </div>
-        </Link>
+
+          <div
+            className="w-full flex flex-row items-start justify-center pt-2"
+            style={{
+              borderTop: "1px solid #00000010",
+            }}
+          >
+            <Link
+              href={"/dashboard/myAccount"}
+              className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
+              style={{
+                textOverflow: "ellipsis",
+                textDecoration: "none",
+              }}
+            >
+              {userDetails?.user?.thumb_profile_image ? (
+                <img
+                  src={userDetails?.user?.thumb_profile_image}
+                  alt="*"
+                  style={{
+                    objectFit: "fill",
+                    height: "34px",
+                    width: "34px",
+                    borderRadius: "50%"
+                  }}
+                />
+              ) : (
+                <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+                  {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+                </div>
+              )}
+
+              <div>
+                <div
+                  className="truncate"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "500",
+                    color: "",
+                    width: "100px",
+                    color: "black",
+                  }}
+                >
+                  {userDetails?.user?.name?.split(" ")[0]}
+                </div>
+                <div
+                  className="truncate w-[120px]"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "500",
+                    color: "#15151560",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {userDetails?.user?.email}
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Subscribe Plan modal */}
@@ -1201,7 +1209,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
