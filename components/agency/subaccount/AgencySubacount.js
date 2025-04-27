@@ -9,6 +9,8 @@ import { AuthToken } from '../plan/AuthDetails';
 import axios from 'axios';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails';
+import InviteTeamModal from './InviteTeamModal';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 function AgencySubacount() {
 
@@ -17,7 +19,14 @@ function AgencySubacount() {
     const [moreDropdown, setmoreDropdown] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(false);
-    const [agencyData, setAgencyData] = useState("")
+    const [agencyData, setAgencyData] = useState("");
+
+    //code for invite team popup
+    const [openInvitePopup, setOpenInvitePopup] = useState(false);
+
+    const [delLoader, setDelLoader] = useState(false);
+    const [pauseLoader, setpauseLoader] = useState(false);
+    const [showSnackMessage, setShowSnackMessage] = useState(null)
 
     useEffect(() => {
         getLocalData()
@@ -36,7 +45,13 @@ function AgencySubacount() {
         }
     }
 
-    //code 
+    //code to close inviteteam modal
+    const handleCloseInviteTeam = () => {
+        console.log("I am trigered to close invite team");
+        setOpenInvitePopup(false)
+    }
+
+    //code to close subaccount details modal
     const handleCloseModal = () => {
         getSubAccounts();
         setShowModal(false);
@@ -68,68 +83,80 @@ function AgencySubacount() {
         }
     }
 
+    //function to pause account
+    const handlePause = async () => {
+        try {
+            setpauseLoader(true);
+            const data = localStorage.getItem("User")
+            if (data) {
+                let u = JSON.parse(data)
+                let apidata = {
+                    userId: moreDropdown
+                }
 
-    const subAcccounts = [
-        {
-            id: 1,
-            name: 'ali',
-            plan: 'abc',
-            totalSpent: '5555',
-            balance: '378',
-            leads: '260',
-            renewlDate: 'April 8, 2025',
-            teamMembers: '21',
-        }, {
-            id: 2,
-            name: 'ali',
-            plan: 'abc',
-            totalSpent: '5555',
-            balance: '378',
-            leads: '260',
-            renewlDate: 'April 8, 2025',
-            teamMembers: '21',
-        }, {
-            id: 3,
-            name: 'ali',
-            plan: 'abc',
-            totalSpent: '5555',
-            balance: '378',
-            leads: '260',
-            renewlDate: 'April 8, 2025',
-            teamMembers: '21',
-        }, {
-            id: 4,
-            name: 'ali',
-            plan: 'abc',
-            totalSpent: '5555',
-            balance: '378',
-            leads: '260',
-            renewlDate: 'April 8, 2025',
-            teamMembers: '21',
-        }, {
-            id: 5,
-            name: 'ali',
-            plan: 'abc',
-            totalSpent: '5555',
-            balance: '378',
-            leads: '260',
-            renewlDate: 'April 8, 2025',
-            teamMembers: '21',
-        }, {
-            id: 6,
-            name: 'ali',
-            plan: 'abc',
-            totalSpent: '5555',
-            balance: '378',
-            leads: '260',
-            renewlDate: 'April 8, 2025',
-            teamMembers: '21',
+                const response = await axios.post(Apis.pauseProfile, apidata, {
+                    headers: {
+                        "Authorization": 'Bearer ' + u.token,
+                        "Content-Type": 'application/json'
+                    }
+                })
+                setpauseLoader(false)
+                if (response.data) {
+                    if (response.data.status === true) {
+                        setShowSnackMessage(response.data.message)
+                    }
+                    console.log('response.data.data', response.data)
+                }
+            }
+        } catch (error) {
+            console.error("Error occured in pause subAccount api is", error);
+            setpauseLoader(false)
         }
 
-    ]
+    }
+
+    //function to delete account
+    const handleDeleteUser = async () => {
+        try {
+            setDelLoader(true);
+            const data = localStorage.getItem("User")
+
+            if (data) {
+                let u = JSON.parse(data)
+
+                let path = Apis.deleteProfile
+
+                let apidata = {
+                    userId: moreDropdown,
+
+                }
+                console.log("Api data is", apidata);
+
+                const response = await axios.post(path, apidata, {
+                    headers: {
+                        "Authorization": 'Bearer ' + u.token
+                    }
+                })
+
+                console.log("Response of del account apis is", response);
+                if (response.data) {
+                    console.log("Response of del account apis is", response.data);
+                    setShowSnackMessage(response.data.message);
+                    setDelLoader(false);
+                }
+            }
+        } catch (error) {
+            console.error("Error occured in del account api is", error);
+            setDelLoader(false);
+        }
+    }
 
     return (
         <div className='w-full flex flex-col items-center '>
+
+            <AgentSelectSnackMessage isVisible={showSnackMessage} hide={() => { setShowSnackMessage(null) }}
+                type={SnackbarTypes.Success} message={showSnackMessage}
+            />
 
             <div className='flex w-full flex-row items-center justify-between px-5 py-5 border-b'>
 
@@ -211,13 +238,11 @@ function AgencySubacount() {
                         >
                             {subAccountList?.length > 0 ? (
                                 <div>
-                                    {subAccountList.reverse().map((item) => (
+                                    {subAccountList.map((item) => (
                                         <div
                                             key={item.id}
                                             style={{ cursor: "pointer" }}
-                                            className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer"
-                                            onClick={() => { setSelectedUser(item) }}
-                                        >
+                                            className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer">
                                             <div
                                                 className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
                                             // onClick={() => {
@@ -293,31 +318,64 @@ function AgencySubacount() {
 
                                                 {moreDropdown === item.id && (
                                                     <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
-                                                        <div
+                                                        <button
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => { setSelectedUser(item) }}
+                                                        // setmoreDropdown(null)
+                                                        >
+                                                            View Detail
+                                                        </button>
+                                                        <button
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => {
+                                                                setOpenInvitePopup(true);
+                                                            }}
+                                                        >
+                                                            Invite Team
+                                                        </button>
+                                                        {/* Code for invite team modal */}
+                                                        {openInvitePopup && (<InviteTeamModal
+                                                            openInvitePopup={openInvitePopup}
+                                                            handleCloseInviteTeam={() => {
+                                                                console.log("I am trigered to close invite team");
+                                                                setOpenInvitePopup(false)
+                                                            }}
+                                                        />)}
+                                                        <button
                                                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
                                                             onClick={() => {
                                                                 setmoreDropdown(null)
                                                             }}
                                                         >
-                                                            View Detail
-                                                        </div>
-                                                        <div
-                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                            onClick={() => {
-                                                                // Handle invite
-                                                            }}
-                                                        >
-                                                            Invite Team
-                                                        </div>
-                                                        <div
-                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                            onClick={() => {
-                                                                // Handle view plans
-                                                            }}
-                                                        >
                                                             View Plans
+                                                        </button>
+                                                        <div>
+                                                            {
+                                                                pauseLoader ? (
+                                                                    <CircularProgress size={25} />
+                                                                ) : (
+                                                                    <button
+                                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                                        onClick={() => {
+                                                                            handlePause();
+                                                                        }}
+                                                                    >
+                                                                        Pause
+                                                                    </button>
+                                                                )
+                                                            }
                                                         </div>
-                                                       
+                                                        {delLoader ? (
+                                                            <CircularProgress size={25} />
+                                                        ) : (<button
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                            onClick={() => {
+                                                                handleDeleteUser()
+                                                            }}
+                                                        >
+                                                            Delete
+                                                        </button>)}
+
                                                     </div>
                                                 )}
                                             </div>

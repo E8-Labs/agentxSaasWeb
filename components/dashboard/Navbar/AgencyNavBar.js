@@ -245,7 +245,7 @@ const AgencyNavBar = () => {
       </Modal>
 
       <div
-        className="w-full pt-5 flex flex-col items-center"
+        className="w-full pt-5 flex flex-col items-center ps-4"
         style={{
           height: "90vh",
           overflow: "auto",
