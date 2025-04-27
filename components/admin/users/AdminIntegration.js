@@ -397,7 +397,7 @@ function AdminIntegration({selectedUser}) {
                 }}
               >
                 <div className="flex flex-row items-center justify-between ">
-                  <div>My Api Key</div>
+                  <div> AgentX API Keys</div>
                   {showKeysBox ? (
                     <CaretUp size={20} />
                   ) : (

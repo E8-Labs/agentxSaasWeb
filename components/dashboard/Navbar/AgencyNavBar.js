@@ -267,7 +267,7 @@ const AgencyNavBar = () => {
 
         <div className="w-full mt-8 flex flex-col items-center gap-3">
           {agencyLinks.map((item) => (
-            <div key={item.id} className="w-full flex flex-col gap-3 pl-3">
+            <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
               <Link
                 sx={{ cursor: "pointer", textDecoration: "none" }}
                 href={item.href}

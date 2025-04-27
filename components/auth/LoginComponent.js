@@ -116,6 +116,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
 
       else {
+        console.log('redirecting to dasboard')
         router.push("/dashboard");
       }
     }

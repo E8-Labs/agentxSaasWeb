@@ -33,7 +33,7 @@ const AdminGetProfileDetails = async (id) => {
         //console.log;
 
         // //console.log;
-        // localStorage.setItem("User", JSON.stringify(localDetails));
+        localStorage.setItem("User", JSON.stringify(localDetails));
         return response.data.data
       }else{
         //console.log;

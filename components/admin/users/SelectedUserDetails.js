@@ -17,10 +17,10 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 function SelectedUserDetails({
-     selectedUser, 
-     handleDel,
-     from = "admin"
-    }) {
+    selectedUser,
+    handleDel,
+    from = "admin"
+}) {
 
     //console.log
 
@@ -62,7 +62,7 @@ function SelectedUserDetails({
             unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
         }, {
             id: 8,
-            name: 'Personal Data',
+            name: 'Account',
             selectedImage: '/svgIcons/selectedProfileCircle.svg',
             unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg'
         }
@@ -186,7 +186,7 @@ function SelectedUserDetails({
                 })
                 setpauseLoader(false)
                 if (response.data) {
-                    if(response.data.status === true){
+                    if (response.data.status === true) {
                         setShowSnackMessage(response.data.message)
                     }
                     console.log('response.data.data', response.data)
@@ -221,9 +221,9 @@ function SelectedUserDetails({
                                     if (selectedUser?.id) {
                                         // Open a new tab with user ID as query param
                                         let url = ""
-                                        if(from === "admin"){
-                                          url =  `/admin/users?userId=${selectedUser.id}`
-                                        }else if( from === "subaccount"){
+                                        if (from === "admin") {
+                                            url = `/admin/users?userId=${selectedUser.id}`
+                                        } else if (from === "subaccount") {
                                             url = `/agency/users?userId=${selectedUser.id}`
                                         }
                                         // url = `admin/users?userId=${selectedUser.id}`
@@ -254,15 +254,19 @@ function SelectedUserDetails({
                                 )
                             }
 
-                            <button
-                                className="text-white bg-purple outline-none rounded-xl px-3"
-                                style={{ height: "50px" }}
-                                onClick={() => {
-                                    setShowAddMinutesModal(true)
-                                }}
-                            >
-                                Add Minutes
-                            </button>
+                            {
+                                from != "subaccount" && (
+                                    <button
+                                        className="text-white bg-purple outline-none rounded-xl px-3"
+                                        style={{ height: "50px" }}
+                                        onClick={() => {
+                                            setShowAddMinutesModal(true)
+                                        }}
+                                    >
+                                        Add Minutes
+                                    </button>
+                                )
+                            }
 
 
                             <button
@@ -324,8 +328,8 @@ function SelectedUserDetails({
                                             selectedManu.name == "Staff" ? (
                                                 <AdminTeam selectedUser={selectedUser} />
                                             ) : (
-                                                selectedManu.name == "Personal Data" ? (
-                                                    <AdminProfileData selectedUser={selectedUser} />
+                                                selectedManu.name == "Account" ? (
+                                                    <AdminProfileData selectedUser={selectedUser} from={from}/>
                                                 ) : "Comming soon..."
                                             )
                                         )

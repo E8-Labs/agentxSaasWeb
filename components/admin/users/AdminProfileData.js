@@ -7,12 +7,13 @@ import AdminBasicInfo from "./AdminProfileData/AdminBasicInfo";
 import AdminBilling from "./AdminProfileData/AdminBilling";
 import AdminPhoneNumber from "./AdminProfileData/AdminPhoneNumber";
 import AdminXbarServices from "./AdminProfileData/AdminXbarServices";
+import AdminSendFeedback from "./AdminSendFeedback";
 
-function AdminProfileData({ selectedUser }) {
+function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
     const router = useRouter();
 
-    const manuBar = [
+    let manuBar = [
         {
             id: 1,
             heading: "Basic Information",
@@ -31,11 +32,19 @@ function AdminProfileData({ selectedUser }) {
             icon: "/assets/unSelectedCallIcon.png",
         }, {
             id: 4,
+            heading: "Send Feedback",
+            subHeading: "Report bugs, new features and more",
+            icon: "/otherAssets/feedbackIcon.png",
+        },
+        {
+            id: 5,
             heading: "Bar Services",
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
         },
     ];
+
+
 
     const [tabSelected, setTabSelected] = useState(1);
 
@@ -56,6 +65,9 @@ function AdminProfileData({ selectedUser }) {
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 4:
+                return <AdminSendFeedback selectedUser={selectedUser} />;
+
+            case 5:
                 return <AdminXbarServices selectedUser={selectedUser} />;
 
             default:

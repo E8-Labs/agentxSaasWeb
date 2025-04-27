@@ -17,10 +17,24 @@ function AgencySubacount() {
     const [moreDropdown, setmoreDropdown] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedUser, setSelectedUser] = useState(false);
+    const [agencyData, setAgencyData] = useState("")
 
     useEffect(() => {
+        getLocalData()
         getSubAccounts();
     }, []);
+
+
+    // get agency data from local 
+
+    const getLocalData = () => {
+        let data = localStorage.getItem("User")
+        if (data) {
+            let u = JSON.parse(data)
+
+            setAgencyData(u.user)
+        }
+    }
 
     //code 
     const handleCloseModal = () => {
@@ -122,7 +136,7 @@ function AgencySubacount() {
                 <div style={{
                     fontSize: 22, fontWeight: '700'
                 }}>
-                    AgencyName
+                    {agencyData?.name}
                 </div>
 
                 <div>
@@ -160,7 +174,7 @@ function AgencySubacount() {
 
                 <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
                     <div className="w-3/12">
-                        <div style={styles.text}>Name</div>
+                        <div style={styles.text}>Subaccoun</div>
                     </div>
                     <div className="w-1/12 ">
                         <div style={styles.text}>Plan</div>
@@ -175,10 +189,10 @@ function AgencySubacount() {
                         <div style={styles.text}>Leads</div>
                     </div>
                     <div className="w-2/12">
-                        <div style={styles.text}>Renewal Date</div>
+                        <div style={styles.text}>Renewal</div>
                     </div>
                     <div className="w-2/12">
-                        <div style={styles.text}>Team Members</div>
+                        <div style={styles.text}>Teams</div>
                     </div>
                     <div className="w-1/12">
                         <div style={styles.text}>Action</div>
@@ -212,9 +226,25 @@ function AgencySubacount() {
                                             //     // setShowDetailsModal(true);
                                             // }}
                                             >
-                                                <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                                    {item.name.slice(0, 1).toUpperCase()}
-                                                </div>
+                                                {
+                                                    item.thumb_profile_image ? (
+                                                        <Image src={item.thumb_profile_image}
+                                                            className='rounded-full'
+                                                            height={40}
+                                                            width={40}
+                                                            style={{
+                                                                height: "40px",
+                                                                width: "40px",
+                                                                resize: "cover",
+                                                            }}
+                                                            alt="*" />
+                                                    ) : (
+                                                        <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                                            {item.name.slice(0, 1).toUpperCase()}
+                                                        </div>
+                                                    )
+                                                }
+
                                                 <div style={{ ...styles.text2, ...{ width: "80%", } }}>
                                                     {item.name}
                                                 </div>
@@ -287,14 +317,7 @@ function AgencySubacount() {
                                                         >
                                                             View Plans
                                                         </div>
-                                                        <div
-                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                            onClick={() => {
-                                                                // Handle redirect
-                                                            }}
-                                                        >
-                                                            To the advertisement
-                                                        </div>
+                                                       
                                                     </div>
                                                 )}
                                             </div>
@@ -350,7 +373,7 @@ function AgencySubacount() {
 
                     >
                         <SelectedUserDetails
-                            from = "subaccount"
+                            from="subaccount"
                             selectedUser={selectedUser}
                             handleDel={() => {
                                 // setUsers((prev) => prev.filter((u) =>

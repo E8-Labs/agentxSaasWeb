@@ -214,14 +214,13 @@ function AdminBasicInfo({ selectedUser }) {
       if (LocalData) {
         const userData = LocalData;
         await getAgentDefaultData(userData);
-        //console.log;
+        console.log("image is ",LocalData)
 
         setUserRole(userData?.userRole);
         setUserType(userData?.userType);
-        // setUserType(UserTypes.SolarRep)
         setUserDetails(userData.user);
         setName(userData?.name);
-        setSelectedImage(userData?.thumb_profile_image);
+        setSelectedImage(LocalData?.thumb_profile_image);
         setEmail(userData?.email);
         setFarm(userData?.farm);
         setTransaction(userData?.averageTransactionPerYear);
@@ -324,6 +323,93 @@ function AdminBasicInfo({ selectedUser }) {
     }
   };
 
+  const handleDrop = async (event) => {
+    event.preventDefault();
+    setDragging(false);
+    const file = event.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+    }
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    setDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setDragging(false);
+  };
+
+  const handleImageChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      
+      const imageUrl = URL.createObjectURL(file); // Generate preview URL
+
+      setSelectedImage(imageUrl); // Set the preview image
+
+      await uploadeImage(file);
+    } catch (error) {
+      // console.error("Error uploading image:", error);
+    } finally {
+    
+    }
+  };
+
+  const uploadeImage = async (imageUrl) => {
+    setloading5(true);
+      try {
+        const data = localStorage.getItem("User");
+        if (data) {
+          let u = JSON.parse(data);
+          const apidata = new FormData();
+  
+          apidata.append("media", imageUrl);  
+          apidata.append("userId", selectedUser.id);  
+          // //console.log;
+          for (let pair of apidata.entries()) {
+            console.log(pair) // Debug FormData contents
+          }
+          let path = Apis.updateProfileApi;
+  
+          // //console.log;
+          // //console.log;
+          // return
+          const response = await axios.post(path, apidata, {
+            headers: {
+              Authorization: "Bearer " + u.token,
+            },
+          });
+  
+          if (response) {
+            if (response.data.status === true) {
+              console.log("imageUploaded",response.data.data)
+              u.user = response.data.data;
+  
+              //// //console.log
+              localStorage.setItem("User", JSON.stringify(u));
+              // //console.log;
+              window.dispatchEvent(
+                new CustomEvent("UpdateProfile", { detail: { update: true } })
+              );
+              return response.data.data;
+            }
+          }
+        }
+      } catch (e) {
+        console.log("error in upload image:",e);
+      }
+      finally{
+        setloading5(false);
+      }
+    };
+  
+
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2"
@@ -346,7 +432,17 @@ function AdminBasicInfo({ selectedUser }) {
         </div>
       </div>
 
-      <button className="mt-8">
+      <button
+        className="mt-8"
+        onClick={() => {
+          if (typeof document !== "undefined") {
+            document.getElementById("fileInput").click();
+          }
+        }}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
         {loading5 ? (
           <CircularProgress size={20} />
         ) : (
@@ -387,6 +483,13 @@ function AdminBasicInfo({ selectedUser }) {
       </button>
 
       {/* Hidden file input */}
+       <input
+        type="file"
+        accept="image/*"
+        id="fileInput"
+        style={{ display: "none" }}
+        onChange={handleImageChange}
+      />
 
       <div
         style={{
@@ -490,11 +593,11 @@ function AdminBasicInfo({ selectedUser }) {
         />
       </div>
 
-      {userRole && userRole != "Invitee" && (
+      {userRole && userRole != "Invitee" && userRole != "AgencySubAccount"&& (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -550,9 +653,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedServiceArea ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -576,8 +678,8 @@ function AdminBasicInfo({ selectedUser }) {
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -593,9 +695,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedBrokerage ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -633,9 +734,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedCompany ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -670,9 +770,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedWebsite ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -709,9 +808,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedCompany ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -750,9 +848,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedTransaction ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -787,9 +884,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedInstallationVolume ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -813,7 +909,7 @@ function AdminBasicInfo({ selectedUser }) {
           )}
 
           {(userType && userType === UserTypes.SolarRep) ||
-          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
                 style={{
@@ -831,9 +927,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedProjectSize ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -868,9 +963,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -905,9 +999,8 @@ function AdminBasicInfo({ selectedUser }) {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1021,7 +1114,7 @@ function AdminBasicInfo({ selectedUser }) {
             ""
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-          (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type
