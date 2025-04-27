@@ -283,7 +283,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //code to show verify popup
 
   const handleVerifyPopup = async () => {
-    //console.log;
+    console.log("Code trigerred");
     try {
       setShowVerifyPopup(true);
       setSendcodeLoader(true);
@@ -779,6 +779,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     className="text-black bg-transparent border border-[#000000] rounded-full"
                     style={{ fontSize: 16, fontWeight: "600" }}
                     onClick={() => {
+                      console.log("Get code btn clicked");
                       if (checkPhoneResponse === false) {
                         handleVerifyPopup();
                       }

@@ -225,6 +225,11 @@ function SelectedUserDetails({
                                             url = `/admin/users?userId=${selectedUser.id}`
                                         } else if (from === "subaccount") {
                                             url = `/agency/users?userId=${selectedUser.id}`
+                                            // const d = {
+                                            //     subAccountData: selectedUser,
+                                            //     isFromAgency: true
+                                            // }
+                                            // localStorage.setItem("isFromAgency", JSON.stringify(d));
                                         }
                                         // url = `admin/users?userId=${selectedUser.id}`
                                         //console.log
@@ -315,7 +320,10 @@ function SelectedUserDetails({
                                 selectedManu.name == "Pipeline" ? (
                                     <AdminPipeline1 selectedUser={selectedUser} />
                                 ) : selectedManu.name == "Agents" ? (
-                                    <AdminAgentX selectedUser={selectedUser} />
+                                    <AdminAgentX
+                                        selectedUser={selectedUser}
+                                        from={from}
+                                    />
                                 ) : selectedManu.name == "Call Log" ? (
                                     <AdminCallLogs selectedUser={selectedUser} />
                                 ) : (
@@ -329,7 +337,7 @@ function SelectedUserDetails({
                                                 <AdminTeam selectedUser={selectedUser} />
                                             ) : (
                                                 selectedManu.name == "Account" ? (
-                                                    <AdminProfileData selectedUser={selectedUser} from={from}/>
+                                                    <AdminProfileData selectedUser={selectedUser} from={from} />
                                                 ) : "Comming soon..."
                                             )
                                         )

@@ -56,7 +56,7 @@ import { ArrowUpRight } from "@phosphor-icons/react";
 import VideoCard from "@/components/createagent/VideoCard";
 import VoiceMailTab from "@/components/dashboard/myagentX/VoiceMailTab";
 
-function AdminAgentX({ selectedUser }) {
+function AdminAgentX({ selectedUser, from }) {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   // const fileInputRef = useRef(null);
@@ -1478,6 +1478,11 @@ function AdminAgentX({ selectedUser }) {
       status: true,
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
+    const d = {
+      subAccountData: selectedUser,
+      isFromAgency: true
+    }
+    localStorage.setItem("isFromAgency", JSON.stringify(d));
     router.push("/createagent");
   };
 
@@ -2067,7 +2072,11 @@ function AdminAgentX({ selectedUser }) {
                       value={
                         item.totalDuration && item.totalDuration > 0 ? (
                           <div>
-                            {moment(item.totalDuration * 1000).format("mm:ss")}
+                            {item?.totalDuration
+                              ? moment
+                                .utc((item?.totalDuration || 0) * 1000)
+                                .format("HH:mm:ss")
+                              : "-"}
                           </div>
                         ) : (
                           "-"
@@ -2544,9 +2553,11 @@ function AdminAgentX({ selectedUser }) {
                     showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
-                      {moment(
-                        showDrawerSelectedAgent.totalDuration * 1000
-                      ).format("mm:ss")}
+                      {showDrawerSelectedAgent?.totalDuration
+                        ? moment
+                          .utc((showDrawerSelectedAgent?.totalDuration || 0) * 1000)
+                          .format("HH:mm:ss")
+                        : "-"}
                     </div>
                   ) : (
                     "-"
@@ -2564,8 +2575,8 @@ function AdminAgentX({ selectedUser }) {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`${activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
                     }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
@@ -3034,7 +3045,7 @@ function AdminAgentX({ selectedUser }) {
                   setMainAgentsList={setMainAgentsList}
                   agent={showDrawerSelectedAgent}
                   setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                  selectedUser = {selectedUser}
+                  selectedUser={selectedUser}
                 />
               </div>
             ) : (

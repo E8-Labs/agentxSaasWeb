@@ -283,6 +283,23 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       const ApiPath = Apis.buildAgent;
       // //console.log;
       const formData = new FormData();
+
+      //code for sending the user  id if from agency subaccount flow
+      let userId = null;
+
+      const U = localStorage.getItem("isFromAgency");
+
+      if (U) {
+        const d = JSON.parse(U);
+        console.log("Subaccount data recieved on createagent_1 screen is", d);
+        userId = d.subAccountData.id;
+      }
+
+      if (userId) {
+        console.log("User id to create new agent is", userId);
+        formData.append("userId", userId);
+      }
+
       formData.append("name", agentName);
       formData.append("agentRole", agentRole);
       let agentType = null;
@@ -323,7 +340,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
       // //console.log;
       for (let [key, value] of formData.entries()) {
-        // //console.log;
+        console.log(`${key} = ${value}`);
       }
 
       // return
@@ -337,7 +354,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         // //console.log;
         setIsVisible(true);
         if (response.data.status === true) {
-          // //console.log;
+          console.log("Response of add new agent is", response.data);
           setSnackMessage("Agent created successfully.");
           setMsgType(SnackbarTypes.Success);
           localStorage.setItem(
@@ -542,260 +559,260 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <button
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
-              // onClick={handleContinue}
+            // onClick={handleContinue}
             >
               Get started with your AI agent
             </button>
             <div className="w-full flex flex-col  items-center max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-            <div
-              className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
-              style={{ scrollbarWidth: "none" }}
-            >
               <div
-                style={styles.headingStyle}
-                className="flex flex-row items-center gap-2"
+                className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
+                style={{ scrollbarWidth: "none" }}
+              >
+                <div
+                  style={styles.headingStyle}
+                  className="flex flex-row items-center gap-2"
                 // onClick={handleContinue}
-              >
-                {`What's this AI agent's name?`}
-                <div
-                  aria-owns={open ? "mouse-over-popover" : undefined}
-                  aria-haspopup="true"
-                  onMouseEnter={handlePopoverOpen}
-                  onMouseLeave={handlePopoverClose}
-                  style={{ cursor: "pointer" }}
                 >
-                  <Image
-                    src={"/svgIcons/infoIcon.svg"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </div>
-              </div>
-              {/* Info popover */}
-              <Popover
-                id="mouse-over-popover"
-                sx={{ pointerEvents: "none" }}
-                open={open}
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "center",
-                }}
-                transformOrigin={{
-                  vertical: "bottom",
-                  horizontal: "center",
-                }}
-                onClose={handlePopoverClose}
-                disableRestoreFocus
-              >
-                <div className="flex flex-row items-center px-2 h-[40px] gap-2">
-                  <Image
-                    src={"/svgIcons/infoIcon.svg"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                  <div style={{ fontWeight: "600", fontSize: 15 }}>
-                    Your AI will identify itself by this name
-                  </div>
-                </div>
-              </Popover>
-              <input
-                placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                enterKeyHint="done"
-                style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
-                value={agentName}
-                onChange={(e) => {
-                  setAgentName(e.target.value);
-                }}
-              />
-
-              <div className="mt-2" style={styles.headingStyle}>
-                {`What's this AI agent's task?`}
-              </div>
-
-              <div className="sm:flex sm:flex-row items-center gap-4">
-                <div
-                  className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
-                  style={{
-                    borderRadius: "23px",
-                    border: OutBoundCalls
-                      ? "2px solid #7902DF"
-                      : "2px solid #00000010",
-                  }}
-                  onClick={handleOutBoundCallClick}
-                >
-                  {OutBoundCalls ? (
-                    <Image
-                      src={"/svgIcons/callOutFocus.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  ) : (
-                    <Image
-                      src={"/assets/callOut.png"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  )}
+                  {`What's this AI agent's name?`}
                   <div
-                    className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
-                    style={{
-                      ...styles.inputStyle,
-                      // transition: "0.4s ease",
-                      // scale: "0.9"
-                    }}
+                    aria-owns={open ? "mouse-over-popover" : undefined}
+                    aria-haspopup="true"
+                    onMouseEnter={handlePopoverOpen}
+                    onMouseLeave={handlePopoverClose}
+                    style={{ cursor: "pointer" }}
                   >
-                    Making Outbound Calls
+                    <Image
+                      src={"/svgIcons/infoIcon.svg"}
+                      height={20}
+                      width={20}
+                      alt="*"
+                    />
                   </div>
                 </div>
-                <div
-                  className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
-                  style={{
-                    borderRadius: "23px",
-                    border: InBoundCalls
-                      ? "2px solid #7902DF"
-                      : "2px solid #00000010",
+                {/* Info popover */}
+                <Popover
+                  id="mouse-over-popover"
+                  sx={{ pointerEvents: "none" }}
+                  open={open}
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
                   }}
-                  onClick={handleInboundCallClick}
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  onClose={handlePopoverClose}
+                  disableRestoreFocus
                 >
-                  {InBoundCalls ? (
+                  <div className="flex flex-row items-center px-2 h-[40px] gap-2">
                     <Image
-                      src={"/svgIcons/callInFocus.svg"}
-                      height={24}
-                      width={24}
+                      src={"/svgIcons/infoIcon.svg"}
+                      height={20}
+                      width={20}
                       alt="*"
                     />
-                  ) : (
-                    <Image
-                      src={"/assets/callIn.png"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  )}
-                  <div
-                    className="text-start ms-2 sm:text-center sm:ms-0"
-                    style={styles.inputStyle}
-                  >
-                    Taking Inbound Calls
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-2" style={styles.headingStyle}>
-                {`What's this AI agent's title?`}
-              </div>
-              <input
-                autoComplete="off"
-                autoCorrect="on"
-                spellCheck="true"
-                enterKeyHint="done"
-                placeholder="Ex: Senior Property Acquisition Specialist"
-                className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
-                value={agentRole}
-                onChange={(e) => {
-                  setAgentRole(e.target.value);
-                }}
-              />
-
-              {canShowObjectives() && (
-                <div className="mt-2" style={styles.headingStyle}>
-                  {`What's this AI agent's primary objective during the call?`}
-                </div>
-              )}
-
-              {canShowObjectives() && (
-                <div style={styles.inputStyle}>
-                  Select only one. You can create new agents to dedicate them to
-                  other objectives.
-                </div>
-              )}
-              {canShowObjectives() && (
-                <div className="flex flex-wrap">
-                  {AgentObjective.map((item) => (
-                    <div
-                      key={item.id}
-                      className="w-full text-start md:w-1/2 pe-2 flex py-4"
-                    >
-                      <button
-                        className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
-                        onClick={() => {
-                          handleToggleClick(item);
-                        }}
-                        style={{
-                          borderColor: item.id === toggleClick ? "#7902DF" : "",
-                          backgroundColor:
-                            item.id === toggleClick ? "#402FFF10 " : "",
-                        }}
-                      >
-                        {item.id === toggleClick ? (
-                          <Image
-                            src={item.focusIcn}
-                            height={30}
-                            width={30}
-                            alt="*"
-                          />
-                        ) : (
-                          <Image
-                            src={item.unFocusIcon}
-                            height={30}
-                            width={30}
-                            alt="*"
-                          />
-                        )}
-                        <div className="mt-8" style={styles.headingTitle}>
-                          {item.title}
-                        </div>
-                        <div
-                          className="mt-4"
-                          style={{ fontSize: 11, fontWeight: "300" }}
-                        >
-                          {item.details}
-                        </div>
-                      </button>
+                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                      Your AI will identify itself by this name
                     </div>
-                  ))}
+                  </div>
+                </Popover>
+                <input
+                  placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
+                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
+                  value={agentName}
+                  onChange={(e) => {
+                    setAgentName(e.target.value);
+                  }}
+                />
+
+                <div className="mt-2" style={styles.headingStyle}>
+                  {`What's this AI agent's task?`}
                 </div>
-              )}
-              {showOtherObjective && (
-                <div>
-                  <div style={styles.headingStyle}>{`Agent's Objective`}</div>
-                  {/* <input ref={bottomRef}
+
+                <div className="sm:flex sm:flex-row items-center gap-4">
+                  <div
+                    className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
+                    style={{
+                      borderRadius: "23px",
+                      border: OutBoundCalls
+                        ? "2px solid #7902DF"
+                        : "2px solid #00000010",
+                    }}
+                    onClick={handleOutBoundCallClick}
+                  >
+                    {OutBoundCalls ? (
+                      <Image
+                        src={"/svgIcons/callOutFocus.svg"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    ) : (
+                      <Image
+                        src={"/assets/callOut.png"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    )}
+                    <div
+                      className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
+                      style={{
+                        ...styles.inputStyle,
+                        // transition: "0.4s ease",
+                        // scale: "0.9"
+                      }}
+                    >
+                      Making Outbound Calls
+                    </div>
+                  </div>
+                  <div
+                    className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
+                    style={{
+                      borderRadius: "23px",
+                      border: InBoundCalls
+                        ? "2px solid #7902DF"
+                        : "2px solid #00000010",
+                    }}
+                    onClick={handleInboundCallClick}
+                  >
+                    {InBoundCalls ? (
+                      <Image
+                        src={"/svgIcons/callInFocus.svg"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    ) : (
+                      <Image
+                        src={"/assets/callIn.png"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    )}
+                    <div
+                      className="text-start ms-2 sm:text-center sm:ms-0"
+                      style={styles.inputStyle}
+                    >
+                      Taking Inbound Calls
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-2" style={styles.headingStyle}>
+                  {`What's this AI agent's title?`}
+                </div>
+                <input
+                  autoComplete="off"
+                  autoCorrect="on"
+                  spellCheck="true"
+                  enterKeyHint="done"
+                  placeholder="Ex: Senior Property Acquisition Specialist"
+                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
+                  style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
+                  value={agentRole}
+                  onChange={(e) => {
+                    setAgentRole(e.target.value);
+                  }}
+                />
+
+                {canShowObjectives() && (
+                  <div className="mt-2" style={styles.headingStyle}>
+                    {`What's this AI agent's primary objective during the call?`}
+                  </div>
+                )}
+
+                {canShowObjectives() && (
+                  <div style={styles.inputStyle}>
+                    Select only one. You can create new agents to dedicate them to
+                    other objectives.
+                  </div>
+                )}
+                {canShowObjectives() && (
+                  <div className="flex flex-wrap">
+                    {AgentObjective.map((item) => (
+                      <div
+                        key={item.id}
+                        className="w-full text-start md:w-1/2 pe-2 flex py-4"
+                      >
+                        <button
+                          className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
+                          onClick={() => {
+                            handleToggleClick(item);
+                          }}
+                          style={{
+                            borderColor: item.id === toggleClick ? "#7902DF" : "",
+                            backgroundColor:
+                              item.id === toggleClick ? "#402FFF10 " : "",
+                          }}
+                        >
+                          {item.id === toggleClick ? (
+                            <Image
+                              src={item.focusIcn}
+                              height={30}
+                              width={30}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={item.unFocusIcon}
+                              height={30}
+                              width={30}
+                              alt="*"
+                            />
+                          )}
+                          <div className="mt-8" style={styles.headingTitle}>
+                            {item.title}
+                          </div>
+                          <div
+                            className="mt-4"
+                            style={{ fontSize: 11, fontWeight: "300" }}
+                          >
+                            {item.details}
+                          </div>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {showOtherObjective && (
+                  <div>
+                    <div style={styles.headingStyle}>{`Agent's Objective`}</div>
+                    {/* <input ref={bottomRef}
                                             placeholder="Type Here.... "
                                             className='border   rounded p-3 outline-none w-full mt-1 mx-2'
                                             style={styles.inputStyle}
                                             value={otherObjVal}
                                             onChange={(e) => { setOtherObjVal(e.target.value) }}
                                         /> */}
-                  <input
-                    ref={bottomRef}
-                    // autoComplete="off"
-                    // autoCorrect="off"
-                    // spellCheck="false"
-                    enterKeyHint="done"
-                    placeholder="Type Here...."
-                    className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
-                    style={{
-                      ...styles.inputStyle,
-                      border: "1px solid #00000020",
-                    }}
-                    value={otherObjVal}
-                    onChange={(e) => setOtherObjVal(e.target.value)}
-                  />
-                </div>
-              )}
+                    <input
+                      ref={bottomRef}
+                      // autoComplete="off"
+                      // autoCorrect="off"
+                      // spellCheck="false"
+                      enterKeyHint="done"
+                      placeholder="Type Here...."
+                      className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
+                      style={{
+                        ...styles.inputStyle,
+                        border: "1px solid #00000020",
+                      }}
+                      value={otherObjVal}
+                      onChange={(e) => setOtherObjVal(e.target.value)}
+                    />
+                  </div>
+                )}
 
-              {/* <Body /> */}
-            </div>
+                {/* <Body /> */}
+              </div>
 
             </div>
           </div>
@@ -964,12 +981,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                      // disabled={true}
-                      // onChange={(evt) => {
-                      //   setAddressValue(evt.target.value); // Update input field value
-                      //   // getPlacePredictions({ input: evt.target.value });
-                      //   // setShowDropdown(true); // Show dropdown on input
-                      // }}
+                    // disabled={true}
+                    // onChange={(evt) => {
+                    //   setAddressValue(evt.target.value); // Update input field value
+                    //   // getPlacePredictions({ input: evt.target.value });
+                    //   // setShowDropdown(true); // Show dropdown on input
+                    // }}
                     />
                   </div>
                 </div>

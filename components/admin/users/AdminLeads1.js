@@ -669,6 +669,8 @@ const AdminLeads1 = ({selectedUser}) => {
         userId:selectedUser.id
       };
 
+      console.log("Add lead data is", ApiData);
+
       const ApiPath = Apis.createLead;
       //console.log);
       // return
@@ -682,7 +684,7 @@ const AdminLeads1 = ({selectedUser}) => {
       });
 
       if (response) {
-        ////////console.log;
+        console.log("Add lead api response is", response.data);
         if (response.data.status === true) {
           let sheet = response.data.data;
           let leads = response.data.leads;

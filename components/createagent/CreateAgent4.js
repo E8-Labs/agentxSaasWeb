@@ -388,7 +388,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        // //console.log;
+        console.log(`${key} = ${value}`);
       }
 
       // return;
