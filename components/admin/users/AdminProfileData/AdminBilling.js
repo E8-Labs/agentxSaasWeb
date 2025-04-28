@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import AdminGetProfileDetails from "../../AdminGetProfileDetails";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -28,9 +29,54 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AdminBilling({ selectedUser }) {
+function AdminBilling({ selectedUser, from }) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
+
+  //stores subAccount Plans
+  const defaultPlans = [
+    {
+      id: 1,
+      mints: 30,
+      calls: 125,
+      details: "Great for trying out AI sales agents.",
+      // originalPrice: "45",
+      discountPrice: "45",
+      planStatus: "",
+      status: "",
+    },
+    {
+      id: 2,
+      mints: 120,
+      calls: "500",
+      details: "Perfect for lead updates and engagement.",
+      originalPrice: "165",
+      discountPrice: "99",
+      planStatus: "40%",
+      status: "",
+    },
+    {
+      id: 3,
+      mints: 360,
+      calls: "1500",
+      details: "Perfect for lead reactivation and prospecting.",
+      originalPrice: "540",
+      discountPrice: "299",
+      planStatus: "50%",
+      status: "Popular",
+    },
+    {
+      id: 4,
+      mints: 720,
+      calls: "5k",
+      details: "Ideal for teams and reaching new GCI goals. ",
+      originalPrice: "1200",
+      discountPrice: "599",
+      planStatus: "60%",
+      status: "Best Value",
+    },
+  ];
+  const [plans, setPlans] = useState(defaultPlans);
 
   //userlocal data
   const [userLocalData, setUserLocalData] = useState(null);
@@ -76,49 +122,13 @@ function AdminBilling({ selectedUser }) {
     setScreenWidth(screenWidth);
   }, []);
 
-  //array of plans
-  const plans = [
-    {
-      id: 1,
-      mints: 30,
-      calls: 125,
-      details: "Great for trying out AI sales agents.",
-      // originalPrice: "45",
-      discountPrice: "45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals. ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "60%",
-      status: "Best Value",
-    },
-  ];
+  //code to get plans
+  useEffect(() => {
+    if (from === "subaccount") {
+      getPlans();
+    }
+  }, [selectedUser])
+
 
   //cancel plan reasons
   const cancelPlanReasons = [
@@ -149,6 +159,28 @@ function AdminBilling({ selectedUser }) {
     getPaymentHistory();
     getCardsList();
   }, []);
+
+  //function to get subaccount plans
+  const getPlans = async () => {
+    try {
+      const Token = AuthToken();
+      const ApiPath = Apis.getSubAccountPlans;
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of get plans api is", response.data.data);
+        setPlans(response.data.data.monthlyPlans);
+      }
+
+    } catch (error) {
+      console.error("Error occured in getting plans", error);
+    }
+  }
 
   const getProfile = async () => {
     try {
@@ -816,113 +848,114 @@ function AdminBilling({ selectedUser }) {
 
       {/* code for current plans available */}
 
-      {plans.map((item, index) => (
-        <button
-          key={item.id}
-          className="w-9/12 mt-4 outline-none"
+      <div>
+        {plans.map((item, index) => (
+          <button
+            key={item.id}
+            className="w-9/12 mt-4 outline-none"
           // onClick={(e) => handleTogglePlanClick(item)}
-        >
-          <div
-            className="px-4 py-1 pb-4"
-            style={{
-              ...styles.pricingBox,
-              border:
-                item.id === togglePlan
-                  ? "2px solid #7902DF"
-                  : "1px solid #15151520",
-              backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-            }}
           >
             <div
-              style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-            ></div>
-            <span style={styles.labelText}>{item.planStatus}</span>
-            <div
-              className="flex flex-row items-start gap-3"
-              style={styles.content}
+              className="px-4 py-1 pb-4"
+              style={{
+                ...styles.pricingBox,
+                border:
+                  item.id === togglePlan
+                    ? "2px solid #7902DF"
+                    : "1px solid #15151520",
+                backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+              }}
             >
-              <div className="mt-1">
-                <div>
-                  {item.id === togglePlan ? (
-                    <Image
-                      src={"/svgIcons/checkMark.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  ) : (
-                    <Image
-                      src={"/svgIcons/unCheck.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  )}
+              <div
+                style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+              ></div>
+              <span style={styles.labelText}>{item.planStatus}</span>
+              <div
+                className="flex flex-row items-start gap-3"
+                style={styles.content}
+              >
+                <div className="mt-1">
+                  <div>
+                    {item.id === togglePlan ? (
+                      <Image
+                        src={"/svgIcons/checkMark.svg"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    ) : (
+                      <Image
+                        src={"/svgIcons/unCheck.svg"}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="w-full">
-                {item.id === currentPlan && (
-                  <div
-                    className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                    style={{
-                      fontSize: 11.6,
-                      fontWeight: "500",
-                      width: "fit-content",
-                    }}
-                  >
-                    Current Plan
-                  </div>
-                )}
-
-                <div className="flex flex-row items-center gap-3">
-                  <div
-                    style={{
-                      color: "#151515",
-                      fontSize: 20,
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item.mints}mins | {item.calls} Calls*
-                  </div>
-                  {item.status && (
+                <div className="w-full">
+                  {item.id === currentPlan && (
                     <div
-                      className="flex px-2 py-1 bg-purple rounded-full text-white"
-                      style={{ fontSize: 11.6, fontWeight: "500" }}
+                      className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                      style={{
+                        fontSize: 11.6,
+                        fontWeight: "500",
+                        width: "fit-content",
+                      }}
                     >
-                      {item.status}
+                      Current Plan
                     </div>
                   )}
-                </div>
-                <div className="flex flex-row items-center justify-between">
-                  <div
-                    className="mt-2"
-                    style={{
-                      color: "#15151590",
-                      fontSize: 12,
-                      width: "60%",
-                      fontWeight: "600",
-                    }}
-                  >
-                    {item.details}
-                  </div>
-                  <div className="flex flex-row items-center">
-                    <div style={styles.originalPrice}>
-                      {item.originalPrice && <div>${item.originalPrice}</div>}
+
+                  <div className="flex flex-row items-center gap-3">
+                    <div
+                      style={{
+                        color: "#151515",
+                        fontSize: 20,
+                        fontWeight: "600",
+                      }}
+                    >
+                      {item.mints}mins | {item.calls} Calls*
                     </div>
-                    <div className="flex flex-row justify-start items-start ">
-                      <div style={styles.discountedPrice}>
-                        ${item.discountPrice}
+                    {item.status && (
+                      <div
+                        className="flex px-2 py-1 bg-purple rounded-full text-white"
+                        style={{ fontSize: 11.6, fontWeight: "500" }}
+                      >
+                        {item.status}
                       </div>
-                      <p style={{ color: "#15151580" }}>/mo*</p>
+                    )}
+                  </div>
+                  <div className="flex flex-row items-center justify-between">
+                    <div
+                      className="mt-2"
+                      style={{
+                        color: "#15151590",
+                        fontSize: 12,
+                        width: "60%",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {item.details}
+                    </div>
+                    <div className="flex flex-row items-center">
+                      <div style={styles.originalPrice}>
+                        {item.originalPrice && <div>${item.originalPrice}</div>}
+                      </div>
+                      <div className="flex flex-row justify-start items-start ">
+                        <div style={styles.discountedPrice}>
+                          ${item.discountPrice}
+                        </div>
+                        <p style={{ color: "#15151580" }}>/mo*</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </button>
-      ))}
-
+          </button>
+        ))}
+      </div>
       <div
         className="w-9/12 mt-4 flex flex-row items-start gap-2"
         style={{
@@ -958,7 +991,7 @@ function AdminBilling({ selectedUser }) {
             <button
               className="text-[#ffffff] pe-8"
               style={{ fontSize: 14, fontWeight: "700" }}
-              onClick={()=>{
+              onClick={() => {
                 window.open(
                   "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan ",
                   "_blank"
@@ -1160,7 +1193,7 @@ function AdminBilling({ selectedUser }) {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>
@@ -1233,9 +1266,8 @@ function AdminBilling({ selectedUser }) {
 
               <div className="flex flex-col items-center px-4 w-full">
                 <div
-                  className={`flex flex-row items-center gap-2 text-purple ${
-                    ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                  }bg-[#402FFF10] py-2 px-4 rounded-full`}
+                  className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
+                    }bg-[#402FFF10] py-2 px-4 rounded-full`}
                   style={styles.gitTextStyle}
                 >
                   <Image
@@ -1407,7 +1439,7 @@ function AdminBilling({ selectedUser }) {
                     outline: "none",
                   }}
                   onClick={handleCancelPlan}
-                  // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
+                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
                 >
                   Yes. Cancel
                 </button>
@@ -1591,7 +1623,7 @@ function AdminBilling({ selectedUser }) {
                       onClick={() => {
                         handleDelReason();
                       }}
-                      // disabled={!selectReason || !otherReasonInput || }
+                    // disabled={!selectReason || !otherReasonInput || }
                     >
                       Continue
                     </button>

@@ -9,6 +9,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
 
 function DashboardPlans() {
 
@@ -23,6 +24,9 @@ function DashboardPlans() {
     //code for snack messages    
     const [snackMsg, setSnackMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+
+    //code for confiration modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     //auto get the data
     useEffect(() => {
@@ -261,17 +265,6 @@ function DashboardPlans() {
                     </div>
                 </div>
 
-                {
-                    planType === "monthly" ?
-                        <div style={styles.planTypeHeading} className="mt-4 w-full">
-                            Monthly Plans
-                        </div>
-                        :
-                        <div style={styles.planTypeHeading} className="mt-4 w-full">
-                            XBar Options
-                        </div>
-                }
-
                 <div className="w-full flex flex-row justify-between mt-4">
                     <div className="w-2/12">
                         <div style={styles.text}>Name</div>
@@ -373,38 +366,34 @@ function DashboardPlans() {
 
                                                         {moreDropdown === item.id && (
                                                             <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
-                                                                <div
+                                                                <div>
+                                                                    <button
+                                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                                        onClick={() => {
+                                                                            setmoreDropdown(null)
+                                                                        }}
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                </div>
+                                                                <button
                                                                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
                                                                     onClick={() => {
-                                                                        setmoreDropdown(null)
+                                                                        setShowDeleteModal(true);
                                                                     }}
                                                                 >
-                                                                    View Detail
-                                                                </div>
-                                                                <div
-                                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                                    onClick={() => {
-                                                                        // Handle invite
-                                                                    }}
-                                                                >
-                                                                    Invite Team
-                                                                </div>
-                                                                <div
-                                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                                    onClick={() => {
-                                                                        // Handle view plans
-                                                                    }}
-                                                                >
-                                                                    View Plans
-                                                                </div>
-                                                                <div
-                                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
-                                                                    onClick={() => {
-                                                                        // Handle redirect
-                                                                    }}
-                                                                >
-                                                                    To the advertisement
-                                                                </div>
+                                                                    Delete
+                                                                </button>
+                                                                {
+                                                                    showDeleteModal && (
+                                                                        <DelConfirmationPopup
+                                                                            showDeleteModal={showDeleteModal}
+                                                                            handleClose={() => {
+                                                                                setShowDeleteModal(false);
+                                                                            }}
+                                                                        />
+                                                                    )
+                                                                }
                                                             </div>
                                                         )}
                                                     </div>

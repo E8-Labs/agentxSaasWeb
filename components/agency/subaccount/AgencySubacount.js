@@ -65,6 +65,7 @@ function AgencySubacount() {
       setInitialLoader(true);
       const ApiPAth = Apis.getAgencySubAccount;
       const Token = AuthToken();
+      // console.log(Token);
       const response = await axios.get(ApiPAth, {
         headers: {
           Authorization: "Bearer " + Token,
@@ -93,6 +94,8 @@ function AgencySubacount() {
         let apidata = {
           userId: moreDropdown,
         };
+
+        console.log("Api data is", apidata);
 
         const response = await axios.post(Apis.pauseProfile, apidata, {
           headers: {
@@ -252,11 +255,11 @@ function AgencySubacount() {
                   >
                     <div
                       className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
-                      // onClick={() => {
-                      //     // // //console.log;
-                      //     // setselectedLeadsDetails(item);
-                      //     // setShowDetailsModal(true);
-                      // }}
+                    // onClick={() => {
+                    //     // // //console.log;
+                    //     // setselectedLeadsDetails(item);
+                    //     // setShowDetailsModal(true);
+                    // }}
                     >
                       {item.thumb_profile_image ? (
                         <Image
@@ -333,7 +336,7 @@ function AgencySubacount() {
                             onClick={() => {
                               setSelectedUser(item);
                             }}
-                            // setmoreDropdown(null)
+                          // setmoreDropdown(null)
                           >
                             View Detail
                           </button>
@@ -349,11 +352,13 @@ function AgencySubacount() {
                           {openInvitePopup && (
                             <InviteTeamModal
                               openInvitePopup={openInvitePopup}
-                              handleCloseInviteTeam={() => {
-                                console.log(
-                                  "I am trigered to close invite team"
-                                );
+                              userID={moreDropdown}
+                              handleCloseInviteTeam={(data) => {
                                 setOpenInvitePopup(false);
+                                if (data === "showSnack") {
+                                  setShowSnackMessage("Invite Sent");
+                                  setmoreDropdown(null);
+                                }
                               }}
                             />
                           )}
@@ -391,6 +396,7 @@ function AgencySubacount() {
                               Delete
                             </button>
                           )}
+
                         </div>
                       )}
                     </div>

@@ -28,7 +28,10 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function SubAccountBilling() {
+function SubAccountBilling({
+  hideBtns,
+  selectedUser
+}) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -67,8 +70,8 @@ function SubAccountBilling() {
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
 
-    const [plans,setPlans] = useState([])
-    const [initialLoader,setInitialLoader] = useState(false)
+  const [plans, setPlans] = useState([])
+  const [initialLoader, setInitialLoader] = useState(false)
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -79,7 +82,7 @@ function SubAccountBilling() {
     setScreenWidth(screenWidth);
   }, []);
 
-  
+
 
   //cancel plan reasons
   const cancelPlanReasons = [
@@ -112,52 +115,68 @@ function SubAccountBilling() {
     getCardsList();
   }, []);
 
-   //get plans apis
-      const getPlans = async () => {
-          try {
-              setInitialLoader(true);
-              const Token = AuthToken();
-              const ApiPath = Apis.getSubAccountPlans;
-              const response = await axios.get(ApiPath, {
-                  headers: {
-                      "Authorization": "Bearer " + Token,
-                      "Content-Type": "application/json"
-                  }
-              });
-  
-              if (response) {
-                  console.log("Response of get plans api is", response.data.data);
-                  setPlans(response.data.data.monthlyPlans);
-                  setInitialLoader(false);
-              }
-  
-          } catch (error) {
-              setInitialLoader(false);
-              console.error("Error occured in getting plans", error);
-          }
+  //get plans apis
+  const getPlans = async () => {
+    try {
+      setInitialLoader(true);
+      const Token = AuthToken();
+      console.log("user id is", selectedUser.id);
+      let ApiPath = null;
+      if (selectedUser) {
+        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser.id}`;
+      } else {
+        ApiPath = Apis.getSubAccountPlans;
       }
+      console.log("Api path of get plan is", ApiPath);
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of get plans api is", response.data.data);
+        setPlans(response.data.data.monthlyPlans);
+        setInitialLoader(false);
+      }
+
+    } catch (error) {
+      setInitialLoader(false);
+      console.error("Error occured in getting plans", error);
+    }
+  }
 
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
+      // let response = await getProfileDetails();
       //console.log;
+
+      const Token = AuthToken();
+      let ApiPath = null;
+      if (selectedUser) {
+        ApiPath = `${Apis.getProfileFromId}?id=${selectedUser.id}`;
+      } else {
+        ApiPath = Apis.getProfileData;
+      }
+
+      console.log("Api path for get profile is", ApiPath);
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + Token,
+          "Content-Type": "application/json",
+        },
+      });
+
       if (response) {
+        console.log("Response of get profile api is", response);
         let plan = response?.data?.data?.plan;
         console.log('response?.data?.data?.plan', response?.data?.data?.plan)
+
         let togglePlan = plan?.planId;
-        let planType = null;
-        // if (plan.status == "active") {
-        //   if (togglePlan === "Plan30") {
-        //     planType = 1;
-        //   } else if (togglePlan === "Plan120") {
-        //     planType = 2;
-        //   } else if (togglePlan === "Plan360") {
-        //     planType = 3;
-        //   } else if (togglePlan === "Plan720") {
-        //     planType = 4;
-        //   }
-        // }
+
         setUserLocalData(response?.data?.data);
         // //console.log;
         setTogglePlan(togglePlan);
@@ -196,10 +215,14 @@ function SubAccountBilling() {
       // //console.log;
 
       //Talabat road
+      let ApiPath = null;
+      if (selectedUser) {
+        ApiPath = `${Apis.getCardsList}?userId=${selectedUser.id}`;
+      } else {
+        ApiPath = Apis.getCardsList;
+      }
 
-      const ApiPath = Apis.getCardsList;
-
-      // //console.log;
+      console.log("Api path of get cards api is", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -276,6 +299,7 @@ function SubAccountBilling() {
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
+    console.log("Selected id", item.id);
     // if (togglePlan) {
     //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
     //     setSelectedPlan(prevId => (prevId === item ? null : item));
@@ -292,7 +316,7 @@ function SubAccountBilling() {
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-     
+
       console.log("ssubscribe")
 
       setSubscribePlanLoader(true);
@@ -317,7 +341,7 @@ function SubAccountBilling() {
       const formData = new FormData();
       formData.append("planId", togglePlan);
       for (let [key, value] of formData.entries()) {
-          console.log(`${key} = ${value}`);
+        console.log(`${key} = ${value}`);
       }
       // //console.log;
       // //console.log;
@@ -334,7 +358,7 @@ function SubAccountBilling() {
         // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          console.log("response.data.data",response.data)
+          console.log("response.data.data", response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
@@ -492,7 +516,7 @@ function SubAccountBilling() {
       if (response) {
         // //console.log;
         let response2 = await getProfileDetails();
-        console.log("response2?.data?.data?.plan?.id",response2?.data?.data?.plan?.id)
+        console.log("response2?.data?.data?.plan?.id", response2?.data?.data?.plan?.id)
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.planId;
           // let planType = null;
@@ -651,23 +675,25 @@ function SubAccountBilling() {
           </div>
         </div>
 
-        <button
-          className=""
-          onClick={() => {
-            setAddPaymentPopup(true);
-          }}
-        >
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: "500",
-              color: "#7902DF",
-              textDecorationLine: "underline",
+        {hideBtns &&
+          (<button
+            className=""
+            onClick={() => {
+              setAddPaymentPopup(true);
             }}
           >
-            Add New Card
-          </div>
-        </button>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+                color: "#7902DF",
+                textDecorationLine: "underline",
+              }}
+            >
+              Add New Card
+            </div>
+          </button>
+          )}
       </div>
 
       <div className="w-full">
@@ -886,7 +912,7 @@ function SubAccountBilling() {
                     {item.planDescription}
                   </div>
                   <div className="flex flex-row items-center">
-                   
+
                     <div className="flex flex-row justify-start items-start ">
                       <div style={styles.discountedPrice}>
                         ${item.originalPrice}
@@ -900,7 +926,7 @@ function SubAccountBilling() {
           </div>
         </button>
       ))}
-      
+
       {userLocalData?.plan && (
         <div className="w-full">
           <div className="w-full">
@@ -1461,7 +1487,7 @@ function SubAccountBilling() {
                       className="flex flex-row items-center gap-2"
                     >
                       <div
-                        
+
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
@@ -1536,17 +1562,17 @@ function SubAccountBilling() {
                         fontSize: 16.8,
                         outline: "none",
                         backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                        ? "#7902df"
-                        : "#00000050",
+                          ? "#7902df"
+                          : "#00000050",
                         color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                        ? "#ffffff"
-                        : "#000000",
+                          ? "#ffffff"
+                          : "#000000",
                       }}
                       onClick={() => {
                         handleDelReason();
                       }}
-                      disabled={! selectReason && (selectReason !== "Others" || otherReasonInput)}
-                      >
+                      disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
+                    >
                       Continue
                     </button>
                   )}

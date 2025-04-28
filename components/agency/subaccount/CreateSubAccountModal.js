@@ -36,8 +36,8 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
         },
     ]
 
-     //array of user types
-     const userType = [
+    //array of user types
+    const userType = [
         {
             id: 1,
             title: "Real Estate Agent",
@@ -166,7 +166,7 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
     const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
 
-    const [showErrorSnack,setShowErrorSnack] = useState(null)
+    const [showErrorSnack, setShowErrorSnack] = useState(null)
 
     //selected usertype
     const [selectedUserType, setSelectedUserType] = useState(null);
@@ -175,10 +175,10 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
 
     const [teamMembers, setTeamMembers] = useState([defaultMembers]);
-    
 
-    useEffect(()=>{
-        const resetValues = () =>{
+
+    useEffect(() => {
+        const resetValues = () => {
             setSubAccountName("")
             setUserEmail("")
             setUserPhoneNumber("")
@@ -186,13 +186,13 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
             setTeamMembers(defaultMembers)
             setErrorMessage("")
             setValidEmail("")
-            
+
         }
 
         resetValues()
-    },[isOpen])
+    }, [isOpen])
 
-   
+
 
     //just for adding loader on member email check api
     // const [memberEmailLoader, setMemberEMailLoader] = useState(false);
@@ -435,26 +435,26 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
     };
 
 
-    const handleContinue = () =>{
+    const handleContinue = () => {
 
         console.log('selectedtype', selectedUserType)
 
         // return
 
-        if(!subAccountName){
+        if (!subAccountName) {
             setShowErrorSnack("Enter SubAccount Name")
             return
         }
 
-        if(!userEmail){
+        if (!userEmail) {
             setShowErrorSnack("Enter SubAccount Email")
             return
         }
-        if(!userPhoneNumber){
+        if (!userPhoneNumber) {
             setShowErrorSnack("Enter SubAccount Phone Number")
             return
         }
-        if(!selectedUserType){
+        if (!selectedUserType) {
             setShowErrorSnack("Select SubAccount Agent Type")
             return
         }
@@ -496,12 +496,12 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
                         msOverflowStyle: 'none',
                     }}>
 
-                        <AgentSelectSnackMessage 
-                            isVisible={showErrorSnack != null ? true : false}
-                            hide={()=>setShowErrorSnack(null)}
-                            type={SnackbarTypes.Error} message={showErrorSnack}
-                        
-                        />
+                    <AgentSelectSnackMessage
+                        isVisible={showErrorSnack != null ? true : false}
+                        hide={() => setShowErrorSnack(null)}
+                        type={SnackbarTypes.Error} message={showErrorSnack}
+
+                    />
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create SubAccount</h2>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
@@ -510,7 +510,7 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
                     </div>
 
                     <label style={styles.headings}>
-                        Sub Account Name
+                        Account Name
                     </label>
                     <input
                         type="text"
@@ -523,7 +523,7 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
                     <div className="flex flex-row items-center w-full justify-between">
                         <label style={styles.headings}>
-                            Enter your email
+                            Account Email
                         </label>
                         <div>
                             {emailLoader ? (
@@ -600,7 +600,7 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
                     <div className='flex flex-row items-center justify-between'>
                         <label style={styles.headings}>
-                            Enter your phone
+                            Account Phone Number
                         </label>
                         <div className='mt-2'>
                             {locationLoader && (
@@ -842,20 +842,22 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
                             ))}
                         </div>
 
-                        <button
-                            onClick={handleAddMember}
-                            className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
-                        >
-                            New Member
-                        </button>
+                        <div className='w-full flex flex-row items-center justify-end pe-4'>
+                            <button
+                                onClick={handleAddMember}
+                                className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
+                            >
+                                New Member
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div className="flex justify-between">
                     <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
                     <button
-                        className="bg-purple w-1/2 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
-                        onClick={() => {handleContinue()}}
+                        className="bg-purple w-1/3 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
+                        onClick={() => { handleContinue() }}
                     >
                         Continue
                     </button>

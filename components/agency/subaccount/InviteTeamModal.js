@@ -12,11 +12,13 @@ import { checkPhoneNumber } from '@/components/onboarding/services/apisServices/
 
 const InviteTeamModal = ({
     openInvitePopup,
-    handleCloseInviteTeam
+    handleCloseInviteTeam,
+    userID
 }) => {
 
     const timerRef = useRef(null);
     const router = useRouter();
+
 
     // const [openInvitePopup, setOpenInvitePopup] = useState(false);
     const [name, setName] = useState("");
@@ -165,6 +167,7 @@ const InviteTeamModal = ({
                     name: item.name,
                     email: item.email,
                     phone: item.phone,
+                    userId: userID
                 };
 
                 console.log("Api data is", apidata);
@@ -179,28 +182,16 @@ const InviteTeamModal = ({
                     setInviteTeamLoader(false);
                     console.log("Response of api is", response.data);
                     if (response.data.status === true) {
-                        let newMember = response.data.data;
+                        // let newMember = response.data.data;
                         console.log("Should say no ");
                         // //console.log;
-                        setMyTeam((prev) => {
-                            // //console.log;
-                            // //console.log;
-                            const isAlreadyPresent = prev.some(
-                                (member) => member.id === newMember.id
-                            ); // Check by unique ID
-                            // //console.log;
-                            if (isAlreadyPresent) {
-                                // //console.log;
-                                return prev;
-                            }
-                            return [...prev, newMember];
-                        });
+                        console.log("Should say no 23");
                         setShowSnak(true);
                         // setSnackTitle("Team invite sent successfully");
                         setName("");
                         setEmail("");
                         setPhone("");
-                        handleCloseInviteTeam();
+                        handleCloseInviteTeam("showSnack");
                         // getMyteam()
                     } else {
                         // //console.log;

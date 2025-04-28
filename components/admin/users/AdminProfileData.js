@@ -8,6 +8,7 @@ import AdminBilling from "./AdminProfileData/AdminBilling";
 import AdminPhoneNumber from "./AdminProfileData/AdminPhoneNumber";
 import AdminXbarServices from "./AdminProfileData/AdminXbarServices";
 import AdminSendFeedback from "./AdminSendFeedback";
+import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAccountBilling";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -61,7 +62,18 @@ function AdminProfileData({ selectedUser, from }) {
             case 1:
                 return <AdminBasicInfo selectedUser={selectedUser} />;
             case 2:
-                return <AdminBilling selectedUser={selectedUser} />;
+                // return <AdminBilling selectedUser={selectedUser} from={from} />;
+                return (
+                    <div>
+                        {
+                            from === "subaccount" ? (
+                                <SubAccountBilling hideBtns={true} selectedUser={selectedUser} />
+                            ) : (
+                                <AdminBilling selectedUser={selectedUser} from={from} />
+                            )
+                        }
+                    </div>
+                );
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 4:
