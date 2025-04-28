@@ -18,6 +18,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
+import { convertSecondsToMinDuration } from "@/utilities/utility";
 
 const Page = () => {
   const router = useRouter();
@@ -191,21 +192,6 @@ const Page = () => {
     getDashboardData(event.target.value);
   };
 
-  //formating time
-  // utils/convertTime.js
-  function convertTime(seconds) {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-
-    // If remaining seconds are zero, return only minutes
-    if (remainingSeconds === 0) {
-      return `${minutes} Min`;
-    }
-
-    // Otherwise, return minutes and seconds
-    return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
-  }
-
   const backgroundImage = {
     backgroundImage: 'url("/otherAssets/bg23.png")',
     backgroundSize: "cover",
@@ -356,8 +342,8 @@ const Page = () => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                              ? 50
-                              : 75,
+                            ? 50
+                            : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -503,7 +489,7 @@ const Page = () => {
                               color: "#fff",
                             }}
                           >
-                            {convertTime(
+                            {convertSecondsToMinDuration(
                               userDetails?.totalSecondsAvailable || 0
                             )}
                           </div>
@@ -559,8 +545,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -575,8 +561,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -599,8 +585,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                            2
-                          )}%`
+                              2
+                            )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -645,10 +631,10 @@ const Page = () => {
                         setAIWebinarhover(false);
                       }}
                       onClick={() => {
-
                         if (typeof window !== "undefined") {
-                          let url = userDetails?.campaignee ? userDetails?.campaignee.officeHoursUrl :
-                            PersistanceKeys.GlobalWebinarUrl
+                          let url = userDetails?.campaignee
+                            ? userDetails?.campaignee.officeHoursUrl
+                            : PersistanceKeys.GlobalWebinarUrl;
                           //console.log
                           window.open(url, "_blank");
                         }

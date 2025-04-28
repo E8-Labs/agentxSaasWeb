@@ -74,3 +74,18 @@ export function GetFormattedTimeString(dateString) {
     return dateString; // Return the original string if error occurs
   }
 }
+
+//formating time
+// utils/convertTime.js
+export function convertSecondsToMinDuration(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  // If remaining seconds are zero, return only minutes
+  if (remainingSeconds === 0) {
+    return `${minutes} Min`;
+  }
+
+  // Otherwise, return minutes and seconds
+  return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
+}
