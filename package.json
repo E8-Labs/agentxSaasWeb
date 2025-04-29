@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' next build"
   },
   "dependencies": {
     "@date-io/dayjs": "^3.2.0",
