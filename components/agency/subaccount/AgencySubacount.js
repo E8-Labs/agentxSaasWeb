@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import moment from "moment";
 import Image from "next/image";
-import CreateSubAccountModal from "./CreateSubAccountModal";
 import Apis from "@/components/apis/Apis";
 import { AuthToken } from "../plan/AuthDetails";
 import axios from "axios";
@@ -14,6 +13,9 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { convertSecondsToMinDuration } from "@/utilities/utility";
+import { getMonthlyPlan, getXBarOptions } from "./GetPlansList";
+import SlideModal from "./SlideModal";
+import CreateSubAccountModal from "./CreateSubAccountModal";
 
 function AgencySubacount() {
   const [subAccountList, setSubAccountsList] = useState([]);
@@ -29,6 +31,7 @@ function AgencySubacount() {
   const [delLoader, setDelLoader] = useState(false);
   const [pauseLoader, setpauseLoader] = useState(false);
   const [showSnackMessage, setShowSnackMessage] = useState(null);
+  const [showSnackType, setShowSnackType] = useState(SnackbarTypes.Success);
 
   useEffect(() => {
     getLocalData();
@@ -46,11 +49,27 @@ function AgencySubacount() {
     }
   };
 
-  //code to close inviteteam modal
-  const handleCloseInviteTeam = () => {
-    console.log("I am trigered to close invite team");
-    setOpenInvitePopup(false);
-  };
+  //code to check plans before creating subaccount
+  const handleCheckPlans = async () => {
+    try {
+      const monthlyPlans = await getMonthlyPlan();
+      const xBarOptions = await getXBarOptions();
+
+      if (monthlyPlans.length > 0 && xBarOptions.length > 0) {
+        setShowModal(true);
+      } else {
+        setShowSnackType(SnackbarTypes.Error);
+        if (monthlyPlans.length === 0) {
+          setShowSnackMessage("You'll need to add plans to create subaccounts ");
+        } else if (xBarOptions.length === 0) {
+          setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+        }
+      }
+
+    } catch (error) {
+      console.error("Error occured in api is", error);
+    }
+  }
 
   //code to close subaccount details modal
   const handleCloseModal = () => {
@@ -159,7 +178,7 @@ function AgencySubacount() {
         hide={() => {
           setShowSnackMessage(null);
         }}
-        type={SnackbarTypes.Success}
+        type={showSnackType}
         message={showSnackMessage}
       />
 
@@ -201,7 +220,7 @@ function AgencySubacount() {
           <button
             className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium"
             onClick={() => {
-              setShowModal(true);
+              handleCheckPlans();
             }}
           >
             Create Subaccount
@@ -422,6 +441,37 @@ function AgencySubacount() {
             handleCloseModal();
           }}
         />
+
+        {/* Test code */}
+
+        <Modal
+          open={false}
+          onClose={() => {
+            setShowModal(false);
+          }}
+          BackdropProps={{
+            timeout: 200,
+            sx: {
+              backgroundColor: "#00000020",
+              zIndex: 1200, // Keep backdrop below Drawer
+            },
+          }}
+          sx={{
+            zIndex: 1300, // Keep Modal below the Drawer
+          }}
+        >
+          <Box
+            className="w-11/12 p-8 rounded-[15px]"
+            sx={{
+              ...styles.modalsStyle,
+              // backgroundColor: "white",
+              position: "relative",
+              zIndex: 1301, // Keep modal content above its backdrop
+            }}
+          >
+            <SlideModal />
+          </Box>
+        </Modal>
 
         {/* Code for subaccount modal */}
         <Modal

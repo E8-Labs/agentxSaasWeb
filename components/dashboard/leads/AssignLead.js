@@ -29,6 +29,8 @@ import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
 import DncConfirmationPopup from "./DncConfirmationPopup";
 import Tooltip from "@mui/material/Tooltip";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -64,6 +66,11 @@ const AssignLead = ({
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
 
+  //smart refill
+  const [showSmartRefillPopUp, setShowSmartRefillPopUp] = useState(false);
+  const [smartRefillLoader, setSmartRefillLoader] = useState(false);
+  const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
+
   const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
 
   //new code by salman
@@ -82,15 +89,6 @@ const AssignLead = ({
       }, SelectAgentErrorTimeout);
     }
   }, [errorMessage]);
-
-  // useEffect(() => {
-  //     let NewList = [];
-  //     item.agents.forEach((agent) => {
-  //         if (agent.agentType !== "inbound") {
-  //             NewList.push(agent);
-  //         }
-  //     });
-  // })
 
   useEffect(() => {
     if (SelectedAgents.length === 0) {
@@ -436,10 +434,38 @@ const AssignLead = ({
       }
     } catch (error) {
       // console.error("Error occured in api is", error);
+      setSmartRefillLoader(false);
+      setSmartRefillLoaderLater(false);
     } finally {
       setLoader(false);
+      setSmartRefillLoader(false);
+      setSmartRefillLoaderLater(false);
     }
   };
+
+  //code for update profile for smartrefill
+  const handleSmartRefill = async () => {
+    try {
+      setSmartRefillLoader(true);
+      const response = await SmartRefillApi();
+      if (response.data.status === true) {
+        handleAssignLead();
+      }
+    } catch (error) {
+      setSmartRefillLoader(false);
+      console.error("Error occured is", error);
+    }
+  }
+
+  const handleSmartRefillLater = async () => {
+    try {
+      setSmartRefillLoaderLater(true);
+      handleAssignLead();
+    } catch (error) {
+      setSmartRefillLoaderLater(false);
+      console.error("Error occured is", error);
+    }
+  }
 
   //code for date picker
 
@@ -722,6 +748,75 @@ const AssignLead = ({
 
       {/* last step modal */}
       <Modal
+        open={showSmartRefillPopUp}
+        // onClose={() => setShowSmartRefillPopUp(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(5px)",
+          },
+        }}>
+        <Box
+          className="lg:w-6/12 sm:w-7/12 w-8/12"
+          sx={styles.modalsStyle}
+        >
+          <div className="bg-[#ffffff] px-8 py-6 rounded-xl">
+            <div className="flex flex-row items-center justify-between">
+              <div style={{
+                fontSize: "17px",
+                fontWeight: "600"
+              }}>
+                Smart Refill
+              </div>
+              <button className="text-xl font-semibold"
+                onClick={() => { setShowSmartRefillPopUp(false) }}>
+                <Image src={"/assets/cross.png"} alt="*" height={10} width={10} />
+              </button>
+            </div>
+            <div className="mt-8" style={{
+              fontSize: "22px",
+              fontWeight: "600"
+            }}>
+              Turn on Smart Refill
+            </div>
+            <div className="mt-6" style={{
+              fontSize: "15px",
+              fontWeight: "500"
+            }}>
+              To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.
+            </div>
+            <div className="w-full flex flex-row items-center mt-6">
+              {
+                smartRefillLoaderLater ? (
+                  <div className="w-1/2 flex flex-row items-center justify-center">
+                    <CircularProgress size={35} />
+                  </div>
+                ) : (
+                  <button className="w-1/2 outline-none border-none"
+                    onClick={() => { handleSmartRefillLater(); }}>
+                    Maybe later
+                  </button>
+                )
+              }
+
+              {
+                smartRefillLoader ? (
+                  <div className="w-1/2 flex flex-row items-center justify-center">
+                    <CircularProgress size={35} />
+                  </div>
+                ) : (
+                  <button className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
+                    onClick={() => { handleSmartRefill() }}>
+                    Turn On
+                  </button>
+                )}
+            </div>
+          </div>
+        </Box>
+      </Modal>
+      <Modal
         open={lastStepModal}
         onClose={() => setLastStepModal(false)}
         closeAfterTransition
@@ -747,12 +842,14 @@ const AssignLead = ({
             <AgentSelectSnackMessage
               className=""
               message={showSuccessSnack}
-              isVisible={showSuccessSnack === null ? false :true}
+              isVisible={showSuccessSnack === null ? false : true}
               hide={() => {
                 setShowSuccessSnack(null);
               }}
               type={SnackbarTypes.Success}
             />
+
+
             <div
               className="w-full"
               style={{
@@ -872,8 +969,8 @@ const AssignLead = ({
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
                     border: `${isFocustedCustomLeads
-                        ? "2px solid #7902Df"
-                        : "1px solid #00000040"
+                      ? "2px solid #7902Df"
+                      : "1px solid #00000040"
                       }`,
                     height: "50px",
                   }}
@@ -970,19 +1067,19 @@ const AssignLead = ({
                     <div style={styles.title}>Schedule Call</div>
                   </button>
                   {/* <div>
-                                        {
-                                            showFromDatePicker && (
-                                                <div>
-                                                    <Calendar
-                                                        onChange={handleFromDateChange}
-                                                        value={selectedFromDate}
-                                                        locale="en-US"
-                                                        onClose={() => { setShowFromDatePicker(false) }}
-                                                    />
-                                                </div>
-                                            )
-                                        }
-                                    </div> */}
+                                          {
+                                              showFromDatePicker && (
+                                                  <div>
+                                                      <Calendar
+                                                          onChange={handleFromDateChange}
+                                                          value={selectedFromDate}
+                                                          locale="en-US"
+                                                          onClose={() => { setShowFromDatePicker(false) }}
+                                                      />
+                                                  </div>
+                                              )
+                                          }
+                                      </div> */}
 
                   <Modal
                     // open={showFromDatePicker}
@@ -1011,11 +1108,11 @@ const AssignLead = ({
                         >
                           <div>
                             {/* <Calendar
-                                                            onChange={handleFromDateChange}
-                                                            value={selectedFromDate}
-                                                            locale="en-US"
-                                                            onClose={() => { setShowFromDatePicker(false) }}
-                                                        /> */}
+                                                              onChange={handleFromDateChange}
+                                                              value={selectedFromDate}
+                                                              locale="en-US"
+                                                              onClose={() => { setShowFromDatePicker(false) }}
+                                                          /> */}
                             <div className="text-center text-xl font-bold">
                               Select date and time to shedule call
                             </div>
@@ -1124,7 +1221,8 @@ const AssignLead = ({
                     </Box>
                   </Modal>
 
-                  {/*  */}
+
+
                 </div>
               </div>
 
@@ -1239,6 +1337,15 @@ const AssignLead = ({
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
+                        const localData = localStorage.getItem("User");
+                        if (localData) {
+                          const UserDetails = JSON.parse(localData);
+                          console.log(UserDetails.user.smartRefill);
+                          if (UserDetails.user.smartRefill === false) {
+                            setShowSmartRefillPopUp(true);
+                            return
+                          }
+                        }
                         handleAssignLead();
                         // handleAssigLead()
                       }}
@@ -1257,10 +1364,10 @@ const AssignLead = ({
               )}
 
               {/* <div className='mt-4 w-full'>
-                                <button className="text-white bg-purple rounded-xl w-full h-[50px]" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
-                                    Continue
-                                </button>
-                            </div> */}
+                                  <button className="text-white bg-purple rounded-xl w-full h-[50px]" style={styles.heading} onClick={() => { setLastStepModal(false) }}>
+                                      Continue
+                                  </button>
+                              </div> */}
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
@@ -1268,7 +1375,9 @@ const AssignLead = ({
           </div>
         </Box>
       </Modal>
-    </div>
+
+
+    </div >
   );
 };
 

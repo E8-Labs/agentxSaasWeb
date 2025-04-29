@@ -20,6 +20,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
+import { SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -33,6 +34,7 @@ function Billing() {
 
   //userlocal data
   const [userLocalData, setUserLocalData] = useState(null);
+  const [userDataLoader, setUserDataLoader] = useState(false);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
   const [redeemLoader, setRedeemLoader] = useState(false);
@@ -151,10 +153,12 @@ function Billing() {
 
   const getProfile = async () => {
     try {
+      setUserDataLoader(true);
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
       //console.log;
       if (response) {
+        setUserDataLoader(false);
         let plan = response?.data?.data?.plan;
         let togglePlan = plan?.type;
         let planType = null;
@@ -170,12 +174,13 @@ function Billing() {
           }
         }
         setUserLocalData(response?.data?.data);
-        // //console.log;
+        // console.log("User get profile data is", response?.data?.data);
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
+      setUserDataLoader(false);
     }
   };
 
@@ -635,6 +640,27 @@ function Billing() {
       }
   };
 
+
+  //function to update profile
+  const handleUpdateProfile = async () => {
+    try {
+      setUserDataLoader(true);
+      const response = await SmartRefillApi();
+      if (response) {
+        setUserDataLoader(false);
+        console.log("Response of update profile api is", response);
+        if (response.data.status === true) {
+          setSuccessSnack(response.data.message);
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+      setUserDataLoader(false);
+    }
+  }
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
@@ -818,6 +844,57 @@ function Billing() {
             )}
           </div>
         )}
+      </div>
+
+      {/* Code for  */}
+
+      <div className="w-9/12 flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
+        {
+          userDataLoader ? (
+            <CircularProgress size={20} />
+          ) : (
+            <div>
+              {
+                userLocalData?.smartRefill === true ? (
+                  <Image
+                    alt="*"
+                    src={"/assets/checkDone.png"}
+                    width={20}
+                    height={20}
+                  />
+                ) : (
+                  <button
+                    onClick={() => {
+                      handleUpdateProfile();
+                    }}
+                  >
+                    <Image
+                      className="rounded-full"
+                      alt="*"
+                      src={"/agencyIcons/unCheck.jpg"}
+                      width={20}
+                      height={20}
+                    />
+                  </button>
+                )
+              }
+            </div>
+          )
+        }
+        <div
+          className="ms-4 w-2/12"
+          style={{
+            fontWeight: "700",
+            fontSize: "15px"
+          }}>
+          Smart Refill
+        </div>
+        <div className="w-8/12 ms-2" style={{
+          fontWeight: "500",
+          fontSize: "15px"
+        }}>
+          Refill your AI mins when they run low. Keeps your calls going without interruption.
+        </div>
       </div>
 
       {/* code for current plans available */}
@@ -1537,7 +1614,7 @@ function Billing() {
                       className="flex flex-row items-center gap-2"
                     >
                       <div
-                        
+
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
@@ -1612,17 +1689,17 @@ function Billing() {
                         fontSize: 16.8,
                         outline: "none",
                         backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                        ? "#7902df"
-                        : "#00000050",
+                          ? "#7902df"
+                          : "#00000050",
                         color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                        ? "#ffffff"
-                        : "#000000",
+                          ? "#ffffff"
+                          : "#000000",
                       }}
                       onClick={() => {
                         handleDelReason();
                       }}
-                      disabled={! selectReason && (selectReason !== "Others" || otherReasonInput)}
-                      >
+                      disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
+                    >
                       Continue
                     </button>
                   )}

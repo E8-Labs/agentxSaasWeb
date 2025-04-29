@@ -23,7 +23,7 @@ function AgencyMyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(5);
+  const [tabSelected, setTabSelected] = useState(1);
 
   const manuBar = [
     {
@@ -39,24 +39,24 @@ function AgencyMyAccount() {
       icon: "/otherAssets/walletIcon.png",
     },
     
-    {
-      id: 3,
-      heading: "Support",
-      subHeading: "Get in touch with our team and get help",
-      icon: "/otherAssets/headPhoneIcon.png",
-    },
-    {
-      id: 4,
-      heading: "Send Feedback",
-      subHeading: "Report bugs, new features and more",
-      icon: "/otherAssets/feedbackIcon.png",
-    },
-    {
-      id: 5,
-      heading: "Invite Agents",
-      subHeading: "Get 60 minutes ",
-      icon: "/otherAssets/inviteAgentIcon.png",
-    },
+    // {
+    //   id: 3,
+    //   heading: "Support",
+    //   subHeading: "Get in touch with our team and get help",
+    //   icon: "/otherAssets/headPhoneIcon.png",
+    // },
+    // {
+    //   id: 4,
+    //   heading: "Send Feedback",
+    //   subHeading: "Report bugs, new features and more",
+    //   icon: "/otherAssets/feedbackIcon.png",
+    // },
+    // {
+    //   id: 5,
+    //   heading: "Invite Agents",
+    //   subHeading: "Get 60 minutes ",
+    //   icon: "/otherAssets/inviteAgentIcon.png",
+    // },
     // {
     //   id: 6,
     //   heading: "Bar Plans",
@@ -70,7 +70,8 @@ function AgencyMyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 5;
+    console.log("Value of tab is", tab);
+    let number = Number(tab) || 1;
     // //console.log;
     setTabSelected(number);
     if (!tab) {

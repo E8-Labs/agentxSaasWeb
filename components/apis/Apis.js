@@ -3,8 +3,8 @@
 // //console.log;
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://www.blindcircle.com/agentx/"
-    : "https://www.blindcircle.com/agentxtest/";
+    ? "https://api.myagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
+    : "https://api.myagentx.com/agentxtest/"//"https://www.blindcircle.com/agentxtest/";
 
 //// console.log(
 //   "Current environment is",

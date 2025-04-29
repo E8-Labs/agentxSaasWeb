@@ -85,7 +85,7 @@ const CheckList = ({ userDetails }) => {
                                     <div className='flex flex-row items-center gap-4'>
                                         {item.status === true ? <Image
                                             className='ms-2'
-                                            src={"/agencyIcons/check.jpg"}
+                                            src={"/agencyIcons/Check.jpg"}
                                             alt='*'
                                             height={20}
                                             width={20}
