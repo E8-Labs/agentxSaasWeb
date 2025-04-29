@@ -20,7 +20,7 @@ import Apis from "@/components/apis/Apis";
 const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || "";
 const getVoiceName = (voiceId) => FindVoice(voiceId)?.name || "Unknown Voice";
 
-export default function UsersWithCalender({ open, onClose, user }) {
+export default function UsersWithCalender({ open, onClose, user ,from}) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -107,6 +107,9 @@ export default function UsersWithCalender({ open, onClose, user }) {
                 if (user.id) {
                   // Open a new tab with user ID as query param
                   let url = ` admin/users?userId=${user.id}`
+                  if (from === "agency"){
+                    url = `/agency/users?userId=${user.id}`
+                  }
                   //console.log
                   window.open(url, "_blank");
                 }

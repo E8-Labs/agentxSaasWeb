@@ -107,6 +107,9 @@ export default function UsersWithUniqueNumbers({ open, onClose, user }) {
                 if (user.id) {
                   // Open a new tab with user ID as query param
                   let url = ` admin/users?userId=${user.id}`
+                  if (from === "agency"){
+                    url = `/agency/users?userId=${user.id}`
+                  }
                   //console.log
                   window.open(url, "_blank");
                 }
