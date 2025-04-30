@@ -9,6 +9,7 @@ import {
   Fade,
   Modal,
   Snackbar,
+  Switch,
   TextField,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
@@ -20,7 +21,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
-import { SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
+import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -63,10 +64,11 @@ function Billing() {
   //variables for cancel plan
   const [giftPopup, setGiftPopup] = useState(false);
   const [ScreenWidth, setScreenWidth] = useState(null);
-  const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] =
-    useState(false);
-  const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
-    useState(false);
+  const [showConfirmCancelPlanPopup, setShowConfirmCancelPlanPopup] = useState(false);
+  const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] = useState(false);
+
+  //smart refill variables
+  const [allowSmartRefill, setAllowSmartRefill] = useState(false);
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -146,6 +148,12 @@ function Billing() {
   ];
 
   useEffect(() => {
+    const d = localStorage.getItem("User");
+    if (d) {
+      const Data = JSON.parse(d);
+      console.log("Smart refill is", Data.user.smartRefill);
+      setAllowSmartRefill(Data.user.smartRefill);
+    }
     getProfile();
     getPaymentHistory();
     getCardsList();
@@ -153,12 +161,10 @@ function Billing() {
 
   const getProfile = async () => {
     try {
-      setUserDataLoader(true);
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
       //console.log;
       if (response) {
-        setUserDataLoader(false);
         let plan = response?.data?.data?.plan;
         let togglePlan = plan?.type;
         let planType = null;
@@ -180,7 +186,6 @@ function Billing() {
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
-      setUserDataLoader(false);
     }
   };
 
@@ -651,6 +656,28 @@ function Billing() {
         console.log("Response of update profile api is", response);
         if (response.data.status === true) {
           setSuccessSnack(response.data.message);
+          setAllowSmartRefill(true);
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+      setUserDataLoader(false);
+    }
+  }
+
+  //function to remove smart refill
+  const handleRemoveSmartRefill = async () => {
+    try {
+      setUserDataLoader(true);
+      const response = await RemoveSmartRefillApi();
+      if (response) {
+        setUserDataLoader(false);
+        console.log("Response of remove smart refill api is", response);
+        if (response.data.status === true) {
+          setSuccessSnack(response.data.message);
+          setAllowSmartRefill(false);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message)
         }
@@ -854,7 +881,7 @@ function Billing() {
             <CircularProgress size={20} />
           ) : (
             <div>
-              {
+              {/*
                 userLocalData?.smartRefill === true ? (
                   <Image
                     alt="*"
@@ -877,7 +904,26 @@ function Billing() {
                     />
                   </button>
                 )
-              }
+              */}
+              <Switch
+                checked={allowSmartRefill}
+                onChange={() => {
+                  if (allowSmartRefill === true) {
+                    handleRemoveSmartRefill();
+                  } else if (allowSmartRefill === false) {
+                    handleUpdateProfile();
+                  }
+                }}
+                // sx={{
+                //   '& .MuiSwitch-switchBase.Mui-checked': {
+                //     color: 'white',
+                //   },
+                //   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                //     backgroundColor: '#7902DF',
+                //   },
+                // }}
+              />
+
             </div>
           )
         }
