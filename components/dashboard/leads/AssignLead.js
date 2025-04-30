@@ -33,6 +33,7 @@ import DncConfirmationPopup from "./DncConfirmationPopup";
 import Tooltip from "@mui/material/Tooltip";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import AllowSmartRefillPopup from "./AllowSmartRefillPopup";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -749,95 +750,18 @@ const AssignLead = ({
       </div>
 
       {/* last step modal */}
-      <Modal
-        open={showSmartRefillPopUp}
-        // onClose={() => setShowSmartRefillPopUp(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(5px)",
-          },
-        }}
-      >
-        <Box className="lg:w-6/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
-          <div className="bg-[#ffffff] px-8 py-6 rounded-xl">
-            <div className="flex flex-row items-center justify-between">
-              <div
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "600",
-                }}
-              >
-                Smart Refill
-              </div>
-              <button
-                className="text-xl font-semibold"
-                onClick={() => {
-                  setShowSmartRefillPopUp(false);
-                }}
-              >
-                <Image
-                  src={"/assets/cross.png"}
-                  alt="*"
-                  height={10}
-                  width={10}
-                />
-              </button>
-            </div>
-            <div
-              className="mt-8"
-              style={{
-                fontSize: "22px",
-                fontWeight: "600",
-              }}
-            >
-              Turn on Smart Refill
-            </div>
-            <div
-              className="mt-6"
-              style={{
-                fontSize: "15px",
-                fontWeight: "500",
-              }}
-            >
-              {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.`}
-            </div>
-            <div className="w-full flex flex-row items-center mt-6">
-              {smartRefillLoaderLater ? (
-                <div className="w-1/2 flex flex-row items-center justify-center">
-                  <CircularProgress size={35} />
-                </div>
-              ) : (
-                <button
-                  className="w-1/2 outline-none border-none"
-                  onClick={() => {
-                    handleSmartRefillLater();
-                  }}
-                >
-                  Maybe later
-                </button>
-              )}
 
-              {smartRefillLoader ? (
-                <div className="w-1/2 flex flex-row items-center justify-center">
-                  <CircularProgress size={35} />
-                </div>
-              ) : (
-                <button
-                  className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
-                  onClick={() => {
-                    handleSmartRefill();
-                  }}
-                >
-                  Turn On
-                </button>
-              )}
-            </div>
-          </div>
-        </Box>
-      </Modal>
+      <AllowSmartRefillPopup
+        showSmartRefillPopUp={showSmartRefillPopUp}
+        handleCloseReillPopup={() => {
+          setShowSmartRefillPopUp(false);
+        }}
+        smartRefillLoader={smartRefillLoader}
+        smartRefillLoaderLater={smartRefillLoaderLater}
+        handleSmartRefillLater={handleSmartRefillLater}
+        handleSmartRefill={handleSmartRefill}
+      />
+
       <Modal
         open={lastStepModal}
         onClose={() => setLastStepModal(false)}
@@ -971,9 +895,9 @@ const AssignLead = ({
                           color: "#7902DF",
                         },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                          {
-                            backgroundColor: "#7902DF",
-                          },
+                        {
+                          backgroundColor: "#7902DF",
+                        },
                         margin: 0,
                       }}
                     />
@@ -989,11 +913,10 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
-                        ? "2px solid #7902Df"
-                        : "1px solid #00000040"
-                    }`,
+                    border: `${isFocustedCustomLeads
+                      ? "2px solid #7902Df"
+                      : "1px solid #00000040"
+                      }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -1177,14 +1100,14 @@ const AssignLead = ({
 
                                     // Time Selection List (Large Screen)
                                     "& .MuiPickersTimeClock-root .Mui-selected":
-                                      {
-                                        backgroundColor: "#7902DF !important", // Purple selected time
-                                        color: "white !important",
-                                      },
+                                    {
+                                      backgroundColor: "#7902DF !important", // Purple selected time
+                                      color: "white !important",
+                                    },
                                     "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
-                                      {
-                                        backgroundColor: "#a352df !important", // Lighter purple on hover
-                                      },
+                                    {
+                                      backgroundColor: "#a352df !important", // Lighter purple on hover
+                                    },
 
                                     // Time Picker List (Dropdown List)
                                     "& .MuiTimeClock-root .Mui-selected": {
@@ -1192,9 +1115,9 @@ const AssignLead = ({
                                       color: "white !important",
                                     },
                                     "& .MuiTimeClock-root .MuiButtonBase-root:hover":
-                                      {
-                                        backgroundColor: "#a352df !important",
-                                      },
+                                    {
+                                      backgroundColor: "#a352df !important",
+                                    },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
@@ -1300,9 +1223,9 @@ const AssignLead = ({
                             backgroundColor: "#a352df !important", // Lighter purple on hover
                           },
                           "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
-                            {
-                              color: "#333 !important", // Default color for unselected dates
-                            },
+                          {
+                            color: "#333 !important", // Default color for unselected dates
+                          },
                           "& .Mui-selected": {
                             backgroundColor: "#7902DF !important",
                             color: "#fff !important",
@@ -1357,8 +1280,8 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                    (CallNow ||
+                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {

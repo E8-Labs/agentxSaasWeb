@@ -233,7 +233,7 @@ function AdminSubscriptions() {
         //console.log;
         const response = await axios.get(path, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            "Authorization": "Bearer " + u.token,
             "Content-Type": "application/json",
           },
         });

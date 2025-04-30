@@ -43,8 +43,8 @@ export const getXBarOptions = async () => {
     try {
         // setInitialLoader(true);
         const localXbarPlans = localStorage.getItem("XBarOptions");
-        if ( false
-            // localXbarPlans
+        if ( 
+            localXbarPlans
         ) {
             const d = JSON.parse(localXbarPlans);
             console.log(d);

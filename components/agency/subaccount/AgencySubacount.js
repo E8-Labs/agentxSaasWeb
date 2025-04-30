@@ -433,45 +433,26 @@ function AgencySubacount() {
           </div>
         )}
 
-        {/* Code for modals */}
+        {/* Code for modals
         <CreateSubAccountModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
           closeAll={() => {
             handleCloseModal();
           }}
-        />
+        /> */}
 
         {/* Test code */}
 
-        <Modal
-          open={false}
-          onClose={() => {
+
+        <SlideModal
+          showModal={showModal}
+          handleClose={() => {
+            getSubAccounts();
             setShowModal(false);
           }}
-          BackdropProps={{
-            timeout: 200,
-            sx: {
-              backgroundColor: "#00000020",
-              zIndex: 1200, // Keep backdrop below Drawer
-            },
-          }}
-          sx={{
-            zIndex: 1300, // Keep Modal below the Drawer
-          }}
-        >
-          <Box
-            className="w-11/12 p-8 rounded-[15px]"
-            sx={{
-              ...styles.modalsStyle,
-              // backgroundColor: "white",
-              position: "relative",
-              zIndex: 1301, // Keep modal content above its backdrop
-            }}
-          >
-            <SlideModal />
-          </Box>
-        </Modal>
+          // handleCloseModal={() => { handleCloseModal() }}
+        />
 
         {/* Code for subaccount modal */}
         <Modal

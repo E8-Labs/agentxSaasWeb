@@ -11,7 +11,7 @@ import SetPricing from './SetPricing';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
-export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
+export default function CreateSubAccountModal({ onClose, onContinue, formData }) {
 
     const timerRef = useRef(null);
 
@@ -188,9 +188,18 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
             setValidEmail("")
 
         }
-
-        resetValues()
-    }, [isOpen])
+        if (formData) {
+            setSubAccountName(formData.subAccountName);
+            setUserEmail(formData.userEmail);
+            setUserPhoneNumber(formData.userPhoneNumber);
+            setSelectedUserType(formData.selectedUserType);
+            setTeamMembers(formData.teamMembers);
+            setErrorMessage("")
+            setValidEmail("")
+        } else {
+            resetValues()
+        }
+    }, [])
 
 
 
@@ -441,25 +450,34 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
 
         // return
 
-        if (!subAccountName) {
-            setShowErrorSnack("Enter SubAccount Name")
-            return
+        // if (!subAccountName) {
+        //     setShowErrorSnack("Enter SubAccount Name")
+        //     return
+        // }
+
+        // if (!userEmail) {
+        //     setShowErrorSnack("Enter SubAccount Email")
+        //     return
+        // }
+        // if (!userPhoneNumber) {
+        //     setShowErrorSnack("Enter SubAccount Phone Number")
+        //     return
+        // }
+        // if (!selectedUserType) {
+        //     setShowErrorSnack("Select SubAccount Agent Type")
+        //     return
+        // }
+
+        const fromData = {
+            userEmail: userEmail,
+            userPhoneNumber: userPhoneNumber,
+            teamMembers: teamMembers,
+            subAccountName: subAccountName,
+            selectedUserType: selectedUserType
         }
 
-        if (!userEmail) {
-            setShowErrorSnack("Enter SubAccount Email")
-            return
-        }
-        if (!userPhoneNumber) {
-            setShowErrorSnack("Enter SubAccount Phone Number")
-            return
-        }
-        if (!selectedUserType) {
-            setShowErrorSnack("Select SubAccount Agent Type")
-            return
-        }
-
-        setOpenPricing(true)
+        // console.log(fromData);
+        onContinue(fromData)
 
 
     }
@@ -482,403 +500,380 @@ export default function CreateSubAccountModal({ isOpen, onClose, closeAll }) {
     }
 
     return (
-        <Modal
-            open={isOpen}
-        // onClose={onClose}
-        >
-            <Box
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 
-                -translate-y-1/2 w-full max-w-2xl bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 max-h-[90vh] flex flex-col">
+        <div>
 
-                <div className='overflow-y-auto h-[60%] scrollbar-hide'
+            <div className='overflow-y-auto h-[60%] scrollbar-hide'
+                style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                }}>
+
+                <AgentSelectSnackMessage
+                    isVisible={showErrorSnack != null ? true : false}
+                    hide={() => setShowErrorSnack(null)}
+                    type={SnackbarTypes.Error} message={showErrorSnack}
+
+                />
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create SubAccount</h2>
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
+                        &times;
+                    </button>
+                </div>
+
+                <label style={styles.headings}>
+                    Account Name
+                </label>
+                <input
+                    type="text"
+                    className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                    placeholder="Type here..."
+                    style={styles.inputs}
+                    value={subAccountName}
+                    onChange={(e) => { setSubAccountName(e.target.value) }}
+                />
+
+                <div className="flex flex-row items-center w-full justify-between">
+                    <label style={styles.headings}>
+                        Account Email
+                    </label>
+                    <div>
+                        {emailLoader ? (
+                            <p className='text-purple' style={{ ...styles.errmsg, }}>
+                                Checking ...
+                            </p>
+                        ) : (
+                            <div>
+                                {emailCheckResponse ? (
+                                    <p
+                                        style={{
+                                            ...styles.errmsg,
+                                            color:
+                                                emailCheckResponse.status === true
+                                                    ? "green"
+                                                    : "red",
+                                        }}
+                                    >
+                                        {emailCheckResponse?.message?.slice(0, 1)
+                                            .toUpperCase() +
+                                            emailCheckResponse?.message?.slice(1)}
+                                    </p>
+                                ) : (
+                                    <div />
+                                )}
+                            </div>
+                        )}
+                        <div style={{ ...styles.errmsg, color: "red" }}>
+                            {validEmail}
+                        </div>
+                    </div>
+                </div>
+
+                <input
+                    type="email"
+                    className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                    placeholder="Type here..."
+                    style={styles.inputs}
+                    value={userEmail}
+                    onChange={(e) => {
+                        let value = e.target.value;
+                        setUserEmail(value);
+
+                        if (timerRef.current) {
+                            clearTimeout(timerRef.current);
+                        }
+
+                        setEmailCheckResponse(null);
+
+                        if (!value) {
+                            // //console.log;
+                            setValidEmail("");
+                            return;
+                        }
+
+                        if (!validateEmail(value)) {
+                            // //console.log;
+                            setValidEmail("Invalid");
+                        } else {
+                            // //console.log;
+                            if (value) {
+                                // Set a new timeout
+                                timerRef.current = setTimeout(() => {
+                                    checkEmail(value);
+                                }, 300);
+                            } else {
+                                // Reset the response if input is cleared
+                                setEmailCheckResponse(null);
+                                setValidEmail("");
+                            }
+                        }
+                    }}
+                />
+
+                <div className='flex flex-row items-center justify-between'>
+                    <label style={styles.headings}>
+                        Account Phone Number
+                    </label>
+                    <div className='mt-2'>
+                        {locationLoader && (
+                            <p
+                                className="text-purple"
+                                style={{ ...styles.errmsg, height: "20px" }}
+                            >
+                                Getting location ...
+                            </p>
+                        )}
+                        {errorMessage ? (
+                            <p
+                                style={{
+                                    ...styles.errmsg,
+                                    color: errorMessage && "red",
+                                    height: "20px",
+                                }}
+                            >
+                                {errorMessage}
+                            </p>
+                        ) : (
+                            <div>
+                                {phoneNumberLoader ? (
+                                    <p
+                                        style={{
+                                            ...styles.errmsg,
+                                            color: "black",
+                                            height: "20px",
+                                        }}
+                                    >
+                                        Checking ...
+                                    </p>
+                                ) : (
+                                    <div>
+                                        {checkPhoneResponse ? (
+                                            <p
+                                                style={{
+                                                    ...styles.errmsg,
+                                                    color:
+                                                        checkPhoneResponse.status === true
+                                                            ? "green"
+                                                            : "red",
+                                                    height: "20px",
+                                                }}
+                                            >
+                                                {checkPhoneResponse?.message?.slice(0, 1)
+                                                    .toUpperCase() +
+                                                    checkPhoneResponse?.message?.slice(1)}
+                                            </p>
+                                        ) : (
+                                            <div />
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div style={{ marginTop: "8px" }}>
+                    <PhoneInput
+                        specialLabel=""
+                        className="border outline-none bg-white"
+                        country={countryCode} // Set the default country
+                        value={userPhoneNumber}
+                        onChange={handlePhoneNumberChange}
+                        placeholder={
+                            locationLoader
+                                ? "Loading location ..."
+                                : "Enter Phone Number"
+                        }
+                        disabled={loading} // Disable input if still loading
+                        style={{ borderRadius: "7px" }}
+                        inputStyle={{
+                            width: "100%",
+                            borderWidth: "0px",
+                            backgroundColor: "transparent",
+                            paddingLeft: "60px",
+                            paddingTop: "20px",
+                            paddingBottom: "20px",
+                        }}
+                        buttonStyle={{
+                            border: "none",
+                            backgroundColor: "transparent",
+                            // display: 'flex',
+                            // alignItems: 'center',
+                            // justifyContent: 'center',
+                        }}
+                        dropdownStyle={{
+                            maxHeight: "150px",
+                            overflowY: "auto",
+                        }}
+                        countryCodeEditable={true}
+                        defaultMask={loading ? "Loading..." : undefined}
+                    />
+                </div>
+
+                <div
+                    className='overflow-x-auto whitespace-nowrap mt-4 scrollbar-hide'
                     style={{
                         scrollbarWidth: 'none',
                         msOverflowStyle: 'none',
                     }}>
-
-                    <AgentSelectSnackMessage
-                        isVisible={showErrorSnack != null ? true : false}
-                        hide={() => setShowErrorSnack(null)}
-                        type={SnackbarTypes.Error} message={showErrorSnack}
-
-                    />
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create SubAccount</h2>
-                        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
-                            &times;
-                        </button>
-                    </div>
-
-                    <label style={styles.headings}>
-                        Account Name
-                    </label>
-                    <input
-                        type="text"
-                        className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                        placeholder="Type here..."
-                        style={styles.inputs}
-                        value={subAccountName}
-                        onChange={(e) => { setSubAccountName(e.target.value) }}
-                    />
-
-                    <div className="flex flex-row items-center w-full justify-between">
-                        <label style={styles.headings}>
-                            Account Email
-                        </label>
-                        <div>
-                            {emailLoader ? (
-                                <p className='text-purple' style={{ ...styles.errmsg, }}>
-                                    Checking ...
-                                </p>
-                            ) : (
-                                <div>
-                                    {emailCheckResponse ? (
-                                        <p
-                                            style={{
-                                                ...styles.errmsg,
-                                                color:
-                                                    emailCheckResponse.status === true
-                                                        ? "green"
-                                                        : "red",
-                                            }}
-                                        >
-                                            {emailCheckResponse?.message?.slice(0, 1)
-                                                .toUpperCase() +
-                                                emailCheckResponse?.message?.slice(1)}
-                                        </p>
-                                    ) : (
-                                        <div />
-                                    )}
-                                </div>
-                            )}
-                            <div style={{ ...styles.errmsg, color: "red" }}>
-                                {validEmail}
-                            </div>
-                        </div>
-                    </div>
-
-                    <input
-                        type="email"
-                        className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                        placeholder="Type here..."
-                        style={styles.inputs}
-                        value={userEmail}
-                        onChange={(e) => {
-                            let value = e.target.value;
-                            setUserEmail(value);
-
-                            if (timerRef.current) {
-                                clearTimeout(timerRef.current);
-                            }
-
-                            setEmailCheckResponse(null);
-
-                            if (!value) {
-                                // //console.log;
-                                setValidEmail("");
-                                return;
-                            }
-
-                            if (!validateEmail(value)) {
-                                // //console.log;
-                                setValidEmail("Invalid");
-                            } else {
-                                // //console.log;
-                                if (value) {
-                                    // Set a new timeout
-                                    timerRef.current = setTimeout(() => {
-                                        checkEmail(value);
-                                    }, 300);
-                                } else {
-                                    // Reset the response if input is cleared
-                                    setEmailCheckResponse(null);
-                                    setValidEmail("");
-                                }
-                            }
-                        }}
-                    />
-
-                    <div className='flex flex-row items-center justify-between'>
-                        <label style={styles.headings}>
-                            Account Phone Number
-                        </label>
-                        <div className='mt-2'>
-                            {locationLoader && (
-                                <p
-                                    className="text-purple"
-                                    style={{ ...styles.errmsg, height: "20px" }}
-                                >
-                                    Getting location ...
-                                </p>
-                            )}
-                            {errorMessage ? (
-                                <p
-                                    style={{
-                                        ...styles.errmsg,
-                                        color: errorMessage && "red",
-                                        height: "20px",
-                                    }}
-                                >
-                                    {errorMessage}
-                                </p>
-                            ) : (
-                                <div>
-                                    {phoneNumberLoader ? (
-                                        <p
-                                            style={{
-                                                ...styles.errmsg,
-                                                color: "black",
-                                                height: "20px",
-                                            }}
-                                        >
-                                            Checking ...
-                                        </p>
-                                    ) : (
-                                        <div>
-                                            {checkPhoneResponse ? (
-                                                <p
-                                                    style={{
-                                                        ...styles.errmsg,
-                                                        color:
-                                                            checkPhoneResponse.status === true
-                                                                ? "green"
-                                                                : "red",
-                                                        height: "20px",
-                                                    }}
-                                                >
-                                                    {checkPhoneResponse?.message?.slice(0, 1)
-                                                        .toUpperCase() +
-                                                        checkPhoneResponse?.message?.slice(1)}
-                                                </p>
-                                            ) : (
-                                                <div />
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div style={{ marginTop: "8px" }}>
-                        <PhoneInput
-                            specialLabel=""
-                            className="border outline-none bg-white"
-                            country={countryCode} // Set the default country
-                            value={userPhoneNumber}
-                            onChange={handlePhoneNumberChange}
-                            placeholder={
-                                locationLoader
-                                    ? "Loading location ..."
-                                    : "Enter Phone Number"
-                            }
-                            disabled={loading} // Disable input if still loading
-                            style={{ borderRadius: "7px" }}
-                            inputStyle={{
-                                width: "100%",
-                                borderWidth: "0px",
-                                backgroundColor: "transparent",
-                                paddingLeft: "60px",
-                                paddingTop: "20px",
-                                paddingBottom: "20px",
-                            }}
-                            buttonStyle={{
-                                border: "none",
-                                backgroundColor: "transparent",
-                                // display: 'flex',
-                                // alignItems: 'center',
-                                // justifyContent: 'center',
-                            }}
-                            dropdownStyle={{
-                                maxHeight: "150px",
-                                overflowY: "auto",
-                            }}
-                            countryCodeEditable={true}
-                            defaultMask={loading ? "Loading..." : undefined}
-                        />
-                    </div>
-
-                    <div
-                        className='overflow-x-auto whitespace-nowrap mt-4 scrollbar-hide'
-                        style={{
-                            scrollbarWidth: 'none',
-                            msOverflowStyle: 'none',
-                        }}>
-                        <div className="inline-flex gap-4">
-                            {userType.map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => setSelectedUserType(item.userType)}
-                                    className={`min-w-max bg-white text-black flex items-center gap-2 border rounded-md px-4 py-2 transition-all
+                    <div className="inline-flex gap-4">
+                        {userType.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => setSelectedUserType(item.userType)}
+                                className={`min-w-max bg-white text-black flex items-center gap-2 border rounded-md px-4 py-2 transition-all
           ${selectedUserType === item.userType
-                                            ? 'border-purple'
-                                            : 'border-purple10 hover:border-purple'}
+                                        ? 'border-purple'
+                                        : 'border-purple10 hover:border-purple'}
         `}
-                                >
-                                    <Image src={item.icon} alt='userType' height={30} width={30} />
-                                    <span className="whitespace-nowrap">{item.userType}</span>
-                                </button>
-                            ))}
+                            >
+                                <Image src={item.icon} alt='userType' height={30} width={30} />
+                                <span className="whitespace-nowrap">{item.userType}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+
+
+
+                <div className="mb-4">
+                    <p
+                        className="mb-2 mt-4"
+                        style={styles.headings}
+                    >
+                        Invite Team Members
+                    </p>
+                    <div className='flex fex-row ites-center w-full mb-2'>
+                        <div className="w-4/12"
+                            style={styles.inputs}>
+                            Full Name
+                        </div>
+                        <div className="w-4/12"
+                            style={styles.inputs}>
+                            Email Address
+                        </div>
+                        <div className="w-4/12"
+                            style={styles.inputs}>
+                            Phone Number
                         </div>
                     </div>
+                    <div className="max-h-60 overflow-y-auto pr-2 space-y-4">
+                        {teamMembers.map((member, index) => (
+                            <div
+                                key={index}
+                                className="gap-4 flex flex-row items-center"
+                            // relative grid grid-cols-1 md:grid-cols-3
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Type here..."
+                                    className="px-3 py-2 border border-gray-300 rounded-lg w-4/12 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                    value={member.name}
+                                    onChange={(e) => handleChange(index, 'name', e.target.value)}
+                                    style={styles.inputs}
+                                />
 
-
-
-
-                    <div className="mb-4">
-                        <p
-                            className="mb-2 mt-4"
-                            style={styles.headings}
-                        >
-                            Invite Team Members
-                        </p>
-                        <div className='flex fex-row ites-center w-full mb-2'>
-                            <div className="w-4/12"
-                                style={styles.inputs}>
-                                Full Name
-                            </div>
-                            <div className="w-4/12"
-                                style={styles.inputs}>
-                                Email Address
-                            </div>
-                            <div className="w-4/12"
-                                style={styles.inputs}>
-                                Phone Number
-                            </div>
-                        </div>
-                        <div className="max-h-60 overflow-y-auto pr-2 space-y-4">
-                            {teamMembers.map((member, index) => (
-                                <div
-                                    key={index}
-                                    className="gap-4 flex flex-row items-center"
-                                // relative grid grid-cols-1 md:grid-cols-3
-                                >
+                                <div className='w-4/12'>
                                     <input
-                                        type="text"
+                                        type="email"
                                         placeholder="Type here..."
-                                        className="px-3 py-2 border border-gray-300 rounded-lg w-4/12 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                        value={member.name}
-                                        onChange={(e) => handleChange(index, 'name', e.target.value)}
+                                        className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                        value={member.email}
+                                        onChange={(e) => {
+                                            handleChange(index, 'email', e.target.value);
+                                            validateMemberEmail(index, e.target.value);
+                                        }}
                                         style={styles.inputs}
                                     />
 
-                                    <div className='w-4/12'>
-                                        <input
-                                            type="email"
-                                            placeholder="Type here..."
-                                            className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                            value={member.email}
-                                            onChange={(e) => {
-                                                handleChange(index, 'email', e.target.value);
-                                                validateMemberEmail(index, e.target.value);
-                                            }}
-                                            style={styles.inputs}
-                                        />
-
-                                        {/* Success/Error Message */}
-                                        <div>
-                                            {member.emailError && (
-                                                <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
-                                            )}
-                                            {member.emailValid && !member.emailError && (
-                                                <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-row items-center overflow-hidden w-4/12">
-                                        <div className='w-[90%] flex flex-row items-center'>
-                                            <div className="w-full">
-                                                <PhoneInput
-                                                    country={countryCode}
-                                                    value={member.phone}
-                                                    onChange={(value, countryData, e) => {
-                                                        handleChange(index, 'phone', value);
-                                                        // if (e?.type === 'input') {
-                                                        validateMemberPhone(index, value, countryCode);
-                                                        // }
-                                                    }}
-                                                    specialLabel=""
-                                                    inputStyle={{
-                                                        width: "100%",
-                                                        borderWidth: "0px",
-                                                        backgroundColor: "transparent",
-                                                        paddingLeft: "45px",
-                                                        paddingTop: "14px",
-                                                        paddingBottom: "14px",
-                                                        fontSize: "15px",
-                                                        fontWeight: "500"
-                                                    }}
-                                                    buttonStyle={{
-                                                        border: "none",
-                                                        backgroundColor: "transparent"
-                                                    }}
-                                                    dropdownStyle={{
-                                                        maxHeight: "150px",
-                                                        overflowY: "auto",
-                                                    }}
-                                                    containerClass="border border-gray-300 rounded-lg w-full"
-                                                />
-                                                {/* Show validation */}
-                                                {member.phoneError && (
-                                                    <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
-                                                )}
-                                                {member.phoneValid && !member.phoneError && (
-                                                    <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
-                                                )}
-                                            </div>
-
-                                        </div>
-                                        {index > 0 && (
-                                            <button
-                                                onClick={() => handleRemoveMember(index)}
-                                                className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
-                                            >
-                                                ✕
-                                            </button>
+                                    {/* Success/Error Message */}
+                                    <div>
+                                        {member.emailError && (
+                                            <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
+                                        )}
+                                        {member.emailValid && !member.emailError && (
+                                            <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
                                         )}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
 
-                        <div className='w-full flex flex-row items-center justify-end pe-4'>
-                            <button
-                                onClick={handleAddMember}
-                                className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
-                            >
-                                New Member
-                            </button>
-                        </div>
+                                <div className="flex flex-row items-center overflow-hidden w-4/12">
+                                    <div className='w-[90%] flex flex-row items-center'>
+                                        <div className="w-full">
+                                            <PhoneInput
+                                                country={countryCode}
+                                                value={member.phone}
+                                                onChange={(value, countryData, e) => {
+                                                    handleChange(index, 'phone', value);
+                                                    // if (e?.type === 'input') {
+                                                    validateMemberPhone(index, value, countryCode);
+                                                    // }
+                                                }}
+                                                specialLabel=""
+                                                inputStyle={{
+                                                    width: "100%",
+                                                    borderWidth: "0px",
+                                                    backgroundColor: "transparent",
+                                                    paddingLeft: "45px",
+                                                    paddingTop: "14px",
+                                                    paddingBottom: "14px",
+                                                    fontSize: "15px",
+                                                    fontWeight: "500"
+                                                }}
+                                                buttonStyle={{
+                                                    border: "none",
+                                                    backgroundColor: "transparent"
+                                                }}
+                                                dropdownStyle={{
+                                                    maxHeight: "150px",
+                                                    overflowY: "auto",
+                                                }}
+                                                containerClass="border border-gray-300 rounded-lg w-full"
+                                            />
+                                            {/* Show validation */}
+                                            {member.phoneError && (
+                                                <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
+                                            )}
+                                            {member.phoneValid && !member.phoneError && (
+                                                <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
+                                            )}
+                                        </div>
+
+                                    </div>
+                                    {index > 0 && (
+                                        <button
+                                            onClick={() => handleRemoveMember(index)}
+                                            className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className='w-full flex flex-row items-center justify-end pe-4'>
+                        <button
+                            onClick={handleAddMember}
+                            className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
+                        >
+                            New Member
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <div className="flex justify-between">
-                    <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
-                    <button
-                        className="bg-purple w-1/3 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
-                        onClick={() => { handleContinue() }}
-                    >
-                        Continue
-                    </button>
-                </div>
-
-                {/* Pricing Modal */}
-                <SetPricing
-                    isOpen={openPricing}
-                    onClose={() => setOpenPricing(false)}
-                    userEmail={userEmail}
-                    userPhoneNumber={userPhoneNumber}
-                    teamMembers={teamMembers}
-                    subAccountName={subAccountName}
-                    selectedUserType={selectedUserType}
-                    closeAll={() => {
-                        setOpenPricing(false);
-                        closeAll();
-                    }}
-                />
-
-            </Box>
-        </Modal>
+            <div className="flex justify-between">
+                <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
+                <button
+                    className="bg-purple w-1/3 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
+                    onClick={() => { handleContinue() }}
+                >
+                    Continue
+                </button>
+            </div>
+        </div>
     );
 }

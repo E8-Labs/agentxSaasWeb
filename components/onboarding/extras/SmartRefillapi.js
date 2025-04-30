@@ -5,7 +5,7 @@ import axios from "axios";
 export const SmartRefillApi = async () => {
     try {
         const token = AuthToken();
-        console.log(token);
+        // console.log(token);
         const ApiPath = Apis.updateProfileApi;
         const ApiData = {
             "smartRefill": true
@@ -42,7 +42,7 @@ export const SmartRefillApi = async () => {
 export const RemoveSmartRefillApi = async () => {
     try {
         const token = AuthToken();
-        console.log(token);
+        // console.log(token);
         const ApiPath = Apis.updateProfileApi;
         const ApiData = {
             "smartRefill": false

@@ -47,6 +47,8 @@ function AgencySubscriptions() {
 
   const [selectedManu, setSelectedMau] = useState(manu[0]);
   const [analyticData, setAnalyticData] = useState(null);
+  //test code
+  const [testPlans, setTestPlans] = useState([]);
 
   const [showCustomRangePopup, setShowCustomRangePopup] = useState(null);
 
@@ -116,11 +118,13 @@ function AgencySubscriptions() {
 
   // Mapping Plan names to UI labels
   const planMapping = {
-    Plan30: "Plan30",
+    Plan30: "test",
     Plan120: "Plan120",
     Plan360: "Plan360",
     Plan720: "Plan720",
   };
+
+  // const [planMapping, setPlanMapping] = useState(null);
 
   // Transform data into required format
   const planChartData = Object.keys(planMapping).map((planKey) => ({
@@ -199,13 +203,15 @@ function AgencySubscriptions() {
   }, []);
 
   const getAdminAnalytics = async (customeRange = false) => {
-    //console.log;
+    console.log("Check 1 clear");
     try {
       const data = localStorage.getItem("User");
-      //console.log;
+      console.log("Check 2 clear");
 
       if (data) {
         let u = JSON.parse(data);
+
+        console.log(u.token);
 
         let path = Apis.AdminAnalytics;
         if (customeRange) {
@@ -230,19 +236,26 @@ function AgencySubscriptions() {
           // "&subscriptionUpgradeEndDate=" +
           // upgradeEndDate;
         }
-        //console.log;
+
+        console.log("Api path is ", path);
         const response = await axios.get(path, {
           headers: {
-            Authorization: "Bearer " + u.token,
+            "Authorization": "Bearer " + u.token,
             "Content-Type": "application/json",
           },
         });
-        //console.log;
 
-        if (response.data) {
+        if (response) {
+          console.log("Api response", response);
           if (response.data.status == true) {
-            //console.log;
+            console.log("Response of unknown api is", response.data.data);
             setAnalyticData(response.data.data);
+            const planStats = response.data.data.planSubscriptionStats;
+
+            const planTitles = Object.keys(planStats);
+            setTestPlans(planTitles);
+            console.log("Plan Titles:", planTitles);
+
           } else {
             //console.log;
           }
@@ -251,7 +264,7 @@ function AgencySubscriptions() {
         //console.log;
       }
     } catch (e) {
-      //console.log;
+      console.log("Error occured in unknow api is", e);
     }
   };
 
@@ -787,24 +800,28 @@ function AgencySubscriptions() {
                       </PieChart>
 
                       <div className="flex flex-col gap-2">
-                        <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            Trial to Plan30 -{" "}
-                            {analyticData?.subscription?.upgradeBreakdown?.[
-                              "Trial to Plan30"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div>
+                        {
+                          testPlans.map((item, index) => (
+                            <div key={index} className="flex flex-row items-center gap-">
+                              <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
+                              <p
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: "500",
+                                  color: "#000",
+                                }}
+                              >
+                                {item} -{" "}
+                                {analyticData?.subscription?.upgradeBreakdown?.[
+                                  {item}
+                                ] || 0}{" "}
+                                users
+                              </p>
+                            </div>
+                          ))
+                        }
 
-                        <div className="flex flex-row items-center gap-">
+                        {/*<div className="flex flex-row items-center gap-">
                           <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
                           <p
                             style={{
@@ -853,7 +870,7 @@ function AgencySubscriptions() {
                             ] || 0}{" "}
                             users
                           </p>
-                        </div>
+                          </div>*/}
                       </div>
                     </div>
                   ) : (
@@ -1070,7 +1087,7 @@ function AgencySubscriptions() {
                   <div
                     style={{ fontSize: 18, fontWeight: "700", color: "#000" }}
                   >
-                   Total Referrals
+                    Total Referrals
                   </div>
                 </div>
 
@@ -1351,7 +1368,7 @@ function AgencySubscriptions() {
                     marginTop: 20,
                   }}
                 >
-                  <div style={{ fontWeight: "500", fontSize: 14,}}>
+                  <div style={{ fontWeight: "500", fontSize: 14, }}>
                     End Date
                   </div>
                   <div className="mt-5">
