@@ -17,7 +17,9 @@ import Image from "next/image";
 import React, { use, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import AgentSelectSnackMessage, { SnackbarTypes } from "./AgentSelectSnackMessage";
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from "./AgentSelectSnackMessage";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -48,7 +50,7 @@ const AssignLead = ({
   // console.log('selectedAll', selectedAll)
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false);
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null)
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
   const [stages, setStages] = useState([]);
@@ -455,7 +457,7 @@ const AssignLead = ({
       setSmartRefillLoader(false);
       console.error("Error occured is", error);
     }
-  }
+  };
 
   const handleSmartRefillLater = async () => {
     try {
@@ -465,7 +467,7 @@ const AssignLead = ({
       setSmartRefillLoaderLater(false);
       console.error("Error occured is", error);
     }
-  }
+  };
 
   //code for date picker
 
@@ -538,7 +540,7 @@ const AssignLead = ({
         hide={() => {
           //   setIsSnackVisible(false);
           setErrorMessage(null);
-          setErrTitle(null)
+          setErrTitle(null);
         }}
         type=""
       />
@@ -548,7 +550,7 @@ const AssignLead = ({
           open={showDncConfirmationPopup}
           onClose={() => {
             setShowDncConfirmationPopup(false);
-            setIsDncChecked(false)
+            setIsDncChecked(false);
             //
           }}
           onCancel={() => {
@@ -557,7 +559,7 @@ const AssignLead = ({
             setIsDncChecked(false);
           }}
           onConfirm={() => {
-            setShowSuccessSnack("Numbers will be checked on the DNC list")
+            setShowSuccessSnack("Numbers will be checked on the DNC list");
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
@@ -757,61 +759,81 @@ const AssignLead = ({
             backgroundColor: "#00000020",
             // //backdropFilter: "blur(5px)",
           },
-        }}>
-        <Box
-          className="lg:w-6/12 sm:w-7/12 w-8/12"
-          sx={styles.modalsStyle}
-        >
+        }}
+      >
+        <Box className="lg:w-6/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
           <div className="bg-[#ffffff] px-8 py-6 rounded-xl">
             <div className="flex flex-row items-center justify-between">
-              <div style={{
-                fontSize: "17px",
-                fontWeight: "600"
-              }}>
+              <div
+                style={{
+                  fontSize: "17px",
+                  fontWeight: "600",
+                }}
+              >
                 Smart Refill
               </div>
-              <button className="text-xl font-semibold"
-                onClick={() => { setShowSmartRefillPopUp(false) }}>
-                <Image src={"/assets/cross.png"} alt="*" height={10} width={10} />
+              <button
+                className="text-xl font-semibold"
+                onClick={() => {
+                  setShowSmartRefillPopUp(false);
+                }}
+              >
+                <Image
+                  src={"/assets/cross.png"}
+                  alt="*"
+                  height={10}
+                  width={10}
+                />
               </button>
             </div>
-            <div className="mt-8" style={{
-              fontSize: "22px",
-              fontWeight: "600"
-            }}>
+            <div
+              className="mt-8"
+              style={{
+                fontSize: "22px",
+                fontWeight: "600",
+              }}
+            >
               Turn on Smart Refill
             </div>
-            <div className="mt-6" style={{
-              fontSize: "15px",
-              fontWeight: "500"
-            }}>
-              To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.
+            <div
+              className="mt-6"
+              style={{
+                fontSize: "15px",
+                fontWeight: "500",
+              }}
+            >
+              {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.`}
             </div>
             <div className="w-full flex flex-row items-center mt-6">
-              {
-                smartRefillLoaderLater ? (
-                  <div className="w-1/2 flex flex-row items-center justify-center">
-                    <CircularProgress size={35} />
-                  </div>
-                ) : (
-                  <button className="w-1/2 outline-none border-none"
-                    onClick={() => { handleSmartRefillLater(); }}>
-                    Maybe later
-                  </button>
-                )
-              }
+              {smartRefillLoaderLater ? (
+                <div className="w-1/2 flex flex-row items-center justify-center">
+                  <CircularProgress size={35} />
+                </div>
+              ) : (
+                <button
+                  className="w-1/2 outline-none border-none"
+                  onClick={() => {
+                    handleSmartRefillLater();
+                  }}
+                >
+                  Maybe later
+                </button>
+              )}
 
-              {
-                smartRefillLoader ? (
-                  <div className="w-1/2 flex flex-row items-center justify-center">
-                    <CircularProgress size={35} />
-                  </div>
-                ) : (
-                  <button className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
-                    onClick={() => { handleSmartRefill() }}>
-                    Turn On
-                  </button>
-                )}
+              {smartRefillLoader ? (
+                <div className="w-1/2 flex flex-row items-center justify-center">
+                  <CircularProgress size={35} />
+                </div>
+              ) : (
+                <button
+                  className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
+                  onClick={() => {
+                    handleSmartRefill();
+                  }}
+                >
+                  Turn On
+                </button>
+              )}
             </div>
           </div>
         </Box>
@@ -848,7 +870,6 @@ const AssignLead = ({
               }}
               type={SnackbarTypes.Success}
             />
-
 
             <div
               className="w-full"
@@ -950,9 +971,9 @@ const AssignLead = ({
                           color: "#7902DF",
                         },
                         "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                        {
-                          backgroundColor: "#7902DF",
-                        },
+                          {
+                            backgroundColor: "#7902DF",
+                          },
                         margin: 0,
                       }}
                     />
@@ -968,10 +989,11 @@ const AssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${isFocustedCustomLeads
-                      ? "2px solid #7902Df"
-                      : "1px solid #00000040"
-                      }`,
+                    border: `${
+                      isFocustedCustomLeads
+                        ? "2px solid #7902Df"
+                        : "1px solid #00000040"
+                    }`,
                     height: "50px",
                   }}
                   value={customLeadsToSend}
@@ -1018,7 +1040,7 @@ const AssignLead = ({
                     height: "119px",
                   }}
                   onClick={() => {
-                    setHasUserSelectedDate(false)
+                    setHasUserSelectedDate(false);
                     const currentDateTime = new Date();
                     const currentHour = currentDateTime.getHours(); // Get the current hour (0-23)
                     // if (currentHour >= 5 && currentHour < 19) {
@@ -1155,14 +1177,14 @@ const AssignLead = ({
 
                                     // Time Selection List (Large Screen)
                                     "& .MuiPickersTimeClock-root .Mui-selected":
-                                    {
-                                      backgroundColor: "#7902DF !important", // Purple selected time
-                                      color: "white !important",
-                                    },
+                                      {
+                                        backgroundColor: "#7902DF !important", // Purple selected time
+                                        color: "white !important",
+                                      },
                                     "& .MuiPickersTimeClock-root .MuiButtonBase-root:hover":
-                                    {
-                                      backgroundColor: "#a352df !important", // Lighter purple on hover
-                                    },
+                                      {
+                                        backgroundColor: "#a352df !important", // Lighter purple on hover
+                                      },
 
                                     // Time Picker List (Dropdown List)
                                     "& .MuiTimeClock-root .Mui-selected": {
@@ -1170,9 +1192,9 @@ const AssignLead = ({
                                       color: "white !important",
                                     },
                                     "& .MuiTimeClock-root .MuiButtonBase-root:hover":
-                                    {
-                                      backgroundColor: "#a352df !important",
-                                    },
+                                      {
+                                        backgroundColor: "#a352df !important",
+                                      },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
@@ -1220,9 +1242,6 @@ const AssignLead = ({
                       </div>
                     </Box>
                   </Modal>
-
-
-
                 </div>
               </div>
 
@@ -1253,14 +1272,20 @@ const AssignLead = ({
                               "& .MuiOutlinedInput-root": {
                                 borderRadius: "10px",
                                 "& fieldset": {
-                                  borderColor: hasUserSelectedDate ? "#7902df" : "#00000050", // Purple if selected, red otherwise
+                                  borderColor: hasUserSelectedDate
+                                    ? "#7902df"
+                                    : "#00000050", // Purple if selected, red otherwise
                                   borderWidth: "2px",
                                 },
                                 "&:hover fieldset": {
-                                  borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                  borderColor: hasUserSelectedDate
+                                    ? "#7902df"
+                                    : "#00000050",
                                 },
                                 "&.Mui-focused fieldset": {
-                                  borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                  borderColor: hasUserSelectedDate
+                                    ? "#7902df"
+                                    : "#00000050",
                                 },
                               },
                             },
@@ -1275,9 +1300,9 @@ const AssignLead = ({
                             backgroundColor: "#a352df !important", // Lighter purple on hover
                           },
                           "& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)":
-                          {
-                            color: "#333 !important", // Default color for unselected dates
-                          },
+                            {
+                              color: "#333 !important", // Default color for unselected dates
+                            },
                           "& .Mui-selected": {
                             backgroundColor: "#7902DF !important",
                             color: "#fff !important",
@@ -1332,8 +1357,8 @@ const AssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                    (CallNow ||
-                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                  (CallNow ||
+                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
@@ -1343,7 +1368,7 @@ const AssignLead = ({
                           console.log(UserDetails.user.smartRefill);
                           if (UserDetails.user.smartRefill === false) {
                             setShowSmartRefillPopUp(true);
-                            return
+                            return;
                           }
                         }
                         handleAssignLead();
@@ -1375,9 +1400,7 @@ const AssignLead = ({
           </div>
         </Box>
       </Modal>
-
-
-    </div >
+    </div>
   );
 };
 
