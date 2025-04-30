@@ -25,7 +25,7 @@ import {
 } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
 import LoginComponent from "@/components/auth/LoginComponent";
-import MultiWindow3DScene from "@/components/test/Multiwindow3dScene";
+// import MultiWindow3DScene from "@/components/test/Multiwindow3dScene";
 // import { useRouter, useSearchParams } from "next/navigation";
 
 const Page = ({ length = 6, onComplete }) => {
