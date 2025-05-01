@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -22,6 +22,14 @@ const stripePublicKey =
 const stripePromise = loadStripe(stripePublicKey);
 
 function ConfirmPayment() {
+  return (
+    <Suspense>
+      <ConfirmPaymentCode />
+    </Suspense>
+  );
+}
+
+function ConfirmPaymentCode() {
   const searchParams = useSearchParams();
   const pi = searchParams.get("pi");
   const [clientSecret, setClientSecret] = useState(null);
@@ -80,7 +88,6 @@ function ConfirmPayment() {
     </div>
   );
 }
-
 function PaymentConfirmationForm({ clientSecret }) {
   const [processing, setProcessing] = useState(false);
   const stripe = useStripe();
