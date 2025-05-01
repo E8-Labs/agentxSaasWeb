@@ -47,6 +47,7 @@ function ConfirmPaymentCode() {
       })
         .then((res) => res.json())
         .then((data) => {
+          console.log("Payment intent is ", data);
           if (data.status && data.data?.client_secret) {
             setClientSecret(data.data.client_secret);
           } else {
@@ -89,6 +90,7 @@ function ConfirmPaymentCode() {
   );
 }
 function PaymentConfirmationForm({ clientSecret }) {
+  console.log("Client secret ", clientSecret);
   const [processing, setProcessing] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
