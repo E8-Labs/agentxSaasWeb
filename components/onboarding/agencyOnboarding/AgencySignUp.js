@@ -85,23 +85,12 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
 
 
     const sizeList = [
-        {
-            id: 1,
-            size: "1-10",
-        },
-        {
-            id: 2,
-            size: "11-50",
-        },
-        {
-            id: 3,
-            size: "51-100",
-        },
-        {
-            id: 4,
-            size: "100+",
-        },
-    ]
+        { id: 1, label: "1-10", min: 1, max: 10 },
+        { id: 2, label: "11-50", min: 11, max: 50 },
+        { id: 3, label: "51-100", min: 51, max: 100 },
+        { id: 4, label: "100+", min: 101, max: 1000 }, // or any upper limit you want
+    ];
+
     //load the user location
     useEffect(() => {
         let loc = getLocalLocation();
@@ -321,9 +310,10 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
             formData.append("name", userName);
             formData.append("email", userEmail);
             formData.append("phone", userPhoneNumber);
-            formData.append("companyName", company);
-            formData.append("companyWebsite", website);
-            formData.append("companySize", size);
+            formData.append("company", company);
+            formData.append("companySizeMin", size.min);
+            formData.append("companySizeMax", size.max);
+            formData.append("website", website);
             formData.append("userRole", "Agency");
             formData.append("login", false);
             formData.append(
@@ -345,7 +335,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                 setResponse(result);
                 setIsVisible(true);
                 if (response.data.status === true) {
-                    //console.log;
+                    console.log("agency signup data is", response.data.data)
                     localStorage.removeItem(PersistanceKeys.RegisterDetails);
                     localStorage.setItem("User", JSON.stringify(response.data.data));
 
@@ -446,8 +436,10 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
     };
 
     const handleChangeSize = (event) => {
-        setSize(event.target.value);
+        const selected = sizeList.find((item) => item.label === event.target.value);
+        setSize(selected); // store the full object instead of just string
     };
+
 
     const styles = {
         headingStyle: {
@@ -812,13 +804,9 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                         displayEmpty // Enables placeholder
                                         renderValue={(selected) => {
                                             if (!selected) {
-                                                return (
-                                                    <div style={{ color: "#aaa" }}>
-                                                        Select size
-                                                    </div>
-                                                ); // Placeholder style
+                                                return <div style={{ color: "#aaa" }}>Select size</div>;
                                             }
-                                            return selected;
+                                            return selected.label;
                                         }}
                                         sx={{
                                             border: "1px solid #00000020", // Default border
@@ -851,9 +839,9 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             <MenuItem
                                                 key={item.id}
                                                 style={styles.dropdownMenu}
-                                                value={item.size}
+                                                value={item.label}
                                             >
-                                                {item.size}
+                                                {item.label}
                                             </MenuItem>
                                         ))}
                                     </Select>

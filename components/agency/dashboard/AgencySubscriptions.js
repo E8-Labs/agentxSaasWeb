@@ -89,27 +89,40 @@ function AgencySubscriptions() {
     Dec: "December",
   };
 
+
+  // Define colors for each plan
+  const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
+
+
   // Extract months dynamically from API response
   let months = analyticData
     ? Object.keys(analyticData?.planSubscriptionStats?.Trial || {})
     : [];
 
   // Transform API data into chart format
-  const subscriptionChartData = Object.keys(
-    analyticData?.planSubscriptionStats?.Trial || {}
-  ).map((dateKey) => {
-    // Ensure proper date formatting (MMM DD)
-    const formattedDate = moment(dateKey, "MMM DD, YY").format("MMM DD");
+  const subscriptionChartData = (() => {
+    if (!analyticData?.planSubscriptionStats) return [];
 
-    return {
-      month: formattedDate, // Correct format for X-axis
-      Trial: analyticData?.planSubscriptionStats?.Trial?.[dateKey] || 0,
-      Plan30: analyticData?.planSubscriptionStats?.Plan30?.[dateKey] || 0,
-      Plan120: analyticData?.planSubscriptionStats?.Plan120?.[dateKey] || 0,
-      Plan360: analyticData?.planSubscriptionStats?.Plan360?.[dateKey] || 0,
-      Plan720: analyticData?.planSubscriptionStats?.Plan720?.[dateKey] || 0,
-    };
-  });
+    // Extract all dates
+    const allDates = Object.keys(
+      Object.values(analyticData.planSubscriptionStats)[0] || {}
+    );
+
+    return allDates.map((dateKey) => {
+      const formattedDate = moment(dateKey, "MMM DD, YY").format("MMM DD");
+
+      const entry = { month: formattedDate };
+
+      // Loop through each dynamic plan title
+      Object.keys(analyticData.planSubscriptionStats).forEach((planName) => {
+        entry[planName] =
+          analyticData.planSubscriptionStats[planName]?.[dateKey] || 0;
+      });
+
+      return entry;
+    });
+  })();
+
   const totalNewSubscriptions = subscriptionChartData.reduce((total, monthData) => {
     return total + (monthData.Trial || 0) + (monthData.Plan30 || 0) + (monthData.Plan120 || 0) + (monthData.Plan360 || 0) + (monthData.Plan720 || 0);
   }, 0);
@@ -127,19 +140,32 @@ function AgencySubscriptions() {
   // const [planMapping, setPlanMapping] = useState(null);
 
   // Transform data into required format
-  const planChartData = Object.keys(planMapping).map((planKey) => ({
-    name: planMapping[planKey],
-    value: analyticData?.subscription?.activePlans[planKey] || 0, // Assign value from API data, default to 0 if missing
-  }));
+  const planChartData = Object.keys(analyticData?.subscription?.activePlans || {}).map(
+    (planName, index) => ({
+      name: planName,
+      value: analyticData.subscription.activePlans[planName] || 0,
+      color: colors[index % colors.length],
+    })
+  );
 
 
-  const reActivationChartData = Object.keys(planMapping).map((planKey) => ({
-    name: planMapping[planKey],
-    value: analyticData?.subscription?.cancellations[planKey] || 0, // Assign value from API data, default to 0 if missing
-  }));
 
-  // Define colors for each plan
-  const colors = ["#8E24AA", "#FF6600", "#402FFF", "#FF2D2D"];
+  const reActivationChartData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
+    (planName, index) => ({
+      name: planName,
+      value: analyticData.subscription.cancellations[planName] || 0,
+      color: colors[index % colors.length],
+    })
+  );
+
+  const cancellationsRateData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
+    (planName, index) => ({
+      name: planName,
+      value: analyticData.subscription.cancellations[planName] || 0,
+      color: colors[index % colors.length],
+    })
+  );
+
 
   // Transform data into required format
 
@@ -169,34 +195,6 @@ function AgencySubscriptions() {
       })
     )
     : [];
-
-  const cancellationsRateData = [
-    {
-      name: "trial",
-      value: analyticData?.subscription?.cancellations?.trial || 0,
-      color: "#8E24AA",
-    },
-    {
-      name: "From $45",
-      value: analyticData?.subscription?.cancellations?.Plan30 || 0,
-      color: "#FF6600",
-    },
-    {
-      name: "From $99",
-      value: analyticData?.subscription?.cancellations?.Plan120 || 0,
-      color: "#402FFF",
-    },
-    {
-      name: "From $299",
-      value: analyticData?.subscription?.cancellations?.Plan360 || 0,
-      color: "#000000",
-    },
-    {
-      name: "From $599",
-      value: analyticData?.subscription?.cancellations?.Plan720 || 0,
-      color: "#FF2D2D",
-    },
-  ];
 
   useEffect(() => {
     getAdminAnalytics();
@@ -443,43 +441,21 @@ function AgencySubscriptions() {
                 </div>
               </div>
 
-              <div className="flex w-full flex-row items-center gap-8 mt-5">
-                <div className="flex flex-row items-center gap-">
-                  <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                  <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                    Trail
-                  </p>
-                </div>
-
-                <div className="flex flex-row items-center gap-">
-                  <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#000] border border-white"></div>
-                  <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                    30mins
-                  </p>
-                </div>
-
-                <div className="flex flex-row items-center gap-">
-                  <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                  <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                    120mins
-                  </p>
-                </div>
-
-                <div className="flex flex-row items-center gap-">
-                  <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
-                  <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                    360mins
-                  </p>
-                </div>
-
-                <div className="flex flex-row items-center gap-">
-                  <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2222] border border-white"></div>
-                  <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
-                    720mins
-                  </p>
-                </div>
-
-                <div className="flex w-full"></div>
+              <div className="flex w-full flex-row items-center gap-8 mt-5 overflow-x-auto">
+                {Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
+                  <div
+                    key={planName}
+                    className="flex flex-row items-center gap-2 flex-shrink-0"
+                  >
+                    <div
+                      className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
+                      style={{ backgroundColor: colors[index % colors.length] }}
+                    ></div>
+                    <p style={{ fontSize: 15, fontWeight: "500", color: "#000" }}>
+                      {planName}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               <div className="flex w-full">
@@ -494,25 +470,20 @@ function AgencySubscriptions() {
                     bottom: 20,
                   }}
                 >
-                  {/* X-Axis */}
                   <XAxis
                     dataKey="month"
                     tickLine={false}
                     axisLine={false}
                     tickMargin={10}
                     tick={{ fontSize: 12, fill: "#6b7280" }}
-                    tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")} // ✅ Ensure correct formatting
+                    tickFormatter={(value) => moment(value, "MMM DD").format("MMM DD")}
                   />
-
-                  {/* Y-Axis */}
                   <YAxis
                     tickLine={false}
                     axisLine={false}
                     tickMargin={10}
                     tick={{ fontSize: 12, fill: "#6b7280" }}
                   />
-
-                  {/* Tooltip */}
                   <Tooltip
                     contentStyle={{
                       borderRadius: "8px",
@@ -524,47 +495,19 @@ function AgencySubscriptions() {
                     labelStyle={{ color: "#6b7280" }}
                   />
 
-                  {/* Legend
-                                <Legend verticalAlign="top" height={36} /> */}
-
-                  {/* Lines */}
-                  <Line
-                    type="monotone"
-                    dataKey="Trial"
-                    stroke="#8E24AA"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Plan30"
-                    stroke="#000"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Plan120"
-                    stroke="#FF6600"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Plan360"
-                    stroke="#402FFF"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="Plan720"
-                    stroke="#FF2222"
-                    strokeWidth={2}
-                    dot={false}
-                  />
+                  {Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
+                    <Line
+                      key={planName}
+                      type="monotone"
+                      dataKey={planName}
+                      stroke={colors[index % colors.length] || "#000"}
+                      strokeWidth={2}
+                      dot={false}
+                    />
+                  ))}
                 </LineChart>
               </div>
+
             </div>
 
             <div className="flex flex-row gap-3 w-full -ml-3 mt-3">
@@ -762,209 +705,50 @@ function AgencySubscriptions() {
 
                 </div>
 
-                <div className="w-full flex flex-row gap-4 items-center mt-4">
-                  {manu.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedMau(item);
-                      }}
+
+
+                <div className="w-full flex flex-row items-center gap- mt-8">
+                  <PieChart width={150} height={150}>
+                    <Pie
+                      data={UpgateRateData}
+                      innerRadius={60}
+                      outerRadius={65}
+                      dataKey="value"
+                      startAngle={90}
+                      endAngle={-270}
+                      paddingAngle={1}
                     >
-                      <div className="flex flex-col items-center">
-                        <div>{item.name}</div>
-                        {selectedManu.id == item.id && (
-                          <div className="w-full h-[2px] bg-purple"></div>
-                        )}
-                      </div>
-                    </button>
-                  ))}
+                      {UpgateRateData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
+                      {testPlans.map((item, index) => (
+                        <div key={index} className="flex flex-row items-center gap-2">
+                          <div
+                            className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
+                            style={{ backgroundColor: colors[index % colors.length] }}
+                          ></div>
+                          <p
+                            style={{
+                              fontSize: 15,
+                              fontWeight: "500",
+                              color: "#000",
+                            }}
+                          >
+                            {item} - {analyticData?.subscription?.upgradeBreakdown?.[item] || 0} users
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+
+                  </div>
                 </div>
-                {
-                  selectedManu.id === 1 ? (
-                    <div className="w-full flex flex-row items-center gap- mt-8">
-                      <PieChart width={150} height={150}>
-                        <Pie
-                          data={UpgateRateData}
-                          innerRadius={60}
-                          outerRadius={65}
-                          dataKey="value"
-                          startAngle={90}
-                          endAngle={-270}
-                          paddingAngle={1}
-                        >
-                          {UpgateRateData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-
-                      <div className="flex flex-col gap-2">
-                        {
-                          testPlans.map((item, index) => (
-                            <div key={index} className="flex flex-row items-center gap-">
-                              <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                              <p
-                                style={{
-                                  fontSize: 15,
-                                  fontWeight: "500",
-                                  color: "#000",
-                                }}
-                              >
-                                {item} -{" "}
-                                {analyticData?.subscription?.upgradeBreakdown?.[
-                                  {item}
-                                ] || 0}{" "}
-                                users
-                              </p>
-                            </div>
-                          ))
-                        }
-
-                        {/*<div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            Trial to Plan120 -{" "}
-                            {analyticData?.subscription?.upgradeBreakdown?.[
-                              "Trial to Plan120"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            Trial to Plan360 -{" "}
-                            {analyticData?.subscription?.upgradeBreakdown?.[
-                              "Trial to Plan360"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2D2D] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            Trial to Plan720 -{" "}
-                            {analyticData?.subscription?.upgradeBreakdown?.[
-                              "Trial to Plan720"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                          </div>*/}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full flex flex-row items-center gap- mt-8">
-                      <PieChart width={150} height={150}>
-                        <Pie
-                          data={UpgateRateData2}
-                          innerRadius={60}
-                          outerRadius={65}
-                          dataKey="value"
-                          startAngle={90}
-                          endAngle={-270}
-                          paddingAngle={1}
-                        >
-                          {UpgateRateData2.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-
-                      <div className="flex flex-col gap-2">
-                        {/* <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            Trial to Plan30 -{" "}
-                            {analyticData?.plan30Upgrades[
-                              "Trial to Plan30"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div> */}
-
-                        <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            $45 to Plan120 -{" "}
-                            {analyticData?.plan30Upgrades[
-                              "Trial to Plan120"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            $45 to Plan360 -{" "}
-                            {analyticData?.plan30Upgrades[
-                              "Trial to Plan360"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div>
-
-                        <div className="flex flex-row items-center gap-">
-                          <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2D2D] border border-white"></div>
-                          <p
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#000",
-                            }}
-                          >
-                            $45 to Plan720 -{" "}
-                            {analyticData?.plan30Upgrades[
-                              "Trial to Plan720"
-                            ] || 0}{" "}
-                            users
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                }
-
               </div>
             </div>
 
@@ -1011,68 +795,26 @@ function AgencySubscriptions() {
                     </Pie>
                     <Tooltip />
                   </PieChart>
-
                   <div className="flex flex-col gap-2">
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#8E24AA] border border-white"></div>
-                      From trial  -{" "}
-                      {analyticData?.subscription?.cancellations?.trial ||
-                        0}{" "}
-                      users
-                    </div>
-
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF6600] border border-white"></div>
-                      From $45 -{" "}
-                      {analyticData?.subscription?.cancellations?.Plan30 || 0}{" "}
-                      users
-                    </div>
-
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#402FFF] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        From $99 -{" "}
-                        {analyticData?.subscription?.cancellations?.Plan120 || 0}{" "}
-                        users
-                      </p>
-                    </div>
-
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#000000] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        From $299 -{" "}
-                        {analyticData?.subscription?.cancellations?.Plan360 || 0}{" "}
-                        users
-                      </p>
-                    </div>
-
-                    <div className="flex flex-row items-center gap-">
-                      <div className="h-[13px] w-[13px] rounded-full shadow-md bg-[#FF2D2D] border border-white"></div>
-                      <p
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#000",
-                        }}
-                      >
-                        From $599 -{" "}
-                        {analyticData?.subscription?.cancellations?.Plan720 || 0}{" "}
-                        users
-                      </p>
-                    </div>
+                    {cancellationsRateData.map((item, index) => (
+                      <div key={item.name} className="flex flex-row items-center gap-2">
+                        <div
+                          className="h-[13px] w-[13px] rounded-full shadow-md border border-white"
+                          style={{ backgroundColor: item.color }}
+                        ></div>
+                        <p
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "500",
+                            color: "#000",
+                          }}
+                        >
+                          {item.name} - {item.value} users
+                        </p>
+                      </div>
+                    ))}
                   </div>
+
                 </div>
               </div>
             </div>
