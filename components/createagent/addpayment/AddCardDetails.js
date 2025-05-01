@@ -233,7 +233,7 @@ const AddCardDetails = ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${AuthToken}`,
         },
-        body: JSON.stringify({ source: id }),
+        body: JSON.stringify({ source: id, inviteCode: inviteCode }),
       });
 
       const result2 = await addCardRes.json();

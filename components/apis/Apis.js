@@ -4,7 +4,7 @@
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://api.myagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
-    : "https://api.myagentx.com/agentxtest/"//"https://www.blindcircle.com/agentxtest/";
+    : "https://api.myagentx.com/agentxtest/"; //"https://www.blindcircle.com/agentxtest/";
 
 //// console.log(
 //   "Current environment is",
@@ -71,6 +71,7 @@ const Apis = {
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
   //apis to add card & subscribe plan
   createSetupIntent: `${BasePath}api/user/createSetupIntent`,
+  getPaymentIntent: `${BasePath}api/user/getSetupIntent`,
   addCard: `${BasePath}api/user/addPaymentMethod`,
   subscribePlan: `${BasePath}api/user/subscribePlan`,
   purchaseSupportPlan: `${BasePath}api/user/purchaseSupportPlan`,
@@ -157,7 +158,7 @@ const Apis = {
   connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
 
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
-  pauseProfile:`${BasePath}api/user/pauseProfile`,
+  pauseProfile: `${BasePath}api/user/pauseProfile`,
 
   //add and get agency plans
   addMonthlyPlan: `${BasePath}api/agency/createAgencyPlan`,
@@ -172,12 +173,9 @@ const Apis = {
   subAgencyAndSubAccountPlans: `${BasePath}api/agency/subscribeAgencyPlan`,
 
   //add comment
-  addComment:`${BasePath}api/leads/addCommentOnTranscript`,
+  addComment: `${BasePath}api/leads/addCommentOnTranscript`,
   //create onboarding link
-  createOnboardingLink:`${BasePath}api/agency/createConnectLink`,
-
-
-
+  createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
 };
 
 export default Apis;
