@@ -108,8 +108,8 @@ function PaymentConfirmationForm({ clientSecret }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <p className="text-sm text-gray-600">
-        Click the button below to complete your payment. If authentication is
-        required, you'll be prompted automatically.
+        {`Click the button below to complete your payment. If authentication is
+        required, you'll be prompted automatically.`}
       </p>
       <button
         type="submit"
