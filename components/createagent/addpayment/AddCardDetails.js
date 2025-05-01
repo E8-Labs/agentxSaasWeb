@@ -174,32 +174,6 @@ const AddCardDetails = ({
     const data = await res.json();
     console.log("Setup intent response is ", data);
 
-    // const paymentMethodResult = await stripeReact.createPaymentMethod({
-    //   type: "card",
-    //   card: elements.getElement(CardNumberElement), // only pass the element here
-    //   billing_details: {
-    //     name: D.user.name,
-    //   },
-    // });
-
-    // console.log("Paymnt method result");
-
-    // if (paymentMethodResult.error) {
-    //   console.error(paymentMethodResult.error.message);
-    //   setAddCardErrtxt(paymentMethodResult.error.message);
-    //   setAddCardLoader(false);
-    //   return;
-    // }
-
-    // let stripe = await getStripe;
-    // const result = await stripeReact.confirmCardSetup(data.data, {
-    //   payment_method: paymentMethodResult.paymentMethod.id,
-    //   // {
-    //   //   card: elements.getElement(CardElement),
-    //   //   billing_details: { name: "User Name" },
-    //   // },
-    // });
-
     const result = await stripeReact.confirmCardSetup(data.data, {
       payment_method: {
         card: elements.getElement(CardNumberElement),
