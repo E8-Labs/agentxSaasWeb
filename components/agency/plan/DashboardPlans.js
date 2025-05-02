@@ -90,7 +90,7 @@ function DashboardPlans() {
             const localPlans = localStorage.getItem("agencyMonthlyPlans");
             if (localPlans) {
                 setPlansList(JSON.parse(localPlans));
-                console.log(JSON.parse(localPlans));
+                console.log("Plans list is",JSON.parse(localPlans));
             } else {
                 const Token = AuthToken();
                 const ApiPath = Apis.getMonthlyPlan

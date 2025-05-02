@@ -12,6 +12,9 @@ import { UserTypes } from "@/constants/UserTypes";
 
 function AgencyBasicInfo() {
   const router = useRouter();
+
+  const [serviceLoader, setServiceLoader] = useState(false);
+
   const [focusedName, setFocusedName] = useState(false);
 
   const [focusedEmail, setFocusedEmail] = useState(false);

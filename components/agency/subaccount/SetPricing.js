@@ -135,7 +135,7 @@ export default function SetPricing({
                     onClick={() => {
                         handleContinue()
                     }}
-                    className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
+                    className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? "bg-[#00000020] text-black": "bg-purple text-white"}`}
                 >
                     Continue
                 </button>

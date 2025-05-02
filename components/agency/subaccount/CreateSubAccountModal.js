@@ -10,6 +10,7 @@ import 'react-phone-input-2/lib/style.css';
 import SetPricing from './SetPricing';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import agents from '@/components/onboarding/extras/AgentsList';
 
 export default function CreateSubAccountModal({ onClose, onContinue, formData }) {
 
@@ -172,9 +173,33 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     const [selectedUserType, setSelectedUserType] = useState(null);
 
     //team members fields
-
-
     const [teamMembers, setTeamMembers] = useState([defaultMembers]);
+
+    //continue restriction
+    const [shouldContinue, setShouldContinue] = useState(false);
+
+    //check if can continue
+    useEffect(() => {
+        const hasEmptyTeamMember = teamMembers.some(member =>
+            member?.name?.trim() === "" ||
+            member?.email?.trim() === "" ||
+            member?.phone?.trim() === ""
+        );
+
+        if (
+            subAccountName?.trim() === "" ||
+            userEmail?.trim() === "" ||
+            userPhoneNumber?.trim() === "" ||
+            selectedUserType?.trim() === "" ||
+            hasEmptyTeamMember
+        ) {
+            console.log("Cannot continue");
+            setShouldContinue(true);
+        } else {
+            setShouldContinue(false);
+        }
+    }, [subAccountName, userEmail, userPhoneNumber, selectedUserType, teamMembers]);
+
 
 
     useEffect(() => {
@@ -868,7 +893,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             <div className="flex justify-between">
                 <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
                 <button
-                    className="bg-purple w-1/3 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
+                    disabled={shouldContinue}
+                    className={`w-1/3 hover:bg-purple-700 px-6 py-2 rounded-lg ${shouldContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
                     onClick={() => { handleContinue() }}
                 >
                     Continue

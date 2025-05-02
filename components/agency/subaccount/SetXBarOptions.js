@@ -166,7 +166,8 @@ export default function SetXBarOptions({
                         <CircularProgress size={30} /> :
                         <button
                             onClick={() => { console.log("close all"); handleCreateSubAccount(); }}
-                            className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
+                            // className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
+                            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? "bg-[#00000020] text-black": "bg-purple text-white"}`}
                         >
                             Continue
                         </button>

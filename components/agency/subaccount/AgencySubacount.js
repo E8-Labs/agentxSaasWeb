@@ -16,6 +16,7 @@ import { convertSecondsToMinDuration } from "@/utilities/utility";
 import { getMonthlyPlan, getXBarOptions } from "./GetPlansList";
 import SlideModal from "./SlideModal";
 import CreateSubAccountModal from "./CreateSubAccountModal";
+import { TwilioWarning } from "@/components/onboarding/extras/StickyModals";
 
 function AgencySubacount() {
   const [subAccountList, setSubAccountsList] = useState([]);
@@ -196,6 +197,14 @@ function AgencySubacount() {
           <NotficationsDrawer />
         </div>
       </div>
+
+      <TwilioWarning
+        agencyData={agencyData}
+        showSuccess={(d) => {
+          setShowSnackMessage(d);
+          setShowSnackType(SnackbarTypes.Success);
+        }}
+      />
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
         <div
@@ -442,7 +451,7 @@ function AgencySubacount() {
           }}
         /> */}
 
-        {/* Test code */}
+        {/* code for slide animation modal */}
 
 
         <SlideModal
@@ -451,7 +460,7 @@ function AgencySubacount() {
             getSubAccounts();
             setShowModal(false);
           }}
-          // handleCloseModal={() => { handleCloseModal() }}
+        // handleCloseModal={() => { handleCloseModal() }}
         />
 
         {/* Code for subaccount modal */}
