@@ -26,7 +26,7 @@ export const TwilioWarning = ({
         } else {
             setShowAddTwiliowarning(false);
         }
-    }, [])
+    }, [agencyData])
 
 
 
