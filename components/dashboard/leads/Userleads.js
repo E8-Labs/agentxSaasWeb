@@ -87,8 +87,6 @@ const Userleads = ({
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
 
-  // console.log('selected leads length is', selectedLeadsList.length)
-
   const requestVersion = useRef(0);
 
   const [filtersSelected, setFiltersSelected] = useState([]);
@@ -860,7 +858,6 @@ const Userleads = ({
         if (currentRequestVersion === requestVersion.current) {
           if (response.data.status === true) {
             setShowFilterModal(false);
-            //console.log;
             setTotalLeads(response.data.leadCount);
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
@@ -878,9 +875,8 @@ const Userleads = ({
               } else {
                 setShowNoLeadsLabel(true);
               }
-              // //console.log;
-              // //console.log;
-              if (sheetId == SelectedSheetId) {
+
+              if (sheetId == SelectedSheetId || sheetId == undefined) {
                 LeadsInSheet[SelectedSheetId] = response.data;
                 localStorage.setItem(
                   `Leads${SelectedSheetId}`,
@@ -889,6 +885,7 @@ const Userleads = ({
                 setLeadsList(data);
                 setFilterLeads(data);
               }
+
               let leads = data;
               let leadColumns = response.data.columns;
               //   setSelectedSheetId(item.id);
