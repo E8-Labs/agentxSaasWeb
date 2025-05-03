@@ -43,7 +43,7 @@ export const TwilioWarning = ({
                     }}
                 >
                 <Box className="w-full flex flex-row items-center justify-center border-none outline-none" sx={{ backgroundColor: "transparent" }}>*/}
-                        <div className="flex flex-row items-center gap-4 bg-red shadow-lg p-2 w-full">
+                        <div className="flex flex-row items-center bg-red shadow-lg p-2 w-full">
                             <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={40} width={40} />
                             <div className="text-white" style={{
                                 fontWeight: "500",
@@ -52,17 +52,17 @@ export const TwilioWarning = ({
                                 Add your Twilio API Keys to start calls
                             </div>
                             <button
-                                className="bg-none text-white text-lg outline-none border-b-4 p-0 m-0"
-                                onClick={() => {
-                                    setShowAddKeyModal(true)
-                                }}
+                                className="bg-none text-white text-lg outline-none border-b-4 border-white p-0 m-0 leading-none ms-2"
+                                onClick={() => setShowAddKeyModal(true)}
                                 style={{
                                     fontWeight: "700",
-                                    fontSize: "15px"
+                                    fontSize: "15px",
+                                    lineHeight: "1", // Ensures no extra vertical space
                                 }}
                             >
                                 Add Key
                             </button>
+
                         </div>
                         <AddAgencyTwilioKeyModal
                             showAddKeyModal={showAddKeyModal}
@@ -151,11 +151,14 @@ export const AddAgencyTwilioKeyModal = ({
             open={showAddKeyModal}
             className="border-none outline-none"
             BackdropProps={{
-                style: { backgroundColor: 'transparent' }
+                style: { backgroundColor: '#00000020' }
             }}
         >
-            <Box className="w-full flex flex-row items-center h-screen justify-center border-none outline-none" sx={{ backgroundColor: "transparent" }}>
-                <div className='w-6/12 md:5/12 lg:w-4/12 bg-white shadow-lg p-6'>
+            <Box
+                //  className="w-6/12 md:5/12 lg:w-4/12 bg-white shadow-lg p-6 rounded-lg flex flex-row items-center justify-center border-none outline-none"
+                className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
+            >
+                <div className='w-full'>
                     <AgentSelectSnackMessage
                         isVisible={showSnackMessage}
                         hide={() => {
@@ -165,8 +168,11 @@ export const AddAgencyTwilioKeyModal = ({
                         message={showSnackMessage}
                     />
                     <div className='w-full flex flex-row items-center justify-between'>
-                        <div>
-                            Edit Api Key
+                        <div style={{
+                            fontWeight: "600",
+                            fontSize: "22px"
+                        }}>
+                            Edit Twilio API Key
                         </div>
                         <button
                             className='outline-none border-none'
@@ -187,8 +193,9 @@ export const AddAgencyTwilioKeyModal = ({
                         <input
                             value={sid}
                             onChange={(e) => { setSid(e.target.value) }}
+                            style={styles.inputTxt}
                             placeholder='Enter SSID'
-                            className='border outline-none rounded-md mt-4 w-full focus:ring-0 focus:outline-none'
+                            className='border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none'
                         />
                     </div>
                     <div style={styles.mediumTxt}>
@@ -198,8 +205,9 @@ export const AddAgencyTwilioKeyModal = ({
                         <input
                             value={twilioAuthToken}
                             onChange={(e) => { setTwilioAuthToken(e.target.value) }}
+                            style={styles.inputTxt}
                             placeholder='Enter Key'
-                            className='border outline-none rounded-md mt-4 w-full focus:ring-0 focus:outline-none'
+                            className='border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none'
                         />
                     </div>
                     <div className='w-full flex flex-row items-center justify-between mt-4'>
@@ -210,17 +218,19 @@ export const AddAgencyTwilioKeyModal = ({
                             Cancel
                         </button>
 
-                        <div className='w-4/6 flex flex-row items-center justify-center'>
+                        <div className='w-1/2 flex flex-row items-center justify-center'>
                             {
                                 twillioLoader ? (
                                     <CircularProgress size={35} />
                                 ) : (
-                                    <button
-                                        className='bg-purple text-white p-2 rounded-md w-full'
-                                        onClick={handleSetUpTwillio}
-                                    >
-                                        Save
-                                    </button>
+                                    <div className='w-full flex flex-row items-center justify-end'>
+                                        <button
+                                            className='bg-purple text-white p-2 rounded-md w-5/6'
+                                            onClick={handleSetUpTwillio}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
                                 )
                             }
                         </div>
@@ -233,6 +243,11 @@ export const AddAgencyTwilioKeyModal = ({
 
 const styles = {
     mediumTxt: {
+        fontWeight: "500",
+        fontSize: "15px",
+        marginTop: 20
+    },
+    inputTxt: {
         fontWeight: "500",
         fontSize: "15px"
     }

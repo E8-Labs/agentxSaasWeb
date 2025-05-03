@@ -198,6 +198,7 @@ function AgencySubacount() {
         </div>
       </div>
 
+      {/* Code for twilio warning */}
       <TwilioWarning
         agencyData={agencyData}
         showSuccess={(d) => {
@@ -237,7 +238,7 @@ function AgencySubacount() {
         </div>
 
         <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
-          <div className="w-2/12">
+          <div className="w-3/12">
             <div style={styles.text}>Subaccoun</div>
           </div>
           <div className="w-2/12 ">
@@ -255,7 +256,7 @@ function AgencySubacount() {
           <div className="w-2/12">
             <div style={styles.text}>Renewal</div>
           </div>
-          <div className="w-2/12">
+          <div className="w-1/12">
             <div style={styles.text}>Teams</div>
           </div>
           <div className="w-1/12">
@@ -282,7 +283,7 @@ function AgencySubacount() {
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer"
                   >
                     <div
-                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                      className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
                     // onClick={() => {
                     //     // // //console.log;
                     //     // setselectedLeadsDetails(item);
@@ -292,13 +293,13 @@ function AgencySubacount() {
                       {item.thumb_profile_image ? (
                         <Image
                           src={item.thumb_profile_image}
-                          className="rounded-full"
+                          className="rounded-full bg-red"
                           height={40}
                           width={40}
                           style={{
                             height: "40px",
                             width: "40px",
-                            resize: "cover",
+                            objectFit: "cover",
                           }}
                           alt="*"
                         />
@@ -308,7 +309,7 @@ function AgencySubacount() {
                         </div>
                       )}
 
-                      <div style={{ ...styles.text2, ...{ width: "80%" } }}>
+                      <div style={{ ...styles.text2 }} className="w-[60%]">
                         {item.name}
                       </div>
                     </div>
@@ -338,7 +339,7 @@ function AgencySubacount() {
                           : "-"}
                       </div>
                     </div>
-                    <div className="w-2/12">{item.teamMembers}</div>
+                    <div className="w-1/12">{item.teamMembers}</div>
 
                     <div className="w-1/12 relative">
                       <button
