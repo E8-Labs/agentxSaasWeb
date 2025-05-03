@@ -525,6 +525,7 @@ const LeadDetails = ({
 
   //code for custom variables
   const getDetailsColumnData = (column, item) => {
+    // console.log("Testing colum data is", item);
     let filteredColumns = column;
     const { title } = filteredColumns;
     if (item) {

@@ -211,7 +211,7 @@ function AgencySubacount() {
         <div
           className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6"
           style={{
-            backgroundImage: "url('/svgIcons/bg.svg')",
+            backgroundImage: "url('/agencyIcons/subAccBg.jpg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             // borderRadius:'20px'
@@ -221,7 +221,7 @@ function AgencySubacount() {
             style={{
               fontSize: 29,
               fontWeight: "700",
-              color: "white",
+              color: "black",
             }}
           >
             Total Subaccounts: {subAccountList?.length || 0}

@@ -1105,11 +1105,26 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                     </div>
 
                     <div className="flex w-5/12 flex-col items-center justify-center">
-                        <Image src={'/svgIcons/signupLogo.svg'}
+                        <Image src={'/agencyIcons/signupLogo.jpg'}
 
                             height={620} width={620} alt='*'
 
                         />
+
+                        <div
+                        className="w-4/12"
+                            style={{
+                                position: "absolute",
+                                right: "3%",
+                                bottom: "30%"
+                            }}>
+                            <div className="bg-white w-7/12 flex flex-row justify-center items-start shadow-xl pb-6 rounded-xl">
+                                <div className="w-9/12 bg-white shadow-xl rounded-xl">
+                                    Hey there mark
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
