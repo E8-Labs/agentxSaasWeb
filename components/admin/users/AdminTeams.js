@@ -488,7 +488,7 @@ function AdminTeam({ selectedUser }) {
         />
       )}
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
+        className=" w-full flex flex-row justify-between items-center py-4 px-4"
         // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Staff</div>

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import CreateSubAccountModal from "./CreateSubAccountModal";
 import SetPricing from "./SetPricing";
 import SetXBarOptions from "./SetXBarOptions";
+import UserType from "@/components/onboarding/UserType";
+import SubAccountUserType from "@/components/onboarding/extras/SubAccountUserType";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -30,6 +32,7 @@ export default function SlideModal({
 
     //variables storing data
     const [subFormData, setSubFormData] = useState(null);
+    const [selectedUser, setSelectedUser] = useState("");
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [xBarOptions, setXBarOptions] = useState([]);
 
@@ -65,7 +68,7 @@ export default function SlideModal({
             }}
         >
             <Box
-                className="rounded-xl max-w-md w-[100%] shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
+                className="rounded-xl max-w-xl w-[100%] shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
             >
                 <div className="relative flex justify-center items-center w-full">
                     <AnimatePresence initial={false} custom={direction}>
@@ -84,7 +87,7 @@ export default function SlideModal({
                                 <div className="">
                                     <CreateSubAccountModal
                                         onClose={handleClose}
-                                        formData={subFormData}
+                                        selectedUser={selectedUser}
                                         onContinue={(formData) => {
                                             handleContinue(formData);
                                             setSubFormData(formData);
@@ -97,6 +100,35 @@ export default function SlideModal({
                         {currentIndex === 1 && (
                             <motion.div
                                 key="box2"
+                                custom={direction}
+                                variants={boxVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{ duration: 0.3 }}
+                                className="rounded-lg w-[100%] bg-white p-6"
+                            // style={styles.motionDiv}
+                            >
+                                <div className="">
+                                    <SubAccountUserType
+                                        onClose={(u) => {
+                                            console.log("selected user id is", u);
+                                            handleBack();
+                                            setSelectedUser(u);
+                                        }}
+                                        userData={selectedUser}
+                                        onContinue={(u) => {
+                                            handleContinue(u);
+                                            setSelectedUser(u);
+                                        }}
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {currentIndex === 2 && (
+                            <motion.div
+                                key="box3"
                                 custom={direction}
                                 variants={boxVariants}
                                 initial="enter"
@@ -120,9 +152,9 @@ export default function SlideModal({
                             </motion.div>
                         )}
 
-                        {currentIndex === 2 && (
+                        {currentIndex === 3 && (
                             <motion.div
-                                key="box3"
+                                key="box4"
                                 custom={direction}
                                 variants={boxVariants}
                                 initial="enter"
@@ -141,6 +173,7 @@ export default function SlideModal({
                                     selectedMonthlyPlans={monthlyPlans}
                                     xBars={xBarOptions}
                                     closeModal={handleClose}
+                                    selectedUserType={selectedUser}
                                 />
                             </motion.div>
                         )}

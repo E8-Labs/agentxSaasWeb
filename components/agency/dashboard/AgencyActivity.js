@@ -172,7 +172,7 @@ function AgencyActivity({ user }) {
 
   return (
     <div
-      className=" flex flex-col justify-start items-start pl-32 h-[90svh] gap-4 pb-8 "
+      className=" flex flex-col justify-start items-start pl-10 h-[90svh] gap-4 pb-8 "
       style={{ overflow: "auto", scrollbarWidth: "none" }}
     >
       {/*  Stats  */}
@@ -185,7 +185,7 @@ function AgencyActivity({ user }) {
 
       {/*  DAU MAU  */}
       <div
-        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 bg-red px-8 rounded-lg w-[96%]"
+        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 rounded-lg w-[96%]"
         style={{
           backgroundImage: "url('/daustatback.svg')",
           backgroundSize: "cover",
@@ -540,7 +540,7 @@ function VoicesComponent({
 
 function SubscriptionsStatsComponent({ stats, plans }) {
   return (
-    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white px-4 rounded-lg w-[96%]">
+    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white pe-4 rounded-lg w-[96%]">
       {/* Top Metrics */}
       <Card className="cursor-pointer border-none shadow-none w-[11vw]">
         <CardHeader>

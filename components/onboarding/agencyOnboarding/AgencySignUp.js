@@ -27,6 +27,7 @@ import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
+import { color } from "framer-motion";
 
 const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) => {
     const verifyInputRef = useRef([]);
@@ -467,6 +468,11 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
             border: "none",
             outline: "none",
         },
+        sideBoxTxt: {
+            fontWeight: "600",
+            fontSize: 18,
+            color: "#00000070"
+        }
     };
 
     return (
@@ -484,14 +490,14 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                 className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
                                 style={{ textAlign: "left" }}
                             >
-                                Agency Account
+                                Create Your AI Agency
                             </div>
-                            <div
+                            {/*<div
                                 className="mt-3 w-11/12 md:text-lg text-lg font-[500] text-[#00000060]"
                                 style={{ textAlign: "left" }}
                             >
                                 Build your AI Agency
-                            </div>
+    </div>*/}
                             <div
                                 className="mt-6 w-[80%] flex flex-col max-h-[90%] sm:max-h-[85%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
                                 style={{ scrollbarWidth: "none" }}
@@ -1105,22 +1111,67 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                     </div>
 
                     <div className="flex w-5/12 flex-col items-center justify-center">
-                        <Image src={'/agencyIcons/signupLogo.jpg'}
-
+                        <Image
+                            className="object-contain"
+                            src={'/agencyIcons/signupLogo.jpg'}
                             height={620} width={620} alt='*'
-
                         />
 
+                        {/* Side Box Code */}
                         <div
-                        className="w-4/12"
-                            style={{
-                                position: "absolute",
-                                right: "3%",
-                                bottom: "30%"
-                            }}>
+                            className="absolute bottom-10 right-6 sm:right-10 w-60 sm:w-4/12"
+                        // style={{
+                        //     position: "absolute",
+                        //     right: "3%",
+                        //     bottom: "10%"
+                        // }}
+                        >
                             <div className="bg-white w-7/12 flex flex-row justify-center items-start shadow-xl pb-6 rounded-xl">
-                                <div className="w-9/12 bg-white shadow-xl rounded-xl">
-                                    Hey there mark
+                                <div className="w-9/12 bg-white shadow-xl rounded-xl px-4">
+                                    <div className="flex flex-row items-center gap-3 pt-6">
+                                        <Image
+                                            alt="*"
+                                            src={"/agencyIcons/man.jpg"}
+                                            height={32}
+                                            width={32}
+                                        />
+                                        <div style={styles.sideBoxTxt}>
+                                            {userName ? userName : "Agency Owner"}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-3 mt-4">
+                                        <Image
+                                            alt="*"
+                                            src={"/agencyIcons/web.jpg"}
+                                            height={32}
+                                            width={32}
+                                        />
+                                        <div className="w-32 truncate" style={styles.sideBoxTxt}>
+                                            {website ? website : "Website"}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-3 mt-4">
+                                        <Image
+                                            alt="*"
+                                            src={"/agencyIcons/email.jpg"}
+                                            height={32}
+                                            width={32}
+                                        />
+                                        <div className="w-32 truncate" style={styles.sideBoxTxt}>
+                                            {userEmail ? userEmail : "Email"}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-3 mt-4 pb-6">
+                                        <Image
+                                            alt="*"
+                                            src={"/agencyIcons/building.jpg"}
+                                            height={32}
+                                            width={32}
+                                        />
+                                        <div style={styles.sideBoxTxt}>
+                                            {size ? size.label : "Company Size"}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

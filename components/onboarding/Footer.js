@@ -2,7 +2,7 @@ import { CircularProgress } from '@mui/material'
 import React from 'react'
 import LoaderAnimation from '../animations/LoaderAnimation'
 
-const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, shouldContinue }) => {
+const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, shouldContinue, addCalendarLoader = false }) => {
     // //console.log;
     return (
         <div>
@@ -21,12 +21,18 @@ const Footer = ({ handleContinue, handleBack, donotShowBack, registerLoader, sho
                 {
                     registerLoader ?
                         <LoaderAnimation loaderModal={registerLoader} /> :
-                        <button
-                            disabled={shouldContinue}
-                            className='rounded-lg text-white bg-purple'
-                            style={{ fontWeight: "700", fontSize: "16", backgroundColor: shouldContinue && "#00000020", color: shouldContinue && "#000000", height: "40px", width: "100px" }} onClick={handleContinue}>
-                            Continue
-                        </button>
+                        <div>
+                            {
+                                addCalendarLoader ?
+                                    <CircularProgress size={35} /> :
+                                    <button
+                                        disabled={shouldContinue}
+                                        className='rounded-lg text-white bg-purple'
+                                        style={{ fontWeight: "700", fontSize: "16", backgroundColor: shouldContinue && "#00000020", color: shouldContinue && "#000000", height: "40px", width: "100px" }} onClick={handleContinue}>
+                                        Continue
+                                    </button>
+                            }
+                        </div>
                 }
 
             </div>

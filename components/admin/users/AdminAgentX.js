@@ -1757,7 +1757,7 @@ function AdminAgentX({ selectedUser, from }) {
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
       </div>
 
-      <div className="w-9/12 items-center " style={{}}>
+      <div className="w-full items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
@@ -1765,13 +1765,13 @@ function AdminAgentX({ selectedUser, from }) {
           </div>
         ) : (
           <div
-            className="h-[45vh] overflow-auto flex flex-col gap-4 pt-10"
+            className="h-[45vh] overflow-auto flex flex-col gap-4 pt-10 w-full"
             style={{ scrollbarWidth: "none" }}
           >
             {agentsListSeparated.map((item, index) => (
               <div
                 key={index}
-                className="w-full px-10 py-2"
+                className="w-full px-4 py-2"
                 style={{
                   borderWidth: 1,
                   borderColor: "#00000007",

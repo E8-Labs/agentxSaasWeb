@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Modal, Box } from '@mui/material';
+import { Modal, Box, Switch } from '@mui/material';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import PhoneInput from "react-phone-input-2";
@@ -11,6 +11,7 @@ import SetPricing from './SetPricing';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import agents from '@/components/onboarding/extras/AgentsList';
+import SellSeatsModal from '@/components/onboarding/extras/SellSeatsModal';
 
 export default function CreateSubAccountModal({ onClose, onContinue, formData }) {
 
@@ -178,6 +179,21 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     //continue restriction
     const [shouldContinue, setShouldContinue] = useState(false);
 
+    //code for seats check list
+    const [alowSellSeats, setAlowSellSeats] = useState(false);
+    const [showSellSeatsModal, setShowSellSeatsModal] = useState(false);
+    const [seats, setSeats] = useState("");
+
+    //show sell seats modal
+    useEffect(() => {
+        if (alowSellSeats === true) {
+            setShowSellSeatsModal(true);
+        } else if (alowSellSeats === false) {
+            setSeats("");
+            setShowSellSeatsModal(false);
+        }
+    }, [alowSellSeats])
+
     //check if can continue
     useEffect(() => {
         const hasEmptyTeamMember = teamMembers.some(member =>
@@ -217,7 +233,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setSubAccountName(formData.subAccountName);
             setUserEmail(formData.userEmail);
             setUserPhoneNumber(formData.userPhoneNumber);
-            setSelectedUserType(formData.selectedUserType);
+            // setSelectedUserType(formData.selectedUserType);
             setTeamMembers(formData.teamMembers);
             setErrorMessage("")
             setValidEmail("")
@@ -498,7 +514,6 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             userPhoneNumber: userPhoneNumber,
             teamMembers: teamMembers,
             subAccountName: subAccountName,
-            selectedUserType: selectedUserType
         }
 
         // console.log(fromData);
@@ -546,9 +561,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                     </button>
                 </div>
 
-                <label style={styles.headings}>
-                    Account Name
-                </label>
+                <div style={styles.headings}>
+                    Sub Account Name
+                </div>
                 <input
                     type="text"
                     className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
@@ -558,207 +573,264 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                     onChange={(e) => { setSubAccountName(e.target.value) }}
                 />
 
-                <div className="flex flex-row items-center w-full justify-between">
-                    <label style={styles.headings}>
-                        Account Email
-                    </label>
-                    <div>
-                        {emailLoader ? (
-                            <p className='text-purple' style={{ ...styles.errmsg, }}>
-                                Checking ...
-                            </p>
-                        ) : (
-                            <div>
-                                {emailCheckResponse ? (
-                                    <p
-                                        style={{
-                                            ...styles.errmsg,
-                                            color:
-                                                emailCheckResponse.status === true
-                                                    ? "green"
-                                                    : "red",
-                                        }}
-                                    >
-                                        {emailCheckResponse?.message?.slice(0, 1)
-                                            .toUpperCase() +
-                                            emailCheckResponse?.message?.slice(1)}
-                                    </p>
-                                ) : (
-                                    <div />
-                                )}
-                            </div>
-                        )}
-                        <div style={{ ...styles.errmsg, color: "red" }}>
-                            {validEmail}
-                        </div>
-                    </div>
+                <div
+                    className='mb-4'
+                    style={styles.headings}>
+                    Sub Account Name
                 </div>
 
-                <input
-                    type="email"
-                    className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                    placeholder="Type here..."
-                    style={styles.inputs}
-                    value={userEmail}
-                    onChange={(e) => {
-                        let value = e.target.value;
-                        setUserEmail(value);
-
-                        if (timerRef.current) {
-                            clearTimeout(timerRef.current);
-                        }
-
-                        setEmailCheckResponse(null);
-
-                        if (!value) {
-                            // //console.log;
-                            setValidEmail("");
-                            return;
-                        }
-
-                        if (!validateEmail(value)) {
-                            // //console.log;
-                            setValidEmail("Invalid");
-                        } else {
-                            // //console.log;
-                            if (value) {
-                                // Set a new timeout
-                                timerRef.current = setTimeout(() => {
-                                    checkEmail(value);
-                                }, 300);
-                            } else {
-                                // Reset the response if input is cleared
-                                setEmailCheckResponse(null);
-                                setValidEmail("");
-                            }
-                        }
-                    }}
-                />
-
-                <div className='flex flex-row items-center justify-between'>
-                    <label style={styles.headings}>
-                        Account Phone Number
-                    </label>
-                    <div className='mt-2'>
-                        {locationLoader && (
-                            <p
-                                className="text-purple"
-                                style={{ ...styles.errmsg, height: "20px" }}
-                            >
-                                Getting location ...
-                            </p>
-                        )}
-                        {errorMessage ? (
-                            <p
-                                style={{
-                                    ...styles.errmsg,
-                                    color: errorMessage && "red",
-                                    height: "20px",
-                                }}
-                            >
-                                {errorMessage}
-                            </p>
-                        ) : (
+                <div className='w-full flex flex-row items-center gap-2'>
+                    <div className='w-4/12'>
+                        <div style={styles.inputs}>
+                            Full Name
+                        </div>
+                        <div>
+                            <input
+                                type="email"
+                                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                placeholder="Type here..."
+                                style={styles.inputs}
+                            />
+                        </div>
+                    </div>
+                    {/* Sub Acc Email */}
+                    <div className='w-4/12'>
+                        <div className="flex flex-row items-center w-full justify-between">
+                            <div style={styles.inputs}>
+                                Email
+                            </div>
                             <div>
-                                {phoneNumberLoader ? (
-                                    <p
-                                        style={{
-                                            ...styles.errmsg,
-                                            color: "black",
-                                            height: "20px",
-                                        }}
-                                    >
+                                {emailLoader ? (
+                                    <p className='text-purple' style={{ ...styles.errmsg, }}>
                                         Checking ...
                                     </p>
                                 ) : (
                                     <div>
-                                        {checkPhoneResponse ? (
+                                        {emailCheckResponse ? (
                                             <p
                                                 style={{
                                                     ...styles.errmsg,
                                                     color:
-                                                        checkPhoneResponse.status === true
+                                                        emailCheckResponse.status === true
                                                             ? "green"
                                                             : "red",
-                                                    height: "20px",
                                                 }}
                                             >
-                                                {checkPhoneResponse?.message?.slice(0, 1)
+                                                {emailCheckResponse?.message?.slice(0, 1)
                                                     .toUpperCase() +
-                                                    checkPhoneResponse?.message?.slice(1)}
+                                                    emailCheckResponse?.message?.slice(1)}
                                             </p>
                                         ) : (
                                             <div />
                                         )}
                                     </div>
                                 )}
+                                <div style={{ ...styles.errmsg, color: "red" }}>
+                                    {validEmail}
+                                </div>
                             </div>
-                        )}
+                        </div>
+                        <div>
+                            <input
+                                type="email"
+                                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                placeholder="Type here..."
+                                style={styles.inputs}
+                                value={userEmail}
+                                onChange={(e) => {
+                                    let value = e.target.value;
+                                    setUserEmail(value);
+
+                                    if (timerRef.current) {
+                                        clearTimeout(timerRef.current);
+                                    }
+
+                                    setEmailCheckResponse(null);
+
+                                    if (!value) {
+                                        // //console.log;
+                                        setValidEmail("");
+                                        return;
+                                    }
+
+                                    if (!validateEmail(value)) {
+                                        // //console.log;
+                                        setValidEmail("Invalid");
+                                    } else {
+                                        // //console.log;
+                                        if (value) {
+                                            // Set a new timeout
+                                            timerRef.current = setTimeout(() => {
+                                                checkEmail(value);
+                                            }, 300);
+                                        } else {
+                                            // Reset the response if input is cleared
+                                            setEmailCheckResponse(null);
+                                            setValidEmail("");
+                                        }
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                    {/* Sub Acc Phone */}
+                    <div className='w-4/12'>
+                        <div className='flex flex-row items-center justify-between'>
+                            <div style={styles.inputs}>
+                                Phone Number
+                            </div>
+                            <div className=''>
+                                {locationLoader && (
+                                    <p
+                                        className="text-purple"
+                                        style={{ ...styles.errmsg, height: "20px" }}
+                                    >
+                                        Getting location ...
+                                    </p>
+                                )}
+                                {errorMessage ? (
+                                    <p
+                                        style={{
+                                            ...styles.errmsg,
+                                            color: errorMessage && "red",
+                                            height: "20px",
+                                        }}
+                                    >
+                                        {errorMessage}
+                                    </p>
+                                ) : (
+                                    <div>
+                                        {phoneNumberLoader ? (
+                                            <p
+                                                style={{
+                                                    ...styles.errmsg,
+                                                    color: "black",
+                                                    height: "20px",
+                                                }}
+                                            >
+                                                Checking ...
+                                            </p>
+                                        ) : (
+                                            <div>
+                                                {checkPhoneResponse ? (
+                                                    <p
+                                                        style={{
+                                                            ...styles.errmsg,
+                                                            color:
+                                                                checkPhoneResponse.status === true
+                                                                    ? "green"
+                                                                    : "red",
+                                                            height: "20px",
+                                                        }}
+                                                    >
+                                                        {checkPhoneResponse?.message?.slice(0, 1)
+                                                            .toUpperCase() +
+                                                            checkPhoneResponse?.message?.slice(1)}
+                                                    </p>
+                                                ) : (
+                                                    <div />
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className='mt-2'>
+                            <PhoneInput
+                                specialLabel=""
+                                className="border outline-none bg-white"
+                                country={countryCode} // Set the default country
+                                value={userPhoneNumber}
+                                onChange={handlePhoneNumberChange}
+                                placeholder={
+                                    locationLoader
+                                        ? "Loading location ..."
+                                        : "Enter Phone Number"
+                                }
+                                disabled={loading} // Disable input if still loading
+                                style={{ borderRadius: "7px" }}
+                                inputStyle={{
+                                    width: "100%",
+                                    borderWidth: "0px",
+                                    backgroundColor: "transparent",
+                                    paddingLeft: "60px",
+                                    paddingTop: "20px",
+                                    paddingBottom: "20px",
+                                }}
+                                buttonStyle={{
+                                    border: "none",
+                                    backgroundColor: "transparent",
+                                    // display: 'flex',
+                                    // alignItems: 'center',
+                                    // justifyContent: 'center',
+                                }}
+                                dropdownStyle={{
+                                    maxHeight: "150px",
+                                    overflowY: "auto",
+                                }}
+                                countryCodeEditable={true}
+                                defaultMask={loading ? "Loading..." : undefined}
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div style={{ marginTop: "8px" }}>
-                    <PhoneInput
-                        specialLabel=""
-                        className="border outline-none bg-white"
-                        country={countryCode} // Set the default country
-                        value={userPhoneNumber}
-                        onChange={handlePhoneNumberChange}
-                        placeholder={
-                            locationLoader
-                                ? "Loading location ..."
-                                : "Enter Phone Number"
+
+
+                {/* Code for allow sell seats */}
+                <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                    <div style={styles.inputs}>
+                        {
+                            seats ? (
+                                <div>
+                                    Sell Seats(${seats}/seat)
+                                </div>
+                            ) : (
+                                <div>
+                                    Sell Seats / Month
+                                </div>
+                            )
                         }
-                        disabled={loading} // Disable input if still loading
-                        style={{ borderRadius: "7px" }}
-                        inputStyle={{
-                            width: "100%",
-                            borderWidth: "0px",
-                            backgroundColor: "transparent",
-                            paddingLeft: "60px",
-                            paddingTop: "20px",
-                            paddingBottom: "20px",
-                        }}
-                        buttonStyle={{
-                            border: "none",
-                            backgroundColor: "transparent",
-                            // display: 'flex',
-                            // alignItems: 'center',
-                            // justifyContent: 'center',
-                        }}
-                        dropdownStyle={{
-                            maxHeight: "150px",
-                            overflowY: "auto",
-                        }}
-                        countryCodeEditable={true}
-                        defaultMask={loading ? "Loading..." : undefined}
-                    />
-                </div>
-
-                <div
-                    className='overflow-x-auto whitespace-nowrap mt-4 scrollbar-hide'
-                    style={{
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                    }}>
-                    <div className="inline-flex gap-4">
-                        {userType.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => setSelectedUserType(item.userType)}
-                                className={`min-w-max bg-white text-black flex items-center gap-2 border rounded-md px-4 py-2 transition-all
-          ${selectedUserType === item.userType
-                                        ? 'border-purple'
-                                        : 'border-purple10 hover:border-purple'}
-        `}
-                            >
-                                <Image src={item.icon} alt='userType' height={30} width={30} />
-                                <span className="whitespace-nowrap">{item.userType}</span>
-                            </button>
-                        ))}
+                    </div>
+                    <div className='flex flex-row items-center gap-4'>
+                        {
+                            alowSellSeats && (
+                                <button
+                                    className='underline text-purple'
+                                    style={styles.inputs}
+                                    onClick={() => {
+                                        setShowSellSeatsModal(true);
+                                    }}
+                                >
+                                    Edit
+                                </button>
+                            )
+                        }
+                        <Switch
+                            checked={alowSellSeats}
+                            onChange={(e) => setAlowSellSeats(e.target.checked)}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
                     </div>
                 </div>
 
+                {/* Sell Seats Modal */}
+                <SellSeatsModal
+                    showModal={showSellSeatsModal}
+                    closeModal={(d) => {
+                        setShowSellSeatsModal(false);
+                        setSeats(d);
+                    }}
+                    seats={seats}
+                />
 
 
 

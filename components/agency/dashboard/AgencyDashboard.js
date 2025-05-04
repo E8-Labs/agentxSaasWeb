@@ -45,11 +45,17 @@ export default function AgencyDashboard() {
   }, []);
 
   return (
-    <div className="flex w-full items-center flex-row justify-center">
-      <div className="px-6  py-6 ">
+    <div className="flex w-full items-center flex-row justify-start">
+      <div className="py-6">
+        <div
+          className="pl-10"
+          style={{ fontSize: 24, fontWeight: "600" }}
+        >
+          Dashboard
+        </div>
         {/* Tabs for navigation */}
-        <Tabs defaultValue="user-activity" className="mb-6">
-          <TabsList className="flex gap-4 border-b pb-2 bg-transparent">
+        <Tabs defaultValue="user-activity" className="mb-6 w-full">
+          <TabsList className="flex flex-row items-center justify-start gap-4 border-b pb-2 w-full pl-10 bg-transparent">
             <TabsTrigger value="user-activity">User Activity</TabsTrigger>
             {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
@@ -66,6 +72,7 @@ export default function AgencyDashboard() {
             <AgencySubscriptions />
           </TabsContent>
         </Tabs>
+        
       </div>
     </div>
   );

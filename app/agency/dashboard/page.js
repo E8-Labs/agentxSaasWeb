@@ -31,8 +31,15 @@ function Page() {
   const [selectedManu, setSelectedManu] = useState(manuBar[0]);
 
   return (
-    // <ErrorBoundary>
-      <div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
+    <div className="w-full flex flex-col items-center h-[99svh] overflow-hidden " >
+      <AgencyDashboard />
+    </div>
+  );
+}
+
+export default Page;
+
+{/*<div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
         <div
           style={{
             position: "absolute",
@@ -89,9 +96,4 @@ function Page() {
             </div>
           )}
         </div>
-      </div>
-    // </ErrorBoundary>
-  );
-}
-
-export default Page;
+        </div>*/}

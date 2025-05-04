@@ -8,12 +8,16 @@ export default function Page() {
   const router = useRouter();
   const [userId, setUserId] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isFromAgency, setIsFromAgency] = useState(false);
 
   // ✅ Manually get `userId` from the URL (avoids Suspense issue)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const id = params.get("userId");
+      const isFromAgency = params.get("agencyUser");
+      setIsFromAgency(isFromAgency);
+      console.log("is agency user", isFromAgency);
       if (id) {
         setUserId(id);
       }
@@ -54,6 +58,7 @@ export default function Page() {
             window.close();
           }}
           selectedUser={selectedUser}
+          agencyUser={isFromAgency}
         />
       ) : (
         <p>Loading...</p>

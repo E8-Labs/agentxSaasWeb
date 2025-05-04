@@ -163,13 +163,18 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
 
                     {/* Price */}
                     <label style={styles.labels}>Price</label>
-                    <input
-                        style={styles.inputs}
-                        type="number"
-                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="00"
-                        value={originalPrice}
-                        onChange={(e) => { setOriginalPrice(e.target.value) }}
-                    />
+                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                        <div className='' style={styles.inputs}>
+                            $
+                        </div>
+                        <input
+                            style={styles.inputs}
+                            type="number"
+                            className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="00"
+                            value={originalPrice}
+                            onChange={(e) => { setOriginalPrice(e.target.value) }}
+                        />
+                    </div>
 
                     {
                         minCostErr && (
@@ -185,23 +190,36 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
 
                     {/* Strikethrough Price */}
                     <label style={styles.labels}>Strikethrough Price (Optional)</label>
-                    <input
-                        style={styles.inputs}
-                        type="number"
-                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="00"
-                        value={discountedPrice}
-                        onChange={(e) => { setDiscountedPrice(e.target.value) }}
-                    />
+                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                        <div className='' style={styles.inputs}>
+                            $
+                        </div>
+                        <input
+                            style={styles.inputs}
+                            type="number"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"}`}
+                            placeholder="00"
+                            value={discountedPrice}
+                            onChange={(e) => { setDiscountedPrice(e.target.value) }}
+                        />
+                    </div>
 
                     {/* Minutes */}
                     <label style={styles.labels}>Minutes</label>
-                    <input
-                        style={styles.inputs}
-                        type="number"
-                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="000"
-                        value={minutes}
-                        onChange={(e) => { setMinutes(e.target.value) }}
-                    />
+                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                        <div className='' style={styles.inputs}>
+                            $
+                        </div>
+                        <input
+                            style={styles.inputs}
+                            type="number"
+                            className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="000"
+                            value={minutes}
+                            onChange={(e) => {
+                                setMinutes(e.target.value);
+                            }}
+                        />
+                    </div>
 
                     {/* Allow Trial */}
                     {

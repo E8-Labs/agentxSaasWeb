@@ -1572,7 +1572,7 @@ const AdminLeads = ({
         type={messageType}
       />
       <div
-        className="flex flex-row items-center justify-between w-full px-10 pt-4"
+        className="flex flex-row items-center justify-between w-full px-4 pt-36"
       // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div style={{ fontWeight: "700", fontSize: 25 }}>Leads</div>

@@ -17,7 +17,7 @@ function AdminCallLogs({selectedUser}) {
 
   return (
     <div className='w-full flex flex-col items-center overflow-hidden'>
-      <div className=' w-full flex flex-row justify-between items-center py-4 px-10'
+      <div className=' w-full flex flex-row justify-between items-center py-4 px-4'
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>

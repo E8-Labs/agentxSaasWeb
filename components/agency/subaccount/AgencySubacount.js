@@ -224,7 +224,7 @@ function AgencySubacount() {
               color: "black",
             }}
           >
-            Total Subaccounts: {subAccountList?.length || 0}
+            Total Sub Accounts: {subAccountList?.length || 0}
           </div>
 
           <button
@@ -233,13 +233,13 @@ function AgencySubacount() {
               handleCheckPlans();
             }}
           >
-            Create Subaccount
+            Create Sub Account
           </button>
         </div>
 
         <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
           <div className="w-3/12">
-            <div style={styles.text}>Subaccoun</div>
+            <div style={styles.text}>Sub Account</div>
           </div>
           <div className="w-2/12 ">
             <div style={styles.text}>Plan</div>

@@ -10,7 +10,7 @@ import UserType from "@/components/onboarding/UserType";
 
 
 export default function SetXBarOptions({
-    onClose, selectedMonthlyPlans, xBars, formData, closeModal
+    onClose, selectedMonthlyPlans, xBars, formData, closeModal, selectedUserType
 }) {
 
     const [xBarPlans, setXBarPlans] = useState([]);
@@ -62,7 +62,7 @@ export default function SetXBarOptions({
                 name: formData.subAccountName,
                 phone: formData.userPhoneNumber,
                 email: formData.userEmail,
-                userType: formData.selectedUserType,
+                userType: selectedUserType,
                 teams: formData.teamMembers.filter(item => item.name && item.email && item.phone)   // Filter members with all fields present
                     .map(item => ({
                         name: item.name,

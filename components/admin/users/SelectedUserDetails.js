@@ -19,7 +19,8 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 function SelectedUserDetails({
     selectedUser,
     handleDel,
-    from = "admin"
+    from = "admin",
+    agencyUser = false
 }) {
 
     //console.log
@@ -215,30 +216,37 @@ function SelectedUserDetails({
                                 {selectedUser.name}
                             </h4>
 
-                            <button
-                                onClick={() => {
-                                    console.log('selectedUser.id', selectedUser.id)
-                                    if (selectedUser?.id) {
-                                        // Open a new tab with user ID as query param
-                                        let url = ""
-                                        if (from === "admin") {
-                                            url = `/admin/users?userId=${selectedUser.id}`
-                                        } else if (from === "subaccount") {
-                                            url = `/agency/users?userId=${selectedUser.id}`
-                                            // const d = {
-                                            //     subAccountData: selectedUser,
-                                            //     isFromAgency: true
-                                            // }
-                                            // localStorage.setItem("isFromAgency", JSON.stringify(d));
-                                        }
-                                        // url = `admin/users?userId=${selectedUser.id}`
-                                        //console.log
-                                        window.open(url, "_blank");
-                                    }
-                                }}
-                            >
-                                <Image src={"/svgIcons/arrowboxIcon.svg"} height={20} width={20} alt="*" />
-                            </button>
+                            {
+                                agencyUser ? (
+                                    ""
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            console.log('selectedUser.id', selectedUser.id)
+                                            if (selectedUser?.id) {
+                                                // Open a new tab with user ID as query param
+                                                let url = ""
+                                                if (from === "admin") {
+                                                    url = `/admin/users?userId=${selectedUser.id}`
+                                                } else if (from === "subaccount") {
+                                                    // url = `/agency/users?userId=${selectedUser.id}`
+                                                    url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`;
+                                                    // const d = {
+                                                    //     subAccountData: selectedUser,
+                                                    //     isFromAgency: true
+                                                    // }
+                                                    // localStorage.setItem("isFromAgency", JSON.stringify(d));
+                                                }
+                                                // url = `admin/users?userId=${selectedUser.id}`
+                                                //console.log
+                                                window.open(url, "_blank");
+                                            }
+                                        }}
+                                    >
+                                        <Image src={"/svgIcons/arrowboxIcon.svg"} height={20} width={20} alt="*" />
+                                    </button>
+                                )
+                            }
 
                         </div>
 
@@ -247,20 +255,26 @@ function SelectedUserDetails({
                                 pauseLoader ? (
                                     <CircularProgress size={25} />
                                 ) : (
-                                    <button
-                                        className="text-white bg-purple outline-none rounded-xl px-3"
-                                        style={{ height: "50px" }}
-                                        onClick={() => {
-                                            handlePause()
-                                        }}
-                                    >
-                                        Pause
-                                    </button>
+                                    <div>
+                                        {
+                                            !agencyUser || from !== "subaccount" && (
+                                                <button
+                                                    className="text-white bg-purple outline-none rounded-xl px-3"
+                                                    style={{ height: "50px" }}
+                                                    onClick={() => {
+                                                        handlePause();
+                                                    }}
+                                                >
+                                                    Pause
+                                                </button>
+                                            )
+                                        }
+                                    </div>
                                 )
                             }
 
                             {
-                                from != "subaccount" && (
+                                !agencyUser || from != "subaccount" && (
                                     <button
                                         className="text-white bg-purple outline-none rounded-xl px-3"
                                         style={{ height: "50px" }}
@@ -274,79 +288,95 @@ function SelectedUserDetails({
                             }
 
 
-                            <button
-                                className="text-red outline-none rounded-xl px-3"
-                                style={{ height: "50px" }}
-                                onClick={() => {
-                                    setShowDeleteModal(true)
-                                }}
-                            >
-                                Delete
-                            </button>
+                            {
+                                !agencyUser || from != "subaccount" && (
+                                    <button
+                                        className="text-red outline-none rounded-xl px-3"
+                                        style={{ height: "50px" }}
+                                        onClick={() => {
+                                            setShowDeleteModal(true)
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                )
+                            }
+                            {/* <div>
+                                <button>
+                                    <Image
+                                        src={"/assets/cross.png"}
+                                        alt='*'
+                                        height={20}
+                                        width={20}
+                                    />
+                                </button>
+                        </div>*/}
                         </div>
 
 
                     </div>
 
-
-                    <div className='flex flex-row items-center justify-start gap-3 border-b w-[90vw] px-10 pt-10'>
-                        {
-                            manuBar.map((item) => (
-                                <button key={item.id} onClick={() => {
-                                    handleManuClick(item)
-                                }}
-                                    className={`flex flex-row items-center gap-3 p-2 items-center 
+                    <div className='flex flex-row items-start w-full'>
+                        <div className='flex flex-col items-start justify-center gap-3 w-3/12 px-10 pt-10'>
+                            {
+                                manuBar.map((item) => (
+                                    <button key={item.id} onClick={() => {
+                                        handleManuClick(item)
+                                    }}
+                                        className={`flex flex-row items-center gap-3 p-2 items-center 
                                         ${selectedManu.id == item.id && "border-b-[2px] border-purple"}`
-                                    }>
-                                    <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
-                                        height={24} width={24} alt='*'
-                                    />
+                                        }>
+                                        <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
+                                            height={24} width={24} alt='*'
+                                        />
 
-                                    <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
-                                        {item.name}
-                                    </div>
+                                        <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
+                                            {item.name}
+                                        </div>
 
-                                </button>
-                            ))
-                        }
+                                    </button>
+                                ))
+                            }
 
-                    </div>
+                        </div>
 
-                    <div className='flex flex-col items-center justify-center bg-[#FBFCFF] pt-2 px-10 h-[70vh] overflow-hidden bg-white'>
-                        {
-                            selectedManu.name == "Leads" ? (
-                                <AdminLeads1 selectedUser={selectedUser} />
-                            ) : (
-                                selectedManu.name == "Pipeline" ? (
-                                    <AdminPipeline1 selectedUser={selectedUser} />
-                                ) : selectedManu.name == "Agents" ? (
-                                    <AdminAgentX
-                                        selectedUser={selectedUser}
-                                        from={from}
-                                    />
-                                ) : selectedManu.name == "Call Log" ? (
-                                    <AdminCallLogs selectedUser={selectedUser} />
+                        <div className="flex flex-col items-center justify-center pt-2 px-4 h-[70vh] overflow-hidden w-9/12">
+                            {
+                                selectedManu.name == "Leads" ? (
+                                    <AdminLeads1 selectedUser={selectedUser} />
                                 ) : (
-                                    selectedManu.name == "Dashboard" ? (
-                                        <AdminDashboard selectedUser={selectedUser} />
+                                    selectedManu.name == "Pipeline" ? (
+                                        <AdminPipeline1 selectedUser={selectedUser} />
+                                    ) : selectedManu.name == "Agents" ? (
+                                        <AdminAgentX
+                                            selectedUser={selectedUser}
+                                            from={from}
+                                        />
+                                    ) : selectedManu.name == "Call Log" ? (
+                                        <AdminCallLogs selectedUser={selectedUser} />
                                     ) : (
-                                        selectedManu.name == "Integration" ? (
-                                            <AdminIntegration selectedUser={selectedUser} />
+                                        selectedManu.name == "Dashboard" ? (
+                                            <AdminDashboard selectedUser={selectedUser} />
                                         ) : (
-                                            selectedManu.name == "Staff" ? (
-                                                <AdminTeam selectedUser={selectedUser} />
+                                            selectedManu.name == "Integration" ? (
+                                                <AdminIntegration selectedUser={selectedUser} />
                                             ) : (
-                                                selectedManu.name == "Account" ? (
-                                                    <AdminProfileData selectedUser={selectedUser} from={from} />
-                                                ) : "Comming soon..."
+                                                selectedManu.name == "Staff" ? (
+                                                    <AdminTeam selectedUser={selectedUser} />
+                                                ) : (
+                                                    selectedManu.name == "Account" ? (
+                                                        <AdminProfileData selectedUser={selectedUser} from={from} />
+                                                    ) : "Comming soon..."
+                                                )
                                             )
                                         )
+                                        //""
                                     )
-                                    //""
                                 )
-                            )
-                        }
+                            }
+                        </div>
                     </div>
+
                 </div>
             </div>
 
