@@ -68,7 +68,7 @@ export default function SlideModal({
             }}
         >
             <Box
-                className="rounded-xl max-w-xl w-[100%] shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
+                className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
             >
                 <div className="relative flex justify-center items-center w-full">
                     <AnimatePresence initial={false} custom={direction}>
@@ -88,6 +88,7 @@ export default function SlideModal({
                                     <CreateSubAccountModal
                                         onClose={handleClose}
                                         selectedUser={selectedUser}
+                                        formData={subFormData}
                                         onContinue={(formData) => {
                                             handleContinue(formData);
                                             setSubFormData(formData);

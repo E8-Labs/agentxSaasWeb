@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import Image from 'next/image';
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
-export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAddPlan }) {
+export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAddPlan, agencyPlanCost }) {
 
     const [allowTrial, setAllowTrial] = useState(false);
 
@@ -31,15 +31,28 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
         if (originalPrice && minutes) {
             const P = originalPrice * 100 / minutes;
             console.log("Calculated price is", P);
-            if (P < 20) {
+            if (P < 0.20) {
                 setMinCostErr(true);
-            } else if (P >= 20) {
+            } else if (P >= 0.20) {
                 setMinCostErr(false);
             }
         }
     }, [minutes, originalPrice]);
 
+    //profit text color
+    const getClr = () => {
+        const percentage = ((originalPrice - agencyPlanCost) / agencyPlanCost) * 100;
 
+        if (percentage >= 0 && percentage <= 50) {
+            return "#FF4E4E";
+        } else if (percentage > 50 && percentage <= 75) {
+            return "orange";
+        } else if (percentage > 75 && percentage < 100) {
+            return "yellow";
+        } else if (percentage >= 100) {
+            return "#01CB76";
+        }
+    }
 
     //code to create plan
     const handleCreatePlan = async () => {
@@ -104,6 +117,10 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
             fontSize: "15px",
             fontWeight: "500",
             color: "#000000",
+        },
+        text: {
+            fontSize: "15px",
+            fontWeight: "500",
         }
     }
 
@@ -114,7 +131,7 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
         >
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
             <Box
-                className="bg-white rounded-xl p-6 max-w-md w-[95%] h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
             >
                 <AgentSelectSnackMessage
                     isVisible={snackMsg !== null}
@@ -122,155 +139,310 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
                     hide={() => { setSnackMsg(null) }}
                     type={snackMsgType}
                 />
-
-                <div className='overflow-y-auto h-[90%] scrollbar-hide'
-                    style={{
-                        scrollbarWidth: 'none',
-                        msOverflowStyle: 'none',
-                    }}>
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-xl font-semibold">New Plan</h2>
-                        <button onClick={() => { handleClose("") }} className="text-gray-400 hover:text-black">✕</button>
-                    </div>
-
-                    {/* Plan Name */}
-                    <label style={styles.labels}>Plan Name</label>
-                    <input
-                        style={styles.inputs}
-                        className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                        placeholder="Type here"
-                        value={title}
-                        onChange={(e) => { setTitle(e.target.value) }}
-                    />
-
-                    {/* Tag Option */}
-                    <label style={styles.labels}>Tag Option</label>
-                    <input
-                        style={styles.inputs}
-                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="Popular, best deals"
-                        value={tag}
-                        onChange={(e) => { setTag(e.target.value) }}
-                    />
-
-                    {/* Description */}
-                    <label style={styles.labels}>Description</label>
-                    <input
-                        style={styles.inputs}
-                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="Type here"
-                        value={planDescription}
-                        onChange={(e) => { setPlanDescription(e.target.value) }}
-                    />
-
-                    {/* Price */}
-                    <label style={styles.labels}>Price</label>
-                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
-                        <div className='' style={styles.inputs}>
-                            $
-                        </div>
-                        <input
-                            style={styles.inputs}
-                            type="number"
-                            className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="00"
-                            value={originalPrice}
-                            onChange={(e) => { setOriginalPrice(e.target.value) }}
-                        />
-                    </div>
-
+                <div className='w-full flex flex-row h-[100%] items-start'>
                     {
-                        minCostErr && (
-                            <div className="flex flex-row items-center gap-2 mb-4">
-                                <Image src={"/agencyIcons/InfoIcon.jpg"} alt="info" height={20} width={20} />
-                                <p className="flex items-center gap-1" style={{ fontSize: "15px", fontWeight: "500" }}>
-                                    {/*<AiOutlineInfoCircle className="text-sm" />*/}
-                                    Min cost per min is 20 cents
-                                </p>
-                            </div>
-                        )
-                    }
-
-                    {/* Strikethrough Price */}
-                    <label style={styles.labels}>Strikethrough Price (Optional)</label>
-                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
-                        <div className='' style={styles.inputs}>
-                            $
-                        </div>
-                        <input
-                            style={styles.inputs}
-                            type="number"
-                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"}`}
-                            placeholder="00"
-                            value={discountedPrice}
-                            onChange={(e) => { setDiscountedPrice(e.target.value) }}
-                        />
-                    </div>
-
-                    {/* Minutes */}
-                    <label style={styles.labels}>Minutes</label>
-                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
-                        <div className='' style={styles.inputs}>
-                            $
-                        </div>
-                        <input
-                            style={styles.inputs}
-                            type="number"
-                            className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="000"
-                            value={minutes}
-                            onChange={(e) => {
-                                setMinutes(e.target.value);
-                            }}
-                        />
-                    </div>
-
-                    {/* Allow Trial */}
-                    {
-                        canAddPlan && (
-                            <div className="flex items-center justify-between mb-2">
-                                <label className="text-sm font-medium">Allow Trial</label>
-                                <Switch checked={allowTrial} onChange={(e) => setAllowTrial(e.target.checked)} />
-                            </div>
-                        )
-                    }
-
-                    {allowTrial && (
-                        <>
-                            <div className="bg-purple10 text-purple p-2 mb-2" style={{ fontWeight: "500", fontSize: "15px" }}>
-                                <p>You already have a trial plan</p>
-                            </div>
-                            <label style={styles.labels}>Duration of Trial</label>
-
-                            <div className='flex flex-row items-center border rounded-md px-2 mt-1'>
-                                <input
-                                    type="number"
-                                    className="w-[90%] rounded p-2 border-none outline-none focus:outline-none focus:ring-0"
-                                    value={trialValidForDays}
-                                    onChange={(e) => { setTrialValidForDays(e.target.value) }}
+                        !canAddPlan && (
+                            <div className='absolute left-1/2 -translate-x-1/2 top-10'>
+                                <Image
+                                    className='rounded-md'
+                                    src={"/agencyIcons/trialPlans.jpg"}
+                                    height={40}
+                                    width={356}
+                                    alt='*'
                                 />
-                                <div>
-                                    Days
+                            </div>
+                        )
+                    }
+                    <div className='w-6/12 h-[100%] p-6'>
+                        <div className='overflow-y-auto w-full h-[90%] scrollbar-hide'
+                            style={{
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none',
+                            }}>
+
+                            <div className='mb-4' style={{ fontWeight: "600", fontSize: 18 }}>
+                                New Plan
+                            </div>
+
+                            {/* Plan Name */}
+                            <label style={styles.labels}>Plan Name</label>
+                            <input
+                                style={styles.inputs}
+                                className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                placeholder="Type here"
+                                value={title}
+                                onChange={(e) => { setTitle(e.target.value) }}
+                            />
+
+                            {/* Tag Option */}
+                            <label style={styles.labels}>Tag Option</label>
+                            <input
+                                style={styles.inputs}
+                                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="Popular, best deals"
+                                value={tag}
+                                onChange={(e) => { setTag(e.target.value) }}
+                            />
+
+                            {/* Description */}
+                            <label style={styles.labels}>Description</label>
+                            <input
+                                style={styles.inputs}
+                                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1" placeholder="Type here"
+                                value={planDescription}
+                                onChange={(e) => { setPlanDescription(e.target.value) }}
+                            />
+
+                            <div className='w-full flex flex-row items-center gap-2'>
+                                <div className='w-6/12'>
+                                    {/* Price */}
+                                    <label style={styles.labels}>Price/Min {originalPrice && `(Your cost is $${originalPrice})`}                                    </label>
+                                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                                        <div className='' style={styles.inputs}>
+                                            $
+                                        </div>
+                                        <input
+                                            style={styles.inputs}
+                                            type="number"
+                                            className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="00"
+                                            value={originalPrice}
+                                            onChange={(e) => { setOriginalPrice(e.target.value) }}
+                                        />
+                                    </div>
+
+                                    {
+                                        minCostErr && (
+                                            <div className="flex flex-row items-center gap-2 mb-4">
+                                                <Image src={"/agencyIcons/InfoIcon.jpg"} alt="info" height={20} width={20} />
+                                                <p className="flex items-center gap-1" style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                    {/*<AiOutlineInfoCircle className="text-sm" />*/}
+                                                    Min cost per min is 20 cents
+                                                </p>
+                                            </div>
+                                        )
+                                    }
+
+                                    {/* Strikethrough Price */}
+                                    <label style={styles.labels}>Strikethrough Price (Optional)</label>
+                                    <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                                        <div className='' style={styles.inputs}>
+                                            $
+                                        </div>
+                                        <input
+                                            style={styles.inputs}
+                                            type="number"
+                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"}`}
+                                            placeholder="00"
+                                            value={discountedPrice}
+                                            onChange={(e) => { setDiscountedPrice(e.target.value) }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className='bg-[#F9F9F9] rounded-lg p-2 w-6/12 h-full'>
+                                    <div style={{
+                                        fontWeight: "500",
+                                        fontSize: 15,
+                                        color: "#00000050"
+                                    }}>
+                                        Margin Calculation
+                                    </div>
+                                    <div className='flex flex-row items-center justify-between' style={styles.inputs}>
+                                        <div>
+                                            Your Price
+                                        </div>
+                                        <div>
+                                            ${originalPrice}/ min
+                                        </div>
+                                        <div>
+                                            ${(originalPrice * minutes).toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <div className='flex flex-row items-center justify-between mt-4' style={styles.inputs}>
+                                        <div>
+                                            Your Cost
+                                        </div>
+                                        <div>
+                                            ${agencyPlanCost}/ min
+                                        </div>
+                                        <div>
+                                            ${(agencyPlanCost * minutes).toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <div
+                                        className='flex flex-row items-center justify-between mt-4'
+                                        style={{ ...styles.inputs, color: getClr() }}>
+                                        <div>
+                                            Your Profit
+                                        </div>
+                                        <div>
+                                            ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
+                                        </div>
+                                        <div>
+                                            ${((originalPrice - agencyPlanCost) * minutes).toFixed(2)}
+                                        </div>
+                                    </div>
+                                    <div className='text-end w-full mt-2' style={{ color: getClr() }}>
+                                        {((originalPrice - agencyPlanCost) / agencyPlanCost * 100).toFixed(2)}%
+                                    </div>
                                 </div>
                             </div>
 
-                        </>
-                    )}
-                </div>
+                            {/* Minutes */}
+                            <label style={styles.labels}>Minutes</label>
+                            <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                                <input
+                                    style={styles.inputs}
+                                    type="number"
+                                    className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="000"
+                                    value={minutes}
+                                    onChange={(e) => {
+                                        setMinutes(e.target.value);
+                                    }}
+                                />
+                            </div>
 
-                {/* Action Buttons */}
-                <div
-                    className="flex justify-between mt-6"
-                >
-                    <button onClick={() => { handleClose("") }} className="text-purple-600 font-semibold">
-                        Cancel
-                    </button>
-                    {
-                        createPlanLoader ?
-                            <CircularProgress size={30} /> :
-                            <button
-                                className="bg-purple w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg"
-                                onClick={handleCreatePlan}
-                            >
-                                Create Plan
+                            {/* Allow Trial */}
+                            {
+                                canAddPlan && (
+                                    <div className="flex items-center justify-between mb-2">
+                                        <label className="text-sm font-medium">Allow Trial</label>
+                                        <Switch checked={allowTrial} onChange={(e) => setAllowTrial(e.target.checked)} />
+                                    </div>
+                                )
+                            }
+
+                            {allowTrial && (
+                                <>
+                                    <div className="bg-purple10 text-purple p-2 mb-2" style={{ fontWeight: "500", fontSize: "15px" }}>
+                                        <p>You already have a trial plan</p>
+                                    </div>
+                                    <label style={styles.labels}>Duration of Trial</label>
+
+                                    <div className='flex flex-row items-center border rounded-md px-2 mt-1'>
+                                        <input
+                                            type="number"
+                                            className="w-[90%] rounded p-2 border-none outline-none focus:outline-none focus:ring-0"
+                                            value={trialValidForDays}
+                                            onChange={(e) => { setTrialValidForDays(e.target.value) }}
+                                        />
+                                        <div>
+                                            Days
+                                        </div>
+                                    </div>
+
+                                </>
+                            )}
+                        </div>
+                        {/* Action Buttons */}
+                        <div
+                            className="flex justify-between mt-6"
+                        >
+                            <button onClick={() => { handleClose("") }} className="text-purple-600 font-semibold">
+                                Cancel
                             </button>
-                    }
+                            {
+                                createPlanLoader ?
+                                    <CircularProgress size={30} /> :
+                                    <button
+                                        className="bg-purple w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg"
+                                        onClick={handleCreatePlan}
+                                    >
+                                        Create Plan
+                                    </button>
+                            }
+                        </div>
+                    </div>
+                    <div
+                        className='w-6/12 h-full rounded-tr-xl rounded-br-xl'
+                        style={{
+                            backgroundImage: "url('/agencyIcons/addPlanBg.jpg')",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
+                        }}>
+                        <div className='p-6 flex flex-col items-center'>
+                            <div className="flex justify-end w-full items-center mb-16">
+                                <button onClick={() => { handleClose("") }}>
+                                    <Image
+                                        src={"/assets/cross.png"}
+                                        alt='*'
+                                        height={14}
+                                        width={14}
+                                    />
+                                </button>
+                            </div>
+                            {
+                                (allowTrial && trialValidForDays) && (
+                                    <div className='w-11/12 rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2'>
+                                        <div className='flex flex-row items-center gap-2'>
+                                            <Image
+                                                src={"/agencyIcons/batchIcon.jpg"}
+                                                alt='*'
+                                                height={24}
+                                                width={24}
+                                            />
+                                            <div style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
+                                                First {trialValidForDays} Days Free
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
+                            <div className='w-11/12 bg-[#f5f5f5] rounded-xl p-6'>
+                                <div className='flex flex-row items-center justify-between w-full'>
+                                    <div style={{ fontWeight: "600", fontSize: 38 }}>
+                                        {title ? title : "My Plan"}
+                                    </div>
+                                    {
+                                        tag ? (
+                                            <div
+                                                className='rounded-full bg-purple text-white p-3 py-2'
+                                                style={styles.text}>
+                                                {tag} 🔥
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className='rounded-md bg-white text-white w-[127px] h-[28px]' />
+                                        )
+                                    }
+                                </div>
+                                <div className={`mt-4 flex flex-row items-center ${(!originalPrice || !discountedPrice) && "gap-2"}`} style={{ fontSize: 30, fontWeight: "600" }}>
+                                    {
+                                        discountedPrice ? (
+                                            <div className='line-through text-[#00000030]'>${discountedPrice}</div>
+                                        ) : (
+                                            <div className='bg-white rounded-md w-[58px] h-[28px]' />
+                                        )
+                                    }
+                                    {
+                                        originalPrice ? (
+                                            <div>${(originalPrice * minutes).toFixed(2)}</div>
+                                        ) : (
+                                            <div className='bg-white rounded-md w-[58px] h-[28px]' />
+                                        )
+                                    }
+                                </div>
+                                <div className='mt-4 text-[#00000070]' style={styles.text}>
+                                    Minutes
+                                </div>
+                                <div className='mt-1 text-[#000000]' style={styles.text}>
+                                    {
+                                        minutes ? minutes : (
+                                            <div className="bg-white w-full rounded-md h-[28px]" />
+                                        )
+                                    }
+                                </div>
+                                <div className='mt-4 text-[#00000070]' style={styles.text}>
+                                    Description
+                                </div>
+                                <div className='mt-1 text-[#000000]' style={styles.text}>
+                                    {
+                                        planDescription ? planDescription : (
+                                            <div className="bg-white w-full rounded-md h-[28px]" />
+                                        )
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </Box>
         </Modal>

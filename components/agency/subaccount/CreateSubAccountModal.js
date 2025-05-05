@@ -182,6 +182,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     //code for seats check list
     const [alowSellSeats, setAlowSellSeats] = useState(false);
     const [showSellSeatsModal, setShowSellSeatsModal] = useState(false);
+    const [fullName, setFullName] = useState("");
     const [seats, setSeats] = useState("");
 
     //show sell seats modal
@@ -227,7 +228,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setTeamMembers(defaultMembers)
             setErrorMessage("")
             setValidEmail("")
-
+            setFullName("");
+            setSeats("");
         }
         if (formData) {
             setSubAccountName(formData.subAccountName);
@@ -235,8 +237,11 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setUserPhoneNumber(formData.userPhoneNumber);
             // setSelectedUserType(formData.selectedUserType);
             setTeamMembers(formData.teamMembers);
-            setErrorMessage("")
-            setValidEmail("")
+            setFullName(formData.fullName);
+            setSeats(formData.seats);
+            setAlowSellSeats(true);
+            setErrorMessage("");
+            setValidEmail("");
         } else {
             resetValues()
         }
@@ -514,6 +519,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             userPhoneNumber: userPhoneNumber,
             teamMembers: teamMembers,
             subAccountName: subAccountName,
+            fullName: fullName,
+            seats: seats
         }
 
         // console.log(fromData);
@@ -589,6 +596,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                 type="email"
                                 className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
                                 placeholder="Type here..."
+                                value={fullName}
+                                onChange={(e) => { setFullName(e.target.value) }}
                                 style={styles.inputs}
                             />
                         </div>

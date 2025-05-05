@@ -28,6 +28,26 @@ function DashboardPlans() {
     //code for confiration modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+    //agencyp plan cost
+    const [agencyPlanCost, setAgencyPlanCost] = useState("");
+
+
+    //get local user data
+    useEffect(() => {
+        const localData = localStorage.getItem("User");
+        if (localData) {
+            const u = JSON.parse(localData);
+            const currentPlanId = u.user.plan.planId;
+            const agencyPlansList = localStorage.getItem("agencyPlansList");
+            if (agencyPlansList) {
+                const u = JSON.parse(agencyPlansList);
+                const matchedPlan = u.find(plan => plan.id === currentPlanId);
+                console.log("Matched plan is", matchedPlan);
+                setAgencyPlanCost(matchedPlan.ratePerMin);
+            }
+        }
+    }, [])
+
     //auto get the data
     useEffect(() => {
         if (planType === "monthly") {
@@ -90,7 +110,7 @@ function DashboardPlans() {
             const localPlans = localStorage.getItem("agencyMonthlyPlans");
             if (localPlans) {
                 setPlansList(JSON.parse(localPlans));
-                console.log("Plans list is",JSON.parse(localPlans));
+                console.log("Plans list is", JSON.parse(localPlans));
             } else {
                 const Token = AuthToken();
                 const ApiPath = Apis.getMonthlyPlan
@@ -406,7 +426,51 @@ function DashboardPlans() {
                                             className="text-center mt-4"
                                             style={{ fontWeight: "bold", fontSize: 20 }}
                                         >
-                                            No plan found
+                                            {
+                                                planType === "monthly" ? (
+                                                    <div className='h-full w-full flex flex-col items-center justify-center'>
+                                                        <Image
+                                                            alt='*'
+                                                            src={"/agencyIcons/nomonthlyplan.jpg"}
+                                                            height={230}
+                                                            width={420}
+                                                        />
+                                                        <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
+                                                            No Plans
+                                                        </div>
+                                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
+                                                            You have no monthly plans created
+                                                        </div>
+                                                        <button
+                                                            className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
+                                                            style={{ fontWeight: "500", fontSize: 15 }}
+                                                            onClick={handleAddPlan}>
+                                                            Create Plan
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className='h-full w-full flex flex-col items-center justify-center'>
+                                                        <Image
+                                                            alt='*'
+                                                            src={"/agencyIcons/noXBarPlans.jpg"}
+                                                            height={230}
+                                                            width={420}
+                                                        />
+                                                        <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
+                                                            No Plans
+                                                        </div>
+                                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
+                                                            You have no monthly plans created
+                                                        </div>
+                                                        <button
+                                                            className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
+                                                            style={{ fontWeight: "500", fontSize: 15 }}
+                                                            onClick={handleAddPlan}>
+                                                            Create Plan
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                     )}
                                 </div>
@@ -418,12 +482,18 @@ function DashboardPlans() {
 
                 {
                     planType === "monthly" ?
-                        <AddMonthlyPlan open={open}
+                        <AddMonthlyPlan
+                            open={open}
                             handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated}
                             canAddPlan={canAddPlan}
+                            agencyPlanCost={agencyPlanCost}
                         /> :
-                        <AddXBarPlan open={open}
-                            handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated} />
+                        <AddXBarPlan
+                            open={open}
+                            handleClose={handleClosePlanPopUp}
+                            onPlanCreated={handlePlanCreated}
+                            agencyPlanCost={agencyPlanCost}
+                        />
                 }
 
             </div>

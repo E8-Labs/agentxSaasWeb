@@ -1,6 +1,6 @@
 import { Box, Modal } from '@mui/material'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const SellSeatsModal = ({
     showModal,
@@ -9,6 +9,13 @@ const SellSeatsModal = ({
 }) => {
 
     const [seatsPrice, setSeatsPrice] = useState("");
+
+    useEffect(() => {
+        console.log(seats);
+        if (seats) {
+            setSeatsPrice(seats);
+        }
+    }, [seats]);
 
     const handleClose = () => {
         setSeatsPrice("");

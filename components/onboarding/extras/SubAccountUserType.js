@@ -159,8 +159,8 @@ const SubAccountUserType = ({
                                 }}
                             >
                                 <div
-                                    className="h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
-                                    style={{ backgroundColor: "#FAF9FF" }}
+                                    className="h-[100px] sm:h-[140px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
+                                    style={{ backgroundColor: "#FAF9FF" }} //FAF9FF
                                 >
                                     {/* <img src={item.icon} style={{ width: "100%", resize: "contain" }} alt='*' /> */}
                                     <img

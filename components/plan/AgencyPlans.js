@@ -103,6 +103,7 @@ function AgencyPlans() {
                         const monthly = [];
                         const quarterly = [];
                         const yearly = [];
+                        localStorage.setItem("agencyPlansList", JSON.stringify(plansList));
 
                         plansList.forEach(plan => {
                             switch (plan.duration) {

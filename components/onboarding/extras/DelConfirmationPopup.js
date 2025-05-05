@@ -65,11 +65,15 @@ const DelConfirmationPopup = ({
                                 </div>
                             </div>
 
-                            <div className="mt-6" style={{ fontWeight: "600", fontSize: 22 }}>
-                                Are you sure?<br />
-                                This cannot be undone<br />
+                            <div className="mt-6">
+                                <div style={{ fontWeight: "600", fontSize: 22 }}>
+                                    Are you sure?
+                                </div>
+                                <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                    This cannot be undone<br />
 
-                                This plan is currently assigned to active customers. Deleting it will remove access for all assigned users and may disrupt their service.
+                                    This plan is currently assigned to active customers. Deleting it will remove access for all assigned users and may disrupt their service.
+                                </div>
                             </div>
                         </div>
 

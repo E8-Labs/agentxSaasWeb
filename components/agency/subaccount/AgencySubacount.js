@@ -17,6 +17,8 @@ import { getMonthlyPlan, getXBarOptions } from "./GetPlansList";
 import SlideModal from "./SlideModal";
 import CreateSubAccountModal from "./CreateSubAccountModal";
 import { TwilioWarning } from "@/components/onboarding/extras/StickyModals";
+import NewInviteTeamModal from "./NewInviteTeamModal";
+import ViewSubAccountPlans from "./ViewSubAccountPlans";
 
 function AgencySubacount() {
   const [subAccountList, setSubAccountsList] = useState([]);
@@ -28,6 +30,9 @@ function AgencySubacount() {
 
   //code for invite team popup
   const [openInvitePopup, setOpenInvitePopup] = useState(false);
+  //code for show plans
+  const [showPlans, setShowPlans] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   const [delLoader, setDelLoader] = useState(false);
   const [pauseLoader, setpauseLoader] = useState(false);
@@ -344,11 +349,12 @@ function AgencySubacount() {
                     <div className="w-1/12 relative">
                       <button
                         id={`dropdown-toggle-${item.id}`}
-                        onClick={() =>
+                        onClick={() => {
+                          setUserData(item);
                           setmoreDropdown(
                             moreDropdown === item.id ? null : item.id
                           )
-                        }
+                        }}
                       >
                         <Image
                           src={"/svgIcons/threeDotsIcon.svg"}
@@ -379,7 +385,7 @@ function AgencySubacount() {
                           </button>
                           {/* Code for invite team modal */}
                           {openInvitePopup && (
-                            <InviteTeamModal
+                            <NewInviteTeamModal
                               openInvitePopup={openInvitePopup}
                               userID={moreDropdown}
                               handleCloseInviteTeam={(data) => {
@@ -391,14 +397,27 @@ function AgencySubacount() {
                               }}
                             />
                           )}
+
                           <button
                             className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
                             onClick={() => {
-                              setmoreDropdown(null);
+                              console.log(selectedUser);
+                              setShowPlans(true);
                             }}
                           >
                             View Plans
                           </button>
+
+                          {
+                            showPlans && (
+                              <ViewSubAccountPlans
+                                showPlans={setShowPlans}
+                                hidePlans={() => { setShowPlans(false) }}
+                                selectedUser={userData}
+                              />
+                            )
+                          }
+
                           <div>
                             {pauseLoader ? (
                               <CircularProgress size={25} />

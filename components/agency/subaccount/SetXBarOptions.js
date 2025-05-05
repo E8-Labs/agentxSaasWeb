@@ -58,11 +58,19 @@ export default function SetXBarOptions({
             const Token = AuthToken();
             const ApiPath = Apis.CreateAgencySubAccount; //add path
 
+            let seatscount = null;
+            if (formData.seats) {
+                seatscount = Number(formData.seats);
+            }
+
+
             const ApiData = {
                 name: formData.subAccountName,
                 phone: formData.userPhoneNumber,
                 email: formData.userEmail,
                 userType: selectedUserType,
+                agencyAccountName: formData.fullName,
+                costPerSeat: seatscount,
                 teams: formData.teamMembers.filter(item => item.name && item.email && item.phone)   // Filter members with all fields present
                     .map(item => ({
                         name: item.name,
@@ -167,7 +175,7 @@ export default function SetXBarOptions({
                         <button
                             onClick={() => { console.log("close all"); handleCreateSubAccount(); }}
                             // className="bg-purple text-white px-8 py-2 rounded-lg w-1/2"
-                            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? "bg-[#00000020] text-black": "bg-purple text-white"}`}
+                            className={`px-8 py-2 rounded-lg w-1/2 ${selectedXBarPlans.length === 0 ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
                         >
                             Continue
                         </button>
