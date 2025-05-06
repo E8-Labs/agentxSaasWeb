@@ -3,8 +3,8 @@
 // //console.log;
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://www.blindcircle.com/agentx/"
-    : "https://www.blindcircle.com/agentxtest/";
+    ? "https://apimyagentx.com/agentx/"
+    : "https://apimyagentx.com/agentxtest/";
 
 //// console.log(
 //   "Current environment is",
@@ -158,7 +158,7 @@ const Apis = {
 
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
-  pauseProfile:`${BasePath}api/user/pauseProfile`,
+  pauseProfile: `${BasePath}api/user/pauseProfile`,
 
   //add and get agency plans
   addMonthlyPlan: `${BasePath}api/agency/createAgencyPlan`,
@@ -167,8 +167,6 @@ const Apis = {
   getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
   CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
   getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
-
-
 };
 
 export default Apis;
