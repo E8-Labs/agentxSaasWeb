@@ -138,6 +138,12 @@ const AgencyNavBar = () => {
       uneselected: "/svgIcons/unSelectedPlansIcon.svg",
     }, {
       id: 4,
+      name: "Integrations",
+      href: "/agency/dashboard/integration",
+      selected: "/agencyIcons/integrationFocus.jpg",
+      uneselected: "/agencyIcons/integrationsUnFocus.jpg",
+    }, {
+      id: 5,
       name: "Call Logs",
       href: "/agency/dashboard/callLogs",
       selected: "/svgIcons/selectedPlansIcon.svg",

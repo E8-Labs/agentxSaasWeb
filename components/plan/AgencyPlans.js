@@ -12,6 +12,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import { AuthToken } from '../agency/plan/AuthDetails';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 import { useRouter } from 'next/navigation';
+import SelectYearlypopup from './SelectYearlypopup';
 
 //code for add card
 let stripePublickKey =
@@ -38,6 +39,7 @@ function AgencyPlans() {
 
     const [togglePlan, setTogglePlan] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedPlanIndex, setSelectedPlanIndex] = useState(null);
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [quaterlyPlans, setQuaterlyPlans] = useState([]);
     const [yearlyPlans, setYearlyPlans] = useState([]);
@@ -49,16 +51,52 @@ function AgencyPlans() {
     const [errorMsg, setErrorMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
+    //yearly plans popup
+    const [showYearlyPlan, setShowYearlyPlan] = useState(false);
+    const [isContinueMonthly, setIsContinueMonthly] = useState(false);
+
+
 
     useEffect(() => {
-
         getPlans();
     }, []);
 
+    //continue monthly plan
+    const continueMonthly = () => {
+        setIsContinueMonthly(true);
+        setShowYearlyPlan(false);
+    }
+
+    //continue yearly plan
+    const continueYearlyPlan = () => {
+        setSelectedDuration(duration[2]);
+        // const selectedYearlyPlan = yearlyPlans[selectedPlanIndex];
+        // console.log(selectedYearlyPlan);
+        setSelectedPlan(yearlyPlans[selectedPlanIndex]);
+        setShowYearlyPlan(false);
+    }
+
+    //check the profit state
+    const checkCanSelectYearly = () => {
+        console.log("Selected duration plan is", selectedDuration);
+        if (selectedDuration.title === "Yearly") {
+            setShowYearlyPlan(false);
+        } else {
+            if (isContinueMonthly === false) {
+                setShowYearlyPlan(true);
+            } else if (isContinueMonthly === true) {
+                setShowYearlyPlan(false);
+            }
+        }
+    }
+
     //handle select plan
-    const handleTogglePlanClick = (item) => {
+    const handleTogglePlanClick = (item, index) => {
+        console.log("Selected plan index is", index);
+        setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         setSelectedPlan((prevId) => (prevId === item ? null : item));
+        checkCanSelectYearly();
     };
 
     //close add card popup
@@ -78,6 +116,30 @@ function AgencyPlans() {
         if (selectedDuration.id === 3) return yearlyPlans;
         return [];
     };
+
+
+    // const getCurrentPlans = () => {
+    //     console.log("Selected Duration ID:", selectedDuration.id);
+
+    //     if (selectedDuration.id === 1) {
+    //         console.log("Returning Monthly Plans:", monthlyPlans);
+    //         return monthlyPlans;
+    //     }
+
+    //     if (selectedDuration.id === 2) {
+    //         console.log("Returning Quarterly Plans:", quaterlyPlans);
+    //         return quaterlyPlans;
+    //     }
+
+    //     if (selectedDuration.id === 3) {
+    //         console.log("Returning Yearly Plans:", yearlyPlans);
+    //         return yearlyPlans;
+    //     }
+
+    //     console.log("No Matching Duration ID. Returning Empty Array");
+    //     return [];
+    // };
+
 
 
     //api to get plans
@@ -265,11 +327,11 @@ function AgencyPlans() {
                         </div>
                     </div>
 
-                    <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'>
+                    <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] px-2 py-1 rounded-full'>
                         {
                             duration.map((item) => (
                                 <button key={item.id}
-                                    className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
                                         setSelectedDuration(item);
                                         getCurrentPlans();
@@ -280,6 +342,11 @@ function AgencyPlans() {
                             ))
                         }
                     </div>
+                    <SelectYearlypopup
+                        showYearlyPlan={showYearlyPlan}
+                        continueMonthly={continueMonthly}
+                        continueYearlyPlan={continueYearlyPlan}
+                    />
                 </div>
 
                 <div className='flex flex-row items-start gap-6 h-[80vh] w-full'
@@ -298,7 +365,7 @@ function AgencyPlans() {
                                 getCurrentPlans().map((item, index) => (
                                     <button
                                         key={item.id}
-                                        onClick={() => handleTogglePlanClick(item)}
+                                        onClick={() => handleTogglePlanClick(item, index)}
                                         className={`w-4/12 ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
                                     >
                                         <div className='flex flex-col items-center h-[75vh] w-full'>
@@ -333,23 +400,45 @@ function AgencyPlans() {
                                                 <div className='flex flex-col item-center justify-between w-full h-full'>
                                                     <div>
                                                         {/* Top section */}
-                                                        <div className="w-full flex flex-row items-center justify-between">
-                                                            <div style={{ fontSize: 20, fontWeight: '700' }}>
-                                                                {item.title}
-                                                            </div>
-
-                                                            {!item.percentageDiscount ? (
-                                                                <div className="px-4 py-2 bg-purple rounded-full shadow-md text-[13px] text-white font-semibold">
-                                                                    ${item.ratePerMin || 0} per min
-                                                                </div>
-                                                            ) : (
-                                                                <div></div>
-                                                            )}
+                                                        <div className='text-center' style={{ fontSize: 30, fontWeight: '700' }}>
+                                                            {item.title}
                                                         </div>
 
                                                         {/* Pricing */}
-                                                        <div style={{ fontSize: 18, fontWeight: '600', textAlign: 'left' }}>
-                                                            ${item.originalPrice} + {item.fee}% Rev Share
+                                                        <div className='text-center mt-4 text-transparent bg-clip-text bg-gradient-to-r from-[#7902DF] to-[#DF02BA]' style={{ fontSize: 35, fontWeight: '600' }}>
+                                                            ${item.originalPrice}
+                                                        </div>
+
+                                                        <div className='text-center mt-1' style={{ fontSize: 18, fontWeight: '600' }}>
+                                                            {item.fee}% Rev Share
+                                                        </div>
+
+                                                        <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
+                                                            ${item.ratePerMin} per min
+                                                        </div>
+
+                                                        <div className="mt-4 mb-4">
+                                                            {subPlanLoader === item.id ? (
+                                                                <div>
+                                                                    <CircularProgress size={30} />
+                                                                </div>
+                                                            ) : (
+
+                                                                <button
+                                                                    // disabled={!togglePlan}
+                                                                    className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white
+                                                                    flex items-center"
+                                                                    style={{
+                                                                        fontSize: 16.8,
+                                                                        fontWeight: "600",
+                                                                        // backgroundColor:  "#00000020",
+                                                                        // color:  "#000000",
+                                                                        alignSelf: 'center'
+                                                                    }}
+                                                                    onClick={() => { handleSubscribePlan() }}>
+                                                                    Claim Early Access
+                                                                </button>
+                                                            )}
                                                         </div>
 
                                                         <div className='flex flex-col gap-2'>
@@ -367,7 +456,7 @@ function AgencyPlans() {
                                                                 ))}
 
                                                             {
-                                                                item.index === 0 ? (
+                                                                (index === 0 ?
                                                                     [
                                                                         "Voicemails",
                                                                         "Lead Enrichment",
@@ -377,7 +466,7 @@ function AgencyPlans() {
                                                                         "Calendar Integration",
                                                                         "Support",
                                                                     ]
-                                                                ) : (
+                                                                    :
                                                                     [
                                                                         "Voicemails",
                                                                         "Lead Enrichment (Perplexity)",
@@ -400,32 +489,6 @@ function AgencyPlans() {
                                                         </div>
                                                     </div>
 
-
-                                                    <div style={{
-
-                                                    }}>
-                                                        {subPlanLoader === item.id ? (
-                                                            <div>
-                                                                <CircularProgress size={30} />
-                                                            </div>
-                                                        ) : (
-
-                                                            <button
-                                                                // disabled={!togglePlan}
-                                                                className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white
-                                                                flex items-center"
-                                                                style={{
-                                                                    fontSize: 16.8,
-                                                                    fontWeight: "600",
-                                                                    // backgroundColor:  "#00000020",
-                                                                    // color:  "#000000",
-                                                                    alignSelf:'center'
-                                                                }}
-                                                                onClick={() => { handleSubscribePlan() }}>
-                                                                Claim Early Access
-                                                            </button>
-                                                        )}
-                                                    </div>
 
                                                 </div>
 
@@ -474,7 +537,7 @@ function AgencyPlans() {
 
                                 '
                                 style={{
-                                    alignSelf:'center'
+                                    alignSelf: 'center'
                                 }}
                             >
                                 Contact Our Team

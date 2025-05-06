@@ -9,7 +9,8 @@ import React, { useEffect, useState } from 'react'
 
 export const TwilioWarning = ({
     agencyData,
-    showSuccess
+    showSuccess,
+    integration = ""
 }) => {
 
     const router = useRouter();
@@ -239,6 +240,81 @@ export const AddAgencyTwilioKeyModal = ({
             </Box>
         </Modal>
     )
+}
+
+
+// Modal for Up Sell Phones
+export const UpSellPhone = ({
+    allowUpSellPhone,
+    handleClose
+}) => {
+
+    const [price, setPrice] = useState("");
+
+    return (
+        <Modal
+            open={allowUpSellPhone}
+            className="border-none outline-none"
+            BackdropProps={{
+                style: { backgroundColor: '#00000020' }
+            }}
+        >
+            <Box
+                //  className="w-6/12 md:5/12 lg:w-4/12 bg-white shadow-lg p-6 rounded-lg flex flex-row items-center justify-center border-none outline-none"
+                className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
+            >
+                <div>
+                    <div className='w-full flex flex-row items-center justify-between'>
+                        <div style={{ fontWeight: "600", fontSize: 22 }}>
+                            Upsell Phone numbers
+                        </div>
+                        <button
+                            className='outline-none border-none'
+                            onClick={() => { handleClose() }}>
+                            <Image
+                                src={"/assets/cross.png"}
+                                alt='*'
+                                height={15}
+                                width={15}
+                            />
+                        </button>
+                    </div>
+                    <div className='mt-4' style={styles.inputTxt}>
+                        {`Enter the price you’d like to charge your customers. Anything above $1.50 becomes profit.`}
+                    </div>
+                    <div className="mt-5" style={styles.inputTxt}>
+                    Price (Your cost is $1.50/mo for each number) 
+                        </div>
+                        <div className='border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full'>
+                            <div>
+                                $
+                            </div>
+                            <input
+                                style={styles.inputs}
+                                type="number"
+                                className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="000"
+                            value={price}
+                            onChange={(e) => {
+                                setPrice(e.target.value);
+                            }}
+                            />
+                        </div>
+                    <div className="w-full flex flex-row items-center justify-between mt-12">
+                    <button
+                         className="h-[50px] w-[170px] rounded-md border-none outline-none text-center text-purple"
+                            style={{ fontWeight: "600", fontSize: 17}}>
+                            Cancel 
+                            </button>
+                        <button
+                         className="h-[50px] w-[170px] rounded-md border-none outline-none text-white bg-purple text-center"
+                            style={{ fontWeight: "600", fontSize: 17}}>
+                            Save 
+                            </button>
+                        </div>
+                    </div>
+            </Box>
+        </Modal> 
+    ) 
 }
 
 const styles = {
