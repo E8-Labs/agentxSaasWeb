@@ -3,7 +3,7 @@
 // //console.log;
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/" //"https://www.blindcircle.com/agentx/" 
+    ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
     : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
 
 //// console.log(
@@ -177,7 +177,7 @@ const Apis = {
   //create onboarding link
   createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
   //setup twillio
-  setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`
+  setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`,
 };
 
 export default Apis;
