@@ -191,12 +191,10 @@ function Billing() {
 
   //function to close the add card popup
   const handleClose = (data) => {
-    // //console.log;
-    if (data.status === true) {
-      let newCard = data.data;
+    console.log("Data recieved is", data);
+    if (data) {
       setAddPaymentPopup(false);
-      setCards([newCard, ...cards]);
-      window.location.reload()
+      getCardsList();
     }
   };
 
@@ -914,14 +912,14 @@ function Billing() {
                     handleUpdateProfile();
                   }
                 }}
-                // sx={{
-                //   '& .MuiSwitch-switchBase.Mui-checked': {
-                //     color: 'white',
-                //   },
-                //   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                //     backgroundColor: '#7902DF',
-                //   },
-                // }}
+              // sx={{
+              //   '& .MuiSwitch-switchBase.Mui-checked': {
+              //     color: 'white',
+              //   },
+              //   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+              //     backgroundColor: '#7902DF',
+              //   },
+              // }}
               />
 
             </div>
