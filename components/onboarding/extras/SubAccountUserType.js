@@ -7,12 +7,19 @@ const SubAccountUserType = ({
     onContinue
 }) => {
 
+    console.log(userData);
     const [selectedUserType, setSelectedUserType] = useState(null);
 
     useEffect(() => {
         console.log(userType);
-        setSelectedUserType(userData);
+        if (userData) {
+            setSelectedUserType(userData);
+        }
     }, []);
+
+    useEffect(() => {
+        console.log("selected user", selectedUserType);
+    }, [selectedUserType]);
 
     const handleBack = () => {
         onClose(selectedUserType);

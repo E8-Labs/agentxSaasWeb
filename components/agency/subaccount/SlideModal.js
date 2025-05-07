@@ -49,12 +49,22 @@ export default function SlideModal({
         setCurrentIndex((prevIndex) => prevIndex - 1);
     };
 
+    //code to close modal
+    const handleCloseModal = () => {
+        handleClose();
+        setSubFormData(null);
+        setSelectedUser("");
+        setMonthlyPlans([]);
+        setXBarOptions([]);
+        setCurrentIndex(0);
+    }
+
     return (
         <Modal
             open={showModal}
-            onClose={() => {
-                handleClose();
-            }}
+            // onClose={() => {
+            //     handleClose();
+            // }}
             // BackdropProps={{
             //     timeout: 200,
             //     sx: {
@@ -80,13 +90,13 @@ export default function SlideModal({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{ duration: 0 }}
                                 className="rounded-lg w-[100%] bg-white p-6"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
                                     <CreateSubAccountModal
-                                        onClose={handleClose}
+                                        onClose={handleCloseModal}
                                         selectedUser={selectedUser}
                                         formData={subFormData}
                                         onContinue={(formData) => {
@@ -106,7 +116,7 @@ export default function SlideModal({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{ duration: 0 }}
                                 className="rounded-lg w-[100%] bg-white p-6"
                             // style={styles.motionDiv}
                             >
@@ -135,7 +145,7 @@ export default function SlideModal({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{ duration: 0 }}
                                 className="rounded-lg w-[100%] bg-white p-6"
                             >
                                 <SetPricing
@@ -161,7 +171,7 @@ export default function SlideModal({
                                 initial="enter"
                                 animate="center"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
+                                transition={{ duration: 0 }}
                                 className="p-6 rounded-lg w-[100%] shadow-lg bg-white"
                             >
                                 <SetXBarOptions
@@ -173,7 +183,9 @@ export default function SlideModal({
                                     formData={subFormData}
                                     selectedMonthlyPlans={monthlyPlans}
                                     xBars={xBarOptions}
-                                    closeModal={handleClose}
+                                    closeModal={() => {
+                                        handleCloseModal()
+                                    }}
                                     selectedUserType={selectedUser}
                                 />
                             </motion.div>

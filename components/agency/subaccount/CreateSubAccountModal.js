@@ -187,10 +187,14 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
     //show sell seats modal
     useEffect(() => {
+        console.log("trigered");
+        console.log("Allow sell seats ", alowSellSeats);
         if (alowSellSeats === true) {
+            console.log("Show modal");
             setShowSellSeatsModal(true);
         } else if (alowSellSeats === false) {
             setSeats("");
+            console.log("no show modal");
             setShowSellSeatsModal(false);
         }
     }, [alowSellSeats])
@@ -208,14 +212,15 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             userEmail?.trim() === "" ||
             userPhoneNumber?.trim() === "" ||
             selectedUserType?.trim() === "" ||
-            hasEmptyTeamMember
+            fullName?.trim() === ""
+            // hasEmptyTeamMember
         ) {
             console.log("Cannot continue");
             setShouldContinue(true);
         } else {
             setShouldContinue(false);
         }
-    }, [subAccountName, userEmail, userPhoneNumber, selectedUserType, teamMembers]);
+    }, [subAccountName, userEmail, userPhoneNumber, selectedUserType, fullName]);
 
 
 
@@ -230,6 +235,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setValidEmail("")
             setFullName("");
             setSeats("");
+            setAlowSellSeats(false);
         }
         if (formData) {
             setSubAccountName(formData.subAccountName);
@@ -239,7 +245,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setTeamMembers(formData.teamMembers);
             setFullName(formData.fullName);
             setSeats(formData.seats);
-            setAlowSellSeats(true);
+            setAlowSellSeats(false);
             setErrorMessage("");
             setValidEmail("");
         } else {
@@ -832,15 +838,23 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 </div>
 
                 {/* Sell Seats Modal */}
-                <SellSeatsModal
-                    showModal={showSellSeatsModal}
-                    closeModal={(d) => {
-                        setShowSellSeatsModal(false);
-                        setSeats(d);
-                    }}
-                    seats={seats}
-                />
-
+                {
+                    showSellSeatsModal && (
+                        <SellSeatsModal
+                            seats={seats}
+                            showModal={showSellSeatsModal}
+                            closeModal={(d) => {
+                                if (d) {
+                                    setShowSellSeatsModal(false);
+                                    setSeats(d);
+                                } else {
+                                    setShowSellSeatsModal(false);
+                                    setAlowSellSeats(false);
+                                }
+                            }}
+                        />
+                    )
+                }
 
 
                 <div className="mb-4">

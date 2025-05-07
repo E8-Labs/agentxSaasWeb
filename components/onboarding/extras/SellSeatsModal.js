@@ -11,19 +11,21 @@ const SellSeatsModal = ({
     const [seatsPrice, setSeatsPrice] = useState("");
 
     useEffect(() => {
-        console.log(seats);
+        // console.log("setting seats are", seats);
         if (seats) {
             setSeatsPrice(seats);
         }
     }, [seats]);
 
     const handleClose = () => {
-        setSeatsPrice("");
         if (seats) {
-            closeModal(seats);
+            closeModal(seatsPrice);
+            console.log("Modal close with sending seats");
         } else {
             closeModal();
+            console.log("Modal close without sending seats");
         }
+        // setSeatsPrice("");
     }
 
     //styles
@@ -43,7 +45,10 @@ const SellSeatsModal = ({
     }
 
     return (
-        <Modal open={showModal} onClose={() => { handleClose() }}>
+        <Modal open={showModal} onClose={() => { 
+            handleClose();
+            setSeatsPrice("");
+        }}>
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
             <Box
                 className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
@@ -87,6 +92,7 @@ const SellSeatsModal = ({
                             style={styles.button}
                             onClick={() => {
                                 handleClose();
+                                // setSeatsPrice("");
                             }}
                         >
                             Cancel

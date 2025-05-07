@@ -211,7 +211,7 @@ const Userleads = ({
       (item) => item.title === selectedValue
     );
 
-    // //console.log;
+    // console.log("Stages list is", selectedItem.stages);
 
     setStagesList(selectedItem.stages);
   };
@@ -2553,6 +2553,12 @@ const Userleads = ({
                             <button
                               onClick={() => {
                                 setNoStageSelected(!noStageSelected);
+                                let stages = [];
+                                stages.push({
+                                  id: 1,
+                                  stageTitle: "No Stage"
+                                });
+                                setSelectedStage(stages);
                               }}
                               className={`p-2 border border-[#00000020] ${noStageSelected
                                   ? `bg-purple text-white`
