@@ -34,6 +34,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import AllowSmartRefillPopup from "./AllowSmartRefillPopup";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -54,6 +55,8 @@ const AssignLead = ({
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
   const [initialLoader, setInitialLoader] = useState(false);
   const [agentsList, setAgentsList] = useState([]);
+  //pagination
+  const [hasMoreAgents, setHasMoreAgents] = useState(true);
   const [stages, setStages] = useState([]);
   const [SelectedAgents, setSelectedAgents] = useState([]);
   const [CannotAssignLeadModal, setCannotAssignLeadModal] = useState(false);
@@ -113,31 +116,31 @@ const AssignLead = ({
 
     let agentsList = [];
 
-    const localAgents = localStorage.getItem("localAgentDetails");
-    if (localAgents) {
-      agentsList = JSON.parse(localAgents);
-      // //console.log;
-      let newAgenstList = [];
+    // const localAgents = localStorage.getItem("localAgentDetails");
+    // if (localAgents) {
+    //   agentsList = JSON.parse(localAgents);
+    //   // //console.log;
+    //   let newAgenstList = [];
 
-      newAgenstList = agentsList.filter((mainAgent) => {
-        // Check if all subagents are either outbound or both inbound and outbound
-        const subAgents = mainAgent.agents;
-        const hasOutbound = subAgents.some(
-          (item) => item.agentType === "outbound"
-        );
-        const hasInbound = subAgents.some(
-          (item) => item.agentType === "inbound"
-        );
+    //   newAgenstList = agentsList.filter((mainAgent) => {
+    //     // Check if all subagents are either outbound or both inbound and outbound
+    //     const subAgents = mainAgent.agents;
+    //     const hasOutbound = subAgents.some(
+    //       (item) => item.agentType === "outbound"
+    //     );
+    //     const hasInbound = subAgents.some(
+    //       (item) => item.agentType === "inbound"
+    //     );
 
-        // Keep the main agent if it has only outbound agents or both inbound and outbound agents
-        return hasOutbound && (!hasInbound || hasInbound);
-      });
+    //     // Keep the main agent if it has only outbound agents or both inbound and outbound agents
+    //     return hasOutbound && (!hasInbound || hasInbound);
+    //   });
 
-      // //console.log;
+    //   // //console.log;
 
-      setAgentsList(newAgenstList);
-      setStages(newAgenstList.stages);
-    }
+    //   setAgentsList(newAgenstList);
+    //   setStages(newAgenstList.stages);
+    // }
     // else {
     // //console.log;
     getAgents();
@@ -165,7 +168,10 @@ const AssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents;
+      // const ApiPath = Apis.getAgents;
+      const offset = agentsList.length;
+      const ApiPath = `${Apis.getAgents}?offset=${offset}`
+      console.log("Api path is", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -176,13 +182,13 @@ const AssignLead = ({
 
       if (response) {
         //console.log;
-        localStorage.setItem(
-          "localAgentDetails",
-          JSON.stringify(response.data.data)
-        );
+        // localStorage.setItem(
+        //   "localAgentDetails",
+        //   JSON.stringify(response.data.data)
+        // );
         // let filterredAgentsList = [];
         //// //console.log);
-        const filterredAgentsList = response.data.data.filter((mainAgent) => {
+        const filterredAgentsList2 = response.data.data.filter((mainAgent) => {
           // Check if all subagents are either outbound or both inbound and outbound
           const subAgents = mainAgent.agents;
           const hasOutbound = subAgents.some(
@@ -195,7 +201,14 @@ const AssignLead = ({
           // Keep the main agent if it has only outbound agents or both inbound and outbound agents
           return hasOutbound && (!hasInbound || hasInbound);
         });
-        setAgentsList(filterredAgentsList);
+        console.log("Response of api is", response.data.data);
+        let filterredAgentsList = response?.data?.data
+        setAgentsList([...agentsList, ...filterredAgentsList]);
+        if (filterredAgentsList.length > 0) {
+          setHasMoreAgents(true);
+        } else {
+          setHasMoreAgents(false);
+        }
         //console.log;
         setStages(filterredAgentsList.stages);
       }
@@ -214,7 +227,7 @@ const AssignLead = ({
     if (mainAgent.agents.length > 0) {
       let outbound = null;
       for (const a of mainAgent.agents) {
-        if (a.agentType == "outbound") {
+        if (a.agentType == "outbound" || a.agentType == "inbound") {
           outbound = a;
         }
       }
@@ -496,10 +509,10 @@ const AssignLead = ({
   }
 
   function GetAgentsActiveInPipelinesAndStages() {
-    let filtered = agentsList.filter((item) => {
-      return item.pipeline != null && item.stages.length > 0;
-    });
-    return filtered;
+    // let filtered = agentsList.filter((item) => {
+    //   return item.pipeline != null && item.stages.length > 0;
+    // });
+    return agentsList;
   }
 
   const styles = {
@@ -590,145 +603,184 @@ const AssignLead = ({
         </div>
       ) : (
         <div
-          className="max-h-[50vh] overflow-auto"
+          className="relative max-h-[50vh] overflow-y-auto"
           style={{ scrollbarWidth: "none" }}
+          id="scrollableAgentDiv"
         >
-          {GetAgentsActiveInPipelinesAndStages().map((item, index) => {
-            const noNumberWarning = (mainAgent) => {
-              // console.log(
-              //   "Agent passed is",
-              //   mainAgent?.agents?.map((item) => item.phoneNumber)
-              // );
-              return mainAgent.agents.map((subAgent, index) => {
-                // Check if the agent is of type 'outbound' and has no phone number
-                if (
-                  subAgent.agentType === "outbound" &&
-                  (!subAgent.phoneNumber || subAgent.phoneNumber === "")
-                ) {
-                  return (
-                    <div key={index}>
-                      <div className="flex flex-row items-center gap-2 -mt-1">
-                        <Image
-                          src={"/assets/warningFill.png"}
-                          height={18}
-                          width={18}
-                          alt="*"
-                        />
-                        <p>
-                          <i
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: "600",
-                            }}
-                          >
-                            No phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              });
-            };
-
-            return (
-              <button
-                key={index}
-                className="rounded-xl p-2 mt-4 w-full outline-none"
+          <InfiniteScroll
+            dataLength={agentsList.length}
+            next={getAgents}
+            hasMore={hasMoreAgents}
+            scrollableTarget="scrollableAgentDiv"
+            loader={
+              <div className="w-full flex justify-center mt-4">
+                <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+              </div>
+            }
+            endMessage={
+              <p
                 style={{
-                  border: SelectedAgents.includes(item)
-                    ? "2px solid #7902DF"
-                    : "1px solid #00000020",
-                  backgroundColor: SelectedAgents.includes(item)
-                    ? "#402FFF05"
-                    : "",
-                }}
-                onClick={() => {
-                  let canAssign = canAssignStage(item);
-                  if (canAssign == 0) {
-                    //push to the array
-                    // //console.log;
-                    setSelectedAgents([...SelectedAgents, item]);
-                    // setLastStepModal(true);//loader
-                    setShouldContinue(false);
-                  } else if (canAssign == 1) {
-                    //remove from the array
-                    // //console.log;
-                    let agents = SelectedAgents.filter(
-                      (selectedItem) => selectedItem.id !== item.id
-                    );
-                    setSelectedAgents(agents);
-                  } else if (canAssign == 2) {
-                    //can not assign. Show popup
-                    setCannotAssignLeadModal(true);
-                  }
+                  textAlign: "center",
+                  paddingTop: "10px",
+                  fontWeight: "400",
+                  fontFamily: "inter",
+                  fontSize: 16,
+                  color: "#00000060",
                 }}
               >
-                <div className="flex flex-row items-center justify-between pt-2">
-                  <div className="flex flex-row items-center gap-2">
-                    {getAgentImage(item)}
-                    <span style={styles.heading}>
-                      {GetOutboundAgent(item)?.name?.slice(0, 1)?.toUpperCase()}
-                      {GetOutboundAgent(item)?.name?.slice(1)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <div>{noNumberWarning(item)}</div>
-                    <div
-                      style={{
-                        fontWeight: "500",
-                        fontSize: 12,
-                      }}
-                    >
-                      {item.agents[0]?.agentRole}
-                    </div>
-                  </div>
-                </div>
+                {`You're all caught up`}
+              </p>
+            }
+            style={{ overflow: "unset" }}
+          >
+            {GetAgentsActiveInPipelinesAndStages().map((item, index) => {
+              const noNumberWarning = (mainAgent) => {
+                // console.log(
+                //   "Agent passed is",
+                //   mainAgent?.agents?.map((item) => item.phoneNumber)
+                // );
+                return mainAgent.agents.map((subAgent, index) => {
+                  // Check if the agent is of type 'outbound' and has no phone number
+                  if (
+                    subAgent.agentType === "outbound" &&
+                    (!subAgent.phoneNumber || subAgent.phoneNumber === "")
+                  ) {
+                    return (
+                      <div key={index}>
+                        <div className="flex flex-row items-center gap-2 -mt-1">
+                          <Image
+                            src={"/assets/warningFill.png"}
+                            height={18}
+                            width={18}
+                            alt="*"
+                          />
+                          <p>
+                            <i
+                              className="text-red"
+                              style={{
+                                fontSize: 12,
+                                fontWeight: "600",
+                              }}
+                            >
+                              No phone number assigned
+                            </i>
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                });
+              };
 
-                <div
-                  className="flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto"
+              return (
+                <button
+                  key={index}
+                  className="rounded-xl p-2 mt-4 w-full outline-none"
                   style={{
-                    ...styles.paragraph,
-                    overflowY: "hidden",
-                    scrollbarWidth: "none", // For Firefox
-                    msOverflowStyle: "none", // For Internet Explorer and Edge
+                    border: SelectedAgents.includes(item)
+                      ? "2px solid #7902DF"
+                      : "1px solid #00000020",
+                    backgroundColor: SelectedAgents.includes(item)
+                      ? "#402FFF05"
+                      : "",
+                  }}
+                  onClick={() => {
+                    console.log("Selected item is", item);
+                    let canAssign = canAssignStage(item);
+                    if (canAssign == 0) {
+                      //push to the array
+                      // //console.log;
+                      setSelectedAgents([...SelectedAgents, item]);
+                      // setLastStepModal(true);//loader
+                      setShouldContinue(false);
+                    } else if (canAssign == 1) {
+                      //remove from the array
+                      // //console.log;
+                      let agents = SelectedAgents.filter(
+                        (selectedItem) => selectedItem.id !== item.id
+                      );
+                      setSelectedAgents(agents);
+                    } else if (canAssign == 2) {
+                      //can not assign. Show popup
+                      setCannotAssignLeadModal(true);
+                    }
                   }}
                 >
-                  <style jsx>
-                    {`
-                      div::-webkit-scrollbar {
-                        display: none; /* For Chrome, Safari, and Opera */
-                      }
-                    `}
-                  </style>
-                  <div
-                    className="flex-shrink-0 flex flex-row items-center gap-1"
-                    style={styles.paragraph}
-                  >
-                    <span className="text-purple">Active in | </span>{" "}
-                    {item.pipeline?.title}
+                  <div className="flex flex-row items-center justify-between pt-2">
+                    <div className="flex flex-row items-center gap-2">
+                      {getAgentImage(item)}
+                      <span style={styles.heading}>
+                        {GetOutboundAgent(item)?.name?.slice(0, 1)?.toUpperCase()}
+                        {GetOutboundAgent(item)?.name?.slice(1)}
+                        {/*item?.name?.slice(0, 1)?.toUpperCase()}
+                        {item?.name?.slice(1)*/}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div>{noNumberWarning(item)}</div>
+                      <div
+                        style={{
+                          fontWeight: "500",
+                          fontSize: 12,
+                        }}
+                      >
+                        {item.agents[0]?.agentRole}
+                      </div>
+                    </div>
                   </div>
 
                   <div
-                    className="flex-shrink-0 flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                    style={{ scrollbarWidth: "none" }}
+                    className="flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto"
+                    style={{
+                      ...styles.paragraph,
+                      overflowY: "hidden",
+                      scrollbarWidth: "none", // For Firefox
+                      msOverflowStyle: "none", // For Internet Explorer and Edge
+                    }}
                   >
-                    {item.stages.map((item, index) => (
-                      <div
-                        className="px-3 py-1 rounded-3xl border"
-                        style={styles.paragraph}
-                        key={index}
+                    <style jsx>
+                      {`
+                      div::-webkit-scrollbar {
+                        display: none; /* For Chrome, Safari, and Opera */
+                        }
+                    `}
+                    </style>
+                    <div
+                      className="flex-shrink-0 flex flex-row items-center gap-1"
+                      style={styles.paragraph}
+                    >
+                      <span className="text-purple">Active in | </span>{" "}
+                      {item.pipeline?.title || "No Pipeline"}
+                    </div>
+
+                    {
+                      item.stages.length > 0 ? <div
+                        className="flex-shrink-0 flex flex-row gap-2 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                        style={{ scrollbarWidth: "none" }}
                       >
-                        {item.stageTitle}
-                      </div>
-                    ))}
+                        {item.stages.map((item, index) => (
+                          <div
+                            className="px-3 py-1 rounded-3xl border"
+                            style={styles.paragraph}
+                            key={index}
+                          >
+                            {item.stageTitle}
+                          </div>
+                        ))}
+                      </div> :
+                        <div
+                          className="px-3 py-1 rounded-3xl border"
+                          style={styles.paragraph}
+                        >
+                          No Stage
+                        </div>
+                    }
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </InfiniteScroll>
         </div>
       )}
 
