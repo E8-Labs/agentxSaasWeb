@@ -97,7 +97,7 @@ function Page() {
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [mainAgentsList, setMainAgentsList] = useState([]);
-  const [agentData, setAgentData] = useState([]);
+  const [canGetMore, setCanGetMore] = useState(true);
   const [initialLoader, setInitialLoader] = useState(false);
 
   //code for assigning the umber
@@ -1962,6 +1962,11 @@ function Page() {
         //console.log;
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
+        if(agents.length > 0){
+          setCanGetMore(true);
+        }else{
+          setCanGetMore(false)
+        }
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -2282,6 +2287,7 @@ function Page() {
             setScriptKeys={setScriptKeys}
             setSelectedAgent={setSelectedAgent}
             keys={keys}
+            canGetMore={canGetMore}
           />
           // <div
           //   className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10 pb-12"

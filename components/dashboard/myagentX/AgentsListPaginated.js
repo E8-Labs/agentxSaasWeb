@@ -58,6 +58,8 @@ const AgentsListPaginated = ({
   setSelectedAgent,
   keys,
   setShowDrawerSelectedAgent,
+  //for stopping pagination loader
+  canGetMore = true
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
@@ -79,7 +81,17 @@ const AgentsListPaginated = ({
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam);
+
   }, [agentsListSeparatedParam]);
+
+  useEffect(() => {
+    console.log("can get more status is", canGetMore);
+    if (canGetMore === true) {
+      setHasMoreAgents(true);
+    } else if (canGetMore === false) {
+      setHasMoreAgents(false);
+    }
+  }, [canGetMore]);
 
   const formatName = (item) => {
     let agentName = null;
@@ -98,6 +110,7 @@ const AgentsListPaginated = ({
   };
   const fetchMoreAgents = async () => {
     console.log("Fetch more agents please");
+    // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
     getAgents();
   };
 
@@ -320,8 +333,8 @@ const AgentsListPaginated = ({
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -488,8 +501,8 @@ const AgentsListPaginated = ({
                         <div>
                           {item?.totalDuration
                             ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format("HH:mm:ss")
+                              .utc((item?.totalDuration || 0) * 1000)
+                              .format("HH:mm:ss")
                             : "-"}
                         </div>
                       }
