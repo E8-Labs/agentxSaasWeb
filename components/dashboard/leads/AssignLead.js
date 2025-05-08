@@ -201,7 +201,7 @@ const AssignLead = ({
           // Keep the main agent if it has only outbound agents or both inbound and outbound agents
           return hasOutbound && (!hasInbound || hasInbound);
         });
-        console.log("Response of api is", response.data.data);
+        // console.log("Response of api is", response.data.data);
         let filterredAgentsList = response?.data?.data
         setAgentsList([...agentsList, ...filterredAgentsList]);
         if (filterredAgentsList.length > 0) {
@@ -232,6 +232,31 @@ const AssignLead = ({
         }
       }
       return outbound;
+    }
+  }
+
+  function GetInboundAgent(mainAgent) {
+    if (mainAgent.agents.length == 0) {
+      return null;
+    }
+    if (mainAgent.agents.length > 0) {
+      let inbound = null;
+      for (const a of mainAgent.agents) {
+        if (a.agentType == "inbound") {
+          inbound = a;
+          // console.log("returned the agent", a);
+        }
+      }
+      return inbound;
+    }
+  }
+
+  //check inbound and nostages agent
+  const checkNostageAndInboundAgent = (item) => {
+    if (GetInboundAgent(item) || item.stages.length === 0) {
+      return true
+    } else {
+      return false
     }
   }
 
@@ -266,7 +291,7 @@ const AssignLead = ({
       // Check if the pipeline.id matches with any previously selected item's pipeline.id
       if (item) {
         SelectedAgents.map((agent) => {
-          if (agent.pipeline.id != item.pipeline.id) {
+          if (agent?.pipeline?.id != item?.pipeline?.id) {
             canAssignStage = 2;
           }
         });
@@ -676,7 +701,8 @@ const AssignLead = ({
               return (
                 <button
                   key={index}
-                  className="rounded-xl p-2 mt-4 w-full outline-none"
+                  disabled={checkNostageAndInboundAgent(item)}
+                  className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? "bg-[#00000020]" : ""}`} //
                   style={{
                     border: SelectedAgents.includes(item)
                       ? "2px solid #7902DF"
@@ -686,7 +712,7 @@ const AssignLead = ({
                       : "",
                   }}
                   onClick={() => {
-                    console.log("Selected item is", item);
+                    // console.log("Selected item is", item);
                     let canAssign = canAssignStage(item);
                     if (canAssign == 0) {
                       //push to the array
