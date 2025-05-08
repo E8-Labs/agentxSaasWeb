@@ -494,7 +494,8 @@ const Leads1 = () => {
     // return hasPhone && hasFullName;
 
     if (hasPhone && hasFullName) {
-      handleAddLead();
+      return true;
+      // handleAddLead();
       // //console.log;
     } else {
       // //console.log;
@@ -511,6 +512,7 @@ const Leads1 = () => {
         setShowErrSnack(true);
       }
     }
+    return false;
   };
 
   //File reading logic
@@ -731,6 +733,8 @@ const Leads1 = () => {
   const handleAddLead = async (enrich = false) => {
     // let validated = validateColumns();
 
+    // console.log("Validated", validated);
+    // return;
     ////console.log;
     // if (!validated) {
 
@@ -1499,7 +1503,14 @@ const Leads1 = () => {
                       className="bg-purple text-white rounded-lg h-[50px] w-4/12"
                       onClick={() => {
                         // validateColumns();
-                        setShowenrichModal(true);
+                        let validated = validateColumns();
+
+                        console.log("Validated", validated);
+                        // return;
+                        if (validated) {
+                          console.log("Show enrich");
+                          setShowenrichModal(true);
+                        }
                       }}
                     >
                       Continue
