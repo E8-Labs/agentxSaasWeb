@@ -2197,74 +2197,6 @@ function Page() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Code for popover */}
-      <Popover
-        id="mouse-over-popover"
-        sx={{
-          pointerEvents: "none",
-          // marginBottom: "20px"
-        }}
-        open={open}
-        anchorEl={actionInfoEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        PaperProps={{
-          sx: {
-            width: "fit-content",
-            border: "none",
-            // border: "1px solid #15151520",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
-            // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
-          },
-        }}
-        onClose={handlePopoverClose}
-        disableRestoreFocus
-      >
-        <div className="p-3 min-w-[250px]">
-          <div className="flex flex-row items-center justify-between gap-1">
-            <p
-              style={{
-                ...styles.paragraph,
-                color: "#00000060",
-              }}
-            >
-              Status
-            </p>
-            <p style={styles.paragraph}>
-              {hoveredIndexStatus ? hoveredIndexStatus : "-"}
-            </p>
-          </div>
-          <div className="flex flex-row items-center justify-between mt-1 gap-1">
-            <p
-              style={{
-                ...styles.paragraph,
-                color: "#00000060",
-              }}
-            >
-              Address
-            </p>
-            <div style={styles.paragraph}>
-              {hoveredIndexAddress ? (
-                <div>
-                  {hoveredIndexAddress.length > 15
-                    ? hoveredIndexAddress.slice(0, 15) + "..."
-                    : hoveredIndexAddress}
-                </div>
-              ) : (
-                "-"
-              )}
-            </div>
-          </div>
-        </div>
-      </Popover>
-      {/* <LoaderAnimation isOpen={reassignLoader || assignLoader} /> */}
-      {/* Global snack */}
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
@@ -2328,6 +2260,28 @@ function Page() {
             getAgents={() => {
               getAgents(user);
             }}
+            setObjective={setObjective}
+            setOldObjective={setOldObjective}
+            setGreetingTagInput={setGreetingTagInput}
+            setOldGreetingTagInput={setOldGreetingTagInput}
+            setScriptTagInput={setScriptTagInput}
+            setOldScriptTagInput={setOldScriptTagInput}
+            setShowScriptModal={setShowScriptModal}
+            matchingAgent={matchingAgent}
+            setShowScript={setShowScript}
+            handleShowDrawer={handleShowDrawer}
+            handleProfileImgChange={handleProfileImgChange}
+            setShowRenameAgentPopup={setShowRenameAgentPopup}
+            setSelectedRenameAgent={setSelectedRenameAgent}
+            setRenameAgent={setRenameAgent}
+            // ShowWarningModal={ShowWarningModal}
+            // setShowWarningModal={setShowWarningModal}
+            setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+            setOpenTestAiModal={setOpenTestAiModal}
+            mainAgentsList={mainAgentsList}
+            setScriptKeys={setScriptKeys}
+            setSelectedAgent={setSelectedAgent}
+            keys={keys}
           />
           // <div
           //   className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10 pb-12"
@@ -4478,89 +4432,6 @@ function Page() {
                   </button>
                 )}
               </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Warning modal */}
-      <Modal
-        open={ShowWarningModal}
-        onClose={() => {
-          setShowWarningModal(null);
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-        >
-          <div style={{ width: "100%" }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: "none" }}
-            >
-              <div className="flex flex-row items-center justify-center gap-2 -mt-1">
-                <Image
-                  src={"/assets/warningFill.png"}
-                  height={18}
-                  width={18}
-                  alt="*"
-                />
-                <p>
-                  <i
-                    className="text-red"
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                    }}
-                  >
-                    No phone number assigned
-                  </i>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-row items-center gap-4 mt-6">
-              <button
-                className="mt-4 outline-none w-5/12"
-                style={{
-                  color: "black",
-                  height: "50px",
-                  borderRadius: "10px",
-                  // width: "100%",
-                  fontWeight: 600,
-                  fontSize: "20",
-                }}
-                onClick={() => {
-                  setShowWarningModal(null);
-                }}
-              >
-                Close
-              </button>
-              <button
-                className="mt-4 outline-none bg-purple w-7/12"
-                style={{
-                  color: "white",
-                  height: "50px",
-                  borderRadius: "10px",
-                  // width: "100%",
-                  fontWeight: 600,
-                  fontSize: "20",
-                }}
-                onClick={() => {
-                  setShowDrawerSelectedAgent(ShowWarningModal);
-                  setShowWarningModal(null);
-                }}
-              >
-                Assign Number
-              </button>
             </div>
           </div>
         </Box>

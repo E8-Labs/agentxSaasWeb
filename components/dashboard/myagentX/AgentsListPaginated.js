@@ -13,14 +13,51 @@ import {
 } from "@/utilities/agentUtilities";
 import { useState, useEffect, useRef } from "react";
 import AgentInfoCard from "./AgentInfoCard";
+import { Box, Modal, Popover } from "@mui/material";
 // ...other necessary imports
+
+const styles = {
+  modalsStyle: {
+    height: "auto",
+    bgcolor: "transparent",
+    p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-50%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+};
 
 const AgentsListPaginated = ({
   agentsListSeparatedParam,
   selectedImagesParam,
-  handlePopoverClose,
+
   user,
   getAgents,
+  setObjective,
+  setOldObjective,
+  setGreetingTagInput,
+  setOldGreetingTagInput,
+  setScriptTagInput,
+  setOldScriptTagInput,
+  setShowScriptModal,
+  matchingAgent,
+  setShowScript,
+  handleShowDrawer,
+  handleProfileImgChange,
+  setShowRenameAgentPopup,
+  setSelectedRenameAgent,
+  setRenameAgent,
+  // ShowWarningModal,
+  // setShowWarningModal,
+  setOpenTestAiModal,
+  mainAgentsList,
+  setScriptKeys,
+  setSelectedAgent,
+  keys,
+  setShowDrawerSelectedAgent,
 }) => {
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
@@ -30,18 +67,15 @@ const AgentsListPaginated = ({
   const [selectedImages, setSelectedImages] = useState(selectedImagesParam);
   const fileInputRef = useRef([]);
 
+  const [ShowWarningModal, setShowWarningModal] = useState(null);
+
+  const [actionInfoEl, setActionInfoEl] = useState(null);
+  const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
+  const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
+
+  const open = Boolean(actionInfoEl);
+
   // Example fetch function (replace with your actual API call)
-  const fetchMoreAgents = async () => {
-    console.log("Fetch more agents please");
-    getAgents();
-    // const offset = agentsListSeparated.length;
-    // const res = await fetchAgentsFromAPI(offset); // Pass offset
-    // if (res.length === 0) {
-    //   setHasMoreAgents(false);
-    // } else {
-    //   setAgentsListSeparated(prev => [...prev, ...res]);
-    // }
-  };
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam);
@@ -62,6 +96,23 @@ const AgentsListPaginated = ({
       </div>
     );
   };
+  const fetchMoreAgents = async () => {
+    console.log("Fetch more agents please");
+    getAgents();
+  };
+
+  const handlePopoverOpen = (event, item) => {
+    ////// //console.log;
+    setActionInfoEl(event.currentTarget);
+    setHoveredIndexStatus(item.status);
+    setHoveredIndexAddress(item.address);
+  };
+
+  const handlePopoverClose = () => {
+    setActionInfoEl(null);
+    setHoveredIndexStatus(null);
+    setHoveredIndexAddress(null);
+  };
 
   return (
     <div
@@ -69,6 +120,91 @@ const AgentsListPaginated = ({
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >
+      <Popover
+        id="mouse-over-popover"
+        sx={{
+          pointerEvents: "none",
+          // marginBottom: "20px"
+        }}
+        open={open}
+        anchorEl={actionInfoEl}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        PaperProps={{
+          sx: {
+            width: "fit-content",
+            border: "none",
+            // border: "1px solid #15151520",
+            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+            // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
+          },
+        }}
+        onClose={handlePopoverClose}
+        disableRestoreFocus
+      >
+        <div className="p-3 min-w-[250px]">
+          <div className="flex flex-row items-center justify-between gap-1">
+            <p
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+
+                color: "#00000060",
+              }}
+            >
+              Status
+            </p>
+            <p
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+              }}
+            >
+              {hoveredIndexStatus ? hoveredIndexStatus : "-"}
+            </p>
+          </div>
+          <div className="flex flex-row items-center justify-between mt-1 gap-1">
+            <p
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+
+                color: "#00000060",
+              }}
+            >
+              Address
+            </p>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+              }}
+            >
+              {hoveredIndexAddress ? (
+                <div>
+                  {hoveredIndexAddress.length > 15
+                    ? hoveredIndexAddress.slice(0, 15) + "..."
+                    : hoveredIndexAddress}
+                </div>
+              ) : (
+                "-"
+              )}
+            </div>
+          </div>
+        </div>
+      </Popover>
+
+      <WarningModal
+        ShowWarningModal={ShowWarningModal}
+        setShowWarningModal={setShowWarningModal}
+        setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+      />
       {agentsListSeparated.length > 0 ? (
         <InfiniteScroll
           dataLength={agentsListSeparated.length}
@@ -251,6 +387,7 @@ const AgentsListPaginated = ({
                       className="bg-purple px-4 py-2 rounded-lg"
                       onClick={() => {
                         if (!item.phoneNumber) {
+                          console.log("Show warning modal");
                           setShowWarningModal(item);
                         } else {
                           setOpenTestAiModal(true);
@@ -374,3 +511,93 @@ const AgentsListPaginated = ({
 };
 
 export default AgentsListPaginated;
+
+export const WarningModal = ({
+  ShowWarningModal,
+  setShowWarningModal,
+  setShowDrawerSelectedAgent,
+}) => {
+  return (
+    <Modal
+      open={ShowWarningModal}
+      onClose={() => {
+        setShowWarningModal(null);
+      }}
+      BackdropProps={{
+        timeout: 100,
+        sx: {
+          backgroundColor: "#00000020",
+          // //backdropFilter: "blur(20px)",
+        },
+      }}
+    >
+      <Box
+        className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
+        sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+      >
+        <div style={{ width: "100%" }}>
+          <div
+            className="max-h-[60vh] overflow-auto"
+            style={{ scrollbarWidth: "none" }}
+          >
+            <div className="flex flex-row items-center justify-center gap-2 -mt-1">
+              <Image
+                src={"/assets/warningFill.png"}
+                height={18}
+                width={18}
+                alt="*"
+              />
+              <p>
+                <i
+                  className="text-red"
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                  }}
+                >
+                  No phone number assigned
+                </i>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-row items-center gap-4 mt-6">
+            <button
+              className="mt-4 outline-none w-5/12"
+              style={{
+                color: "black",
+                height: "50px",
+                borderRadius: "10px",
+                // width: "100%",
+                fontWeight: 600,
+                fontSize: "20",
+              }}
+              onClick={() => {
+                setShowWarningModal(null);
+              }}
+            >
+              Close
+            </button>
+            <button
+              className="mt-4 outline-none bg-purple w-7/12"
+              style={{
+                color: "white",
+                height: "50px",
+                borderRadius: "10px",
+                // width: "100%",
+                fontWeight: 600,
+                fontSize: "20",
+              }}
+              onClick={() => {
+                setShowDrawerSelectedAgent(ShowWarningModal);
+                setShowWarningModal(null);
+              }}
+            >
+              Assign Number
+            </button>
+          </div>
+        </div>
+      </Box>
+    </Modal>
+  );
+};
