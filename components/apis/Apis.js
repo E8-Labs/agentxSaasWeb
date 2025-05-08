@@ -30,6 +30,8 @@ const Apis = {
   getKYCs: `${BasePath}api/agent/getKycs`,
   getPipelines: `${BasePath}api/pipeline/getPipelines`,
   getPipelineById: `${BasePath}api/pipeline/getPipeline`,
+  //paginating
+  getLeadsInStage: `${BasePath}api/leads/getLeadsInStage`,
   updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
   createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
   getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
