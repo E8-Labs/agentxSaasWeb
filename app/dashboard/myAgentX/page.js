@@ -18,6 +18,7 @@ import {
   Menu,
   Avatar,
 } from "@mui/material";
+import InfiniteScroll from "react-infinite-scroll-component";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { Plus } from "@phosphor-icons/react";
@@ -68,6 +69,10 @@ import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import { PauseCircle } from "@mui/icons-material";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
 import VoiceMailTab from "../../../components/dashboard/myagentX/VoiceMailTab";
+import { AgentLanguagesList } from "@/utilities/AgentLanguages";
+import NoAgent from "@/components/dashboard/myagentX/NoAgent";
+import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
+import AgentInfoCard from "@/components/dashboard/myagentX/AgentInfoCard";
 
 function Page() {
   const timerRef = useRef();
@@ -92,7 +97,7 @@ function Page() {
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [mainAgentsList, setMainAgentsList] = useState([]);
-  const [agentData, setAgentData] = useState([]);
+  const [canGetMore, setCanGetMore] = useState(true);
   const [initialLoader, setInitialLoader] = useState(false);
 
   //code for assigning the umber
@@ -151,6 +156,7 @@ function Page() {
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] =
     useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
+  const [introVideoModal2, setIntroVideoModal2] = useState(false);
   const [kycsData, setKycsData] = useState(null);
   //greeting tag input
   const [greetingTagInput, setGreetingTagInput] = useState("");
@@ -189,6 +195,7 @@ function Page() {
   //variable for input field value
   const [inputValues, setInputValues] = useState({});
   //code for storing the agents data
+  const [hasMoreAgents, setHasMoreAgents] = useState(true);
   const [agentsListSeparated, setAgentsListSeparated] = useState([]); //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
   const [agentsList, setAgentsList] = useState([]);
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
@@ -224,12 +231,14 @@ function Page() {
   const [voiceExpressiveness, setVoiceExpressiveness] = useState("");
   const [startingPace, setStartingPace] = useState("");
   const [patienceValue, setPatienceValue] = useState("");
+  const [languageValue, setLanguageValue] = useState("");
 
   const [callRecordingPermition, setCallRecordingPermition] = useState("");
 
   const [showCallRecordingLoader, setShowCallRecordingLoader] = useState(false);
   const [showStartingPaceLoader, setShowStartingPaceLoader] = useState(false);
   const [showPatienceLoader, setShowPatienceLoader] = useState(false);
+  const [showLanguageLoader, setShowLanguageLoader] = useState(false);
   const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] =
     useState(false);
 
@@ -253,6 +262,8 @@ function Page() {
     ad.play();
     setAudio(ad); // Play the audio
   };
+
+  // const Languages  = AgentLanguagesList
 
   const models = [
     {
@@ -671,6 +682,7 @@ function Page() {
     setStartingPace(item.initialPauseSeconds);
     //console.log;
     setPatienceValue(item.patienceLevel);
+    setLanguageValue(item.agentLanguage);
 
     let modelValue = item.agentLLmModel;
     if (modelValue) {
@@ -1066,14 +1078,13 @@ function Page() {
 
         const ApiPath = Apis.updateSubAgent;
 
-        //console.log;
-
         let apidata = {
           agentId: selectedRenameAgent.id,
           name: renameAgent, //selectedRenameAgent?.name,
         };
-        //console.log;
-
+        // console.log("Selected agent ", showDrawerSelectedAgent);
+        // console.log("data sending in api is", apidata);
+        // return
         const response = await axios.post(ApiPath, apidata, {
           headers: {
             Authorization: "Bearer " + AuthToken,
@@ -1082,7 +1093,7 @@ function Page() {
 
         if (response) {
           setShowRenameAgentPopup(false);
-          //console.log;
+          // console.log("Response of api is", response);
           // //console.log;
           setShowSuccessSnack(
             `${fromatMessageName(selectedRenameAgent.name)} updated`
@@ -1094,11 +1105,28 @@ function Page() {
               PersistanceKeys.LocalStoredAgentsListMain
             );
 
+            if (showDrawerSelectedAgent) {
+              const updateAgentData = response.data.data;
+
+              const matchedAgent = updateAgentData.agents.find(
+                (localItem) => localItem.id === showDrawerSelectedAgent.id
+              );
+
+              if (matchedAgent) {
+                setShowDrawerSelectedAgent(matchedAgent);
+                console.log("Matched Agent Stored:"); //, matchedAgent
+              } else {
+                console.log("No matching agent found.");
+              }
+            }
+
             if (localAgentsList) {
               const agentsList = JSON.parse(localAgentsList);
               // agentsListDetails = agentsList;
 
               const updateAgentData = response.data.data;
+
+              // showDrawerSelectedAgent();
 
               const updatedArray = agentsList.map((localItem) => {
                 const apiItem =
@@ -1305,6 +1333,9 @@ function Page() {
           if (voiceData.voiceExpressiveness) {
             formData.append("voiceStability", voiceData.voiceExpressiveness);
           }
+          if (voiceData.agentLanguage) {
+            formData.append("agentLanguage", voiceData.agentLanguage);
+          }
           if (voiceData.startingPace) {
             formData.append("initialPauseSeconds", voiceData.startingPace);
           }
@@ -1334,8 +1365,9 @@ function Page() {
           formData.append("agentLLmModel", model);
         }
 
+        console.log("Data to update");
         for (let [key, value] of formData.entries()) {
-          //console.log;
+          console.log(`${key}: ${value}`);
         }
 
         const response = await axios.post(ApiPath, formData, {
@@ -1911,7 +1943,8 @@ function Page() {
       if (!agentLocalDetails) {
         setInitialLoader(true);
       }
-      const ApiPath = `${Apis.getAgents}`; //?agentType=outbound
+      const offset = mainAgentsList.length;
+      const ApiPath = `${Apis.getAgents}?offset=${offset}`; //?agentType=outbound
 
       ////console.log;
 
@@ -1927,11 +1960,27 @@ function Page() {
 
       if (response) {
         //console.log;
+        let agents = response.data.data || [];
+        console.log("Agents from api", agents);
+        if (agents.length > 0) {
+          setCanGetMore(true);
+        } else {
+          setCanGetMore(false);
+        }
+
+        let newList = [...mainAgentsList]; // makes a shallow copy
+
+        if (Array.isArray(agents) && agents.length > 0) {
+          newList.push(...agents); // append all agents at once
+        }
+
+        console.log("Agents after pushing", newList);
+
         localStorage.setItem(
           PersistanceKeys.LocalStoredAgentsListMain,
-          JSON.stringify(response.data.data)
+          JSON.stringify(newList)
         );
-        setMainAgentsList(response.data.data);
+        setMainAgentsList(newList);
       }
     } catch (error) {
       //// console.error("Error occured in get Agents api is :", error);
@@ -2075,13 +2124,14 @@ function Page() {
   const handleSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
     setSearch(searchTerm);
-
+    k;
     if (!searchTerm) {
       setAgentsListSeparated(agentsList); // Reset to original data
       return;
     }
 
-    const filtered = agentsListSeparated.filter((item) => {
+    const filtered = agentsList.filter((item) => {
+      // Use original list here
       const name = item.name.toLowerCase();
       const email = item.email?.toLowerCase() || "";
       const phone = item.phone || "";
@@ -2152,74 +2202,6 @@ function Page() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Code for popover */}
-      <Popover
-        id="mouse-over-popover"
-        sx={{
-          pointerEvents: "none",
-          // marginBottom: "20px"
-        }}
-        open={open}
-        anchorEl={actionInfoEl}
-        anchorOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        PaperProps={{
-          sx: {
-            width: "fit-content",
-            border: "none",
-            // border: "1px solid #15151520",
-            boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
-            // transition: "box-shadow 0.3s ease-in-out", // Smooth transition for shadow
-          },
-        }}
-        onClose={handlePopoverClose}
-        disableRestoreFocus
-      >
-        <div className="p-3 min-w-[250px]">
-          <div className="flex flex-row items-center justify-between gap-1">
-            <p
-              style={{
-                ...styles.paragraph,
-                color: "#00000060",
-              }}
-            >
-              Status
-            </p>
-            <p style={styles.paragraph}>
-              {hoveredIndexStatus ? hoveredIndexStatus : "-"}
-            </p>
-          </div>
-          <div className="flex flex-row items-center justify-between mt-1 gap-1">
-            <p
-              style={{
-                ...styles.paragraph,
-                color: "#00000060",
-              }}
-            >
-              Address
-            </p>
-            <div style={styles.paragraph}>
-              {hoveredIndexAddress ? (
-                <div>
-                  {hoveredIndexAddress.length > 15
-                    ? hoveredIndexAddress.slice(0, 15) + "..."
-                    : hoveredIndexAddress}
-                </div>
-              ) : (
-                "-"
-              )}
-            </div>
-          </div>
-        </div>
-      </Popover>
-      {/* <LoaderAnimation isOpen={reassignLoader || assignLoader} /> */}
-      {/* Global snack */}
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
@@ -2247,11 +2229,11 @@ function Page() {
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
 
         <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
+          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
             <input
               // style={styles.paragraph}
               className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-              placeholder="Search by name, email or phone"
+              placeholder="Search an agent"
               value={search}
               onChange={handleSearch}
             />
@@ -2275,368 +2257,410 @@ function Page() {
             <CircularProgress size={45} />
           </div>
         ) : (
-          <div
-            className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {agentsListSeparated.map((item, index) => (
-              <div
-                key={index}
-                className="w-full px-10 py-2"
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#00000007",
-                  backgroundColor: "#FBFCFF",
-                  borderRadius: 20,
-                }}
-              >
-                <div className="w-12/12 flex flex-row items-center justify-between">
-                  <div className="flex flex-row gap-5 items-center">
-                    <div className="flex flex-row items-end">
-                      {selectedImages[index] ? (
-                        <div>
-                          <Image
-                            src={selectedImages[index]}
-                            height={70}
-                            width={70}
-                            alt="Profile"
-                            style={{
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                              height: "60px",
-                              width: "60px",
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        getAgentsListImage(item)
-                      )}
+          <AgentsListPaginated
+            agentsListSeparatedParam={agentsListSeparated}
+            selectedImagesParam={selectedImages}
+            handlePopoverClose={handlePopoverClose}
+            user={user}
+            getAgents={() => {
+              getAgents(user);
+            }}
+            setObjective={setObjective}
+            setOldObjective={setOldObjective}
+            setGreetingTagInput={setGreetingTagInput}
+            setOldGreetingTagInput={setOldGreetingTagInput}
+            setScriptTagInput={setScriptTagInput}
+            setOldScriptTagInput={setOldScriptTagInput}
+            setShowScriptModal={setShowScriptModal}
+            matchingAgent={matchingAgent}
+            setShowScript={setShowScript}
+            handleShowDrawer={handleShowDrawer}
+            handleProfileImgChange={handleProfileImgChange}
+            setShowRenameAgentPopup={setShowRenameAgentPopup}
+            setSelectedRenameAgent={setSelectedRenameAgent}
+            setRenameAgent={setRenameAgent}
+            // ShowWarningModal={ShowWarningModal}
+            // setShowWarningModal={setShowWarningModal}
+            setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+            setOpenTestAiModal={setOpenTestAiModal}
+            mainAgentsList={mainAgentsList}
+            setScriptKeys={setScriptKeys}
+            setSelectedAgent={setSelectedAgent}
+            keys={keys}
+            canGetMore={canGetMore}
+          />
+          // <div
+          //   className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10 pb-12"
+          //   style={{ scrollbarWidth: "none" }}
+          // >
+          //   {agentsListSeparated.length === 0 ? (
+          //     <NoAgent />
+          //   ) : (
+          //     agentsListSeparated.map((item, index) => (
+          //       <div
+          //         key={index}
+          //         className="w-full px-10 py-2"
+          //         style={{
+          //           borderWidth: 1,
+          //           borderColor: "#00000007",
+          //           backgroundColor: "#FBFCFF",
+          //           borderRadius: 20,
+          //         }}
+          //       >
+          //         <div className="w-12/12 flex flex-row items-center justify-between">
+          //           <div className="flex flex-row gap-5 items-center">
+          //             <div className="flex flex-row items-end">
+          //               {selectedImages[index] ? (
+          //                 <div>
+          //                   <Image
+          //                     src={selectedImages[index]}
+          //                     height={70}
+          //                     width={70}
+          //                     alt="Profile"
+          //                     style={{
+          //                       borderRadius: "50%",
+          //                       objectFit: "cover",
+          //                       height: "60px",
+          //                       width: "60px",
+          //                     }}
+          //                   />
+          //                 </div>
+          //               ) : (
+          //                 getAgentsListImage(item)
+          //               )}
 
-                      <input
-                        type="file"
-                        value={""}
-                        accept="image/*"
-                        ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
-                        onChange={(e) => handleProfileImgChange(e, index)}
-                        style={{ display: "none" }}
-                      />
+          //               <input
+          //                 type="file"
+          //                 value={""}
+          //                 accept="image/*"
+          //                 ref={(el) => (fileInputRef.current[index] = el)} // Store a ref for each input
+          //                 onChange={(e) => handleProfileImgChange(e, index)}
+          //                 style={{ display: "none" }}
+          //               />
 
-                      {/* <button
-                        style={{ marginLeft: -30 }}
-                        onClick={() => {
-                          handleSelectProfileImg(index);
-                        }}
-                      >
-                        <Image
-                          src={"/otherAssets/cameraBtn.png"}
-                          height={36}
-                          width={36}
-                          alt="profile"
-                        />
-                      </button> */}
-                    </div>
+          //               {/* <button
+          //               style={{ marginLeft: -30 }}
+          //               onClick={() => {
+          //                 handleSelectProfileImg(index);
+          //               }}
+          //             >
+          //               <Image
+          //                 src={"/otherAssets/cameraBtn.png"}
+          //                 height={36}
+          //                 width={36}
+          //                 alt="profile"
+          //               />
+          //             </button> */}
+          //             </div>
 
-                    <div className="flex flex-col gap-1">
-                      <div className="flex flex-row gap-3 items-center">
-                        <button
-                          onClick={() => {
-                            ////console.log;
-                            handleShowDrawer(item);
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: 24,
-                              fontWeight: "600",
-                              color: "#000",
-                            }}
-                          >
-                            {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
-                            {formatName(item)}
-                          </div>
-                        </button>
+          //             <div className="flex flex-col gap-1">
+          //               <div className="flex flex-row gap-3 items-center">
+          //                 <button
+          //                   onClick={() => {
+          //                     ////console.log;
+          //                     handleShowDrawer(item);
+          //                   }}
+          //                 >
+          //                   <div
+          //                     style={{
+          //                       fontSize: 24,
+          //                       fontWeight: "600",
+          //                       color: "#000",
+          //                     }}
+          //                   >
+          //                     {/* {item.name?.slice(0, 1).toUpperCase(0)}{item.name?.slice(1)} */}
+          //                     {formatName(item)}
+          //                   </div>
+          //                 </button>
 
-                        <button
-                          onClick={() => {
-                            setShowRenameAgentPopup(true);
-                            setSelectedRenameAgent(item);
-                            setRenameAgent(item.name);
-                          }}
-                        >
-                          <Image
-                            src={"/svgIcons/editPen.svg"}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: "600",
-                            color: "#00000080",
-                          }}
-                          className="flex flex-row items-center gap-1"
-                        >
-                          <div
-                            aria-owns={open ? "mouse-over-popover" : undefined}
-                            aria-haspopup="true"
-                            onMouseEnter={(event) => {
-                              //// console.log(
-                              //   "Agent hovered is",
-                              //   item.agentObjectiveId
-                              // );
+          //                 <button
+          //                   onClick={() => {
+          //                     setShowRenameAgentPopup(true);
+          //                     setSelectedRenameAgent(item);
+          //                     setRenameAgent(item.name);
+          //                   }}
+          //                 >
+          //                   <Image
+          //                     src={"/svgIcons/editPen.svg"}
+          //                     height={24}
+          //                     width={24}
+          //                     alt="*"
+          //                   />
+          //                 </button>
+          //                 <div
+          //                   style={{
+          //                     fontSize: 12,
+          //                     fontWeight: "600",
+          //                     color: "#00000080",
+          //                   }}
+          //                   className="flex flex-row items-center gap-1"
+          //                 >
+          //                   <div
+          //                     aria-owns={
+          //                       open ? "mouse-over-popover" : undefined
+          //                     }
+          //                     aria-haspopup="true"
+          //                     onMouseEnter={(event) => {
+          //                       //// console.log(
+          //                       //   "Agent hovered is",
+          //                       //   item.agentObjectiveId
+          //                       // );
 
-                              if (item.agentObjectiveId === 3) {
-                                handlePopoverOpen(event, item);
-                              }
-                            }}
-                            onMouseLeave={handlePopoverClose}
-                            style={{ cursor: "pointer" }}
-                          >
-                            {user.user.userType == UserTypes.RealEstateAgent
-                              ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
-                                  1
-                                )}`
-                              : `${item.agentRole}`}
-                          </div>
-                          <div>
-                            | {item.agentType?.slice(0, 1).toUpperCase(0)}
-                            {item.agentType?.slice(1)}
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className="flex flex-row gap-3 items-center text-purple"
-                        style={{ fontSize: 15, fontWeight: "500" }}
-                      >
-                        <button
-                          onClick={() => {
-                            //// //console.log;
-                            setGreetingTagInput(item?.prompt?.greeting);
-                            setOldGreetingTagInput(item?.prompt?.greeting);
-                            setScriptTagInput(item?.prompt?.callScript);
-                            setOldScriptTagInput(item?.prompt?.callScript);
-                            setShowScriptModal(item);
-                            matchingAgent(item);
-                            setShowScript(true);
-                            if (item?.prompt?.objective) {
-                              setObjective(item?.prompt?.objective);
-                              setOldObjective(item?.prompt?.objective);
-                            }
-                          }}
-                        >
-                          <div>View Script</div>
-                        </button>
+          //                       if (item.agentObjectiveId === 3) {
+          //                         handlePopoverOpen(event, item);
+          //                       }
+          //                     }}
+          //                     onMouseLeave={handlePopoverClose}
+          //                     style={{ cursor: "pointer" }}
+          //                   >
+          //                     {user.user.userType == UserTypes.RealEstateAgent
+          //                       ? `${item.agentObjective
+          //                           ?.slice(0, 1)
+          //                           .toUpperCase()}${item.agentObjective?.slice(
+          //                           1
+          //                         )}`
+          //                       : `${item.agentRole}`}
+          //                   </div>
+          //                   <div>
+          //                     | {item.agentType?.slice(0, 1).toUpperCase(0)}
+          //                     {item.agentType?.slice(1)}
+          //                   </div>
+          //                 </div>
+          //               </div>
+          //               <div
+          //                 className="flex flex-row gap-3 items-center text-purple"
+          //                 style={{ fontSize: 15, fontWeight: "500" }}
+          //               >
+          //                 <button
+          //                   onClick={() => {
+          //                     //// //console.log;
+          //                     setGreetingTagInput(item?.prompt?.greeting);
+          //                     setOldGreetingTagInput(item?.prompt?.greeting);
+          //                     setScriptTagInput(item?.prompt?.callScript);
+          //                     setOldScriptTagInput(item?.prompt?.callScript);
+          //                     setShowScriptModal(item);
+          //                     matchingAgent(item);
+          //                     setShowScript(true);
+          //                     if (item?.prompt?.objective) {
+          //                       setObjective(item?.prompt?.objective);
+          //                       setOldObjective(item?.prompt?.objective);
+          //                     }
+          //                   }}
+          //                 >
+          //                   <div>View Script</div>
+          //                 </button>
 
-                        <div>|</div>
+          //                 <div>|</div>
 
-                        <button
-                          onClick={() => {
-                            //// //console.log;
-                            handleShowDrawer(item);
-                            // matchingAgent(item);
-                            ////// //console.log;
-                          }}
-                        >
-                          <div>More info</div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+          //                 <button
+          //                   onClick={() => {
+          //                     //// //console.log;
+          //                     handleShowDrawer(item);
+          //                     // matchingAgent(item);
+          //                     ////// //console.log;
+          //                   }}
+          //                 >
+          //                   <div>More info</div>
+          //                 </button>
+          //               </div>
+          //             </div>
+          //           </div>
 
-                  <div className="flex flex-row items-start gap-8">
-                    {!item.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2 -mt-1">
-                        <Image
-                          src={"/assets/warningFill.png"}
-                          height={18}
-                          width={18}
-                          alt="*"
-                        />
-                        <p>
-                          <i
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: "600",
-                            }}
-                          >
-                            No phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    )}
+          //           <div className="flex flex-row items-start gap-8">
+          //             {!item.phoneNumber && (
+          //               <div className="flex flex-row items-center gap-2 -mt-1">
+          //                 <Image
+          //                   src={"/assets/warningFill.png"}
+          //                   height={18}
+          //                   width={18}
+          //                   alt="*"
+          //                 />
+          //                 <p>
+          //                   <i
+          //                     className="text-red"
+          //                     style={{
+          //                       fontSize: 12,
+          //                       fontWeight: "600",
+          //                     }}
+          //                   >
+          //                     No phone number assigned
+          //                   </i>
+          //                 </p>
+          //               </div>
+          //             )}
 
-                    <button
-                      className="bg-purple px-4 py-2 rounded-lg"
-                      onClick={() => {
-                        ////console.log;
-                        if (!item.phoneNumber) {
-                          setShowWarningModal(item);
-                        } else {
-                          setOpenTestAiModal(true);
-                        }
-                        let callScript =
-                          item.prompt.callScript + " " + item.prompt.greeting;
+          //             <button
+          //               className="bg-purple px-4 py-2 rounded-lg"
+          //               onClick={() => {
+          //                 ////console.log;
+          //                 if (!item.phoneNumber) {
+          //                   setShowWarningModal(item);
+          //                 } else {
+          //                   setOpenTestAiModal(true);
+          //                 }
+          //                 let callScript =
+          //                   item.prompt.callScript + " " + item.prompt.greeting;
 
-                        // ////console.log;
+          //                 // ////console.log;
 
-                        //function for extracting the keys
-                        const regex = /\{(.*?)\}/g;
-                        let match;
-                        let mainAgent = null;
-                        mainAgentsList.map((ma) => {
-                          if (ma.agents?.length > 0) {
-                            if (ma.agents[0].id == item.id) {
-                              mainAgent = ma;
-                            } else if (ma.agents?.length >= 2) {
-                              if (ma.agents[1].id == item.id) {
-                                mainAgent = ma;
-                              }
-                            }
-                          }
-                        });
-                        let kyc = (mainAgent?.kyc || []).map(
-                          (kyc) => kyc.question
-                        );
-                        ////console.log
-                        while ((match = regex.exec(callScript)) !== null) {
-                          // "Email", "Address",
-                          let defaultVariables = [
-                            "Full Name",
-                            "First Name",
-                            "Last Name",
-                            "firstName",
-                            "seller_kyc",
-                            "buyer_kyc",
-                            "CU_address",
-                            "CU_status",
-                            // "Address"
-                          ];
-                          if (
-                            !defaultVariables.includes(match[1]) &&
-                            match[1]?.length < 15
-                          ) {
-                            // match[1]?.length < 15
-                            if (
-                              !keys.includes(match[1]) &&
-                              !kyc.includes(match[1])
-                            ) {
-                              keys.push(match[1]);
-                            }
-                          }
-                          // Add the variable name (without braces) to the array
-                        }
-                        setScriptKeys(keys);
-                        ////console.log;
-                        setSelectedAgent(item);
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: "600",
-                          color: "#fff",
-                        }}
-                      >
-                        Test AI
-                      </div>
-                    </button>
-                  </div>
-                </div>
+          //                 //function for extracting the keys
+          //                 const regex = /\{(.*?)\}/g;
+          //                 let match;
+          //                 let mainAgent = null;
+          //                 mainAgentsList.map((ma) => {
+          //                   if (ma.agents?.length > 0) {
+          //                     if (ma.agents[0].id == item.id) {
+          //                       mainAgent = ma;
+          //                     } else if (ma.agents?.length >= 2) {
+          //                       if (ma.agents[1].id == item.id) {
+          //                         mainAgent = ma;
+          //                       }
+          //                     }
+          //                   }
+          //                 });
+          //                 let kyc = (mainAgent?.kyc || []).map(
+          //                   (kyc) => kyc.question
+          //                 );
+          //                 ////console.log
+          //                 while ((match = regex.exec(callScript)) !== null) {
+          //                   // "Email", "Address",
+          //                   let defaultVariables = [
+          //                     "Full Name",
+          //                     "First Name",
+          //                     "Last Name",
+          //                     "firstName",
+          //                     "seller_kyc",
+          //                     "buyer_kyc",
+          //                     "CU_address",
+          //                     "CU_status",
+          //                     // "Address"
+          //                   ];
+          //                   if (
+          //                     !defaultVariables.includes(match[1]) &&
+          //                     match[1]?.length < 15
+          //                   ) {
+          //                     // match[1]?.length < 15
+          //                     if (
+          //                       !keys.includes(match[1]) &&
+          //                       !kyc.includes(match[1])
+          //                     ) {
+          //                       keys.push(match[1]);
+          //                     }
+          //                   }
+          //                   // Add the variable name (without braces) to the array
+          //                 }
+          //                 setScriptKeys(keys);
+          //                 ////console.log;
+          //                 setSelectedAgent(item);
+          //               }}
+          //             >
+          //               <div
+          //                 style={{
+          //                   fontSize: 16,
+          //                   fontWeight: "600",
+          //                   color: "#fff",
+          //                 }}
+          //               >
+          //                 Test AI
+          //               </div>
+          //             </button>
+          //           </div>
+          //         </div>
 
-                <div
-                  style={{ marginTop: 20 }}
-                  className="w-9.12 bg-white p-6 rounded-2xl mb-4"
-                >
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <Card
-                      name="Calls"
-                      value={<div>{item.calls ? item.calls : "-"}</div>}
-                      icon="/svgIcons/selectedCallIcon.svg"
-                      bgColor="bg-blue-100"
-                      iconColor="text-blue-500"
-                    />
-                    <Card
-                      name="Convos"
-                      value={<div>{item.callsGt10 ? item.callsGt10 : "-"}</div>}
-                      icon="/svgIcons/convosIcon2.svg"
-                      bgColor="bg-purple-100"
-                      iconColor="text-purple-500"
-                    />
-                    <Card
-                      name="Hot Leads"
-                      value={item.hotleads ? item.hotleads : "-"}
-                      icon="/otherAssets/hotLeadsIcon2.png"
-                      bgColor="bg-orange-100"
-                      iconColor="text-orange-500"
-                    />
+          //         <div
+          //           style={{ marginTop: 20 }}
+          //           className="w-9.12 bg-white p-6 rounded-2xl mb-4"
+          //         >
+          //           <div className="w-full flex flex-row items-center justify-between">
+          //             <Card
+          //               name="Calls"
+          //               value={<div>{item.calls ? item.calls : "-"}</div>}
+          //               icon="/svgIcons/selectedCallIcon.svg"
+          //               bgColor="bg-blue-100"
+          //               iconColor="text-blue-500"
+          //             />
+          //             <Card
+          //               name="Convos"
+          //               value={
+          //                 <div>{item.callsGt10 ? item.callsGt10 : "-"}</div>
+          //               }
+          //               icon="/svgIcons/convosIcon2.svg"
+          //               bgColor="bg-purple-100"
+          //               iconColor="text-purple-500"
+          //             />
+          //             <Card
+          //               name="Hot Leads"
+          //               value={item.hotleads ? item.hotleads : "-"}
+          //               icon="/otherAssets/hotLeadsIcon2.png"
+          //               bgColor="bg-orange-100"
+          //               iconColor="text-orange-500"
+          //             />
 
-                    <Card
-                      name="Booked Meetings"
-                      value={item.booked ? item.booked : "-"}
-                      icon="/otherAssets/greenCalenderIcon.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
+          //             <Card
+          //               name="Booked Meetings"
+          //               value={item.booked ? item.booked : "-"}
+          //               icon="/otherAssets/greenCalenderIcon.png"
+          //               bgColor="green"
+          //               iconColor="text-orange-500"
+          //             />
 
-                    <Card
-                      name="Mins Talked"
-                      value={
-                        <div>
-                          {item?.totalDuration
-                            ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format("HH:mm:ss")
-                            : "-"}
-                        </div>
-                      }
-                      icon="/otherAssets/minsCounter.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          //             <Card
+          //               name="Mins Talked"
+          //               value={
+          //                 <div>
+          //                   {item?.totalDuration
+          //                     ? moment
+          //                         .utc((item?.totalDuration || 0) * 1000)
+          //                         .format("HH:mm:ss")
+          //                     : "-"}
+          //                 </div>
+          //               }
+          //               icon="/otherAssets/minsCounter.png"
+          //               bgColor="green"
+          //               iconColor="text-orange-500"
+          //             />
+          //           </div>
+          //         </div>
+          //       </div>
+          //     ))
+          //   )}
+          // </div>
         )}
 
         {/* code to add new agent */}
-        <Link
-          className="w-full py-6 flex justify-center items-center"
-          href="/createagent"
-          style={{
-            marginTop: 40,
-            border: "1px dashed #7902DF",
-            borderRadius: "10px",
-            // borderColor: '#7902DF',
-            boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
-            backgroundColor: "#FBFCFF",
-          }}
-          onClick={handleAddNewAgent}
-        >
-          <div
-            className="flex flex-row items-center gap-1"
+        {agentsListSeparated.length > 0 && (
+          <Link
+            className="w-full py-6 flex justify-center items-center"
+            href="/createagent"
             style={{
-              fontSize: 20,
-              fontWeight: "600",
-              color: "#000",
+              // marginTop: 40,
+              border: "1px dashed #7902DF",
+              borderRadius: "10px",
+              // borderColor: '#7902DF',
+              boxShadow: "0px 0px 10px 10px rgba(64, 47, 255, 0.05)",
+              backgroundColor: "#FBFCFF",
             }}
+            onClick={handleAddNewAgent}
           >
-            <Plus weight="bold" size={22} /> Add New Agent
-          </div>
-        </Link>
+            <div
+              className="flex flex-row items-center gap-1"
+              style={{
+                fontSize: 20,
+                fontWeight: "600",
+                color: "#000",
+              }}
+            >
+              <Plus weight="bold" size={22} /> Add New Agent
+            </div>
+          </Link>
+        )}
       </div>
 
       {/* Modal to rename the agent */}
       <Modal
         open={showRenameAgentPopup}
         onClose={() => {
-          showRenameAgentPopup(false);
+          setShowRenameAgentPopup(false);
         }}
         BackdropProps={{
           timeout: 100,
@@ -2705,9 +2729,10 @@ function Page() {
                     setRenameAgent(e.target.value);
                   }}
                   placeholder={
-                    selectedRenameAgent?.name
-                      ? selectedRenameAgent.name
-                      : "Enter agent title"
+                    "Enter agent title"
+                    // selectedRenameAgent?.name
+                    //   ? selectedRenameAgent.name
+                    //   : "Enter agent title"
                   }
                   className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
                   style={{ border: "1px solid #00000020" }}
@@ -3086,10 +3111,17 @@ function Page() {
                 </div>
                 <div className="flex flex-col gap-1 items-start">
                   <div className="flex flex-row justify-center items-center gap-2">
-                    <div style={{ fontSize: 22, fontWeight: "600" }}>
+                    <button
+                      style={{ fontSize: 22, fontWeight: "600" }}
+                      onClick={() => {
+                        setShowRenameAgentPopup(true);
+                        setSelectedRenameAgent(showDrawerSelectedAgent);
+                        setRenameAgent(showDrawerSelectedAgent?.name);
+                      }}
+                    >
                       {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
                       {showDrawerSelectedAgent?.name?.slice(1)}
-                    </div>
+                    </button>
                     <div
                       className="text-purple"
                       style={{ fontSize: 11, fontWeight: "600" }}
@@ -3789,6 +3821,109 @@ function Page() {
                       )}
                     </div>
                   </div>
+
+                  {/* Language */}
+                  <div className="flex w-full justify-between items-center -mt-4">
+                    <div
+                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                    >
+                      Language
+                    </div>
+
+                    <div
+                      style={{
+                        // width: "115px",
+                        display: "flex",
+                        alignItems: "center",
+                        // borderWidth:1,
+                        marginRight: -15,
+                      }}
+                    >
+                      {showLanguageLoader ? (
+                        <div
+                          style={{
+                            width: "115px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <CircularProgress size={15} />
+                        </div>
+                      ) : (
+                        <FormControl>
+                          <Select
+                            value={languageValue}
+                            onChange={async (event) => {
+                              setShowLanguageLoader(true);
+                              let value = event.target.value;
+                              //console.log;
+                              let voiceData = {
+                                agentLanguage: value,
+                              };
+                              await updateSubAgent(voiceData);
+                              setShowLanguageLoader(false);
+                              // setSelectedVoice(event.target.value);
+                              setLanguageValue(value);
+                            }}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                ); // Placeholder style
+                              }
+                              const selectedVoice = AgentLanguagesList.find(
+                                (lang) => lang.title === selected
+                              );
+                              console.log(
+                                `Selected Language for ${selected} is ${selectedVoice.title}`
+                              );
+                              return selectedVoice ? selectedVoice.title : null;
+                            }}
+                            sx={{
+                              border: "none", // Default border
+                              "&:hover": {
+                                border: "none", // Same border on hover
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none", // Remove the default outline
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                              "&.MuiSelect-select": {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: "30vh", // Limit dropdown height
+                                  overflow: "auto", // Enable scrolling in dropdown
+                                  scrollbarWidth: "none",
+                                  // borderRadius: "10px"
+                                },
+                              },
+                            }}
+                          >
+                            {AgentLanguagesList.map((item, index) => {
+                              return (
+                                <MenuItem
+                                  value={item.title}
+                                  key={index}
+                                  disabled={languageValue === item.title}
+                                >
+                                  <div>{item.title}</div>
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-1 mt-4">
                   <div
@@ -3950,11 +4085,16 @@ function Page() {
                               <MenuItem
                                 style={styles.dropdownMenu}
                                 value={showGlobalBtn ? 14062040550 : ""}
-                                disabled={!showGlobalBtn}
+                                // disabled={!showGlobalBtn}
+                                disabled={
+                                  assignNumber.replace("+", "") ===
+                                  Constants.GlobalPhoneNumber.replace("+", "")
+                                }
                                 onClick={() => {
-                                  //// console.log(
-                                  // "This triggers when user clicks on assigning global number"
-                                  // );
+                                  console.log(
+                                    "This triggers when user clicks on assigning global number",
+                                    assignNumber
+                                  );
                                   // return;
                                   AssignNumber(Constants.GlobalPhoneNumber);
                                   // handleReassignNumber(showConfirmationModal);
@@ -4116,6 +4256,24 @@ function Page() {
               </div>
             ) : activeTab === "Calendar" ? (
               <div>
+                <div
+                  className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                  style={
+                    {
+                      // backgroundColor: "red"
+                    }
+                  }
+                >
+                  <VideoCard
+                    duration="2 min 42 sec"
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal2(true);
+                    }}
+                    title="Learn how to add a calendar"
+                  />
+                </div>
+
                 <UserCalender
                   calendarDetails={calendarDetails}
                   setUserDetails={setMainAgentsList}
@@ -4280,89 +4438,6 @@ function Page() {
                   </button>
                 )}
               </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Warning modal */}
-      <Modal
-        open={ShowWarningModal}
-        onClose={() => {
-          setShowWarningModal(null);
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-7/12 md:w-5/12 lg:w-3/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-        >
-          <div style={{ width: "100%" }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: "none" }}
-            >
-              <div className="flex flex-row items-center justify-center gap-2 -mt-1">
-                <Image
-                  src={"/assets/warningFill.png"}
-                  height={18}
-                  width={18}
-                  alt="*"
-                />
-                <p>
-                  <i
-                    className="text-red"
-                    style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                    }}
-                  >
-                    No phone number assigned
-                  </i>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-row items-center gap-4 mt-6">
-              <button
-                className="mt-4 outline-none w-5/12"
-                style={{
-                  color: "black",
-                  height: "50px",
-                  borderRadius: "10px",
-                  // width: "100%",
-                  fontWeight: 600,
-                  fontSize: "20",
-                }}
-                onClick={() => {
-                  setShowWarningModal(null);
-                }}
-              >
-                Close
-              </button>
-              <button
-                className="mt-4 outline-none bg-purple w-7/12"
-                style={{
-                  color: "white",
-                  height: "50px",
-                  borderRadius: "10px",
-                  // width: "100%",
-                  fontWeight: 600,
-                  fontSize: "20",
-                }}
-                onClick={() => {
-                  setShowDrawerSelectedAgent(ShowWarningModal);
-                  setShowWarningModal(null);
-                }}
-              >
-                Assign Number
-              </button>
             </div>
           </div>
         </Box>
@@ -4730,7 +4805,12 @@ function Page() {
                           greetTag={showScriptModal?.prompt?.greeting}
                           kycsList={kycsData}
                           uniqueColumns={uniqueColumns}
-                          tagValue={setGreetingTagInput}
+                          tagValue={(text) => {
+                            setGreetingTagInput(text);
+                            let agent = showScriptModal;
+                            agent.prompt.greeting = text;
+                            setShowScriptModal(agent);
+                          }}
                           scrollOffset={scrollOffset}
                         />
                       </div>
@@ -4740,7 +4820,13 @@ function Page() {
                           kycsList={kycsData}
                           from={"Promt"}
                           uniqueColumns={uniqueColumns}
-                          tagValue={setScriptTagInput}
+                          tagValue={(text) => {
+                            console.log("Text updated ", text);
+                            setScriptTagInput(text);
+                            // let agent = showScriptModal;
+                            // agent.prompt.callScript = text;
+                            // setShowScriptModal(agent);
+                          }}
                           scrollOffset={scrollOffset}
                           showSaveChangesBtn={showSaveChangesBtn}
                           saveUpdates={async () => {
@@ -4946,6 +5032,13 @@ function Page() {
         onClose={() => setIntroVideoModal(false)}
         videoTitle=" Learn how to customize your script"
         videoUrl={HowtoVideos.script}
+      />
+
+      <IntroVideoModal
+        open={introVideoModal2}
+        onClose={() => setIntroVideoModal2(false)}
+        videoTitle="Learn how to add a calendar"
+        videoUrl={HowtoVideos.Calendar}
       />
 
       {showClaimPopup && (

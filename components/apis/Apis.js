@@ -3,8 +3,8 @@
 // //console.log;
 const BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/agentx/"
-    : "https://apimyagentx.com/agentxtest/";
+    ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
+    : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
 
 //// console.log(
 //   "Current environment is",
@@ -30,6 +30,8 @@ const Apis = {
   getKYCs: `${BasePath}api/agent/getKycs`,
   getPipelines: `${BasePath}api/pipeline/getPipelines`,
   getPipelineById: `${BasePath}api/pipeline/getPipeline`,
+  //paginating
+  getLeadsInStage: `${BasePath}api/leads/getLeadsInStage`,
   updatePipeline: `${BasePath}api/pipeline/updatePipeline`,
   createPipeLineCadence: `${BasePath}api/pipeline/createPipelineCadence`,
   getAgentCadence: `${BasePath}api/pipeline/getAgentCadence`,
@@ -71,6 +73,7 @@ const Apis = {
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
   //apis to add card & subscribe plan
   createSetupIntent: `${BasePath}api/user/createSetupIntent`,
+  getPaymentIntent: `${BasePath}api/user/getSetupIntent`,
   addCard: `${BasePath}api/user/addPaymentMethod`,
   subscribePlan: `${BasePath}api/user/subscribePlan`,
   purchaseSupportPlan: `${BasePath}api/user/purchaseSupportPlan`,
@@ -157,7 +160,6 @@ const Apis = {
   connectAgencyAccount: `${BasePath}api/agency/connectAgency`,
 
   getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
-  getPlansForAgency: `${BasePath}api/agency/getPlanListForAgency`,
   pauseProfile: `${BasePath}api/user/pauseProfile`,
 
   //add and get agency plans
@@ -167,6 +169,17 @@ const Apis = {
   getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
   CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
   getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
+
+  //subaccount plan apis
+  getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,
+  subAgencyAndSubAccountPlans: `${BasePath}api/agency/subscribeAgencyPlan`,
+
+  //add comment
+  addComment: `${BasePath}api/leads/addCommentOnTranscript`,
+  //create onboarding link
+  createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
+  //setup twillio
+  setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`,
 };
 
 export default Apis;

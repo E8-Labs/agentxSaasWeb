@@ -27,6 +27,8 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Apis from "../apis/Apis";
 import axios from "axios";
+//pagination
+import InfiniteScroll from "react-infinite-scroll-component";
 import ColorPicker from "./ColorPicker";
 import RearrangeStages from "../pipeline/RearrangeStages";
 // import Tags from '../dashboard/leads/TagsInput';
@@ -53,6 +55,7 @@ import {
 } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import PipelineLoading from "./PipelineLoading";
+import { AuthToken } from "../agency/plan/AuthDetails";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -91,6 +94,13 @@ const Pipeline1 = () => {
   const [StagesList, setStagesList] = useState([]);
   const [oldStages, setOldStages] = useState([]);
   const [LeadsList, setLeadsList] = useState([]);
+  //for search
+  const [reservedLeads, setReservedLeads] = useState([]);
+  //search timer
+  const searchTimeout = useRef(null);
+  //pagination
+  const [hasMore, setHasMore] = useState(true);
+  const [moreLeadsLoader, setMoreLeadsLoader] = useState(false);
   //code to add new stage
   const [addNewStageModal, setAddNewStageModal] = useState(false);
   const [newStageTitle, setNewStageTitle] = useState("");
@@ -639,6 +649,7 @@ const Pipeline1 = () => {
           setSelectedPipeline(pipelineDetails);
           setStagesList(pipelineDetails.stages);
           setLeadsList(pipelineDetails.leads);
+          setReservedLeads(pipelineDetails.leads);
         } else {
           //console.log;
         }
@@ -657,6 +668,47 @@ const Pipeline1 = () => {
       setInitialLoader(false);
     }
   }
+
+  //code for get Leads In Stage
+  const getMoreLeadsInStage = async ({ stageId, offset, search }) => {
+    console.log("Id of current stage is", stageId);
+    console.log("Trigered", search);
+    try {
+      console.log("Previous Length is");
+      // return;
+      const Auth = AuthToken();
+      let ApiPath = "";
+      if (offset) {
+        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&offset=${offset}`;
+      } else if (search) {
+        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}`;
+      }
+      console.log(`Api path is ${ApiPath}`);
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + Auth,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response) {
+        let newLeads = response?.data?.data || [];
+        if (newLeads.length > 11) {
+          setHasMore(true);
+        } else {
+          setHasMore(false);
+        }
+        console.log("Response of get new pagination list api is", newLeads);
+        if (search) {
+          console.log("Set leads for search value");
+          setLeadsList(newLeads);
+        } else {
+          setLeadsList([...LeadsList, ...newLeads]);
+        }
+      }
+    } catch (error) {
+      console.log("Error occured in api is", error);
+    }
+  };
 
   //code for get pipeline
   const getPipelines = async () => {
@@ -1654,30 +1706,23 @@ const Pipeline1 = () => {
   };
 
   function handldSearch(e) {
-    let pipeline = SelectedPipeline;
     let search = e.target.value.toLowerCase();
-    // //console.log;
+    let pipeline = SelectedPipeline;
 
-    if (search == "") {
-      setLeadsList(pipeline.leads);
-    } else {
-      const filteredLeads = pipeline.leads.filter((lead) => {
-        //// //console.log;
-        let firstName = lead.lead.firstName?.toLowerCase() || "";
-        let lastName = lead.lead.lastName?.toLowerCase() || "";
-        let fullName = (firstName || "") + " " + (lastName || "");
-        let email = lead?.lead?.email?.toLowerCase() || "";
-        let phone = lead?.lead?.phone || "";
-        return (
-          firstName.includes(search) ||
-          lastName.includes(search) ||
-          fullName.includes(search) ||
-          email.includes(search) ||
-          phone.includes(search)
-        );
-      });
-      setLeadsList(filteredLeads);
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current); // Clear previous timer
     }
+
+    searchTimeout.current = setTimeout(() => {
+      if (search === "") {
+        setLeadsList(reservedLeads);
+      } else {
+        getMoreLeadsInStage({
+          stageId: pipeline?.stages[0].id,
+          search: search,
+        });
+      }
+    }, 3000); // Delay of 3000ms = 3 seconds
   }
 
   const styles = {
@@ -1980,7 +2025,7 @@ const Pipeline1 = () => {
                           )} */}
 
                               {
-                                LeadsList?.filter(
+                                LeadsList.filter(
                                   (lead) => lead.lead.stage === stage.id
                                 ).length
                               }
@@ -2139,150 +2184,203 @@ const Pipeline1 = () => {
                           (lead) => lead.lead.stage === stage.id
                         ).length > 0 && (
                           <div
-                            className="flex flex-col gap-4 mt-4 h-[75vh] overflow-auto  rounded-xl"
+                            id={`scrollableDiv-${stage.id}`}
+                            className="relative flex flex-col gap-4 mt-4 h-[75vh] overflow-y-auto rounded-xl"
                             style={{
                               scrollbarWidth: "none",
                               borderWidth: 1,
-                              borderRadius: "12",
+                              borderRadius: "12px",
                               borderStyle: "solid",
                               borderColor: "#00000010",
                             }}
                           >
-                            {LeadsList?.filter(
-                              (lead) => lead.lead.stage === stage.id
-                            ).map((lead, leadIndex) => (
-                              <div
-                                className="px-3 h-full"
-                                style={{ width: "300px", height: 200 }}
-                                key={leadIndex}
-                              >
-                                <div className="border rounded-xl px-4 py-2 h-full">
-                                  <button
-                                    className="flex flex-row items-center gap-3"
-                                    onClick={() => {
-                                      // console.log(
-                                      //   "Selected lead details are:",
-                                      //   lead
-                                      // );
-                                      setShowDetailsModal(true);
-                                      setSelectedLeadsDetails(lead.lead);
-                                      setPipelineId(lead.lead.pipeline.id);
-                                      setNoteDetails(lead.lead.notes);
-                                    }}
-                                  >
-                                    {/* T is center aligned */}
-                                    <div
-                                      className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                      style={{ height: "27px", width: "27px" }}
-                                    >
-                                      {lead.lead.firstName.slice(0, 1)}
-                                    </div>
-                                    <div style={styles.paragraph}>
-                                      {lead.lead.firstName}
-                                    </div>
-                                  </button>
-                                  <div className="flex flex-row items-center justify-between w-full mt-2">
-                                    <div
-                                      className="text-[#00000060]"
-                                      style={styles.agentName}
-                                    >
-                                      {(lead?.lead?.email
-                                        ? lead?.lead?.email?.slice(0, 10) +
-                                          "..."
-                                        : "") || ""}
-                                    </div>
-                                    <div className="flex flex-row items-center gap-4">
-                                      <Image
-                                        src={"/assets/colorCircle.png"}
-                                        height={24}
-                                        width={24}
-                                        alt="*"
-                                      />
-                                      <div
-                                        className="text-purple underline"
-                                        style={styles.agentName}
-                                      >
-                                        {lead.agent?.agents[0]?.agentType ===
-                                        "outbound"
-                                          ? lead.agent?.agents[0]?.name
-                                          : lead.agent?.agents[1]?.name}
-                                      </div>
-                                    </div>
-                                  </div>
+                            <InfiniteScroll
+                              className="mt-4"
+                              endMessage={
+                                <p
+                                  style={{
+                                    textAlign: "center",
+                                    paddingTop: "10px",
+                                    fontWeight: "400",
+                                    fontFamily: "inter",
+                                    fontSize: 16,
+                                    color: "#00000060",
+                                    paddingBottom: 20,
+                                  }}
+                                >
+                                  {`You're all caught up`}
+                                </p>
+                              }
+                              scrollableTarget={`scrollableDiv-${stage.id}`}
+                              dataLength={
+                                LeadsList.filter(
+                                  (lead) => lead.lead.stage === stage.id
+                                ).length
+                              }
+                              next={() => {
+                                console.log("Load Next Leads");
+                                let leadsInStage = LeadsList.filter(
+                                  (lead) => lead.lead.stage === stage.id
+                                );
 
-                                  {lead?.lead?.booking?.date && (
-                                    <div
-                                      className="flex flex-row items-center gap-2"
-                                      style={{
-                                        // fontWeight: "500",
-
-                                        color: "#15151560",
-                                        // backgroundColor: 'red',
+                                // getMoreLeadsInStage(
+                                //   stage.id,
+                                //   leadsInStage.length
+                                // );
+                                getMoreLeadsInStage({
+                                  stageId: stage.id,
+                                  offset: leadsInStage.length,
+                                });
+                              }} // Fetch more when scrolled
+                              hasMore={hasMore} // Check if there's more data
+                              loader={
+                                <div className="w-full flex justify-center mt-4 pb-12">
+                                  <CircularProgress
+                                    size={30}
+                                    sx={{ color: "#7902DF" }}
+                                  />
+                                </div>
+                              }
+                              style={{ overflow: "unset" }}
+                            >
+                              {LeadsList?.filter(
+                                (lead) => lead.lead.stage === stage.id
+                              ).map((lead, leadIndex) => (
+                                <div
+                                  className="px-3 h-full"
+                                  style={{ width: "300px", height: 200 }}
+                                  key={leadIndex}
+                                >
+                                  <div className="border rounded-xl px-4 py-2 h-full">
+                                    <button
+                                      className="flex flex-row items-center gap-3"
+                                      onClick={() => {
+                                        // console.log(
+                                        //   "Selected lead details are:",
+                                        //   lead
+                                        // );
+                                        setShowDetailsModal(true);
+                                        setSelectedLeadsDetails(lead.lead);
+                                        setPipelineId(lead.lead.pipeline.id);
+                                        setNoteDetails(lead.lead.notes);
                                       }}
                                     >
-                                      <Image
-                                        src="/svgIcons/calendar.svg"
-                                        height={16}
-                                        width={16}
-                                        alt="*"
-                                        style={{ filter: "opacity(50%)" }}
-                                      />
-                                      {/* {moment(lead?.lead?.booking?.date).format(
+                                      {/* T is center aligned */}
+                                      <div
+                                        className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                        style={{
+                                          height: "27px",
+                                          width: "27px",
+                                        }}
+                                      >
+                                        {lead.lead.firstName.slice(0, 1)}
+                                      </div>
+                                      <div style={styles.paragraph}>
+                                        {lead.lead.firstName}
+                                      </div>
+                                    </button>
+                                    <div className="flex flex-row items-center justify-between w-full mt-2">
+                                      <div
+                                        className="text-[#00000060]"
+                                        style={styles.agentName}
+                                      >
+                                        {(lead?.lead?.email
+                                          ? lead?.lead?.email?.slice(0, 10) +
+                                            "..."
+                                          : "") || ""}
+                                      </div>
+                                      <div className="flex flex-row items-center gap-4">
+                                        <Image
+                                          src={"/assets/colorCircle.png"}
+                                          height={24}
+                                          width={24}
+                                          alt="*"
+                                        />
+                                        <div
+                                          className="text-purple underline"
+                                          style={styles.agentName}
+                                        >
+                                          {lead.agent?.agents[0]?.agentType ===
+                                          "outbound"
+                                            ? lead.agent?.agents[0]?.name
+                                            : lead.agent?.agents[1]?.name}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {lead?.lead?.booking?.date && (
+                                      <div
+                                        className="flex flex-row items-center gap-2"
+                                        style={{
+                                          // fontWeight: "500",
+
+                                          color: "#15151560",
+                                          // backgroundColor: 'red',
+                                        }}
+                                      >
+                                        <Image
+                                          src="/svgIcons/calendar.svg"
+                                          height={16}
+                                          width={16}
+                                          alt="*"
+                                          style={{ filter: "opacity(50%)" }}
+                                        />
+                                        {/* {moment(lead?.lead?.booking?.date).format(
                                           "MMM D"
                                         ) || "-"} */}
-                                      <p
-                                        style={{
-                                          fontSize: 13,
-                                          fontWeight: 500,
-                                        }}
-                                      >
-                                        {GetFormattedDateString(
-                                          lead?.lead?.booking?.date,
-                                          true,
-                                          "MMM DD"
-                                        )}
-                                      </p>
+                                        <p
+                                          style={{
+                                            fontSize: 13,
+                                            fontWeight: 500,
+                                          }}
+                                        >
+                                          {GetFormattedDateString(
+                                            lead?.lead?.booking?.date,
+                                            true,
+                                            "MMM DD"
+                                          )}
+                                        </p>
 
-                                      <Image
-                                        src="/svgIcons/clock.svg"
-                                        height={16}
-                                        width={16}
-                                        alt="*"
-                                        style={{ filter: "opacity(50%)" }}
-                                      />
-                                      <p
-                                        style={{
-                                          fontSize: 13,
-                                          fontWeight: 500,
-                                        }}
-                                      >
-                                        {GetFormattedTimeString(
-                                          lead?.lead?.booking?.datetime
-                                        )}
-                                      </p>
+                                        <Image
+                                          src="/svgIcons/clock.svg"
+                                          height={16}
+                                          width={16}
+                                          alt="*"
+                                          style={{ filter: "opacity(50%)" }}
+                                        />
+                                        <p
+                                          style={{
+                                            fontSize: 13,
+                                            fontWeight: 500,
+                                          }}
+                                        >
+                                          {GetFormattedTimeString(
+                                            lead?.lead?.booking?.datetime
+                                          )}
+                                        </p>
 
-                                      {/* {moment(
+                                        {/* {moment(
                                           lead?.lead?.booking?.time,
                                           "HH:mm"
                                         ).format("HH:mm") || "-"} */}
-                                    </div>
-                                  )}
-
-                                  <div className="w-full flex flex-row items-center justify-between mt-12">
-                                    {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                      <LeadTeamsAssignedList
-                                        users={lead?.lead?.teamsAssigned}
-                                        maxVisibleUsers={1}
-                                      />
-                                    ) : (
-                                      <Image
-                                        src={"/assets/manIcon.png"}
-                                        height={32}
-                                        width={32}
-                                        alt="*"
-                                      />
+                                      </div>
                                     )}
-                                    {/* <div className="flex flex-row items-center gap-3">
+
+                                    <div className="w-full flex flex-row items-center justify-between mt-12">
+                                      {lead?.lead?.teamsAssigned?.length > 0 ? (
+                                        <LeadTeamsAssignedList
+                                          users={lead?.lead?.teamsAssigned}
+                                          maxVisibleUsers={1}
+                                        />
+                                      ) : (
+                                        <Image
+                                          src={"/assets/manIcon.png"}
+                                          height={32}
+                                          width={32}
+                                          alt="*"
+                                        />
+                                      )}
+                                      {/* <div className="flex flex-row items-center gap-3">
                                                                             <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                                 Tag
                                                                             </div>
@@ -2291,98 +2389,108 @@ const Pipeline1 = () => {
                                                                             </div>
                                                                         </div> */}
 
-                                    {lead.lead.tags.length > 0 ? (
-                                      <div className="flex flex-row items-center gap-1">
-                                        {lead?.lead?.tags
-                                          .slice(0, 1)
-                                          .map((tagVal, index) => {
-                                            return (
-                                              // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                              //     {tagVal}
-                                              // </div>
-                                              <div
-                                                key={index}
-                                                className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
-                                              >
+                                      {lead.lead.tags.length > 0 ? (
+                                        <div className="flex flex-row items-center gap-1">
+                                          {lead?.lead?.tags
+                                            .slice(0, 1)
+                                            .map((tagVal, index) => {
+                                              return (
+                                                // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                                //     {tagVal}
+                                                // </div>
                                                 <div
-                                                  className="text-purple" //1C55FF10
+                                                  key={index}
+                                                  className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
                                                 >
-                                                  {tagVal.length > 4 ? (
-                                                    <div
-                                                      style={{ fontSize: 13 }}
-                                                    >
-                                                      {tagVal.slice(0, 4)}
-                                                      {"..."}
+                                                  <div
+                                                    className="text-purple" //1C55FF10
+                                                  >
+                                                    {tagVal.length > 4 ? (
+                                                      <div
+                                                        style={{ fontSize: 13 }}
+                                                      >
+                                                        {tagVal.slice(0, 4)}
+                                                        {"..."}
+                                                      </div>
+                                                    ) : (
+                                                      <div
+                                                        style={{ fontSize: 13 }}
+                                                      >
+                                                        {tagVal}
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                  {DelTagLoader &&
+                                                  lead.lead.id ===
+                                                    DelTagLoader ? (
+                                                    <div>
+                                                      <CircularProgress
+                                                        size={15}
+                                                      />
                                                     </div>
                                                   ) : (
-                                                    <div
-                                                      style={{ fontSize: 13 }}
+                                                    <button
+                                                      onClick={() => {
+                                                        // console.log(
+                                                        //   "Tag value is",
+                                                        //   tagVal
+                                                        // );
+                                                        handleDelTag(
+                                                          tagVal,
+                                                          lead
+                                                        );
+                                                        let updatedTags =
+                                                          lead.lead.tags.filter(
+                                                            (tag) =>
+                                                              tag != tagVal
+                                                          ) || [];
+                                                        lead.lead.tags =
+                                                          updatedTags;
+                                                        let newLeadCad = [];
+                                                        LeadsList.map(
+                                                          (item) => {
+                                                            if (
+                                                              item.id == lead.id
+                                                            ) {
+                                                              newLeadCad.push(
+                                                                lead
+                                                              );
+                                                            } else {
+                                                              newLeadCad.push(
+                                                                item
+                                                              );
+                                                            }
+                                                          }
+                                                        );
+                                                        setLeadsList(
+                                                          newLeadCad
+                                                        );
+                                                      }}
                                                     >
-                                                      {tagVal}
-                                                    </div>
+                                                      <X
+                                                        size={15}
+                                                        weight="bold"
+                                                        color="#7902DF"
+                                                      />
+                                                    </button>
                                                   )}
                                                 </div>
-                                                {DelTagLoader &&
-                                                lead.lead.id ===
-                                                  DelTagLoader ? (
-                                                  <div>
-                                                    <CircularProgress
-                                                      size={15}
-                                                    />
-                                                  </div>
-                                                ) : (
-                                                  <button
-                                                    onClick={() => {
-                                                      // console.log(
-                                                      //   "Tag value is",
-                                                      //   tagVal
-                                                      // );
-                                                      handleDelTag(
-                                                        tagVal,
-                                                        lead
-                                                      );
-                                                      let updatedTags =
-                                                        lead.lead.tags.filter(
-                                                          (tag) => tag != tagVal
-                                                        ) || [];
-                                                      lead.lead.tags =
-                                                        updatedTags;
-                                                      let newLeadCad = [];
-                                                      LeadsList.map((item) => {
-                                                        if (
-                                                          item.id == lead.id
-                                                        ) {
-                                                          newLeadCad.push(lead);
-                                                        } else {
-                                                          newLeadCad.push(item);
-                                                        }
-                                                      });
-                                                      setLeadsList(newLeadCad);
-                                                    }}
-                                                  >
-                                                    <X
-                                                      size={15}
-                                                      weight="bold"
-                                                      color="#7902DF"
-                                                    />
-                                                  </button>
-                                                )}
-                                              </div>
-                                            );
-                                          })}
-                                        {lead.lead.tags.length > 1 && (
-                                          <div>
-                                            +{lead.lead.tags.length - 1}
-                                          </div>
-                                        )}
-                                      </div>
-                                    ) : (
-                                      "-"
-                                    )}
+                                              );
+                                            })}
+                                          {lead.lead.tags.length > 1 && (
+                                            <div>
+                                              +{lead.lead.tags.length - 1}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        "-"
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </InfiniteScroll>
                           </div>
                         )}
                       </div>
