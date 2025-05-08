@@ -99,7 +99,8 @@ const Pipeline1 = () => {
   //search timer
   const searchTimeout = useRef(null);
   //pagination
-  const [hasMore, setHasMore] = useState(true);
+  // const [hasMore, setHasMore] = useState(true);
+  const [hasMoreMap, setHasMoreMap] = useState({});
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false);
   //code to add new stage
   const [addNewStageModal, setAddNewStageModal] = useState(false);
@@ -692,11 +693,15 @@ const Pipeline1 = () => {
       });
       if (response) {
         let newLeads = response?.data?.data || [];
-        if (newLeads.length > 11) {
-          setHasMore(true);
-        } else {
-          setHasMore(false);
-        }
+        // if (newLeads.length > 11) {
+        //   setHasMore(true);
+        // } else {
+        //   setHasMore(false);
+        // }
+        setHasMoreMap((prev) => ({
+          ...prev,
+          [stageId]: newLeads.length >= 10,
+        }));
         console.log("Response of get new pagination list api is", newLeads);
         if (search) {
           console.log("Set leads for search value");
@@ -2232,7 +2237,7 @@ const Pipeline1 = () => {
                                   offset: leadsInStage.length,
                                 });
                               }} // Fetch more when scrolled
-                              hasMore={hasMore} // Check if there's more data
+                              hasMore={hasMoreMap[stage.id] !== false}
                               loader={
                                 <div className="w-full flex justify-center mt-4 pb-12">
                                   <CircularProgress
