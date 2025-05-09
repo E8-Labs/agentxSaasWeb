@@ -4264,14 +4264,14 @@ function Page() {
                     }
                   }
                 >
-                  <VideoCard
+                  {/*<VideoCard
                     duration="2 min 42 sec"
                     horizontal={false}
                     playVideo={() => {
                       setIntroVideoModal2(true);
                     }}
                     title="Learn how to add a calendar"
-                  />
+                  />*/}
                 </div>
 
                 <UserCalender

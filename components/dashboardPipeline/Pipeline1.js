@@ -92,6 +92,7 @@ const Pipeline1 = () => {
   let selectedPipelineIndex = useRef(-1);
   const [PipeLines, setPipeLines] = useState([]);
   const [StagesList, setStagesList] = useState([]);
+  const [leadsCountInStage, setLeadsCountInStage] = useState(null);
   const [oldStages, setOldStages] = useState([]);
   const [LeadsList, setLeadsList] = useState([]);
   //for search
@@ -535,11 +536,11 @@ const Pipeline1 = () => {
           setPipeLines([...PipeLines, response.data.data]);
           updatedPipelinesList = [...PipeLines, response.data.data];
           let reversePipelinesList = updatedPipelinesList.reverse();
-          // //console.log;
           // setSelectedPipeline(reversePipelinesList[0]);
           // setStagesList(reversePipelinesList[0].stages);
 
           // getPipelineDetails(reversePipelinesList[0]);
+          setLeadsCountInStage(response.data.data.leadsCountInStage);
           setSelectedPipeline(reversePipelinesList[0]);
           setStagesList(reversePipelinesList[0]?.stages);
           setLeadsList(reversePipelinesList[0]?.leads || []);
@@ -647,6 +648,7 @@ const Pipeline1 = () => {
           //   "Current selected is same ",
           //   PipeLines[selectedPipelineIndex].id
           // );
+          setLeadsCountInStage(pipelineDetails.leadsCountInStage);
           setSelectedPipeline(pipelineDetails);
           setStagesList(pipelineDetails.stages);
           setLeadsList(pipelineDetails.leads);
@@ -672,10 +674,7 @@ const Pipeline1 = () => {
 
   //code for get Leads In Stage
   const getMoreLeadsInStage = async ({ stageId, offset, search }) => {
-    console.log("Id of current stage is", stageId);
-    console.log("Trigered", search);
     try {
-      console.log("Previous Length is");
       // return;
       const Auth = AuthToken();
       let ApiPath = "";
@@ -702,7 +701,6 @@ const Pipeline1 = () => {
           ...prev,
           [stageId]: newLeads.length >= 10,
         }));
-        console.log("Response of get new pagination list api is", newLeads);
         if (search) {
           console.log("Set leads for search value");
           setLeadsList(newLeads)
@@ -882,10 +880,10 @@ const Pipeline1 = () => {
     // getPipelineDetails(item);
     setSelectedPipeline(item);
 
-    // //console.log;
     // setSelectedPipeline(item);
     // setSelectedPipeline(item);
     setStagesList(item.stages);
+    setLeadsCountInStage(item.leadsCountInStage);
     setLeadsList(item?.leads || []);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
@@ -946,8 +944,9 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        //console.log;
+        // console.log("Response of add stage api is", response.data);
         if (response.data.status === true) {
+          setLeadsCountInStage(response.data.data.leadsCountInStage);
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
           setPipelinePopoverAnchorel(null);
@@ -2032,10 +2031,11 @@ const Pipeline1 = () => {
                           )} */}
 
                               {
-                                LeadsList.filter(
-                                  (lead) => lead.lead.stage === stage.id
-                                ).length
+                                leadsCountInStage?.[stage.id] !== undefined
+                                  ? leadsCountInStage[stage.id]
+                                  : "-"
                               }
+
 
                               {/* {leadCounts.map((item) => {
    
