@@ -1962,10 +1962,10 @@ function Page() {
         //console.log;
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
-        if(agents.length > 0){
+        if (agents.length > 0) {
           setCanGetMore(true);
-        }else{
-          setCanGetMore(false)
+        } else {
+          setCanGetMore(false);
         }
 
         let newList = [...mainAgentsList]; // makes a shallow copy
@@ -4004,7 +4004,7 @@ function Page() {
                                     value={item.phoneNumber.slice(1)}
                                     className="flex flex-row items-center gap-2 "
                                     disabled={
-                                      assignNumber.replace("+", "") ===
+                                      assignNumber?.replace("+", "") ===
                                       item.phoneNumber.replace("+", "")
                                     }
                                     onClick={(e) => {
@@ -4087,7 +4087,7 @@ function Page() {
                                 value={showGlobalBtn ? 14062040550 : ""}
                                 // disabled={!showGlobalBtn}
                                 disabled={
-                                  assignNumber.replace("+", "") ===
+                                  assignNumber?.replace("+", "") ===
                                   Constants.GlobalPhoneNumber.replace("+", "")
                                 }
                                 onClick={() => {
