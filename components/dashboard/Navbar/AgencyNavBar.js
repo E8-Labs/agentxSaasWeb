@@ -232,7 +232,7 @@ const AgencyNavBar = () => {
 
       {/* Sticky Modal */}
       <Modal
-        open={false} //canAcceptPaymentsAgencyccount
+        open={canAcceptPaymentsAgencyccount} //canAcceptPaymentsAgencyccount
         className="border-none outline-none"
         BackdropProps={{
           style: { backgroundColor: 'transparent' }
@@ -247,7 +247,8 @@ const AgencyNavBar = () => {
             <button
               className="bg-purple text-white text-lg rounded-md p-2 outline-none border-none"
               onClick={() => {
-                router.push("/agency/verify");
+                // router.push("/agency/verify");
+                window.open("/agency/verify", "_blank")
               }}
             >
               Verify now

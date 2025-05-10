@@ -45,7 +45,7 @@ const SelectStageDropdown = ({
         MenuProps={{
           PaperProps: {
             style: {
-              maxHeight: "30vh",
+              maxHeight: "90vh",
               overflow: "auto",
               scrollbarWidth: "none",
             },
@@ -61,7 +61,7 @@ const SelectStageDropdown = ({
               className="hover:bg-lightBlue hover:text-[#000000]"
             >
               <button
-                className="outline-none border-none"
+                className="outline-none border-none w-full text-start"
                 onClick={() => updateLeadStage(item)}
               >
                 {item.stageTitle}

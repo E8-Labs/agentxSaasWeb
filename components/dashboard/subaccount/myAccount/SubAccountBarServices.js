@@ -22,6 +22,8 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal";
 import { PersistanceKeys } from "@/constants/Constants";
+import { getMonthlyPlan } from "@/components/agency/subaccount/GetPlansList";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -29,11 +31,17 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function SubAccountBarServices() {
+function SubAccountBarServices({
+  selectedUser
+}) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+  //array of plans
+  const [plans, setPlans] = useState([]);
+
   //userlocal data
   const [userLocalData, setUserLocalData] = useState(null);
   const [currentPlan, setCurrentPlan] = useState(null);
@@ -61,6 +69,9 @@ function SubAccountBarServices() {
   const [successSnack, setSuccessSnack] = useState(null);
   const [errorSnack, setErrorSnack] = useState(null);
 
+  //getplans loader
+  const [getPlansLoader, setGetPlansLoader] = useState(false);
+
   //variables for cancel plan
   const [giftPopup, setGiftPopup] = useState(false);
   const [ScreenWidth, setScreenWidth] = useState(null);
@@ -78,74 +89,68 @@ function SubAccountBarServices() {
     setScreenWidth(screenWidth);
   }, []);
 
-  //array of plans
-  const plans = [
-    {
-      id: 1,
-      PlanTitle: "Starter | 250 mins",
-      details: [
-        `1 AgentX AI | 2hrs of Support`,
-        `1 External Integration | 1 Calendar Integration`,
-      ],
-      originalPrice: "2,450",
-      discountPrice: "997",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 2,
-      PlanTitle: "Professional | 750 mins",
-      details: [
-        `4 AgentX AI | 5hrs of Support`,
-        `2 External Integration | 2 Calendar Integration`,
-      ],
-      originalPrice: "5,900",
-      discountPrice: "2,997",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 3,
-      PlanTitle: "Enterprise | 1500 mins",
-      details: [
-        "Dedicated Success Manager",
-        `10 AgentX AI | 10hrs of Support`,
-        `External Integration | Calendar Integration`,
-      ],
-      originalPrice: "8,200",
-      discountPrice: "4,997",
-      planStatus: "60%",
-      status: "Best Value",
-    },
-  ];
 
   useEffect(() => {
     getProfile();
     getCardsList();
+    getPlans();
   }, []);
 
+  //get monthlyplans list
+  const getPlans = async () => {
+    try {
+      setGetPlansLoader(true);
+      const Token = AuthToken();
+      console.log("user id is", selectedUser.id);
+      let ApiPath = null;
+      if (selectedUser) {
+        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser.id}`;
+      } else {
+        ApiPath = Apis.getSubAccountPlans;
+      }
+      console.log("Api path of get plan is", ApiPath);
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response) {
+        console.log("Response of get plans api is", response.data.data);
+        setPlans(response.data.data.monthlyPlans);
+        setGetPlansLoader(false);
+      }
+
+    } catch (error) {
+      setGetPlansLoader(false);
+      console.error("Error occured in getting subaccount plans", error);
+    }
+  }
+
+  //get profile
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
       //console.log;
       if (response) {
-        let togglePlan = response?.data?.data?.supportPlan;
+        let togglePlan = response?.data?.data?.plan?.planId;
         // let togglePlan = plan?.type;
-        let planType = null;
-        // if (plan.status == "active") {
-        if (togglePlan === "Starter") {
-          planType = 1;
-        } else if (togglePlan === "Professional") {
-          planType = 2;
-        } else if (togglePlan === "Enterprise") {
-          planType = 3;
-        }
+        // let planType = null;
+        // // if (plan.status == "active") {
+        // if (togglePlan === "Starter") {
+        //   planType = 1;
+        // } else if (togglePlan === "Professional") {
+        //   planType = 2;
+        // } else if (togglePlan === "Enterprise") {
+        //   planType = 3;
+        // }
         // }
         setUserLocalData(response?.data?.data);
-        //console.log;
-        setTogglePlan(planType);
-        setCurrentPlan(planType);
+        console.log("Plan id is", togglePlan);
+        setTogglePlan(togglePlan);
+        setCurrentPlan(togglePlan);
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
@@ -199,45 +204,55 @@ function SubAccountBarServices() {
 
       // //console.log;
 
-      const ApiData = {
-        supportPlan: planType,
-      };
+      // const ApiData = {
+      //   supportPlan: planType,
+      // };
+
+      const formData = new FormData();
+      formData.append("planId", togglePlan);
 
       // //console.log;
 
-      const ApiPath = Apis.purchaseSupportPlan;
+      const ApiPath = Apis.subAgencyAndSubAccountPlans;
       // //console.log;
 
       // return
 
-      const response = await axios.post(ApiPath, ApiData, {
+      const response = await axios.post(ApiPath, formData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
         },
       });
 
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          localDetails.user = response.data.data;
-          // //console.log;
+          // localDetails.user = response.data.data;
+          // // //console.log;
 
-          //   if (response2) {
-          let togglePlan = response?.data?.data?.supportPlan;
-          let planType = null;
-          if (togglePlan === "Starter") {
-            planType = 1;
-          } else if (togglePlan === "Professional") {
-            planType = 2;
-          } else if (togglePlan === "Enterprise") {
-            planType = 3;
-          }
-          setTogglePlan(planType);
-          setCurrentPlan(planType);
+          // //   if (response2) {
+          // let togglePlan = response?.data?.data?.supportPlan;
+          // let planType = null;
+          // if (togglePlan === "Starter") {
+          //   planType = 1;
+          // } else if (togglePlan === "Professional") {
+          //   planType = 2;
+          // } else if (togglePlan === "Enterprise") {
+          //   planType = 3;
+          // }
+          // setTogglePlan(planType);
+          // setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your support plan successfully updated");
+
+          let response2 = await getProfileDetails();
+          if(response2){
+            console.log("res2 recieved", response2);
+            let newPlanId = response2?.data?.data?.plan?.planId
+            setTogglePlan(newPlanId);
+            setCurrentPlan(newPlanId);
+          }
+          setSuccessSnack("Your plan successfully updated");
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -471,7 +486,7 @@ function SubAccountBarServices() {
                   </div>
                 </div>
                 <div className="w-full">
-                  {/* {item.id === currentPlan && (
+                  {item.id === currentPlan && (
                     <div
                       className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                       style={{
@@ -482,7 +497,7 @@ function SubAccountBarServices() {
                     >
                       Current Plan
                     </div>
-                  )} */}
+                  )}
 
                   <div className="flex flex-row items-center gap-3">
                     <div
@@ -492,7 +507,7 @@ function SubAccountBarServices() {
                         fontWeight: "600",
                       }}
                     >
-                      {item.PlanTitle}
+                      {item.title}
                     </div>
                     {item.status && (
                       <div
@@ -504,33 +519,24 @@ function SubAccountBarServices() {
                     )}
                   </div>
                   <div className="flex flex-row items-center justify-between">
-                    <div className="flex flex-col justify-start">
-                      {item.details.map((det, index) => {
-                        return (
-                          <div
-                            className=""
-                            style={{
-                              color: "#15151590",
-                              fontSize: 12,
-                              //   width: "60%",
-                              fontWeight: "600",
-                            }}
-                            key={index}
-                          >
-                            {det}
-                          </div>
-                        );
-                      })}
+                    <div
+                      className="mt-2"
+                      style={{
+                        color: "#15151590",
+                        fontSize: 12,
+                        width: "60%",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {item.planDescription}
                     </div>
                     <div className="flex flex-row items-center">
-                      <div style={styles.originalPrice}>
-                        {item.originalPrice && <div>${item.originalPrice}</div>}
-                      </div>
+
                       <div className="flex flex-row justify-start items-start ">
                         <div style={styles.discountedPrice}>
-                          ${item.discountPrice}
+                          ${item.originalPrice}
                         </div>
-                        <p style={{ color: "#15151580" }}></p>
+                        <p style={{ color: "#15151580" }}>/mo*</p>
                       </div>
                     </div>
                   </div>
@@ -627,7 +633,7 @@ function SubAccountBarServices() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>

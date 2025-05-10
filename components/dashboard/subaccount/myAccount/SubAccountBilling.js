@@ -143,7 +143,7 @@ function SubAccountBilling({
 
     } catch (error) {
       setInitialLoader(false);
-      console.error("Error occured in getting plans", error);
+      console.error("Error occured in getting subaccount plans", error);
     }
   }
 
@@ -364,7 +364,7 @@ function SubAccountBilling({
           // setUserLocalData(user)
           let response2 = await getProfileDetails();
           if (response2) {
-            // let togglePlan = response2?.data?.data?.plan?.type;
+            let togglePlan = response2?.data?.data?.plan?.planId;
             // let planType = null;
             // if (togglePlan === "Plan30") {
             //   planType = 1;
@@ -375,8 +375,8 @@ function SubAccountBilling({
             // } else if (togglePlan === "Plan720") {
             //   planType = 4;
             // }
-            // setTogglePlan(planType);
-            // setCurrentPlan(planType);
+            setTogglePlan(togglePlan);
+            setCurrentPlan(togglePlan);
           }
           // localStorage.setItem("User", JSON.stringify(localDetails));
           setSuccessSnack("Your plan successfully updated");

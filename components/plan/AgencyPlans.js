@@ -55,6 +55,136 @@ function AgencyPlans() {
     const [showYearlyPlan, setShowYearlyPlan] = useState(false);
     const [isContinueMonthly, setIsContinueMonthly] = useState(false);
 
+    //plan features available
+    const planFeaturesAvailable = [
+        [ // Index 0
+            { main: "Unlimited Minutes", sub: "" },
+            { main: "Unlimited Agents", sub: "" },
+            { main: "Unlimited Teams", sub: "" },
+            { main: "Unlimited Team Seats", sub: "(Upsell)" },
+            { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+            { main: "AI Powered CRM", sub: "(Copilot)" },
+            { main: "Lead Enrichment", sub: "(Perplexity)" },
+            { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
+            { main: "Custom Voicemails", sub: "" },
+            { main: "Phone Numbers", sub: "(Upsell)" },
+            { main: "DNC Check", sub: "(Upsell)" },
+            { main: "Lead Source", sub: "(Upsell)" },
+            { main: "AI Powered iMessage", sub: "(coming soon)" },
+            { main: "AI Powered Emails", sub: "(coming soon)" }
+        ],
+        [ // Index 1
+            { main: "Unlimited Minutes", sub: "" },
+            { main: "Unlimited Agents", sub: "" },
+            { main: "Unlimited Teams", sub: "" },
+            { main: "Unlimited Team Seats", sub: "(Upsell)" },
+            { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+            { main: "AI Powered CRM", sub: "(Copilot)" },
+            { main: "Lead Enrichment", sub: "(Perplexity)" },
+            { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
+            { main: "Custom Voicemails", sub: "" },
+            { main: "Phone Numbers", sub: "(Upsell)" },
+            { main: "DNC Check", sub: "(Upsell)" },
+            { main: "Lead Source", sub: "(Upsell)" },
+            { main: "AI Powered iMessage", sub: "(coming soon)" },
+            { main: "AI Powered Emails", sub: "(coming soon)" },
+            { main: "Slack Support", sub: "" }
+        ],
+        [ // Index 2
+            { main: "Unlimited Minutes", sub: "" },
+            { main: "Unlimited Agents", sub: "" },
+            { main: "Unlimited Teams", sub: "" },
+            { main: "Unlimited Team Seats", sub: "(Upsell)" },
+            { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+            { main: "AI Powered CRM", sub: "(Copilot)" },
+            { main: "Lead Enrichment", sub: "(Perplexity)" },
+            { main: "7000+ Integrations", sub: "(Zapier + Make)" },
+            { main: "Custom Voicemails", sub: "" },
+            { main: "Phone Numbers", sub: "(Upsell)" },
+            { main: "DNC Check", sub: "(Upsell)" },
+            { main: "Lead Source", sub: "(Upsell)" },
+            { main: "AI Powered iMessage", sub: "(coming soon)" },
+            { main: "AI Powered Emails", sub: "(coming soon)" },
+            { main: "Slack Support", sub: "" },
+            { main: "Tech Support", sub: "" }
+        ]
+    ];
+
+
+    const planFeaturesUnavailable = {
+        1: [ // Monthly
+            [
+                "Slack Support",
+                "Tech Support"
+            ],
+            [
+                "Tech Support"
+            ],
+            [
+                // No unavailable features
+            ]
+        ],
+        2: [ // Quarterly
+            [
+                "Voicemails",
+                "Lead Enrichment (Perplexity)",
+                "DNC Checklist",
+                "AI Powered CRM",
+                "Custom Pipeline Steps",
+                "Calendar Integration",
+                "Support"
+            ],
+            [
+                "Voicemails",
+                "Lead Enrichment (Perplexity)",
+                "DNC Checklist",
+                "AI Powered CRM",
+                "Custom Pipeline Steps",
+                "Calendar Integration",
+                "Support"
+            ],
+            [
+                "Voicemails",
+                "Lead Enrichment (Perplexity)",
+                "DNC Checklist",
+                "AI Powered CRM",
+                "Custom Pipeline Steps",
+                "Calendar Integration",
+                "Support"
+            ]
+        ],
+        3: [ // Yearly
+            [
+                "Voicemails",
+                "Lead Enrichment (Perplexity)",
+                "DNC Checklist",
+                "AI Powered CRM",
+                "Custom Pipeline Steps",
+                "Calendar Integration",
+                "Support"
+            ],
+            [
+                "Voicemails",
+                "Lead Enrichment (Perplexity)",
+                "DNC Checklist",
+                "AI Powered CRM",
+                "Custom Pipeline Steps",
+                "Calendar Integration",
+                "Support"
+            ],
+            [
+                "Voicemails",
+                "Lead Enrichment (Perplexity)",
+                "DNC Checklist",
+                "AI Powered CRM",
+                "Custom Pipeline Steps",
+                "Calendar Integration",
+                "Support"
+            ]
+        ]
+    };
+
+
 
 
     useEffect(() => {
@@ -445,46 +575,73 @@ function AgencyPlans() {
 
                                                             {/* Features */}
                                                             {
-                                                                getArray(index).map((label) => (
-                                                                    <div key={label} className="flex flex-row items-center gap-2 mt-2">
+                                                                planFeaturesAvailable[index].map((label, index) => (
+                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-2">
                                                                         <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
-                                                                        <div style={{
-                                                                            fontSize: 13, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
-                                                                            width: '100%', borderWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
-                                                                        }}>{label}</div>
+                                                                        <div
+                                                                            className='flex flex-row items-center gap-2'
+                                                                            style={{
+                                                                                whiteSpace: 'nowrap',
+                                                                                width: '100%',
+                                                                                borderWidth: 0,
+                                                                                overflow: 'hidden',
+                                                                                textOverflow: 'ellipsis',
+                                                                            }}
+                                                                        >
+                                                                            <div style={{
+                                                                                fontSize: 13,
+                                                                                fontWeight: '500',
+                                                                                textAlign: 'left',
+                                                                                borderWidth: 0,
+                                                                            }}>
+                                                                                {label.main}
+                                                                            </div>
+                                                                            <div style={{
+                                                                                fontSize: 13,
+                                                                                fontWeight: '500',
+                                                                                textAlign: 'left',
+                                                                                color: "#00000050"
+                                                                            }}>
+                                                                                {label.sub}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                ))}
+                                                                ))
+                                                            }
 
-                                                            {
-                                                                (index === 0 ?
-                                                                    [
-                                                                        "Voicemails",
-                                                                        "Lead Enrichment",
-                                                                        "DNC Checklist",
-                                                                        "AI Powered CRM",
-                                                                        "Custom Pipeline Steps",
-                                                                        "Calendar Integration",
-                                                                        "Support",
-                                                                    ]
-                                                                    :
-                                                                    [
-                                                                        "Voicemails",
-                                                                        "Lead Enrichment (Perplexity)",
-                                                                        "DNC Checklist",
-                                                                        "AI Powered CRM",
-                                                                        "Custom Pipeline Steps",
-                                                                        "Calendar Integration",
-                                                                        "Support",
-                                                                    ]
-                                                                ).map((label) => (
-                                                                    <div key={label} className="flex flex-row items-center gap-2 mt-2">
-                                                                        <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
+
+                                                            {planFeaturesUnavailable[selectedDuration.id][index].map((label) => (
+                                                                <div key={label} className="flex flex-row items-center gap-2 mt-2">
+                                                                    <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
+                                                                    <div
+                                                                        className='flex flex-row items-center gap-2'
+                                                                        style={{
+                                                                            whiteSpace: 'nowrap',
+                                                                            width: '100%',
+                                                                            borderWidth: 0,
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis',
+                                                                        }}
+                                                                    >
                                                                         <div style={{
-                                                                            fontSize: 13, fontWeight: '500', textAlign: 'left', whiteSpace: 'nowrap',
-                                                                            overflow: 'hidden', textOverflow: 'ellipsis',
-                                                                        }}>{label}</div>
+                                                                            fontSize: 13,
+                                                                            fontWeight: '500',
+                                                                            textAlign: 'left',
+                                                                            borderWidth: 0,
+                                                                        }}>
+                                                                            {label.main}
+                                                                        </div>
+                                                                        <div style={{
+                                                                            fontSize: 13,
+                                                                            fontWeight: '500',
+                                                                            textAlign: 'left',
+                                                                            color: "#00000050"
+                                                                        }}>
+                                                                            {label.sub}
+                                                                        </div>
                                                                     </div>
-                                                                ))}
+                                                                </div>
+                                                            ))}
 
                                                         </div>
                                                     </div>

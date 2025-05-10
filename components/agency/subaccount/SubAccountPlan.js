@@ -273,7 +273,7 @@ const SubAccountPlan = () => {
                     </div>
                 </div>
 
-                <div className='w-full flex flex-row items-center px-4'>
+                <div className='w-full flex flex-row items-center px-4 h-[90%]'>
                     <div className='w-6/12'>
                         <div
                             className='mt-12'
@@ -440,7 +440,7 @@ const SubAccountPlan = () => {
                         {
                             planSubscribed ? (
                                 <div className='mt-4 w-full flex flex-row justify-center text-lg'>
-                                     Please wait while we are routing you to dashboard...
+                                    Please wait while we are routing you to dashboard...
                                 </div>
                             ) :
                                 subPlanLoader ?
@@ -455,6 +455,14 @@ const SubAccountPlan = () => {
                                         Continue
                                     </button>
                         }
+                    </div>
+                    <div className='w-6/12 h-[100%] flex flex-col items-end justify-center'>
+                        <Image
+                            src={"/agencyIcons/planVector.jpg"}
+                            alt='*'
+                            height={541}
+                            width={670}
+                        />
                     </div>
                 </div>
 

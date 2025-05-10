@@ -116,6 +116,9 @@ const LeadDetails = ({
   const [showErrorSnack, setShowErrorSnack] = useState(null);
   const [showErrorSnack2, setShowErrorSnack2] = useState(false);
 
+  //update lead loader
+  const [updateLeadLoader, setUpdateLeadLoader] = useState(false);
+
   //code for delete lead
   const [delLeadLoader, setDelLeadLoader] = useState(false);
 
@@ -240,6 +243,7 @@ const LeadDetails = ({
     try {
       // //console.log;
       let AuthToken = null;
+      setUpdateLeadLoader(true);
 
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
@@ -266,6 +270,7 @@ const LeadDetails = ({
 
       if (response) {
         // //console.log;
+        setUpdateLeadLoader(false);
         if (response.data.status === true) {
           setShowSuccessSnack(response.data.message);
           setShowSuccessSnack2(true);
@@ -277,6 +282,7 @@ const LeadDetails = ({
       }
     } catch (error) {
       // console.error("Error occured in api is", error);
+      setUpdateLeadLoader(false);
     } finally {
       // //console.log;
     }
@@ -871,7 +877,7 @@ const LeadDetails = ({
                           <div className="flex flex-row items-center gap-4">
                             <div
                               className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                              onClick={() => handleToggleClick(item.id)}
+                            // onClick={() => handleToggleClick(item.id)}
                             >
                               {selectedLeadsDetails?.firstName.slice(0, 1)}
                             </div>
@@ -929,10 +935,9 @@ const LeadDetails = ({
                                           >
                                             {selectedLeadsDetails?.emails
                                               ?.length > 1
-                                              ? `+${
-                                                  selectedLeadsDetails?.emails
-                                                    ?.length - 1
-                                                }`
+                                              ? `+${selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                              }`
                                               : ""}
                                           </button>
                                         </div>
@@ -978,10 +983,9 @@ const LeadDetails = ({
                                         >
                                           {selectedLeadsDetails?.emails
                                             ?.length > 1
-                                            ? `+${
-                                                selectedLeadsDetails?.emails
-                                                  ?.length - 1
-                                              }`
+                                            ? `+${selectedLeadsDetails?.emails
+                                              ?.length - 1
+                                            }`
                                             : ""}
                                         </button>
                                       </div>
@@ -1037,7 +1041,7 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.tags.length > 0 ? (
                                 <div
                                   className="text-end flex flex-row items-center gap-2 "
-                                  // style={styles.paragraph}
+                                // style={styles.paragraph}
                                 >
                                   {
                                     // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -1056,7 +1060,7 @@ const LeadDetails = ({
                                                 {tag}
                                               </div>
                                               {DelTagLoader &&
-                                              tag.includes(DelTagLoader) ? (
+                                                tag.includes(DelTagLoader) ? (
                                                 <div>
                                                   <CircularProgress size={15} />
                                                 </div>
@@ -1164,12 +1168,18 @@ const LeadDetails = ({
                                     }}
                                   ></div>
 
-                                  <SelectStageDropdown
-                                    selectedStage={selectedStage}
-                                    handleStageChange={handleStageChange}
-                                    stagesList={stagesList}
-                                    updateLeadStage={updateLeadStage}
-                                  />
+                                  {
+                                    updateLeadLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
+                                      <SelectStageDropdown
+                                        selectedStage={selectedStage}
+                                        handleStageChange={handleStageChange}
+                                        stagesList={stagesList}
+                                        updateLeadStage={updateLeadStage}
+                                      />
+                                    )
+                                  }
                                 </>
                               )}
                             </div>
@@ -1296,39 +1306,39 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                            <div className="flex items-end justify-end min-w-[120px]">
-                                              <button
-                                                style={{
-                                                  fontWeight: "600",
-                                                  fontSize: 15,
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedCustomFields(
-                                                    (prevFields) =>
-                                                      prevFields.includes(
-                                                        column?.title
-                                                      )
-                                                        ? prevFields.filter(
+                                              <div className="flex items-end justify-end min-w-[120px]">
+                                                <button
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                  onClick={() => {
+                                                    setExpandedCustomFields(
+                                                      (prevFields) =>
+                                                        prevFields.includes(
+                                                          column?.title
+                                                        )
+                                                          ? prevFields.filter(
                                                             (field) =>
                                                               field !==
                                                               column?.title
                                                           )
-                                                        : [
+                                                          : [
                                                             ...prevFields,
                                                             column?.title,
                                                           ]
-                                                  );
-                                                }}
-                                                className="text-black underline w-[120px]"
-                                              >
-                                                {expandedCustomFields.includes(
-                                                  column?.title
-                                                )
-                                                  ? "Read Less"
-                                                  : "Read More"}
-                                              </button>
-                                            </div>
-                                          )}
+                                                    );
+                                                  }}
+                                                  className="text-black underline w-[120px]"
+                                                >
+                                                  {expandedCustomFields.includes(
+                                                    column?.title
+                                                  )
+                                                    ? "Read Less"
+                                                    : "Read More"}
+                                                </button>
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     );
@@ -1473,7 +1483,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                          tag.includes(DelTagLoader) ? (
+                                            tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -1762,7 +1772,7 @@ const LeadDetails = ({
                     <div style={{ paddingInline: 0 }}>
                       {showPerplexityDetails &&
                         (selectedLeadsDetails &&
-                        selectedLeadsDetails.enrichData ? (
+                          selectedLeadsDetails.enrichData ? (
                           <Perplexity
                             selectedLeadsDetails={selectedLeadsDetails}
                           />
@@ -1992,7 +2002,7 @@ const LeadDetails = ({
                                   return (
                                     <div key={index}>
                                       {item.status === "voicemail" ||
-                                      item.callOutcome === "Voicemail" ? (
+                                        item.callOutcome === "Voicemail" ? (
                                         <div>
                                           {item.voicemail ? (
                                             <div>
@@ -2106,114 +2116,114 @@ const LeadDetails = ({
                                                 {isExpandedActivity.includes(
                                                   item.id
                                                 ) && (
-                                                  <div
-                                                    className="mt-6"
-                                                    style={{
-                                                      border:
-                                                        "1px solid #00000020",
-                                                      borderRadius: "10px",
-                                                      padding: 10,
-                                                      paddingInline: 15,
-                                                    }}
-                                                  >
                                                     <div
-                                                      className="mt-4"
+                                                      className="mt-6"
                                                       style={{
-                                                        fontWeight: "500",
-                                                        fontSize: 12,
-                                                        color: "#00000070",
+                                                        border:
+                                                          "1px solid #00000020",
+                                                        borderRadius: "10px",
+                                                        padding: 10,
+                                                        paddingInline: 15,
                                                       }}
                                                     >
-                                                      Transcript
-                                                    </div>
-                                                    <div className="flex flex-row items-center justify-between mt-4">
                                                       <div
+                                                        className="mt-4"
                                                         style={{
                                                           fontWeight: "500",
-                                                          fontSize: 15,
+                                                          fontSize: 12,
+                                                          color: "#00000070",
                                                         }}
                                                       >
-                                                        {moment(
-                                                          item?.duration * 1000
-                                                        ).format("mm:ss")}{" "}
+                                                        Transcript
                                                       </div>
-                                                      <button
-                                                        onClick={() => {
-                                                          if (
-                                                            item?.recordingUrl
-                                                          ) {
-                                                            setShowAudioPlay(
-                                                              item?.recordingUrl
-                                                            );
-                                                          } else {
-                                                            setShowNoAudioPlay(
-                                                              true
-                                                            );
-                                                          }
-                                                          // window.open(item.recordingUrl, "_blank")
-                                                        }}
-                                                      >
-                                                        <Image
-                                                          src={
-                                                            "/assets/play.png"
-                                                          }
-                                                          height={35}
-                                                          width={35}
-                                                          alt="*"
-                                                        />
-                                                      </button>
-                                                    </div>
-                                                    {item.transcript ? (
-                                                      <div className="w-full">
+                                                      <div className="flex flex-row items-center justify-between mt-4">
                                                         <div
-                                                          className="mt-4"
                                                           style={{
-                                                            fontWeight: "600",
+                                                            fontWeight: "500",
                                                             fontSize: 15,
                                                           }}
                                                         >
-                                                          {/* {item.transcript} */}
-                                                          {`${initialText}...`}
-                                                          {/* {isExpanded.includes(
+                                                          {moment(
+                                                            item?.duration * 1000
+                                                          ).format("mm:ss")}{" "}
+                                                        </div>
+                                                        <button
+                                                          onClick={() => {
+                                                            if (
+                                                              item?.recordingUrl
+                                                            ) {
+                                                              setShowAudioPlay(
+                                                                item?.recordingUrl
+                                                              );
+                                                            } else {
+                                                              setShowNoAudioPlay(
+                                                                true
+                                                              );
+                                                            }
+                                                            // window.open(item.recordingUrl, "_blank")
+                                                          }}
+                                                        >
+                                                          <Image
+                                                            src={
+                                                              "/assets/play.png"
+                                                            }
+                                                            height={35}
+                                                            width={35}
+                                                            alt="*"
+                                                          />
+                                                        </button>
+                                                      </div>
+                                                      {item.transcript ? (
+                                                        <div className="w-full">
+                                                          <div
+                                                            className="mt-4"
+                                                            style={{
+                                                              fontWeight: "600",
+                                                              fontSize: 15,
+                                                            }}
+                                                          >
+                                                            {/* {item.transcript} */}
+                                                            {`${initialText}...`}
+                                                            {/* {isExpanded.includes(
                                                         item.id
                                                       )
                                                         ? `${item.transcript}`
                                                         : `${initialText}...`} */}
+                                                          </div>
+                                                          <button
+                                                            style={{
+                                                              fontWeight: "600",
+                                                              fontSize: 15,
+                                                            }}
+                                                            onClick={() => {
+                                                              handleReadMoreToggle(
+                                                                item
+                                                              );
+                                                            }}
+                                                            className="mt-2 text-black underline"
+                                                          >
+                                                            {
+                                                              // isExpanded.includes(
+                                                              //   item.id
+                                                              // )
+                                                              //   ? "Read Less"
+                                                              // :
+                                                              "Read more"
+                                                            }
+                                                          </button>
                                                         </div>
-                                                        <button
+                                                      ) : (
+                                                        <div
                                                           style={{
                                                             fontWeight: "600",
                                                             fontSize: 15,
                                                           }}
-                                                          onClick={() => {
-                                                            handleReadMoreToggle(
-                                                              item
-                                                            );
-                                                          }}
-                                                          className="mt-2 text-black underline"
                                                         >
-                                                          {
-                                                            // isExpanded.includes(
-                                                            //   item.id
-                                                            // )
-                                                            //   ? "Read Less"
-                                                            // :
-                                                            "Read more"
-                                                          }
-                                                        </button>
-                                                      </div>
-                                                    ) : (
-                                                      <div
-                                                        style={{
-                                                          fontWeight: "600",
-                                                          fontSize: 15,
-                                                        }}
-                                                      >
-                                                        No transcript
-                                                      </div>
-                                                    )}
-                                                  </div>
-                                                )}
+                                                          No transcript
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  )}
                                               </div>
                                             </div>
                                           </div>

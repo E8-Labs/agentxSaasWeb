@@ -32,6 +32,17 @@ export const TwilioWarning = ({
 
 
     return (
+        <Modal
+            open={showAddTwilioWarning}
+            className="border-none outline-none"
+            BackdropProps={{
+                style: { backgroundColor: '#00000020' }
+            }}
+        >
+            <Box
+                //  className="w-6/12 md:5/12 lg:w-4/12 bg-white shadow-lg p-6 rounded-lg flex flex-row items-center justify-center border-none outline-none"
+                // className="bg-white rounded-xl p-6 max-w-md w-[95%] max-h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 flex flex-col"
+            >
         <div className='w-full'>
             {
                 showAddTwilioWarning && (
@@ -79,6 +90,8 @@ export const TwilioWarning = ({
                 )
             }
         </div>
+        </Box>
+        </Modal>
     )
 }
 

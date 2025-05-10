@@ -65,7 +65,7 @@ const AgentsListPaginated = ({
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
   );
-  const [hasMoreAgents, setHasMoreAgents] = useState(true);
+  const [hasMoreAgents, setHasMoreAgents] = useState(false);
   const [selectedImages, setSelectedImages] = useState(selectedImagesParam);
   const fileInputRef = useRef([]);
 

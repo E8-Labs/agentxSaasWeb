@@ -8,10 +8,14 @@ import { AuthToken } from "../plan/AuthDetails";
 export const getMonthlyPlan = async () => {
     try {
         const localPlans = localStorage.getItem("agencyMonthlyPlans");
+        console.log("HCheck 1");
         if (localPlans) {
             const P = JSON.parse(localPlans);
+            console.log("HCheck 2");
+            console.log(P);
             return P;
         } else {
+            console.log("HCheck 3");
             const Token = AuthToken();
             const ApiPath = Apis.getMonthlyPlan
             const response = await axios.get(ApiPath,
@@ -23,6 +27,7 @@ export const getMonthlyPlan = async () => {
                 }
             );
             if (response) {
+                console.log("HCheck 4");
                 console.log("Response of get monthly plan api is", response.data);
                 localStorage.setItem("agencyMonthlyPlans", JSON.stringify(response.data.data));
                 return response.data.data;
@@ -31,8 +36,10 @@ export const getMonthlyPlan = async () => {
     } catch (error) {
         // setInitialLoader(false);
         console.error("Error occured in getting monthly plan", error);
+        console.log("HCheck error");
     } finally {
         console.log("data recieved");
+        console.log("HCheck 5");
         // setInitialLoader(false);
     }
 }

@@ -201,13 +201,18 @@ const AddCardDetails = ({
 
       // Save paymentMethod ID to your server (for later cron charging)
       // Step 3: Send payment method ID to backend to attach to customer
+      const requestBody = {
+        source: id,
+        inviteCode: inviteCode,
+      };
+      console.log("Request data sending in api is", requestBody);
       const addCardRes = await fetch(Apis.addCard, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${AuthToken}`,
         },
-        body: JSON.stringify({ source: id, inviteCode: inviteCode }),
+        body: JSON.stringify(requestBody),
       });
 
       const result2 = await addCardRes.json();

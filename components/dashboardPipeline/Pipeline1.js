@@ -2250,7 +2250,7 @@ const Pipeline1 = () => {
                                   (lead) => lead.lead.stage === stage.id
                                 ).map((lead, leadIndex) => (
                                   <div
-                                    className="px-3 h-full"
+                                    className="px-3 mt-4 h-full"
                                     style={{ width: "300px", height: 200 }}
                                     key={leadIndex}
                                   >

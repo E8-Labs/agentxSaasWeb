@@ -72,11 +72,17 @@ function SubAccountMyAccount() {
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+  const [selectedUserData, setSelectedUSerData] = useState(null);
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
     let number = Number(tab) || 6;
     // //console.log;
+    const userData = localStorage.getItem("User");
+    if (userData) {
+      const d = JSON.parse(userData);
+      setSelectedUSerData(d.user);
+    }
     setTabSelected(number);
     if (!tab) {
       setParamsInSearchBar(1);
@@ -101,7 +107,9 @@ function SubAccountMyAccount() {
       case 1:
         return <SubAccountBasicInfo />;
       case 2:
-        return <SubAccountBilling />;
+        return <SubAccountBilling
+          selectedUser={selectedUserData}
+        />;
       case 3:
         return <SubAccountMyPhoneNumber />;
       case 4:
@@ -111,7 +119,8 @@ function SubAccountMyAccount() {
       case 6:
         return <SubAccountInviteAgentX />;
       case 7:
-        return <SubAccountBarServices />;
+        return <SubAccountBarServices
+          selectedUser={selectedUserData} />;
       default:
         return <div>Please select an option.</div>;
     }
