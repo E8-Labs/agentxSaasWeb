@@ -5,7 +5,8 @@ import React from 'react'
 const SelectYearlypopup = ({
     showYearlyPlan,
     continueMonthly,
-    continueYearlyPlan
+    continueYearlyPlan,
+    handleClose
 }) => {
     console.log("yearly plan is", showYearlyPlan);
     return (
@@ -18,7 +19,9 @@ const SelectYearlypopup = ({
                         <div style={{ fontWeight: "600", fontSize: 22 }}>
                             Pay less with annual billing
                         </div>
-                        <button className='outline-none border-none'>
+                        <button
+                            className='outline-none border-none'
+                            onClick={() => { handleClose() }}>
                             <Image
                                 src={"/assets/crossIcon.png"}
                                 alt='*'

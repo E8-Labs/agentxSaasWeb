@@ -56,69 +56,174 @@ function AgencyPlans() {
     const [isContinueMonthly, setIsContinueMonthly] = useState(false);
 
     //plan features available
-    const planFeaturesAvailable = [
-        [ // Index 0
-            { main: "Unlimited Minutes", sub: "" },
-            { main: "Unlimited Agents", sub: "" },
-            { main: "Unlimited Teams", sub: "" },
-            { main: "Unlimited Team Seats", sub: "(Upsell)" },
-            { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-            { main: "AI Powered CRM", sub: "(Copilot)" },
-            { main: "Lead Enrichment", sub: "(Perplexity)" },
-            { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-            { main: "Custom Voicemails", sub: "" },
-            { main: "Phone Numbers", sub: "(Upsell)" },
-            { main: "DNC Check", sub: "(Upsell)" },
-            { main: "Lead Source", sub: "(Upsell)" },
-            { main: "AI Powered iMessage", sub: "(coming soon)" },
-            { main: "AI Powered Emails", sub: "(coming soon)" }
+    // const planFeaturesAvailable = [
+    //     [ // Index 0
+    //         { main: "Unlimited Minutes", sub: "" },
+    //         { main: "Unlimited Agents", sub: "" },
+    //         { main: "Unlimited Teams", sub: "" },
+    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
+    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+    //         { main: "AI Powered CRM", sub: "(Copilot)" },
+    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
+    //         { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
+    //         { main: "Custom Voicemails", sub: "" },
+    //         { main: "Phone Numbers", sub: "(Upsell)" },
+    //         { main: "DNC Check", sub: "(Upsell)" },
+    //         { main: "Lead Source", sub: "(Upsell)" },
+    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
+    //         { main: "AI Powered Emails", sub: "(coming soon)" }
+    //     ],
+    //     [ // Index 1
+    //         { main: "Unlimited Minutes", sub: "" },
+    //         { main: "Unlimited Agents", sub: "" },
+    //         { main: "Unlimited Teams", sub: "" },
+    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
+    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+    //         { main: "AI Powered CRM", sub: "(Copilot)" },
+    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
+    //         { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
+    //         { main: "Custom Voicemails", sub: "" },
+    //         { main: "Phone Numbers", sub: "(Upsell)" },
+    //         { main: "DNC Check", sub: "(Upsell)" },
+    //         { main: "Lead Source", sub: "(Upsell)" },
+    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
+    //         { main: "AI Powered Emails", sub: "(coming soon)" },
+    //         { main: "Slack Support", sub: "" }
+    //     ],
+    //     [ // Index 2
+    //         { main: "Unlimited Minutes", sub: "" },
+    //         { main: "Unlimited Agents", sub: "" },
+    //         { main: "Unlimited Teams", sub: "" },
+    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
+    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+    //         { main: "AI Powered CRM", sub: "(Copilot)" },
+    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
+    //         { main: "7000+ Integrations", sub: "(Zapier + Make)" },
+    //         { main: "Custom Voicemails", sub: "" },
+    //         { main: "Phone Numbers", sub: "(Upsell)" },
+    //         { main: "DNC Check", sub: "(Upsell)" },
+    //         { main: "Lead Source", sub: "(Upsell)" },
+    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
+    //         { main: "AI Powered Emails", sub: "(coming soon)" },
+    //         { main: "Slack Support", sub: "" },
+    //         { main: "Tech Support", sub: "" }
+    //     ]
+    // ];
+
+    const planFeaturesAvailable = {
+        1: [ // Monthly
+            [ // Column 1
+                { main: "Unlimited Minutes", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Team Seats", sub: "(Upsell)" },
+                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+                { main: "AI Powered CRM", sub: "(Copilot)" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
+                { main: "Custom Voicemails", sub: "" },
+                { main: "Phone Numbers", sub: "(Upsell)" },
+                { main: "DNC Check", sub: "(Upsell)" },
+                { main: "Lead Source", sub: "(Upsell)" },
+                { main: "AI Powered iMessage", sub: "(coming soon)" },
+                { main: "AI Powered Emails", sub: "(coming soon)" }
+            ],
+            [ // Column 2
+                { main: "Unlimited Minutes", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Team Seats", sub: "(Upsell)" },
+                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+                { main: "AI Powered CRM", sub: "(Copilot)" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
+                { main: "Custom Voicemails", sub: "" },
+                { main: "Phone Numbers", sub: "(Upsell)" },
+                { main: "DNC Check", sub: "(Upsell)" },
+                { main: "Lead Source", sub: "(Upsell)" },
+                { main: "AI Powered iMessage", sub: "(coming soon)" },
+                { main: "AI Powered Emails", sub: "(coming soon)" },
+                { main: "Slack Support", sub: "" }
+            ],
+            [ // Column 3
+                { main: "Unlimited Minutes", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Team Seats", sub: "(Upsell)" },
+                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+                { main: "AI Powered CRM", sub: "(Copilot)" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "7000+ Integrations", sub: "(Zapier + Make)" },
+                { main: "Custom Voicemails", sub: "" },
+                { main: "Phone Numbers", sub: "(Upsell)" },
+                { main: "DNC Check", sub: "(Upsell)" },
+                { main: "Lead Source", sub: "(Upsell)" },
+                { main: "AI Powered iMessage", sub: "(coming soon)" },
+                { main: "AI Powered Emails", sub: "(coming soon)" },
+                { main: "Slack Support", sub: "" },
+                { main: "Tech Support", sub: "" }
+            ]
         ],
-        [ // Index 1
-            { main: "Unlimited Minutes", sub: "" },
-            { main: "Unlimited Agents", sub: "" },
-            { main: "Unlimited Teams", sub: "" },
-            { main: "Unlimited Team Seats", sub: "(Upsell)" },
-            { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-            { main: "AI Powered CRM", sub: "(Copilot)" },
-            { main: "Lead Enrichment", sub: "(Perplexity)" },
-            { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-            { main: "Custom Voicemails", sub: "" },
-            { main: "Phone Numbers", sub: "(Upsell)" },
-            { main: "DNC Check", sub: "(Upsell)" },
-            { main: "Lead Source", sub: "(Upsell)" },
-            { main: "AI Powered iMessage", sub: "(coming soon)" },
-            { main: "AI Powered Emails", sub: "(coming soon)" },
-            { main: "Slack Support", sub: "" }
+        2: [ // Quarterly
+            [ // Column 1
+                { main: "Unlimited Minutes", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Teams", sub: "" },
+                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+                { main: "7000+ Integrations", sub: "" },
+                { main: "Mins roll over", sub: "for 6 months" },
+                { main: "Custom Monthly Plans", sub: "" },
+                { main: "16 + Custom Engineered Voices", sub: "" }
+            ],
+            [ // Column 2
+                { main: "Agents", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Teams", sub: "" },
+                { main: "1000+ Integrations", sub: "" },
+                { main: "Mins roll over", sub: "for 6 months" }
+            ],
+            [ // Column 3
+                { main: "Agents", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Teams", sub: "" },
+                { main: "1000+ Integrations", sub: "" },
+                { main: "Mins roll over", sub: "for 6 months" }
+            ]
         ],
-        [ // Index 2
-            { main: "Unlimited Minutes", sub: "" },
-            { main: "Unlimited Agents", sub: "" },
-            { main: "Unlimited Teams", sub: "" },
-            { main: "Unlimited Team Seats", sub: "(Upsell)" },
-            { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-            { main: "AI Powered CRM", sub: "(Copilot)" },
-            { main: "Lead Enrichment", sub: "(Perplexity)" },
-            { main: "7000+ Integrations", sub: "(Zapier + Make)" },
-            { main: "Custom Voicemails", sub: "" },
-            { main: "Phone Numbers", sub: "(Upsell)" },
-            { main: "DNC Check", sub: "(Upsell)" },
-            { main: "Lead Source", sub: "(Upsell)" },
-            { main: "AI Powered iMessage", sub: "(coming soon)" },
-            { main: "AI Powered Emails", sub: "(coming soon)" },
-            { main: "Slack Support", sub: "" },
-            { main: "Tech Support", sub: "" }
+        3: [ // Yearly
+            [ // Column 1
+                { main: "Unlimited Minutes", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Teams", sub: "" },
+                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
+                { main: "7000+ Integrations", sub: "" },
+                { main: "Mins roll over", sub: "for 6 months" },
+                { main: "Custom Monthly Plans", sub: "" }
+            ],
+            [ // Column 2
+                { main: "Agents", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Teams", sub: "" },
+                { main: "1000+ Integrations", sub: "" },
+                { main: "Mins roll over", sub: "for 6 months" }
+            ],
+            [ // Column 3
+                { main: "Agents", sub: "" },
+                { main: "Unlimited Agents", sub: "" },
+                { main: "Unlimited Teams", sub: "" },
+                { main: "1000+ Integrations", sub: "" },
+                { main: "Mins roll over", sub: "for 6 months" }
+            ]
         ]
-    ];
+    };
+
 
 
     const planFeaturesUnavailable = {
         1: [ // Monthly
             [
-                "Slack Support",
-                "Tech Support"
+                { main: "Slack Support", sub: "" },
+                { main: "Tech Support", sub: "" }
             ],
             [
-                "Tech Support"
+                { main: "Tech Support", sub: "" }
             ],
             [
                 // No unavailable features
@@ -126,64 +231,63 @@ function AgencyPlans() {
         ],
         2: [ // Quarterly
             [
-                "Voicemails",
-                "Lead Enrichment (Perplexity)",
-                "DNC Checklist",
-                "AI Powered CRM",
-                "Custom Pipeline Steps",
-                "Calendar Integration",
-                "Support"
+                { main: "Voicemails", sub: "" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "DNC Checklist", sub: "" },
+                { main: "AI Powered CRM", sub: "" },
+                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Calendar Integration", sub: "" },
+                { main: "Support", sub: "" }
             ],
             [
-                "Voicemails",
-                "Lead Enrichment (Perplexity)",
-                "DNC Checklist",
-                "AI Powered CRM",
-                "Custom Pipeline Steps",
-                "Calendar Integration",
-                "Support"
+                { main: "Voicemails", sub: "" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "DNC Checklist", sub: "" },
+                { main: "AI Powered CRM", sub: "" },
+                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Calendar Integration", sub: "" },
+                { main: "Support", sub: "" }
             ],
             [
-                "Voicemails",
-                "Lead Enrichment (Perplexity)",
-                "DNC Checklist",
-                "AI Powered CRM",
-                "Custom Pipeline Steps",
-                "Calendar Integration",
-                "Support"
+                { main: "Voicemails", sub: "" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "DNC Checklist", sub: "" },
+                { main: "AI Powered CRM", sub: "" },
+                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Calendar Integration", sub: "" },
+                { main: "Support", sub: "" }
             ]
         ],
         3: [ // Yearly
             [
-                "Voicemails",
-                "Lead Enrichment (Perplexity)",
-                "DNC Checklist",
-                "AI Powered CRM",
-                "Custom Pipeline Steps",
-                "Calendar Integration",
-                "Support"
+                { main: "Voicemails", sub: "" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "DNC Checklist", sub: "" },
+                { main: "AI Powered CRM", sub: "" },
+                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Calendar Integration", sub: "" },
+                { main: "Support", sub: "" }
             ],
             [
-                "Voicemails",
-                "Lead Enrichment (Perplexity)",
-                "DNC Checklist",
-                "AI Powered CRM",
-                "Custom Pipeline Steps",
-                "Calendar Integration",
-                "Support"
+                { main: "Voicemails", sub: "" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "DNC Checklist", sub: "" },
+                { main: "AI Powered CRM", sub: "" },
+                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Calendar Integration", sub: "" },
+                { main: "Support", sub: "" }
             ],
             [
-                "Voicemails",
-                "Lead Enrichment (Perplexity)",
-                "DNC Checklist",
-                "AI Powered CRM",
-                "Custom Pipeline Steps",
-                "Calendar Integration",
-                "Support"
+                { main: "Voicemails", sub: "" },
+                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "DNC Checklist", sub: "" },
+                { main: "AI Powered CRM", sub: "" },
+                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Calendar Integration", sub: "" },
+                { main: "Support", sub: "" }
             ]
         ]
     };
-
 
 
 
@@ -195,6 +299,7 @@ function AgencyPlans() {
     const continueMonthly = () => {
         setIsContinueMonthly(true);
         setShowYearlyPlan(false);
+        handleSubscribePlan();
     }
 
     //continue yearly plan
@@ -461,7 +566,7 @@ function AgencyPlans() {
                         {
                             duration.map((item) => (
                                 <button key={item.id}
-                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
                                         setSelectedDuration(item);
                                         getCurrentPlans();
@@ -476,6 +581,12 @@ function AgencyPlans() {
                         showYearlyPlan={showYearlyPlan}
                         continueMonthly={continueMonthly}
                         continueYearlyPlan={continueYearlyPlan}
+                        handleClose={() => {
+                            setSelectedPlanIndex(null);
+                            setTogglePlan(null);
+                            setSelectedPlan(null);
+                            setShowYearlyPlan(false);
+                        }}
                     />
                 </div>
 
@@ -499,33 +610,35 @@ function AgencyPlans() {
                                         className={`w-4/12 ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
                                     >
                                         <div className='flex flex-col items-center h-[75vh] w-full'>
-                                            {
-                                                item.tag ? (
-                                                    <div className=' flex flex-row items-center gap-2 pb-2'>
-                                                        <Image
-                                                            src={selectedPlan?.id === item.id ? "/svgIcons/powerWhite.svg" :
-                                                                "/svgIcons/power.svg"
-                                                            }
-                                                            height={24} width={24} alt='*'
-                                                        />
+                                            <div className='pb-2'>
+                                                {
+                                                    item.tag ? (
+                                                        <div className=' flex flex-row items-center gap-2'>
+                                                            <Image
+                                                                src={selectedPlan?.id === item.id ? "/svgIcons/powerWhite.svg" :
+                                                                    "/svgIcons/power.svg"
+                                                                }
+                                                                height={24} width={24} alt='*'
+                                                            />
 
-                                                        <div style={{
-                                                            fontSize: 16, fontWeight: '700', color: selectedPlan?.id === item.id ? "white" : '#7902df'
-                                                        }}>
-                                                            {item.tag}
+                                                            <div style={{
+                                                                fontSize: 16, fontWeight: '700', color: selectedPlan?.id === item.id ? "white" : '#7902df'
+                                                            }}>
+                                                                {item.tag}
+                                                            </div>
+                                                            <Image
+                                                                src={selectedPlan?.id === item.id ? "/svgIcons/enterArrowWhite.svg" :
+                                                                    "/svgIcons/enterArrow.svg"
+                                                                }
+                                                                height={20} width={20} alt='*'
+                                                            />
+
                                                         </div>
-                                                        <Image
-                                                            src={selectedPlan?.id === item.id ? "/svgIcons/enterArrowWhite.svg" :
-                                                                "/svgIcons/enterArrow.svg"
-                                                            }
-                                                            height={20} width={20} alt='*'
-                                                        />
-
-                                                    </div>
-                                                ) : (
-                                                    <div className='h-[4vh]'></div>
-                                                )
-                                            }
+                                                    ) : (
+                                                        <div className='h-[4vh]'></div>
+                                                    )
+                                                }
+                                            </div>
                                             <div className="bg-white w-full h-full rounded-2xl p-6 flex flex-col items-start gap-2">
                                                 <div className='flex flex-col item-center justify-between w-full h-full'>
                                                     <div>
@@ -565,7 +678,13 @@ function AgencyPlans() {
                                                                         // color:  "#000000",
                                                                         alignSelf: 'center'
                                                                     }}
-                                                                    onClick={() => { handleSubscribePlan() }}>
+                                                                    onClick={() => {
+                                                                        if (isContinueMonthly === false) {
+                                                                            checkCanSelectYearly();
+                                                                        } else if (isContinueMonthly === true) {
+                                                                            handleSubscribePlan()
+                                                                        }
+                                                                    }}>
                                                                     Claim Early Access
                                                                 </button>
                                                             )}
@@ -575,7 +694,7 @@ function AgencyPlans() {
 
                                                             {/* Features */}
                                                             {
-                                                                planFeaturesAvailable[index].map((label, index) => (
+                                                                planFeaturesAvailable[selectedDuration.id][index].map((label, index) => (
                                                                     <div key={index} className="flex flex-row items-center gap-2 mt-2">
                                                                         <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
                                                                         <div
@@ -610,38 +729,39 @@ function AgencyPlans() {
                                                             }
 
 
-                                                            {planFeaturesUnavailable[selectedDuration.id][index].map((label) => (
-                                                                <div key={label} className="flex flex-row items-center gap-2 mt-2">
-                                                                    <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
-                                                                    <div
-                                                                        className='flex flex-row items-center gap-2'
-                                                                        style={{
-                                                                            whiteSpace: 'nowrap',
-                                                                            width: '100%',
-                                                                            borderWidth: 0,
-                                                                            overflow: 'hidden',
-                                                                            textOverflow: 'ellipsis',
-                                                                        }}
-                                                                    >
-                                                                        <div style={{
-                                                                            fontSize: 13,
-                                                                            fontWeight: '500',
-                                                                            textAlign: 'left',
-                                                                            borderWidth: 0,
-                                                                        }}>
-                                                                            {label.main}
-                                                                        </div>
-                                                                        <div style={{
-                                                                            fontSize: 13,
-                                                                            fontWeight: '500',
-                                                                            textAlign: 'left',
-                                                                            color: "#00000050"
-                                                                        }}>
-                                                                            {label.sub}
+                                                            {
+                                                                planFeaturesUnavailable[selectedDuration.id][index].map((label, index) => (
+                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-2">
+                                                                        <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
+                                                                        <div
+                                                                            className='flex flex-row items-center gap-2'
+                                                                            style={{
+                                                                                whiteSpace: 'nowrap',
+                                                                                width: '100%',
+                                                                                borderWidth: 0,
+                                                                                overflow: 'hidden',
+                                                                                textOverflow: 'ellipsis',
+                                                                            }}
+                                                                        >
+                                                                            <div style={{
+                                                                                fontSize: 13,
+                                                                                fontWeight: '500',
+                                                                                textAlign: 'left',
+                                                                                borderWidth: 0,
+                                                                            }}>
+                                                                                {label.main}
+                                                                            </div>
+                                                                            <div style={{
+                                                                                fontSize: 13,
+                                                                                fontWeight: '500',
+                                                                                textAlign: 'left',
+                                                                                color: "#00000050"
+                                                                            }}>
+                                                                                {label.sub}
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            ))}
+                                                                ))}
 
                                                         </div>
                                                     </div>

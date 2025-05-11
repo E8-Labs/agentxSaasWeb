@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react'
 
 function Page() {
 
-    const [currentIndex, setCurrentIndex] = useState(1);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
         const userData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
