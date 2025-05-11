@@ -627,10 +627,10 @@ const Pipeline1 = () => {
 
       setPipelineDetailLoader(false);
       if (response) {
-        // console.log(
-        //   "Response of getpipeline details api is :",
-        //   response.data.data
-        // );
+        console.log(
+          "Response of getpipeline details api is :",
+          response.data.data
+        );
         const pipelineDetails = response.data.data;
 
         //  Merge updated details with existing pipelines list
@@ -742,7 +742,7 @@ const Pipeline1 = () => {
       });
       setInitialLoader(false);
       if (response) {
-        //console.log;
+        console.log("Initial response", response.data.data);
 
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,

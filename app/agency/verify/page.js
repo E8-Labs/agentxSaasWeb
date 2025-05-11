@@ -7,6 +7,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import { PersistanceKeys } from '@/constants/Constants';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 const Page = () => {
 
@@ -16,11 +17,12 @@ const Page = () => {
     const handleVerifyClick = async () => {
         try {
             setLoader(true);
-            const data = localStorage.getItem("User");
+            const data = await getProfileDetails();
             console.log("Working");
             if (data) {
-                const D = JSON.parse(data);
-                if (D.user.plan) {
+                const D = data.data.data
+                console.log("Getprofile data is", D);
+                if (D.plan) {
                     const Token = AuthToken();
                     const ApiPath = Apis.createOnboardingLink;
                     const response = await axios.post(ApiPath, null, {
@@ -62,7 +64,7 @@ const Page = () => {
         <div className='h-screen w-full flex flex-row items-center justify-center'>
             <div className='h-[60vh] flex flex-col items-center'>
                 <div style={{ fontWeight: "600", fontSize: "38px", marginBottom: 20 }}>
-                    {`Congrats! You’re in!`}
+                    {`Congrats!`}
                 </div>
                 <Image
                     className=""
@@ -72,15 +74,17 @@ const Page = () => {
                     width={142}
                     alt="*"
                 />
-                <div style={{ fontWeight: "600", fontSize: "16px", color: "#00000070" }}>
-                    You are in now!
+                <div style={{ fontWeight: "600", fontSize: "17px", color: "#000000" }}>
+                    Your agency account is created.
                 </div>
-                <div className='mt-4' style={{ fontWeight: "600", fontSize: "17px", color: "#000000" }}>
-                    Verify now to explore more
+                <div style={{ fontWeight: "600", fontSize: "17px", color: "#000000" }}>
+                    Lets add your Stripe detail for payouts.
                 </div>
                 {
                     loader ?
-                        <CircularProgress size={30} /> :
+                        <div className='mt-8'>
+                            <CircularProgress size={30} />
+                        </div> :
                         <button
                             className='bg-purple text-white p-2 rounded-md w-20vw mt-8'
                             style={styles.btnText}
@@ -88,7 +92,7 @@ const Page = () => {
                                 handleVerifyClick();
                             }}
                         >
-                            Verify now
+                            Add Stripe Details
                         </button>
                 }
             </div>

@@ -575,7 +575,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 </div>
 
                 <div style={styles.headings}>
-                    Sub Account Name
+                    Account Owner Name
                 </div>
                 <input
                     type="text"
@@ -863,6 +863,14 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         style={styles.headings}
                     >
                         Invite Team Members
+                    </p>
+                    <p className="mb-2"
+                        style={{
+                            fontSize: "13px",
+                            fontWeight: "500",
+                            color: "#00000060"
+                        }}>
+                        {`Members invited in the list below won’t pay for seats.`}
                     </p>
                     <div className='flex fex-row ites-center w-full mb-2'>
                         <div className="w-4/12"

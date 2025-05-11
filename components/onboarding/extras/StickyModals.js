@@ -186,7 +186,7 @@ export const AddAgencyTwilioKeyModal = ({
                             fontWeight: "600",
                             fontSize: "22px"
                         }}>
-                            Edit Twilio API Key
+                            Twilio API Key
                         </div>
                         <button
                             className='outline-none border-none'
@@ -208,19 +208,19 @@ export const AddAgencyTwilioKeyModal = ({
                             value={sid}
                             onChange={(e) => { setSid(e.target.value) }}
                             style={styles.inputTxt}
-                            placeholder='Enter SSID'
+                            placeholder='Paste SSID'
                             className='border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none'
                         />
                     </div>
                     <div style={styles.mediumTxt}>
-                        Key
+                        Auth Token
                     </div>
                     <div>
                         <input
                             value={twilioAuthToken}
                             onChange={(e) => { setTwilioAuthToken(e.target.value) }}
                             style={styles.inputTxt}
-                            placeholder='Enter Key'
+                            placeholder='Paste Key'
                             className='border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none'
                         />
                     </div>
@@ -279,7 +279,7 @@ export const UpSellPhone = ({
                 <div>
                     <div className='w-full flex flex-row items-center justify-between'>
                         <div style={{ fontWeight: "600", fontSize: 22 }}>
-                            Upsell Phone numbers
+                            Upsell Phone Numbers
                         </div>
                         <button
                             className='outline-none border-none'
@@ -305,7 +305,7 @@ export const UpSellPhone = ({
                             <input
                                 style={styles.inputs}
                                 type="number"
-                                className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder="000"
+                                className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none" placeholder=""
                             value={price}
                             onChange={(e) => {
                                 setPrice(e.target.value);

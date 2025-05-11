@@ -37,6 +37,9 @@ function AgencyPlans() {
         },
     ]
 
+    //hover plans state
+    const [hoverPlan, setHoverPlan] = useState(null);
+
     const [togglePlan, setTogglePlan] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(null);
@@ -330,8 +333,8 @@ function AgencyPlans() {
         console.log("Selected plan index is", index);
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
-        setSelectedPlan((prevId) => (prevId === item ? null : item));
-        checkCanSelectYearly();
+        // setSelectedPlan((prevId) => (prevId === item ? null : item));
+        setSelectedPlan(item);
     };
 
     //close add card popup
@@ -473,7 +476,8 @@ function AgencyPlans() {
                     setErrorMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Success);
                     localStorage.removeItem("subPlan");
-                    router.push("/agency/dashboard");
+                    // router.push("/agency/dashboard");
+                    router.push("/agency/verify");
 
                 } else if (response.data.status === false) {
                     setErrorMsg(response.data.message);
@@ -591,11 +595,10 @@ function AgencyPlans() {
                 </div>
 
                 <div className='flex flex-row items-start gap-6 h-[80vh] w-full'
-                    style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
+                // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                 >
                     <div
-                        className='w-9/12  flex flex-row items-start gap-3 mt-10'
-
+                        className='w-8/12  flex flex-row items-start gap-3 mt-10 mb-12 min-h-[100%]'
                     >
                         {
                             loading ? (
@@ -607,7 +610,10 @@ function AgencyPlans() {
                                     <button
                                         key={item.id}
                                         onClick={() => handleTogglePlanClick(item, index)}
-                                        className={`w-4/12 ${selectedPlan?.id === item.id && "bg-gradient-to-t from-purple to-[#C73BFF] p-2 rounded-2xl"}`}
+                                        onMouseEnter={() => { setHoverPlan(item) }}
+                                        onMouseLeave={() => { setHoverPlan(null) }}
+                                        className={`w-4/12 rounded-2xl hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
+                                        style={{ overflow: 'auto', scrollbarWidth: 'none' }}
                                     >
                                         <div className='flex flex-col items-center h-[75vh] w-full'>
                                             <div className='pb-2'>
@@ -615,19 +621,20 @@ function AgencyPlans() {
                                                     item.tag ? (
                                                         <div className=' flex flex-row items-center gap-2'>
                                                             <Image
-                                                                src={selectedPlan?.id === item.id ? "/svgIcons/powerWhite.svg" :
+                                                                src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "/svgIcons/powerWhite.svg" :
                                                                     "/svgIcons/power.svg"
                                                                 }
                                                                 height={24} width={24} alt='*'
                                                             />
 
-                                                            <div style={{
-                                                                fontSize: 16, fontWeight: '700', color: selectedPlan?.id === item.id ? "white" : '#7902df'
-                                                            }}>
+                                                            <div
+                                                                style={{
+                                                                    fontSize: 16, fontWeight: '700', color: (selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "white" : '#7902df'
+                                                                }}>
                                                                 {item.tag}
                                                             </div>
                                                             <Image
-                                                                src={selectedPlan?.id === item.id ? "/svgIcons/enterArrowWhite.svg" :
+                                                                src={(selectedPlan?.id === item.id || hoverPlan?.id === item.id) ? "/svgIcons/enterArrowWhite.svg" :
                                                                     "/svgIcons/enterArrow.svg"
                                                                 }
                                                                 height={20} width={20} alt='*'
@@ -639,20 +646,28 @@ function AgencyPlans() {
                                                     )
                                                 }
                                             </div>
-                                            <div className="bg-white w-full h-full rounded-2xl p-6 flex flex-col items-start gap-2">
-                                                <div className='flex flex-col item-center justify-between w-full h-full'>
+                                            <div className="bg-white w-full rounded-2xl p-6 flex flex-col items-start gap-2">
+                                                <div className='flex flex-col item-center justify-between w-full'>
                                                     <div>
                                                         {/* Top section */}
-                                                        <div className='text-center' style={{ fontSize: 30, fontWeight: '700' }}>
+                                                        <div className='text-center' style={{ fontSize: 29, fontWeight: '700' }}>
                                                             {item.title}
                                                         </div>
 
                                                         {/* Pricing */}
-                                                        <div className='text-center mt-4 text-transparent bg-clip-text bg-gradient-to-r from-[#7902DF] to-[#DF02BA]' style={{ fontSize: 35, fontWeight: '600' }}>
-                                                            ${item.originalPrice}
+                                                        <div className='text-center mt-4 text-transparent bg-clip-text bg-gradient-to-r from-[#7902DF] to-[#DF02BA]' style={{ fontSize: 34, fontWeight: '600' }}>
+                                                            {/*selectedDuration.title === "Monthly"
+                                                                ? `$${item.originalPrice}`
+                                                                : selectedDuration.title === "Quarterly"
+                                                                    ? `$${(item.originalPrice / 3).toFixed(2)}`
+                                                                    : selectedDuration.title === "Yearly"
+                                                                        ? `$${(item.originalPrice / 12).toFixed(2)}`
+                                            : ""*/}
+                                                            ${selectedDuration.title === "Monthly" && item.originalPrice} {selectedDuration.title === "Quarterly" && item.originalPrice / 3} {selectedDuration.title === "Yearly" && item.originalPrice / 12}
+
                                                         </div>
 
-                                                        <div className='text-center mt-1' style={{ fontSize: 18, fontWeight: '600' }}>
+                                                        <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
                                                             {item.fee}% Rev Share
                                                         </div>
 
@@ -660,7 +675,7 @@ function AgencyPlans() {
                                                             ${item.ratePerMin} per min
                                                         </div>
 
-                                                        <div className="mt-4 mb-4">
+                                                        <div className="mt-3 mb-3">
                                                             {subPlanLoader === item.id ? (
                                                                 <div>
                                                                     <CircularProgress size={30} />
@@ -669,7 +684,7 @@ function AgencyPlans() {
 
                                                                 <button
                                                                     // disabled={!togglePlan}
-                                                                    className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-4 bg-purple rounded-lg text-white
+                                                                    className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 bg-purple rounded-lg text-white
                                                                     flex items-center"
                                                                     style={{
                                                                         fontSize: 16.8,
@@ -695,7 +710,7 @@ function AgencyPlans() {
                                                             {/* Features */}
                                                             {
                                                                 planFeaturesAvailable[selectedDuration.id][index].map((label, index) => (
-                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-2">
+                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
@@ -731,7 +746,7 @@ function AgencyPlans() {
 
                                                             {
                                                                 planFeaturesUnavailable[selectedDuration.id][index].map((label, index) => (
-                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-2">
+                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
@@ -781,7 +796,7 @@ function AgencyPlans() {
                     </div>
 
 
-                    <div className='w-3/12 h-full flex-col items-start gap-3 mt-10 p-8'>
+                    <div className='w-4/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border'>
 
                         <div style={{ fontSize: 24, fontWeight: '700' }}>
                             Whitelabel

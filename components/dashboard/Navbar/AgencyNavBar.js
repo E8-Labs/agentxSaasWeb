@@ -33,6 +33,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -45,6 +46,8 @@ const AgencyNavBar = () => {
 
   const router = useRouter();
   const pathname = usePathname();
+
+  const [loader, setLoader] = useState(false);
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
@@ -82,7 +85,8 @@ const AgencyNavBar = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
-      const agencyProfile = await getProfileDetails()
+      const agencyProfile = await getProfileDetails();
+      setUserDetails(LocalData);
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
         const agencyProfileData = agencyProfile.data.data
@@ -117,6 +121,44 @@ const AgencyNavBar = () => {
     getUserProfile();
   }, []);
 
+  //code for verify now
+
+  const handleVerifyClick = async () => {
+    try {
+      setLoader(true);
+      const data = localStorage.getItem("User");
+      console.log("Working");
+      if (data) {
+        const D = JSON.parse(data);
+        if (D.user.plan) {
+          const Token = AuthToken();
+          const ApiPath = Apis.createOnboardingLink;
+          const response = await axios.post(ApiPath, null, {
+            headers: {
+              "Authorization": "Bearer " + Token
+            }
+          });
+          if (response) {
+            console.log("Response of get verify link api is", response);
+            window.open(response.data.data.url, "_blank");
+            setLoader(false);
+          }
+          // router.push("/agency/verify")
+        } else {
+          console.log("Need to subscribe plan");
+          const d = {
+            subPlan: false
+          }
+          localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
+          router.push("/agency/onboarding");
+        }
+      }
+    } catch (error) {
+      setLoader(false);
+      console.error("Error occured  in getVerify link api is", error);
+    }
+  }
+
   const agencyLinks = [
     {
       id: 1,
@@ -146,8 +188,8 @@ const AgencyNavBar = () => {
       id: 5,
       name: "Call Logs",
       href: "/agency/dashboard/callLogs",
-      selected: "/svgIcons/selectedPlansIcon.svg",
-      uneselected: "/svgIcons/unSelectedPlansIcon.svg",
+      selected: "/agencyIcons/callLogSel.jpg",
+      uneselected: "/agencyIcons/callLogUnSel.jpg",
     },
   ];
 
@@ -241,18 +283,23 @@ const AgencyNavBar = () => {
         <Box className="w-full flex flex-row items-center justify-center border-none outline-none" sx={{ backgroundColor: "transparent" }}>
           <div className="flex flex-row items-center gap-4 bg-white mt-4 rounded-md shadow-lg p-2">
             <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={40} width={40} />
-            <div className="text-red text-xl font-bold">
-              Verify your identity to use your account
+            <div className="text-black text-xl font-bold">
+              {`You're Stripe account has not been connected.`}
             </div>
-            <button
-              className="bg-purple text-white text-lg rounded-md p-2 outline-none border-none"
-              onClick={() => {
-                // router.push("/agency/verify");
-                window.open("/agency/verify", "_blank")
-              }}
-            >
-              Verify now
-            </button>
+            {
+              loader ? (
+                <CircularProgress size={20} />
+              ) : (
+                <button
+                  className="bg-purple text-white text-lg rounded-md p-2 outline-none border-none"
+                  onClick={() => {
+                    handleVerifyClick()
+                  }}
+                >
+                  Connect Now
+                </button>
+              )
+            }
           </div>
         </Box>
       </Modal>
@@ -267,10 +314,13 @@ const AgencyNavBar = () => {
         }}
       >
         <div className="w-full flex flex-row gap-3 items-center justify-center">
-          <div className="w-9/12">
+          <div className="w-9/12 flex flex-col justify-end">
+            <div className="sm:text-lg lg:text-2xl lg:font-bold w-full">
+              {userDetails?.user?.company || "Agency Name"}
+            </div>
             <Image
-              src={"/assets/agentX.png"}
-              alt="profile"
+              src={"/agencyIcons/poweredByIcon.png"}
+              alt="*"
               height={33}
               width={140}
               objectFit="contain"

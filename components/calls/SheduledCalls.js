@@ -252,7 +252,7 @@ function SheduledCalls({ user }) {
       });
 
       if (response) {
-        // //console.log;
+        console.log("Response of scheduled call log api is", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);

@@ -51,7 +51,7 @@ export default function AgencyDashboard() {
           className="pl-10"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
-          Dashboard
+          Analytics
         </div>
         {/* Tabs for navigation */}
         <Tabs defaultValue="user-activity" className="mb-6 w-full">

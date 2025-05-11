@@ -13,7 +13,7 @@ const SelectYearlypopup = ({
         <Modal
             open={showYearlyPlan}
         >
-            <Box className="max-w-lg outline-none border-none w-[100%] bg-white rounded-xl p-6 mx-auto mt-[15vh]">
+            <Box className="max-w-lg outline-none border-none w-[100%] bg-white rounded-xl p-6 mx-auto border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className='w-full'>
                     <div className='w-full flex flex-row items-center justify-between'>
                         <div style={{ fontWeight: "600", fontSize: 22 }}>
@@ -55,12 +55,12 @@ const SelectYearlypopup = ({
 
                     <div className='w-full flex flex-row items-center gap-8 mt-4' style={{ fontSize: 15, fontWeight: "500" }}>
                         <button
-                            className='outline-none border rounded-xl h-[55px] w-1/2'
+                            className='outline-none border-none bg-purple text-white rounded-xl h-[55px] w-1/2'
                             onClick={continueYearlyPlan}>
                             Continue Yearly
                         </button>
                         <button
-                            className='outline-none border-none bg-purple text-white rounded-xl h-[55px] w-1/2'
+                            className='outline-none border rounded-xl h-[55px] w-1/2'
                             onClick={continueMonthly}>
                             Continue Monthly
                         </button>

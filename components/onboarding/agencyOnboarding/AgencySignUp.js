@@ -749,7 +749,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                     <div className="w-6/12">
 
                                         <div style={styles.headingStyle} className="mt-6">
-                                            {`Comapany name`}
+                                            {`Agency Name`}
                                         </div>
                                         <input
                                             ref={(el) => (inputsFields.current[3] = el)}
@@ -757,7 +757,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             autoCorrect="off"
                                             spellCheck="false"
                                             enterKeyHint="done"
-                                            placeholder="Company"
+                                            placeholder="Agency Name"
                                             className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
                                             style={{ ...styles.inputStyle, marginTop: "8px" }}
                                             value={company}
@@ -801,7 +801,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                 </div>
 
                                 <div style={styles.headingStyle} className="mt-6 mb-2">
-                                    Company Size
+                                    Agecny Size
                                 </div>
                                 <FormControl fullWidth>
                                     <Select
@@ -844,8 +844,19 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
 
                                             <MenuItem
                                                 key={item.id}
-                                                style={styles.dropdownMenu}
                                                 value={item.label}
+                                                sx={{
+                                                    backgroundColor:
+                                                        size.id === item.id
+                                                            ? "#7902DF10"
+                                                            : "transparent",
+                                                    "&.Mui-selected": {
+                                                        backgroundColor: "#7902DF10",
+                                                    },
+                                                    "&:hover": {
+                                                        backgroundColor: "#7902DF10",
+                                                      },
+                                                }}
                                             >
                                                 {item.label}
                                             </MenuItem>
@@ -1126,6 +1137,17 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                         //     bottom: "10%"
                         // }}
                         >
+                            <div className="w-8/12 flex flex-col items-end mb-4">
+                                <div className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
+                                    style={{ fontWeight: "700" }}>
+                                    {company || "Agency Name"}
+                                </div>
+                                <Image
+                                    className="object-contain"
+                                    src={'/agencyIcons/poweredByIcon.png'}
+                                    height={22} width={177} alt='*'
+                                />
+                            </div>
                             <div className="bg-white w-7/12 flex flex-row justify-center items-start shadow-xl pb-6 rounded-xl">
                                 <div className="w-9/12 bg-white shadow-xl rounded-xl px-4">
                                     <div className="flex flex-row items-center gap-3 pt-6">
@@ -1169,7 +1191,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             width={32}
                                         />
                                         <div style={styles.sideBoxTxt}>
-                                            {size ? size.label : "Company Size"}
+                                            {size ? size.label : "Agecny Size"}
                                         </div>
                                     </div>
                                 </div>
