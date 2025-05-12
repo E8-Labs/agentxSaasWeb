@@ -8,7 +8,7 @@ const shouldShowServiceBanner =
 
 export default function DashboardLayout({ children }) {
   const message =
-    "Our voice system is currently undergoing maintenance. Adding a few updates.";
+    "Taking a brief pause to invent the future. Calls will resume soon.";
 
   const [typedMessage, setTypedMessage] = useState(message);
   const [charIndex, setCharIndex] = useState(0);
