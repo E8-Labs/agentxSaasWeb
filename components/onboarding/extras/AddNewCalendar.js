@@ -310,7 +310,7 @@ const AddNewCalendar = ({
                     });
                 }}
             />
-            <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col">
+            <div className="bg-white rounded-2xl w-10/12 py-4 flex flex-col">
                 <Modal
                     open={showModal}
                 // onClose={() => {
