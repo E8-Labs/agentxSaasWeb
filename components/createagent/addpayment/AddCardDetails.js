@@ -60,6 +60,9 @@ const AddCardDetails = ({
   const [CardExpiry, setCardExpiry] = useState(false);
   const [CVC, setCVC] = useState(false);
 
+  //agree terms
+  const [agreeTerms, setAgreeTerms] = useState(false);
+
   // Autofocus the first field when the component mounts
   useEffect(() => {
     // //console.log;
@@ -68,6 +71,11 @@ const AddCardDetails = ({
       cardNumberRef.current.focus();
     }
   }, []);
+
+  //handle agree terms toggle btn
+  const handleToggleTermsClick = () => {
+    setAgreeTerms(!agreeTerms);
+  };
 
   // Handle field change to focus on the next input
   const handleFieldChange = (event, ref) => {
@@ -318,16 +326,16 @@ const AddCardDetails = ({
         <div
           style={{
             fontWeight: "400",
-            fontFamily: "inter",
-            fontSize: 13,
+
+            fontSize: 14,
             color: "#4F5B76",
           }}
         >
           Card Number
         </div>
         <div
-          className="mt-2 px-3 py-1"
-          style={{ backgroundColor: "#EDEDEDC7", borderRadius: "8px" }}
+          className="mt-2 px-3 py-1 border"
+          style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
         >
           <CardNumberElement
             options={elementOptions}
@@ -354,16 +362,16 @@ const AddCardDetails = ({
           <div
             style={{
               fontWeight: "400",
-              fontFamily: "inter",
-              fontSize: 13,
+
+              fontSize: 14,
               color: "#4F5B76",
             }}
           >
             Exp
           </div>
           <div
-            className="mt-2 px-3 py-1"
-            style={{ backgroundColor: "#EDEDEDC7", borderRadius: "8px" }}
+            className="mt-2 px-3 py-1 border"
+            style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
           >
             <CardExpiryElement
               options={elementOptions}
@@ -395,16 +403,16 @@ const AddCardDetails = ({
           <div
             style={{
               fontWeight: "400",
-              fontFamily: "inter",
-              fontSize: 13,
+
+              fontSize: 14,
               color: "#4F5B76",
             }}
           >
             CVC
           </div>
           <div
-            className="mt-2 px-3 py-1"
-            style={{ backgroundColor: "#EDEDEDC7", borderRadius: "8px" }}
+            className="mt-2 px-3 py-1 border"
+            style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
           >
             <CardCvcElement
               options={elementOptions}
@@ -440,8 +448,8 @@ const AddCardDetails = ({
         className="mt-8"
         style={{
           fontWeight: "400",
-          fontFamily: "inter",
-          fontSize: 13,
+
+          fontSize: 14,
           color: "#4F5B76",
         }}
       >
@@ -457,9 +465,9 @@ const AddCardDetails = ({
           className="outline-none focus:ring-0 w-full h-[50px]"
           style={{
             color: "#000000",
-            backgroundColor: "#EDEDEDC7",
+            backgroundColor: "#fff",
             borderRadius: "8px",
-            border: "0px solid #00000000",
+            border: "1px solid #00000020",
             fontSize: 15,
             fontWeight: "500",
           }}
@@ -473,6 +481,50 @@ const AddCardDetails = ({
       </div>
 
       {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
+
+      <div className="mt-4 w-full flex flex-row items-center gap-4">
+        <button
+          className="outline-none border-none"
+          onClick={() => { handleToggleTermsClick() }}>
+          {agreeTerms ? (
+            <div
+              className="bg-purple flex flex-row items-center justify-center rounded"
+              style={{ height: "24px", width: "24px" }}
+            >
+              <Image
+                src={"/assets/whiteTick.png"}
+                height={8}
+                width={10}
+                alt="*"
+              />
+            </div>
+          ) : (
+            <div
+              className="bg-none border-2 flex flex-row items-center justify-center rounded"
+              style={{ height: "24px", width: "24px" }}
+            ></div>
+          )}
+        </button>
+        <div
+          className="flex flex-row items-center gap-2"
+          style={{
+            fontWeight: "500",
+            fontSize: 15
+          }}>
+          <div>
+            I agree to the
+          </div>
+          <a
+            href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
+            style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+            target="_blank" // Opens in a new tab (optional)
+            rel="noopener noreferrer" // Security for external links
+          >
+            Terms & Conditions
+          </a>
+        </div>
+      </div>
+
       <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
         {addCardLoader ? (
           <div className="flex flex-row justify-center items-center mt-8 w-full">
@@ -480,7 +532,7 @@ const AddCardDetails = ({
           </div>
         ) : (
           <div className="flex flex-row justify-end items-center mt-8 w-full">
-            {CardAdded && CardExpiry && CVC ? (
+            {CardAdded && CardExpiry && CVC && agreeTerms ? (
               <button
                 onClick={handleAddCard}
                 className="bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3"

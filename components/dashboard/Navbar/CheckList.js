@@ -2,6 +2,8 @@ import { ArrowDown, ArrowUp, CaretDown, CaretRight, CaretUp } from '@phosphor-ic
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
+import { Box, Modal } from '@mui/material';
+import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 
 const CheckList = ({ userDetails }) => {
 
@@ -10,6 +12,9 @@ const CheckList = ({ userDetails }) => {
     const [showList, setShowList] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
+
+    //sadd calendar popup
+    const [showAddCalendar, setShowAddCalendar] = useState(false);
 
 
 
@@ -83,11 +88,15 @@ const CheckList = ({ userDetails }) => {
                                                 key={item.id}
                                                 className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
                                                 onClick={() => {
-                                                    const D = {
-                                                        status: true
+                                                    if (item.label === "Connect a calendar") {
+                                                        setShowAddCalendar(true);
+                                                    } else {
+                                                        const D = {
+                                                            status: true
+                                                        }
+                                                        localStorage.setItem("isFromCheckList", JSON.stringify(D))
+                                                        window.open(item.route, "_blank");
                                                     }
-                                                    localStorage.setItem("isFromCheckList", JSON.stringify(D))
-                                                    window.open(item.route, "_blank");
                                                 }}
                                                 disabled={item.status === true}
                                             >
@@ -123,6 +132,19 @@ const CheckList = ({ userDetails }) => {
                     </div>
                 )
             }
+
+            {/* Code for add calendar */}
+            {
+                showAddCalendar && (
+                    <div>
+                        <AddNewCalendar
+                            handleContinue={() => { setShowAddCalendar(false) }}
+                            showModal={showAddCalendar}
+                        />
+                    </div>
+                )
+            }
+
         </div>
     )
 }

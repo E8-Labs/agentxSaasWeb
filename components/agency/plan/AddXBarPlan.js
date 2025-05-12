@@ -446,7 +446,7 @@ export default function AddXBarPlan({ open, handleClose, onPlanCreated, agencyPl
                                                     {
                                                         originalPrice && (
                                                             <div style={styles.originalPrice}>
-                                                                ${originalPrice}
+                                                                ${(originalPrice * minutes).toFixed(2)}
                                                             </div>
                                                         )
                                                     }

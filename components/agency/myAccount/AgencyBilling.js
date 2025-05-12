@@ -134,14 +134,14 @@ function AgencyBilling() {
   useEffect(() => {
     getPlans()
     getPaymentHistory();
-    
-    
+
+
     getCardsList();
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     getProfile();
-  },[plans])
+  }, [plans])
   //get plans apis
   const getPlans = async () => {
     try {
@@ -222,9 +222,9 @@ function AgencyBilling() {
         if (matchedDuration) {
           if (matchedDuration.duration === "monthly") {
             setSelectedDuration(duration[0]);
-          }else  if (matchedDuration.duration === "quarterly") {
+          } else if (matchedDuration.duration === "quarterly") {
             setSelectedDuration(duration[1]);
-          } else  if (matchedDuration.duration === "yearly") {
+          } else if (matchedDuration.duration === "yearly") {
             setSelectedDuration(duration[2]);
           }
         } else {
@@ -1187,11 +1187,11 @@ function AgencyBilling() {
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: "600",
                   }}
                 >
-                  Add new card
+                  Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image

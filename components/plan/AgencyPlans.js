@@ -872,11 +872,11 @@ function AgencyPlans() {
                                 <div className="flex flex-row justify-between items-center">
                                     <div
                                         style={{
-                                            fontSize: 18,
+                                            fontSize: 22,
                                             fontWeight: "600",
                                         }}
                                     >
-                                        Add new card
+                                    Payment Details
                                     </div>
                                     <button onClick={() => setAddPaymentPopUp(false)}>
                                         <Image

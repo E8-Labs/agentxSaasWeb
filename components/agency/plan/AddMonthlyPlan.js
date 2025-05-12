@@ -457,24 +457,24 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
                                     />
                                 </button>
                             </div>
-                            {/*
-                            (allowTrial && trialValidForDays) && (
-                                <div className='w-11/12 rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2'>
-                                    <div className='flex flex-row items-center gap-2'>
-                                        <Image
-                                            src={"/agencyIcons/batchIcon.jpg"}
-                                            alt='*'
-                                            height={24}
-                                            width={24}
-                                        />
-                                        <div style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
-                                            First {trialValidForDays} Days Free
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        */}
                             <div className='w-11/12 h-[80%] flex flex-col items-center justify-center'>
+                                {
+                                    (allowTrial && trialValidForDays) && (
+                                        <div className='w-full rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2'>
+                                            <div className='flex flex-row items-center gap-2'>
+                                                <Image
+                                                    src={"/agencyIcons/batchIcon.jpg"}
+                                                    alt='*'
+                                                    height={24}
+                                                    width={24}
+                                                />
+                                                <div style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
+                                                    First {trialValidForDays} Days Free
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                }
                                 <div
                                     className="px-4 py-1 pb-4"
                                     style={{
@@ -539,7 +539,7 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
                                                     {
                                                         originalPrice && (
                                                             <div style={styles.originalPrice}>
-                                                                ${originalPrice}
+                                                                ${(originalPrice * minutes).toFixed(2)}
                                                             </div>
                                                         )
                                                     }

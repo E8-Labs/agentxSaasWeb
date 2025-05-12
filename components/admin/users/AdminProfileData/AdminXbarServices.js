@@ -401,7 +401,7 @@ function AdminXbarServices() {
                 width: "90%",
               }}
             >
-             {` This is like the Apple Genius Bar but better. Get up and running
+              {` This is like the Apple Genius Bar but better. Get up and running
               the right way. We'll work alongside to set up your entire AI sales
               system. This can include integrating your systems, ensuring
               everything is optimized for success from the start. See results
@@ -605,11 +605,11 @@ function AdminXbarServices() {
               <div className="flex flex-row justify-between items-center">
                 <div
                   style={{
-                    fontSize: 18,
+                    fontSize: 22,
                     fontWeight: "600",
                   }}
                 >
-                  Add new card
+                  Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image
@@ -627,7 +627,7 @@ function AdminXbarServices() {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>
             </div>

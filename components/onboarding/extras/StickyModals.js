@@ -265,6 +265,24 @@ export const UpSellPhone = ({
 
     const [price, setPrice] = useState("");
 
+    const handlePriceChange = (e) => {
+        let val = e.target.value;
+      
+        // Allow empty input
+        if (val === "") {
+          setPrice("");
+          return;
+        }
+      
+        // Allow valid numbers only
+        const num = parseFloat(val);
+        if (isNaN(num)) return;
+      
+        // Format to 2 decimals immediately
+        const formatted = num.toFixed(2);
+        setPrice(formatted);
+      };
+
     return (
         <Modal
             open={allowUpSellPhone}
@@ -303,6 +321,25 @@ export const UpSellPhone = ({
                             <div>
                                 $
                             </div>
+                        <input
+  style={{
+    fontSize: 15,
+    fontWeight: "500"
+}}
+  type="number"
+  className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+  placeholder=""
+  value={price}
+  onChange={(e) => {
+    const val = e.target.value;
+    setPrice(val);
+  }}
+  onBlur={(e) => {
+    const formatted = parseFloat(price).toFixed(2);
+    if (!isNaN(formatted)) setPrice(formatted);
+  }}
+/>
+                            {/* 
                             <input
                                 style={styles.inputs}
                                 type="number"
@@ -312,6 +349,21 @@ export const UpSellPhone = ({
                                 setPrice(e.target.value);
                             }}
                             />
+                        <input
+    style={{
+        fontSize: 15,
+        fontWeight: "500"
+    }}
+    type="text" // Use "text" to avoid issues with number input reformatting
+    className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+    placeholder="0.00"
+    value={price}
+    onChange={handlePriceChange}
+  />
+
+                        */}
+
+
                         </div>
                     <div className="w-full flex flex-row items-center justify-between mt-12">
                     <button
