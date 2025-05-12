@@ -27,7 +27,7 @@ function AddVoiceMail({
             id: 1,
             name: 'Real Estate',
             type: UserTypes.RealEstateAgent
-        },{
+        }, {
             id: 2,
             name: 'Solar',
             type: UserTypes.SolarRep
@@ -42,7 +42,7 @@ function AddVoiceMail({
         }, {
             id: 5,
             name: 'SDR/BDR Agent',
-            type:UserTypes.SalesDevRep
+            type: UserTypes.SalesDevRep
         }, {
             id: 6,
             name: "Marketing",
@@ -83,7 +83,7 @@ function AddVoiceMail({
     useEffect(() => {
         if (selectedManu.name === "Solar") {
             m = `Hey, this is Sam. Just wanted to let you know your neighbor recently switched to solar and is saving big. Curious if you'd like to see how much you could save? Call me back at [your number]!`
-        }else if (selectedManu.name === "Real Estate") {
+        } else if (selectedManu.name === "Real Estate") {
             m = `Hey, this is Sarah. I helped a homeowner list their property, and there's been interest in the area. If want to know what your home's worth, give me a call at [Your Number]. Would love to chat.`
         } else if (selectedManu.name === "Insurance Agent") {
             m = `Hi, this is Lisa. I noticed some homeowners in your area updated their coverage and lowered their rates. Let's check if you're eligible too! Call me back at [your number]. Talk soon!`
@@ -315,19 +315,20 @@ function AddVoiceMail({
                                     <CircularProgress size={25} />
                                 </div>
                             ) : (
-                                <button className='w-[197px] h-[55px] items-center justify-center rounded-lg bg-purple text-white mt-2'
-                                    style={{ alignSelf: 'flex-end', fontWeight: '500' }}
+                                <button
+                                    className="self-end rounded-lg bg-purple text-white mt-2 h-[97px] w-[197px] font-medium"
                                     onClick={() => {
-                                        let data = {
-                                            message: message,
+                                        const data = {
+                                            message,
                                             voiceId: selectedVoice,
                                             agentType: selectedManu.type
-                                        }
-                                        addVoiceMail(data)
+                                        };
+                                        addVoiceMail(data);
                                     }}
                                 >
                                     Save
                                 </button>
+
                             )
                         }
                     </div>

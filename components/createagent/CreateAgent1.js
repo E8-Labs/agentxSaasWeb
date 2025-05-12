@@ -394,7 +394,16 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           // } else {
           //    // //console.log
           // }
-          handleContinue();
+          // window.dispatchEvent(
+          //   new CustomEvent("UpdateProfile", { detail: { update: true } })
+          // );
+          const L = localStorage.getItem("isFromCheckList")
+          if(L){
+            const D = JSON.parse(L);
+            window.close()
+          }else{
+            handleContinue();
+          }
         } else if (response.data.status === false) {
           setSnackMessage("Agent creation failed!");
           setMsgType(SnackbarTypes.Error);
@@ -586,7 +595,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <button
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
-              // onClick={handleContinue}
+            // onClick={handleContinue}
             >
               Get started with your AI agent
             </button>
@@ -598,7 +607,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div
                   style={styles.headingStyle}
                   className="flex flex-row items-center gap-2"
-                  // onClick={handleContinue}
+                // onClick={handleContinue}
                 >
                   {`What's this AI agent's name?`}
                   <div
@@ -1014,12 +1023,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                      // disabled={true}
-                      // onChange={(evt) => {
-                      //   setAddressValue(evt.target.value); // Update input field value
-                      //   // getPlacePredictions({ input: evt.target.value });
-                      //   // setShowDropdown(true); // Show dropdown on input
-                      // }}
+                    // disabled={true}
+                    // onChange={(evt) => {
+                    //   setAddressValue(evt.target.value); // Update input field value
+                    //   // getPlacePredictions({ input: evt.target.value });
+                    //   // setShowDropdown(true); // Show dropdown on input
+                    // }}
                     />
                   </div>
                 </div>

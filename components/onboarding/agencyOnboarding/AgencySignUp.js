@@ -479,13 +479,13 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
         <div style={{ width: "100%" }}
             className="overflow-y-hidden flex flex-row justify-center items-center"
         >
-            <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
 
-                <div className="w-full flex flex-row items-center justify-center gap-2 mt-4">
+                <div className="w-full flex flex-row items-center justify-start gap-2 mt-4">
 
-                    <div className="w-7/12">
+                    <div className="w-6/12">
 
-                        <div className="flex flex-col items-start px-4 w-full h-[90%]">
+                        <div className="flex flex-col items-start w-full h-[90%]">
                             <div
                                 className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
                                 style={{ textAlign: "left" }}
@@ -855,7 +855,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                                     },
                                                     "&:hover": {
                                                         backgroundColor: "#7902DF10",
-                                                      },
+                                                    },
                                                 }}
                                             >
                                                 {item.label}
@@ -1121,7 +1121,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                         </div>
                     </div>
 
-                    <div className="flex w-5/12 flex-col items-center justify-center">
+                    <div className="flex w-6/12 flex-col items-center justify-center">
                         <Image
                             className="object-contain"
                             src={'/agencyIcons/signupLogo.jpg'}
@@ -1129,7 +1129,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                         />
 
                         {/* Side Box Code */}
-                        <div
+                        {/* <div
                             className="absolute bottom-10 right-6 sm:right-10 w-60 sm:w-4/12"
                         // style={{
                         //     position: "absolute",
@@ -1196,7 +1196,43 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                     </div>
                                 </div>
                             </div>
+                                </div>*/}
+                        <div className="inline-flex flex-col absolute bottom-10 right-0 sm:right-40 max-w-full">
+                            <div className="inline-flex flex-col items-end mb-4">
+                                <div
+                                    className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
+                                    style={{ fontWeight: "700", whiteSpace: "nowrap" }}
+                                >
+                                    {company || "Agency Name"}
+                                </div>
+                                <Image
+                                    className="object-contain"
+                                    src={"/agencyIcons/poweredByIcon.png"}
+                                    height={22}
+                                    width={177}
+                                    alt="*"
+                                />
+                            </div>
+
+                            <div className="bg-white inline-flex flex-row justify-center shadow-xl pb-6 rounded-xl">
+                                <div className="bg-white shadow-xl rounded-xl px-4 pb-4">
+                                    {[
+                                        { src: "/agencyIcons/man.jpg", label: userName || "Agency Owner" },
+                                        { src: "/agencyIcons/web.jpg", label: website || "Website" },
+                                        { src: "/agencyIcons/email.jpg", label: userEmail || "Email" },
+                                        { src: "/agencyIcons/building.jpg", label: size?.label || "Agency Size" },
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="flex flex-row items-center gap-3 mt-4 first:pt-6">
+                                            <Image alt="*" src={item.src} height={32} width={32} />
+                                            <div className="truncate" style={{ ...styles.sideBoxTxt, maxWidth: "20rem" }}>
+                                                {item.label}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
+
 
                     </div>
                 </div>

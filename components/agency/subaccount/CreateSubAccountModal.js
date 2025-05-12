@@ -553,9 +553,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     }
 
     return (
-        <div>
+        <div className='h-[85vh]'>
 
-            <div className='overflow-y-auto h-[60%] scrollbar-hide'
+            <div className='overflow-y-auto h-[92%] scrollbar-hide'
                 style={{
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',

@@ -82,7 +82,13 @@ const CheckList = ({ userDetails }) => {
                                             <button
                                                 key={item.id}
                                                 className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
-                                                onClick={() => { window.open(item.route, "_blank") }}
+                                                onClick={() => {
+                                                    const D = {
+                                                        status: true
+                                                    }
+                                                    localStorage.setItem("isFromCheckList", JSON.stringify(D))
+                                                    window.open(item.route, "_blank");
+                                                }}
                                                 disabled={item.status === true}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>

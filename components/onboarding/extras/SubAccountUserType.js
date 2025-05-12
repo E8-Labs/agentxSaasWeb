@@ -140,9 +140,9 @@ const SubAccountUserType = ({
     ];
 
     return (
-        <div className='h-[60vh] flex flex-col'>
+        <div className='h-[85vh] border-none outline-none flex flex-col'>
             <div className='w-full flex flex-row items-center justify-center'>
-                <div style={{ fontWeight: "600", fontSize: 18 }}>
+                <div className='w-full' style={{ fontWeight: "600", fontSize: 18 }}>
                     Select an Agent
                 </div>
                 <button>

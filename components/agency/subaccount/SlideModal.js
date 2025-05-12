@@ -28,7 +28,7 @@ export default function SlideModal({
     handleClose
 }) {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [direction, setDirection] = useState(1);
+    const [direction, setDirection] = useState(0);
 
     //variables storing data
     const [subFormData, setSubFormData] = useState(null);
@@ -91,7 +91,7 @@ export default function SlideModal({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[100%] bg-white p-6"
+                                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
@@ -117,7 +117,7 @@ export default function SlideModal({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[100%] bg-white p-6"
+                                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
@@ -146,7 +146,7 @@ export default function SlideModal({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[100%] bg-white p-6"
+                                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
                             >
                                 <SetPricing
                                     onClose={(monPlans) => {
@@ -172,7 +172,7 @@ export default function SlideModal({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="p-6 rounded-lg w-[100%] shadow-lg bg-white"
+                                className="p-6 rounded-lg w-[100%] shadow-lg bg-white border-none outline-none"
                             >
                                 <SetXBarOptions
                                     onClose={(xBars) => {

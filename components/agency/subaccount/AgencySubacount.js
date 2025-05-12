@@ -233,7 +233,7 @@ function AgencySubacount() {
           </div>
 
           <button
-            className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium"
+            className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
             onClick={() => {
               handleCheckPlans();
             }}

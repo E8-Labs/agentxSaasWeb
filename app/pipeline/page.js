@@ -13,7 +13,7 @@ import dynamic from "next/dynamic.js";
 import React, { useState } from "react";
 
 const Page = () => {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(1);
   let components = [AddCalender, Pipeline1, Pipeline2];
 
   let CurrentComp = components[index];

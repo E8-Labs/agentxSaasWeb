@@ -4,32 +4,36 @@ import { Plus } from 'lucide-react'
 import Link from 'next/link';
 
 function NoAgent() {
-  const handleAddNewAgent = (event) => {
-    event.preventDefault();
-    // const data = {
-    //   status: true,
-    // };
+
+  const handleAddNewAgent = () => {
+    const data = {
+      status: true,
+    };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     router.push("/createagent");
   };
+
   return (
     <div
       className='flex flex-col items-center w-full h-full'
     >
       <Image
-        src={"/svgIcons/noAgentImage.svg"}
-        height={460}
-        width={357}
+        alt="No img"
+        src={"/agencyIcons/noAgents.jpg"}
+        height={556}
+        width={550}
       />
 
-      <div style={{
-        fontSize: 22, fontWeight: '700', color: 'black'
-      }}>
+      {/*<div
+        className='-mt-12'
+        style={{
+          fontSize: 22, fontWeight: '700', color: 'black', lineHeight: 1
+        }}>
         You have no active agents
-      </div>
+      </div>*/}
 
-      <Link className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg mt-4"
-        onClick={ () => handleAddNewAgent() }
+      <Link className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg -mt-4"
+        onClick={() => { handleAddNewAgent() }}
         href="/createagent"
       >
         <Plus color="white"></Plus>

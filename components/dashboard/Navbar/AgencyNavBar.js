@@ -316,7 +316,7 @@ const AgencyNavBar = () => {
         <div className="w-full flex flex-row gap-3 items-center justify-center">
           <div className="w-9/12 flex flex-col justify-end">
             <div className="sm:text-lg lg:text-2xl lg:font-bold w-full">
-              {userDetails?.user?.company || "Agency Name"}
+              {userDetails?.user?.name || "Agency Name"}
             </div>
             <Image
               src={"/agencyIcons/poweredByIcon.png"}

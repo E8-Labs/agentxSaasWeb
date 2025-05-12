@@ -11,6 +11,7 @@ import Image from 'next/image';
 export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAddPlan, agencyPlanCost }) {
 
     const [allowTrial, setAllowTrial] = useState(false);
+    const [showTrailWarning, setShowTrailWarning] = useState(false);
 
     const [title, setTitle] = useState("");
     const [tag, setTag] = useState("");
@@ -25,6 +26,18 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
     const [snackMsg, setSnackMsg] = useState(null);
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
     const [minCostErr, setMinCostErr] = useState(false);
+
+    //auto remove show trial warning
+    useEffect(() => {
+        if (showTrailWarning) {
+            const timer = setTimeout(() => {
+                setShowTrailWarning(false);
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [showTrailWarning]);
+
 
     //auto check minCostError
     useEffect(() => {
@@ -207,7 +220,7 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
                 />
                 <div className='w-full flex flex-row h-[100%] items-start'>
                     {
-                        !canAddPlan && (
+                        showTrailWarning && (
                             <div className='absolute left-1/2 -translate-x-1/2 top-10'>
                                 <Image
                                     className='rounded-md'
@@ -333,22 +346,28 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
                                             ${(agencyPlanCost * minutes).toFixed(2)}
                                         </div>
                                     </div>
-                                    <div
-                                        className='flex flex-row items-center justify-between mt-4'
-                                        style={{ ...styles.inputs, color: getClr() }}>
-                                        <div>
-                                            Your Profit
-                                        </div>
-                                        <div>
-                                            ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
-                                        </div>
-                                        <div>
-                                            ${((originalPrice - agencyPlanCost) * minutes).toFixed(2)}
-                                        </div>
-                                    </div>
-                                    <div className='text-end w-full mt-2' style={{ color: getClr() }}>
-                                        {((originalPrice - agencyPlanCost) / agencyPlanCost * 100).toFixed(2)}%
-                                    </div>
+                                    {
+                                        (minutes && originalPrice) && (
+                                            <div className='w-full'>
+                                                <div
+                                                    className='flex flex-row items-center justify-between mt-4'
+                                                    style={{ ...styles.inputs, color: getClr() }}>
+                                                    <div>
+                                                        Your Profit
+                                                    </div>
+                                                    <div>
+                                                        ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
+                                                    </div>
+                                                    <div>
+                                                        ${((originalPrice - agencyPlanCost) * minutes).toFixed(2)}
+                                                    </div>
+                                                </div>
+                                                <div className='text-end w-full mt-2' style={{ color: getClr() }}>
+                                                    {((originalPrice - agencyPlanCost) / agencyPlanCost * 100).toFixed(2)}%
+                                                </div>
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
 
@@ -367,14 +386,17 @@ export default function AddMonthlyPlan({ open, handleClose, onPlanCreated, canAd
                             </div>
 
                             {/* Allow Trial */}
-                            {
-                                canAddPlan && (
-                                    <div className="flex items-center justify-between mb-2">
-                                        <label className="text-sm font-medium">Allow Trial</label>
-                                        <Switch checked={allowTrial} onChange={(e) => setAllowTrial(e.target.checked)} />
-                                    </div>
-                                )
-                            }
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="text-sm font-medium">Allow Trial</label>
+                                <Switch checked={allowTrial} onChange={(e) => {
+                                    if (canAddPlan) {
+                                        setAllowTrial(e.target.checked);
+                                        setShowTrailWarning(false);
+                                    } else {
+                                        setShowTrailWarning(true);
+                                    }
+                                }} />
+                            </div>
 
                             {allowTrial && (
                                 <>

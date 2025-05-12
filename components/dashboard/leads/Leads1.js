@@ -816,6 +816,10 @@ const Leads1 = () => {
           setSetData(true);
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
+          //add event to update profile data
+          // window.dispatchEvent(
+          //   new CustomEvent("UpdateProfile", { detail: { update: true } })
+          // );
         }
       }
     } catch (error) {
