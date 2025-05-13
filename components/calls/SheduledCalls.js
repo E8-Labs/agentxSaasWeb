@@ -220,7 +220,7 @@ function SheduledCalls({ user }) {
   const getAgents = async () => {
     try {
       setInitialLoader(true);
-
+      console.log("Check 1 done");
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {

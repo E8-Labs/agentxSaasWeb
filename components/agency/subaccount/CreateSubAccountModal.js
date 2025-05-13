@@ -550,6 +550,10 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             fontWeight: "500",
             borderRadius: "7px",
         },
+        subheading: {
+            fontWeight: "500",
+            fontSize: 15
+        },
     }
 
     return (
@@ -837,9 +841,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                     </div>
                 </div>
 
-                {/* Sell Seats Modal */}
-                {
-                    showSellSeatsModal && (
+                {/* Sell Seats Modal
                         <SellSeatsModal
                             seats={seats}
                             showModal={showSellSeatsModal}
@@ -852,7 +854,28 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     setAlowSellSeats(false);
                                 }
                             }}
-                        />
+                        /> */}
+                {
+                    showSellSeatsModal && (
+                        <div>
+                            <div style={styles.subheading} className='mt-2'>
+                                Amount per month
+                            </div>
+                            <div className='border border-gray-200 rounded px-2 py-0 mt-2 flex flex-row items-center w-full'>
+                                <div className='' style={styles.subheading}>
+                                    $
+                                </div>
+                                <input
+                                    style={styles.subheading}
+                                    // className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                    className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+                                    type="number"
+                                    placeholder="00"
+                                    value={seats}
+                                    onChange={(e) => { setSeats(e.target.value) }}
+                                />
+                            </div>
+                        </div>
                     )
                 }
 

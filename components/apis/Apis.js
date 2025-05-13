@@ -180,6 +180,8 @@ const Apis = {
   createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
   //setup twillio
   setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`,
+  //upsell phone
+  addUpSellPhone:`${BasePath}api/user/setPhoneNumberPrice`
 };
 
 export default Apis;

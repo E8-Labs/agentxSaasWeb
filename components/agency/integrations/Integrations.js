@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 const Integrations = () => {
 
     const [allowUpSellPhone, setAllowUpSellPhone] = useState(false);
+    const [addUpSellPhone, setAddUpSellPhone] = useState(false);
 
     //show add twilio
     const [agencyData, setAgencyData] = useState("");
@@ -25,6 +26,10 @@ const Integrations = () => {
         let data = localStorage.getItem("User");
         if (data) {
             let u = JSON.parse(data);
+
+            if(u.user.phonePrice){
+                setAllowUpSellPhone(true);
+            }
 
             setAgencyData(u.user);
         }
@@ -59,15 +64,27 @@ const Integrations = () => {
                     if (d) {
                         setShowSnackMessage(d);
                         setShowSnackType(SnackbarTypes.Success);
+                        getLocalData();
                     }
                 }}
             />
 
             {/* Code for Upsell phones */}
             <UpSellPhone
-                allowUpSellPhone={allowUpSellPhone}
-                handleClose={() => {
-                    setAllowUpSellPhone(false)
+                allowUpSellPhone={addUpSellPhone}
+                handleClose={(d) => {
+                    if (d) {
+                        if (d.message === "notAdded") {
+                            setAllowUpSellPhone(false);
+                            setAddUpSellPhone(false);
+                        } else {
+                            setAddUpSellPhone(false);
+                        }
+                        if (d.status === true) {
+                            setShowSnackMessage(d.message);
+                            setShowSnackType(SnackbarTypes.Success);
+                        }
+                    }
                 }}
             />
 
@@ -97,6 +114,13 @@ const Integrations = () => {
                         <div className='mt-1' style={styles.subHeading}>
                             Connect your Twilio to enable customers to purchase phone numbers.
                         </div>
+                        {
+                            agencyData?.twilio && (
+                                <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                    SID {agencyData?.twilio?.twilSid} Token {agencyData?.twilio?.twilAuthToken}
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
                 <button
@@ -118,7 +142,14 @@ const Integrations = () => {
                 <div>
                     <Switch
                         checked={allowUpSellPhone}
-                        onChange={(e) => setAllowUpSellPhone(e.target.checked)}
+                        onChange={(e) => {
+                            const checked = e.target.checked;
+                            setAllowUpSellPhone(checked);
+
+                            if (allowUpSellPhone === false) {
+                                setAddUpSellPhone(true);
+                            }
+                        }}
                         sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
                                 color: 'white',

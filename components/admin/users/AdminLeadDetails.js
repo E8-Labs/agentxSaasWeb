@@ -2111,6 +2111,7 @@ const AdminLeadDetails = ({
                                                                                                                         setShowAudioPlay(
                                                                                                                             item?.recordingUrl
                                                                                                                         );
+                                                                                                                        console.log("Recording url is", item?.recordingUrl);
                                                                                                                     } else {
                                                                                                                         setShowNoAudioPlay(
                                                                                                                             true

@@ -124,13 +124,13 @@ function AdminUsers() {
           apiPath = `${apiPath}&sort=${sortData.sort}&sortOrder=${sortData.sortOrder}`;
         }
 
-        // //console.log;
         // return
         const response = await axios.get(apiPath, {
           headers: {
             Authorization: "Bearer " + u.token,
           },
         });
+        // console.log("Userslist is", response);
 
         if (response.data?.status) {
           if (offset == 0) {
@@ -550,10 +550,51 @@ function AdminUsers() {
             handleDel={() => {
               setUsers((prev) => prev.filter((u) =>
                 u.id != selectedUser.id
-              ))
-              setSelectedUser(null)
+              ));
+              setSelectedUser(null);
+            }}
+            handlePauseUser={(d) => {
+              console.log("User paused");
+
+              const updatedStatus = selectedUser.profile_status === "active" ? "paused" : "active";
+
+              const updatedUser = {
+                ...selectedUser,
+                profile_status: updatedStatus
+              };
+
+              // ✅ Update the user in the list
+              setUsers((prev) =>
+                prev.map((u) =>
+                  u.id === updatedUser.id ? updatedUser : u
+                )
+              );
+
+              // ✅ Re-send updated user to child
+              setSelectedUser(updatedUser);
             }}
 
+          // handlePauseUser={(d) => {
+          //   console.log("User paused");
+          //   if (selectedUser.profile_status === "active") {
+          //     setUsers((prev) =>
+          //       prev.map((u) =>
+          //         u.id === selectedUser.id
+          //           ? { ...u, profile_status: "paused" }
+          //           : u
+          //       )
+          //     );
+          //   } else if (selectedUser.profile_status === "paused") {
+          //     setUsers((prev) =>
+          //       prev.map((u) =>
+          //         u.id === selectedUser.id
+          //           ? { ...u, profile_status: "active" }
+          //           : u
+          //       )
+          //     );
+          //   }
+          //   setSelectedUser(null);
+          // }}
           />
         </Box>
       </Modal>

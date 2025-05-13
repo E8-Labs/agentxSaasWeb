@@ -70,7 +70,8 @@ export default function SetXBarOptions({
                 email: formData.userEmail,
                 userType: selectedUserType,
                 agencyAccountName: formData.fullName,
-                costPerSeat: seatscount,
+                // costPerSeat: seatscount,
+                costPerSeat: isNaN(Number(seatscount)) ? 0 : Number(seatscount),
                 teams: formData.teamMembers.filter(item => item.name && item.email && item.phone)   // Filter members with all fields present
                     .map(item => ({
                         name: item.name,

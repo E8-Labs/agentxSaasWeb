@@ -1,7 +1,7 @@
 import AdminLeads from '@/components/admin/users/AdminLeads'
 import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AdminLeads1 from './AdminLeads1'
 import AdminPipeline1 from './pipline/AdminPipeline1'
 import AdminAgentX from './AdminAgentX'
@@ -20,10 +20,10 @@ function SelectedUserDetails({
     selectedUser,
     handleDel,
     from = "admin",
+    handlePauseUser,
     agencyUser = false
 }) {
 
-    //console.log
 
     const manuBar = [
         {
@@ -77,8 +77,19 @@ function SelectedUserDetails({
     const [showSnackMessage, setShowSnackMessage] = useState(null)
     const [loading, setloading] = useState(false)
     const [delLoader, setDelLoader] = useState(false)
-    const [pauseLoader, setpauseLoader] = useState(false)
+    const [pauseLoader, setpauseLoader] = useState(false);
 
+    //pauseToggleBtn
+    const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
+
+    useEffect(() => {
+        console.log("selected user", selectedUser);
+        if (selectedUser?.profile_status === "paused") {
+            setPauseToggleBtn(true);
+        } else if (selectedUser?.profile_status === "active") {
+            setPauseToggleBtn(false);
+        }
+    }, [selectedUser]);
 
 
     const handleManuClick = (item) => {
@@ -153,7 +164,7 @@ function SelectedUserDetails({
                         //console.log
                         setShowSnackMessage(response.data.messag)
                         setShowDeleteModal(false)
-                        handleDel()
+                        handleDel();
                     } else {
                         //console.log
                         setShowSnackMessage(response.data.message)
@@ -170,6 +181,7 @@ function SelectedUserDetails({
     }
 
     const handlePause = async () => {
+        //profile_status
         setpauseLoader(true)
         try {
             const data = localStorage.getItem("User")
@@ -186,15 +198,18 @@ function SelectedUserDetails({
                     }
                 })
                 setpauseLoader(false)
-                if (response.data) {
+                if (response) {
+                    console.log("Respose of pause unpause apis is", response);
                     if (response.data.status === true) {
-                        setShowSnackMessage(response.data.message)
+                        setShowSnackMessage(response.data.message);
+                        handlePauseUser();
                     }
                     console.log('response.data.data', response.data)
                 }
             }
         } catch (e) {
-            setpauseLoader(false)
+            setpauseLoader(false);
+            console.error("Error occured in pause unpause api is", e);
         }
 
     }
@@ -227,7 +242,7 @@ function SelectedUserDetails({
                                                 // Open a new tab with user ID as query param
                                                 let url = ""
                                                 if (from === "admin") {
-                                                    url = `/admin/users?userId=${selectedUser.id}`
+                                                    url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
                                                 } else if (from === "subaccount") {
                                                     // url = `/agency/users?userId=${selectedUser.id}`
                                                     url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`;
@@ -257,7 +272,7 @@ function SelectedUserDetails({
                                 ) : (
                                     <div>
                                         {
-                                            !agencyUser || from !== "subaccount" && (
+                                            !agencyUser && from !== "subaccount" && (
                                                 <button
                                                     className="text-white bg-purple outline-none rounded-xl px-3"
                                                     style={{ height: "50px" }}
@@ -265,7 +280,9 @@ function SelectedUserDetails({
                                                         handlePause();
                                                     }}
                                                 >
-                                                    Pause
+                                                    {
+                                                        selectedUser?.profile_status === "paused" ? "Un Pause" : "Pause"
+                                                    }
                                                 </button>
                                             )
                                         }
@@ -274,7 +291,7 @@ function SelectedUserDetails({
                             }
 
                             {
-                                !agencyUser || from != "subaccount" && (
+                                !agencyUser && from != "subaccount" && (
                                     <button
                                         className="text-white bg-purple outline-none rounded-xl px-3"
                                         style={{ height: "50px" }}
@@ -289,7 +306,7 @@ function SelectedUserDetails({
 
 
                             {
-                                !agencyUser || from != "subaccount" && (
+                                !agencyUser && from != "subaccount" && (
                                     <button
                                         className="text-red outline-none rounded-xl px-3"
                                         style={{ height: "50px" }}

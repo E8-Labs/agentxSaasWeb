@@ -27,6 +27,7 @@ function AgencySubacount() {
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(false);
   const [agencyData, setAgencyData] = useState("");
+  const [twililoConectedStatus, setTwilioConnectedStatus] = useState(false);
 
   //code for invite team popup
   const [openInvitePopup, setOpenInvitePopup] = useState(false);
@@ -210,6 +211,10 @@ function AgencySubacount() {
           setShowSnackMessage(d);
           setShowSnackType(SnackbarTypes.Success);
         }}
+        isTwilioAdded={(d) => {
+          console.log("Twilio connected status", d);
+          setTwilioConnectedStatus(d.status);
+        }}
       />
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
@@ -233,6 +238,7 @@ function AgencySubacount() {
           </div>
 
           <button
+            disabled={twililoConectedStatus}
             className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
             onClick={() => {
               handleCheckPlans();
@@ -348,6 +354,7 @@ function AgencySubacount() {
 
                     <div className="w-1/12 relative">
                       <button
+                        disabled={twililoConectedStatus}
                         id={`dropdown-toggle-${item.id}`}
                         onClick={() => {
                           setUserData(item);
@@ -512,6 +519,7 @@ function AgencySubacount() {
             <SelectedUserDetails
               from="subaccount"
               selectedUser={selectedUser}
+              agencyUser={true}
               handleDel={() => {
                 // setUsers((prev) => prev.filter((u) =>
                 //     u.id != selectedUser.id

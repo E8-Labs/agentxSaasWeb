@@ -43,12 +43,14 @@ function SubAccountSupport() {
         {"Account > Support"}
       </div>
 
-      <div
+      <div className="w-full flex flex-row items-center gap-4 mt-10">
+
+        {/*<div
         style={{
           alignSelf: "center",
           cursor: "pointer",
         }}
-        className="w-8/12 hover:bg-purple border rounded p-4 mt-10 cursor-pointer"
+        className="w-6/12 hover:bg-purple border rounded p-4 mt-10 cursor-pointer"
         onMouseEnter={() => {
           setHoverAIWebinar(true);
         }}
@@ -58,11 +60,6 @@ function SubAccountSupport() {
         onClick={getSupport}
       >
         <div className="flex flex-row gap-2">
-          {/* <Image src={'/otherAssets/calenderIcon.png'}
-                        alt='calender'
-                        height={24}
-                        width={24}
-                    /> */}
           {HoverAIWebinar ? (
             <Image
               src={"/assets/whiteCalenderIcon.svg"}
@@ -101,7 +98,7 @@ function SubAccountSupport() {
       </div>
 
       <div
-        className="w-8/12 hover:bg-purple border rounded p-4 mt-10 cursor-pointer"
+        className="w-6/12 hover:bg-purple border rounded p-4 mt-10 cursor-pointer"
         style={{ alignSelf: "center", cursor: "pointer" }}
         onMouseEnter={() => {
           setHoverConsultation(true);
@@ -149,6 +146,34 @@ function SubAccountSupport() {
             "Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals."
           }
         </div>
+        </div>*/}
+
+        <div className="w-6/12">
+          <button
+            className="border-none outline-none"
+            onClick={getSupport}>
+            <Image
+              src={"/agencyIcons/TecSupport.jpg"}
+              alt="*"
+              height={526}
+              width={387}
+            />
+          </button>
+        </div>
+
+        <div className="w-6/12">
+          <button
+            className="border-none outline-none"
+            onClick={getConsultation}>
+            <Image
+              src={"/agencyIcons/WeeklyAgencyGrowth.jpg"}
+              alt="*"
+              height={526}
+              width={387}
+            />
+          </button>
+        </div>
+
       </div>
     </div>
   );
