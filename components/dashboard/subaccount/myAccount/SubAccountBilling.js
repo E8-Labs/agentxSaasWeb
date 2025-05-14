@@ -9,6 +9,7 @@ import {
   Fade,
   Modal,
   Snackbar,
+  Switch,
   TextField,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
@@ -21,6 +22,8 @@ import AgentSelectSnackMessage, {
 } from "../../leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { RemoveSmartRefillApi, SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -819,6 +822,10 @@ function SubAccountBilling({
           </div>
         )}
       </div>
+
+      {/* Code for Smart Refill */}
+
+      <SmartRefillCard />
 
       {/* code for current plans available */}
 

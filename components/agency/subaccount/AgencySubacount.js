@@ -19,6 +19,8 @@ import CreateSubAccountModal from "./CreateSubAccountModal";
 import { TwilioWarning } from "@/components/onboarding/extras/StickyModals";
 import NewInviteTeamModal from "./NewInviteTeamModal";
 import ViewSubAccountPlans from "./ViewSubAccountPlans";
+import EditAgencyName from "../agencyExtras.js/EditAgencyName";
+import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 
 function AgencySubacount() {
   const [subAccountList, setSubAccountsList] = useState([]);
@@ -35,11 +37,16 @@ function AgencySubacount() {
   const [showPlans, setShowPlans] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  const [delLoader, setDelLoader] = useState(false);
-  const [pauseLoader, setpauseLoader] = useState(false);
+  //snack msages
   const [showSnackMessage, setShowSnackMessage] = useState(null);
   const [showSnackType, setShowSnackType] = useState(SnackbarTypes.Success);
-
+  //pause subAcc
+  const [pauseLoader, setpauseLoader] = useState(false);
+  const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
+  //del subAcc
+  const [delLoader, setDelLoader] = useState(false);
+  const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
+  
   useEffect(() => {
     getLocalData();
     getSubAccounts();
@@ -133,6 +140,8 @@ function AgencySubacount() {
         if (response.data) {
           if (response.data.status === true) {
             setShowSnackMessage(response.data.message);
+            setShowPauseConfirmationPopup(false);
+            setmoreDropdown(null);
           }
           console.log("response.data.data", response.data);
         }
@@ -170,6 +179,8 @@ function AgencySubacount() {
           console.log("Response of del account apis is", response.data);
           setShowSnackMessage(response.data.message);
           setDelLoader(false);
+          setShowDelConfirmationPopup(false);
+          setmoreDropdown(null);
         }
       }
     } catch (error) {
@@ -190,13 +201,9 @@ function AgencySubacount() {
       />
 
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
-        <div
-          style={{
-            fontSize: 22,
-            fontWeight: "700",
-          }}
-        >
-          {agencyData?.name}
+        <div>
+          <EditAgencyName
+            flex={true} />
         </div>
 
         <div>
@@ -372,9 +379,9 @@ function AgencySubacount() {
                       </button>
 
                       {moreDropdown === item.id && (
-                        <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
+                        <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[180px]">
                           <button
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
                             onClick={() => {
                               setSelectedUser(item);
                             }}
@@ -383,7 +390,7 @@ function AgencySubacount() {
                             View Detail
                           </button>
                           <button
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
                             onClick={() => {
                               setOpenInvitePopup(true);
                             }}
@@ -406,7 +413,7 @@ function AgencySubacount() {
                           )}
 
                           <button
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
                             onClick={() => {
                               console.log(selectedUser);
                               setShowPlans(true);
@@ -430,27 +437,54 @@ function AgencySubacount() {
                               <CircularProgress size={25} />
                             ) : (
                               <button
-                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
                                 onClick={() => {
-                                  handlePause();
+                                  // handlePause();
+                                  setShowPauseConfirmationPopup(true);
                                 }}
                               >
                                 Pause
                               </button>
                             )}
                           </div>
+
+                          {
+                            showPauseConfirmationPopup && (
+                              <DelAdminUser
+                                showPauseModal={showPauseConfirmationPopup}
+                                handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
+                                handlePaueUser={handlePause}
+                                pauseLoader={pauseLoader}
+                                selectedUser={selectedUser}
+                              />
+                            )
+                          }
+
                           {delLoader ? (
                             <CircularProgress size={25} />
                           ) : (
                             <button
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                              className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
                               onClick={() => {
-                                handleDeleteUser();
+                                // handleDeleteUser();
+                                setShowDelConfirmationPopup(true);
                               }}
                             >
                               Delete
                             </button>
                           )}
+
+                          {
+                            showDelConfirmationPopup && (
+                              <DelAdminUser
+                                showDeleteModal={showDelConfirmationPopup}
+                                handleClose={() => { setShowDelConfirmationPopup(false) }}
+                                handleDeleteUser={handleDeleteUser}
+                                delLoader={delLoader}
+                                selectedUser={selectedUser}
+                              />
+                            )
+                          }
 
                         </div>
                       )}
@@ -519,7 +553,7 @@ function AgencySubacount() {
             <SelectedUserDetails
               from="subaccount"
               selectedUser={selectedUser}
-              agencyUser={true}
+              // agencyUser={true}
               handleDel={() => {
                 // setUsers((prev) => prev.filter((u) =>
                 //     u.id != selectedUser.id

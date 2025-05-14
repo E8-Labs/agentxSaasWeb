@@ -871,7 +871,7 @@ function Billing() {
         )}
       </div>
 
-      {/* Code for  */}
+      {/* Code for  smart refill*/}
 
       <div className="w-9/12 flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
         {
@@ -879,30 +879,6 @@ function Billing() {
             <CircularProgress size={20} />
           ) : (
             <div>
-              {/*
-                userLocalData?.smartRefill === true ? (
-                  <Image
-                    alt="*"
-                    src={"/assets/checkDone.png"}
-                    width={20}
-                    height={20}
-                  />
-                ) : (
-                  <button
-                    onClick={() => {
-                      handleUpdateProfile();
-                    }}
-                  >
-                    <Image
-                      className="rounded-full"
-                      alt="*"
-                      src={"/agencyIcons/unCheck.jpg"}
-                      width={20}
-                      height={20}
-                    />
-                  </button>
-                )
-              */}
               <Switch
                 checked={allowSmartRefill}
                 onChange={() => {

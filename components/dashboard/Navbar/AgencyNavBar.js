@@ -34,6 +34,7 @@ import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import EditAgencyName from "@/components/agency/agencyExtras.js/EditAgencyName";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -109,7 +110,6 @@ const AgencyNavBar = () => {
         router.push("/");
         return
       }
-      setUserDetails(LocalData);
       if (LocalData.user.plan == null) {
         // user haven't subscribed to any plan
         // setPlans(plansWitTrial);
@@ -315,8 +315,9 @@ const AgencyNavBar = () => {
       >
         <div className="w-full flex flex-row gap-3 items-center justify-center">
           <div className="w-9/12 flex flex-col justify-end">
-            <div className="sm:text-lg lg:text-2xl lg:font-bold w-full">
-              {userDetails?.user?.name || "Agency Name"}
+            <div className="w-full">
+              {/*userDetails?.user?.name || "Agency Name"*/}
+              <EditAgencyName />
             </div>
             <Image
               src={"/agencyIcons/poweredByIcon.png"}

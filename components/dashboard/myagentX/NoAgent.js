@@ -2,8 +2,11 @@ import Image from 'next/image'
 import React from 'react'
 import { Plus } from 'lucide-react'
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 function NoAgent() {
+
+  const router = useRouter();
 
   const handleAddNewAgent = () => {
     const data = {

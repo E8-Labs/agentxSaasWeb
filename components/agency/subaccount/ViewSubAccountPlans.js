@@ -38,21 +38,24 @@ const ViewSubAccountPlans = ({
                     </button>
                 </div>
                 {/*selectedUser.plan.map((plan, index) => ())*/}
-                <div
-                    // key={index}
-                    className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition"
-                // onClick={() => toggleSelection(plan.id)}
-                >
-                    <div className="w-[80%]">
-                        <h3 className="font-semibold text-gray-900">
-                            {selectedUser?.plan?.title} | {selectedUser?.plan?.minutes || "X"}mins
-                        </h3>
-                        <p className="text-sm text-gray-500">{selectedUser?.plan?.planDescription}</p>
-                        <p className="mt-1 font-medium text-lg text-gray-800">
-                            ${selectedUser?.plan?.price}/<span className="text-sm text-gray-400">Mo*</span>
-                        </p>
-                    </div>
-                </div>
+                {
+                    selectedUser?.plan ? (
+                        <div className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition">
+                            <div className="w-[80%]">
+                                <h3 className="font-semibold text-gray-900">
+                                    {selectedUser?.plan?.title} | {selectedUser?.plan?.minutes || "X"}mins
+                                </h3>
+                                <p className="text-sm text-gray-500">{selectedUser?.plan?.planDescription}</p>
+                                <p className="mt-1 font-medium text-lg text-gray-800">
+                                    ${selectedUser?.plan?.price}/<span className="text-sm text-gray-400">Mo*</span>
+                                </p>
+                            </div>
+                        </div>) : (
+                        <div className='text-xl font-bold text-center mt-6'>
+                            No Plan
+                        </div>
+                    )
+                }
             </Box>
         </Modal>
     )

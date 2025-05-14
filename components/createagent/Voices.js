@@ -39,7 +39,7 @@ const voicesList = [
     Dialect: "Assertive, Energetic,  Mid 30s | Flordian",
   },
   {
-    voice_id: "qZVyogWNtPPM0VPTPQQb",
+    voice_id: "8iKM7M97Poa57n6zNwYk",//qZVyogWNtPPM0VPTPQQb
     name: "Mia",
     preview: "/voicesList/Mia.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/OwJhPTZ4lzFyFezy7s44/130dfda4-808c-4ad2-8c06-67e66bb0a8f2.mp3",

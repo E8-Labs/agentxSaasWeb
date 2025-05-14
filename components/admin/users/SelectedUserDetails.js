@@ -15,6 +15,7 @@ import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 
 function SelectedUserDetails({
     selectedUser,
@@ -69,6 +70,8 @@ function SelectedUserDetails({
         }
     ]
 
+    console.log("Status of agency user", agencyUser);
+
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
     const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
     const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -76,8 +79,12 @@ function SelectedUserDetails({
     const [minutes, setMinutes] = useState("")
     const [showSnackMessage, setShowSnackMessage] = useState(null)
     const [loading, setloading] = useState(false)
-    const [delLoader, setDelLoader] = useState(false)
+    const [delLoader, setDelLoader] = useState(false);
+    //del user
+    const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
     const [pauseLoader, setpauseLoader] = useState(false);
+    //pause confirmations
+    const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
 
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
@@ -197,12 +204,13 @@ function SelectedUserDetails({
                         "Content-Type": 'application/json'
                     }
                 })
-                setpauseLoader(false)
                 if (response) {
                     console.log("Respose of pause unpause apis is", response);
                     if (response.data.status === true) {
                         setShowSnackMessage(response.data.message);
                         handlePauseUser();
+                        setpauseLoader(false);
+                        setShowPauseConfirmationPopup(false);
                     }
                     console.log('response.data.data', response.data)
                 }
@@ -220,9 +228,9 @@ function SelectedUserDetails({
                 type={SnackbarTypes.Success} message={showSnackMessage}
             />
 
-            <div className='flex flex-col items-center justify-center'>
-                <div style={{ alignSelf: 'center' }} className='w-[90vw] h-[90vh] bg-white items-center justify-center '>
-                    <div className='flex flex-row items-center justify-between w-full px-10 pt-8'>
+            <div className='flex flex-col items-center justify-center w-full'>
+                <div style={{ alignSelf: 'center' }} className={`w-full ${(from === "admin" || from === "subaccount") ? "h-[80vh]":"h-[100svh]"} bg-white items-center justify-center`}>
+                    <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
                         <div className='flex flex-row gap-2 items-center justify-start'>
                             <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
                                 {selectedUser.name[0]}
@@ -272,12 +280,12 @@ function SelectedUserDetails({
                                 ) : (
                                     <div>
                                         {
-                                            !agencyUser && from !== "subaccount" && (
+                                            (!agencyUser && from !== "subaccount") && (
                                                 <button
                                                     className="text-white bg-purple outline-none rounded-xl px-3"
                                                     style={{ height: "50px" }}
                                                     onClick={() => {
-                                                        handlePause();
+                                                        setShowPauseConfirmationPopup(true);
                                                     }}
                                                 >
                                                     {
@@ -291,7 +299,19 @@ function SelectedUserDetails({
                             }
 
                             {
-                                !agencyUser && from != "subaccount" && (
+                                showPauseConfirmationPopup && (
+                                    <DelAdminUser
+                                        showPauseModal={showPauseConfirmationPopup}
+                                        handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
+                                        handlePaueUser={handlePause}
+                                        pauseLoader={pauseLoader}
+                                        selectedUser={selectedUser}
+                                    />
+                                )
+                            }
+
+                            {
+                                (!agencyUser && from !== "subaccount") && (
                                     <button
                                         className="text-white bg-purple outline-none rounded-xl px-3"
                                         style={{ height: "50px" }}
@@ -306,7 +326,7 @@ function SelectedUserDetails({
 
 
                             {
-                                !agencyUser && from != "subaccount" && (
+                                (!agencyUser && from !== "subaccount") && (
                                     <button
                                         className="text-red outline-none rounded-xl px-3"
                                         style={{ height: "50px" }}
@@ -318,6 +338,7 @@ function SelectedUserDetails({
                                     </button>
                                 )
                             }
+
                             {/* <div>
                                 <button>
                                     <Image
@@ -334,7 +355,7 @@ function SelectedUserDetails({
                     </div>
 
                     <div className='flex flex-row items-start w-full'>
-                        <div className='flex flex-col items-start justify-center gap-3 w-3/12 px-10 pt-10'>
+                        <div className='flex flex-col items-start justify-center gap-3 w-2/12 px-6 pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
                             {
                                 manuBar.map((item) => (
                                     <button key={item.id} onClick={() => {
@@ -357,7 +378,7 @@ function SelectedUserDetails({
 
                         </div>
 
-                        <div className="flex flex-col items-center justify-center pt-2 px-4 h-[70vh] overflow-hidden w-9/12">
+                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${(from === "admin" || from === "subaccount") ? "h-[70vh]":"h-[95vh]"} overflow-auto w-10/12`}>
                             {
                                 selectedManu.name == "Leads" ? (
                                     <AdminLeads1 selectedUser={selectedUser} />
@@ -393,7 +414,6 @@ function SelectedUserDetails({
                             }
                         </div>
                     </div>
-
                 </div>
             </div>
 

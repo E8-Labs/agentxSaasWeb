@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import SmartRefillCard from "../agencyExtras.js/SmartRefillCard";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -870,7 +871,8 @@ function AgencyBilling() {
         )}
       </div>
 
-
+        {/* Code for smart refill */}
+        <SmartRefillCard />
 
       <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
         style={{

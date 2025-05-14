@@ -17,7 +17,7 @@ import Image from "next/image";
 import React, { use, useEffect, useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import AgentSelectSnackMessage,{SnackbarTypes} from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -29,6 +29,8 @@ import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
 import DncConfirmationPopup from "@/components/dashboard/leads/DncConfirmationPopup";
 import Tooltip from "@mui/material/Tooltip";
+import AllowSmartRefillPopup from "@/components/dashboard/leads/AllowSmartRefillPopup";
+import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -40,7 +42,7 @@ const AdminAssignLead = ({
   filters = null,
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
-  selectedUser = {selectedUser}
+  selectedUser = { selectedUser }
 }) => {
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
@@ -64,6 +66,11 @@ const AdminAssignLead = ({
   const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
+
+  //smart refill
+  const [showSmartRefillPopUp, setShowSmartRefillPopUp] = useState(false);
+  const [smartRefillLoader, setSmartRefillLoader] = useState(false);
+  const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
 
   const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
 
@@ -91,7 +98,7 @@ const AdminAssignLead = ({
       setShouldContinue(true);
     }
 
-   
+
   }, [SelectedAgents]);
 
   useEffect(() => {
@@ -99,13 +106,13 @@ const AdminAssignLead = ({
     // }
   }, [selectedUser]);
 
- 
+
   //get agents api
   const getAgents = async () => {
-    console.log('trying to get agents', )
+    console.log('trying to get agents',)
     setInitialLoader(true)
     try {
-      
+
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -116,7 +123,7 @@ const AdminAssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents + "?userId="+userProfile.id;
+      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -126,10 +133,10 @@ const AdminAssignLead = ({
       });
 
       if (response) {
-    setInitialLoader(false)
+        setInitialLoader(false)
 
         //console.log;
-       
+
         // let filterredAgentsList = [];
         console.log("trying to get agents")
         const filterredAgentsList = response.data.data.filter((mainAgent) => {
@@ -425,6 +432,30 @@ const AdminAssignLead = ({
     return filtered;
   }
 
+  //code for update profile for smartrefill
+  const handleSmartRefill = async () => {
+    try {
+      setSmartRefillLoader(true);
+      const response = await SmartRefillApi();
+      if (response.data.status === true) {
+        handleAssignLead();
+      }
+    } catch (error) {
+      setSmartRefillLoader(false);
+      console.error("Error occured is", error);
+    }
+  };
+
+  const handleSmartRefillLater = async () => {
+    try {
+      setSmartRefillLoaderLater(true);
+      handleAssignLead();
+    } catch (error) {
+      setSmartRefillLoaderLater(false);
+      console.error("Error occured is", error);
+    }
+  };
+
   const styles = {
     heading: {
       fontWeight: "600",
@@ -670,6 +701,18 @@ const AdminAssignLead = ({
           Continue
         </button>
       </div>
+
+      {/* Smart refill popup */}
+      <AllowSmartRefillPopup
+        showSmartRefillPopUp={showSmartRefillPopUp}
+        handleCloseReillPopup={() => {
+          setShowSmartRefillPopUp(false);
+        }}
+        smartRefillLoader={smartRefillLoader}
+        smartRefillLoaderLater={smartRefillLoaderLater}
+        handleSmartRefillLater={handleSmartRefillLater}
+        handleSmartRefill={handleSmartRefill}
+      />
 
       {/* last step modal */}
       <Modal
@@ -1190,6 +1233,15 @@ const AdminAssignLead = ({
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
+                        const localData = localStorage.getItem("User");
+                        if (localData) {
+                          const UserDetails = JSON.parse(localData);
+                          console.log(UserDetails.user.smartRefill);
+                          if (UserDetails.user.smartRefill === false) {
+                            setShowSmartRefillPopUp(true);
+                            return;
+                          }
+                        }
                         handleAssignLead();
                         // handleAssigLead()
                       }}
