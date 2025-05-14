@@ -688,11 +688,7 @@ function Page() {
     if (modelValue) {
       let model = findLLMModel(modelValue);
       setSelectedGptManu(model);
-      // if (modelValue === AgentLLmModels.Gpt4o) {
-      //   setSelectedGptManu(models[0]);
-      // } else if (modelValue === AgentLLmModels.Gpt4oMini) {
-      //   setSelectedGptManu(models[1]);
-      // }
+      
     }
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>

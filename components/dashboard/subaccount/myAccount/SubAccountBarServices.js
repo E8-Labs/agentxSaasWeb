@@ -22,7 +22,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal";
 import { PersistanceKeys } from "@/constants/Constants";
-import { getMonthlyPlan } from "@/components/agency/subaccount/GetPlansList";
+import { getMonthlyPlan, getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
@@ -98,34 +98,10 @@ function SubAccountBarServices({
 
   //get monthlyplans list
   const getPlans = async () => {
-    try {
-      setGetPlansLoader(true);
-      const Token = AuthToken();
-      console.log("user id is", selectedUser.id);
-      let ApiPath = null;
-      if (selectedUser) {
-        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser.id}`;
-      } else {
-        ApiPath = Apis.getSubAccountPlans;
-      }
-      console.log("Api path of get plan is", ApiPath);
-      const response = await axios.get(ApiPath, {
-        headers: {
-          "Authorization": "Bearer " + Token,
-          "Content-Type": "application/json"
-        }
-      });
+   let p = await getXBarOptions()
+   console.log('p', p)
 
-      if (response) {
-        console.log("Response of get plans api is", response.data.data);
-        setPlans(response.data.data.monthlyPlans);
-        setGetPlansLoader(false);
-      }
-
-    } catch (error) {
-      setGetPlansLoader(false);
-      console.error("Error occured in getting subaccount plans", error);
-    }
+   setPlans(p)
   }
 
   //get profile
@@ -441,7 +417,7 @@ function SubAccountBarServices({
           </div>
         </div>
 
-        {plans.map((item, index) => (
+        {plans.length>0 && plans.map((item, index) => (
           <button
             key={item.id}
             className="w-9/12 mt-4 outline-none"

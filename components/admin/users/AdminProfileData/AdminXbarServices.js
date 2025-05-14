@@ -22,6 +22,8 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal";
 import { PersistanceKeys } from "@/constants/Constants";
+import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -69,6 +71,8 @@ function AdminXbarServices() {
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
 
+  const [role, setRole] = useState("")
+
   useEffect(() => {
     let screenWidth = 1000;
     if (typeof window !== "undefined") {
@@ -79,7 +83,7 @@ function AdminXbarServices() {
   }, []);
 
   //array of plans
-  const plans = [
+  const defaultPlan = [
     {
       id: 1,
       PlanTitle: "Starter | 250 mins",
@@ -119,17 +123,31 @@ function AdminXbarServices() {
     },
   ];
 
+  const [plans, setPlans] = useState(defaultPlan);
+
   useEffect(() => {
     getProfile();
     getCardsList();
   }, []);
 
+
+  useEffect(() => {
+    const getPlans = async () => {
+      if (role === "Agency") {
+        let p = await getXBarOptions()
+        console.log('p', p)
+        setPlans(p)
+      }
+    }
+    getPlans()
+  }, [role])
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
       //console.log;
       if (response) {
+        setRole(response?.data?.data?.userRole)
         let togglePlan = response?.data?.data?.supportPlan;
         // let togglePlan = plan?.type;
         let planType = null;
@@ -143,7 +161,7 @@ function AdminXbarServices() {
         }
         // }
         setUserLocalData(response?.data?.data);
-        //console.log;
+        console.log("plan type is ",response?.data?.data)
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -426,7 +444,7 @@ function AdminXbarServices() {
           </div>
         </div>
 
-        {plans.map((item, index) => (
+        {plans?.map((item, index) => (
           <button
             key={item.id}
             className="w-9/12 mt-4 outline-none"
@@ -492,7 +510,7 @@ function AdminXbarServices() {
                         fontWeight: "600",
                       }}
                     >
-                      {item.PlanTitle}
+                      {item.title}
                     </div>
                     {item.status && (
                       <div
@@ -505,7 +523,10 @@ function AdminXbarServices() {
                   </div>
                   <div className="flex flex-row items-center justify-between">
                     <div className="flex flex-col justify-start">
-                      {item.details.map((det, index) => {
+
+                      {
+                      item.details?
+                      item.details?.map((det, index) => {
                         return (
                           <div
                             className=""
@@ -520,18 +541,35 @@ function AdminXbarServices() {
                             {det}
                           </div>
                         );
-                      })}
+                      }):(
+                        <div
+                            className=""
+                            style={{
+                              color: "#15151590",
+                              fontSize: 12,
+                              //   width: "60%",
+                              fontWeight: "600",
+                            }}
+                          
+                          >
+                            {item.planDescription}
+                          </div>
+                      )
+                    
+                    }
                     </div>
                     <div className="flex flex-row items-center">
-                      <div style={styles.originalPrice}>
+                      <div style={item.discountPrice ? styles.originalPrice : styles.discountedPrice}>
                         {item.originalPrice && <div>${item.originalPrice}</div>}
                       </div>
-                      <div className="flex flex-row justify-start items-start ">
-                        <div style={styles.discountedPrice}>
-                          ${item.discountPrice}
+                      {item.discountPrice &&
+                        <div className="flex flex-row justify-start items-start ">
+                          <div style={styles.discountedPrice}>
+                            ${item.discountPrice}
+                          </div>
+                          <p style={{ color: "#15151580" }}></p>
                         </div>
-                        <p style={{ color: "#15151580" }}></p>
-                      </div>
+                      }
                     </div>
                   </div>
                 </div>
