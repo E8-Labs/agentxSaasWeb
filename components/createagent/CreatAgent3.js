@@ -708,30 +708,6 @@ const CreatAgent3 = ({ handleContinue, user }) => {
               >
                 <CycleArray />
               </div>
-              {/*for large size screen i agreeto terms and conditions*/}
-              {/* <div className="flex flex-row items-center gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 hidden sm:flex">
-                <button onClick={handleToggleTermsClick}>
-                  {agreeTerms ? (
-                    <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
-                      style={{ height: "24px", width: "24px" }}
-                    >
-                      <Image
-                        src={"/assets/whiteTick.png"}
-                        height={8}
-                        width={10}
-                        alt="*"
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                      style={{ height: "24px", width: "24px" }}
-                    ></div>
-                  )}
-                </button>
-                <TermsText />
-              </div> */}
             </div>
           </div>
           <div className="flex flex-row items-center  gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5 sm:hidden">
@@ -1299,7 +1275,7 @@ export default CreatAgent3;
 function TermsText() {
   return (
     <div
-      className="flex flex-row items-center gap-1"
+      className="flex flex-row w-full items-center gap-1"
       style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
     >
       <p style={{ color: "#15151580" }}>

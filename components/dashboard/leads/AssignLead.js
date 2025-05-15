@@ -152,11 +152,17 @@ const AssignLead = ({
   }, [SelectedAgents]);
 
   //get agents api
-  const getAgents = async () => {
+  const getAgents = async (initialoaderStatus) => {
     try {
+      console.log("Status of initial loader", initialoaderStatus);
       const checkLocalAgentsList = localStorage.getItem("localAgentDetails");
-      if (!checkLocalAgentsList) {
-        setInitialLoader(true);
+
+      if (initialoaderStatus?.initialoaderStatus === false) {
+        setInitialLoader(false);
+      } else {
+        if (!checkLocalAgentsList) {
+          setInitialLoader(true);
+        }
       }
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -634,7 +640,7 @@ const AssignLead = ({
         >
           <InfiniteScroll
             dataLength={agentsList.length}
-            next={getAgents}
+            next={() => { getAgents({ initialoaderStatus: false }) }}
             hasMore={hasMoreAgents}
             scrollableTarget="scrollableAgentDiv"
             loader={
