@@ -71,6 +71,7 @@ const Apis = {
   addLeadNote: `${BasePath}api/leads/addLeadNote`,
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
+  //comment
   //apis to add card & subscribe plan
   createSetupIntent: `${BasePath}api/user/createSetupIntent`,
   getPaymentIntent: `${BasePath}api/user/getSetupIntent`,
