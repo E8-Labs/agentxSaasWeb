@@ -49,7 +49,7 @@ import {
 } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
-import { AgentLLmModels, Constants, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { AgentLLmModels, Constants, fromatMessageName, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import Link from "next/link";
@@ -249,6 +249,10 @@ function AdminAgentX({ selectedUser, from }) {
   const [showSaveChangesBtn, setShowSaveChangesBtn] = useState(false);
   const [UpdateAgentLoader, setUpdateAgentLoader] = useState(false);
 
+  const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false);
+  const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
+
+
   //agent KYC's
   const [kYCList, setKYCList] = useState([]);
 
@@ -316,6 +320,10 @@ function AdminAgentX({ selectedUser, from }) {
   const [startingPace, setStartingPace] = useState("");
   const [patienceValue, setPatienceValue] = useState("");
   const [languageValue, setLanguageValue] = useState("");
+
+  const [renameAgentLoader, setRenameAgentLoader] = useState(false);
+  const [renameAgent, setRenameAgent] = useState("");
+
 
   const playVoice = (url) => {
     if (audio) {
@@ -424,6 +432,97 @@ function AdminAgentX({ selectedUser, from }) {
     setOpenGptManu(null);
   };
   //function for numbers width
+  //code for update agent api
+  const handleRenameAgent = async () => {
+    try {
+      setRenameAgentLoader(true);
+
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const Data = JSON.parse(localData);
+        AuthToken = Data.token;
+
+        const ApiPath = Apis.updateSubAgent;
+
+        let apidata = {
+          agentId: selectedRenameAgent.id,
+          name: renameAgent, //selectedRenameAgent?.name,
+        };
+        // console.log("Selected agent ", showDrawerSelectedAgent);
+        // console.log("data sending in api is", apidata);
+        // return
+        const response = await axios.post(ApiPath, apidata, {
+          headers: {
+            Authorization: "Bearer " + AuthToken,
+          },
+        });
+
+        if (response) {
+          setShowRenameAgentPopup(false);
+          // console.log("Response of api is", response);
+          // //console.log;
+          setShowSuccessSnack(
+            `${fromatMessageName(selectedRenameAgent.name)} updated`
+          );
+          if (response.data.status === true) {
+            setIsVisibleSnack(true);
+
+            const localAgentsList = localStorage.getItem(
+              PersistanceKeys.LocalStoredAgentsListMain
+            );
+
+            if (showDrawerSelectedAgent) {
+              const updateAgentData = response.data.data;
+
+              const matchedAgent = updateAgentData.agents.find(
+                (localItem) => localItem.id === showDrawerSelectedAgent.id
+              );
+
+              if (matchedAgent) {
+                setShowDrawerSelectedAgent(matchedAgent);
+                console.log("Matched Agent Stored:"); //, matchedAgent
+              } else {
+                console.log("No matching agent found.");
+              }
+            }
+
+            if (localAgentsList) {
+              const agentsList = JSON.parse(localAgentsList);
+              // agentsListDetails = agentsList;
+
+              const updateAgentData = response.data.data;
+
+              // showDrawerSelectedAgent();
+
+              const updatedArray = agentsList.map((localItem) => {
+                const apiItem =
+                  updateAgentData.id === localItem.id ? updateAgentData : null;
+
+                return apiItem ? { ...localItem, ...apiItem } : localItem;
+              });
+              // let updatedSubAgent = null
+
+              //// //console.log;
+              localStorage.setItem(
+                PersistanceKeys.LocalStoredAgentsListMain,
+                JSON.stringify(updatedArray)
+              );
+              setMainAgentsList(updatedArray);
+              // agentsListDetails = updatedArray
+            }
+            // setShowDrawer(null);
+          }
+        }
+      }
+    } catch (error) {
+      //// console.error("Error occured in api is", error);
+      setRenameAgentLoader(false);
+    } finally {
+      ////console.log;
+      setRenameAgentLoader(false);
+    }
+  };
 
 
   const numberDropDownWidth = (agName) => {
@@ -648,7 +747,7 @@ function AdminAgentX({ selectedUser, from }) {
     if (modelValue) {
       let model = findLLMModel(modelValue);
       setSelectedGptManu(model);
-      
+
     }
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
@@ -1857,6 +1956,7 @@ function AdminAgentX({ selectedUser, from }) {
           );
           if (response.data.status === true) {
             setIsVisibleSnack(true);
+            
             let agent = response.data.data;
             if (agent.agents[0].id == showDrawerSelectedAgent.id) {
               setShowDrawerSelectedAgent(agent.agents[0]);
@@ -2685,6 +2785,15 @@ function AdminAgentX({ selectedUser, from }) {
                 scrollbarWidth: "none",
               }}
             >
+
+              <AgentSelectSnackMessage
+                isVisible={isVisibleSnack}
+                hide={() => {
+                  setIsVisibleSnack(false);
+                }}
+                type={SnackbarTypes.Success}
+                message={showSuccessSnack}
+              />
               {/* Agent TOp Info */}
               <div className="flex flex-row items-start justify-between w-full mt-2 ">
                 <div className="flex flex-row items-start justify-start mt-2 gap-4">
@@ -2760,15 +2869,27 @@ function AdminAgentX({ selectedUser, from }) {
                   <div className="flex flex-col gap-1 items-start">
                     <div className="flex flex-row justify-center items-center gap-2">
                       <button
-                        style={{ fontSize: 22, fontWeight: "600" }}
+
                         onClick={() => {
                           setShowRenameAgentPopup(true);
                           setSelectedRenameAgent(showDrawerSelectedAgent);
                           setRenameAgent(showDrawerSelectedAgent?.name);
                         }}
                       >
-                        {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
-                        {showDrawerSelectedAgent?.name?.slice(1)}
+                        <div className="flex flex-row items-center gap-2">
+                          <Image
+                            src={"/svgIcons/editIcon2.svg"}
+                            height={24}
+                            width={24}
+                            alt="*"
+                          />
+                          <div
+                            style={{ fontSize: 22, fontWeight: "600" }}
+                          >
+                            {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
+                            {showDrawerSelectedAgent?.name?.slice(1)}
+                          </div>
+                        </div>
                       </button>
                       <div
                         className="text-purple"
@@ -2982,8 +3103,8 @@ function AdminAgentX({ selectedUser, from }) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`${activeTab === tab
-                        ? "text-purple border-b-2 border-purple"
-                        : "text-black-500"
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
                       }`}
                     style={{ fontSize: 15, fontWeight: "500" }}
                   >
@@ -4170,6 +4291,115 @@ function AdminAgentX({ selectedUser, from }) {
                 Assign Number
               </button>
             </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Modal to rename the agent */}
+      <Modal
+        open={showRenameAgentPopup}
+        onClose={() => {
+          setShowRenameAgentPopup(false);
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <div
+                style={{
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                {/* <div style={{ width: "20%" }} /> */}
+                <div style={{ fontWeight: "700", fontSize: 22 }}>
+                  Rename Agent
+                </div>
+                <div
+                  style={{
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "end",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setShowRenameAgentPopup(null);
+                    }}
+                    className="outline-none"
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <div
+                  className="mt-4"
+                  style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
+                >
+                  Agent Name
+                </div>
+                <input
+                  value={renameAgent || ""}
+                  // value = {showRenameAgentPopup?.name}
+                  onChange={(e) => {
+                    setRenameAgent(e.target.value);
+                  }}
+                  placeholder={
+                    // "Enter agent title"
+                    selectedRenameAgent?.name
+                      ? selectedRenameAgent.name
+                      : "Enter agent title"
+                  }
+                  className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                  style={{ border: "1px solid #00000020" }}
+                />
+              </div>
+            </div>
+
+            {renameAgentLoader ? (
+              <div className="flex flex-row iems-center justify-center w-full mt-4">
+                <CircularProgress size={25} />
+              </div>
+            ) : (
+              <button
+                className="mt-4 outline-none"
+                style={{
+                  backgroundColor: "#7902DF",
+                  color: "white",
+                  height: "50px",
+                  borderRadius: "10px",
+                  width: "100%",
+                  fontWeight: 600,
+                  fontSize: "20",
+                }}
+                onClick={handleRenameAgent}
+              >
+                Update
+              </button>
+            )}
           </div>
         </Box>
       </Modal>

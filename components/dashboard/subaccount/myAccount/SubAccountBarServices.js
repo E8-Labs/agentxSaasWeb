@@ -96,14 +96,27 @@ function SubAccountBarServices({
     getPlans();
   }, []);
 
-  //get monthlyplans list
-  const getPlans = async () => {
-   let p = await getXBarOptions()
-   console.log('p', p)
+   //function to get subaccount plans
+   const getPlans = async () => {
+    try {
+      const Token = AuthToken();
+      const ApiPath = Apis.getSubAccountPlans
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token,
+          "Content-Type": "application/json"
+        }
+      });
 
-   setPlans(p)
+      if (response) {
+        console.log("Response of get plans api is", response.data.data);
+        setPlans(response.data.data.xbarPlans);
+      }
+
+    } catch (error) {
+      console.error("Error occured in getting plans", error);
+    }
   }
-
   //get profile
   const getProfile = async () => {
     try {
@@ -187,7 +200,7 @@ function SubAccountBarServices({
       const formData = new FormData();
       formData.append("planId", togglePlan);
 
-      // //console.log;
+      // console.log("formData", formData);
 
       const ApiPath = Apis.subAgencyAndSubAccountPlans;
       // //console.log;

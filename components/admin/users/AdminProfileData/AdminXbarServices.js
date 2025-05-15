@@ -24,6 +24,7 @@ import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal"
 import { PersistanceKeys } from "@/constants/Constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -31,7 +32,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AdminXbarServices() {
+function AdminXbarServices({selectedUser}) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -129,17 +130,31 @@ function AdminXbarServices() {
     getProfile();
     getCardsList();
   }, []);
+  const getPlans = async () => {
+    try {
+      const Token = AuthToken();
+      const ApiPath = Apis.getSubAccountPlans+"?userId="+selectedUser.id;
+      const response = await axios.get(ApiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token,
+          "Content-Type": "application/json"
+        }
+      });
 
+      if (response) {
+        console.log("Response of get plans api is", response.data.data);
+        setPlans(response.data.data.xbarPlans);
+      }
+
+    } catch (error) {
+      console.error("Error occured in getting plans", error);
+    }
+  }
 
   useEffect(() => {
-    const getPlans = async () => {
-      if (role === "Agency") {
-        let p = await getXBarOptions()
-        console.log('p', p)
-        setPlans(p)
-      }
-    }
+  if(role === "Agency"){  
     getPlans()
+  }
   }, [role])
   const getProfile = async () => {
     try {
@@ -152,6 +167,7 @@ function AdminXbarServices() {
         // let togglePlan = plan?.type;
         let planType = null;
         // if (plan.status == "active") {
+        if(role !== "Agency"){
         if (togglePlan === "Starter") {
           planType = 1;
         } else if (togglePlan === "Professional") {
@@ -159,9 +175,13 @@ function AdminXbarServices() {
         } else if (togglePlan === "Enterprise") {
           planType = 3;
         }
+      }else{
+        let type = plans?.find((item) => item.title === togglePlan);
+        planType = type?.id;
+      }
         // }
         setUserLocalData(response?.data?.data);
-        console.log("plan type is ",response?.data?.data)
+        console.log("plan type is ", response?.data?.data)
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -187,16 +207,21 @@ function AdminXbarServices() {
       let planType = null;
 
       //// //console.log;
-
-      if (togglePlan === 1) {
-        planType = "Starter";
-      } else if (togglePlan === 2) {
-        planType = "Professional";
-      } else if (togglePlan === 3) {
-        planType = "Enterprise";
+      if (role !== "Agency") {
+        if (togglePlan === 1) {
+          planType = "Starter";
+        } else if (togglePlan === 2) {
+          planType = "Professional";
+        } else if (togglePlan === 3) {
+          planType = "Enterprise";
+        }
       }
-
-      // //console.log;
+      else{
+        let type = plans?.find((item) => item.id === togglePlan);
+        planType = type?.id;
+      }
+      console.log("plan type is ", planType)
+      // return
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -219,9 +244,10 @@ function AdminXbarServices() {
 
       const ApiData = {
         supportPlan: planType,
+        userId: selectedUser.id,
       };
 
-      // //console.log;
+      console.log("ApiData is", ApiData);
 
       const ApiPath = Apis.purchaseSupportPlan;
       // //console.log;
@@ -251,6 +277,7 @@ function AdminXbarServices() {
           } else if (togglePlan === "Enterprise") {
             planType = 3;
           }
+
           setTogglePlan(planType);
           setCurrentPlan(planType);
           //   }
@@ -261,7 +288,7 @@ function AdminXbarServices() {
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is:", error);
+      console.error("Error occured in api is:", error);
     } finally {
       setSubscribePlanLoader(false);
     }
@@ -525,38 +552,38 @@ function AdminXbarServices() {
                     <div className="flex flex-col justify-start">
 
                       {
-                      item.details?
-                      item.details?.map((det, index) => {
-                        return (
-                          <div
-                            className=""
-                            style={{
-                              color: "#15151590",
-                              fontSize: 12,
-                              //   width: "60%",
-                              fontWeight: "600",
-                            }}
-                            key={index}
-                          >
-                            {det}
-                          </div>
-                        );
-                      }):(
-                        <div
-                            className=""
-                            style={{
-                              color: "#15151590",
-                              fontSize: 12,
-                              //   width: "60%",
-                              fontWeight: "600",
-                            }}
-                          
-                          >
-                            {item.planDescription}
-                          </div>
-                      )
-                    
-                    }
+                        item.details ?
+                          item.details?.map((det, index) => {
+                            return (
+                              <div
+                                className=""
+                                style={{
+                                  color: "#15151590",
+                                  fontSize: 12,
+                                  //   width: "60%",
+                                  fontWeight: "600",
+                                }}
+                                key={index}
+                              >
+                                {det}
+                              </div>
+                            );
+                          }) : (
+                            <div
+                              className=""
+                              style={{
+                                color: "#15151590",
+                                fontSize: 12,
+                                //   width: "60%",
+                                fontWeight: "600",
+                              }}
+
+                            >
+                              {item.planDescription}
+                            </div>
+                          )
+
+                      }
                     </div>
                     <div className="flex flex-row items-center">
                       <div style={item.discountPrice ? styles.originalPrice : styles.discountedPrice}>
