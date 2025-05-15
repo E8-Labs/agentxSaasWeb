@@ -111,7 +111,7 @@ const AgentsListPaginated = ({
   const fetchMoreAgents = async () => {
     console.log("Fetch more agents please");
     // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
-    getAgents();
+    getAgents({ pagination: true });
   };
 
   const handlePopoverOpen = (event, item) => {

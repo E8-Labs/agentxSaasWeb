@@ -73,10 +73,12 @@ import { AgentLanguagesList } from "@/utilities/AgentLanguages";
 import NoAgent from "@/components/dashboard/myagentX/NoAgent";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
 import AgentInfoCard from "@/components/dashboard/myagentX/AgentInfoCard";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
+  const searchTimeoutRef = useRef(null);
   // const fileInputRef = useRef(null);
   const router = useRouter();
   let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
@@ -98,6 +100,8 @@ function Page() {
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [mainAgentsList, setMainAgentsList] = useState([]);
   const [canGetMore, setCanGetMore] = useState(false);
+  //supporting variable
+  const [canKeepLoading, setCanKeepLoading] = useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
 
   //code for assigning the umber
@@ -1898,7 +1902,7 @@ function Page() {
       // setInitialLoader(true);
       if (userData) {
         const userLocalData = JSON.parse(userData);
-        getAgents(userLocalData);
+        getAgents();//userLocalData
       }
     } catch (error) {
       //// console.error("Error occured is :", error);
@@ -1928,7 +1932,8 @@ function Page() {
   };
 
   //code to get agents
-  const getAgents = async (userData) => {
+  const getAgents = async (paginationStatus) => {
+    console.log("Pagination status passed is", paginationStatus);
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
@@ -1941,12 +1946,13 @@ function Page() {
 
       ////console.log;
 
-      const AuthToken = userData.token;
+      const Auth = AuthToken();
       ////console.log;
+      // const AuthToken = userData.token;
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + Auth,
           "Content-Type": "application/json",
         },
       });
@@ -2116,10 +2122,14 @@ function Page() {
 
   const handleSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();
-    setSearch(searchTerm);
-    k;
+    console.log("Check 1");
     if (!searchTerm) {
+      if (canKeepLoading === true) {
+        setCanGetMore(true);
+        setCanKeepLoading(false);
+      }
       setAgentsListSeparated(agentsList); // Reset to original data
+      // setCanGetMore(prev => (prev === false ? true : prev));
       return;
     }
 
@@ -2136,6 +2146,10 @@ function Page() {
       );
     });
 
+    console.log("Check 2 filtered agents", canKeepLoading);
+
+    // setCanGetMore(prev => (prev === true ? false : prev));
+    setCanGetMore(false);
     setAgentsListSeparated(filtered);
   };
 
@@ -2228,7 +2242,20 @@ function Page() {
               className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
               placeholder="Search an agent"
               value={search}
-              onChange={handleSearch}
+              onChange={(e) => {
+
+                setSearch(e.target.value);
+                if (canGetMore === true) {
+                  setCanKeepLoading(true);
+                } else {
+                  setCanKeepLoading(false);
+                }
+
+                clearTimeout(searchTimeoutRef.current);
+                searchTimeoutRef.current = setTimeout(() => {
+                  handleSearch(e);
+                }, 2000);
+              }}
             />
             <button className="outline-none border-none">
               <Image
@@ -2255,8 +2282,8 @@ function Page() {
             selectedImagesParam={selectedImages}
             handlePopoverClose={handlePopoverClose}
             user={user}
-            getAgents={() => {
-              getAgents(user);
+            getAgents={(p) => {
+              getAgents(p);//user
             }}
             setObjective={setObjective}
             setOldObjective={setOldObjective}
@@ -4277,7 +4304,7 @@ function Page() {
                   previousCalenders={previousCalenders}
                   updateVariableData={updateAfterAddCalendar}
                 />
-                
+
               </div>
             ) : activeTab === "Pipeline | Stages" ? (
               <div className="flex flex-col gap-4">
