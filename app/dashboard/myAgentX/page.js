@@ -1962,7 +1962,7 @@ function Page() {
         //console.log;
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
-        if (agents.length > 6) {
+        if (agents.length >= 6) {
           setCanGetMore(true);
         } else {
           setCanGetMore(false);
