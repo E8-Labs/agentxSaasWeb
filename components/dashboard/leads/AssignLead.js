@@ -164,7 +164,7 @@ const AssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents;
+      const ApiPath = `${Apis.getAgents}?pagination=false`;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
