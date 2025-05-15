@@ -4267,14 +4267,6 @@ function Page() {
                     }
                   }
                 >
-                  {/*<VideoCard
-                    duration="2 min 42 sec"
-                    horizontal={false}
-                    playVideo={() => {
-                      setIntroVideoModal2(true);
-                    }}
-                    title="Learn how to add a calendar"
-                  />*/}
                 </div>
 
                 <UserCalender
@@ -4285,6 +4277,7 @@ function Page() {
                   previousCalenders={previousCalenders}
                   updateVariableData={updateAfterAddCalendar}
                 />
+                
               </div>
             ) : activeTab === "Pipeline | Stages" ? (
               <div className="flex flex-col gap-4">

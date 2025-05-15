@@ -76,7 +76,9 @@ function Perplexity({
                             textAlign: 'left'
                         }}
                     >
-                        {item.description}
+                        {item.description.length > 12
+                            ? `${item.description.slice(0, 12)}..`
+                            : item.description}
                     </div>
                 </div>
             )
@@ -183,7 +185,7 @@ function Perplexity({
                     /> */}
 
                     <div style={{ fontsize: 22, fontWeight: "700", whiteSpace: 'nowrap' }}>
-                        More on {selectedLeadsDetails?.firstName}
+                        More  {selectedLeadsDetails?.firstName}
                     </div>
                 </div>
 

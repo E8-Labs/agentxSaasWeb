@@ -20,6 +20,9 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
 import CircularLoader from "@/utilities/CircularLoader";
+import VideoCard from "@/components/createagent/VideoCard";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { HowtoVideos } from "@/constants/Constants";
 
 const UserCalender = ({
   calendarDetails,
@@ -60,6 +63,9 @@ const UserCalender = ({
   const [showDelBtn, setShowDelBtn] = useState(false);
   const [showDelPopup, setShowDelPopup] = useState(false);
   const [calenderDelLoader, setCalenderDelLoader] = useState(null);
+
+  //video card
+  const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
@@ -171,7 +177,7 @@ const UserCalender = ({
         if (response.data.status === true) {
           setType(SnackbarTypes.Success);
           setMessage("Calender added");
-         
+
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
@@ -682,6 +688,24 @@ const UserCalender = ({
                     </FormControl>
                   </div>
 
+                  {/* video modal to add calendar */}
+                  <VideoCard
+                    duration="2 min 42 sec"
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal2(true);
+                    }}
+                    title="Learn how to add a calendar"
+                  />
+
+                  {/* Intro modal */}
+                  <IntroVideoModal
+                    open={introVideoModal2}
+                    onClose={() => setIntroVideoModal2(false)}
+                    videoTitle="Learn how to add a calendar"
+                    videoUrl={HowtoVideos.Calendar}
+                  />
+
                   <div className="w-full mt-4">
                     {calenderLoader ? (
                       <div className="w-full flex flex-row items-center justify-center">
@@ -699,11 +723,11 @@ const UserCalender = ({
                             : "#7902DF",
                           color: !isEnabled() ? "#000000" : "",
                         }}
-                        onClick={()=>{
+                        onClick={() => {
                           let calendar = {
-                            apiKey:calenderApiKey,
-                            eventId:eventId,
-                            timeZone:selectTimeZone
+                            apiKey: calenderApiKey,
+                            eventId: eventId,
+                            timeZone: selectTimeZone
                           }
                           handleAddCalender(calendar)
                         }}

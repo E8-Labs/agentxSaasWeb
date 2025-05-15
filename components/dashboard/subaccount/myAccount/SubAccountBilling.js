@@ -35,6 +35,7 @@ function SubAccountBilling({
   hideBtns,
   selectedUser
 }) {
+  console.log("Selected user passed is", selectedUser);
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -123,10 +124,10 @@ function SubAccountBilling({
     try {
       setInitialLoader(true);
       const Token = AuthToken();
-      console.log("user id is", selectedUser.id);
+      console.log("user id is", selectedUser?.id);
       let ApiPath = null;
       if (selectedUser) {
-        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser.id}`;
+        ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`;
       } else {
         ApiPath = Apis.getSubAccountPlans;
       }

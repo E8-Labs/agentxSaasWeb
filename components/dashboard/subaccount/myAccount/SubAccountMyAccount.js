@@ -58,12 +58,6 @@ function SubAccountMyAccount() {
     },
     {
       id: 6,
-      heading: "Invite Agents",
-      subHeading: "Get 60 minutes ",
-      icon: "/otherAssets/inviteAgentIcon.png",
-    },
-    {
-      id: 7,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
@@ -85,7 +79,7 @@ function SubAccountMyAccount() {
     }
     setTabSelected(number);
     if (!tab) {
-      setParamsInSearchBar(1);
+      setParamsInSearchBar(6);
     }
   }, []);
 
@@ -116,9 +110,9 @@ function SubAccountMyAccount() {
         return <SubAccountSupport />;
       case 5:
         return <SubAccountSendFeedback />;
+      // case 6:
+      //   return <SubAccountInviteAgentX />;
       case 6:
-        return <SubAccountInviteAgentX />;
-      case 7:
         return <SubAccountBarServices
           selectedUser={selectedUserData} />;
       default:

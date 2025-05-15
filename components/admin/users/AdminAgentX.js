@@ -60,6 +60,7 @@ import VoiceMailTab from "@/components/dashboard/myagentX/VoiceMailTab";
 import { PauseCircle } from "@mui/icons-material";
 import { AgentLanguagesList } from "@/utilities/AgentLanguages";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
+import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 
 
 function AdminAgentX({ selectedUser, from }) {

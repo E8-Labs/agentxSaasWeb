@@ -64,33 +64,35 @@ const SmartRefillCard = () => {
 
     return (
         <div className="w-9/12 flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
-            {
+            {/*
                 userDataLoader ? (
                     <CircularProgress size={20} />
                 ) : (
-                    <div>
-                        <Switch
-                            checked={allowSmartRefill}
-                            onChange={() => {
-                                if (allowSmartRefill === true) {
-                                    handleRemoveSmartRefill();
-                                } else if (allowSmartRefill === false) {
-                                    handleUpdateProfile();
-                                }
-                            }}
-                        // sx={{
-                        //   '& .MuiSwitch-switchBase.Mui-checked': {
-                        //     color: 'white',
-                        //   },
-                        //   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        //     backgroundColor: '#7902DF',
-                        //   },
-                        // }}
-                        />
-
-                    </div>
+                    
                 )
-            }
+            */}
+            <div>
+                <Switch
+                    checked={allowSmartRefill}
+                    onChange={() => {
+                        setAllowSmartRefill(!allowSmartRefill);
+                        if (allowSmartRefill === true) {
+                            handleRemoveSmartRefill();
+                        } else if (allowSmartRefill === false) {
+                            handleUpdateProfile();
+                        }
+                    }}
+                    sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                            color: 'white',
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                            // backgroundColor: '#7902DF10',
+                        },
+                    }}
+                />
+
+            </div>
             <div
                 className="ms-4 w-2/12"
                 style={{

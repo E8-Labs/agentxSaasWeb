@@ -404,7 +404,7 @@ const ProfileNav = () => {
     try {
       let response = await getProfileDetails();
       // //console.log;
-      if (response.status == 404) {
+      if (response?.status == 404) {
         //console.log;
         // logout();
         // router.push("/");

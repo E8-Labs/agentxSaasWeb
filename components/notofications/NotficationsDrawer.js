@@ -43,7 +43,7 @@ function NotficationsDrawer({ close }) {
     // }
     let data = await getProfileDetails();
     // //console.log;
-    setUnread(data.data.data.unread);
+    setUnread(data?.data?.data?.unread);
     // setUnread(12);
   };
 

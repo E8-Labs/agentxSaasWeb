@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
+import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -873,49 +874,7 @@ function Billing() {
 
       {/* Code for  smart refill*/}
 
-      <div className="w-9/12 flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
-        {
-          userDataLoader ? (
-            <CircularProgress size={20} />
-          ) : (
-            <div>
-              <Switch
-                checked={allowSmartRefill}
-                onChange={() => {
-                  if (allowSmartRefill === true) {
-                    handleRemoveSmartRefill();
-                  } else if (allowSmartRefill === false) {
-                    handleUpdateProfile();
-                  }
-                }}
-              // sx={{
-              //   '& .MuiSwitch-switchBase.Mui-checked': {
-              //     color: 'white',
-              //   },
-              //   '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-              //     backgroundColor: '#7902DF',
-              //   },
-              // }}
-              />
-
-            </div>
-          )
-        }
-        <div
-          className="ms-4 w-2/12"
-          style={{
-            fontWeight: "700",
-            fontSize: "15px"
-          }}>
-          Smart Refill
-        </div>
-        <div className="w-8/12 ms-2" style={{
-          fontWeight: "500",
-          fontSize: "15px"
-        }}>
-          Refill your AI mins when they run low. Keeps your calls going without interruption.
-        </div>
-      </div>
+      <SmartRefillCard />
 
       {/* code for current plans available */}
 
