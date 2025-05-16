@@ -403,6 +403,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
+
       // //console.log;
       if (response?.status == 404) {
         //console.log;
@@ -415,9 +416,9 @@ const ProfileNav = () => {
 
       const userlocalData = localStorage.getItem("User");
       if (userlocalData) {
-        const response = JSON.parse(userlocalData);
-        // //console.log;
+        setUserDetails(response.data.data);
       }
+      // //console.log;
 
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
@@ -761,7 +762,7 @@ const ProfileNav = () => {
                 <Link
                   sx={{ cursor: "pointer", textDecoration: "none" }}
                   href={item.href}
-                // onClick={(e) => handleOnClick(e, item.href)}
+                  // onClick={(e) => handleOnClick(e, item.href)}
                 >
                   <div
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -769,7 +770,9 @@ const ProfileNav = () => {
                   >
                     <Image
                       src={
-                        pathname === item.href ? item.selected : item.uneselected
+                        pathname === item.href
+                          ? item.selected
+                          : item.uneselected
                       }
                       height={24}
                       width={24}
@@ -801,13 +804,7 @@ const ProfileNav = () => {
         {/* Lower body */}
         <div>
           {/* Code for Check list menu bar */}
-          <div>
-            {userDetails && (
-              <CheckList
-                userDetails={userDetails}
-              />
-            )}
-          </div>
+          <div>{userDetails && <CheckList userDetails={userDetails} />}</div>
 
           <div
             className="w-full flex flex-row items-start justify-center pt-2"
@@ -831,7 +828,7 @@ const ProfileNav = () => {
                     objectFit: "fill",
                     height: "34px",
                     width: "34px",
-                    borderRadius: "50%"
+                    borderRadius: "50%",
                   }}
                 />
               ) : (
@@ -1209,7 +1206,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
