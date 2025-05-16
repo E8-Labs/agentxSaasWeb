@@ -47,6 +47,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fromJSON } from "postcss";
 import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
+import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -1830,6 +1831,19 @@ const Userleads = ({
                                         </span>
                                     </div> */}
 
+                  {/* <AssignLeadAnimation
+                    showModal={AssignLeadModal}
+                    selectedLead={selectedLeadsList}
+                    handleClose={
+                      handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
+                    }
+                    leadIs={selectedLeadsList}
+                    selectedAll={selectedAll}
+                    filters={getFiltersObject()}
+                    totalLeads={totalLeads}
+                    userProfile={userLocalData} // this is the .user object doesn't include token
+                  />*/}
+
                   <Modal
                     open={AssignLeadModal}
                     onClose={() => setAssignLeadModal(false)}
@@ -1884,9 +1898,6 @@ const Userleads = ({
                               userProfile={userLocalData} // this is the .user object doesn't include token
                             />
                           </div>
-
-                          {/* Can be use full to add shadow */}
-                          {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
                         </div>
                       </div>
                     </Box>
@@ -2274,8 +2285,8 @@ const Userleads = ({
                               <td
                                 key={colIndex}
                                 className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === "More"
-                                    ? "sticky right-0 bg-white"
-                                    : ""
+                                  ? "sticky right-0 bg-white"
+                                  : ""
                                   }`}
                                 style={{
                                   whiteSpace: "nowrap",
@@ -2561,8 +2572,8 @@ const Userleads = ({
                                 setSelectedStage(stages);
                               }}
                               className={`p-2 border border-[#00000020] ${noStageSelected
-                                  ? `bg-purple text-white`
-                                  : "bg-transparent text-black"
+                                ? `bg-purple text-white`
+                                : "bg-transparent text-black"
                                 } px-6 rounded-2xl`}
                             >
                               No Stage
@@ -2772,8 +2783,8 @@ const Userleads = ({
                         ) : (
                           <button
                             className={` h-[50px] rounded-xl text-white w-full ${newSheetName && newSheetName.length > 0
-                                ? "bg-red"
-                                : ""
+                              ? "bg-red"
+                              : ""
                               }`}
                             style={{
                               fontWeight: "600",

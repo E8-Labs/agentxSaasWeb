@@ -1304,9 +1304,20 @@ const Pipeline1 = () => {
   };
 
   //code for arrayinput fields of settings modal
+  // const handleInputChange = (id, value) => {
+  //   setInputs(
+  //     inputs.map((input) => (input.id === id ? { ...input, value } : input))
+  //   );
+  // };
+  //let the user donot enter special  chars
   const handleInputChange = (id, value) => {
+    // Allow only letters, numbers, and spaces
+    const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
+
     setInputs(
-      inputs.map((input) => (input.id === id ? { ...input, value } : input))
+      inputs.map((input) =>
+        input.id === id ? { ...input, value: sanitizedValue } : input
+      )
     );
   };
 

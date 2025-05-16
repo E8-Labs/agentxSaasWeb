@@ -71,6 +71,12 @@ const AgencyNavBar = () => {
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
+    getAgencyPlans();
+    const LocalData = localStorage.getItem("User");
+    if(LocalData){
+      const D = JSON.parse(LocalData);
+      setUserDetails(D);
+    }
     let windowWidth = 1000;
     if (typeof window !== "undefined") {
       windowWidth = window.innerWidth;
@@ -82,12 +88,41 @@ const AgencyNavBar = () => {
     }
   }, []);
 
+  //get agency plans list
+  const getAgencyPlans = async () => {
+    try {
+        console.log('trying to get plans')
+        let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+        if (localData) {
+            let u = JSON.parse(localData);
+
+            const response = await axios.get(Apis.getPlansForAgency, {
+                headers: {
+                    Authorization: `Bearer ${u.token}`,
+                }
+            })
+
+            if (response.data) {
+                if (response.data.status === true) {
+                    console.log('plans list is: ', response.data.data);
+                    let plansList = response.data.data;
+                    localStorage.setItem("agencyPlansList", JSON.stringify(plansList));
+                } else {
+                    console.log('Error in getting plans: ', response.data.message);
+                }
+            }
+        }
+    } catch (error) {
+        console.log("Error in getPlans: ", error);
+    }
+}
+
   const getUserProfile = async () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
+      // setUserDetails(LocalData);
       const agencyProfile = await getProfileDetails();
-      setUserDetails(LocalData);
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
         const agencyProfileData = agencyProfile.data.data
@@ -140,7 +175,7 @@ const AgencyNavBar = () => {
           });
           if (response) {
             console.log("Response of get verify link api is", response);
-            window.open(response.data.data.url, "_blank");
+            window.open(response?.data?.data?.url, "_blank");
             setLoader(false);
           }
           // router.push("/agency/verify")

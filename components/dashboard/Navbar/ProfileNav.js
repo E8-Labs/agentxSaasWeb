@@ -416,7 +416,9 @@ const ProfileNav = () => {
 
       const userlocalData = localStorage.getItem("User");
       if (userlocalData) {
-        setUserDetails(response.data.data);
+        // setUserDetails(response.data.data);
+        //removed this bcz i am getting data from localstorage and api data is creating issues here
+        // setUserDetails(userlocalData);
       }
       // //console.log;
 
@@ -424,7 +426,7 @@ const ProfileNav = () => {
       // Data.totalSecondsAvailable  = 100
 
       console.log(
-        // "Available seconds are Profile Nav",
+        "Available seconds are Profile Nav",
         Data?.totalSecondsAvailable
       );
 
@@ -434,10 +436,20 @@ const ProfileNav = () => {
           console.log("Response of get profile api is", response);
           setUserType(response?.data?.data.userType);
           if (response?.data?.data.userType != "admin") {
+            // if (
+            //   Data?.userRole === "AgencySubAccount" &&
+            //   (Data?.plan == null ||
+            //     (Data?.plan && Data?.plan?.status !== "active"))
+            // )
             if (
               Data?.userRole === "AgencySubAccount" &&
               (Data?.plan == null ||
-                (Data?.plan && Data?.plan?.status !== "active"))
+                (Data?.plan &&
+                  Data?.plan?.status !== "active" &&
+                  Data?.totalSecondsAvailable <= 120) ||
+                (Data?.plan &&
+                  Data?.plan?.status === "active" &&
+                  Data?.totalSecondsAvailable <= 120))
             ) {
               const fromDashboard = { fromDashboard: true };
               localStorage.setItem(
@@ -762,7 +774,7 @@ const ProfileNav = () => {
                 <Link
                   sx={{ cursor: "pointer", textDecoration: "none" }}
                   href={item.href}
-                  // onClick={(e) => handleOnClick(e, item.href)}
+                // onClick={(e) => handleOnClick(e, item.href)}
                 >
                   <div
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -1206,7 +1218,7 @@ const ProfileNav = () => {
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

@@ -535,7 +535,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         phone: value,
       };
 
-      // //console.log;
+      // console.log("Api ppath for check phone", ApiPath);
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -544,7 +544,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-        // //console.log;
+        // console.log("Send code response is", response);
         if (response.data.status === true) {
           // //console.log;
           setCheckPhoneResponse(response.data.status);

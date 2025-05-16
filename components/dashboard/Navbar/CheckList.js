@@ -4,9 +4,11 @@ import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
 import { Box, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
+import { useRouter } from 'next/navigation';
 
 const CheckList = ({ userDetails }) => {
 
+    const router = useRouter();
 
     console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(false);
@@ -95,7 +97,8 @@ const CheckList = ({ userDetails }) => {
                                                             status: true
                                                         }
                                                         localStorage.setItem("isFromCheckList", JSON.stringify(D))
-                                                        window.open(item.route, "_blank");
+                                                        // window.open(item.route, "_blank");
+                                                        router.push(item.route);
                                                     }
                                                 }}
                                                 disabled={item.status === true}

@@ -87,7 +87,7 @@ const SmartRefillCard = () => {
                             color: 'white',
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                            // backgroundColor: '#7902DF10',
+                            backgroundColor: 'green', //#01CB76
                         },
                     }}
                 />

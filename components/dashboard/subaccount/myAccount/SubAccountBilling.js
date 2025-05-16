@@ -194,11 +194,9 @@ function SubAccountBilling({
   //function to close the add card popup
   const handleClose = (data) => {
     // //console.log;
-    if (data.status === true) {
-      let newCard = data.data;
+    if (data) {
       setAddPaymentPopup(false);
-      setCards([newCard, ...cards]);
-      window.location.reload()
+      getCardsList();
     }
   };
 
@@ -679,25 +677,26 @@ function SubAccountBilling({
           </div>
         </div>
 
-        {hideBtns &&
-          (<button
-            className=""
-            onClick={() => {
-              setAddPaymentPopup(true);
+        {/*hideBtns &&
+          (
+          )*/}
+        <button
+          className=""
+          onClick={() => {
+            setAddPaymentPopup(true);
+          }}
+        >
+          <div
+            style={{
+              fontSize: 15,
+              fontWeight: "500",
+              color: "#7902DF",
+              textDecorationLine: "underline",
             }}
           >
-            <div
-              style={{
-                fontSize: 15,
-                fontWeight: "500",
-                color: "#7902DF",
-                textDecorationLine: "underline",
-              }}
-            >
-              Add New Card
-            </div>
-          </button>
-          )}
+            Add New Card
+          </div>
+        </button>
       </div>
 
       <div className="w-full">
@@ -850,7 +849,7 @@ function SubAccountBilling({
             <div
               style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
             ></div>
-            <span style={styles.labelText}>{item.planStatus}</span>
+            <span style={styles.labelText}>{item.percentageDiscount}</span>
             <div
               className="flex flex-row items-start gap-3"
               style={styles.content}
@@ -923,7 +922,7 @@ function SubAccountBilling({
 
                     <div className="flex flex-row justify-start items-start ">
                       <div style={styles.discountedPrice}>
-                        ${item.originalPrice}
+                        ${item.discountedPrice}
                       </div>
                       <p style={{ color: "#15151580" }}>/mo*</p>
                     </div>

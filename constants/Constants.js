@@ -38,7 +38,7 @@ export const HowtoVideos = {
 };
 
 export const Constants = {
-  GlobalPhoneNumber: "+14062040550",
+  GlobalPhoneNumber: "+16505403715",
 };
 
 export const isValidUrl = (url) => {

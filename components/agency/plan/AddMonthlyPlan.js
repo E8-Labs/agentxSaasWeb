@@ -341,9 +341,8 @@ export default function AddMonthlyPlan({
                     <input
                       style={styles.inputs}
                       type="number"
-                      className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${
-                        discountedPrice && "line-through"
-                      }`}
+                      className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"
+                        }`}
                       placeholder="00"
                       value={discountedPrice}
                       onChange={(e) => {
@@ -443,12 +442,6 @@ export default function AddMonthlyPlan({
 
               {allowTrial && (
                 <>
-                  <div
-                    className="bg-purple10 text-purple p-2 mb-2"
-                    style={{ fontWeight: "500", fontSize: "15px" }}
-                  >
-                    <p>You already have a trial plan</p>
-                  </div>
                   <label style={styles.labels}>Duration of Trial</label>
 
                   <div className="flex flex-row items-center border rounded-md px-2 mt-1">
@@ -546,13 +539,17 @@ export default function AddMonthlyPlan({
                       borderTopRightRadius: "15px",
                     }}
                   ></div>
-                  <span style={styles.labelText}>
-                    {(
-                      ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                      100
-                    ).toFixed(0) || "-"}
-                    %
-                  </span>
+                  {
+                    discountedPrice && minutes && (
+                      <span style={styles.labelText}>
+                        {(
+                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
+                          100
+                        ).toFixed(0) || "-"}
+                        %
+                      </span>
+                    )
+                  }
                   <div
                     className="flex flex-row items-start gap-3"
                     style={styles.content}

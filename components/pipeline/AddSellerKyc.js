@@ -444,9 +444,20 @@ const AddSellerKyc = ({
   };
 
   // Handle change in input field
+  // const handleInputChange = (id, value) => {
+  //   setInputs(
+  //     inputs.map((input) => (input.id === id ? { ...input, value } : input))
+  //   );
+  // };
+  //let the user donot enter special  chars
   const handleInputChange = (id, value) => {
+    // Allow only letters, numbers, and spaces
+    const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
+
     setInputs(
-      inputs.map((input) => (input.id === id ? { ...input, value } : input))
+      inputs.map((input) =>
+        input.id === id ? { ...input, value: sanitizedValue } : input
+      )
     );
   };
 
@@ -647,10 +658,10 @@ const AddSellerKyc = ({
         })),
         type: "seller",
         mainAgentId: AgentId,
-        
+
       };
-      if(UserDetails.user.userType === "admin"){
-        data.userId=selectedUser.id
+      if (UserDetails.user.userType === "admin") {
+        data.userId = selectedUser.id
       }
       //console.log;
       // return;
@@ -1022,7 +1033,12 @@ const AddSellerKyc = ({
                         }}
                         placeholder="Ex: What's your name?"
                         value={newQuestion}
-                        onChange={(e) => setNewQuestion(e.target.value)}
+                        onChange={(e) => {
+                          const input = e.target.value;
+                          const filtered = input.replace(/[^a-zA-Z0-9 ]/g, ''); // Allow only letters, numbers, spaces
+                          setNewQuestion(filtered);
+                          // setNewQuestion(e.target.value);
+                        }}
                       />
                     </div>
                     <div className="mt-4 mx-2" style={styles.headingStyle}>

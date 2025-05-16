@@ -453,13 +453,17 @@ export default function AddXBarPlan({
                       borderTopRightRadius: "15px",
                     }}
                   ></div>
-                  <span style={styles.labelText}>
-                    {(
-                      ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                      100
-                    ).toFixed(0) || "-"}
-                    %
-                  </span>
+                  {
+                    discountedPrice && minutes && (
+                      <span style={styles.labelText}>
+                        {(
+                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
+                          100
+                        ).toFixed(0) || "-"}
+                        %
+                      </span>
+                    )
+                  }
                   <div
                     className="flex flex-row items-start gap-3"
                     style={styles.content}
