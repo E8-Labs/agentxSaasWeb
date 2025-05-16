@@ -630,9 +630,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       ))}
                       <MenuItem
                         style={styles.dropdownMenu}
-                        value={showGlobalBtn ? 14062040550 : ""}
+                        value={showGlobalBtn ? 16505403715 : ""}
                       >
-                        +14062040550
+                        +16505403715
                         {showGlobalBtn && " (available for testing calls only)"}
                         {showGlobalBtn == false &&
                           " (Only for outbound agents. You must buy a number)"}
