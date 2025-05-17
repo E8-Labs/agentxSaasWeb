@@ -100,6 +100,8 @@ function Page() {
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [mainAgentsList, setMainAgentsList] = useState([]);
   const [canGetMore, setCanGetMore] = useState(false);
+  const [paginationLoader, setPaginationLoader] = useState(false);
+  const [oldAgentsList, setOldAgentsList] = useState([]);
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
   const [initialLoader, setInitialLoader] = useState(false);
@@ -340,17 +342,17 @@ function Page() {
   const StartingPaceList = [
     {
       id: 1,
-      title: "⚡️ Instant ~0 sec",
+      title: "⚡️ Instant ~1 sec",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~1 sec",
+      title: "⏳ Short Pause ~2 sec",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~ 2 sec",
+      title: "🧘 Delayed ~3 sec",
       value: "Natural Conversation Flow",
     },
   ];
@@ -1933,14 +1935,17 @@ function Page() {
   };
 
   //code to get agents
-  const getAgents = async (paginationStatus, search = null) => {
+  const getAgents = async (paginationStatus, search = null, searchLoader = false) => {
+
+    setPaginationLoader(true);
+
     console.log("Pagination status passed is", paginationStatus);
     console.log('search', search)
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
       );
-      if (!agentLocalDetails) {
+      if (!agentLocalDetails || searchLoader) {
         setInitialLoader(true);
       }
       let offset = mainAgentsList.length;
@@ -1965,11 +1970,14 @@ function Page() {
 
       if (response) {
         //console.log;
+        setPaginationLoader(false);
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
+        setOldAgentsList(agents)
         if (agents.length >= 6) {
           setCanGetMore(true);
         } else {
+          setPaginationLoader(false);
           setCanGetMore(false);
         }
 
@@ -1993,9 +2001,11 @@ function Page() {
         setMainAgentsList(newList);
       }
     } catch (error) {
+      setInitialLoader(false);
       //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
+
     }
   };
 
@@ -2131,38 +2141,38 @@ function Page() {
     }
   };
 
-  const handleSearch = (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    console.log("Check 1");
-    if (!searchTerm) {
-      if (canKeepLoading === true) {
-        setCanGetMore(true);
-        setCanKeepLoading(false);
-      }
-      setAgentsListSeparated(agentsList); // Reset to original data
-      // setCanGetMore(prev => (prev === false ? true : prev));
-      return;
-    }
+  // const handleSearch = (e) => {
+  //   const searchTerm = e.target.value.toLowerCase();
+  //   console.log("Check 1");
+  //   if (!searchTerm) {
+  //     if (canKeepLoading === true) {
+  //       setCanGetMore(true);
+  //       setCanKeepLoading(false);
+  //     }
+  //     setAgentsListSeparated(agentsList); // Reset to original data
+  //     // setCanGetMore(prev => (prev === false ? true : prev));
+  //     return;
+  //   }
 
-    const filtered = agentsList.filter((item) => {
-      // Use original list here
-      const name = item.name.toLowerCase();
-      const email = item.email?.toLowerCase() || "";
-      const phone = item.phone || "";
+  //   const filtered = agentsList.filter((item) => {
+  //     // Use original list here
+  //     const name = item.name.toLowerCase();
+  //     const email = item.email?.toLowerCase() || "";
+  //     const phone = item.phone || "";
 
-      return (
-        name.includes(searchTerm) ||
-        email.includes(searchTerm) ||
-        phone.includes(searchTerm)
-      );
-    });
+  //     return (
+  //       name.includes(searchTerm) ||
+  //       email.includes(searchTerm) ||
+  //       phone.includes(searchTerm)
+  //     );
+  //   });
 
-    console.log("Check 2 filtered agents", canKeepLoading);
+  //   console.log("Check 2 filtered agents", canKeepLoading);
 
-    // setCanGetMore(prev => (prev === true ? false : prev));
-    setCanGetMore(false);
-    setAgentsListSeparated(filtered);
-  };
+  //   // setCanGetMore(prev => (prev === true ? false : prev));
+  //   setCanGetMore(false);
+  //   setAgentsListSeparated(filtered);
+  // };
 
   const styles = {
     claimPopup: {
@@ -2265,7 +2275,8 @@ function Page() {
                 clearTimeout(searchTimeoutRef.current);
                 searchTimeoutRef.current = setTimeout(() => {
                   // handleSearch(e);
-                  getAgents(false, e.target.value)
+                  let searchLoader = true;
+                  getAgents(false, e.target.value, searchLoader)
                 }, 500);
               }}
             />
@@ -2290,13 +2301,14 @@ function Page() {
           </div>
         ) : (
           <AgentsListPaginated
+            oldAgentsList={oldAgentsList}
             agentsListSeparatedParam={agentsListSeparated}
             selectedImagesParam={selectedImages}
             handlePopoverClose={handlePopoverClose}
             user={user}
             getAgents={(p, s) => {
               console.log('p', s)
-              getAgents(p, s);//user
+              getAgents(p, s,);//user
             }}
             search={search}
             setObjective={setObjective}
@@ -2322,6 +2334,7 @@ function Page() {
             setSelectedAgent={setSelectedAgent}
             keys={keys}
             canGetMore={canGetMore}
+            paginationLoader={paginationLoader}
           />
           // <div
           //   className="h-[75vh] overflow-auto flex flex-col gap-4 pt-10 pb-12"

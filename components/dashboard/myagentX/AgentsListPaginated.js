@@ -33,7 +33,7 @@ const styles = {
 const AgentsListPaginated = ({
   agentsListSeparatedParam,
   selectedImagesParam,
-search,
+  search,
   user,
   getAgents,
   setObjective,
@@ -57,11 +57,12 @@ search,
   setScriptKeys,
   setSelectedAgent,
   keys,
+  paginationLoader,
   setShowDrawerSelectedAgent,
   //for stopping pagination loader
   canGetMore = true
 }) => {
-  console.log('search ', search )
+  console.log('loader for more data ', paginationLoader)
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
@@ -110,9 +111,9 @@ search,
     );
   };
   const fetchMoreAgents = async () => {
-    console.log("Fetch more agents please",search);
+    console.log("Fetch more agents please", search);
     // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
-    getAgents(true,search );
+    getAgents(true, search);
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -130,7 +131,7 @@ search,
 
   return (
     <div
-      className="h-[75vh] overflow-auto pt-10 pb-12"
+      className="h-[60vh] overflow-auto pt-10 pb-12"
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >
@@ -227,7 +228,25 @@ search,
           scrollableTarget="scrollableAgentDiv"
           loader={
             <div className="w-full flex justify-center mt-4">
-              <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+              {
+                paginationLoader ? (
+                  <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                ) : (
+                  <p
+                    style={{
+                      textAlign: "center",
+                      paddingTop: "10px",
+                      fontWeight: "400",
+                      fontFamily: "inter",
+                      fontSize: 16,
+                      color: "#00000060",
+                    }}
+                  >
+                    {`You're all caught up`}
+                  </p>
+                )
+              }
+
             </div>
           }
           endMessage={
@@ -245,6 +264,7 @@ search,
             </p>
           }
           style={{ overflow: "unset" }}
+
         >
           <div className="flex flex-col gap-4 px-10">
             {agentsListSeparated.map((item, index) => (

@@ -97,7 +97,7 @@ const AdminLeadDetails = ({
     //code for stages drop down
     const [selectedStage, setSelectedStage] = useState("");
     const [stagesList, setStagesList] = useState([]);
-    const [stagesListLoader, setStagesListLoader] = useState([]);
+    const [stagesListLoader, setStagesListLoader] = useState(false);
 
     //code for snakbars
     const [showSuccessSnack, setShowSuccessSnack] = useState(null);

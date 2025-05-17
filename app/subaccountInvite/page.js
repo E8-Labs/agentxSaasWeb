@@ -12,7 +12,9 @@ const Page = () => {
     if (data) {
       const D = JSON.parse(data);
       if (D.user.plan) {
-        router.push("/dashboard");
+        // router.push("/dashboard");
+        router.push("/subaccountInvite/subscribeSubAccountPlan");
+
       } else {
         router.push("/subaccountInvite/subscribeSubAccountPlan");
       }

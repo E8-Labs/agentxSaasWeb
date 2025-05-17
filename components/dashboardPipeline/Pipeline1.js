@@ -698,12 +698,18 @@ const Pipeline1 = () => {
         // } else {
         //   setHasMore(false);
         // }
-        setHasMoreMap((prev) => ({
-          ...prev,
-          [stageId]: newLeads.length >= 10,
-        }));
+      
+        setHasMoreMap((prev) => {
+          const updated = {
+            ...prev,
+            [stageId]: newLeads.length >= 10,
+          };
+          console.log("Updated hasMoreMap:", updated); // ← ✅ Console log here
+          return updated;
+        });
+      
         if (search) {
-          console.log("Set leads for search value");
+          console.log("Set leads for search value",response.data.data);
           setLeadsList(newLeads)
         } else {
           setLeadsList([...LeadsList, ...newLeads]);
@@ -1728,7 +1734,7 @@ const Pipeline1 = () => {
           search: search
         });
       }
-    }, 3000); // Delay of 3000ms = 3 seconds
+    }, 500); // Delay of 3000ms = 3 seconds
   }
 
 

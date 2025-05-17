@@ -136,17 +136,17 @@ function AdminAgentX({ selectedUser, from }) {
   const StartingPaceList = [
     {
       id: 1,
-      title: "⚡️ Instant ~0 sec",
+      title: "⚡️ Instant ~1 sec",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~1 sec",
+      title: "⏳ Short Pause ~2 sec",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~ 2 sec",
+      title: "🧘 Delayed ~3 sec",
       value: "Natural Conversation Flow",
     },
   ];
@@ -2195,40 +2195,39 @@ function AdminAgentX({ selectedUser, from }) {
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
 
-        <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
-            <input
-              // style={styles.paragraph}
-              className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-              placeholder="Search an agent"
-              value={search}
-              onChange={(e) => {
 
-                setSearch(e.target.value);
-                if (canGetMore === true) {
-                  setCanKeepLoading(true);
-                } else {
-                  setCanKeepLoading(false);
-                }
+        <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
+          <input
+            // style={styles.paragraph}
+            className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+            placeholder="Search an agent"
+            value={search}
+            onChange={(e) => {
 
-                clearTimeout(searchTimeoutRef.current);
-                searchTimeoutRef.current = setTimeout(() => {
-                  // handleSearch(e);
-                  getAgents(e.target.value)
-                }, 500);
-              }}
+              setSearch(e.target.value);
+              if (canGetMore === true) {
+                setCanKeepLoading(true);
+              } else {
+                setCanKeepLoading(false);
+              }
+
+              clearTimeout(searchTimeoutRef.current);
+              searchTimeoutRef.current = setTimeout(() => {
+                // handleSearch(e);
+                getAgents(e.target.value)
+              }, 500);
+            }}
+          />
+          <button className="outline-none border-none">
+            <Image
+              src={"/assets/searchIcon.png"}
+              height={24}
+              width={24}
+              alt="*"
             />
-            <button className="outline-none border-none">
-              <Image
-                src={"/assets/searchIcon.png"}
-                height={24}
-                width={24}
-                alt="*"
-              />
-            </button>
-          </div>
-
+          </button>
         </div>
+        
       </div>
 
       <div className="w-full items-center " style={{}}>

@@ -14,6 +14,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 import getProfileDetails from "@/components/apis/GetProfile";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 //code for add card
 let stripePublickKey =
@@ -437,15 +438,7 @@ const SubAccountPlan = () => {
               </button>
               <TermsText />
             </div>
-            {planSubscribed ? (
-              <div className="mt-4 w-full flex flex-row justify-center text-lg">
-                Please wait while we are routing you to dashboard...
-              </div>
-            ) : subPlanLoader ? (
-              <div className="mt-4 w-full flex flex-row justify-center">
-                <CircularProgress size={35} />
-              </div>
-            ) : (
+            
               <button
                 className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${
                   canSubPlan
@@ -457,7 +450,7 @@ const SubAccountPlan = () => {
               >
                 Continue
               </button>
-            )}
+
           </div>
           <div className="w-6/12 h-[100%] flex flex-col items-end justify-center">
             <Image
@@ -468,6 +461,8 @@ const SubAccountPlan = () => {
             />
           </div>
         </div>
+
+        <LoaderAnimation isOpen={planSubscribed || subPlanLoader} title="Redirecting to dashboard..."  />
 
         {/* Code for add card */}
         {/* Add Payment Modal */}

@@ -223,7 +223,7 @@ function SelectedUserDetails({
     }
 
     return (
-        <div className='w-full flex flex-col items-center justify-center'>
+        <div className='w-full flex flex-col items-center justify-center bg-red'>
             <AgentSelectSnackMessage isVisible={showSnackMessage != null ? true : false} hide={() => { setShowSnackMessage(null) }}
                 type={SnackbarTypes.Success} message={showSnackMessage}
             />
