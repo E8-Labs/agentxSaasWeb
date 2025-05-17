@@ -1932,8 +1932,9 @@ function Page() {
   };
 
   //code to get agents
-  const getAgents = async (paginationStatus) => {
+  const getAgents = async (paginationStatus, search = null) => {
     console.log("Pagination status passed is", paginationStatus);
+    console.log('search', search)
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
@@ -1941,10 +1942,14 @@ function Page() {
       if (!agentLocalDetails) {
         setInitialLoader(true);
       }
-      const offset = mainAgentsList.length;
-      const ApiPath = `${Apis.getAgents}?offset=${offset}`; //?agentType=outbound
+      let offset = mainAgentsList.length;
+      let ApiPath = `${Apis.getAgents}?offset=${offset}`; //?agentType=outbound
 
-      ////console.log;
+      if (search) {
+        offset = 0;
+        ApiPath = `${Apis.getAgents}?offset=${offset}&search=${search}`;
+      }
+      console.log("Api path is", ApiPath);
 
       const Auth = AuthToken();
       ////console.log;
@@ -1965,6 +1970,11 @@ function Page() {
           setCanGetMore(true);
         } else {
           setCanGetMore(false);
+        }
+
+        if (search) {
+          setAgentsListSeparated(agents);
+          return
         }
 
         let newList = [...mainAgentsList]; // makes a shallow copy
@@ -2253,8 +2263,9 @@ function Page() {
 
                 clearTimeout(searchTimeoutRef.current);
                 searchTimeoutRef.current = setTimeout(() => {
-                  handleSearch(e);
-                }, 2000);
+                  // handleSearch(e);
+                  getAgents(false, e.target.value)
+                }, 500);
               }}
             />
             <button className="outline-none border-none">
@@ -2282,9 +2293,11 @@ function Page() {
             selectedImagesParam={selectedImages}
             handlePopoverClose={handlePopoverClose}
             user={user}
-            getAgents={(p) => {
-              getAgents(p);//user
+            getAgents={(p,s) => {
+              console.log('p', s)
+              getAgents(p,s);//user
             }}
+            search={search}
             setObjective={setObjective}
             setOldObjective={setOldObjective}
             setGreetingTagInput={setGreetingTagInput}

@@ -103,7 +103,7 @@ export const getAgentsListImage = (
   // const subagents = item.agents || [];
   //// //console.log;
 
-  console.log("Sub agent passed is", subAgent);
+  // console.log("Sub agent passed is", subAgent);
   //// //console.log;
 
   let height = imgHeight || 62;

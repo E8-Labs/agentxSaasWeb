@@ -33,7 +33,7 @@ const styles = {
 const AgentsListPaginated = ({
   agentsListSeparatedParam,
   selectedImagesParam,
-
+search,
   user,
   getAgents,
   setObjective,
@@ -61,6 +61,7 @@ const AgentsListPaginated = ({
   //for stopping pagination loader
   canGetMore = true
 }) => {
+  console.log('search ', search )
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
@@ -109,9 +110,9 @@ const AgentsListPaginated = ({
     );
   };
   const fetchMoreAgents = async () => {
-    console.log("Fetch more agents please");
+    console.log("Fetch more agents please",search);
     // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
-    getAgents({ pagination: true });
+    getAgents(true,search );
   };
 
   const handlePopoverOpen = (event, item) => {
