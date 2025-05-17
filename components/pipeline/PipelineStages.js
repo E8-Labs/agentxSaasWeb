@@ -611,7 +611,7 @@ const PipelineStages = ({
                       message={successSnack}
                       type={SnackbarTypes.Success}
                     />
-                     <AgentSelectSnackMessage
+                    <AgentSelectSnackMessage
                       isVisible={
                         errorSnack == false || errorSnack == null
                           ? false
@@ -1837,6 +1837,9 @@ const PipelineStages = ({
                                   </div>
                                 </div>
                               </MenuItem> */}
+                              <MenuItem value="">
+                                <em>Delete</em>
+                              </MenuItem>
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem

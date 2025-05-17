@@ -337,17 +337,17 @@ function Page() {
   const StartingPaceList = [
     {
       id: 1,
-      title: "⚡️ Instant ~0 sec",
+      title: "⚡️ Instant ~1 sec",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~1 sec",
+      title: "⏳ Short Pause ~2 sec",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~ 2 sec",
+      title: "🧘 Delayed ~3 sec",
       value: "Natural Conversation Flow",
     },
   ];
@@ -3581,11 +3581,19 @@ function Page() {
                             {AgentLanguagesList.map((item, index) => {
                               return (
                                 <MenuItem
+                                  className="flex flex-row items-center gap-2"
                                   value={item.title}
                                   key={index}
                                   disabled={languageValue === item.title}
                                 >
+                                  <Image
+                                    src={item.flag}
+                                    alt="*"
+                                    height={22}
+                                    width={22}
+                                  />
                                   <div>{item.title}</div>
+                                  <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
                                 </MenuItem>
                               );
                             })}
@@ -4018,14 +4026,15 @@ function Page() {
             </div>
           </button>
         </div>
-      </Drawer>
+      </Drawer >
 
       {/* Code to del agent */}
-      <Modal
+      < Modal
         open={delAgentModal}
         onClose={() => {
           setDelAgentModal(false);
-        }}
+        }
+        }
         BackdropProps={{
           timeout: 200,
           sx: {
@@ -4111,7 +4120,7 @@ function Page() {
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal >
 
       {/*  Test comment */}
       {/* Code for the confirmation of reassign button */}
@@ -4711,18 +4720,20 @@ function Page() {
         videoUrl={HowtoVideos.Calendar}
       />
 
-      {showClaimPopup && (
-        <ClaimNumber
-          showClaimPopup={showClaimPopup}
-          handleCloseClaimPopup={handleCloseClaimPopup}
-          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-          setSelectNumber={setAssignNumber}
-          setPreviousNumber={setPreviousNumber}
-          previousNumber={previousNumber}
-          AssignNumber={AssignNumber}
-        />
-      )}
-    </div>
+      {
+        showClaimPopup && (
+          <ClaimNumber
+            showClaimPopup={showClaimPopup}
+            handleCloseClaimPopup={handleCloseClaimPopup}
+            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+            setSelectNumber={setAssignNumber}
+            setPreviousNumber={setPreviousNumber}
+            previousNumber={previousNumber}
+            AssignNumber={AssignNumber}
+          />
+        )
+      }
+    </div >
   );
 }
 

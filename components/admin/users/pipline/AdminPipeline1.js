@@ -53,8 +53,10 @@ import {
 } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import AdminLeadDetails from "../AdminLeadDetails";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
-const AdminPipeline1 = ({selectedUser}) => {
+const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef();
   const colorPickerRef = useRef();
   let searchParams = useSearchParams();
@@ -90,6 +92,9 @@ const AdminPipeline1 = ({selectedUser}) => {
   const [StagesList, setStagesList] = useState([]);
   const [oldStages, setOldStages] = useState([]);
   const [LeadsList, setLeadsList] = useState([]);
+  //pagination variables
+  const [hasMoreMap, setHasMoreMap] = useState({});
+  const [leadsCountInStage, setLeadsCountInStage] = useState(null);
   //code to add new stage
   const [addNewStageModal, setAddNewStageModal] = useState(false);
   const [newStageTitle, setNewStageTitle] = useState("");
@@ -154,7 +159,7 @@ const AdminPipeline1 = ({selectedUser}) => {
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
 
-  const [showDeletePipelinePopup,setShowDeletePiplinePopup] = useState(false)
+  const [showDeletePipelinePopup, setShowDeletePiplinePopup] = useState(false)
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
@@ -164,7 +169,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     const selectedItem = StagesList.find((item) => item.stageTitle === value);
     setAssignNextStageId(selectedItem.id);
 
-   // //console.log;
+    // //console.log;
   };
 
   //new teammeber
@@ -190,13 +195,13 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   const handleAssignTeamMember = (event) => {
     let value = event.target.value;
-   // //console.log;
+    // //console.log;
     setAssignToMember(event.target.value);
 
     const selectedItem = myTeamList.find(
       (item) => item?.invitedUser?.name === value
     );
-   // //console.log;
+    // //console.log;
     setAssignToMember(
       selectedItem?.invitedUser?.name || myTeamAdmin.invitedUser?.name
     ); //
@@ -205,7 +210,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       selectedItem?.invitedUser?.id || myTeamAdmin.invitedUser?.id,
     ]); //
 
-   // //console.log;
+    // //console.log;
   };
 
   //renaame the stage
@@ -275,7 +280,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     getMyTeam();
     const pipelineIndex = searchParams.get("pipeline"); // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0;
-   // //console.log;
+    // //console.log;
     selectedPipelineIndex = number;
     if (!pipelineIndex) {
       setParamsInSearchBar(number);
@@ -290,7 +295,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     // Push the updated URL
     // router.push(`/dashboard/pipeline?${params.toString()}`);
 
-   // //console.log;
+    // //console.log;
   };
 
   // const getMyTeam = async () => {
@@ -318,7 +323,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     try {
       let response = await getTeamsList();
       if (response) {
-       // //console.log;
+        // //console.log;
         let teams = [];
         if (response.admin) {
           let admin = response.admin;
@@ -333,13 +338,13 @@ const AdminPipeline1 = ({selectedUser}) => {
           }
         }
 
-       // //console.log;
+        // //console.log;
 
         setMyTeamList(teams);
         setMyTeamAdmin(response.admin);
       }
     } catch (error) {
-     // console.error("Error occured in api is", error);
+      // console.error("Error occured in api is", error);
     }
   };
 
@@ -349,8 +354,8 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (data) {
         const u = JSON.parse(data);
         let path = Apis.getImportantCalls;
-       // //console.log;
-       // //console.log;
+        // //console.log;
+        // //console.log;
         const response = await axios.get(path, {
           headers: {
             Authorization: `Bearer ${u.token}`,
@@ -359,14 +364,14 @@ const AdminPipeline1 = ({selectedUser}) => {
 
         if (response) {
           if (response.data.status === true) {
-           // console.log(
+            // console.log(
             //   "response of get imporatant calls api is",
             //   response.data.data
             // );
             setImportantCalls(response.data.data);
             setSelectedCall(response.data.data[0]);
           } else {
-           // console.log(
+            // console.log(
             //   "message of get important calls api is",
             //   response.data.message
             // );
@@ -374,7 +379,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (e) {
-     // //console.log;
+      // //console.log;
     }
   };
 
@@ -424,7 +429,7 @@ const AdminPipeline1 = ({selectedUser}) => {
   }, [selectedUser]);
 
   useEffect(() => {
-   // //console.log;
+    // //console.log;
     const timer = setTimeout(() => {
       //// //console.log;
       if (stageColorUpdate) {
@@ -474,10 +479,10 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // //console.log;
+        // //console.log;
       }
 
-     // //console.log;
+      // //console.log;
 
       const formData = new FormData();
       formData.append("title", newPipelineTitle);
@@ -485,7 +490,7 @@ const AdminPipeline1 = ({selectedUser}) => {
 
 
       for (let [key, value] of formData.entries()) {
-       //console.log;
+        //console.log;
       }
 
       const ApiPath = Apis.createPipeLine;
@@ -498,13 +503,14 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       //console.log;
+        //console.log;
         if (response.data.status === true) {
           let updatedPipelinesList = [];
           setPipeLines([...PipeLines, response.data.data]);
           updatedPipelinesList = [...PipeLines, response.data.data];
           let reversePipelinesList = updatedPipelinesList.reverse();
-         // //console.log;
+          setLeadsCountInStage(response.data.data.leadsCountInStage);
+          // //console.log;
           setSelectedPipeline(reversePipelinesList[0]);
           setStagesList(reversePipelinesList[0].stages);
           setNewPipelineTitle("");
@@ -518,7 +524,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api  create is:", error);
+      // console.error("Error occured in api  create is:", error);
     } finally {
       setAddPipelineLoader(false);
     }
@@ -542,7 +548,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           index = -1;
         }
 
-       // //console.log;
+        // //console.log;
 
         if (index != -1) {
           setPipeLines(jsonData);
@@ -550,7 +556,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
-         // //console.log;
+          // //console.log;
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -574,12 +580,12 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // //console.log;
+        // //console.log;
       }
 
-     // //console.log;
-      const ApiPath = Apis.getPipelines + "?userId="+selectedUser.id;
-     //console.log;
+      // //console.log;
+      const ApiPath = Apis.getPipelines + "?userId=" + selectedUser.id;
+      //console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -589,34 +595,64 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+
+        //updated logic same like users side
+        console.log("Initial response", response.data.data);
+        setInitialLoader(false);
+        const pipelineDetails = response.data.data;
+        console.log("Leads count in stages are", pipelineDetails[0].leadsCountInStage);
+        setLeadsCountInStage(pipelineDetails[0].leadsCountInStage);
+
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
           JSON.stringify(response.data.data)
         );
-        let index = 0;
-        if (selectedPipelineIndex < response.data.data.length) {
-          index = selectedPipelineIndex;
-        } else if (response.data.data.length > 0) {
-          index = 0;
-        } else {
-          index = -1;
+        localStorage.setItem(
+          "pipelinesList",
+          JSON.stringify(response.data.data)
+        );
+        const pipelinesList = response.data.data;
+        setPipeLines(pipelinesList);
+
+        if (pipelinesList.length > 0) {
+          // console.log(
+          //   "Pipeline index from getpipelines is ",
+          //   selectedPipelineIndex
+          // );
+          let pipeline = pipelinesList[selectedPipelineIndex]; // Select first pipeline
+          setSelectedPipeline(pipeline);
+          // getPipelineDetails(pipeline); // Fetch details for the selected pipeline
         }
 
-        if (index != -1) {
-          setPipeLines(response.data.data);
-          setSelectedPipeline(response.data.data[index]);
-          setStagesList(response.data.data[index].stages);
-          setOldStages(response.data.data[index].stages);
-          setLeadsList(response.data.data[index].leads);
-         // //console.log;
-        }
+        //commenting this code as it was working on old principles
+        // //console.log;
+        // localStorage.setItem(
+        //   PersistanceKeys.LocalStoragePipelines,
+        //   JSON.stringify(response.data.data)
+        // );
+        // let index = 0;
+        // if (selectedPipelineIndex < response.data.data.length) {
+        //   index = selectedPipelineIndex;
+        // } else if (response.data.data.length > 0) {
+        //   index = 0;
+        // } else {
+        //   index = -1;
+        // }
+
+        // if (index != -1) {
+        //   setPipeLines(response.data.data);
+        //   setSelectedPipeline(response.data.data[index]);
+        //   setStagesList(response.data.data[index].stages);
+        //   setOldStages(response.data.data[index].stages);
+        //   setLeadsList(response.data.data[index].leads);
+        //   // //console.log;
+        // }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
-     // //console.log;
-      setInitialLoader(false);
+      // //console.log;
+      // setInitialLoader(false);
     }
   };
 
@@ -626,7 +662,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     try {
       setDelTagLoader(lead.lead.id);
 
-     // //console.log;
+      // //console.log;
 
       let AuthToken = null;
 
@@ -636,18 +672,18 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = localData.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         leadId: lead.lead.id,
         tag: tag,
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
 
       const ApiPath = Apis.delLeadTag;
-     // //console.log;
-     // //console.log;
-     // //console.log;
+      // //console.log;
+      // //console.log;
+      // //console.log;
 
       // return
       const response = await axios.post(ApiPath, ApiData, {
@@ -658,9 +694,9 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status === true) {
-         // //console.log;
+          // //console.log;
 
           // const updatedTags = LeadsList.lead.tags.filter(
           //   (item) => item !== tag
@@ -672,7 +708,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
     } finally {
       setDelTagLoader(null);
     }
@@ -708,10 +744,11 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   //code to seect other pipeline
   const handleSelectOtherPipeline = (item, index) => {
-   // //console.log;
+    // //console.log;
     setSelectedPipeline(item);
     // setSelectedPipeline(item);
     setStagesList(item.stages);
+    setLeadsCountInStage(item.leadsCountInStage);
     setLeadsList(item.leads);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
@@ -727,27 +764,27 @@ const AdminPipeline1 = ({selectedUser}) => {
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
-       // //console.log;
+        // //console.log;
       }
 
       let mainAgent = null;
 
       const mainAgentData = localStorage.getItem("agentDetails");
-     // //console.log;
+      // //console.log;
 
       if (mainAgentData) {
         const mainAgentDetails = JSON.parse(mainAgentData);
-       // //console.log;
-       // //console.log;
+        // //console.log;
+        // //console.log;
         mainAgent = mainAgentDetails;
       }
 
       // return
 
-     // //console.log;
+      // //console.log;
 
       const ApiPath = Apis.addCustomStage;
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         stageTitle: newStageTitle,
@@ -758,9 +795,9 @@ const AdminPipeline1 = ({selectedUser}) => {
         // mainAgentId: mainAgent.id,
         tags: tagsValue,
         teams: assignLeadToMember,
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
-     // //console.log;
+      // //console.log;
 
       // return
 
@@ -772,8 +809,9 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status === true) {
+          setLeadsCountInStage(response.data.data.leadsCountInStage);
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
           setPipelinePopoverAnchorel(null);
@@ -796,24 +834,24 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured inn adding new stage title api is", error);
+      // console.error("Error occured inn adding new stage title api is", error);
     } finally {
       setAddStageLoader(false);
     }
   };
 
   useEffect(() => {
-   // //console.log;
+    // //console.log;
   }, [PipeLines]);
 
   //code ford deleting the stage
   const handleDeleteStage = async (value) => {
     try {
       if (value === "del2") {
-       // //console.log;
+        // //console.log;
         setDelStageLoader2(true);
       } else if (value === "del") {
-       // //console.log;
+        // //console.log;
         setDelStageLoader(true);
       }
       const localData = localStorage.getItem("User");
@@ -824,7 +862,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         //// //console.log;
       }
 
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         pipelineId: SelectedPipeline.id,
@@ -841,12 +879,12 @@ const AdminPipeline1 = ({selectedUser}) => {
       }
 
       for (let [key, value] of formData) {
-       // //console.log;
+        // //console.log;
       }
 
       // return
       const ApiPath = Apis.deleteStage;
-     // //console.log;
+      // //console.log;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -856,7 +894,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           setSuccessSnack(response.data.message);
@@ -865,7 +903,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in delstage api is:", error);
+      // console.error("Error occured in delstage api is:", error);
     } finally {
       setDelStageLoader(false);
       setDelStageLoader2(false);
@@ -883,7 +921,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -900,12 +938,12 @@ const AdminPipeline1 = ({selectedUser}) => {
       //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-       // //console.log;
+        // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-     // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -915,13 +953,13 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         setStagesList(response.data.data.stages);
         setShowRenamePopup(false);
         handleCloseStagePopover();
       }
     } catch (error) {
-     // //console.log;
+      // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -938,18 +976,18 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         title: renamePipeline,
         pipelineId: SelectedPipeline.id,
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
 
-     // //console.log;
+      // //console.log;
       const ApiPath = Apis.updatePipeline;
 
-     // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -959,7 +997,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         // setPipeLines()
         setPipeLines((prevPipelines) =>
           prevPipelines.map((pipeline) =>
@@ -973,7 +1011,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         handlePipelineClosePopover();
       }
     } catch (error) {
-     // //console.log;
+      // //console.log;
     } finally {
       setRenamePipelineLoader(false);
     }
@@ -990,7 +1028,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       // const ApiData = {
       //     stageTitle: renameStage,
@@ -1002,17 +1040,17 @@ const AdminPipeline1 = ({selectedUser}) => {
       // formData.append("stageTitle", renameStage);
       formData.append("stageId", selectedStage?.id);
       formData.append("color", stageColorUpdate);
-      formData.append("userId",selectedUser.id)
+      formData.append("userId", selectedUser.id)
 
       //// //console.log;
 
       for (let [key, value] of formData.entries()) {
-       // //console.log;
+        // //console.log;
       }
 
       const ApiPath = Apis.UpdateStage;
 
-     // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1022,13 +1060,13 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         setStagesList(response.data.data.stages);
         // setShowRenamePopup(false);
         // handleCloseStagePopover();
       }
     } catch (error) {
-     // //console.log;
+      // //console.log;
     } finally {
       setRenameStageLoader(false);
     }
@@ -1046,20 +1084,20 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       const formData = new FormData();
       formData.append("pipelineId", SelectedPipeline.id);
-      formData.append("userId",selectedUser.id)
+      formData.append("userId", selectedUser.id)
 
       for (let [key, value] of formData.entries()) {
-       // //console.log;
+        // //console.log;
       }
 
       //// //console.log;
       const ApiPath = Apis.deletePipeline;
 
-     // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1069,7 +1107,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status === true) {
           let updatedPipelines = [];
           setPipeLines(
@@ -1078,7 +1116,7 @@ const AdminPipeline1 = ({selectedUser}) => {
           updatedPipelines = PipeLines.filter(
             (pipeline) => pipeline.id !== SelectedPipeline.id
           );
-         // //console.log;
+          // //console.log;
           setSelectedPipeline(updatedPipelines[0]);
           setStagesList(updatedPipelines[0].stages);
           setLeadsList(updatedPipelines[0].leads);
@@ -1088,27 +1126,16 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // //console.log;
+      // //console.log;
     } finally {
       setDeletePipelineLoader(false);
     }
   };
 
   //code for arrayinput fields of settings modal
-  // const handleInputChange = (id, value) => {
-  //   setInputs(
-  //     inputs.map((input) => (input.id === id ? { ...input, value } : input))
-  //   );
-  // };
-  //let the user donot enter special  chars
   const handleInputChange = (id, value) => {
-    // Allow only letters, numbers, and spaces
-    const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
-
     setInputs(
-      inputs.map((input) =>
-        input.id === id ? { ...input, value: sanitizedValue } : input
-      )
+      inputs.map((input) => (input.id === id ? { ...input, value } : input))
     );
   };
 
@@ -1138,17 +1165,17 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
-     // //console.log;
+      // //console.log;
 
       const ApiPath = Apis.addSmartList;
-     // //console.log;
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1158,13 +1185,13 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status) {
           setShowAddNewSheetModal(false);
         }
       }
     } catch (error) {
-     // console.error("Error occured in adding new list api is:", error);
+      // console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
@@ -1185,7 +1212,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       (item) => item.stageTitle === selectedValue
     );
 
-   // //console.log;
+    // //console.log;
 
     // Update the selected next stage for the specific index
     setSelectedNextStage((prev) => ({
@@ -1203,10 +1230,10 @@ const AdminPipeline1 = ({selectedUser}) => {
       const updateStages = StagesList.map((stage, index) => ({
         id: stage.id,
         order: stage.order,
-        userId:selectedUser.id
+        userId: selectedUser.id
       }));
 
-     // //console.log;
+      // //console.log;
 
       const ApiPath = Apis.reorderStages;
       let AuthToken = null;
@@ -1222,7 +1249,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       };
 
       //// //console.log;
-     // //console.log;
+      // //console.log;
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -1232,7 +1259,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status === true) {
           setShowStagesPopup(false);
           setShowReorderBtn(false);
@@ -1243,9 +1270,9 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in rearrange order api is:", error);
+      // console.error("Error occured in rearrange order api is:", error);
     } finally {
-     // //console.log;
+      // //console.log;
       setReorderStageLoader(false);
     }
   };
@@ -1323,34 +1350,34 @@ const AdminPipeline1 = ({selectedUser}) => {
     if (item.status === "completed") {
       // Check for hotlead, humancalldrop, and dnd
       if (item.hotlead || item.humancalldrop || item.dnd) {
-       // console.log(
+        // console.log(
         //   "Status is completed with the following additional information:"
         // );
         if (item.hotlead === true) {
-         // //console.log;
+          // //console.log;
           callStatus = "Hot Lead";
         }
         if (item.humancalldrop === true) {
-         // //console.log;
+          // //console.log;
           callStatus = "Human Call Drop";
         }
         if (item.dnd === true) {
-         // //console.log;
+          // //console.log;
           callStatus = "DND";
         }
         if (item.notinterested) {
-         // //console.log;
+          // //console.log;
           callStatus = "Not Interested";
         }
       } else {
         callStatus = item.status;
-       // console.log(
+        // console.log(
         //   "Status is completed, but no special flags for lead ID:",
         //   item.leadId
         // );
       }
     } else {
-     // console.log(
+      // console.log(
       //   "Other status for lead ID:",
       //   item.leadId,
       //   "Status:",
@@ -1373,15 +1400,15 @@ const AdminPipeline1 = ({selectedUser}) => {
         AuthToken = UserDetails.token;
       }
 
-     // //console.log;
+      // //console.log;
 
       const ApiData = {
         note: addNotesValue,
         leadId: selectedLeadsDetails.id,
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
 
-     // //console.log;
+      // //console.log;
 
       const ApiPath = Apis.addLeadNote;
       // return
@@ -1393,7 +1420,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false);
@@ -1402,7 +1429,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         }
       }
     } catch (error) {
-     // console.error("Error occured in add lead note api is:", error);
+      // console.error("Error occured in add lead note api is:", error);
     } finally {
       setAddLeadNoteLoader(false);
     }
@@ -1424,7 +1451,7 @@ const AdminPipeline1 = ({selectedUser}) => {
     });
     setLeadsList(updatedLeads);
 
-   // //console.log;
+    // //console.log;
 
     const updatedPipelines = PipeLines.map((pipeline) => {
       return {
@@ -1445,9 +1472,9 @@ const AdminPipeline1 = ({selectedUser}) => {
       };
     });
 
-   // //console.log;
+    // //console.log;
 
-   // //console.log;
+    // //console.log;
 
     // let leadesList = [];
 
@@ -1458,9 +1485,9 @@ const AdminPipeline1 = ({selectedUser}) => {
 
   function HandleLeadAssignedTeam(team, lead) {
     //code to add team members to the lead data
-   // //console.log;
-   // //console.log;
-   // //console.log;
+    // //console.log;
+    // //console.log;
+    // //console.log;
 
     const updatedLeadsList = LeadsList.map((item) =>
       item.leadId === lead.id
@@ -1474,7 +1501,7 @@ const AdminPipeline1 = ({selectedUser}) => {
         : item
     );
 
-   // //console.log;
+    // //console.log;
 
     setLeadsList(updatedLeadsList);
   }
@@ -1482,16 +1509,16 @@ const AdminPipeline1 = ({selectedUser}) => {
   const handleDelLead = async () => {
     try {
       const leadToDelete = selectedLeadsDetails;
-     // //console.log;
-     // //console.log;
-     // //console.log;
+      // //console.log;
+      // //console.log;
+      // //console.log;
       // return;
       const filteredLeads = LeadsList.filter((lead) => {
-       // //console.log;
+        // //console.log;
         return lead.leadId !== leadToDelete.id;
       });
 
-     // //console.log;
+      // //console.log;
 
       const filteredPipelines = PipeLines.map((pipeline) => {
         return {
@@ -1502,22 +1529,22 @@ const AdminPipeline1 = ({selectedUser}) => {
         };
       });
 
-     // //console.log;
+      // //console.log;
       //// //console.log
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
       setShowDetailsModal(false);
     } catch (error) {
-     // console.error("Error occuren in api is", error);
+      // console.error("Error occuren in api is", error);
     } finally {
-     // //console.log;
+      // //console.log;
     }
   };
 
   function handldSearch(e) {
     let pipeline = SelectedPipeline;
     let search = e.target.value.toLowerCase();
-   // //console.log;
+    // //console.log;
 
     if (search == "") {
       setLeadsList(pipeline.leads);
@@ -1540,6 +1567,48 @@ const AdminPipeline1 = ({selectedUser}) => {
       setLeadsList(filteredLeads);
     }
   }
+
+
+  //code for get more Leads In Stage
+  const getMoreLeadsInStage = async ({ stageId, offset, search }) => {
+    try {
+      // return;
+      const Auth = AuthToken();
+      let ApiPath = "";
+      if (offset) {
+        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&offset=${offset}`;
+      } else if (search) {
+        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}`;
+      }
+      console.log(`Api path is ${ApiPath}`);
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + Auth,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response) {
+        let newLeads = response?.data?.data || [];
+        // if (newLeads.length > 11) {
+        //   setHasMore(true);
+        // } else {
+        //   setHasMore(false);
+        // }
+        setHasMoreMap((prev) => ({
+          ...prev,
+          [stageId]: newLeads.length >= 10,
+        }));
+        if (search) {
+          console.log("Set leads for search value");
+          setLeadsList(newLeads)
+        } else {
+          setLeadsList([...LeadsList, ...newLeads]);
+        }
+      }
+    } catch (error) {
+      console.log("Error occured in api is", error);
+    }
+  };
 
   const styles = {
     heading: {
@@ -1595,7 +1664,7 @@ const AdminPipeline1 = ({selectedUser}) => {
       />
       <div
         className="w-full flex flex-row justify-center"
-        // style={{ borderBottom: "1px solid #15151510" }}
+      // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="w-full">
           <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
@@ -1679,7 +1748,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                       onClick={() => {
                         setShowRenamePipelinePopup(true);
                         setRenamePipeline(SelectedPipeline.title);
-                       // //console.log;
+                        // //console.log;
                       }}
                     >
                       <Image
@@ -1730,23 +1799,23 @@ const AdminPipeline1 = ({selectedUser}) => {
                       Rearrange Stage
                     </button>
                   </div>
-          
-                    <button
-                      className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
-                      style={styles.paragraph}
-                      onClick={()=>{
-                        setShowDeletePiplinePopup(true)
-                      }}
-                    >
-                      <Image
-                        src={"/assets/delIcon.png"}
-                        height={18}
-                        width={18}
-                        alt="*"
-                      />
-                      Delete
-                    </button>
-                  
+
+                  <button
+                    className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                    style={styles.paragraph}
+                    onClick={() => {
+                      setShowDeletePiplinePopup(true)
+                    }}
+                  >
+                    <Image
+                      src={"/assets/delIcon.png"}
+                      height={18}
+                      width={18}
+                      alt="*"
+                    />
+                    Delete
+                  </button>
+
                 </div>
               </Popover>
 
@@ -1830,13 +1899,19 @@ const AdminPipeline1 = ({selectedUser}) => {
                             <div>{leadCounts[stage.id]}</div>
                           ) : (
                             "0"
-                          )} */}
-
+                          )}
                           {
                             LeadsList.filter(
                               (lead) => lead.lead.stage === stage.id
                             ).length
+                          } */}
+
+                          {
+                            leadsCountInStage?.[stage.id] !== undefined
+                              ? leadsCountInStage[stage.id]
+                              : "0"
                           }
+
 
                           {/* {leadCounts.map((item) => {
    
@@ -1849,12 +1924,12 @@ const AdminPipeline1 = ({selectedUser}) => {
                         variant="contained"
                         onClick={(evetn) => {
                           if (stage.identifier === "new_lead") {
-                           // //console.log;
+                            // //console.log;
                             setShowDelBtn(true);
                           } else {
                             setShowDelBtn(false);
                           }
-                         // //console.log;
+                          // //console.log;
                           handleShowStagePopover(evetn, stage);
                         }}
                         className="outline-none"
@@ -1890,7 +1965,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                             style={styles.paragraph}
                             onClick={() => {
                               setShowRenamePopup(true);
-                             // //console.log;
+                              // //console.log;
                               setRenameStage(selectedStage.stageTitle);
                               setUpdateStageColor(selectedStage.defaultColor);
                             }} //handleRenameStage
@@ -1964,7 +2039,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                               className="text-red flex flex-row items-center gap-4 me-2 outline-none"
                               style={styles.paragraph}
                               onClick={() => {
-                               // console.log(
+                                // console.log(
                                 //   "Selected stage is:",
                                 //   selectedStage
                                 // );
@@ -1989,6 +2064,7 @@ const AdminPipeline1 = ({selectedUser}) => {
                     {LeadsList.filter((lead) => lead.lead.stage === stage.id)
                       .length > 0 && (
                         <div
+                          id={`scrollableDiv-${stage.id}`}
                           className="flex flex-col gap-4 mt-4 h-[45vh] overflow-auto   rounded-xl"
                           style={{
                             scrollbarWidth: "none",
@@ -1998,127 +2074,172 @@ const AdminPipeline1 = ({selectedUser}) => {
                             borderColor: "#00000010",
                           }}
                         >
-                          {LeadsList.filter(
-                            (lead) => lead.lead.stage === stage.id
-                          ).map((lead, leadIndex) => (
-                            <div
-                              className="p-3 h-full"
-                              style={{ width: "300px", height: 200 }}
-                              key={leadIndex}
+                          <InfiniteScroll
+                            className="mt-4"
+                            endMessage={<p
+                              style={{
+                                textAlign: "center",
+                                paddingTop: "10px",
+                                fontWeight: "400",
+                                fontFamily: "inter",
+                                fontSize: 16,
+                                color: "#00000060",
+                                paddingBottom: 20
+                              }}
                             >
-                              <div className="border rounded-xl px-4 py-2 h-full">
-                                <button
-                                  className="flex flex-row items-center gap-3"
-                                  onClick={() => {
-                                   // console.log(
-                                    //   "Selected lead details are:",
-                                    //   lead
-                                    // );
-                                    setShowDetailsModal(true);
-                                    setSelectedLeadsDetails(lead.lead);
-                                    setPipelineId(lead.lead.pipeline.id);
-                                    setNoteDetails(lead.lead.notes);
-                                  }}
-                                >
-                                  {/* T is center aligned */}
-                                  <div
-                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                    style={{ height: "27px", width: "27px" }}
-                                  >
-                                    {lead.lead.firstName.slice(0, 1)}
-                                  </div>
-                                  <div style={styles.paragraph}>
-                                    {lead.lead.firstName}
-                                  </div>
-                                </button>
-                                <div className="flex flex-row items-center justify-between w-full mt-2">
-                                  <div
-                                    className="text-[#00000060]"
-                                    style={styles.agentName}
-                                  >
-                                    {(lead?.lead?.email
-                                      ? lead?.lead?.email?.slice(0, 10) + "..."
-                                      : "") || ""}
-                                  </div>
-                                  <div className="flex flex-row items-center gap-4">
-                                    <Image
-                                      src={"/assets/colorCircle.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="*"
-                                    />
-                                    <div
-                                      className="text-purple underline"
-                                      style={styles.agentName}
-                                    >
-                                      {lead.agent.name}
-                                    </div>
-                                  </div>
-                                </div>
+                              {`You're all caught up`}
+                            </p>}
+                            scrollableTarget={`scrollableDiv-${stage.id}`}
+                            dataLength={
+                              LeadsList.filter(
+                                (lead) => lead.lead.stage === stage.id
+                              ).length
+                            }
+                            next={() => {
+                              console.log("Load Next Leads");
+                              let leadsInStage = LeadsList.filter(
+                                (lead) => lead.lead.stage === stage.id
+                              );
 
-                                {lead?.lead?.booking?.date && (
-                                  <div
-                                    className="flex flex-row items-center gap-2"
-                                    style={{
-                                      // fontWeight: "500",
+                              // getMoreLeadsInStage(
+                              //   stage.id,
+                              //   leadsInStage.length
+                              // );
+                              getMoreLeadsInStage({
+                                stageId: stage.id,
+                                offset: leadsInStage.length
+                              });
 
-                                      color: "#15151560",
-                                      // backgroundColor: 'red',
+                            }} // Fetch more when scrolled
+                            hasMore={hasMoreMap[stage.id] !== false}
+                            loader={
+                              <div className="w-full flex justify-center mt-4 pb-12">
+                                <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                              </div>
+                            }
+                            style={{ overflow: "unset" }}
+                          >
+                            {LeadsList.filter(
+                              (lead) => lead.lead.stage === stage.id
+                            ).map((lead, leadIndex) => (
+                              <div
+                                className="p-3 h-full"
+                                style={{ width: "300px", height: 200 }}
+                                key={leadIndex}
+                              >
+                                <div className="border rounded-xl px-4 py-2 h-full">
+                                  <button
+                                    className="flex flex-row items-center gap-3"
+                                    onClick={() => {
+                                      // console.log(
+                                      //   "Selected lead details are:",
+                                      //   lead
+                                      // );
+                                      setShowDetailsModal(true);
+                                      setSelectedLeadsDetails(lead.lead);
+                                      setPipelineId(lead.lead.pipeline.id);
+                                      setNoteDetails(lead.lead.notes);
                                     }}
                                   >
-                                    <Image
-                                      src="/svgIcons/calendar.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                      style={{ filter: "opacity(50%)" }}
-                                    />
-                                    {/* {moment(lead?.lead?.booking?.date).format(
+                                    {/* T is center aligned */}
+                                    <div
+                                      className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                      style={{ height: "27px", width: "27px" }}
+                                    >
+                                      {lead.lead.firstName.slice(0, 1)}
+                                    </div>
+                                    <div style={styles.paragraph}>
+                                      {lead.lead.firstName}
+                                    </div>
+                                  </button>
+                                  <div className="flex flex-row items-center justify-between w-full mt-2">
+                                    <div
+                                      className="text-[#00000060]"
+                                      style={styles.agentName}
+                                    >
+                                      {(lead?.lead?.email
+                                        ? lead?.lead?.email?.slice(0, 10) + "..."
+                                        : "") || ""}
+                                    </div>
+                                    <div className="flex flex-row items-center gap-4">
+                                      <Image
+                                        src={"/assets/colorCircle.png"}
+                                        height={24}
+                                        width={24}
+                                        alt="*"
+                                      />
+                                      <div
+                                        className="text-purple underline"
+                                        style={styles.agentName}
+                                      >
+                                        {lead.agent.name}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {lead?.lead?.booking?.date && (
+                                    <div
+                                      className="flex flex-row items-center gap-2"
+                                      style={{
+                                        // fontWeight: "500",
+
+                                        color: "#15151560",
+                                        // backgroundColor: 'red',
+                                      }}
+                                    >
+                                      <Image
+                                        src="/svgIcons/calendar.svg"
+                                        height={16}
+                                        width={16}
+                                        alt="*"
+                                        style={{ filter: "opacity(50%)" }}
+                                      />
+                                      {/* {moment(lead?.lead?.booking?.date).format(
                                       "MMM D"
                                     ) || "-"} */}
-                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                      {GetFormattedDateString(
-                                        lead?.lead?.booking?.date,
-                                        true,
-                                        "MMM DD"
-                                      )}
-                                    </p>
+                                      <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                        {GetFormattedDateString(
+                                          lead?.lead?.booking?.date,
+                                          true,
+                                          "MMM DD"
+                                        )}
+                                      </p>
 
-                                    <Image
-                                      src="/svgIcons/clock.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                      style={{ filter: "opacity(50%)" }}
-                                    />
-                                    <p style={{ fontSize: 13, fontWeight: 500 }}>
-                                      {GetFormattedTimeString(
-                                        lead?.lead?.booking?.datetime
-                                      )}
-                                    </p>
+                                      <Image
+                                        src="/svgIcons/clock.svg"
+                                        height={16}
+                                        width={16}
+                                        alt="*"
+                                        style={{ filter: "opacity(50%)" }}
+                                      />
+                                      <p style={{ fontSize: 13, fontWeight: 500 }}>
+                                        {GetFormattedTimeString(
+                                          lead?.lead?.booking?.datetime
+                                        )}
+                                      </p>
 
-                                    {/* {moment(
+                                      {/* {moment(
                                       lead?.lead?.booking?.time,
                                       "HH:mm"
                                     ).format("HH:mm") || "-"} */}
-                                  </div>
-                                )}
-
-                                <div className="w-full flex flex-row items-center justify-between mt-12">
-                                  {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                    <LeadTeamsAssignedList
-                                      users={lead?.lead?.teamsAssigned}
-                                      maxVisibleUsers={1}
-                                    />
-                                  ) : (
-                                    <Image
-                                      src={"/assets/manIcon.png"}
-                                      height={32}
-                                      width={32}
-                                      alt="*"
-                                    />
+                                    </div>
                                   )}
-                                  {/* <div className="flex flex-row items-center gap-3">
+
+                                  <div className="w-full flex flex-row items-center justify-between mt-12">
+                                    {lead?.lead?.teamsAssigned?.length > 0 ? (
+                                      <LeadTeamsAssignedList
+                                        users={lead?.lead?.teamsAssigned}
+                                        maxVisibleUsers={1}
+                                      />
+                                    ) : (
+                                      <Image
+                                        src={"/assets/manIcon.png"}
+                                        height={32}
+                                        width={32}
+                                        alt="*"
+                                      />
+                                    )}
+                                    {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -2127,83 +2248,84 @@ const AdminPipeline1 = ({selectedUser}) => {
                                                                         </div>
                                                                     </div> */}
 
-                                  {lead.lead.tags.length > 0 ? (
-                                    <div className="flex flex-row items-center gap-1">
-                                      {lead?.lead?.tags
-                                        .slice(0, 1)
-                                        .map((tagVal, index) => {
-                                          return (
-                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                            //     {tagVal}
-                                            // </div>
-                                            <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
-                                            >
+                                    {lead.lead.tags.length > 0 ? (
+                                      <div className="flex flex-row items-center gap-1">
+                                        {lead?.lead?.tags
+                                          .slice(0, 1)
+                                          .map((tagVal, index) => {
+                                            return (
+                                              // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                              //     {tagVal}
+                                              // </div>
                                               <div
-                                                className="text-purple" //1C55FF10
+                                                key={index}
+                                                className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg"
                                               >
-                                                {tagVal.length > 2 ? (
+                                                <div
+                                                  className="text-purple" //1C55FF10
+                                                >
+                                                  {tagVal.length > 2 ? (
+                                                    <div>
+                                                      {tagVal.slice(0, 6)}
+                                                      {"..."}
+                                                    </div>
+                                                  ) : (
+                                                    <div style={{ fontsize: 13 }}>
+                                                      {tagVal}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                {DelTagLoader &&
+                                                  lead.lead.id === DelTagLoader ? (
                                                   <div>
-                                                    {tagVal.slice(0, 6)}
-                                                    {"..."}
+                                                    <CircularProgress size={15} />
                                                   </div>
                                                 ) : (
-                                                  <div style={{ fontsize: 13 }}>
-                                                    {tagVal}
-                                                  </div>
+                                                  <button
+                                                    onClick={() => {
+                                                      // console.log(
+                                                      //   "Tag value is",
+                                                      //   tagVal
+                                                      // );
+                                                      handleDelTag(tagVal, lead);
+                                                      let updatedTags =
+                                                        lead.lead.tags.filter(
+                                                          (tag) => tag != tagVal
+                                                        ) || [];
+                                                      lead.lead.tags = updatedTags;
+                                                      let newLeadCad = [];
+                                                      LeadsList.map((item) => {
+                                                        if (item.id == lead.id) {
+                                                          newLeadCad.push(lead);
+                                                        } else {
+                                                          newLeadCad.push(item);
+                                                        }
+                                                      });
+                                                      setLeadsList(newLeadCad);
+                                                    }}
+                                                  >
+                                                    <X
+                                                      size={15}
+                                                      weight="bold"
+                                                      color="#7902DF"
+                                                    />
+                                                  </button>
                                                 )}
                                               </div>
-                                              {DelTagLoader &&
-                                                lead.lead.id === DelTagLoader ? (
-                                                <div>
-                                                  <CircularProgress size={15} />
-                                                </div>
-                                              ) : (
-                                                <button
-                                                  onClick={() => {
-                                                   // console.log(
-                                                    //   "Tag value is",
-                                                    //   tagVal
-                                                    // );
-                                                    handleDelTag(tagVal, lead);
-                                                    let updatedTags =
-                                                      lead.lead.tags.filter(
-                                                        (tag) => tag != tagVal
-                                                      ) || [];
-                                                    lead.lead.tags = updatedTags;
-                                                    let newLeadCad = [];
-                                                    LeadsList.map((item) => {
-                                                      if (item.id == lead.id) {
-                                                        newLeadCad.push(lead);
-                                                      } else {
-                                                        newLeadCad.push(item);
-                                                      }
-                                                    });
-                                                    setLeadsList(newLeadCad);
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="#7902DF"
-                                                  />
-                                                </button>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      {lead.lead.tags.length > 1 && (
-                                        <div>+{lead.lead.tags.length - 1}</div>
-                                      )}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
+                                            );
+                                          })}
+                                        {lead.lead.tags.length > 1 && (
+                                          <div>+{lead.lead.tags.length - 1}</div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </InfiniteScroll>
                         </div>
                       )}
                   </div>
@@ -2234,98 +2356,98 @@ const AdminPipeline1 = ({selectedUser}) => {
 
       {/* handleDeletePipeline */}
 
-        <Modal
-              open={showDeletePipelinePopup}
-              onClose={() => {
-                setShowDeletePiplinePopup(false);
-              }}
-              BackdropProps={{
-                timeout: 200,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
+      <Modal
+        open={showDeletePipelinePopup}
+        onClose={() => {
+          setShowDeletePiplinePopup(false);
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+        >
+          <div style={{ width: "100%" }}>
+            <div
+              className="max-h-[60vh] overflow-auto"
+              style={{ scrollbarWidth: "none" }}
             >
-              <Box
-                className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
-                sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
+              <div
+                style={{
+                  width: "100%",
+                  direction: "row",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
-                <div style={{ width: "100%" }}>
-                  <div
-                    className="max-h-[60vh] overflow-auto"
-                    style={{ scrollbarWidth: "none" }}
-                  >
-                    <div
-                      style={{
-                        width: "100%",
-                        direction: "row",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      {/* <div style={{ width: "20%" }} /> */}
-                      <div style={{ fontWeight: "500", fontSize: 17 }}>
-                        Delete Pipeline
-                      </div>
-                      <div
-                        style={{
-                          direction: "row",
-                          display: "flex",
-                          justifyContent: "end",
-                        }}
-                      >
-                        <button
-                          onClick={() => {
-                            setShowDeletePiplinePopup(false);
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    </div>
-      
-                    <div className="mt-6" style={{ fontWeight: "700", fontSize: 22 }}>
-                    Are you sure you want to delete this pipeline?
-
-                    </div>
-                  </div>
-      
-                  <div className="flex flex-row items-center justify-center gap-4 mt-6">
-                    <button  className="w-1/2 mt-[13px]">Never mind</button>
-                    <div className="w-1/2">
-                      {deletePipelineLoader ? (
-                        <div className="flex flex-row items-center w-full mt-4">
-                          <CircularProgress size={25} />
-                        </div>
-                      ) : (
-                        <button
-                          className="mt-4 outline-none bg-red"
-                          style={{
-                            color: "white",
-                            height: "50px",
-                            borderRadius: "10px",
-                            width: "100%",
-                            fontWeight: 600,
-                            fontSize: "20",
-                          }}
-                          onClick={handleDeletePipeline}
-                        >
-                          Yes! Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                {/* <div style={{ width: "20%" }} /> */}
+                <div style={{ fontWeight: "500", fontSize: 17 }}>
+                  Delete Pipeline
                 </div>
-              </Box>
-            </Modal>
+                <div
+                  style={{
+                    direction: "row",
+                    display: "flex",
+                    justifyContent: "end",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      setShowDeletePiplinePopup(false);
+                    }}
+                    className="outline-none"
+                  >
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6" style={{ fontWeight: "700", fontSize: 22 }}>
+                Are you sure you want to delete this pipeline?
+
+              </div>
+            </div>
+
+            <div className="flex flex-row items-center justify-center gap-4 mt-6">
+              <button className="w-1/2 mt-[13px]">Never mind</button>
+              <div className="w-1/2">
+                {deletePipelineLoader ? (
+                  <div className="flex flex-row items-center w-full mt-4">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="mt-4 outline-none bg-red"
+                    style={{
+                      color: "white",
+                      height: "50px",
+                      borderRadius: "10px",
+                      width: "100%",
+                      fontWeight: 600,
+                      fontSize: "20",
+                    }}
+                    onClick={handleDeletePipeline}
+                  >
+                    Yes! Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
 
       {/* Code for add stage modal */}
       <Modal
@@ -2690,6 +2812,9 @@ const AdminPipeline1 = ({selectedUser}) => {
                             </div>
                           </div>
                         </MenuItem> */}
+                        <MenuItem value="">
+                          <em>Delete</em>
+                        </MenuItem>
                         {myTeamList.map((item, index) => {
                           return (
                             <MenuItem

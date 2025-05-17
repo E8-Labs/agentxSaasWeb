@@ -648,6 +648,7 @@ const Pipeline1 = () => {
           //   "Current selected is same ",
           //   PipeLines[selectedPipelineIndex].id
           // );
+          //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage);
           setSelectedPipeline(pipelineDetails);
           setStagesList(pipelineDetails.stages);
@@ -672,7 +673,7 @@ const Pipeline1 = () => {
     }
   }
 
-  //code for get Leads In Stage
+  //code for get more Leads In Stage
   const getMoreLeadsInStage = async ({ stageId, offset, search }) => {
     try {
       // return;
@@ -740,8 +741,8 @@ const Pipeline1 = () => {
           "Content-Type": "application/json",
         },
       });
-      setInitialLoader(false);
       if (response) {
+        setInitialLoader(false);
         console.log("Initial response", response.data.data);
 
         localStorage.setItem(
@@ -1304,20 +1305,9 @@ const Pipeline1 = () => {
   };
 
   //code for arrayinput fields of settings modal
-  // const handleInputChange = (id, value) => {
-  //   setInputs(
-  //     inputs.map((input) => (input.id === id ? { ...input, value } : input))
-  //   );
-  // };
-  //let the user donot enter special  chars
   const handleInputChange = (id, value) => {
-    // Allow only letters, numbers, and spaces
-    const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
-
     setInputs(
-      inputs.map((input) =>
-        input.id === id ? { ...input, value: sanitizedValue } : input
-      )
+      inputs.map((input) => (input.id === id ? { ...input, value } : input))
     );
   };
 
@@ -2044,7 +2034,7 @@ const Pipeline1 = () => {
                               {
                                 leadsCountInStage?.[stage.id] !== undefined
                                   ? leadsCountInStage[stage.id]
-                                  : "-"
+                                  : "0"
                               }
 
 
@@ -2997,6 +2987,9 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </MenuItem> */}
+                            <MenuItem value="">
+                              <em>Delete</em>
+                            </MenuItem>
                             {myTeamList.map((item, index) => {
                               return (
                                 <MenuItem

@@ -23,7 +23,7 @@ export const EditPhoneNumberModal = ({
   const [locationLoader, setLocationLoader] = useState(false);
 
   useEffect(() => {
-    setUserPhoneNumber(number||"");
+    setUserPhoneNumber(number || "");
   }, [number]);
 
   //getlocation
@@ -137,13 +137,13 @@ export const EditPhoneNumberModal = ({
           </div>
 
           {loading ? (
-            <div className="flex w-full items-center flex col">
+            <div className="flex w-full items-center flex col justify-center h-[52px]">
               <CircularProgress size={25} />
             </div>
           ) : (
             <button
               className="w-full outline-none bg-purple h-[52px] text-white rounded-lg"
-              onClick={() => update(userPhoneNumber)}
+              onClick={() => { update(userPhoneNumber) }}
             >
               Save
             </button>
