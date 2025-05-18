@@ -4,24 +4,24 @@ import AddVoiceMail from './AddVoiceMail'
 import { Plus } from 'lucide-react'
 
 function NoVoicemailView({
-    openModal
+    openModal, showAddBtn, title = "No Voicemail", subTitle = "You don't have a voicemail added"
 }) {
     return (
-        <div className='flex flex-col items-center justify-center gap-3 mt-6'>
+        <div className='flex flex-col items-center justify-center mt-6'>
             <Image src={"/svgIcons/noVoicemailIcon.svg"}
-                height={63} width={193} alt='*'
+                height={50} width={193} alt='*'
             />
 
             <div style={{ fontSize: 22, fontWeight: '700', color: '#151515' }}>
-                No Voicemail
+                {title}
             </div>
 
-            <div style={{ fontSize: 15, fontWeight: '500', color: '#151515' }}>
-                {`You don’t have a voicemail added`}
+            <div style={{ fontSize: 15, fontWeight: '500', color: '#151515',marginTop: 10 }}>
+                {subTitle}
             </div>
 
 
-            <button className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg"
+            {showAddBtn && (<button className="flex h-[54px] items-center flex-row gap-2 bg-purple p-2 px-8 rounded-lg"
                 onClick={openModal}
             >
                 <Plus color="white"></Plus>
@@ -31,7 +31,7 @@ function NoVoicemailView({
                 >
                     Add New
                 </div>
-            </button>
+            </button>)}
 
         </div>
     )
