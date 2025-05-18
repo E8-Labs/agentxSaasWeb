@@ -211,18 +211,20 @@ const AddNewCalendar = ({
                 "title",
                 calendarSelected ? calendarSelected.title : calenderTitle
             );
-            formData.append("mainAgentId", currentAgentDetails.id);
+            if (currentAgentDetails?.id) {
+                formData.append("mainAgentId", currentAgentDetails?.id);
+            }
             // if (selectTimeZone) {
             formData.append(
                 "timeZone",
-                calendarSelected ? calendarSelected.timeZone : selectTimeZone
+                calendarSelected ? calendarSelected?.timeZone : selectTimeZone
             );
             // }
 
             // if (eventId) {
             formData.append(
                 "eventId",
-                calendarSelected ? calendarSelected.eventId : eventId
+                calendarSelected ? calendarSelected?.eventId : eventId
             );
             // }
 
@@ -248,6 +250,12 @@ const AddNewCalendar = ({
                         type: SnackbarTypes.Success,
                         isVisible: true,
                     });
+                    const localData = localStorage.getItem("User");
+                    if (localData) {
+                        let D = JSON.parse(localData);
+                        D.user.checkList.checkList.calendarCreated = true;
+                        localStorage.setItem("User", JSON.stringify(D));
+                    }
                     handleContinue();
                 } else {
                     setSnackMessage({

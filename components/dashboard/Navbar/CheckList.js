@@ -18,31 +18,58 @@ const CheckList = ({ userDetails }) => {
     //sadd calendar popup
     const [showAddCalendar, setShowAddCalendar] = useState(false);
 
+    const getChecklist = () => {
+        const D = localStorage.getItem("User");
+        if (D) {
+            const LocalData = JSON.parse(D);
+            const T = LocalData?.user?.checkList?.checkList;
+            console.log("Check list on main check list screen is", T);
+            let percentage = 0;
 
+            for (let key in T) {
+                if (T[key]) {
+                    percentage += 20;
+                }
+            }
+
+            setProgressValue(percentage);
+
+            console.log("percentage of check list is", percentage);   // Output: 60
+
+            setCheckList([
+                { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
+                { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
+                { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
+                { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
+                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/callLog" }
+            ]);
+        }
+    }
 
     useEffect(() => {
+        getChecklist();
         const checklistData = userDetails?.user?.checkList?.checkList;
-        console.log("Check list", checklistData);
+        // console.log("Check list", checklistData);
 
-        let percentage = 0;
+        // let percentage = 0;
 
-        for (let key in checklistData) {
-            if (checklistData[key]) {
-                percentage += 20;
-            }
-        }
+        // for (let key in checklistData) {
+        //     if (checklistData[key]) {
+        //         percentage += 20;
+        //     }
+        // }
 
-        setProgressValue(percentage);
+        // setProgressValue(percentage);
 
-        console.log("percentage of check list is", percentage);   // Output: 60
+        // console.log("percentage of check list is", percentage);   // Output: 60
 
-        setCheckList([
-            { id: 1, label: 'Create your agent', status: checklistData?.agentCreated, route: "/dashboard/myAgentX" },
-            { id: 2, label: 'Review your script', status: checklistData?.scriptReviewed, route: "/dashboard/myAgentX" },
-            { id: 3, label: 'Connect a calendar', status: checklistData?.calendarCreated, route: "/pipeline" },
-            { id: 4, label: 'Upload leads', status: checklistData?.leadCreated, route: "/dashboard/leads" },
-            { id: 5, label: 'Start calling', status: checklistData?.callsCreated, route: "/dashboard/callLog" }
-        ]);
+        // setCheckList([
+        //     { id: 1, label: 'Create your agent', status: checklistData?.agentCreated, route: "/createagent" },
+        //     { id: 2, label: 'Review your script', status: checklistData?.scriptReviewed, route: "/dashboard/myAgentX" },
+        //     { id: 3, label: 'Connect a calendar', status: checklistData?.calendarCreated, route: "/pipeline" },
+        //     { id: 4, label: 'Upload leads', status: checklistData?.leadCreated, route: "/dashboard/leads" },
+        //     { id: 5, label: 'Start calling', status: checklistData?.callsCreated, route: "/dashboard/callLog" }
+        // ]);
 
 
     }, []);
@@ -141,7 +168,10 @@ const CheckList = ({ userDetails }) => {
                 showAddCalendar && (
                     <div>
                         <AddNewCalendar
-                            handleContinue={() => { setShowAddCalendar(false) }}
+                            handleContinue={() => { 
+                                getChecklist();
+                                setShowAddCalendar(false) ;
+                            }}
                             showModal={showAddCalendar}
                         />
                     </div>

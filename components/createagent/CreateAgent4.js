@@ -400,7 +400,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        // //console.log;
+        console.log("Response of assign number is", response.data);
+        console.log("Check 1")
         if (response.data.status === true) {
           handleContinue();
           const calimNoData = {

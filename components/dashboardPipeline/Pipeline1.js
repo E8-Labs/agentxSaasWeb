@@ -702,7 +702,7 @@ const Pipeline1 = () => {
         setHasMoreMap((prev) => {
           const updated = {
             ...prev,
-            [stageId]: newLeads.length >= 10,
+            [stageId]: newLeads.length >= 7,
           };
           console.log("Updated hasMoreMap:", updated); // ← ✅ Console log here
           return updated;

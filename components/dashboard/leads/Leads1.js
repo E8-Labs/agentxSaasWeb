@@ -802,6 +802,15 @@ const Leads1 = () => {
       if (response) {
         ////////console.log;
         if (response.data.status === true) {
+
+          //update leads status
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.leadCreated = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+
           let sheet = response.data.data;
           let leads = response.data.leads;
           // let sheetsList =
@@ -2109,8 +2118,8 @@ const Leads1 = () => {
                   ) : (
                     <button
                       className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                          ? "bg-purple text-white"
-                          : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
+                        ? "bg-purple text-white"
+                        : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
                         }`}
                       style={{
                         fontWeight: "600",

@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Box, Button, CircularProgress, Modal, TextField } from "@mui/material";
 import { useRouter } from "next/navigation";
 import AssignLead from "./AssignLead";
+import LastStep from "./LastStep";
+import Apis from "@/components/apis/Apis";
+import axios from "axios";
+import dayjs from "dayjs";
+import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
+import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -28,16 +34,38 @@ export default function AssignLeadAnimation({
     selectedAll,
     filters,
     totalLeads,
-    userProfile
+    userProfile,
+    //after lead assigned
+    handleCloseAssignLeadModal
 }) {
+
+    const [loader, setLoader] = useState(false);
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
+
+    //selectedAgents
+    const [SelectedAgents, setSelectedAgents] = useState([]);
 
     //variables storing data
     const [subFormData, setSubFormData] = useState(null);
     const [selectedUser, setSelectedUser] = useState("");
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [xBarOptions, setXBarOptions] = useState([]);
+    //assign lead data sending in api
+    const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
+    const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState("");
+    const [customLeadsToSend, setCustomLeadsToSend] = useState("");
+    const [CallNow, setCallNow] = useState("");
+    const [CallLater, setCallLater] = useState(false);
+    const [isDncChecked, setIsDncChecked] = useState(false);
+
+    //last step modal data
+    const [lastStepData, setLastStepData] = useState({});
+
+    //refill loader
+    const [smartRefillLoader, setSmartRefillLoader] = useState(false);
+    const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
 
     const handleContinue = (formData) => {
         if (formData) {
@@ -61,6 +89,175 @@ export default function AssignLeadAnimation({
         setXBarOptions([]);
         setCurrentIndex(0);
     }
+
+    //assign lead
+    const handleAssignLead = async () => {
+        let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+        const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
+        const currentHour = selectedDate.hour(); // Get the current hour (0-23)
+        const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
+        //console.log;
+        //console.log;
+        //console.log;
+        //console.log;
+
+        const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
+        const isBeforeEndTime =
+            currentHour < 20 || (currentHour === 20 && currentMinute <= 30); // Before 8:30 PM
+        if (
+            isAfterStartTime && // After 7:00 AM
+            isBeforeEndTime // Before 8:30 PM
+        ) {
+            console.log(
+                "✅ Selected time is between 7 AM and 8:30 PM.",
+                selectedDate.format()
+            );
+            // setSelectedDateTime(selectedDate);
+        } else {
+            //console.log;
+            // setInvalidTimeMessage(
+            //   "Calls only between 7am-8:30pm"
+            //   // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
+            // );
+            // return;
+        }
+
+        // return;
+
+        try {
+            setLoader(true);
+
+            let timer = null;
+            let batchSize = null;
+
+            if (customLeadsToSend) {
+                batchSize = customLeadsToSend;
+            } else if (NoOfLeadsToSend) {
+                batchSize = NoOfLeadsToSend;
+            }
+
+            if (CallNow) {
+                timer = 0;
+            } else if (CallLater) {
+                const currentDateTime = dayjs(); // Get current date and time using Day.js
+
+                const differenceInMilliseconds = selectedDateTime.diff(currentDateTime); // Difference in ms
+                const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
+                timer = minutes.toFixed(0); // Round to nearest integer
+
+                // //console.log;
+                // //console.log;
+                // //console.log;
+            }
+
+            let Apidata = {
+                pipelineId: SelectedAgents[0].pipeline.id,
+                mainAgentIds: SelectedAgents.map((item) => item.id),
+                leadIds: leadIs,
+                startTimeDifFromNow: timer,
+                batchSize: batchSize,
+                selectedAll: selectedAll,
+                dncCheck: isDncChecked ? true : false,
+            };
+
+            //console.log;
+            // return;
+            if (filters && selectedAll) {
+                Apidata = {
+                    pipelineId: SelectedAgents[0].pipeline.id,
+                    mainAgentIds: SelectedAgents.map((item) => item.id),
+                    leadIds: leadIs,
+                    startTimeDifFromNow: timer,
+                    batchSize: batchSize,
+                    selectedAll: selectedAll,
+                    dncCheck: isDncChecked,
+                    ...filters,
+                };
+            }
+
+            //console.log;
+            // return;
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+            if (localData) {
+                const UserDetails = JSON.parse(localData);
+                AuthToken = UserDetails.token;
+            }
+
+            // //console.log;
+
+            const ApiPath = Apis.assignLeadToPipeLine;
+
+            // //console.log;
+
+            const response = await axios.post(ApiPath, Apidata, {
+                headers: {
+                    Authorization: "Bearer " + AuthToken,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response) {
+                // //console.log;
+                setCurrentIndex(0);
+                if (response.data.status === true) {
+                    handleClose({
+                        status: false,
+                        showSnack: "Lead assigned",
+                        disSelectLeads: true,
+                    });
+                    const localData = localStorage.getItem("User");
+                    if (localData) {
+                        let D = JSON.parse(localData);
+                        D.user.checkList.checkList.callsCreated = true;
+                        localStorage.setItem("User", JSON.stringify(D));
+                    }
+                    // setLastStepModal(false);
+                    // window.location.reload();
+                } else if (response.data.status === false) {
+                    handleClose({
+                        status: true,
+                        showSnack: "Error assigning lead",
+                        disSelectLeads: false,
+                    });
+                }
+            }
+        } catch (error) {
+            // console.error("Error occured in api is", error);
+            setSmartRefillLoader(false);
+            setSmartRefillLoaderLater(false);
+        } finally {
+            setLoader(false);
+            setSmartRefillLoader(false);
+            setSmartRefillLoaderLater(false);
+        }
+    };
+
+    //refill later
+    const handleSmartRefillLater = async () => {
+        try {
+            setSmartRefillLoaderLater(true);
+            handleAssignLead();
+        } catch (error) {
+            setSmartRefillLoaderLater(false);
+            console.error("Error occured is", error);
+        }
+    };
+
+    //allow smart refill then assign lead
+    const handleSmartRefill = async () => {
+        try {
+            setSmartRefillLoader(true);
+            const response = await SmartRefillApi();
+            if (response.data.status === true) {
+                handleAssignLead();
+            }
+        } catch (error) {
+            setSmartRefillLoader(false);
+            console.error("Error occured is", error);
+        }
+    };
+
 
     return (
         <Modal
@@ -110,8 +307,10 @@ export default function AssignLeadAnimation({
                                         userProfile={userProfile} // this is the .user object doesn't include token
                                         handleContinue={(d) => {
                                             console.log("Selected agent is", d);
-                                            // handleContinue()
+                                            setSelectedAgents(d);
+                                            handleContinue();
                                         }}
+                                        selectedAgents={SelectedAgents}
                                     />
                                 </div>
                             </motion.div>
@@ -130,7 +329,51 @@ export default function AssignLeadAnimation({
                             // style={styles.motionDiv}
                             >
                                 <div className="">
-                                    S_2
+                                    <LastStep
+                                        selectedLead={selectedLead}
+                                        leadIs={leadIs}
+                                        selectedAll={selectedAll}
+                                        filters={filters}
+                                        totalLeads={totalLeads}
+                                        userProfile={userProfile}
+                                        handleBack={(D) => {
+                                            if (D) {
+                                                console.log("Data ppassed is", D);
+                                                setSelectedDateTime(D.selectedDate);
+                                                setNoOfLeadsToSend(D.numberOfLeads);
+                                                setCustomLeadsToSend(D.cutomLeads);
+                                                setCallNow(D.isCallNow);
+                                                setIsDncChecked(D.DncChecked);
+                                                setCallLater(D.callL);
+                                                setLastStepData(D);
+                                            }
+                                            handleBack()
+                                        }}
+                                        lastStepData={lastStepData}
+                                        handleContinue={(D) => {
+                                            console.log("Data ppassed is", D);
+                                            setSelectedDateTime(D.selectedDate);
+                                            setNoOfLeadsToSend(D.numberOfLeads);
+                                            setCustomLeadsToSend(D.cutomLeads);
+                                            setCallNow(D.isCallNow);
+                                            setIsDncChecked(D.DncChecked);
+                                            setCallLater(D.callL);
+                                            setLastStepData(D);
+                                            const localData = localStorage.getItem("User");
+                                            if (localData) {
+                                                const UserDetails = JSON.parse(localData);
+                                                console.log(UserDetails.user.smartRefill);
+                                                if (UserDetails.user.smartRefill === false) {
+                                                    // setShowSmartRefillPopUp(true);
+                                                    //handle continue here
+                                                    handleContinue();
+                                                    return;
+                                                }
+                                            }
+                                            handleAssignLead();
+                                        }}
+                                        loader={loader}
+                                    />
                                 </div>
                             </motion.div>
                         )}
@@ -146,7 +389,17 @@ export default function AssignLeadAnimation({
                                 transition={{ duration: 0 }}
                                 className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
                             >
-                                S_3
+                                <AllowSmartRefillPopup
+                                    // showSmartRefillPopUp={showSmartRefillPopUp}
+                                    handleCloseReillPopup={() => {
+                                        handleBack();
+                                    }}
+                                    smartRefillLoader={smartRefillLoader}
+                                    smartRefillLoaderLater={smartRefillLoaderLater}
+                                    handleSmartRefillLater={handleSmartRefillLater}
+                                    handleSmartRefill={handleSmartRefill}
+                                    loader={loader}
+                                />
                             </motion.div>
                         )}
 

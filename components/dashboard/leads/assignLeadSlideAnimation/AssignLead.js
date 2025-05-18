@@ -44,7 +44,9 @@ const AssignLead = ({
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
   selectedLead,
-  
+  handleContinue,
+  selectedAgents
+
 }) => {
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
@@ -143,6 +145,8 @@ const AssignLead = ({
     // else {
     // //console.log;
     getAgents();
+    console.log("Selected agents paased are", selectedAgents);
+
     // }
   }, []);
 
@@ -209,6 +213,9 @@ const AssignLead = ({
         // console.log("Response of api is", response.data.data);
         let filterredAgentsList = response?.data?.data
         setAgentsList([...agentsList, ...filterredAgentsList]);
+        if (selectedAgents) {
+          setSelectedAgents(selectedAgents);
+        }
         if (filterredAgentsList.length > 0) {
           setHasMoreAgents(true);
         } else {
@@ -613,8 +620,20 @@ const AssignLead = ({
 
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: "700" }}>Select your Agent</div>
-        <div className="text-purple" style={styles.paragraph}>
-          {getLeadSelectedCount()} Contacts Selected
+        <div className="flex flex-row items-center gap-2">
+          <div className="text-purple" style={styles.paragraph}>
+            {getLeadSelectedCount()} Contacts Selected
+          </div>
+          <button
+            className="outline-none border-none"
+            onClick={handleCloseAssignLeadModal}>
+            <Image
+              src={"/assets/cross.png"}
+              alt="*"
+              height={15}
+              width={15}
+            />
+          </button>
         </div>
       </div>
       <div
@@ -719,6 +738,7 @@ const AssignLead = ({
                   onClick={() => {
                     // console.log("Selected item is", item);
                     let canAssign = canAssignStage(item);
+                    console.log("Current agent selected is", item);
                     if (canAssign == 0) {
                       //push to the array
                       // //console.log;
@@ -825,14 +845,17 @@ const AssignLead = ({
           }} //onClick={handleAssigLead}
           disabled={ShouldContinue}
           onClick={() => {
-            setLastStepModal(true);
+            const A = agentsList;
+            localStorage.setItem("AssignLeadAgents", JSON.stringify(A));
+            handleContinue(SelectedAgents);
+            // setLastStepModal(true);
           }}
         >
           Continue
         </button>
       </div>
 
-      {/* last step modal */}
+      {/* last step modal 
 
       <AllowSmartRefillPopup
         showSmartRefillPopUp={showSmartRefillPopUp}
@@ -844,7 +867,7 @@ const AssignLead = ({
         handleSmartRefillLater={handleSmartRefillLater}
         handleSmartRefill={handleSmartRefill}
       />
-
+*/}
       <Modal
         open={lastStepModal}
         onClose={() => setLastStepModal(false)}
@@ -1377,7 +1400,7 @@ const AssignLead = ({
                             return;
                           }
                         }
-                        handleAssignLead();
+                        // handleAssignLead();
                         // handleAssigLead()
                       }}
                     >

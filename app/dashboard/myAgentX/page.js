@@ -204,6 +204,9 @@ function Page() {
   const [hasMoreAgents, setHasMoreAgents] = useState(true);
   const [agentsListSeparated, setAgentsListSeparated] = useState([]); //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
   const [agentsList, setAgentsList] = useState([]);
+  //agents before search
+  const [agentsBeforeSearch, setAgentsBeforeSearch] = useState([]);
+
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
@@ -359,6 +362,8 @@ function Page() {
       value: "Natural Conversation Flow",
     },
   ];
+
+  //storing agents in backup variable before
 
   useEffect(() => {
     const updateAgentManueList = () => {
@@ -1930,11 +1935,16 @@ function Page() {
 
     setPaginationLoader(true);
 
-    if (searchLoader && !search) {
-      console.log('search clear', search)
-      setAgentsListSeparated(allAgentsList);
-      return
-    }
+    //test code failed for saving search value
+
+    // if (searchLoader && !search) {
+    //   console.log('search clear', search)
+    //   setAgentsListSeparated(allAgentsList);
+    //   return
+    // }
+
+
+
     console.log("Pagination status passed is", paginationStatus);
     // console.log('search', search)
     try {
@@ -1981,7 +1991,7 @@ function Page() {
           setCanGetMore(false);
         }
 
-       
+
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -1995,7 +2005,7 @@ function Page() {
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(newList)
         );
-         if (search) {
+        if (search) {
           setAgentsListSeparated(newList);
           return
         }
@@ -2266,6 +2276,23 @@ function Page() {
               value={search}
               onChange={(e) => {
 
+                //test code failed
+                // let a = e.target.value;
+                // if (a) {
+                //   console.log("There was some value");
+                //   setAgentsBeforeSearch(agentsListSeparated);
+                //   clearTimeout(searchTimeoutRef.current);
+                //   searchTimeoutRef.current = setTimeout(() => {
+                //     // handleSearch(e);
+                //     let searchLoader = true;
+                //     getAgents(false, e.target.value, searchLoader)
+                //   }, 500);
+                // } else if (!a) {
+                //   console.log("There was no value");
+                //   setAgentsListSeparated(agentsBeforeSearch);
+
+                // }
+
                 setSearch(e.target.value);
                 if (canGetMore === true) {
                   setCanKeepLoading(true);
@@ -2280,6 +2307,35 @@ function Page() {
                   getAgents(false, e.target.value, searchLoader)
                 }, 500);
               }}
+              //test code 2 failed
+              // onChange={(e) => {
+              //   const a = e.target.value;
+              //   setSearch(a);
+
+              //   if (a) {
+              //     console.log("There was some value");
+
+              //     // ✅ Only save original list once
+              //     if (agentsBeforeSearch.length === 0) {
+              //       setAgentsBeforeSearch(agentsListSeparated);
+              //     }
+
+              //     clearTimeout(searchTimeoutRef.current);
+              //     searchTimeoutRef.current = setTimeout(() => {
+              //       const searchLoader = true;
+              //       getAgents(false, a, searchLoader);
+              //     }, 500);
+              //   } else {
+              //     console.log("There was no value");
+
+              //     // ✅ Restore the original list when search is cleared
+              //     setAgentsListSeparated(agentsBeforeSearch);
+              //   }
+
+              //   // ✅ Optional: toggle loading based on canGetMore
+              //   setCanKeepLoading(canGetMore === true);
+              // }}
+
             />
             <button className="outline-none border-none">
               <Image

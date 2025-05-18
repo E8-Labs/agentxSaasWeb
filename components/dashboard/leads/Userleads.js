@@ -1831,7 +1831,7 @@ const Userleads = ({
                                         </span>
                                     </div> */}
 
-                  {/* <AssignLeadAnimation
+                  <AssignLeadAnimation
                     showModal={AssignLeadModal}
                     selectedLead={selectedLeadsList}
                     handleClose={
@@ -1842,9 +1842,9 @@ const Userleads = ({
                     filters={getFiltersObject()}
                     totalLeads={totalLeads}
                     userProfile={userLocalData} // this is the .user object doesn't include token
-                  />*/}
+                  />
 
-                  <Modal
+                  {/* <Modal
                     open={AssignLeadModal}
                     onClose={() => setAssignLeadModal(false)}
                     closeAfterTransition
@@ -1901,7 +1901,8 @@ const Userleads = ({
                         </div>
                       </div>
                     </Box>
-                  </Modal>
+                  </Modal>*/}
+                  
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
