@@ -7,16 +7,16 @@ function NoVoicemailView({
     openModal, showAddBtn, title = "No Voicemail", subTitle = "You don't have a voicemail added"
 }) {
     return (
-        <div className='flex flex-col items-center justify-center gap-3 mt-6'>
+        <div className='flex flex-col items-center justify-center mt-6'>
             <Image src={"/svgIcons/noVoicemailIcon.svg"}
-                height={63} width={193} alt='*'
+                height={50} width={193} alt='*'
             />
 
             <div style={{ fontSize: 22, fontWeight: '700', color: '#151515' }}>
                 {title}
             </div>
 
-            <div style={{ fontSize: 15, fontWeight: '500', color: '#151515' }}>
+            <div style={{ fontSize: 15, fontWeight: '500', color: '#151515',marginTop: 10 }}>
                 {subTitle}
             </div>
 

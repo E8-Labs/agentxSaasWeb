@@ -62,7 +62,7 @@ const AgentsListPaginated = ({
   //for stopping pagination loader
   canGetMore = true
 }) => {
-  console.log('loader for more data ', paginationLoader)
+  // console.log('loader for more data ', paginationLoader)
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
@@ -131,7 +131,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className="h-[60vh] overflow-auto pt-10 pb-12"
+      className="h-[75svh] overflow-auto pt-10 pb-12"
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >

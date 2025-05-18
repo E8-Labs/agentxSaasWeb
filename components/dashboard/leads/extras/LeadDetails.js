@@ -39,7 +39,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { capitalize } from "@/utilities/StringUtility";
 import CloseIcon from "@mui/icons-material/Close";
 
-import { Phone } from "lucide-react";
+import { Phone, View } from "lucide-react";
 import Perplexity from "./Perplexity";
 import NoPerplexity from "./NoPerplexity";
 import ConfirmPerplexityModal from "./CofirmPerplexityModal";
@@ -342,7 +342,7 @@ const LeadDetails = ({
         ];
         // setLeadColumns(response.data.columns);
         setSelectedLeadsDetails(response.data.data);
-        console.log("Lead details response", response.data.data);
+        console.log("Lead details response", response.data.data.callActivity);
         setSelectedStage(response?.data?.data?.stage?.stageTitle);
         // setSelectedStage(response?.data?.data?.stage?.stageTitle);
         setLeadColumns(dynamicColumns);
@@ -2003,14 +2003,15 @@ const LeadDetails = ({
                                     <div key={index}>
                                       {item.status === "voicemail" ||
                                         item.callOutcome === "Voicemail" ? (
-                                        <div>
-                                          {item.voicemail ? (
+                                        <div className="flex border items-center justify-center rounded mt-2">
+                                          { item.agent.hasVoicemail ? (
                                             <div>
                                               {item.voicemailsent ? (
+                                                
                                                 <NoVoicemailView
                                                   showAddBtn={false}
                                                   title={"Voicemail Delivered"}
-                                                  subtitle={
+                                                  subTitle={
                                                     "Delivered during the first missed call"
                                                   }
                                                 />
@@ -2020,7 +2021,7 @@ const LeadDetails = ({
                                                   title={
                                                     "Not able to Leave a Voicemail"
                                                   }
-                                                  subtitle={
+                                                  subTitle={
                                                     "The phone was either a landline or has a full voicemail"
                                                   }
                                                 />
