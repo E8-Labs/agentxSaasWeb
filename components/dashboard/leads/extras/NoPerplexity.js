@@ -63,7 +63,7 @@ function NoPerplexity({
             <div className="flex flex-row gap-2 items-center">
 
                 <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
-                    credit cost ($0.10/lead)
+                    credit cost ($0.05/lead)
                 </div>
 
                 <Tooltip
