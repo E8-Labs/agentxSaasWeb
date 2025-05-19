@@ -1974,15 +1974,50 @@ function Page() {
         },
       });
 
+      // if (response) {
+      //   //console.log;
+      //   setPaginationLoader(false);
+      //   let agents = response.data.data || [];
+      //   console.log("Agents from api", agents);
+      //   if (!search) {
+      //     setAllAgentsList(agents)
+
+      //   }
+      //   setOldAgentsList(agents)
+      //   if (agents.length >= 6) {
+      //     setCanGetMore(true);
+      //   } else {
+      //     setPaginationLoader(false);
+      //     setCanGetMore(false);
+      //   }
+
+      //   if (search) {
+      //     setAgentsListSeparated(agents);
+      //     return
+      //   }
+
+
+
+      //   let newList = [...mainAgentsList]; // makes a shallow copy
+      //   if (Array.isArray(agents) && agents.length > 0) {
+      //     newList.push(...agents); // append all agents at once
+      //   }
+
+      //   console.log("Agents after pushing", newList);
+
+      //   localStorage.setItem(
+      //     PersistanceKeys.LocalStoredAgentsListMain,
+      //     JSON.stringify(newList)
+      //   );
+
+      //   setMainAgentsList(newList);
+      // }
+
       if (response) {
         //console.log;
         setPaginationLoader(false);
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
-        if (!search) {
-          setAllAgentsList(agents)
-
-        }
         setOldAgentsList(agents)
         if (agents.length >= 6) {
           setCanGetMore(true);
@@ -1991,7 +2026,10 @@ function Page() {
           setCanGetMore(false);
         }
 
-
+        if (search) {
+          setAgentsListSeparated(agents);
+          return
+        }
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -2005,10 +2043,6 @@ function Page() {
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(newList)
         );
-        if (search) {
-          setAgentsListSeparated(newList);
-          return
-        }
         setMainAgentsList(newList);
       }
     } catch (error) {
@@ -2307,34 +2341,34 @@ function Page() {
                   getAgents(false, e.target.value, searchLoader)
                 }, 500);
               }}
-              //test code 2 failed
-              // onChange={(e) => {
-              //   const a = e.target.value;
-              //   setSearch(a);
+            //test code 2 failed
+            // onChange={(e) => {
+            //   const a = e.target.value;
+            //   setSearch(a);
 
-              //   if (a) {
-              //     console.log("There was some value");
+            //   if (a) {
+            //     console.log("There was some value");
 
-              //     // ✅ Only save original list once
-              //     if (agentsBeforeSearch.length === 0) {
-              //       setAgentsBeforeSearch(agentsListSeparated);
-              //     }
+            //     // ✅ Only save original list once
+            //     if (agentsBeforeSearch.length === 0) {
+            //       setAgentsBeforeSearch(agentsListSeparated);
+            //     }
 
-              //     clearTimeout(searchTimeoutRef.current);
-              //     searchTimeoutRef.current = setTimeout(() => {
-              //       const searchLoader = true;
-              //       getAgents(false, a, searchLoader);
-              //     }, 500);
-              //   } else {
-              //     console.log("There was no value");
+            //     clearTimeout(searchTimeoutRef.current);
+            //     searchTimeoutRef.current = setTimeout(() => {
+            //       const searchLoader = true;
+            //       getAgents(false, a, searchLoader);
+            //     }, 500);
+            //   } else {
+            //     console.log("There was no value");
 
-              //     // ✅ Restore the original list when search is cleared
-              //     setAgentsListSeparated(agentsBeforeSearch);
-              //   }
+            //     // ✅ Restore the original list when search is cleared
+            //     setAgentsListSeparated(agentsBeforeSearch);
+            //   }
 
-              //   // ✅ Optional: toggle loading based on canGetMore
-              //   setCanKeepLoading(canGetMore === true);
-              // }}
+            //   // ✅ Optional: toggle loading based on canGetMore
+            //   setCanKeepLoading(canGetMore === true);
+            // }}
 
             />
             <button className="outline-none border-none">

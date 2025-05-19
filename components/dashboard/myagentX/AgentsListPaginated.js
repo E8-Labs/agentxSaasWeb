@@ -62,7 +62,7 @@ const AgentsListPaginated = ({
   //for stopping pagination loader
   canGetMore = true
 }) => {
-  // console.log('loader for more data ', paginationLoader)
+  console.log('loader for more data ', search)
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
