@@ -415,7 +415,8 @@ const AddBuyerKyc = ({
   //let the user donot enter special  chars
   const handleInputChange = (id, value) => {
     // Allow only letters, numbers, and spaces
-    const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
+    // const sanitizedValue = value.replace(/[^a-zA-Z0-9 ]/g, '');
+    const sanitizedValue = value.replace(/[{}\[\]<>]/g, '');
 
     setInputs(
       inputs.map((input) =>
@@ -1004,7 +1005,7 @@ const AddBuyerKyc = ({
                         // onChange={(e) => setNewQuestion(e.target.value)}
                         onChange={(e) => {
                           const input = e.target.value;
-                          const filtered = input.replace(/[^a-zA-Z0-9 ]/g, ''); // Allow only letters, numbers, spaces
+                          const filtered = input.replace(/[{}\[\]<>]/g, ''); // Remove only {}, [], <>
                           setNewQuestion(filtered);
                           // setNewQuestion(e.target.value);
                         }}
