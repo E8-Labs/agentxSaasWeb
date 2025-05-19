@@ -3,19 +3,19 @@ export const AgentLanguages = {
     title: "English",
     value: "en-US",
     flag: "/agencyIcons/us.jpg",
-    subLang: ""
+    subLang: "",
   },
   Spanish: {
     title: "Spanish",
     value: "es",
     flag: "/agencyIcons/spain.jpg",
-    subLang: ""
+    subLang: "",
   },
   Bilingual: {
-    title: "Bilingual",
-    value: "es",
+    title: "Multilingual",
+    value: "multi",
     flag: "/agencyIcons/belgium.jpg",
-    subLang: "(English + Spanish)"
+    subLang: "(English + Spanish)",
   },
   // French: {
   //   title: "French",
