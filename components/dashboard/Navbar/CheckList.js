@@ -41,14 +41,19 @@ const CheckList = ({ userDetails }) => {
                 { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
                 { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
                 { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
-                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/callLog" }
+                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" }///dashboard/callLog
             ]);
         }
     }
 
     useEffect(() => {
-        getChecklist();
         const checklistData = userDetails?.user?.checkList?.checkList;
+        getChecklist();
+        window.addEventListener("UpdateCheckList", getChecklist);
+
+        return () => {
+          document.removeEventListener("UpdateCheckList", getChecklist); // Clean up
+        };
         // console.log("Check list", checklistData);
 
         // let percentage = 0;

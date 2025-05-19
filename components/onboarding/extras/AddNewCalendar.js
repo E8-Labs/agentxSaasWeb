@@ -256,6 +256,9 @@ const AddNewCalendar = ({
                         D.user.checkList.checkList.calendarCreated = true;
                         localStorage.setItem("User", JSON.stringify(D));
                     }
+                    window.dispatchEvent(
+                        new CustomEvent("UpdateCheckList", { detail: { update: true } })
+                    );
                     handleContinue();
                 } else {
                     setSnackMessage({

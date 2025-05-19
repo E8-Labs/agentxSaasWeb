@@ -810,6 +810,9 @@ const Leads1 = () => {
             D.user.checkList.checkList.leadCreated = true;
             localStorage.setItem("User", JSON.stringify(D));
           }
+          window.dispatchEvent(
+            new CustomEvent("UpdateCheckList", { detail: { update: true } })
+        );
 
           let sheet = response.data.data;
           let leads = response.data.leads;

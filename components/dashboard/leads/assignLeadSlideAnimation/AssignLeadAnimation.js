@@ -212,6 +212,9 @@ export default function AssignLeadAnimation({
                         D.user.checkList.checkList.callsCreated = true;
                         localStorage.setItem("User", JSON.stringify(D));
                     }
+                    window.dispatchEvent(
+                        new CustomEvent("UpdateCheckList", { detail: { update: true } })
+                    );
                     // setLastStepModal(false);
                     // window.location.reload();
                 } else if (response.data.status === false) {

@@ -408,6 +408,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             D.user.checkList.checkList.agentCreated = true;
             localStorage.setItem("User", JSON.stringify(D));
           }
+          window.dispatchEvent(
+            new CustomEvent("UpdateCheckList", { detail: { update: true } })
+          );
           handleContinue();
           // }
         } else if (response.data.status === false) {
