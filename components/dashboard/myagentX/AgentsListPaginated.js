@@ -33,7 +33,7 @@ const styles = {
 const AgentsListPaginated = ({
   agentsListSeparatedParam,
   selectedImagesParam,
-
+  search,
   user,
   getAgents,
   setObjective,
@@ -57,15 +57,17 @@ const AgentsListPaginated = ({
   setScriptKeys,
   setSelectedAgent,
   keys,
+  paginationLoader,
   setShowDrawerSelectedAgent,
   //for stopping pagination loader
-  canGetMore = true,
+  canGetMore = true
 }) => {
+  console.log('loader for more data ', search)
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam
   );
-  const [hasMoreAgents, setHasMoreAgents] = useState(true);
+  const [hasMoreAgents, setHasMoreAgents] = useState(false);
   const [selectedImages, setSelectedImages] = useState(selectedImagesParam);
   const fileInputRef = useRef([]);
 
@@ -81,6 +83,7 @@ const AgentsListPaginated = ({
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam);
+
   }, [agentsListSeparatedParam]);
 
   useEffect(() => {
@@ -108,9 +111,9 @@ const AgentsListPaginated = ({
     );
   };
   const fetchMoreAgents = async () => {
-    console.log("Fetch more agents please");
+    console.log("Fetch more agents please", search);
     // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
-    getAgents();
+    getAgents(true, search);
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -128,7 +131,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className="h-[75vh] overflow-auto pt-10 pb-12"
+      className="h-[75svh] overflow-auto pt-10 pb-12"
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >
@@ -225,7 +228,25 @@ const AgentsListPaginated = ({
           scrollableTarget="scrollableAgentDiv"
           loader={
             <div className="w-full flex justify-center mt-4">
-              <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+              {
+                paginationLoader ? (
+                  <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                ) : (
+                  <p
+                    style={{
+                      textAlign: "center",
+                      paddingTop: "10px",
+                      fontWeight: "400",
+                      fontFamily: "inter",
+                      fontSize: 16,
+                      color: "#00000060",
+                    }}
+                  >
+                    {`You're all caught up`}
+                  </p>
+                )
+              }
+
             </div>
           }
           endMessage={
@@ -243,6 +264,7 @@ const AgentsListPaginated = ({
             </p>
           }
           style={{ overflow: "unset" }}
+
         >
           <div className="flex flex-col gap-4 px-10">
             {agentsListSeparated.map((item, index) => (
@@ -332,8 +354,8 @@ const AgentsListPaginated = ({
                           >
                             {user.user.userType == UserTypes.RealEstateAgent
                               ? `${item.agentObjective
-                                  ?.slice(0, 1)
-                                  .toUpperCase()}${item.agentObjective?.slice(
+                                ?.slice(0, 1)
+                                .toUpperCase()}${item.agentObjective?.slice(
                                   1
                                 )}`
                               : `${item.agentRole}`}
@@ -500,8 +522,8 @@ const AgentsListPaginated = ({
                         <div>
                           {item?.totalDuration
                             ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format("HH:mm:ss")
+                              .utc((item?.totalDuration || 0) * 1000)
+                              .format("HH:mm:ss")
                             : "-"}
                         </div>
                       }
