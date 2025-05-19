@@ -131,11 +131,11 @@ const AddCalender = ({ handleContinue }) => {
   const handleChange = (event) => {
     const selectedTitle = event.target.value;
     setSelectCalender(selectedTitle);
-  
+
     const selected = previousCalenders.find(cal => cal.title === selectedTitle);
     setCalendarSelected(selected || null);
   };
-  
+
 
 
 
@@ -224,8 +224,9 @@ const AddCalender = ({ handleContinue }) => {
       // }
 
       for (let [key, value] of formData.entries()) {
-        //console.log;
+        console.log(`${key} = ${value}`);
       }
+      console.log("Key updated");
 
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -442,7 +443,7 @@ const AddCalender = ({ handleContinue }) => {
                       <MenuItem className="w-full" value="Custom Calender">
                         <button
                           className="text-purple underline w-full text-start"
-                          onClick={() => {
+                          onClick={(e) => {
                             e.stopPropagation(); // prevent triggering Select's onChange
                             setSelectCalender(""); // clear selection
                             setCalendarSelected(null);
@@ -487,7 +488,8 @@ const AddCalender = ({ handleContinue }) => {
             <Footer
               handleContinue={handleAddCalender}
               donotShowBack={true}
-              registerLoader={calenderLoader}
+              registerLoader={false}
+              addCalendarLoader={calenderLoader}
               shouldContinue={!isEnabled()}
             />
           </div>
@@ -683,8 +685,8 @@ const AddCalender = ({ handleContinue }) => {
 
                   <div className="w-full mt-4">
                     {calenderLoader ? (
-                      <div>
-                        <CircularProgress size={25} />
+                      <div className="w-full flex flex-row items-center justify-center">
+                        <CircularProgress size={35} />
                       </div>
                     ) : (
                       <button

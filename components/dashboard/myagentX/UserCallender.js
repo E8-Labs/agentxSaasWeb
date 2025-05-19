@@ -20,6 +20,9 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
 import CircularLoader from "@/utilities/CircularLoader";
+import VideoCard from "@/components/createagent/VideoCard";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { HowtoVideos } from "@/constants/Constants";
 
 const UserCalender = ({
   calendarDetails,
@@ -38,6 +41,8 @@ const UserCalender = ({
   const [selectedCalenderTitle, setSelectedCalenderTitle] = useState("");
   const [selectCalender, setSelectCalender] = useState("");
   const [initialLoader, setInitialLoader] = useState(false);
+  //intro video modla
+  const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [calendarToDelete, setCalendarToDelete] = useState(null);
@@ -171,7 +176,7 @@ const UserCalender = ({
         if (response.data.status === true) {
           setType(SnackbarTypes.Success);
           setMessage("Calender added");
-         
+
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
@@ -478,6 +483,20 @@ const UserCalender = ({
                 </FormControl>
               )}
             </div>
+            <VideoCard
+              duration="2 min 42 sec"
+              horizontal={false}
+              playVideo={() => {
+                setIntroVideoModal2(true);
+              }}
+              title="Learn how to add a calendar"
+            />
+            <IntroVideoModal
+              open={introVideoModal2}
+              onClose={() => setIntroVideoModal2(false)}
+              videoTitle="Learn how to add a calendar"
+              videoUrl={HowtoVideos.Calendar}
+            />
             {/* <div className='w-full mt-4'>
                                 {
                                     calenderLoader ?
@@ -699,11 +718,11 @@ const UserCalender = ({
                             : "#7902DF",
                           color: !isEnabled() ? "#000000" : "",
                         }}
-                        onClick={()=>{
+                        onClick={() => {
                           let calendar = {
-                            apiKey:calenderApiKey,
-                            eventId:eventId,
-                            timeZone:selectTimeZone
+                            apiKey: calenderApiKey,
+                            eventId: eventId,
+                            timeZone: selectTimeZone
                           }
                           handleAddCalender(calendar)
                         }}
