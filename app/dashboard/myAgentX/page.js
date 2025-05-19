@@ -336,17 +336,17 @@ function Page() {
   const StartingPaceList = [
     {
       id: 1,
-      title: "⚡️ Instant ~0 sec",
+      title: "⚡️ Instant ~1 sec",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~1 sec",
+      title: "⏳ Short Pause ~2 sec",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~ 2 sec",
+      title: "🧘 Delayed ~3 sec",
       value: "Natural Conversation Flow",
     },
   ];
