@@ -1198,13 +1198,17 @@ const AgencySignUp = ({
                                 </div>
                             </div>
                                 </div>*/}
+            {/*parent div*/}
             <div className="inline-flex flex-col absolute bottom-10 right-0 sm:right-40 max-w-full">
+              {/*this one agency name div*/}
               <div className="inline-flex flex-col items-end mb-4">
                 <div
                   className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
                   style={{ fontWeight: "700", whiteSpace: "nowrap" }}
                 >
-                  {company || "Agency Name"}
+                  {(company || "Agency Name").length > 12
+                    ? (company || "Agency Name").slice(0, 12) + '...'
+                    : (company || "Agency Name")}
                 </div>
                 <Image
                   className="object-contain"
@@ -1214,8 +1218,8 @@ const AgencySignUp = ({
                   alt="*"
                 />
               </div>
-
-              <div className="bg-white inline-flex flex-row justify-center shadow-xl pb-6 rounded-xl">
+              {/* This is getting width of the agncy name div or parent div */}
+              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-fit self-end px-4">
                 <div className="bg-white shadow-xl rounded-xl px-4 pb-4">
                   {[
                     {
@@ -1226,10 +1230,10 @@ const AgencySignUp = ({
                       src: "/agencyIcons/web.jpg",
                       label: website || "Website",
                     },
-                    {
-                      src: "/agencyIcons/email.jpg",
-                      label: userEmail || "Email",
-                    },
+                    // {
+                    //   src: "/agencyIcons/email.jpg",
+                    //   label: userEmail || "Email",
+                    // },
                     {
                       src: "/agencyIcons/building.jpg",
                       label: size?.label || "Agency Size",
@@ -1237,14 +1241,14 @@ const AgencySignUp = ({
                   ].map((item, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-row items-center gap-3 mt-4 first:pt-6"
+                      className="flex flex-row items-center gap-3 mt-4 first:pt-6 min-w-0"
                     >
                       <Image alt="*" src={item.src} height={32} width={32} />
                       <div
                         className="truncate"
                         style={{ ...styles.sideBoxTxt, maxWidth: "20rem" }}
                       >
-                        {item.label}
+                        {item?.label?.length > 13 ? item?.label?.slice(0, 13) + '...' : item?.label}
                       </div>
                     </div>
                   ))}
