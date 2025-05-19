@@ -424,6 +424,15 @@ const AssignLead = ({
             showSnack: "Lead assigned",
             disSelectLeads: true,
           });
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.calendarCreated = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(
+            new CustomEvent("UpdateCheckList", { detail: { update: true } })
+          );
           setLastStepModal(false);
           // window.location.reload();
         } else if (response.data.status === false) {
@@ -747,7 +756,7 @@ const AssignLead = ({
             <AgentSelectSnackMessage
               className=""
               message={showSuccessSnack}
-              isVisible={showSuccessSnack === null ? false :true}
+              isVisible={showSuccessSnack === null ? false : true}
               hide={() => {
                 setShowSuccessSnack(null);
               }}
@@ -872,8 +881,8 @@ const AssignLead = ({
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
                     border: `${isFocustedCustomLeads
-                        ? "2px solid #7902Df"
-                        : "1px solid #00000040"
+                      ? "2px solid #7902Df"
+                      : "1px solid #00000040"
                       }`,
                     height: "50px",
                   }}

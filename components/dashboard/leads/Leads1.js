@@ -802,6 +802,15 @@ const Leads1 = () => {
       if (response) {
         ////////console.log;
         if (response.data.status === true) {
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.calendarCreated = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(
+            new CustomEvent("UpdateCheckList", { detail: { update: true } })
+          );
           let sheet = response.data.data;
           let leads = response.data.leads;
           // let sheetsList =
@@ -1170,7 +1179,7 @@ const Leads1 = () => {
                       alt="Upload Icon"
                       height={30}
                       width={30}
-                      // style={{ marginBottom: "10px" }}
+                    // style={{ marginBottom: "10px" }}
                     />
                   </div>
                   <p style={{ ...styles.subHeadingStyle }}>
@@ -1977,9 +1986,9 @@ const Leads1 = () => {
                                 color: "#7902DF",
                               },
                               "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                                {
-                                  backgroundColor: "#7902DF",
-                                },
+                              {
+                                backgroundColor: "#7902DF",
+                              },
                             }}
                           />
                         </div>
@@ -2104,11 +2113,10 @@ const Leads1 = () => {
                     </div>
                   ) : (
                     <button
-                      className={`h-[50px] rounded-xl w-full ${
-                        newSheetName && newSheetName.length > 0
+                      className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
                           ? "bg-purple text-white"
                           : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
-                      }`}
+                        }`}
                       style={{
                         fontWeight: "600",
                         fontSize: 16.8,

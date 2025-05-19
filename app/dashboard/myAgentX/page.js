@@ -706,7 +706,7 @@ function Page() {
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
     );
-    ////console.log;
+    console.log("Compared agent on user calendar is", comparedAgent);
 
     setCalendarDetails(comparedAgent);
 
@@ -2056,6 +2056,7 @@ function Page() {
           setAgentsListSeparated(newList);
           return
         }
+        console.log("Agents list recieved is", newList);
         setMainAgentsList(newList);
       }
     } catch (error) {
@@ -2192,8 +2193,9 @@ function Page() {
     if (agentLocalDetails) {
       const agentData = JSON.parse(agentLocalDetails);
       //console.log;
-      getCalenders();
+      console.log("Data updating after add calendar", agentData);
       setMainAgentsList(agentData);
+      getCalenders();
     } else {
       //// //console.log;
     }

@@ -69,10 +69,11 @@ const UserCalender = ({
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
     setAllCalendars(previousCalenders);
-    // //console.log;
+    console.log("Previous calendars passed", previousCalenders);
     if (selectedAgent?.calendar) {
       //console.log;
       setSelectCalender(selectedAgent.calendar);
+      console.log("Selected agent passed on calendar side", selectedAgent.calendar);
       setSelectedCalenderTitle(selectedAgent.calendar?.id || "");
     } else {
       //console.log;
