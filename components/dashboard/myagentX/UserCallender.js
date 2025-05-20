@@ -31,6 +31,7 @@ const UserCalender = ({
   selectedAgent,
   updateVariableData,
 }) => {
+  const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
@@ -73,7 +74,10 @@ const UserCalender = ({
     if (selectedAgent?.calendar) {
       //console.log;
       setSelectCalender(selectedAgent.calendar);
-      console.log("Selected agent passed on calendar side", selectedAgent.calendar);
+      console.log(
+        "Selected agent passed on calendar side",
+        selectedAgent.calendar
+      );
       setSelectedCalenderTitle(selectedAgent.calendar?.id || "");
     } else {
       //console.log;
@@ -188,6 +192,9 @@ const UserCalender = ({
             let calendars = allCalendars.filter(
               (item) => item.apiKey != newCalendarData.apiKey
             );
+            let selecAgent = { ...agent, calendar: newCalendarData };
+
+            setAgent(selecAgent);
             setAllCalendars([...calendars, newCalendarData]);
             setSelectCalender(newCalendarData);
             setSelectedCalenderTitle(newCalendarData?.id);
@@ -284,7 +291,6 @@ const UserCalender = ({
           setMessage("Calendar deleted");
           setType(SnackbarTypes.Success);
           updateVariableData();
-
         } else {
           //console.log;
           setIsVisible(true);
@@ -368,7 +374,11 @@ const UserCalender = ({
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
                       let cals = allCalendars.filter((item) => {
-                        return item.id == selected;
+                        return (
+                          item.title == agent?.calendar?.title &&
+                          item.apiKey == agent?.calendar?.apiKey &&
+                          item.eventId == agent?.calendar?.eventId
+                        );
                       });
                       //console.log;
                       let cal = null;
@@ -689,12 +699,7 @@ const UserCalender = ({
                               value={item}
                               key={index}
                             >
-                              <button
-                                onClick={() => {
-                                }}
-                              >
-                                {item}
-                              </button>
+                              <button onClick={() => {}}>{item}</button>
                             </MenuItem>
                           );
                         })}
@@ -723,9 +728,9 @@ const UserCalender = ({
                           let calendar = {
                             apiKey: calenderApiKey,
                             eventId: eventId,
-                            timeZone: selectTimeZone
-                          }
-                          handleAddCalender(calendar)
+                            timeZone: selectTimeZone,
+                          };
+                          handleAddCalender(calendar);
                         }}
                       >
                         Add
