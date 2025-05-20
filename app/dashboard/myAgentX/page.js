@@ -78,8 +78,8 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
-    const searchTimeoutRef = useRef(null);
-  
+  const searchTimeoutRef = useRef(null);
+
   // const fileInputRef = useRef(null);
   const router = useRouter();
   let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
@@ -1355,10 +1355,10 @@ function Page() {
             );
           }
 
-          if (voiceData.liveTransferNumber) {
+          if (voiceData.liveTransferNumber || voiceData.liveTransferNumber !== undefined) {
             formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
-          if (voiceData.callbackNumber) {
+          if (voiceData.callbackNumber || voiceData.callbackNumber !== undefined) {
             formData.append("callbackNumber", voiceData.callbackNumber);
           }
         }
