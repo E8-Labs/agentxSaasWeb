@@ -62,6 +62,8 @@ import { AgentLanguagesList } from "@/utilities/AgentLanguages";
 import { EditPhoneNumberModal } from "@/components/dashboard/myagentX/EditPhoneNumberPopup";
 import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
+import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 
 function AdminAgentX({ selectedUser, from }) {
@@ -254,6 +256,8 @@ function AdminAgentX({ selectedUser, from }) {
   const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false);
   const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
 
+  const [paginationLoader, setPaginationLoader] = useState(false);
+  const [oldAgentsList, setOldAgentsList] = useState([]);
 
   //agent KYC's
   const [kYCList, setKYCList] = useState([]);
@@ -1713,12 +1717,27 @@ function AdminAgentX({ selectedUser, from }) {
   };
 
   //code to get agents
-  const getAgents = async (p, search = null) => {
+  const getAgents = async (paginationStatus, search = null, searchLoader = false) => {
+
+    setPaginationLoader(true);
+
+    //test code failed for saving search value
+
+    // if (searchLoader && !search) {
+    //   console.log('search clear', search)
+    //   setAgentsListSeparated(allAgentsList);
+    //   return
+    // }
+
+
+
+    console.log("Pagination status passed is", paginationStatus);
+    // console.log('search', search)
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
       );
-      if (!agentLocalDetails) {
+      if (!agentLocalDetails || searchLoader) {
         setInitialLoader(true);
       }
       let offset = mainAgentsList.length;
@@ -1728,30 +1747,73 @@ function AdminAgentX({ selectedUser, from }) {
         offset = 0;
         ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser.id}&search=${search}`;
       }
-      console.log("api path is", ApiPath);
-      const data = localStorage.getItem("User");
-      const user = JSON.parse(data);
+      console.log("Api path is", ApiPath);
 
-      const AuthToken = user.token;
-      //console.log;
+      const Auth = AuthToken();
+      ////console.log;
+      // const AuthToken = userData.token;
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + Auth,
           "Content-Type": "application/json",
         },
       });
 
+      // if (response) {
+      //   //console.log;
+      //   setPaginationLoader(false);
+      //   let agents = response.data.data || [];
+      //   console.log("Agents from api", agents);
+      //   if (!search) {
+      //     setAllAgentsList(agents)
+
+      //   }
+      //   setOldAgentsList(agents)
+      //   if (agents.length >= 6) {
+      //     setCanGetMore(true);
+      //   } else {
+      //     setPaginationLoader(false);
+      //     setCanGetMore(false);
+      //   }
+
+      //   if (search) {
+      //     setAgentsListSeparated(agents);
+      //     return
+      //   }
+
+
+
+      //   let newList = [...mainAgentsList]; // makes a shallow copy
+      //   if (Array.isArray(agents) && agents.length > 0) {
+      //     newList.push(...agents); // append all agents at once
+      //   }
+
+      //   console.log("Agents after pushing", newList);
+
+      //   localStorage.setItem(
+      //     PersistanceKeys.LocalStoredAgentsListMain,
+      //     JSON.stringify(newList)
+      //   );
+
+      //   setMainAgentsList(newList);
+      // }
+
       if (response) {
+        //console.log;
+        setPaginationLoader(false);
         let agents = response.data.data || [];
-        console.log("agencts list is", response.data.data);
+        console.log("Agents from api", agents);
+        setOldAgentsList(agents)
         if (agents.length >= 6) {
           setCanGetMore(true);
         } else {
+          setPaginationLoader(false);
           setCanGetMore(false);
         }
+
         if (search) {
-          setAgentsListSeparated(response.data.data);
+          setAgentsListSeparated(agents);
           return
         }
 
@@ -1768,17 +1830,13 @@ function AdminAgentX({ selectedUser, from }) {
           JSON.stringify(newList)
         );
         setMainAgentsList(newList);
-
-        // localStorage.setItem(
-        //   PersistanceKeys.LocalStoredAgentsListMain,
-        //   JSON.stringify(response.data.data)
-        // );
-        // setMainAgentsList(response.data.data);
       }
     } catch (error) {
-      console.error("Error occured in get Agents api is :", error);
+      setInitialLoader(false);
+      //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
+
     }
   };
 
@@ -2100,7 +2158,7 @@ function AdminAgentX({ selectedUser, from }) {
   // ////console.log
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center h-full overflow-hidden">
       {/* Code for popover */}
       <Popover
         id="mouse-over-popover"
@@ -2193,9 +2251,7 @@ function AdminAgentX({ selectedUser, from }) {
         className="w-full flex flex-row justify-between items-center py-4 px-10"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
-
-
+        <div style={{ fontSize: 24, fontWeight: "600" }}>My Agent</div>
         <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
           <input
             // style={styles.paragraph}
@@ -2203,18 +2259,17 @@ function AdminAgentX({ selectedUser, from }) {
             placeholder="Search an agent"
             value={search}
             onChange={(e) => {
-
               setSearch(e.target.value);
               if (canGetMore === true) {
                 setCanKeepLoading(true);
               } else {
                 setCanKeepLoading(false);
               }
-
               clearTimeout(searchTimeoutRef.current);
               searchTimeoutRef.current = setTimeout(() => {
                 // handleSearch(e);
-                getAgents(e.target.value)
+                let searchLoader = true;
+                getAgents(false, e.target.value, searchLoader)
               }, 500);
             }}
           />
@@ -2227,10 +2282,10 @@ function AdminAgentX({ selectedUser, from }) {
             />
           </button>
         </div>
-        
+
       </div>
 
-      <div className="w-full items-center " style={{}}>
+      <div className="w-full items-center h-full overflow-hidden" style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">
@@ -2238,13 +2293,14 @@ function AdminAgentX({ selectedUser, from }) {
           </div>
         ) : (
           <AgentsListPaginated
+            oldAgentsList={oldAgentsList}
             agentsListSeparatedParam={agentsListSeparated}
             selectedImagesParam={selectedImages}
             handlePopoverClose={handlePopoverClose}
             user={user}
             getAgents={(p, s) => {
               console.log('p', s)
-              getAgents(p, s);//user
+              getAgents(p, s,);//user
             }}
             search={search}
             setObjective={setObjective}
@@ -2270,6 +2326,8 @@ function AdminAgentX({ selectedUser, from }) {
             setSelectedAgent={setSelectedAgent}
             keys={keys}
             canGetMore={canGetMore}
+            paginationLoader={paginationLoader}
+            from="Admin"
           />
         )}
 
