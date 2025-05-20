@@ -2039,6 +2039,22 @@ function Page() {
           setCanGetMore(false);
         }
 
+        if (search) {
+          let subAgents = [];
+          agents.forEach((item) => {
+            if (item.agents && item.agents.length > 0) {
+              for (let i = 0; i < item.agents.length; i++) {
+                const agent = item.agents[i];
+                if (agent) {
+                  subAgents.push(agent);
+                }
+              }
+            }
+          });
+          setAgentsListSeparated(agents)
+          return
+        }
+
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -2052,10 +2068,7 @@ function Page() {
           PersistanceKeys.LocalStoredAgentsListMain,
           JSON.stringify(newList)
         );
-        if (search) {
-          setAgentsListSeparated(newList);
-          return
-        }
+
         console.log("Agents list recieved is", newList);
         setMainAgentsList(newList);
       }
