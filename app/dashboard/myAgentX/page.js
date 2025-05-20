@@ -1345,10 +1345,10 @@ function Page() {
             );
           }
 
-          if (voiceData.liveTransferNumber) {
+          if (voiceData.liveTransferNumber || voiceData.liveTransferNumber !== undefined) {
             formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
-          if (voiceData.callbackNumber) {
+          if (voiceData.callbackNumber || voiceData.callbackNumber !== undefined) {
             formData.append("callbackNumber", voiceData.callbackNumber);
           }
         }
