@@ -23,6 +23,7 @@ import CircularLoader from "@/utilities/CircularLoader";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { HowtoVideos } from "@/constants/Constants";
+import { SelectAll } from "@mui/icons-material";
 
 const UserCalender = ({
   calendarDetails,
@@ -31,6 +32,7 @@ const UserCalender = ({
   selectedAgent,
   updateVariableData,
 }) => {
+  const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
@@ -82,8 +84,16 @@ const UserCalender = ({
   }, []);
 
   useEffect(() => {
+    setAgent(selectedAgent);
+  }, [selectedAgent]);
+
+  useEffect(() => {
     //console.log;
   }, [selectCalender]);
+
+  useEffect(() => {
+    console.log("Agent changed ", agent);
+  }, [agent]);
 
   // useEffect(() => {
   //   if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
@@ -188,6 +198,9 @@ const UserCalender = ({
             let calendars = allCalendars.filter(
               (item) => item.apiKey != newCalendarData.apiKey
             );
+            let selecAgent = { ...agent, calendar: newCalendarData };
+
+            setAgent(selecAgent); // Now this triggers useEffect
             setAllCalendars([...calendars, newCalendarData]);
             setSelectCalender(newCalendarData);
             setSelectedCalenderTitle(newCalendarData?.id);
@@ -368,9 +381,9 @@ const UserCalender = ({
                       }
                       let cals = allCalendars.filter((item) => {
                         return (
-                          item.title == selectedAgent?.calendar?.title &&
-                          item.apiKey == selectedAgent?.calendar?.apiKey &&
-                          item.eventId == selectedAgent?.calendar?.eventId
+                          item.title == agent?.calendar?.title &&
+                          item.apiKey == agent?.calendar?.apiKey &&
+                          item.eventId == agent?.calendar?.eventId
                         );
                       });
                       //console.log;
