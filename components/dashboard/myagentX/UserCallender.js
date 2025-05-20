@@ -284,7 +284,6 @@ const UserCalender = ({
           setMessage("Calendar deleted");
           setType(SnackbarTypes.Success);
           updateVariableData();
-
         } else {
           //console.log;
           setIsVisible(true);
@@ -363,16 +362,20 @@ const UserCalender = ({
                     // onChange={handleChange}
                     displayEmpty // Enables placeholder
                     renderValue={(selected) => {
-                      //console.log;
+                      console.log("Selected Render ", selected);
                       if (!selected) {
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
                       let cals = allCalendars.filter((item) => {
-                        return item.id == selected;
+                        return (
+                          item.title == selectedAgent?.calendar?.title &&
+                          item.apiKey == selectedAgent?.calendar?.apiKey &&
+                          item.eventId == selectedAgent?.calendar?.eventId
+                        );
                       });
                       //console.log;
                       let cal = null;
-                      if (cals && cals.length == 1) {
+                      if (cals && cals.length >= 1) {
                         cal = cals[0];
                       }
                       return cal?.title || "";
@@ -692,12 +695,7 @@ const UserCalender = ({
                               value={item}
                               key={index}
                             >
-                              <button
-                                onClick={() => {
-                                }}
-                              >
-                                {item}
-                              </button>
+                              <button onClick={() => {}}>{item}</button>
                             </MenuItem>
                           );
                         })}
@@ -744,9 +742,9 @@ const UserCalender = ({
                           let calendar = {
                             apiKey: calenderApiKey,
                             eventId: eventId,
-                            timeZone: selectTimeZone
-                          }
-                          handleAddCalender(calendar)
+                            timeZone: selectTimeZone,
+                          };
+                          handleAddCalender(calendar);
                         }}
                       >
                         Add
