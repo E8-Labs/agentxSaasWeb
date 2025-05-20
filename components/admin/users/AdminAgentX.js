@@ -1791,7 +1791,7 @@ function AdminAgentX({ selectedUser, from }) {
               }
             }
           });
-        
+
           setAgentsListSeparated(subAgents);
           return
         }
@@ -1991,12 +1991,20 @@ function AdminAgentX({ selectedUser, from }) {
             );
           }
 
-          if (voiceData.liveTransferNumber) {
+          // if (voiceData.liveTransferNumber) {
+          //   formData.append("liveTransferNumber", voiceData.liveTransferNumber);
+          // }
+          // if (voiceData.callbackNumber) {
+          //   formData.append("callbackNumber", voiceData.callbackNumber);
+          // }
+
+          if (voiceData.liveTransferNumber || voiceData.liveTransferNumber !== undefined) {
             formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
-          if (voiceData.callbackNumber) {
+          if (voiceData.callbackNumber || voiceData.callbackNumber !== undefined) {
             formData.append("callbackNumber", voiceData.callbackNumber);
           }
+
         }
 
         // if (showDrawerSelectedAgent) {
