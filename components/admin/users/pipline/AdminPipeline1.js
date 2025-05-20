@@ -61,6 +61,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
   const colorPickerRef = useRef();
   let searchParams = useSearchParams();
   const router = useRouter();
+  const [reservedLeads, setReservedLeads] = useState([]);
+  const searchTimeout = useRef(null);
 
   //code for showing the reorder stages btn
   const [showReorderBtn, setShowReorderBtn] = useState(false);
@@ -556,6 +558,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
+          setReservedLeads(jsonData[index].leads);
           // //console.log;
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
@@ -612,7 +615,9 @@ const AdminPipeline1 = ({ selectedUser }) => {
           JSON.stringify(response.data.data)
         );
         const pipelinesList = response.data.data;
-        setPipeLines(pipelinesList);
+        setPipeLines(pipelinesList);//[selectedPipelineIndex]
+        // console.log("Pipelines list for reserve");
+        // setReservedLeads(pipelineDetails);
 
         if (pipelinesList.length > 0) {
           // console.log(
@@ -750,6 +755,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
     setStagesList(item.stages);
     setLeadsCountInStage(item.leadsCountInStage);
     setLeadsList(item.leads);
+    setReservedLeads(item.leads);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
     setParamsInSearchBar(index);
@@ -1541,31 +1547,51 @@ const AdminPipeline1 = ({ selectedUser }) => {
     }
   };
 
-  function handldSearch(e) {
-    let pipeline = SelectedPipeline;
-    let search = e.target.value.toLowerCase();
-    // //console.log;
+  // function handldSearch(e) {
+  //   let pipeline = SelectedPipeline;
+  //   let search = e.target.value.toLowerCase();
+  //   // //console.log;
 
-    if (search == "") {
-      setLeadsList(pipeline.leads);
-    } else {
-      const filteredLeads = pipeline.leads.filter((lead) => {
-        //// //console.log;
-        let firstName = lead.lead.firstName.toLowerCase();
-        let lastName = lead.lead.lastName.toLowerCase();
-        let fullName = (firstName || "") + " " + (lastName || "");
-        let email = lead?.lead?.email?.toLowerCase() || "";
-        let phone = lead?.lead?.phone;
-        return (
-          firstName.includes(search) ||
-          lastName.includes(search) ||
-          fullName.includes(search) ||
-          email.includes(search) ||
-          phone.includes(search)
-        );
-      });
-      setLeadsList(filteredLeads);
+  //   if (search == "") {
+  //     setLeadsList(pipeline.leads);
+  //   } else {
+  //     const filteredLeads = pipeline.leads.filter((lead) => {
+  //       //// //console.log;
+  //       let firstName = lead.lead.firstName.toLowerCase();
+  //       let lastName = lead.lead.lastName.toLowerCase();
+  //       let fullName = (firstName || "") + " " + (lastName || "");
+  //       let email = lead?.lead?.email?.toLowerCase() || "";
+  //       let phone = lead?.lead?.phone;
+  //       return (
+  //         firstName.includes(search) ||
+  //         lastName.includes(search) ||
+  //         fullName.includes(search) ||
+  //         email.includes(search) ||
+  //         phone.includes(search)
+  //       );
+  //     });
+  //     setLeadsList(filteredLeads);
+  //   }
+  // }
+
+  function handldSearch(e) {
+    let search = e.target.value.toLowerCase();
+    let pipeline = SelectedPipeline;
+
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current); // Clear previous timer
     }
+
+    searchTimeout.current = setTimeout(() => {
+      if (search === "") {
+        setLeadsList(reservedLeads);
+      } else {
+        getMoreLeadsInStage({
+          stageId: pipeline?.stages[0].id,
+          search: search
+        });
+      }
+    }, 500); // Delay of 3000ms = 3 seconds
   }
 
 
