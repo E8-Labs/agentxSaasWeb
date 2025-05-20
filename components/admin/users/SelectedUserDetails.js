@@ -1,7 +1,7 @@
 import AdminLeads from '@/components/admin/users/AdminLeads'
 import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AdminLeads1 from './AdminLeads1'
 import AdminPipeline1 from './pipline/AdminPipeline1'
 import AdminAgentX from './AdminAgentX'
@@ -15,10 +15,16 @@ import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 
-function SelectedUserDetails({ selectedUser, handleDel }) {
+function SelectedUserDetails({
+    selectedUser,
+    handleDel,
+    from = "admin",
+    handlePauseUser,
+    agencyUser = false
+}) {
 
-    //console.log
 
     const manuBar = [
         {
@@ -58,11 +64,13 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
             unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
         }, {
             id: 8,
-            name: 'Personal Data',
+            name: 'Account',
             selectedImage: '/svgIcons/selectedProfileCircle.svg',
             unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg'
         }
     ]
+
+    console.log("Status of agency user", agencyUser);
 
     const [selectedManu, setSelectedManu] = useState(manuBar[0])
     const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
@@ -71,9 +79,24 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
     const [minutes, setMinutes] = useState("")
     const [showSnackMessage, setShowSnackMessage] = useState(null)
     const [loading, setloading] = useState(false)
-    const [delLoader, setDelLoader] = useState(false)
-    const [pauseLoader, setpauseLoader] = useState(false)
+    const [delLoader, setDelLoader] = useState(false);
+    //del user
+    const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
+    const [pauseLoader, setpauseLoader] = useState(false);
+    //pause confirmations
+    const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
 
+    //pauseToggleBtn
+    const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
+
+    useEffect(() => {
+        console.log("selected user", selectedUser);
+        if (selectedUser?.profile_status === "paused") {
+            setPauseToggleBtn(true);
+        } else if (selectedUser?.profile_status === "active") {
+            setPauseToggleBtn(false);
+        }
+    }, [selectedUser]);
 
 
     const handleManuClick = (item) => {
@@ -148,7 +171,7 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
                         //console.log
                         setShowSnackMessage(response.data.messag)
                         setShowDeleteModal(false)
-                        handleDel()
+                        handleDel();
                     } else {
                         //console.log
                         setShowSnackMessage(response.data.message)
@@ -165,6 +188,7 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
     }
 
     const handlePause = async () => {
+        //profile_status
         setpauseLoader(true)
         try {
             const data = localStorage.getItem("User")
@@ -180,29 +204,33 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
                         "Content-Type": 'application/json'
                     }
                 })
-                setpauseLoader(false)
-                if (response.data) {
-                    if(response.data.status === true){
-                        setShowSnackMessage(response.data.message)
+                if (response) {
+                    console.log("Respose of pause unpause apis is", response);
+                    if (response.data.status === true) {
+                        setShowSnackMessage(response.data.message);
+                        handlePauseUser();
+                        setpauseLoader(false);
+                        setShowPauseConfirmationPopup(false);
                     }
                     console.log('response.data.data', response.data)
                 }
             }
         } catch (e) {
-            setpauseLoader(false)
+            setpauseLoader(false);
+            console.error("Error occured in pause unpause api is", e);
         }
 
     }
 
     return (
-        <div className='w-full flex flex-col items-center justify-center'>
+        <div className='w-full flex flex-col items-center justify-center bg-red'>
             <AgentSelectSnackMessage isVisible={showSnackMessage != null ? true : false} hide={() => { setShowSnackMessage(null) }}
                 type={SnackbarTypes.Success} message={showSnackMessage}
             />
 
-            <div className='flex flex-col items-center justify-center'>
-                <div style={{ alignSelf: 'center' }} className='w-[90vw] h-[90vh] bg-white items-center justify-center '>
-                    <div className='flex flex-row items-center justify-between w-full px-10 pt-8'>
+            <div className='flex flex-col items-center justify-center w-full'>
+                <div style={{ alignSelf: 'center' }} className={`w-full ${(from === "admin" || from === "subaccount") ? "h-[80vh]" : "h-[100svh]"} bg-white items-center justify-center`}>
+                    <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
                         <div className='flex flex-row gap-2 items-center justify-start'>
                             <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
                                 {selectedUser.name[0]}
@@ -211,18 +239,37 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
                                 {selectedUser.name}
                             </h4>
 
-                            <button
-                                onClick={() => {
-                                    if (selectedUser?.id) {
-                                        // Open a new tab with user ID as query param
-                                        let url = ` admin/users?userId=${selectedUser.id}`
-                                        //console.log
-                                        window.open(url, "_blank");
-                                    }
-                                }}
-                            >
-                                <Image src={"/svgIcons/arrowboxIcon.svg"} height={20} width={20} alt="*" />
-                            </button>
+                            {
+                                agencyUser ? (
+                                    ""
+                                ) : (
+                                    <button
+                                        onClick={() => {
+                                            console.log('selectedUser.id', selectedUser.id)
+                                            if (selectedUser?.id) {
+                                                // Open a new tab with user ID as query param
+                                                let url = ""
+                                                if (from === "admin") {
+                                                    url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
+                                                } else if (from === "subaccount") {
+                                                    // url = `/agency/users?userId=${selectedUser.id}`
+                                                    url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`;
+                                                    // const d = {
+                                                    //     subAccountData: selectedUser,
+                                                    //     isFromAgency: true
+                                                    // }
+                                                    // localStorage.setItem("isFromAgency", JSON.stringify(d));
+                                                }
+                                                // url = `admin/users?userId=${selectedUser.id}`
+                                                //console.log
+                                                window.open(url, "_blank");
+                                            }
+                                        }}
+                                    >
+                                        <Image src={"/svgIcons/arrowboxIcon.svg"} height={20} width={20} alt="*" />
+                                    </button>
+                                )
+                            }
 
                         </div>
 
@@ -231,98 +278,142 @@ function SelectedUserDetails({ selectedUser, handleDel }) {
                                 pauseLoader ? (
                                     <CircularProgress size={25} />
                                 ) : (
+                                    <div>
+                                        {/* && from !== "subaccount" */}
+                                        {
+                                            (!agencyUser) && (
+                                                <button
+                                                    className="text-white bg-purple outline-none rounded-xl px-3"
+                                                    style={{ height: "50px" }}
+                                                    onClick={() => {
+                                                        setShowPauseConfirmationPopup(true);
+                                                    }}
+                                                >
+                                                    {
+                                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                                    }
+                                                </button>
+                                            )
+                                        }
+                                    </div>
+                                )
+                            }
+
+                            {
+                                showPauseConfirmationPopup && (
+                                    <DelAdminUser
+                                        showPauseModal={showPauseConfirmationPopup}
+                                        handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
+                                        handlePaueUser={handlePause}
+                                        pauseLoader={pauseLoader}
+                                        selectedUser={selectedUser}
+                                    />
+                                )
+                            }
+
+                            {
+                                (!agencyUser) && (
                                     <button
                                         className="text-white bg-purple outline-none rounded-xl px-3"
                                         style={{ height: "50px" }}
                                         onClick={() => {
-                                            handlePause()
+                                            setShowAddMinutesModal(true)
                                         }}
                                     >
-                                        Pause
+                                        Add Minutes
                                     </button>
                                 )
                             }
 
-                            <button
-                                className="text-white bg-purple outline-none rounded-xl px-3"
-                                style={{ height: "50px" }}
-                                onClick={() => {
-                                    setShowAddMinutesModal(true)
-                                }}
-                            >
-                                Add Minutes
-                            </button>
 
+                            {
+                                (!agencyUser) && (
+                                    <button
+                                        className="text-red outline-none rounded-xl px-3"
+                                        style={{ height: "50px" }}
+                                        onClick={() => {
+                                            setShowDeleteModal(true)
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+                                )
+                            }
 
-                            <button
-                                className="text-red outline-none rounded-xl px-3"
-                                style={{ height: "50px" }}
-                                onClick={() => {
-                                    setShowDeleteModal(true)
-                                }}
-                            >
-                                Delete
-                            </button>
+                            {/* <div>
+                                <button>
+                                    <Image
+                                        src={"/assets/cross.png"}
+                                        alt='*'
+                                        height={20}
+                                        width={20}
+                                    />
+                                </button>
+                        </div>*/}
                         </div>
 
 
                     </div>
 
-
-                    <div className='flex flex-row items-center justify-start gap-3 border-b w-[90vw] px-10 pt-10'>
-                        {
-                            manuBar.map((item) => (
-                                <button key={item.id} onClick={() => {
-                                    handleManuClick(item)
-                                }}
-                                    className={`flex flex-row items-center gap-3 p-2 items-center 
+                    <div className='flex flex-row items-start w-full'>
+                        <div className='flex flex-col items-start justify-center gap-3 w-2/12 px-6 pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
+                            {
+                                manuBar.map((item) => (
+                                    <button key={item.id} onClick={() => {
+                                        handleManuClick(item)
+                                    }}
+                                        className={`flex flex-row items-center gap-3 p-2 items-center 
                                         ${selectedManu.id == item.id && "border-b-[2px] border-purple"}`
-                                    }>
-                                    <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
-                                        height={24} width={24} alt='*'
-                                    />
+                                        }>
+                                        <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
+                                            height={24} width={24} alt='*'
+                                        />
 
-                                    <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
-                                        {item.name}
-                                    </div>
+                                        <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
+                                            {item.name}
+                                        </div>
 
-                                </button>
-                            ))
-                        }
+                                    </button>
+                                ))
+                            }
 
-                    </div>
+                        </div>
 
-                    <div className='flex flex-col items-center justify-center bg-[#FBFCFF] pt-2 px-10 h-[70vh] overflow-hidden bg-white'>
-                        {
-                            selectedManu.name == "Leads" ? (
-                                <AdminLeads1 selectedUser={selectedUser} />
-                            ) : (
-                                selectedManu.name == "Pipeline" ? (
-                                    <AdminPipeline1 selectedUser={selectedUser} />
-                                ) : selectedManu.name == "Agents" ? (
-                                    <AdminAgentX selectedUser={selectedUser} />
-                                ) : selectedManu.name == "Call Log" ? (
-                                    <AdminCallLogs selectedUser={selectedUser} />
+                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${(from === "admin" || from === "subaccount") ? "h-[70vh]" : "h-[95vh]"} overflow-auto w-10/12`}>
+                            {
+                                selectedManu.name == "Leads" ? (
+                                    <AdminLeads1 selectedUser={selectedUser} />
                                 ) : (
-                                    selectedManu.name == "Dashboard" ? (
-                                        <AdminDashboard selectedUser={selectedUser} />
+                                    selectedManu.name == "Pipeline" ? (
+                                        <AdminPipeline1 selectedUser={selectedUser} />
+                                    ) : selectedManu.name == "Agents" ? (
+                                        <AdminAgentX
+                                            selectedUser={selectedUser}
+                                            from={from}
+                                        />
+                                    ) : selectedManu.name == "Call Log" ? (
+                                        <AdminCallLogs selectedUser={selectedUser} />
                                     ) : (
-                                        selectedManu.name == "Integration" ? (
-                                            <AdminIntegration selectedUser={selectedUser} />
+                                        selectedManu.name == "Dashboard" ? (
+                                            <AdminDashboard selectedUser={selectedUser} />
                                         ) : (
-                                            selectedManu.name == "Staff" ? (
-                                                <AdminTeam selectedUser={selectedUser} />
+                                            selectedManu.name == "Integration" ? (
+                                                <AdminIntegration selectedUser={selectedUser} />
                                             ) : (
-                                                selectedManu.name == "Personal Data" ? (
-                                                    <AdminProfileData selectedUser={selectedUser} />
-                                                ) : "Comming soon..."
+                                                selectedManu.name == "Staff" ? (
+                                                    <AdminTeam selectedUser={selectedUser} />
+                                                ) : (
+                                                    selectedManu.name == "Account" ? (
+                                                        <AdminProfileData selectedUser={selectedUser} from={from} />
+                                                    ) : "Comming soon..."
+                                                )
                                             )
                                         )
+                                        //""
                                     )
-                                    //""
                                 )
-                            )
-                        }
+                            }
+                        </div>
                     </div>
                 </div>
             </div>

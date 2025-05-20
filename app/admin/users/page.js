@@ -44,6 +44,7 @@ export default function Page() {
     <div className="w-screen h-screen flex items-center justify-center bg-white">
       {selectedUser ? (
         <SelectedUserDetails
+          agencyUser={true}
           handleDel={() => {
             // Notify parent window to refresh
             if (window.opener) {
