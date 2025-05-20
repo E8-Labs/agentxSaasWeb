@@ -23,6 +23,7 @@ import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
+import SendVerificationCode from "../services/AuthVerification/AuthService";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const RecruiterAgentSignUp = ({
@@ -319,7 +320,7 @@ const RecruiterAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
-            router.push("/createagent")
+            router.push("/createagent");
 
             // setCongratsPopup(true);
           }
