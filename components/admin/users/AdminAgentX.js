@@ -49,7 +49,13 @@ import {
 } from "@/utilities/agentUtilities";
 import { getLocalLocation } from "@/components/onboarding/services/apisServices/ApiService";
 import ClaimNumber from "@/components/dashboard/myagentX/ClaimNumber";
-import { AgentLLmModels, Constants, fromatMessageName, HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import {
+  AgentLLmModels,
+  Constants,
+  fromatMessageName,
+  HowtoVideos,
+  PersistanceKeys,
+} from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import Link from "next/link";
@@ -64,7 +70,6 @@ import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
-
 
 function AdminAgentX({ selectedUser, from }) {
   const models = [
@@ -300,7 +305,6 @@ function AdminAgentX({ selectedUser, from }) {
     icon: "/svgIcons/chatgptIcon.svg", // Replace with actual icon path
   });
 
-
   const [user, setUser] = useState(null);
 
   let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
@@ -320,7 +324,6 @@ function AdminAgentX({ selectedUser, from }) {
   const [showLanguageLoader, setShowLanguageLoader] = useState(false);
   const [showVoiceExpressivenessLoader, setShowVoiceExpressivenessLoader] =
     useState(false);
-
 
   const [voiceExpressiveness, setVoiceExpressiveness] = useState("");
   const [startingPace, setStartingPace] = useState("");
@@ -422,8 +425,6 @@ function AdminAgentX({ selectedUser, from }) {
       setShowObjectionsSaveBtn(false);
     }
   }, [greetingTagInput, scriptTagInput, objective]); //scriptTagInput
-
-
 
   const handleGptManuSelect = async (model) => {
     if (!model.disabled) {
@@ -534,7 +535,6 @@ function AdminAgentX({ selectedUser, from }) {
       setRenameAgentLoader(false);
     }
   };
-
 
   const numberDropDownWidth = (agName) => {
     // if (showDrawer?.agentType === "outbound") {
@@ -741,7 +741,6 @@ function AdminAgentX({ selectedUser, from }) {
     return model;
   }
 
-
   //function to open drawer
   const handleShowDrawer = (item) => {
     setAssignNumber(item?.phoneNumber);
@@ -758,7 +757,6 @@ function AdminAgentX({ selectedUser, from }) {
     if (modelValue) {
       let model = findLLMModel(modelValue);
       setSelectedGptManu(model);
-
     }
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
@@ -919,7 +917,8 @@ function AdminAgentX({ selectedUser, from }) {
         //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1305,7 +1304,8 @@ function AdminAgentX({ selectedUser, from }) {
         //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1717,8 +1717,11 @@ function AdminAgentX({ selectedUser, from }) {
   };
 
   //code to get agents
-  const getAgents = async (paginationStatus, search = null, searchLoader = false) => {
-
+  const getAgents = async (
+    paginationStatus,
+    search = null,
+    searchLoader = false
+  ) => {
     setPaginationLoader(true);
 
     //test code failed for saving search value
@@ -1728,8 +1731,6 @@ function AdminAgentX({ selectedUser, from }) {
     //   setAgentsListSeparated(allAgentsList);
     //   return
     // }
-
-
 
     console.log("Pagination status passed is", paginationStatus);
     // console.log('search', search)
@@ -1782,8 +1783,6 @@ function AdminAgentX({ selectedUser, from }) {
       //     return
       //   }
 
-
-
       //   let newList = [...mainAgentsList]; // makes a shallow copy
       //   if (Array.isArray(agents) && agents.length > 0) {
       //     newList.push(...agents); // append all agents at once
@@ -1804,7 +1803,7 @@ function AdminAgentX({ selectedUser, from }) {
         setPaginationLoader(false);
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
-        setOldAgentsList(agents)
+        setOldAgentsList(agents);
         if (agents.length >= 6) {
           setCanGetMore(true);
         } else {
@@ -1826,7 +1825,7 @@ function AdminAgentX({ selectedUser, from }) {
           });
 
           setAgentsListSeparated(subAgents);
-          return
+          return;
         }
 
         let newList = [...mainAgentsList]; // makes a shallow copy
@@ -1848,7 +1847,6 @@ function AdminAgentX({ selectedUser, from }) {
       //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
-
     }
   };
 
@@ -1861,8 +1859,8 @@ function AdminAgentX({ selectedUser, from }) {
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     const d = {
       subAccountData: selectedUser,
-      isFromAgency: true
-    }
+      isFromAgency: true,
+    };
     localStorage.setItem("isFromAgency", JSON.stringify(d));
     router.push("/createagent");
   };
@@ -1945,13 +1943,17 @@ function AdminAgentX({ selectedUser, from }) {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
+
         AuthToken = UserDetails.token;
       }
 
       //// //console.log;
 
-      const ApiPath = Apis.getCalenders;
-
+      let ApiPath = Apis.getCalenders;
+      if (selectedUser) {
+        ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+      }
+      console.log("Getting calendars for ", ApiPath);
       //// //console.log;
 
       const response = await axios.get(ApiPath, {
@@ -1962,7 +1964,7 @@ function AdminAgentX({ selectedUser, from }) {
       });
 
       if (response) {
-        //// //console.log;
+        console.log("Calendars ", response.data.data);
         setPreviousCalenders(response.data.data);
       }
     } catch (error) {
@@ -1986,7 +1988,6 @@ function AdminAgentX({ selectedUser, from }) {
       //// //console.log;
     }
   };
-
 
   const updateSubAgent = async (voiceData = null, model = null) => {
     //console.log;
@@ -2031,13 +2032,18 @@ function AdminAgentX({ selectedUser, from }) {
           //   formData.append("callbackNumber", voiceData.callbackNumber);
           // }
 
-          if (voiceData.liveTransferNumber || voiceData.liveTransferNumber !== undefined) {
+          if (
+            voiceData.liveTransferNumber ||
+            voiceData.liveTransferNumber !== undefined
+          ) {
             formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
-          if (voiceData.callbackNumber || voiceData.callbackNumber !== undefined) {
+          if (
+            voiceData.callbackNumber ||
+            voiceData.callbackNumber !== undefined
+          ) {
             formData.append("callbackNumber", voiceData.callbackNumber);
           }
-
         }
 
         // if (showDrawerSelectedAgent) {
@@ -2121,7 +2127,6 @@ function AdminAgentX({ selectedUser, from }) {
       // setRenameAgentLoader(false);
     }
   };
-
 
   const styles = {
     claimPopup: {
@@ -2269,7 +2274,7 @@ function AdminAgentX({ selectedUser, from }) {
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agent</div>
         <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
@@ -2289,7 +2294,7 @@ function AdminAgentX({ selectedUser, from }) {
               searchTimeoutRef.current = setTimeout(() => {
                 // handleSearch(e);
                 let searchLoader = true;
-                getAgents(false, e.target.value, searchLoader)
+                getAgents(false, e.target.value, searchLoader);
               }, 500);
             }}
           />
@@ -2302,7 +2307,6 @@ function AdminAgentX({ selectedUser, from }) {
             />
           </button>
         </div>
-
       </div>
 
       <div className="w-full items-center h-full overflow-hidden" style={{}}>
@@ -2319,8 +2323,8 @@ function AdminAgentX({ selectedUser, from }) {
             handlePopoverClose={handlePopoverClose}
             user={user}
             getAgents={(p, s) => {
-              console.log('p', s)
-              getAgents(p, s,);//user
+              console.log("p", s);
+              getAgents(p, s); //user
             }}
             search={search}
             setObjective={setObjective}
@@ -2520,7 +2524,7 @@ function AdminAgentX({ selectedUser, from }) {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2551,8 +2555,9 @@ function AdminAgentX({ selectedUser, from }) {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                        index === scriptKeys?.length - 1 ? "mb-16" : ""
+                      }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2633,7 +2638,7 @@ function AdminAgentX({ selectedUser, from }) {
         >
           <div
             className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-          // style={{  }}
+            // style={{  }}
           >
             <div
               className="w-full flex flex-col h-[95%]"
@@ -2643,7 +2648,6 @@ function AdminAgentX({ selectedUser, from }) {
                 scrollbarWidth: "none",
               }}
             >
-
               <AgentSelectSnackMessage
                 isVisible={isVisibleSnack}
                 hide={() => {
@@ -2727,7 +2731,6 @@ function AdminAgentX({ selectedUser, from }) {
                   <div className="flex flex-col gap-1 items-start">
                     <div className="flex flex-row justify-center items-center gap-2">
                       <button
-
                         onClick={() => {
                           setShowRenameAgentPopup(true);
                           setSelectedRenameAgent(showDrawerSelectedAgent);
@@ -2741,10 +2744,10 @@ function AdminAgentX({ selectedUser, from }) {
                             width={24}
                             alt="*"
                           />
-                          <div
-                            style={{ fontSize: 22, fontWeight: "600" }}
-                          >
-                            {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
+                          <div style={{ fontSize: 22, fontWeight: "600" }}>
+                            {showDrawerSelectedAgent?.name
+                              ?.slice(0, 1)
+                              .toUpperCase()}
                             {showDrawerSelectedAgent?.name?.slice(1)}
                           </div>
                         </div>
@@ -2774,12 +2777,20 @@ function AdminAgentX({ selectedUser, from }) {
 
                     <div className="flex flex-row gap-2 items-center ">
                       <div
-                        style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 11,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Created on:
                       </div>
                       <div
-                        style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
+                        style={{
+                          fontSize: 11,
+                          fontWeight: "500",
+                          color: "#000",
+                        }}
                       >
                         {/* {showDrawer?.createdAt} */}
                         {GetFormattedDateString(
@@ -2879,7 +2890,7 @@ function AdminAgentX({ selectedUser, from }) {
                   name="Calls"
                   value={
                     showDrawerSelectedAgent?.calls &&
-                      showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                       <div>{showDrawerSelectedAgent?.calls}</div>
                     ) : (
                       "-"
@@ -2893,7 +2904,7 @@ function AdminAgentX({ selectedUser, from }) {
                   name="Convos"
                   value={
                     showDrawerSelectedAgent?.callsGt10 &&
-                      showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                       <div>{showDrawerSelectedAgent?.callsGt10}</div>
                     ) : (
                       "-"
@@ -2933,16 +2944,16 @@ function AdminAgentX({ selectedUser, from }) {
                   name="Mins Talked"
                   value={
                     showDrawerSelectedAgent?.totalDuration &&
-                      showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                       // <div>{showDrawer?.totalDuration}</div>
                       <div>
                         {showDrawerSelectedAgent?.totalDuration
                           ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                              1000
-                            )
-                            .format("HH:mm:ss")
+                              .utc(
+                                (showDrawerSelectedAgent?.totalDuration || 0) *
+                                  1000
+                              )
+                              .format("HH:mm:ss")
                           : "-"}
                       </div>
                     ) : (
@@ -2960,10 +2971,11 @@ function AdminAgentX({ selectedUser, from }) {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`${activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
-                      }`}
+                    className={`${
+                      activeTab === tab
+                        ? "text-purple border-b-2 border-purple"
+                        : "text-black-500"
+                    }`}
                     style={{ fontSize: 15, fontWeight: "500" }}
                   >
                     {tab}
@@ -2977,7 +2989,11 @@ function AdminAgentX({ selectedUser, from }) {
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-row items-center justify-between">
                       <div
-                        style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                        style={{
+                          fontSize: 16,
+                          fontWeight: "600",
+                          color: "#000",
+                        }}
                       >
                         Voice Options
                       </div>
@@ -2985,7 +3001,11 @@ function AdminAgentX({ selectedUser, from }) {
 
                     <div className="flex w-full justify-between items-center">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Voice
                       </div>
@@ -3087,7 +3107,9 @@ function AdminAgentX({ selectedUser, from }) {
                                       width={35}
                                       alt="*"
                                     />
-                                    <div>{selectedVoiceName(item.voice_id)}</div>
+                                    <div>
+                                      {selectedVoiceName(item.voice_id)}
+                                    </div>
 
                                     {/* Play/Pause Button (Prevents dropdown close) */}
                                     {item.preview ? (
@@ -3148,7 +3170,11 @@ function AdminAgentX({ selectedUser, from }) {
                     {/* Expression */}
                     <div className="flex w-full justify-between items-center -mt-4">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Personality
                       </div>
@@ -3199,7 +3225,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   voiceExpressivenessList.find(
                                     (voice) => voice.value === selected
                                   );
-                                return selectedVoice ? selectedVoice.title : null;
+                                return selectedVoice
+                                  ? selectedVoice.title
+                                  : null;
                               }}
                               sx={{
                                 border: "none", // Default border
@@ -3210,9 +3238,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3233,7 +3261,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   <MenuItem
                                     value={item.value}
                                     key={index}
-                                    disabled={voiceExpressiveness === item.title}
+                                    disabled={
+                                      voiceExpressiveness === item.title
+                                    }
                                   >
                                     <div>{item.title}</div>
                                   </MenuItem>
@@ -3247,7 +3277,11 @@ function AdminAgentX({ selectedUser, from }) {
                     {/* Starting Pace */}
                     <div className="flex w-full justify-between items-center -mt-4">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Starting Pace
                       </div>
@@ -3298,7 +3332,9 @@ function AdminAgentX({ selectedUser, from }) {
                                 const selectedVoice = StartingPaceList.find(
                                   (voice) => voice.value === selected
                                 );
-                                return selectedVoice ? selectedVoice.title : null;
+                                return selectedVoice
+                                  ? selectedVoice.title
+                                  : null;
                               }}
                               sx={{
                                 border: "none", // Default border
@@ -3309,9 +3345,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3347,7 +3383,11 @@ function AdminAgentX({ selectedUser, from }) {
                     {/* Patience level */}
                     <div className="flex w-full justify-between items-center -mt-4">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Response Speed
                       </div>
@@ -3402,7 +3442,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   .log
                                   // `Selected Patience Level for ${selected} is ${selectedVoice.title}`
                                   ();
-                                return selectedVoice ? selectedVoice.title : null;
+                                return selectedVoice
+                                  ? selectedVoice.title
+                                  : null;
                               }}
                               sx={{
                                 border: "none", // Default border
@@ -3413,9 +3455,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3451,7 +3493,11 @@ function AdminAgentX({ selectedUser, from }) {
                     {/* Language */}
                     <div className="flex w-full justify-between items-center -mt-4">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Language
                       </div>
@@ -3505,7 +3551,9 @@ function AdminAgentX({ selectedUser, from }) {
                                 console.log(
                                   `Selected Language for ${selected} is ${selectedVoice.title}`
                                 );
-                                return selectedVoice ? selectedVoice.title : null;
+                                return selectedVoice
+                                  ? selectedVoice.title
+                                  : null;
                               }}
                               sx={{
                                 border: "none", // Default border
@@ -3516,9 +3564,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3549,7 +3597,14 @@ function AdminAgentX({ selectedUser, from }) {
                                       width={22}
                                     />
                                     <div>{item.title}</div>
-                                    <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
+                                    <div
+                                      style={{
+                                        color: "#00000060",
+                                        fontSize: 13,
+                                      }}
+                                    >
+                                      {item.subLang}
+                                    </div>
                                   </MenuItem>
                                 );
                               })}
@@ -3568,7 +3623,11 @@ function AdminAgentX({ selectedUser, from }) {
 
                     <div className="flex justify-between items-center">
                       <div
-                        style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         Number used for calls
                       </div>
@@ -3644,7 +3703,10 @@ function AdminAgentX({ selectedUser, from }) {
                                       onClick={(e) => {
                                         //console.log;
                                         // return;
-                                        if (showReassignBtn && item?.claimedBy) {
+                                        if (
+                                          showReassignBtn &&
+                                          item?.claimedBy
+                                        ) {
                                           e.stopPropagation();
                                           setShowConfirmationModal(item);
                                           console.log(
@@ -3678,37 +3740,39 @@ function AdminAgentX({ selectedUser, from }) {
                                       {showReassignBtn && (
                                         <div
                                           className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                          // onClick={(e) => {
+                                          //   console.log(
+                                          //     "Should open confirmation modal"
+                                          //   );
+                                          //   e.stopPropagation();
+                                          //   setShowConfirmationModal(item);
+                                          // }}
                                         >
                                           {item.claimedBy && (
                                             <div className="flex flex-row items-center gap-2">
                                               {showDrawerSelectedAgent?.name !==
                                                 item.claimedBy.name && (
-                                                  <div>
-                                                    <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                    {reassignLoader === item ? (
-                                                      <CircularProgress size={15} />
-                                                    ) : (
-                                                      <button
-                                                        className="text-purple underline"
-                                                        onClick={(e) => {
-                                                          e.stopPropagation();
-                                                          setShowConfirmationModal(
-                                                            item
-                                                          );
-                                                        }}
-                                                      >
-                                                        Reassign
-                                                      </button>
-                                                    )}
-                                                  </div>
-                                                )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress
+                                                      size={15}
+                                                    />
+                                                  ) : (
+                                                    <button
+                                                      className="text-purple underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowConfirmationModal(
+                                                          item
+                                                        );
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                             </div>
                                           )}
                                         </div>
