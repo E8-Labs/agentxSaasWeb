@@ -31,7 +31,7 @@ import { Api } from "@mui/icons-material";
 import LeadLoading from "../dashboard/leads/LeadLoading";
 
 function AllCalls({ user }) {
-  const LimitPerPage = 15;
+  const LimitPerPage = 20;
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -415,7 +415,7 @@ function AllCalls({ user }) {
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
-      ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}`;
+      ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}&limit=${LimitPerPage}`;
 
       console.log("api path is ", ApiPath);
       //console.log;
