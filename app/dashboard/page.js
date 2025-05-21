@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
 import { convertSecondsToMinDuration } from "@/utilities/utility";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const Page = () => {
   const router = useRouter();
@@ -288,6 +289,17 @@ const Page = () => {
 
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
+
+      {/* Slider test code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider />
+      </div>
+
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
@@ -342,8 +354,8 @@ const Page = () => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                            ? 50
-                            : 75,
+                              ? 50
+                              : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -545,8 +557,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -561,8 +573,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -585,8 +597,8 @@ const Page = () => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"

@@ -812,7 +812,7 @@ const Leads1 = () => {
           }
           window.dispatchEvent(
             new CustomEvent("UpdateCheckList", { detail: { update: true } })
-        );
+          );
 
           let sheet = response.data.data;
           let leads = response.data.leads;
@@ -1082,12 +1082,13 @@ const Leads1 = () => {
               </div>
 
               <div
-                style={{
-                  position: "absolute",
-                  bottom: "70px",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                }}
+              className="w-full flex flex-row justify-center mt-4"
+                // style={{
+                //   position: "absolute",
+                //   bottom: "70px",
+                //   left: "50%",
+                //   transform: "translateX(-50%)",
+                // }}
               >
                 <VideoCard
                   duration={"11 min 27 sec"}

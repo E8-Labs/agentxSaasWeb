@@ -71,7 +71,7 @@ import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPagin
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
-function AdminAgentX({ selectedUser, from }) {
+function AdminAgentX({ selectedUser, agencyUser, from }) {
   const models = [
     {
       name: "AgentX",
@@ -347,6 +347,18 @@ function AdminAgentX({ selectedUser, from }) {
     ad.play();
     setAudio(ad); // Play the audio
   };
+
+  //refill the test ai popup input fields
+  useEffect(() => {
+    let d = localStorage.getItem("TestAiCredentials");
+    //console.log;
+    if (d) {
+      let cr = JSON.parse(d);
+      //console.log;
+      setName(cr?.name);
+      setPhone(cr?.phone);
+    }
+  }, [openTestAiModal]);
 
   useEffect(() => {
     const updateAgentManueList = () => {
@@ -917,8 +929,7 @@ function AdminAgentX({ selectedUser, from }) {
         //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1304,8 +1315,7 @@ function AdminAgentX({ selectedUser, from }) {
         //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1579,11 +1589,13 @@ function AdminAgentX({ selectedUser, from }) {
   };
 
   //function to call testAi Api
+  //function to call testAi Api
   const handleTestAiClick = async () => {
     try {
       setTestAIloader(true);
       let AuthToken = null;
       const userData = localStorage.getItem("User");
+
       if (userData) {
         const localData = JSON.parse(userData);
         ////console.log;
@@ -1601,14 +1613,15 @@ function AdminAgentX({ selectedUser, from }) {
         name: name,
         phone: phone,
         extraColumns: newArray,
-        userId: selectedUser.id,
       };
+
+      localStorage.setItem("TestAiCredentials", JSON.stringify(ApiData));
 
       const ApiPath = Apis.testAI;
 
-      //console.log);
       ////console.log);
-      // return;
+      ////console.log);
+      // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -1617,13 +1630,13 @@ function AdminAgentX({ selectedUser, from }) {
       });
 
       if (response) {
-        ////console.log;
+        console.log("Send cal response is", response.data);
         setShowSuccessSnack(response.data.message);
         setIsVisibleSnack(true);
         if (response.data.status === true) {
           setOpenTestAiModal(false);
-          setName("");
-          setPhone("");
+          // setName("");
+          // setPhone("");
         }
       }
     } catch (error) {
@@ -2274,7 +2287,7 @@ function AdminAgentX({ selectedUser, from }) {
 
       <div
         className="w-full flex flex-row justify-between items-center py-4 px-10"
-        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>My Agent</div>
         <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
@@ -2322,6 +2335,7 @@ function AdminAgentX({ selectedUser, from }) {
             selectedImagesParam={selectedImages}
             handlePopoverClose={handlePopoverClose}
             user={user}
+            agencyUser={agencyUser}
             getAgents={(p, s) => {
               console.log("p", s);
               getAgents(p, s); //user
@@ -2524,7 +2538,7 @@ function AdminAgentX({ selectedUser, from }) {
                     overflowY: "auto",
                   }}
                   countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
 
@@ -2555,9 +2569,8 @@ function AdminAgentX({ selectedUser, from }) {
                     <input
                       placeholder="Type here"
                       // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                        index === scriptKeys?.length - 1 ? "mb-16" : ""
-                      }`}
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                       style={{
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
@@ -2638,7 +2651,7 @@ function AdminAgentX({ selectedUser, from }) {
         >
           <div
             className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-            // style={{  }}
+          // style={{  }}
           >
             <div
               className="w-full flex flex-col h-[95%]"
@@ -2890,7 +2903,7 @@ function AdminAgentX({ selectedUser, from }) {
                   name="Calls"
                   value={
                     showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                      showDrawerSelectedAgent?.calls > 0 ? (
                       <div>{showDrawerSelectedAgent?.calls}</div>
                     ) : (
                       "-"
@@ -2904,7 +2917,7 @@ function AdminAgentX({ selectedUser, from }) {
                   name="Convos"
                   value={
                     showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                      showDrawerSelectedAgent?.callsGt10 > 0 ? (
                       <div>{showDrawerSelectedAgent?.callsGt10}</div>
                     ) : (
                       "-"
@@ -2944,16 +2957,16 @@ function AdminAgentX({ selectedUser, from }) {
                   name="Mins Talked"
                   value={
                     showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                      showDrawerSelectedAgent?.totalDuration > 0 ? (
                       // <div>{showDrawer?.totalDuration}</div>
                       <div>
                         {showDrawerSelectedAgent?.totalDuration
                           ? moment
-                              .utc(
-                                (showDrawerSelectedAgent?.totalDuration || 0) *
-                                  1000
-                              )
-                              .format("HH:mm:ss")
+                            .utc(
+                              (showDrawerSelectedAgent?.totalDuration || 0) *
+                              1000
+                            )
+                            .format("HH:mm:ss")
                           : "-"}
                       </div>
                     ) : (
@@ -2966,16 +2979,15 @@ function AdminAgentX({ selectedUser, from }) {
                 />
               </div>
               {/* Bottom Agent Info */}
-              <div className="flex gap-8 pb-2 mb-4">
+              <div className="flex flex-row items-center justify-between pb-2 mb-4">
                 {AgentMenuOptions.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`${
-                      activeTab === tab
-                        ? "text-purple border-b-2 border-purple"
-                        : "text-black-500"
-                    }`}
+                    className={`${activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                      }`}
                     style={{ fontSize: 15, fontWeight: "500" }}
                   >
                     {tab}
@@ -3238,9 +3250,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3345,9 +3357,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3455,9 +3467,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3564,9 +3576,9 @@ function AdminAgentX({ selectedUser, from }) {
                                   border: "none", // Remove the default outline
                                 },
                                 "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                                 "&.MuiSelect-select": {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -3740,39 +3752,39 @@ function AdminAgentX({ selectedUser, from }) {
                                       {showReassignBtn && (
                                         <div
                                           className="w-full"
-                                          // onClick={(e) => {
-                                          //   console.log(
-                                          //     "Should open confirmation modal"
-                                          //   );
-                                          //   e.stopPropagation();
-                                          //   setShowConfirmationModal(item);
-                                          // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                         >
                                           {item.claimedBy && (
                                             <div className="flex flex-row items-center gap-2">
                                               {showDrawerSelectedAgent?.name !==
                                                 item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress
-                                                      size={15}
-                                                    />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                                  <div>
+                                                    <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                    {reassignLoader === item ? (
+                                                      <CircularProgress
+                                                        size={15}
+                                                      />
+                                                    ) : (
+                                                      <button
+                                                        className="text-purple underline"
+                                                        onClick={(e) => {
+                                                          e.stopPropagation();
+                                                          setShowConfirmationModal(
+                                                            item
+                                                          );
+                                                        }}
+                                                      >
+                                                        Reassign
+                                                      </button>
+                                                    )}
+                                                  </div>
+                                                )}
                                             </div>
                                           )}
                                         </div>
@@ -3805,7 +3817,7 @@ function AdminAgentX({ selectedUser, from }) {
                                     " (Only for outbound agents. You must buy a number)"}
                                 </MenuItem>
                                 <div
-                                  className="ms-4"
+                                  className="ms-4 pe-4"
                                   style={{
                                     ...styles.inputStyle,
                                     color: "#00000070",

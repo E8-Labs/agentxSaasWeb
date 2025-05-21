@@ -340,7 +340,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
             maxHeight: showTitle ? "60vh" : "40vh",
           }}
         >
-          {guardrailsList.map((item, index) => {
+          {guardrailsList.reverse().map((item, index) => {
             const isExpanded = showDetails.some(
               (detail) => detail.id === item.id
             );
@@ -498,7 +498,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
               }}
             >
               <div style={{ fontWeight: "600", fontSize: 16.8 }}>
-                Add New Guardrail
+                Add New Guardrai
               </div>
               <button
                 onClick={() => {

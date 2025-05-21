@@ -62,6 +62,8 @@ const AgentsListPaginated = ({
   //for stopping pagination loader
   canGetMore = true,
   from = "user",
+  agencyUser,
+  initialLoader
 }) => {
   console.log('loader for more data ')
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
@@ -132,7 +134,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className={`${from === "Admin" ? "h-[45svh]" : "h-[75svh]"} overflow-auto pt-10 pb-12`}
+      className={`${agencyUser ? "h-[55vh]" : from === "Admin" ? "h-[43svh]" : "h-[75svh]"} overflow-auto pt-10 pb-12`}
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >
@@ -221,7 +223,7 @@ const AgentsListPaginated = ({
         setShowWarningModal={setShowWarningModal}
         setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
       />
-      {agentsListSeparated.length > 0 ? (
+      {!initialLoader && agentsListSeparated.length > 0 ? (
         <InfiniteScroll
           dataLength={agentsListSeparated.length}
           next={fetchMoreAgents}

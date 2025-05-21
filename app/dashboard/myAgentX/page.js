@@ -74,6 +74,8 @@ import NoAgent from "@/components/dashboard/myagentX/NoAgent";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
 import AgentInfoCard from "@/components/dashboard/myagentX/AgentInfoCard";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import PipelineLoading from "@/components/dashboardPipeline/PipelineLoading";
+import MyAgentXLoader from "@/components/loaders/MyAgentXLoader";
 
 function Page() {
   const timerRef = useRef();
@@ -104,7 +106,7 @@ function Page() {
   const [oldAgentsList, setOldAgentsList] = useState([]);
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
-  const [initialLoader, setInitialLoader] = useState(false);
+  const [initialLoader, setInitialLoader] = useState(true);
 
   //code for assigning the umber
   // const []
@@ -1882,7 +1884,6 @@ function Page() {
   };
 
   useEffect(() => {
-    getCalenders();
     const agentLocalDetails = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
     );
@@ -1898,7 +1899,7 @@ function Page() {
     const userData = localStorage.getItem("User");
 
     try {
-      // setInitialLoader(true);
+      setInitialLoader(true);
       if (userData) {
         const userLocalData = JSON.parse(userData);
         getAgents();//userLocalData
@@ -1908,8 +1909,11 @@ function Page() {
     } finally {
       setShowPhoneLoader(false);
 
-      // setInitialLoder(false)
+      setInitialLoader(false);
     }
+
+    getCalenders();
+
   }, []);
 
   const handleSelectProfileImg = (index) => {
@@ -2400,8 +2404,9 @@ function Page() {
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
-          <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
-            <CircularProgress size={45} />
+          <div className="h-[70vh] flex flex-row justify-center gap-4">
+            {/*<CircularProgress size={45} />*/}
+            <MyAgentXLoader />
           </div>
         ) : (
           <AgentsListPaginated
@@ -2439,6 +2444,7 @@ function Page() {
             keys={keys}
             canGetMore={canGetMore}
             paginationLoader={paginationLoader}
+            initialLoader={initialLoader}
           />
         )}
 
@@ -3154,7 +3160,7 @@ function Page() {
               />
             </div>
             {/* Bottom Agent Info */}
-            <div className="flex gap-8 pb-2 mb-4">
+            <div className="flex flex-row justify-between items-center pb-2 mb-4">
               {AgentMenuOptions.map((tab) => (
                 <button
                   key={tab}
@@ -3163,7 +3169,11 @@ function Page() {
                     ? "text-purple border-b-2 border-purple"
                     : "text-black-500"
                     }`}
-                  style={{ fontSize: 15, fontWeight: "500" }}
+                  style={{
+                     fontSize: 15,
+                      fontWeight: "500",
+                      whiteSpace: "nowrap"
+                    }}
                 >
                   {tab}
                 </button>
@@ -3958,7 +3968,7 @@ function Page() {
                                   " (Only for outbound agents. You must buy a number)"}
                               </MenuItem>
                               <div
-                                className="ms-4"
+                                className="ms-4 pe-4"
                                 style={{
                                   ...styles.inputStyle,
                                   color: "#00000070",
