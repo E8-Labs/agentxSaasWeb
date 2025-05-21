@@ -2016,7 +2016,7 @@ const LeadDetails = ({
                                             </div>
                                           ) : (
                                             <NoVoicemailView
-                                              // showAddBtn={false}
+                                              showAddBtn={false}
                                             />
                                           )}
                                         </div>
