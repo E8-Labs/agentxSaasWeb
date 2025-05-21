@@ -31,7 +31,7 @@ import { Api } from "@mui/icons-material";
 import LeadLoading from "../dashboard/leads/LeadLoading";
 
 function AllCalls({ user }) {
-  const LimitPerPage = 30;
+  const LimitPerPage = 15;
 
   const [searchValue, setSearchValue] = useState("");
 
