@@ -201,6 +201,33 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       unFocusIcon: "/svgIcons/obj6ELU.svg",
     },
     {
+      id: 8,
+      icon: "",
+      title: "Speed to Lead",
+      details:
+        "Instantly engage new leads from Zillow, Realtor.com, Facebook ads, and more the moment they enter your CRM to maximize conversion chances.",
+      focusIcn: "/svgIcons/obj5F.svg",
+      unFocusIcon: "/objectiveIcons/obj5UF.png",
+    },
+    {
+      id: 9,
+      icon: "",
+      title: "FSBO (For Sale By Owner)",
+      details:
+        "Connect with homeowners trying to sell on their own, offering professional guidance and solutions to help them successfully close.",
+      focusIcn: "/svgIcons/obj5F.svg",
+      unFocusIcon: "/objectiveIcons/obj5UF.png",
+    },
+    {
+      id: 10,
+      icon: "",
+      title: "Probate",
+      details:
+        "Reach out to property heirs navigating probate, providing support and options for handling inherited real estate during a difficult time.",
+      focusIcn: "/svgIcons/obj5F.svg",
+      unFocusIcon: "/objectiveIcons/obj5UF.png",
+    },
+    {
       id: 100,
       icon: "",
       title: "Something Else",
@@ -551,7 +578,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             <button
               className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
               style={{ textAlign: "center" }}
-            // onClick={handleContinue}
+              // onClick={handleContinue}
             >
               Get started with your AI agent
             </button>
@@ -563,7 +590,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div
                   style={styles.headingStyle}
                   className="flex flex-row items-center gap-2"
-                // onClick={handleContinue}
+                  // onClick={handleContinue}
                 >
                   {`What's this AI agent's name?`}
                   <div
@@ -617,7 +644,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   autoCorrect="off"
                   spellCheck="false"
                   enterKeyHint="done"
-                  style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
+                  style={{
+                    ...styles.inputStyle,
+                    border: "1px solid #00000020",
+                  }}
                   value={agentName}
                   onChange={(e) => {
                     setAgentName(e.target.value);
@@ -709,7 +739,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   enterKeyHint="done"
                   placeholder="Ex: Senior Property Acquisition Specialist"
                   className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
-                  style={{ ...styles.inputStyle, border: "1px solid #00000020" }}
+                  style={{
+                    ...styles.inputStyle,
+                    border: "1px solid #00000020",
+                  }}
                   value={agentRole}
                   onChange={(e) => {
                     setAgentRole(e.target.value);
@@ -724,8 +757,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 {canShowObjectives() && (
                   <div style={styles.inputStyle}>
-                    Select only one. You can create new agents to dedicate them to
-                    other objectives.
+                    Select only one. You can create new agents to dedicate them
+                    to other objectives.
                   </div>
                 )}
                 {canShowObjectives() && (
@@ -741,7 +774,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                             handleToggleClick(item);
                           }}
                           style={{
-                            borderColor: item.id === toggleClick ? "#7902DF" : "",
+                            borderColor:
+                              item.id === toggleClick ? "#7902DF" : "",
                             backgroundColor:
                               item.id === toggleClick ? "#402FFF10 " : "",
                           }}
@@ -805,7 +839,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 {/* <Body /> */}
               </div>
-
             </div>
           </div>
         </div>
@@ -973,12 +1006,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                    // disabled={true}
-                    // onChange={(evt) => {
-                    //   setAddressValue(evt.target.value); // Update input field value
-                    //   // getPlacePredictions({ input: evt.target.value });
-                    //   // setShowDropdown(true); // Show dropdown on input
-                    // }}
+                      // disabled={true}
+                      // onChange={(evt) => {
+                      //   setAddressValue(evt.target.value); // Update input field value
+                      //   // getPlacePredictions({ input: evt.target.value });
+                      //   // setShowDropdown(true); // Show dropdown on input
+                      // }}
                     />
                   </div>
                 </div>
