@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   ThumbUpOutlined,
   ThumbDownOutlined,
@@ -123,19 +123,19 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import Apis from "../apis/Apis";
-import { entries } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import axios from "axios";
 import { Box, CircularProgress, Modal } from "@mui/material";
 
-export function TranscriptViewer({ transcript }) {
-  console.log("Received transcript is ", transcript);
-  const [messages, setMessages] = useState(transcript); //parseTranscript(transcript || "")
+export function TranscriptViewer({ callId }) {
+  // console.log("Received transcript is ", transcript);
+  const [messages, setMessages] = useState([]); //parseTranscript(transcript || "")
   const [activeIndex, setActiveIndex] = useState(null);
   const [popoverPos, setPopoverPos] = useState(null); // null = closed
   const [comment, setComment] = useState("");
   const [msgIsLike, setMsgIsLike] = useState(null);
   const [commentMsgId, setCommentMsgId] = useState(null);
   const [addCommentLoader, setAddCommentLoader] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   const handleCommentClick = (index, msgId, buttonRef, isLike) => {
     setMsgIsLike(isLike);
@@ -150,6 +150,39 @@ export function TranscriptViewer({ transcript }) {
     }
   };
 
+  useEffect(() => {
+    GetCallTranscript()
+  }, [callId])
+
+  const GetCallTranscript = async () => {
+    const Token = AuthToken();
+    try {
+      setLoading(true)
+      let apiPath = Apis.getCallTranscript + "?callId=" + callId;
+      console.log("Api path is", apiPath);
+      const response = await axios.get(apiPath, {
+        headers: {
+          "Authorization": "Bearer " + Token
+        }
+      })
+
+      if (response) {
+        setLoading(false)
+        console.log("Response of get call transcript is", response.data);
+        if (response.data.status === true) {
+          console.log('call transcript is', response.data.data);
+          // const parsedMessages = parseTranscript(response.data.data.transcript);
+          setMessages(response.data.data);
+        }
+      }
+
+
+
+    } catch (error) {
+      console.error("Error fetching call transcript:", error);
+    }
+
+  }
   //api to add comment
   const handleAddComment = async () => {
     try {
@@ -199,18 +232,25 @@ export function TranscriptViewer({ transcript }) {
 
   return (
     <div className="p-4 space-y-1 overflow-y-auto max-h-[80vh] bg-white rounded-lg border relative">
-      {messages.map((msg, index) => (
-        <TranscriptBubble
-          key={index}
-          message={msg.message}
-          sender={msg.sender}
-          comment={msg.comment}
-          index={index}
-          msgId={msg.id}
-          liked={msg.liked}
-          onCommentClick={handleCommentClick}
-        />
-      ))}
+      {
+        loading ? (
+          <CircularProgress size={30} />
+        ) : (
+          messages.map((msg, index) => (
+            <TranscriptBubble
+              key={index}
+              message={msg.message}
+              sender={msg.sender}
+              comment={msg.comment}
+              index={index}
+              msgId={msg.id}
+              liked={msg.liked}
+              onCommentClick={handleCommentClick}
+            />
+          ))
+
+        )
+      }
 
       <Popover
         open={Boolean(popoverPos)}
@@ -224,7 +264,7 @@ export function TranscriptViewer({ transcript }) {
           <div style={{ fontWeight: "500", fontSize: "15px" }}>Add Feedback</div>
 
           <textarea
-          className="w-full mt-4 rounded-md p-2 focus:border-purple outline-none border"
+            className="w-full mt-4 rounded-md p-2 focus:border-purple outline-none border"
             placeholder="Tell the AI how you really feel.."
             rows={4}
             value={comment}

@@ -141,6 +141,7 @@ const LeadDetails = ({
   const [loading, setLoading] = useState(false);
 
   const [showDelModal, setShowDelModal] = useState(false);
+  const [showTranscriptModal, setShowTranscriptModal] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -634,6 +635,8 @@ const LeadDetails = ({
   //fucntion to read more transcript text
   const handleReadMoreToggle = (item) => {
     // setIsExpanded(!isExpanded);
+
+    // console.log('item', item)
 
     setIsExpanded(item);
     // setIsExpanded((prevIds) => {
@@ -1350,6 +1353,8 @@ const LeadDetails = ({
                         )}
                       </div>
 
+                     
+
                       {/* Modal for All Emails */}
                       <Modal
                         open={showAllEmails}
@@ -2004,10 +2009,10 @@ const LeadDetails = ({
                                       {item.status === "voicemail" ||
                                         item.callOutcome === "Voicemail" ? (
                                         <div className="flex border items-center justify-center rounded mt-2">
-                                          { item.agent.hasVoicemail ? (
+                                          {item.agent.hasVoicemail ? (
                                             <div>
                                               {item.voicemailsent ? (
-                                                
+
                                                 <NoVoicemailView
                                                   showAddBtn={false}
                                                   title={"Voicemail Delivered"}
@@ -2330,7 +2335,7 @@ const LeadDetails = ({
                       </div>
                     </div>
                     <TranscriptViewer
-                      transcript={isExpanded?.messageTranscript || []}
+                      callId={isExpanded?.id || ""}
                     />
                   </div>
                 </div>

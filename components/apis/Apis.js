@@ -181,7 +181,9 @@ const Apis = {
   //setup twillio
   setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`,
   //upsell phone
-  addUpSellPhone:`${BasePath}api/user/setPhoneNumberPrice`
+  addUpSellPhone:`${BasePath}api/user/setPhoneNumberPrice`,
+
+  getCallTranscript: `${BasePath}api/leads/getCallTranscript`,
 };
 
 export default Apis;

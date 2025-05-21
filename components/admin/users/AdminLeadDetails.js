@@ -40,6 +40,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 import { Phone } from "lucide-react";
 import NoVoicemailView from "@/components/dashboard/myagentX/NoVoicemailView";
+import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 
 const AdminLeadDetails = ({
     showDetailsModal,
@@ -80,7 +81,7 @@ const AdminLeadDetails = ({
     const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false);
 
     //code for call activity transcript text
-    const [isExpanded, setIsExpanded] = useState([]);
+    const [isExpanded, setIsExpanded] = useState(false);
     const [isExpandedActivity, setIsExpandedActivity] = useState([]);
 
     const [expandedCustomFields, setExpandedCustomFields] = useState([]); // check if the custom fields Read More or Read less should show
@@ -592,16 +593,16 @@ const AdminLeadDetails = ({
     //fucntion to read more transcript text
     const handleReadMoreToggle = (item) => {
         // setIsExpanded(!isExpanded);
-
-        setIsExpanded((prevIds) => {
-            if (prevIds.includes(item.id)) {
-                // Unselect the item if it's already selected
-                return prevIds.filter((prevId) => prevId !== item.id);
-            } else {
-                // Select the item if it's not already selected
-                return [...prevIds, item.id];
-            }
-        });
+        setIsExpanded(item);
+        // setIsExpanded((prevIds) => {
+        //     if (prevIds.includes(item.id)) {
+        //         // Unselect the item if it's already selected
+        //         return prevIds.filter((prevId) => prevId !== item.id);
+        //     } else {
+        //         // Select the item if it's not already selected
+        //         return [...prevIds, item.id];
+        //     }
+        // });
     };
 
     const handleDeleteLead = async () => {
@@ -1248,6 +1249,53 @@ const AdminLeadDetails = ({
                                                         </div>
                                                     )}
                                                 </div>
+
+                                                {/* Show Transcript UI Modal*/}
+
+                                                <Modal
+                                                    open={isExpanded}
+                                                    onClose={() => setIsExpanded(null)}
+                                                    closeAfterTransition
+                                                    BackdropProps={{
+                                                        timeout: 1000,
+                                                        sx: {
+                                                            backgroundColor: "#00000020",
+                                                        },
+                                                    }}
+                                                >
+                                                    <Box
+                                                        className="lg:w-4/12 sm:w-4/12 w-6/12"
+                                                        sx={styles.modalsStyle}
+                                                    >
+                                                        <div className="flex flex-row justify-center w-full">
+                                                            <div
+                                                                className="w-full"
+                                                                style={{
+                                                                    backgroundColor: "#ffffff",
+                                                                    padding: 20,
+                                                                    borderRadius: "13px",
+                                                                }}
+                                                            >
+                                                                <div className="w-full flex flex-row items-center justify-between">
+                                                                    <div className="font-bold text-xl mt-4 mb-4">
+                                                                        Call Transcript
+                                                                    </div>
+                                                                    <div>
+                                                                        <button
+                                                                            className="font-bold outline-none border-none"
+                                                                            onClick={() => setIsExpanded(null)}
+                                                                        >
+                                                                            <CloseIcon />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <TranscriptViewer
+                                                                    callId={isExpanded?.id || ""}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </Box>
+                                                </Modal>
 
                                                 {/* Modal for All Emails */}
                                                 <Modal
