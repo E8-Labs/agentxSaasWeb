@@ -229,7 +229,7 @@ function SelectedUserDetails({
             />
 
             <div className='flex flex-col items-center justify-center w-full'>
-                <div style={{ alignSelf: 'center' }} className={`w-full ${(from === "admin" || from === "subaccount") ? "h-[80vh]":"h-[100svh]"} bg-white items-center justify-center`}>
+                <div style={{ alignSelf: 'center' }} className={`w-full ${agencyUser ? "h-[100svh]":"h-[80vh]"} bg-white items-center justify-center overflow-hidden`}>
                     <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
                         <div className='flex flex-row gap-2 items-center justify-start'>
                             <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
@@ -378,7 +378,7 @@ function SelectedUserDetails({
 
                         </div>
 
-                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${(from === "admin" || from === "subaccount") ? "h-[70vh]":"h-[95vh]"} overflow-auto w-10/12`}>
+                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? "h-[95vh]":"h-[300vh]"} overflow-auto w-10/12`}>
                             {
                                 selectedManu.name == "Leads" ? (
                                     <AdminLeads1 selectedUser={selectedUser} />
