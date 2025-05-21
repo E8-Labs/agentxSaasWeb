@@ -31,7 +31,7 @@ import { Api } from "@mui/icons-material";
 import LeadLoading from "../dashboard/leads/LeadLoading";
 
 function AllCalls({ user }) {
-  const LimitPerPage = 30;
+  const LimitPerPage = 15;
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -67,7 +67,7 @@ function AllCalls({ user }) {
   const [selectedStatus, setSelectedStatus] = useState([]);
   const [filtersChanged, setFiltersChanged] = useState(false);
 
-  const [pipelineLoader, setPipelineLoader] = useState(false)
+  const [pipelineLoader, setPipelineLoader] = useState(false);
 
   //code for pagination
   const [offset, setOffset] = useState(5);
@@ -127,37 +127,33 @@ function AllCalls({ user }) {
   //   // }
   // }, []);
 
+  const fromCalendarRef = useRef(null);
+  const toCalendarRef = useRef(null);
 
-    const fromCalendarRef = useRef(null);
-    const toCalendarRef = useRef(null);
-  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showFromDatePicker &&
+        fromCalendarRef.current &&
+        !fromCalendarRef.current.contains(event.target)
+      ) {
+        setShowFromDatePicker(false);
+      }
 
+      if (
+        showToDatePicker &&
+        toCalendarRef.current &&
+        !toCalendarRef.current.contains(event.target)
+      ) {
+        setShowToDatePicker(false);
+      }
+    };
 
-    useEffect(() => {
-      const handleClickOutside = (event) => {
-        if (
-          showFromDatePicker &&
-          fromCalendarRef.current &&
-          !fromCalendarRef.current.contains(event.target)
-        ) {
-          setShowFromDatePicker(false);
-        }
-  
-        if (
-          showToDatePicker &&
-          toCalendarRef.current &&
-          !toCalendarRef.current.contains(event.target)
-        ) {
-          setShowToDatePicker(false);
-        }
-      };
-  
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [showFromDatePicker, showToDatePicker]);
-  
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFromDatePicker, showToDatePicker]);
 
   useEffect(() => {
     if (filterRef.current) {
@@ -282,7 +278,6 @@ function AllCalls({ user }) {
   }
 
   useEffect(() => {
-
     getPipelines();
 
     // const localPipelines = localStorage.getItem("pipelinesData");
@@ -316,7 +311,7 @@ function AllCalls({ user }) {
     // console.log('trying to get pipelines')
 
     try {
-      setPipelineLoader(true)
+      setPipelineLoader(true);
       const ApiPath = Apis.getPipelines;
 
       let AuthToken = null;
@@ -337,7 +332,7 @@ function AllCalls({ user }) {
 
       if (response) {
         // console.log("Pipelines list is ", response.data.data)
-        setPipelineLoader(false)
+        setPipelineLoader(false);
 
         if (response.data.status === true) {
           setPipelinesList(response.data.data);
@@ -349,7 +344,7 @@ function AllCalls({ user }) {
       // console.error("Error occured in get pipelies api is :", error);
     } finally {
       // //console.log;
-      setPipelineLoader(false)
+      setPipelineLoader(false);
     }
   };
 
@@ -373,10 +368,8 @@ function AllCalls({ user }) {
       let endDate = "";
 
       if (selectedFromDate && selectedToDate) {
-        startDate = moment(selectedFromDate)
-          .format("MM-DD-YYYY HH:mm:ss");
-        endDate = moment(selectedToDate)
-          .format("MM-DD-YYYY HH:mm:ss");
+        startDate = moment(selectedFromDate).format("MM-DD-YYYY HH:mm:ss");
+        endDate = moment(selectedToDate).format("MM-DD-YYYY HH:mm:ss");
       }
 
       // //console.log;
@@ -392,17 +385,17 @@ function AllCalls({ user }) {
       if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.getCallLogs}${separator}startDate=${startDate}&endDate=${endDate}`;
         separator = "&";
-      }
-
-      else {
+      } else {
         ApiPath = `${Apis.getCallLogs}`; //Apis.getCallLogs;
         // separator = "&";
       }
       if (selectedPipeline) {
-        let pipeline = pipelinesList.filter((pipeline) => selectedPipeline === pipeline.title)
+        let pipeline = pipelinesList.filter(
+          (pipeline) => selectedPipeline === pipeline.title
+        );
         //console.log
-        ApiPath = ApiPath + separator + "pipelineId=" + pipeline[0].id
-        separator = "&"
+        ApiPath = ApiPath + separator + "pipelineId=" + pipeline[0].id;
+        separator = "&";
       }
 
       if (stages.length > 0) {
@@ -424,7 +417,7 @@ function AllCalls({ user }) {
       // }
       ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}`;
 
-      console.log("api path is ",ApiPath)
+      console.log("api path is ", ApiPath);
       //console.log;
 
       //// //console.log;
@@ -604,8 +597,7 @@ function AllCalls({ user }) {
                           if (filter.key == "date") {
                             setSelectedFromDate(null);
                             setSelectedToDate(null);
-                            setFiltersChanged(prev => !prev);
-
+                            setFiltersChanged((prev) => !prev);
                           }
                           if (filter.key == "stage") {
                             setSelectedStageIds((prev) => {
@@ -617,14 +609,12 @@ function AllCalls({ user }) {
 
                               return updatedstage; // Update state
                             });
-                            setFiltersChanged(prev => !prev);
-
+                            setFiltersChanged((prev) => !prev);
                           }
                           if (filter.key == "pipeline") {
                             setSelectedPipeline(null);
                             setSelectedStageIds([]);
-                            setFiltersChanged(prev => !prev);
-
+                            setFiltersChanged((prev) => !prev);
                           }
                           if (filter.key === "status") {
                             // ✅ Update state first
@@ -635,7 +625,7 @@ function AllCalls({ user }) {
                               return updatedStatus; // Update state
                             });
 
-                            setFiltersChanged(prev => !prev);
+                            setFiltersChanged((prev) => !prev);
                           }
                         }}
                       >
@@ -712,9 +702,7 @@ function AllCalls({ user }) {
               hasMore={hasMore} // Check if there's more data
               loader={
                 <div className="w-full flex flex-row justify-center">
-                  {(
-                    <CircularProgress size={35} />
-                  )}
+                  {<CircularProgress size={35} />}
                 </div>
               }
               style={{ overflow: "unset" }}
@@ -738,7 +726,7 @@ function AllCalls({ user }) {
                         <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                           {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                         </div>
-                        <div style={{...styles.text2,...{width:"80%",}}}> 
+                        <div style={{ ...styles.text2, ...{ width: "80%" } }}>
                           {item.LeadModel?.firstName}
                         </div>
                       </div>
@@ -888,8 +876,7 @@ function AllCalls({ user }) {
 
                           <div>
                             {showFromDatePicker && (
-                             <div ref={fromCalendarRef}>
-                               
+                              <div ref={fromCalendarRef}>
                                 <Calendar
                                   onChange={handleFromDateChange}
                                   value={selectedFromDate}
@@ -947,7 +934,6 @@ function AllCalls({ user }) {
                           <div>
                             {showToDatePicker && (
                               <div ref={toCalendarRef}>
-                               
                                 <Calendar
                                   className="react-calendar"
                                   onChange={handleToDateChange}
@@ -979,65 +965,64 @@ function AllCalls({ user }) {
                     </div>
 
                     <div className="mt-4 w-full">
-                      {
-                        pipelineLoader ? (
-                          <CircularProgress size={25} />
-                        ) :
-                          <FormControl fullWidth>
-                            {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
-                            <Select
-                              value={selectedPipeline}
-                              onChange={handleChangePipeline}
-                              displayEmpty // Enables placeholder
-                              renderValue={(selected) => {
-                                if (!selected) {
-                                  return (
-                                    <div style={{ color: "#aaa" }}>
-                                      Select pipeline
-                                    </div>
-                                  ); // Placeholder style
-                                }
-                                return selected;
-                              }}
-                              sx={{
-                                border: "1px solid #00000020", // Default border
-                                "&:hover": {
-                                  border: "1px solid #00000020", // Same border on hover
-                                },
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove the default outline
-                                },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      {pipelineLoader ? (
+                        <CircularProgress size={25} />
+                      ) : (
+                        <FormControl fullWidth>
+                          {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
+                          <Select
+                            value={selectedPipeline}
+                            onChange={handleChangePipeline}
+                            displayEmpty // Enables placeholder
+                            renderValue={(selected) => {
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>
+                                    Select pipeline
+                                  </div>
+                                ); // Placeholder style
+                              }
+                              return selected;
+                            }}
+                            sx={{
+                              border: "1px solid #00000020", // Default border
+                              "&:hover": {
+                                border: "1px solid #00000020", // Same border on hover
+                              },
+                              "& .MuiOutlinedInput-notchedOutline": {
+                                border: "none", // Remove the default outline
+                              },
+                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
                                   border: "none", // Remove outline on focus
                                 },
-                                "&.MuiSelect-select": {
-                                  py: 0, // Optional padding adjustments
+                              "&.MuiSelect-select": {
+                                py: 0, // Optional padding adjustments
+                              },
+                            }}
+                            MenuProps={{
+                              PaperProps: {
+                                style: {
+                                  maxHeight: "30vh", // Limit dropdown height
+                                  overflow: "auto", // Enable scrolling in dropdown
+                                  scrollbarWidth: "none",
+                                  // borderRadius: "10px"
                                 },
-                              }}
-                              MenuProps={{
-                                PaperProps: {
-                                  style: {
-                                    maxHeight: "30vh", // Limit dropdown height
-                                    overflow: "auto", // Enable scrolling in dropdown
-                                    scrollbarWidth: "none",
-                                    // borderRadius: "10px"
-                                  },
-                                },
-                              }}
-                            >
-                              {pipelinesList.map((item, index) => (
-
-                                <MenuItem
-                                  key={item.id}
-                                  style={styles.dropdownMenu}
-                                  value={item.title}
-                                >
-                                  {item.title}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                      }
+                              },
+                            }}
+                          >
+                            {pipelinesList.map((item, index) => (
+                              <MenuItem
+                                key={item.id}
+                                style={styles.dropdownMenu}
+                                value={item.title}
+                              >
+                                {item.title}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      )}
                     </div>
 
                     <div
@@ -1064,16 +1049,18 @@ function AllCalls({ user }) {
                               onClick={() => {
                                 handleSelectStage(item);
                               }}
-                              className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
+                              className={`p-2 border border-[#00000020] ${
+                                selectedStageIds.includes(item.id)
                                   ? `bg-purple`
                                   : "bg-transparent"
-                                } px-6
-                                                                ${selectedStageIds.includes(
-                                  item.id
-                                )
-                                  ? `text-white`
-                                  : "text-black"
-                                } rounded-2xl`}
+                              } px-6
+                                                                ${
+                                                                  selectedStageIds.includes(
+                                                                    item.id
+                                                                  )
+                                                                    ? `text-white`
+                                                                    : "text-black"
+                                                                } rounded-2xl`}
                             >
                               {item.stageTitle}
                             </button>
@@ -1153,8 +1140,8 @@ function AllCalls({ user }) {
                           fontWeight: "600",
                           backgroundColor:
                             (selectedFromDate && selectedToDate) ||
-                              selectedStageIds.length > 0 ||
-                              selectedStatus.length > 0
+                            selectedStageIds.length > 0 ||
+                            selectedStatus.length > 0
                               ? ""
                               : "#00000050",
                         }}
