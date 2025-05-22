@@ -100,7 +100,7 @@ function AdminTeam({ selectedUser }) {
     },
   ];
 
-  useEffect(() => {});
+  useEffect(() => { });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -489,7 +489,7 @@ function AdminTeam({ selectedUser }) {
       )}
       <div
         className=" w-full flex flex-row justify-between items-center py-4 px-4"
-        // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
+      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Staff</div>
         {/* <div>
@@ -575,11 +575,10 @@ function AdminTeam({ selectedUser }) {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${
-                              item.status === "Pending"
+                            className={`text-sm font-medium ${item.status === "Pending"
                                 ? "text-red-500"
                                 : "text-green-500"
-                            }`}
+                              }`}
                           >
                             {item.status}
                           </div>
@@ -851,7 +850,11 @@ function AdminTeam({ selectedUser }) {
                   <div className="w-full">
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
-                      country="us" // Default country
+                      country={"us"} // restrict to US only
+                      onlyCountries={["us"]}
+                      disableDropdown={true}
+                      countryCodeEditable={false}
+                      disableCountryCode={false} // Default country
                       value={phone}
                       onChange={handlePhoneNumberChange}
                       // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
@@ -884,8 +887,7 @@ function AdminTeam({ selectedUser }) {
                         maxHeight: "150px",
                         overflowY: "auto",
                       }}
-                      countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -901,10 +903,10 @@ function AdminTeam({ selectedUser }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                         ? "#00000020"
                         : "",
                   }}
@@ -931,10 +933,10 @@ function AdminTeam({ selectedUser }) {
                       fontWeight: "500",
                       color:
                         !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                          !email ||
+                          !phone ||
+                          emailCheckResponse?.status !== true ||
+                          checkPhoneResponse?.status !== true
                           ? "#000000"
                           : "#ffffff",
                     }}

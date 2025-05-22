@@ -412,7 +412,11 @@ const InviteTeamModal = ({
                                     <div className="w-full">
                                         <PhoneInput
                                             className="outline-none bg-transparent focus:ring-0"
-                                            country="us" // Default country
+                                            country={"us"} // restrict to US only
+                                            onlyCountries={["us"]}
+                                            disableDropdown={true}
+                                            countryCodeEditable={false}
+                                            disableCountryCode={false}
                                             value={phone}
                                             onChange={handlePhoneNumberChange}
                                             // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
@@ -445,7 +449,6 @@ const InviteTeamModal = ({
                                                 maxHeight: "150px",
                                                 overflowY: "auto",
                                             }}
-                                            countryCodeEditable={true}
                                         // defaultMask={locationLoader ? "Loading..." : undefined}
                                         />
                                     </div>

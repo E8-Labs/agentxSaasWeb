@@ -13,6 +13,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { getAgentImage } from "@/utilities/agentUtilities";
 import DncConfirmationPopup from "../DncConfirmationPopup";
+import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi';
 
 const LastStep = ({
   selectedLead,
@@ -48,8 +49,12 @@ const LastStep = ({
   const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
+  const [isRefill, setIsRefill] = useState(false)
+  const [showRefillToogle, setShwRefillToogle] = useState(false)
 
   useEffect(() => {
+
+
     let D = lastStepData;
     console.log("Last step data passed from parent screen", D);
     if (D) {
@@ -78,6 +83,21 @@ const LastStep = ({
       }, SelectAgentErrorTimeout);
     }
   }, [errorMessage]);
+
+
+  useEffect(() => {
+    const d = localStorage.getItem("User");
+    if (d) {
+      const Data = JSON.parse(d);
+      console.log("Smart refill is", Data.user.smartRefill);
+      let show = Data?.user?.smartRefill
+      console.log('show', show)
+
+      if (!show) {
+        setShwRefillToogle(true)
+      }
+    }
+  }, []);
 
   //counts leads selected
   function getLeadSelectedCount() {
@@ -111,6 +131,47 @@ const LastStep = ({
       callL: CallLater
     }
     handleBack(lastStepData);
+  }
+
+  //function to update profile
+  const handleUpdateProfile = async () => {
+    try {
+      // setUserDataLoader(true);
+      const response = await SmartRefillApi();
+      if (response) {
+        // setUserDataLoader(false);
+        console.log("Response of update profile api is", response);
+        if (response.data.status === true) {
+          setIsRefill(true);
+        } else if (response.data.status === false) {
+          // setErrorSnack(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+      // setUserDataLoader(false);
+    }
+  }
+
+  //function to remove smart refill
+  const handleRemoveSmartRefill = async () => {
+    try {
+      // setUserDataLoader(true);
+      const response = await RemoveSmartRefillApi();
+      if (response) {
+        // setUserDataLoader(false);
+        console.log("Response of remove smart refill api is", response);
+        if (response.data.status === true) {
+          // setSuccessSnack(response.data.message);
+          setIsRefill(false);
+        } else if (response.data.status === false) {
+          // setErrorSnack(response.data.message)
+        }
+      }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+      // setUserDataLoader(false);
+    }
   }
 
   const styles = {
@@ -672,6 +733,52 @@ const LastStep = ({
               </div>
             </div>
           )}
+
+          {
+            showRefillToogle && (
+              <div className='flex flex-col items-center w-full p-3 rounded-xl w-full mt-3'
+                style={{ backgroundColor: '#D9D9D930' }}
+              >
+                <div
+                  className='flex flex-row items-center justify-between w-full'
+                >
+                  <div style={{ fontsize: 16, fontWeight: '600', color: 'black' }}>
+                    Turn on smart refill
+                  </div>
+
+                  <Switch
+                    checked={isRefill}
+                    // color="#7902DF"
+                    // exclusive
+
+                    onChange={() => {
+                      setIsRefill(!isRefill);
+                      if (isRefill === true) {
+                        handleRemoveSmartRefill();
+                      } else if (isRefill === false) {
+                        handleUpdateProfile();
+                      }
+                    }}
+                    sx={{
+                      "& .MuiSwitch-switchBase.Mui-checked": {
+                        color: "#7902DF",
+                      },
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                      {
+                        backgroundColor: "#7902DF",
+                      },
+                      margin: 0,
+                    }}
+                  />
+                </div>
+
+                <div style={{ fontsize: 14, fontWeight: '500', color: 'black' }}>
+                  Avoid interruption when you are making calls and always make sure your AI has minutes to work with
+                </div>
+              </div>
+            )
+          }
+
 
           {loader ? (
             <div className="mt-4 w-full flex flex-row items-center justify-center">

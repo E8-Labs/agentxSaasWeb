@@ -196,7 +196,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       userType: "LoanOfficerAgent",
       roundedImage: false,
     },
-    
+
     {
       id: 100,
       title: "More",
@@ -230,11 +230,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       <div
         className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4"
         style={{ scrollbarWidth: "none" }}
-        //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+      //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
         <div
           className={`h-[90svh] sm:h-[80svh] `}
-          //84svh
+        //84svh
         >
           {/* header */}
           <div className="w-full h-[10%]">
@@ -261,21 +261,21 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-              // style={{
-              //   scrollbarWidth: "none",
-              //   msOverflowStyle: "none",
-              //   WebkitOverflowScrolling: "none",
-              // }}
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-x-hidden overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+            // style={{
+            //   scrollbarWidth: "none",
+            //   msOverflowStyle: "none",
+            //   WebkitOverflowScrolling: "none",
+            // }}
             >
               {userType.map((item, index) => {
                 if (index == userType.length - 1) {
                   return (
                     <div
                       key={index}
-                      className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
+                      className="flex flex-col gap-3 w-full mb-6 py-2 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
                     >
-                      <Image
+                      <Image className="hidden sm:flex"
                         src={"/svgIcons/halfOrb.svg"}
                         height={282}
                         width={282}
@@ -292,7 +292,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         More agents coming in the future
                       </div>
 
-                      <Image
+                      <Image className="hidden sm:flex"
                         src={"/svgIcons/blueThreeDots.svg"}
                         height={9}
                         width={37}
@@ -302,47 +302,35 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   );
                 } else {
                   return (
-                    <div key={index} className="flex w-6/12 md:w-4/12 p-2">
+                    <div key={index} className="flex w-full md:w-4/12 p-2">
                       <div
-                        className="w-full rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90"
-                        onClick={(e) => {
-                          handleUserType(item);
-                        }}
-                        style={{
-                          border:
-                            item.id === SelectUserType
-                              ? "2px solid #7902DF"
-                              : "",
-                          // transform: "scale(0.99)",
-                          // transition: "0.4s ease",
-                        }}
+                        className={`w-full rounded-lg p-2 border transition-all duration-300 ease-in-out ${item.id === SelectUserType ? "border-[#7902DF] border-2" : "border-[#00000010]"
+                          } md:hover:border-[#7902DF] md:hover:border-2 md:hover:scale-105`}
+                        onClick={() => handleUserType(item)}
                       >
                         <div
-                          className="h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
+                          className="w-[100%] rounded w-full flex flex-col justify-center pb-[10px] items-center"
                           style={{ backgroundColor: "#FAF9FF" }}
                         >
-                          {/* <img src={item.icon} style={{ width: "100%", resize: "contain" }} alt='*' /> */}
                           <img
                             src={item.icon}
+                            alt="*"
+                            className={`${item.id === 10
+                                ? "w-[25%] sm:w-[50%]" // smaller on mobile, larger on desktop
+                                : "w-[full]"
+                              } transform scale-[1.1]`}
                             style={{
-                              width: item.id === 10 ? "50%" : "100%",
-                              transform: "scale(1.1)",
                               resize: "contain",
                               borderRadius: item.roundedImage ? "50%" : "1%",
                             }}
-                            alt="*"
                           />
                         </div>
-                        <div
-                          className="text-center mt-4 pb-4"
-                          style={{
-                            fontWeight: "600",
-                            fontSize: 17,
-                          }}
-                        >
+
+                        <div className="text-center mt-4 pb-4 font-semibold text-[17px]">
                           {item.agentType}
                         </div>
                       </div>
+
                     </div>
                   );
                 }

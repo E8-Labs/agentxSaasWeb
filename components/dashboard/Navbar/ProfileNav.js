@@ -826,7 +826,7 @@ const ProfileNav = () => {
           >
             <Link
               href={"/dashboard/myAccount"}
-              className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
+              className="w-full  flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
               style={{
                 textOverflow: "ellipsis",
                 textDecoration: "none",

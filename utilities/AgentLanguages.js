@@ -6,13 +6,13 @@ export const AgentLanguages = {
     subLang: "",
   },
   Spanish: {
-    title: "Spanish",
+    title: "Spanish (coming soon)",
     value: "es",
     flag: "/agencyIcons/spain.jpg",
     subLang: "",
   },
   Bilingual: {
-    title: "Multilingual",
+    title: "Multilingual (coming soon)",
     value: "multi",
     flag: "/agencyIcons/belgium.jpg",
     subLang: "(English + Spanish)",

@@ -362,7 +362,11 @@ const NewInviteTeamModal = ({
                                                     <div className='w-[90%] flex flex-row items-center'>
                                                         <div className="w-full">
                                                             <PhoneInput
-                                                                country={countryCode}
+                                                                country={"us"} // restrict to US only
+                                                                onlyCountries={["us"]}
+                                                                disableDropdown={true}
+                                                                countryCodeEditable={false}
+                                                                disableCountryCode={false}
                                                                 value={member.phone}
                                                                 onChange={(value, countryData, e) => {
                                                                     handleChange(index, 'phone', value);

@@ -702,8 +702,11 @@ const AgencySignUp = ({
                   <PhoneInput
                     ref={(el) => (inputsFields.current[2] = el)}
                     className="border outline-none bg-white"
-                    country={countryCode} // Set the default country
-                    value={userPhoneNumber}
+country={"us"} // restrict to US only
+                    onlyCountries={["us"]}
+                    disableDropdown={true}
+                    countryCodeEditable={false}
+                    disableCountryCode={false}                    value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
                       locationLoader
@@ -731,7 +734,6 @@ const AgencySignUp = ({
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={true}
                     defaultMask={loading ? "Loading..." : undefined}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === "Done") {

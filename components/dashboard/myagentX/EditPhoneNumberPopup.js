@@ -98,7 +98,11 @@ export const EditPhoneNumberModal = ({
           <div className="w-full">
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
-              country={countryCode} // Default country
+              country={"us"} // restrict to US only
+              onlyCountries={["us"]}
+              disableDropdown={true}
+              countryCodeEditable={false}
+              disableCountryCode={false}
               value={userPhoneNumber}
               onChange={handlePhoneNumberChange}
               placeholder={
@@ -131,7 +135,6 @@ export const EditPhoneNumberModal = ({
                 maxHeight: "150px",
                 overflowY: "auto",
               }}
-              countryCodeEditable={true}
               defaultMask={locationLoader ? "Loading..." : undefined}
             />
           </div>

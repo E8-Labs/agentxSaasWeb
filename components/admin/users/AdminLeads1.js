@@ -246,6 +246,7 @@ const AdminLeads1 = ({selectedUser}) => {
     });
   }, []);
 
+
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     accept: {
@@ -544,13 +545,52 @@ const AdminLeads1 = ({selectedUser}) => {
           raw: isCSV, // This forces Excel dates to be converted to readable format
         });
         if (data.length > 1) {
+          // const headers = data[0]; // First row as headers
+          // const rows = data.slice(1); // Data without headers
+
+          // let mappedColumns = headers.map((header) => {
+          //   // Find matching column from LeadDefaultColumns
+          //   let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+          //     LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+          //   );
+          //   console.log(
+          //     `Matched column ${header.toLowerCase} with `,
+          //     matchedColumnKey
+          //   );
+
+          //   return {
+          //     ColumnNameInSheet: header, // Original header from the file
+          //     matchedColumn: matchedColumnKey
+          //       ? { ...LeadDefaultColumns[matchedColumnKey] }
+          //       : null, // Default column if matched
+          //     UserFacingName: null, // Can be updated manually by user
+          //   };
+          // });
+
           const headers = data[0]; // First row as headers
           const rows = data.slice(1); // Data without headers
 
+          const usedKeys = new Set(); // Keep track of already matched default columns
+
           let mappedColumns = headers.map((header) => {
-            // Find matching column from LeadDefaultColumns
-            let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-              LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+            // Find the first unused matching column
+            let matchedColumnKey = Object.keys(LeadDefaultColumns).find(
+              (key) => {
+                return (
+                  !usedKeys.has(key) &&
+                  LeadDefaultColumns[key].mappings.includes(
+                    header.toLowerCase()
+                  )
+                );
+              }
+            );
+
+            if (matchedColumnKey) {
+              usedKeys.add(matchedColumnKey); // Mark as used
+            }
+
+            console.log(
+              `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
             );
 
             return {
@@ -587,9 +627,6 @@ const AdminLeads1 = ({selectedUser}) => {
           // Update state
           setProcessedData(transformedData);
           setNewColumnsObtained(mappedColumns); // Store the column mappings
-
-          //console.log;
-          //console.log;
         }
       };
 

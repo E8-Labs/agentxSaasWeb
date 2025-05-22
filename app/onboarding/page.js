@@ -110,10 +110,10 @@ const Page = ({ params }) => {
         // ];
         // setComponents(oldComps);
 
-        console.log(
-          "🚀 Components from getComponentToRender:",
-          comps.map((c) => c?.name || "undefined")
-        );
+        // console.log(
+        //   "🚀 Components from getComponentToRender:",
+        //   comps.map((c) => c?.name || "undefined")
+        // );
       }
     } else {
       let comps = getComponentToRender();

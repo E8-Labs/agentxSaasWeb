@@ -126,13 +126,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     );
     if (!localLoc) {
       // getLocation();
-      getLocation2();
+      // getLocation2();
     } else if (localLoc) {
       // const L = JSON.parse(localLoc);
       // setCountryCode(L.location);
       let Data = getLocalLocation();
       if (userPhoneNumber == "") {
-        setCountryCode(Data);
+        // setCountryCode(Data);
       }
     }
   }, []);
@@ -720,7 +720,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 <div className="w-[90%]">
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
-                    country={countryCode} // Default country
+                    country={"us"} // restrict to US only
+                    onlyCountries={["us"]}
+                    disableDropdown={true}
+                    countryCodeEditable={false}
+                    disableCountryCode={false}
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -766,7 +770,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={true}
                     defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                 </div>

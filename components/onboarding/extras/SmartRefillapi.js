@@ -36,8 +36,6 @@ export const SmartRefillApi = async () => {
     }
 }
 
-
-
 //code to remove smart refill
 export const RemoveSmartRefillApi = async () => {
     try {

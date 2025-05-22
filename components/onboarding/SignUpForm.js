@@ -461,10 +461,10 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
-              // onClick={()=>{
-              //   console.log('push',)
-              //   router.push("/createagent")
-              // }}
+            // onClick={()=>{
+            //   console.log('push',)
+            //   router.push("/createagent")
+            // }}
             >
               Your Contact Information
             </div>
@@ -673,7 +673,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 <PhoneInput
                   ref={(el) => (inputsFields.current[2] = el)}
                   className="border outline-none bg-white"
-                  country={countryCode} // Set the default country
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
@@ -702,7 +706,6 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                     maxHeight: "150px",
                     overflowY: "auto",
                   }}
-                  countryCodeEditable={true}
                   defaultMask={loading ? "Loading..." : undefined}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === "Done") {

@@ -4,7 +4,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
-import { GetFormattedDateString } from "@/utilities/utility";
+import { GetFormattedDateString, ToUppercase } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -157,7 +157,7 @@ function SheduledCalls({ user }) {
       });
 
       if (response) {
-        console.log("response is",response.data.data.length)
+        console.log("response is",response.data.data)
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -665,12 +665,8 @@ function SheduledCalls({ user }) {
                                   </div>
                                   <div className="w-2/12 ">
                                     {user.user.userType == UserTypes.RealEstateAgent
-                                      ? `${agent?.agents[0]?.agentObjective
-                                        ?.slice(0, 1)
-                                        .toUpperCase()}${agent?.agents[0]?.agentObjective?.slice(
-                                          1
-                                        )}`
-                                      : `${agent?.agents[0]?.agentRole}`}
+                                      ? `${ToUppercase(agent?.agents[0]?.agentObjective)}`
+                                      : `${agent?.agents[0]?.agentRole ||"Other"}`}
                                   </div>
                                   <div className="w-1/12">
                                     <button

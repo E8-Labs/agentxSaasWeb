@@ -693,7 +693,11 @@ const DebtCollectorAgentSignUp = ({
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-                  country={countryCode} // Set the default country
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
@@ -722,7 +726,6 @@ const DebtCollectorAgentSignUp = ({
                     maxHeight: "150px",
                     overflowY: "auto",
                   }}
-                  countryCodeEditable={true}
                   defaultMask={loading ? "Loading..." : undefined}
                 />
               </div>

@@ -191,13 +191,14 @@ const UserService = ({ handleContinue, handleBack }) => {
                           : "",
                       }}
                     >
-                      <div className="flex flex-row items-end sm:items-start justify-between px-4 w-full py-2">
+                      <div className="flex flex-row items-start justify-between px-4 w-full py-2">
                         <div className="flex flex-col gap-2 items-start w-[90%]">
                           <div
                             style={{
                               fontFamily: "",
                               fontWeight: "700",
                               fontSize: 20,
+                              textAlign: "start"
                             }}
                           >
                             {item.title}
@@ -212,15 +213,15 @@ const UserService = ({ handleContinue, handleBack }) => {
                           <Image
                             src={"/assets/charmTick.png"}
                             alt="*"
-                            height={36}
-                            width={36}
+                            height={30}
+                            width={30}
                           />
                         ) : (
                           <Image
                             src={"/assets/charmUnMark.png"}
                             alt="*"
-                            height={36}
-                            width={36}
+                            height={30}
+                            width={30}
                           />
                         )}
                       </div>

@@ -89,3 +89,17 @@ export function convertSecondsToMinDuration(seconds) {
   // Otherwise, return minutes and seconds
   return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
 }
+
+
+export function ToUppercase(text) {
+  if (text == null || text == "" || text == undefined) {
+    return ""
+  }
+  
+  return `${text.slice(0, 1)
+    .toUpperCase()
+}${
+  text.slice(
+    1
+  )}`
+}

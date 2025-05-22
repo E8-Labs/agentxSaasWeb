@@ -486,7 +486,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     >
       <div
         className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
-        // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+      // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <div>
           {/* Video Card */}
@@ -526,7 +526,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: "center" }}
-              // onClick={handleContinue}
+            // onClick={handleContinue}
             >
               {`Let's talk digits`}
             </div>
@@ -608,7 +608,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                     (Claimed by {item.claimedBy.name})
                                   </div>
                                   {reassignLoader?.claimedBy?.id ===
-                                  item.claimedBy.id ? (
+                                    item.claimedBy.id ? (
                                     <CircularProgress size={15} />
                                   ) : (
                                     <button
@@ -783,7 +783,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
                   <PhoneInput
                     className="border outline-none bg-white"
-                    country={countryCode} // Default country
+                    country={"us"} // restrict to US only
+                    onlyCountries={["us"]}
+                    disableDropdown={true}
+                    countryCodeEditable={false}
+                    disableCountryCode={false}
                     value={officeNumber}
                     onChange={handleOfficeNumberChange}
                     // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
@@ -806,8 +810,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                  // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
 
                   <div
@@ -830,7 +833,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 </div>
                 <PhoneInput
                   className="border outline-none bg-white"
-                  country={countryCode} // Default country
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
                   value={callBackNumber}
                   onChange={handleCallBackNumberChange}
                   // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
@@ -853,8 +860,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     maxHeight: "150px",
                     overflowY: "auto",
                   }}
-                  countryCodeEditable={true}
-                  // defaultMask={locationLoader ? "Loading..." : undefined}
+                // defaultMask={locationLoader ? "Loading..." : undefined}
                 />
                 <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
                   {errorMessage}
