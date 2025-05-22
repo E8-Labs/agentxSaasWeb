@@ -183,13 +183,15 @@ const allIntegrations = [
     description:
       "Integrate with AgentX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
     icon: "/svgIcons/GHLIcon.svg",
-  },{
+  },
+  {
     title: "Pipedrive",
     url: "https://zapier.com/apps/pipedrive/integrations/myagentx",
     description:
       "Connect Pipedrive with AgentX for seamless deal tracking and smart sales automation.",
     icon: "/svgIcons/PipedriveIcon.svg",
-  },{
+  },
+  {
     title: "Salesforce",
     url: "https://zapier.com/apps/salesforce/integrations/myagentx",
     description:
@@ -197,7 +199,7 @@ const allIntegrations = [
     icon: "/svgIcons/SalesforceIcon.svg",
   },
 ];
-function AdminIntegration({selectedUser}) {
+function AdminIntegration({ selectedUser }) {
   const [showKeysBox, setshowKeysBox] = useState(false);
   const [myKeys, setMyKeys] = useState([]);
   const [keyLoader, setKeyLoader] = useState(false);
@@ -237,7 +239,7 @@ function AdminIntegration({selectedUser}) {
       let u = JSON.parse(data);
       // //console.log;
 
-      let path = Apis.myApiKeys+"?userId="+selectedUser.id;
+      let path = Apis.myApiKeys + "?userId=" + selectedUser.id;
       // //console.log;
 
       const response = await axios.get(path, {
@@ -363,7 +365,6 @@ function AdminIntegration({selectedUser}) {
         // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
-        
       </div>
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {
@@ -617,7 +618,7 @@ function AdminIntegration({selectedUser}) {
                 <button
                   onClick={() => {
                     // if (integration.title === "GHL") {
-                    //   setShowCopySnak("Comming soon");
+                    //   setShowCopySnak("Coming soon");
                     //   return;
                     // }
                     if (typeof window !== "undefined") {

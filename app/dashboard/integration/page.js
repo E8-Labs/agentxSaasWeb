@@ -621,7 +621,7 @@ function Page() {
                   <button
                     onClick={() => {
                       // if (integration.title === "GHL") {
-                      //   setShowCopySnak("Comming soon");
+                      //   setShowCopySnak("Coming soon");
                       //   return;
                       // }
                       if (typeof window !== "undefined") {
