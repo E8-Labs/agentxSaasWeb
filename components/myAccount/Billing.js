@@ -20,6 +20,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
+import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -65,6 +66,11 @@ function Billing() {
     useState(false);
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
+
+  const [allowSmartRefill, setAllowSmartRefill] = useState(false);
+    const [userDataLoader, setUserDataLoader] = useState(false);
+  
+
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -144,6 +150,12 @@ function Billing() {
   ];
 
   useEffect(() => {
+    const d = localStorage.getItem("User");
+    if (d) {
+      const Data = JSON.parse(d);
+      console.log("Smart refill is", Data.user.smartRefill);
+      setAllowSmartRefill(Data.user.smartRefill);
+    }
     getProfile();
     getPaymentHistory();
     getCardsList();
@@ -635,6 +647,29 @@ function Billing() {
       }
   };
 
+
+    //function to remove smart refill
+    const handleRemoveSmartRefill = async () => {
+      try {
+        setUserDataLoader(true);
+        const response = await RemoveSmartRefillApi();
+        if (response) {
+          setUserDataLoader(false);
+          console.log("Response of remove smart refill api is", response);
+          if (response.data.status === true) {
+            setSuccessSnack(response.data.message);
+            setAllowSmartRefill(false);
+          } else if (response.data.status === false) {
+            setErrorSnack(response.data.message)
+          }
+        }
+      } catch (error) {
+        console.error("Error occured in api is", error);
+        setUserDataLoader(false);
+      }
+    }
+  
+
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
@@ -819,6 +854,8 @@ function Billing() {
           </div>
         )}
       </div>
+
+       <SmartRefillCard />
 
       {/* code for current plans available */}
 
@@ -1537,7 +1574,7 @@ function Billing() {
                       className="flex flex-row items-center gap-2"
                     >
                       <div
-                        
+
                         className="rounded-full flex flex-row items-center justify-center"
                         style={{
                           border:
@@ -1612,17 +1649,17 @@ function Billing() {
                         fontSize: 16.8,
                         outline: "none",
                         backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                        ? "#7902df"
-                        : "#00000050",
+                          ? "#7902df"
+                          : "#00000050",
                         color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                        ? "#ffffff"
-                        : "#000000",
+                          ? "#ffffff"
+                          : "#000000",
                       }}
                       onClick={() => {
                         handleDelReason();
                       }}
-                      disabled={! selectReason && (selectReason !== "Others" || otherReasonInput)}
-                      >
+                      disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
+                    >
                       Continue
                     </button>
                   )}
