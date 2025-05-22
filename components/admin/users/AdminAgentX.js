@@ -3569,7 +3569,7 @@ function AdminAgentX({ selectedUser, from }) {
                                     className="flex flex-row items-center gap-2"
                                     value={item.title}
                                     key={index}
-                                    disabled={languageValue === item.title}
+                                  disabled={languageValue === item.title || languageValue !== "en-US"}
                                   >
                                     <Image
                                       src={item.flag}
