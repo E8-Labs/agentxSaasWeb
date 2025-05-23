@@ -68,7 +68,7 @@ const Congrats = () => {
               }}
               onClick={handleNext}
             >
-              Build AI Agent
+              Get Started
             </Link>
           </div>
         </div>

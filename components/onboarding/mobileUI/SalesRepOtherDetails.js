@@ -65,7 +65,7 @@ function SolarRepOtherDetails({
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Brokerage"
-                className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={companyName}
                 onChange={(e) => {
@@ -88,7 +88,7 @@ function SolarRepOtherDetails({
                 enterKeyHint="done"
                 ref={(el) => (inputsFields.current[2] = el)}
                 placeholder="Type here"
-                className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={installationVolume}
                 onChange={(e) => {
@@ -126,7 +126,7 @@ function SolarRepOtherDetails({
             </div>
 
             <div
-                className="flex flex-col items-start gap-4"
+                className="flex flex-col w-full items-start gap-4"
                 style={{ marginTop: "8px" }}
             >
                 {primaryClientTypes.map((item, index) => {

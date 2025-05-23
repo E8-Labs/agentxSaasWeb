@@ -27,7 +27,7 @@ function WebsiteAgentOtherDetails({
       }, [websiteUrl]);
 
     return (
-        <div>
+        <div className='w-full'>
             <div style={styles.headingStyle} className="mt-6">
                 Website (URL)
             </div>
@@ -47,7 +47,7 @@ function WebsiteAgentOtherDetails({
 
             <input
                 placeholder="URL"
-                className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={websiteUrl}
                 onChange={(e) => {

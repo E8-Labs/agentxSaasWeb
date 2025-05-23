@@ -12,7 +12,7 @@ export const AreaOfFocus = [
   {
     id: 2,
     title: "Residential real estate",
-    description: "Buying and selling residential properties.",
+    description: "Buying and selling residential properties in my surrounding territory.",
     createdAt: "2024-11-23 09:31:01",
     updatedAt: "2024-11-23 09:31:01",
     agentType: "RealEstateAgent",

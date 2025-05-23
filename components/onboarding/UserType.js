@@ -281,7 +281,6 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         width={282}
                         alt="*"
                       />
-
                       <div
                         style={{
                           fontSize: 15,

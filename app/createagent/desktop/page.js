@@ -97,7 +97,7 @@ const Page = () => {
                 For a seamless experience, we recommend completing your setup on
                 desktop.
               </div>
-              <div
+              <div className="text-purple"
                 style={{
                   fontWeight: "500",
                   fontSize: 11,
@@ -148,6 +148,7 @@ const DesktopView = ({ width }) => {
       >
         <Image
           width={width * 0.95}
+          alt="*"
           height={2}
           style={{
             // width: "40%", // Fill parent width
@@ -172,6 +173,7 @@ const DesktopView = ({ width }) => {
         <Image
           height={100}
           width={100}
+          alt="*"
           style={{
             position: "absolute",
             top: "37%", // Adjust this value to move it higher

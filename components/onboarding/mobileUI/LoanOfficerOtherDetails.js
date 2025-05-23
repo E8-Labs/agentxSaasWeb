@@ -13,46 +13,47 @@ function LoanOfficerOtherDetails({
 
     const primaryClientTypes = [
         {
-          id: 1,
-          title: "First-Time Homebuyers",
+            id: 1,
+            title: "First-Time Homebuyers",
         },
         {
-          id: 2,
-          title: "Investors & Property Developers",
+            id: 2,
+            title: "Investors & Property Developers",
         },
         {
-          id: 3,
-          title: "Veterans & Active Military",
+            id: 3,
+            title: "Veterans & Active Military",
         },
         {
-          id: 3,
-          title: "Luxury Homebuyers",
+            id: 3,
+            title: "Luxury Homebuyers",
         },
         {
-          id: 5,
-          title: "Self-Employed & Entrepreneurs",
+            id: 5,
+            title: "Self-Employed & Entrepreneurs",
         },
         {
-          id: 6,
-          title: "Other (type here)",
+            id: 6,
+            title: "Other (type here)",
         },
-      ];
+    ];
 
     return (
-        <div>
-
+        <div className='w-full'>
             <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily serve clients?
             </div>
-            <input
-                placeholder="Specific cities, counties, or regions"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: "8px" }}
-                value={customerService}
-                onChange={(e) => {
-                    setCustomerService(e.target.value);
-                }}
-            />
+            {/* <div className='w-full'> */}
+                <input
+                    placeholder="Specific cities, counties, or regions"
+                    className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                    style={{ ...styles.inputStyle, marginTop: "8px" }}
+                    value={customerService}
+                    onChange={(e) => {
+                        setCustomerService(e.target.value);
+                    }}
+                />
+            {/* </div> */}
 
             <div style={styles.headingStyle} className="mt-6">
                 Name of the mortgage lender, bank, or brokerage you work with,
@@ -60,7 +61,7 @@ function LoanOfficerOtherDetails({
             </div>
             <input
                 placeholder="Name"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className=" border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={companyName}
                 onChange={(e) => {
@@ -73,7 +74,7 @@ function LoanOfficerOtherDetails({
             </div>
 
             <div
-                className="flex w-full flex-wrap flex-row items-center gap-2"
+                className="flex w-full flex-col items-center gap-2"
                 style={{ marginTop: "8px", flexWrap: "wrap" }}
             >
                 {primaryClientTypes.map((item, index) => {
@@ -81,13 +82,13 @@ function LoanOfficerOtherDetails({
                         <div key={index} className="w-full">
                             <button
                                 onClick={() => {
+
                                     handleSelectClientType(item);
                                 }}
-                                className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
+                                className="border border-[#00000010] w-full rounded px-4 py-4 outline-none focus:outline-none focus:ring-0 text-start"
                                 style={{
                                     ...styles.inputStyle,
                                     borderRadius: "30px",
-                                    paddingInline: index === 2 && "40px",
                                     border:
                                         ClientType === item.title
                                             ? "2px solid #7902DF"

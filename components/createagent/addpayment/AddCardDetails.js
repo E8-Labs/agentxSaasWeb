@@ -61,7 +61,7 @@ const AddCardDetails = ({
   const [CVC, setCVC] = useState(false);
 
   //agree terms
-  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(true);
 
   // Autofocus the first field when the component mounts
   useEffect(() => {

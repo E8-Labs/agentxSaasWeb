@@ -393,17 +393,16 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                 Your first 30 minutes are on us!
               </div>
               <div
-                className="mt-2 sm:text-[20px]"
-                style={{ fontWeight: "400" }}
+                className="mt-2 sm:text-[22px]"
+                style={{ fontWeight: "600" }}
               >
                 Start for free, then pay as you go
               </div>
 
               {/*  Plans array start here  */}
               <div
-                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${
-                  selectedPlan ? "pb-36" : ""
-                }`}
+                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${selectedPlan ? "pb-36" : ""
+                  }`}
                 style={{ scrollbarWidth: "none" }}
               >
                 {/* For mobile view */}
@@ -710,7 +709,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row items-center  gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-4 pl-5 sm:hidden">
+          <div className="flex flex-row items-center  gap-4 justify-start w-full md:w-10/12 lg:w-6/12 mt-6 pb-10 pl-5 sm:hidden">
             <button onClick={handleToggleTermsClick}>
               {agreeTerms ? (
                 <div
@@ -734,7 +733,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
             <TermsText />
           </div>
           {selectedPlan && (
-            <div className="flex flex-col absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[6%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
+            <div className="flex flex-col absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[3%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
               <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
@@ -863,15 +862,19 @@ const CreatAgent3 = ({ handleContinue, user }) => {
 
                 {selectedPlan?.id > 1 ? (
                   <div
-                    className="text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]" //style={styles.headingStyle}
+                    className="text-center mt-4 md:text-[17px] md:font-[600]" //style={styles.headingStyle}
                   >
                     Your minutes will renew monthly or after using{" "}
                     {selectedPlan?.mints} mins
                   </div>
                 ) : (
                   <div
-                    className="text-center mt-4 text-[14px] font-[600] md:text-[17px] md:font-[700]"
-                    style={styles.headingStyle}
+                    className="text-center mt-4 md:text-[17px] md:font-[700]"
+                    style={{
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: "#151515",
+                    }}
                   >
                     Payment starts after your 7 day free trial*
                   </div>
@@ -885,12 +888,11 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue={`${
-                      selectedPlan?.mints === 30
+                    textBelowContinue={`${selectedPlan?.mints === 30
                         ? "Trial is limited to 30 mins"
                         : ""
-                    }`}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                      }`}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

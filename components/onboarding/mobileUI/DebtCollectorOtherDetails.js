@@ -30,7 +30,7 @@ function DebtCollectorOtherDetails({
         },
     ];
     return (
-        <div>
+        <div className='w-full'>
             <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily collect debts?
             </div>
@@ -41,7 +41,7 @@ function DebtCollectorOtherDetails({
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Secific cities,contries or regions"
-                className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={service}
                 onChange={(e) => {
@@ -65,7 +65,7 @@ function DebtCollectorOtherDetails({
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Name"
-                className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={companyName}
                 onChange={(e) => {
@@ -88,7 +88,7 @@ function DebtCollectorOtherDetails({
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Eg,< $1000, $1000-$5000, $5000-$10000, $10000-$50000"
-                className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={installationVolume}
                 onChange={(e) => {
@@ -117,11 +117,10 @@ function DebtCollectorOtherDetails({
                                 onClick={() => {
                                     handleSelectCollectionStretigy(item);
                                 }}
-                                className="border border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
+                                className="border text-start border-[#00000010] rounded px-4 h-[70px] outline-none focus:outline-none focus:ring-0 w-full"
                                 style={{
                                     ...styles.inputStyle,
                                     borderRadius: "30px",
-                                    paddingInline: index === 2 && "40px",
                                     border:
                                         collectionStretigy === item.title
                                             ? "2px solid #7902DF"

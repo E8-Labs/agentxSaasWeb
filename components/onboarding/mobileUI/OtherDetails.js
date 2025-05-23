@@ -418,6 +418,7 @@ const OtherDetails = ({
   const handleVerifyCode = () => {
     // //console.log);
     setPhoneVerifiedSuccessSnack(true);
+   
     handleRegister();
   };
 
@@ -529,6 +530,7 @@ const OtherDetails = ({
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {
+             setShowVerifyPopup(false)
             setCongratsPopup(true);
             // //console.log;
           } else {
@@ -778,7 +780,7 @@ const OtherDetails = ({
             companyName={firmOrCompanyAffiliation}
             setCompanyName={setFirmOrCompanyAffiliation}
             ClientType={ClientType}
-            handleSelectClientType={() => handleSelectClientType()}
+            handleSelectClientType={(item) => handleSelectClientType(item)}
             handleVerifyPopup={handleVerifyPopup}
           />
         )
@@ -1062,7 +1064,7 @@ const OtherDetails = ({
                             router.push("/createagent");
                           }}
                         >
-                          Build AI Sales Agent
+                          Get Started
                         </button>
                       )}
                     </div>
@@ -1070,14 +1072,7 @@ const OtherDetails = ({
                 </Box>
               </Modal>
 
-              <SnackMessages
-                message={response.message}
-                isVisible={isVisible}
-                setIsVisible={(visible) => {
-                  setIsVisible(visible);
-                }}
-                success={response.status}
-              />
+             
             </div>
           </div>
         </div>

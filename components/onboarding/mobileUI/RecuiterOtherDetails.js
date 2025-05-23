@@ -7,7 +7,7 @@ function RecuiterOtherDetails({
     handleVerifyPopup
 }) {
     return (
-        <div>
+        <div className='w-full'>
             <div className="mt-6" style={styles.headingStyle}>
                 Where do you primarily operate or serve customers
             </div>

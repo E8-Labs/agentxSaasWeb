@@ -978,19 +978,6 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                       >
                         Your account is created!
                       </div>
-
-                      <div
-                        style={{
-                          fontSize: 17,
-                          fontWeight: "700",
-                          textAlign: "center",
-                          marginTop: 15,
-                          color: "#000000",
-                        }}
-                      >
-                        {`Let’s build your AI AgentX`}
-                      </div>
-
                       {registerLoader ? (
                         <div className="flex fex-row items-center justify-center mt-8">
                           <CircularProgress size={35} />
@@ -1007,7 +994,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                             router.push("/createagent");
                           }}
                         >
-                          Build AI Sales Agent
+                          Get Started
                         </button>
                       )}
                     </div>
@@ -1015,14 +1002,14 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 </Box>
               </Modal>
 
-              <SnackMessages
+              {/* <SnackMessages
                 message={response.message}
                 isVisible={isVisible}
                 setIsVisible={(visible) => {
                   setIsVisible(visible);
                 }}
                 success={response.status}
-              />
+              /> */}
             </div>
           </div>
         </div>

@@ -9,13 +9,13 @@ function MedSpaAgentOtherDetails({
     setInstallationVolume
 }) {
     return (
-        <div>
+        <div className='w-full'>
             <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate?
             </div>
             <input
                 placeholder="Specific cities, counties, or regions"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={customerService}
                 onChange={(e) => {
@@ -28,7 +28,7 @@ function MedSpaAgentOtherDetails({
             </div>
             <input
                 placeholder="Name"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="borde w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={companyName}
                 onChange={(e) => {
@@ -41,7 +41,7 @@ function MedSpaAgentOtherDetails({
             </div>
             <input
                 placeholder="Type here"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={installationVolume}
                 onChange={(e) => {
