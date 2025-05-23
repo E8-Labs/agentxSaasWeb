@@ -46,7 +46,7 @@ const LastStep = ({
   //select call  
   const [selectedFromDate, setSelectedFromDate] = useState(null);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-  const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
   const [isRefill, setIsRefill] = useState(false)
@@ -65,7 +65,12 @@ const LastStep = ({
 
       // Safely convert to Dayjs
       const parsedDate = selectedDate ? dayjs(selectedDate) : null;
-      setSelectedDateTime(parsedDate);
+      if (parsedDate) {
+        console.log("Date passed is", parsedDate);
+        let D = parsedDate?.format()
+      }
+      // setSelectedDateTime(parsedDate);
+      handleDateChange(selectedDate);
       setHasUserSelectedDate(!!selectedDate);
 
       setNoOfLeadsToSend(numberOfLeads);
@@ -120,6 +125,8 @@ const LastStep = ({
   //date selection
   const handleDateChange = (date) => {
     if (!date || !dayjs(date).isValid()) return;
+    console.log("Date value is", date);
+    console.log("Date value after daysjs is", dayjs(date));
     setSelectedDateTime(dayjs(date));
     setHasUserSelectedDate(true);
   };
@@ -445,8 +452,8 @@ const LastStep = ({
                 //   "Current data is:",
                 //   currentDateTime.toLocaleString()
                 // );
-                setSelectedDateTime(dayjs());
-
+                setSelectedDateTime(null);
+                setHasUserSelectedDate(false);
                 // handleDateTimerDifference();
               }}
             >
@@ -471,6 +478,8 @@ const LastStep = ({
                   setShowFromDatePicker(!showFromDatePicker);
                   setCallNow("");
                   setCallLater(true);
+                  setSelectedDateTime(dayjs());
+                  setHasUserSelectedDate(true);
                 }}
               >
                 <CalendarDots size={32} weight="bold" />
@@ -647,7 +656,7 @@ const LastStep = ({
                   <DateTimePicker
                     // label="Select date and time"
                     // minDateTime={dayjs()}
-                    //   value={value}
+                    value={selectedDateTime}
                     minDate={dayjs()}
                     onChange={handleDateChange}
                     slotProps={{

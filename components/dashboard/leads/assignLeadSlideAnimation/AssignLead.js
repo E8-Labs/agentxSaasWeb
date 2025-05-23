@@ -45,7 +45,8 @@ const AssignLead = ({
   userProfile, // this is the .user object doesn't include token
   selectedLead,
   handleContinue,
-  selectedAgents
+  selectedAgents,
+  oldAgents
 
 }) => {
   // //console.log;
@@ -134,14 +135,25 @@ const AssignLead = ({
     // }
     // else {
     // //console.log;
+
+    // if (oldAgents?.length > 0) {
+    //   console.log("Getting reserved agents", oldAgents);
+    //   // setSelectedAgents(oldAgents);
+    //   // setInitialLoader(false);
+    // } else {
+    //   console.log("Get agents api trigered");
+    // }
+    
     getAgents();
+
     console.log("Selected agents paased are", selectedAgents);
 
     // }
   }, [selectedAgents]);
 
   useEffect(() => {
-    // //console.log;
+    console.log("Selected agents ", SelectedAgents);
+    console.log("Selected agents passed are", selectedAgents);
   }, [SelectedAgents]);
 
   //get agents api
@@ -203,7 +215,10 @@ const AssignLead = ({
         // console.log("Response of api is", response.data.data);
         let filterredAgentsList = response?.data?.data
         setAgentsList([...agentsList, ...filterredAgentsList]);
-        if (selectedAgents) {
+        if (SelectedAgents.length > 0) {
+          console.log("Thre are selected agents", SelectedAgents);
+          setSelectedAgents(SelectedAgents);
+        } else if (selectedAgents.length > 0) {
           setSelectedAgents(selectedAgents);
         }
         if (filterredAgentsList.length > 0) {
@@ -839,7 +854,7 @@ const AssignLead = ({
           onClick={() => {
             const A = agentsList;
             localStorage.setItem("AssignLeadAgents", JSON.stringify(A));
-            handleContinue(SelectedAgents);
+            handleContinue({ SelectedAgents, agentsList });
             // setLastStepModal(true);
           }}
         >
