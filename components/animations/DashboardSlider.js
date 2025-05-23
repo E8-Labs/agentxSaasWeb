@@ -134,44 +134,43 @@ const DashboardSlider = () => {
             {/* Icon Button (bottom-left) */}
             <AnimatePresence>
                 {showIcon && (
-                    <motion.button
-                        onClick={handleReopen}
-                        initial={{ opacity: 0, x: "-100%" }}
+                    <motion.div
+                        initial={{ opacity: 0, x: "100%" }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: "-100%" }}
+                        exit={{ opacity: 0, x: "100%" }}
                         transition={{ duration: 0.4 }}
-                        className="shadow-lg"
+                        className="shadow-lg flex flex-row items-center gap-2"
                         style={{
                             position: "fixed",
                             bottom: 30,
                             right: 10,
                             zIndex: 999,
-                            // backgroundColor: "#333",
-                            // color: "#fff",
+                            backgroundColor: "#fff",
                             border: "none",
-                            borderRadius: "50%",
-                            width: "48px",
-                            height: "48px",
-                            fontSize: "24px",
+                            borderRadius: "9999px",
+                            padding: "6px 14px",
+                            fontSize: "16px",
                             cursor: "pointer",
-                            // boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                            outline: "none"
+                            boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+                            outline: "none",
                         }}
                     >
-                        <div className="flex flex-row items-center gap-2">
+                        <button
+                            className="outline-none border-none flex flex-row items-center gap-2"
+                            onClick={handleReopen}>
                             <Image
                                 src={"/agencyIcons/questionMark.jpg"}
                                 alt="*"
-                                height={40}
-                                width={40}
+                                height={32}
+                                width={32}
+                                style={{ borderRadius: "50%" }}
                             />
-                            <div style={{ fontWeight: "600", fontSize: 17 }}>
-                                Get Help
-                            </div>
-                        </div>
-                    </motion.button>
+                            <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
+                        </button>
+                    </motion.div>
                 )}
             </AnimatePresence>
+
         </>
     );
 };

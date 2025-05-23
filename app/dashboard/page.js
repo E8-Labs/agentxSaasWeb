@@ -290,7 +290,7 @@ const Page = () => {
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
 
-      {/* Slider test code */}
+      {/* Slider code */}
       <div
         style={{
           position: "absolute",
