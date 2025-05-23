@@ -47,6 +47,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fromJSON } from "postcss";
 import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
+import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -1840,6 +1841,20 @@ const Userleads = ({
                                         </span>
                                     </div> */}
 
+                  <AssignLeadAnimation
+                    showModal={AssignLeadModal}
+                    selectedLead={selectedLeadsList}
+                    handleClose={
+                      handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
+                    }
+                    leadIs={selectedLeadsList}
+                    selectedAll={selectedAll}
+                    filters={getFiltersObject()}
+                    totalLeads={totalLeads}
+                    userProfile={userLocalData} // this is the .user object doesn't include token
+                  />
+
+                  {/* 
                   <Modal
                     open={AssignLeadModal}
                     onClose={() => setAssignLeadModal(false)}
@@ -1895,12 +1910,11 @@ const Userleads = ({
                             />
                           </div>
 
-                          {/* Can be use full to add shadow */}
-                          {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                          
                         </div>
                       </div>
                     </Box>
-                  </Modal>
+                  </Modal> */}
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
