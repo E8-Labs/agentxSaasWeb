@@ -45,7 +45,8 @@ const AssignLead = ({
   userProfile, // this is the .user object doesn't include token
   selectedLead,
   handleContinue,
-  selectedAgents
+  selectedAgents,
+  oldAgents
 
 }) => {
   // //console.log;
@@ -98,19 +99,9 @@ const AssignLead = ({
   }, [errorMessage]);
 
   useEffect(() => {
-    if (SelectedAgents.length === 0) {
-      setShouldContinue(true);
-    }
-
-    // if (ShouldContinue === true) {
-    //    // console.log(
-    //         "hit"
-    //     )
-    //     setShouldContinue(false);
-    // } else {
-    //     setShouldContinue(true);
-    // }
+    setShouldContinue(SelectedAgents.length === 0);
   }, [SelectedAgents]);
+
 
   useEffect(() => {
     // //console.log;
@@ -144,14 +135,25 @@ const AssignLead = ({
     // }
     // else {
     // //console.log;
+
+    // if (oldAgents?.length > 0) {
+    //   console.log("Getting reserved agents", oldAgents);
+    //   // setSelectedAgents(oldAgents);
+    //   // setInitialLoader(false);
+    // } else {
+    //   console.log("Get agents api trigered");
+    // }
+    
     getAgents();
+
     console.log("Selected agents paased are", selectedAgents);
 
     // }
-  }, []);
+  }, [selectedAgents]);
 
   useEffect(() => {
-    // //console.log;
+    console.log("Selected agents ", SelectedAgents);
+    console.log("Selected agents passed are", selectedAgents);
   }, [SelectedAgents]);
 
   //get agents api
@@ -213,7 +215,10 @@ const AssignLead = ({
         // console.log("Response of api is", response.data.data);
         let filterredAgentsList = response?.data?.data
         setAgentsList([...agentsList, ...filterredAgentsList]);
-        if (selectedAgents) {
+        if (SelectedAgents.length > 0) {
+          console.log("Thre are selected agents", SelectedAgents);
+          setSelectedAgents(SelectedAgents);
+        } else if (selectedAgents.length > 0) {
           setSelectedAgents(selectedAgents);
         }
         if (filterredAgentsList.length > 0) {
@@ -728,12 +733,13 @@ const AssignLead = ({
                   disabled={checkNostageAndInboundAgent(item)}
                   className={`rounded-xl p-2 mt-4 w-full outline-none ${checkNostageAndInboundAgent(item) ? "bg-[#00000020]" : ""}`} //
                   style={{
-                    border: SelectedAgents.includes(item)
+                    border: SelectedAgents.some(a => a.id === item.id)
                       ? "2px solid #7902DF"
                       : "1px solid #00000020",
-                    backgroundColor: SelectedAgents.includes(item)
+                    backgroundColor: SelectedAgents.some(a => a.id === item.id)
                       ? "#402FFF05"
                       : "",
+
                   }}
                   onClick={() => {
                     // console.log("Selected item is", item);
@@ -742,7 +748,8 @@ const AssignLead = ({
                     if (canAssign == 0) {
                       //push to the array
                       // //console.log;
-                      setSelectedAgents([...SelectedAgents, item]);
+                      setSelectedAgents((prev) => [...prev, item]);
+
                       // setLastStepModal(true);//loader
                       setShouldContinue(false);
                     } else if (canAssign == 1) {
@@ -847,7 +854,7 @@ const AssignLead = ({
           onClick={() => {
             const A = agentsList;
             localStorage.setItem("AssignLeadAgents", JSON.stringify(A));
-            handleContinue(SelectedAgents);
+            handleContinue({ SelectedAgents, agentsList });
             // setLastStepModal(true);
           }}
         >

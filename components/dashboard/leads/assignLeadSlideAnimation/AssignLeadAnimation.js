@@ -46,6 +46,7 @@ export default function AssignLeadAnimation({
 
     //selectedAgents
     const [SelectedAgents, setSelectedAgents] = useState([]);
+    const [oldAgents, setOldAgents] = useState([]);
 
     //variables storing data
     const [subFormData, setSubFormData] = useState(null);
@@ -53,7 +54,7 @@ export default function AssignLeadAnimation({
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [xBarOptions, setXBarOptions] = useState([]);
     //assign lead data sending in api
-    const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
+    const [selectedDateTime, setSelectedDateTime] = useState(null);
     const [NoOfLeadsToSend, setNoOfLeadsToSend] = useState("");
     const [customLeadsToSend, setCustomLeadsToSend] = useState("");
     const [CallNow, setCallNow] = useState("");
@@ -66,6 +67,17 @@ export default function AssignLeadAnimation({
     //refill loader
     const [smartRefillLoader, setSmartRefillLoader] = useState(false);
     const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
+
+    //handle Assign after values added
+    const [shouldAssignLead, setShouldAssignLead] = useState(false);
+
+    useEffect(() => {
+        if (shouldAssignLead) {
+            handleAssignLead();
+            setShouldAssignLead(false); // reset flag
+        }
+    }, [selectedDateTime, NoOfLeadsToSend, customLeadsToSend, CallNow, isDncChecked, CallLater, lastStepData]);
+
 
     const handleContinue = (formData) => {
         if (formData) {
@@ -80,14 +92,16 @@ export default function AssignLeadAnimation({
         setCurrentIndex((prevIndex) => prevIndex - 1);
     };
 
-    //code to close modal
-    const handleCloseModal = () => {
-        handleClose();
-        setSubFormData(null);
-        setSelectedUser("");
-        setMonthlyPlans([]);
-        setXBarOptions([]);
-        setCurrentIndex(0);
+    //reset value on modal close
+    const resetValues = () => {
+        setSelectedAgents([]);
+        setSelectedDateTime(null);
+        setNoOfLeadsToSend("");
+        setCustomLeadsToSend("");
+        setCallNow("");
+        setCallLater(false);
+        setIsDncChecked(false);
+        setLastStepData({});
     }
 
     //assign lead
@@ -137,11 +151,14 @@ export default function AssignLeadAnimation({
             }
 
             if (CallNow) {
+                console.log("Call now");
                 timer = 0;
             } else if (CallLater) {
+                console.log("Call later");
                 const currentDateTime = dayjs(); // Get current date and time using Day.js
 
                 const differenceInMilliseconds = selectedDateTime.diff(currentDateTime); // Difference in ms
+                console.log("selectedDate is", differenceInMilliseconds);
                 const minutes = differenceInMilliseconds / (1000 * 60); // Convert ms to minutes
                 timer = minutes.toFixed(0); // Round to nearest integer
 
@@ -184,8 +201,8 @@ export default function AssignLeadAnimation({
                 AuthToken = UserDetails.token;
             }
 
-            // //console.log;
-
+            console.log("Data sending in api is", Apidata);
+            // return
             const ApiPath = Apis.assignLeadToPipeLine;
 
             // //console.log;
@@ -206,6 +223,7 @@ export default function AssignLeadAnimation({
                         showSnack: "Lead assigned",
                         disSelectLeads: true,
                     });
+                    resetValues();
                     const localData = localStorage.getItem("User");
                     if (localData) {
                         let D = JSON.parse(localData);
@@ -223,6 +241,7 @@ export default function AssignLeadAnimation({
                         showSnack: "Error assigning lead",
                         disSelectLeads: false,
                     });
+                    resetValues();
                 }
             }
         } catch (error) {
@@ -308,9 +327,12 @@ export default function AssignLeadAnimation({
                                         filters={filters}
                                         totalLeads={totalLeads}
                                         userProfile={userProfile} // this is the .user object doesn't include token
-                                        handleContinue={(d) => {
-                                            console.log("Selected agent is", d);
-                                            setSelectedAgents(d);
+                                        oldAgents={oldAgents}
+                                        handleContinue={({ SelectedAgents, agentsList }) => {
+                                            console.log("Selected agent is", SelectedAgents);
+                                            setSelectedAgents(SelectedAgents);
+                                            console.log("agents passed are", agentsList);
+                                            setOldAgents(agentsList);
                                             handleContinue();
                                         }}
                                         selectedAgents={SelectedAgents}
@@ -373,7 +395,11 @@ export default function AssignLeadAnimation({
                                                     return;
                                                 }
                                             }
-                                            handleAssignLead();
+                                            setShouldAssignLead(true);
+                                            // setTimeout(() => {
+                                            //     handleAssignLead();
+                                            // }, 300);
+                                            // handleAssignLead();
                                         }}
                                         loader={loader}
                                     />

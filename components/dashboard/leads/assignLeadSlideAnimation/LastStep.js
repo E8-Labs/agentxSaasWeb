@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { Box, CircularProgress, Modal, Switch, Tooltip } from '@mui/material';
+import { Box, CircularProgress, Modal, Switch, TextField, Tooltip } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../AgentSelectSnackMessage';
 import { CalendarDots, CaretLeft } from '@phosphor-icons/react';
 // import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -46,34 +46,44 @@ const LastStep = ({
   //select call  
   const [selectedFromDate, setSelectedFromDate] = useState(null);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
-  const [selectedDateTime, setSelectedDateTime] = useState(dayjs());
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
   const [isRefill, setIsRefill] = useState(false)
   const [showRefillToogle, setShwRefillToogle] = useState(false)
 
   useEffect(() => {
+    if (lastStepData) {
+      const {
+        selectedDate,
+        numberOfLeads,
+        cutomLeads,
+        isCallNow,
+        DncChecked,
+        callL
+      } = lastStepData;
 
+      // Safely convert to Dayjs
+      const parsedDate = selectedDate ? dayjs(selectedDate) : null;
+      if (parsedDate) {
+        console.log("Date passed is", parsedDate);
+        let D = parsedDate?.format()
+      }
+      // setSelectedDateTime(parsedDate);
+      handleDateChange(selectedDate);
+      setHasUserSelectedDate(!!selectedDate);
 
-    let D = lastStepData;
-    console.log("Last step data passed from parent screen", D);
-    if (D) {
-      setSelectedDateTime(D.selectedDate);
-      setNoOfLeadsToSend(D.numberOfLeads);
-      setCustomLeadsToSend(D.cutomLeads);
-      setCallNow(D.isCallNow);
-      setIsDncChecked(D.DncChecked);
-      setCallLater(D.callL);
-      if (D.cutomLeads) {
-        setisFocustedCustomLeads(true)
-      } else if (D.numberOfLeads) {
-        setNoOfLeadsToSend(totalLeads)
-      }
-      if (D.selectedDate) {
-        handleDateChange(D.selectedDate);
-      }
+      setNoOfLeadsToSend(numberOfLeads);
+      setCustomLeadsToSend(cutomLeads);
+      setCallNow(isCallNow);
+      setIsDncChecked(DncChecked);
+      setCallLater(callL);
+
+      if (cutomLeads) setisFocustedCustomLeads(true);
+      else if (numberOfLeads) setNoOfLeadsToSend(totalLeads);
     }
-  }, []);
+  }, [lastStepData]);
+
 
   useEffect(() => {
     if (errorMessage) {
@@ -107,18 +117,20 @@ const LastStep = ({
       return leadIs.length;
     }
   }
+  useEffect(() => {
+    console.log("Selected DateTime Updated:", selectedDateTime?.format());
+  }, [selectedDateTime]);
+
 
   //date selection
   const handleDateChange = (date) => {
-    console.log("Dat passed is", date);
-    if (!date) {
-      // //console.log;
-      return;
-    }
-
-    setSelectedDateTime(date);
+    if (!date || !dayjs(date).isValid()) return;
+    console.log("Date value is", date);
+    console.log("Date value after daysjs is", dayjs(date));
+    setSelectedDateTime(dayjs(date));
     setHasUserSelectedDate(true);
   };
+
 
   //go bak
   const handleMoveBack = () => {
@@ -440,8 +452,8 @@ const LastStep = ({
                 //   "Current data is:",
                 //   currentDateTime.toLocaleString()
                 // );
-                setSelectedDateTime(dayjs());
-
+                setSelectedDateTime(null);
+                setHasUserSelectedDate(false);
                 // handleDateTimerDifference();
               }}
             >
@@ -466,6 +478,8 @@ const LastStep = ({
                   setShowFromDatePicker(!showFromDatePicker);
                   setCallNow("");
                   setCallLater(true);
+                  setSelectedDateTime(dayjs());
+                  setHasUserSelectedDate(true);
                 }}
               >
                 <CalendarDots size={32} weight="bold" />
@@ -524,6 +538,7 @@ const LastStep = ({
                         <div className="w-full mt-4 flex flex-row justify-center">
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
+                              value={selectedDateTime}
                               // label="Select date and time"
                               //user profile will be passed to it
                               minDateTime={dayjs().tz(userProfile.timeZone)}
@@ -582,29 +597,24 @@ const LastStep = ({
                               }}
                               onChange={handleDateChange}
                               renderInput={(params) => (
-                                <input
-                                  {...params.inputProps}
-                                  style={{
-                                    border: "none", // Disable border
-                                    outline: "none",
-                                    padding: "8px",
-                                    backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
-                                  }}
-                                  onFocus={(e) => {
-                                    e.target.style.border = "none"; // Ensure no border on focus
-                                    e.target.style.outline = "none"; // Ensure no outline on focus
-                                  }}
-                                  onBlur={(e) => {
-                                    e.target.style.border = "none"; // Reset border on blur
-                                    e.target.style.outline = "none"; // Reset outline on blur
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.target.style.border = "none"; // Remove border on hover
-                                    e.target.style.outline = "none"; // Remove outline on hover
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.target.style.border = "none"; // Reset border on hover out
-                                    e.target.style.outline = "none"; // Reset outline on hover out
+                                <TextField
+                                  {...params}
+                                  fullWidth
+                                  size="small"
+                                  sx={{
+                                    "& .MuiOutlinedInput-root": {
+                                      borderRadius: "10px",
+                                      "& fieldset": {
+                                        borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                        borderWidth: "2px",
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: hasUserSelectedDate ? "#7902df" : "#00000050",
+                                      },
+                                    },
                                   }}
                                 />
                               )}
@@ -646,7 +656,7 @@ const LastStep = ({
                   <DateTimePicker
                     // label="Select date and time"
                     // minDateTime={dayjs()}
-                    //   value={value}
+                    value={selectedDateTime}
                     minDate={dayjs()}
                     onChange={handleDateChange}
                     slotProps={{
