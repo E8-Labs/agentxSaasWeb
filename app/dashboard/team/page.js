@@ -22,6 +22,7 @@ import { formatPhoneNumber } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Page() {
   const timerRef = useRef(null);
@@ -56,6 +57,9 @@ function Page() {
   const [checkPhoneLoader, setCheckPhoneLoader] = useState(null);
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [countryCode, setCountryCode] = useState(""); // Default country
+
+  //nedd help popup
+  const [needHelp, setNeedHelp] = useState(false);
 
   const handleClick = (event) => {
     setOpenTeamDropdown(true);
@@ -100,7 +104,7 @@ function Page() {
     },
   ];
 
-  useEffect(() => {});
+  useEffect(() => { });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -493,10 +497,39 @@ function Page() {
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Team</div>
-        <div>
+        <div className="flex flex-row items-center">
           <NotficationsDrawer />
+          <button
+            className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
+            onClick={() => {
+              setNeedHelp(!needHelp);
+            }}
+          >
+            <Image
+              src={"/agencyIcons/questionMark.jpg"}
+              alt="*"
+              height={20}
+              width={20}
+              style={{ borderRadius: "50%" }}
+            />
+            <div className="font-semibold text-[16px]">Get Help</div>
+          </button>
         </div>
       </div>
+
+      {
+        needHelp && (
+          <DashboardSlider
+            onTop={true}
+            needHelp={needHelp}
+            closeHelp={() => {
+              // console.log("I am trigered");
+              setNeedHelp(!needHelp);
+            }}
+          />
+        )
+      }
+
       <div
         className="flex h-[90vh] w-full justify-center overflow-auto pb-50"
         style={{ scrollbarWidth: "none" }}
@@ -576,11 +609,10 @@ function Page() {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${
-                              item.status === "Pending"
-                                ? "text-red-500"
-                                : "text-green-500"
-                            }`}
+                            className={`text-sm font-medium ${item.status === "Pending"
+                              ? "text-red-500"
+                              : "text-green-500"
+                              }`}
                           >
                             {item.status}
                           </div>
@@ -886,7 +918,7 @@ function Page() {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -902,10 +934,10 @@ function Page() {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                         ? "#00000020"
                         : "",
                   }}
@@ -932,10 +964,10 @@ function Page() {
                       fontWeight: "500",
                       color:
                         !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                          !email ||
+                          !phone ||
+                          emailCheckResponse?.status !== true ||
+                          checkPhoneResponse?.status !== true
                           ? "#000000"
                           : "#ffffff",
                     }}

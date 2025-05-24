@@ -56,6 +56,7 @@ import {
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import PipelineLoading from "./PipelineLoading";
 import { AuthToken } from "../agency/plan/AuthDetails";
+import DashboardSlider from "../animations/DashboardSlider";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -169,6 +170,9 @@ const Pipeline1 = () => {
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
   const [showDeletePipelinePopup, setShowDeletePiplinePopup] = useState(false);
+
+  //nedd help popup
+  const [needHelp, setNeedHelp] = useState(false);
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value;
@@ -698,7 +702,7 @@ const Pipeline1 = () => {
         // } else {
         //   setHasMore(false);
         // }
-      
+
         setHasMoreMap((prev) => {
           const updated = {
             ...prev,
@@ -707,9 +711,9 @@ const Pipeline1 = () => {
           console.log("Updated hasMoreMap:", updated); // ← ✅ Console log here
           return updated;
         });
-      
+
         if (search) {
-          console.log("Set leads for search value",response.data.data);
+          console.log("Set leads for search value", response.data.data);
           setLeadsList(newLeads)
         } else {
           setLeadsList([...LeadsList, ...newLeads]);
@@ -1984,10 +1988,39 @@ const Pipeline1 = () => {
                   <div className="flex flex-col">
                     <NotficationsDrawer />
                   </div>
+                  <button
+                    className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
+                    onClick={() => {
+                      setNeedHelp(!needHelp);
+                    }}
+                  >
+                    <Image
+                      src={"/agencyIcons/questionMark.jpg"}
+                      alt="*"
+                      height={20}
+                      width={20}
+                      style={{ borderRadius: "50%" }}
+                    />
+                    <div className="font-semibold text-[16px]">Get Help</div>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+
+          {
+            needHelp && (
+              <DashboardSlider
+                onTop={true}
+                needHelp={needHelp}
+                closeHelp={() => {
+                  // console.log("I am trigered");
+                  setNeedHelp(!needHelp);
+                }}
+              />
+            )
+          }
+
           {pipelineDetailLoader ? (
             <PipelineLoading fullScreen={false} />
           ) : (

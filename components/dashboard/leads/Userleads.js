@@ -48,6 +48,7 @@ import { fromJSON } from "postcss";
 import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -87,6 +88,9 @@ const Userleads = ({
   const [selectedFromDate, setSelectedFromDate] = useState(null);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false);
+
+  //nedd help popup
+  const [needHelp, setNeedHelp] = useState(false);
 
   const requestVersion = useRef(0);
 
@@ -1818,8 +1822,37 @@ const Userleads = ({
               <div className="flex flex-col">
                 <NotficationsDrawer />
               </div>
+              <button
+                className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
+                onClick={() => {
+                  setNeedHelp(!needHelp);
+                }}
+              >
+                <Image
+                  src={"/agencyIcons/questionMark.jpg"}
+                  alt="*"
+                  height={20}
+                  width={20}
+                  style={{ borderRadius: "50%" }}
+                />
+                <div className="font-semibold text-[16px]">Get Help</div>
+              </button>
             </div>
           </div>
+
+          {
+            needHelp && (
+              <DashboardSlider
+                onTop={true}
+                needHelp={needHelp}
+                closeHelp={() => {
+                  // console.log("I am trigered");
+                  setNeedHelp(!needHelp);
+                }}
+              />
+            )
+          }
+
           <div className="w-[95%] pe-12 mt-2">
             <div>
               <div className="flex flex-row items-center justify-end">
@@ -1902,7 +1935,7 @@ const Userleads = ({
                       </div>
                     </Box>
                   </Modal>*/}
-                  
+
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between w-full mt-4 w-full">

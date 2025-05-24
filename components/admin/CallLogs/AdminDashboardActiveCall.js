@@ -108,67 +108,50 @@ function AdminDashboardActiveCall({ }) {
 
   //code to get agents
   const getAgents = async () => {
+   
+    const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
 
-    const localAdminCallActivity = localStorage.getItem("adminCallActivity");
-    if (localAdminCallActivity) {
-      const C = JSON.parse(localAdminCallActivity);
-      console.log("Local calls are", C.length);
-      setFilteredAgentsList(C);
-      setCallDetails(C);
-      setAgentsList(C);
+    if (!cache) {
+      try {
+        const parsed = JSON.parse(cache);
+        console.log("Loaded agents from cache", parsed);
+        setFilteredAgentsList(parsed);
+        setCallDetails(parsed);
+        setAgentsList(parsed);
+        return; // ✅ Skip network call if cached
+      } catch (err) {
+        console.warn("Error parsing cached agent data", err);
+        localStorage.removeItem(CACHE_KEY); // Corrupted cache fallback
+      }
     }
 
     try {
-      // if (!localAdminCallActivity) {
-      // }
       setInitialLoader(true);
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
-        // //console.log;
-        AuthToken = Data.token;
-      }
+      const token = JSON.parse(localStorage.getItem("User"))?.token;
+      if (!token) return;
 
-      // //console.log;
-
-      let mainAgent = null;
-      const localAgent = localStorage.getItem("agentDetails");
-      if (localAgent) {
-        const agentDetails = JSON.parse(localAgent);
-        // //console.log;
-        // //console.log;
-        mainAgent = agentDetails;
-      }
-      // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}`;
-      ApiPath = ApiPath
-      // //console.log; //scheduled
-      // return
-      const response = await axios.get(ApiPath, {
+      const response = await axios.get(Apis.getAdminSheduledCallLogs, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (response) {
-        //console.log;
-
-        setFilteredAgentsList(response.data.data);
-        console.log("length od response is", response.data.data.length);
-        const D = response.data.data;
-        localStorage.setItem("adminCallActivity", JSON.stringify(D));
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+      if (response?.data?.data) {
+        const agents = response.data.data;
+        setFilteredAgentsList(agents);
+        setCallDetails(agents);
+        setAgentsList(agents);
+        localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
       }
     } catch (error) {
-      // console.error("Error occured in get Agents api is :", error);
+      console.error("Failed to fetch agents", error);
     } finally {
       setInitialLoader(false);
     }
   };
+
 
   //code to show call log details popup
 
@@ -635,10 +618,10 @@ function AdminDashboardActiveCall({ }) {
           >
             {filteredAgentsList.length > 0 ? (
               <div className={`h-[65vh] overflow-auto`}>
-                {filteredAgentsList.map((item, index) => {
+                {filteredAgentsList?.map((item, index) => {
                   return (
                     <div key={index}>
-                      {item.agents.map((agent, index) => {
+                      {item.agents?.map((agent, index) => {
                         return (
                           <div key={index}>
                             <div

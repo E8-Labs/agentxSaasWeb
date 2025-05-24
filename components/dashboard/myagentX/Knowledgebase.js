@@ -39,7 +39,7 @@ function Knowledgebase({ user, agent }) {
       const data = await response.json();
 
       if (response.ok) {
-        //console.log;
+        // console.log;
         setKb(data.data);
       } else {
         console.error("Failed to fetch kb:", data.error);

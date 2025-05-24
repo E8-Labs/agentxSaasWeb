@@ -30,6 +30,7 @@ import AdminCallDetails from "./AdminCallDetails";
 import { time } from "framer-motion";
 import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
+import { PersistanceKeys } from "@/constants/Constants";
 
 function AdminDashboardCallLogs({ }) {
   const LimitPerPage = 30;
@@ -60,12 +61,16 @@ function AdminDashboardCallLogs({ }) {
   //code for details modal
   const [selectedLeadsDetails, setselectedLeadsDetails] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [isLocalCallsAvailable, setIsLocalCallsAvailable] = useState(true)
 
   //code for pagination
   const [offset, setOffset] = useState(5);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const requestVersion = useRef(0);
+
+  const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false);
+
 
   const filterRef = useRef(null);
 
@@ -127,17 +132,43 @@ function AdminDashboardCallLogs({ }) {
   //   // }
   // }, [selectedToDate, selectedFromDate]);
 
+
+  useEffect(() => {
+    const getLocalCalls = () => {
+      const call = localStorage.getItem(PersistanceKeys.LocalAllCalls)
+      if (call) {
+        setIsLocalCallsAvailable(true)
+        const C = JSON.parse(call);
+        setFilteredCallDetails(C);
+        setCallDetails(C);
+        setHasFetchedFromAPIOnce(true); // ← ADD THIS LINE
+        console.log("Get admin all calls from local are ", C.length);
+        if (C.length < LimitPerPage) {
+          setHasMore(false);
+        }
+      }
+      else {
+        setIsLocalCallsAvailable(false)
+        getCallLogs(0)
+      }
+    }
+    getLocalCalls()
+  }, [])
+
   useEffect(() => {
     if (filterRef.current) {
       clearTimeout(filterRef.current);
     }
     filterRef.current = setTimeout(() => {
-      //console.log;
-      setHasMore(true);
-      setCallDetails([]);
-      setFilteredCallDetails([]);
-      setInitialLoader(true);
-      getCallLogs(0);
+      console.log("is local call ", isLocalCallsAvailable)
+      if (!isLocalCallsAvailable || hasFetchedFromAPIOnce) {
+        setHasMore(true);
+        setCallDetails([]);
+        setFilteredCallDetails([]);
+        setInitialLoader(true);
+        getCallLogs(0);
+      }
+
     }, 400);
   }, [searchValue]);
 
@@ -190,18 +221,7 @@ function AdminDashboardCallLogs({ }) {
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
 
-    const localAllCalls = localStorage.getItem("filteredCallDetails");
-    if(localAllCalls){
-      const C = JSON.parse(localAllCalls);
-      setFilteredCallDetails(C);
-      setCallDetails(C);
-      console.log("Get admin all calls length is", C.length);
-      //set pagination false
-      if (C.length < LimitPerPage) {
-        setHasMore(false);
-      }
-      
-    }
+
 
     console.log("check 1");
     try {
@@ -261,6 +281,7 @@ function AdminDashboardCallLogs({ }) {
       });
       setLoading(false);
 
+
       if (response) {
         //console.log;
         // setCallDetails(response.data.data);
@@ -268,15 +289,20 @@ function AdminDashboardCallLogs({ }) {
 
         const data = response.data.data;
         localStorage.setItem("callDetails", response.data.data);
-        setCallDetails((prevDetails) => [...prevDetails, ...data]);
-        setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 
-        //set the data on localstorage
-        const updatedDetails = [...callDetails, ...data];
-        console.log("Length storing localstorage", updatedDetails.length);
+        let calls = [...callDetails, ...data]
+        console.log('calls', calls)
+        setCallDetails(calls);
+        setFilteredCallDetails(calls);
+        setHasFetchedFromAPIOnce(true);
+        console.log("Length storing localstorage", calls.length);
 
         // Save to localStorage
-        localStorage.setItem("filteredCallDetails", JSON.stringify(updatedDetails));
+        if (offset === 0) {
+          localStorage.setItem(PersistanceKeys.LocalAllCalls, JSON.stringify(calls));
+        }
+
+        setIsLocalCallsAvailable(false)
 
         if (data.length < LimitPerPage) {
           setHasMore(false);
@@ -455,7 +481,7 @@ function AdminDashboardCallLogs({ }) {
               </div>
             </div>
 
-            {initialLoader && filteredCallDetails.length == 0 ? (
+            {initialLoader && filteredCallDetails.length == 0 && !isLocalCallsAvailable ? (
               <div
                 className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
               >
@@ -490,9 +516,11 @@ function AdminDashboardCallLogs({ }) {
                     if (!loading && hasMore) {
                       getCallLogs(filteredCallDetails.length);
                     }
+
                   }} // Fetch more when scrolled
                   hasMore={hasMore} // Check if there's more data
                   loader={
+
                     <div className="w-full flex flex-row justify-center mt-8">
                       <CircularProgress size={35} />
                     </div>

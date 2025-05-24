@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { Searchbar } from "@/components/general/MuiSearchBar";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 const allIntegrations = [
   {
     title: "Mailchimp",
@@ -215,6 +216,9 @@ function Page() {
   const [search, setSearch] = useState("");
   const [integrations, setIntegrations] = useState(allIntegrations);
 
+  //nedd help popup
+  const [needHelp, setNeedHelp] = useState(false);
+
   useEffect(() => {
     getMyApiKeys();
   }, []);
@@ -364,10 +368,39 @@ function Page() {
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
-        <div className="flex flex-col">
+        <div className="flex flex-row items-center">
           <NotficationsDrawer />
+          <button
+            className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
+            onClick={() => {
+              setNeedHelp(!needHelp);
+            }}
+          >
+            <Image
+              src={"/agencyIcons/questionMark.jpg"}
+              alt="*"
+              height={20}
+              width={20}
+              style={{ borderRadius: "50%" }}
+            />
+            <div className="font-semibold text-[16px]">Get Help</div>
+          </button>
         </div>
       </div>
+
+      {
+        needHelp && (
+          <DashboardSlider
+            onTop={true}
+            needHelp={needHelp}
+            closeHelp={() => {
+              // console.log("I am trigered");
+              setNeedHelp(!needHelp);
+            }}
+          />
+        )
+      }
+
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {
           genratekeyLoader ? (

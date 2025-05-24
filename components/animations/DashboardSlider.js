@@ -17,10 +17,13 @@ const DashboardSlider = ({
     const handleClose = () => {
         setVisible(false);
         setTimeout(() => {
+            if (onTop) {
+                closeHelp();
+            }
+        }, 300);
+        setTimeout(() => {
             if (!onTop) {
                 setShowIcon(true);
-            }else{
-                closeHelp();
             }
         }, 1000); // show icon after 1 sec
     };

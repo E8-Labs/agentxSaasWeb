@@ -10,11 +10,15 @@ import axios from "axios";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { PersistanceKeys } from "@/constants/Constants";
 import LeadLoading from "@/components/dashboard/leads/LeadLoading";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Page() {
   // //console.log;
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("All Calls");
+
+  //nedd help popup
+  const [needHelp, setNeedHelp] = useState(false);
 
   useEffect(() => {
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
@@ -33,21 +37,48 @@ function Page() {
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Call Log</div>
 
-        <div>
+        <div className="flex flex-row items-center gap-4">
           <NotficationsDrawer user={user} />
+          <button
+            className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
+            onClick={() => {
+              setNeedHelp(!needHelp);
+            }}
+          >
+            <Image
+              src={"/agencyIcons/questionMark.jpg"}
+              alt="*"
+              height={20}
+              width={20}
+              style={{ borderRadius: "50%" }}
+            />
+            <div className="font-semibold text-[16px]">Get Help</div>
+          </button>
         </div>
       </div>
+
+      {
+        needHelp && (
+          <DashboardSlider
+            onTop={true}
+            needHelp={needHelp}
+            closeHelp={() => {
+              // console.log("I am trigered");
+              setNeedHelp(!needHelp);
+            }}
+          />
+        )
+      }
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
         {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`${
-              activeTab === tab
-                ? "text-purple border-b-2 border-purple outline-none"
-                : ""
-            }`}
+            className={`${activeTab === tab
+              ? "text-purple border-b-2 border-purple outline-none"
+              : ""
+              }`}
             style={{ fontSize: 15, fontWeight: "500" }}
           >
             {tab}
