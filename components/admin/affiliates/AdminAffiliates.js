@@ -109,7 +109,7 @@ function AdminAffiliates({ selectedUser }) {
     return () => clearTimeout(timer);
   }, [uniqueUrl]);
 
-  const checkUniqueUrl =async (url) =>{
+  const checkUniqueUrl = async (url) => {
     try {
       // setAffiliateUsersLoader(true);
       let data = localStorage.getItem(PersistanceKeys.LocalStorageUser);
@@ -121,10 +121,10 @@ function AdminAffiliates({ selectedUser }) {
         console.log('path', path)
 
         let apidata = {
-          uniqueUrl:url
+          uniqueUrl: url
         }
 
-        const response = await axios.post(path,apidata, {
+        const response = await axios.post(path, apidata, {
           headers: {
             Authorization: "Bearer " + u.token,
           },
@@ -219,6 +219,14 @@ function AdminAffiliates({ selectedUser }) {
 
   //function to get team mebers api
   const getAffiliates = async (offset = 0, filter = null) => {
+    const affiliat = localStorage.getItem(PersistanceKeys.LocalAffiliates)
+
+    if (affiliat) {
+      let localAffiliate = JSON.parse(affiliat)
+      setAffiliatesList(localAffiliate);
+      setFilteredAffiliates(localAffiliate);
+      return
+    }
     try {
       setGetAffiliatesLoader(true);
       const data = localStorage.getItem("User");
@@ -254,6 +262,8 @@ function AdminAffiliates({ selectedUser }) {
           if (response.data.status === true) {
             setAffiliatesList(response.data.data);
             setFilteredAffiliates(response.data.data);
+
+            localStorage.setItem(PersistanceKeys.LocalAffiliates, JSON.stringify(response.data.data))
           } else {
             //console.log;
           }
@@ -612,8 +622,8 @@ function AdminAffiliates({ selectedUser }) {
                     {/* (item.LeadModel?.phone) */}
 
                     <div style={styles.text2}>
-                      <button 
-                        onClick={()=>{
+                      <button
+                        onClick={() => {
                           setShowUsersModal(true)
                           setSelectedAffiliate(item)
                         }}
@@ -714,7 +724,7 @@ function AdminAffiliates({ selectedUser }) {
                   }}
                 >
                   {selectedAffiliate?.name}
-                    
+
                 </div>
                 <button
                   onClick={() => {
@@ -738,24 +748,24 @@ function AdminAffiliates({ selectedUser }) {
               >
                 <div className="w-full flex flex-row">
                   <div className="w-3/12">
-                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Name</div>
+                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Name</div>
                   </div>
                   <div className="w-2/12">
-                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Email</div>
+                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Email</div>
                   </div>
                   <div className="w-2/12">
-                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Contact Number</div>
+                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Contact Number</div>
                   </div>
                   <div className="w-2/12">
-                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Unique Url</div>
+                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Unique Url</div>
                   </div>
 
                   <div className="w-1/12">
-                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Revenue</div>
+                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Revenue</div>
                   </div>
 
                   <div className="w-2/12">
-                    <div style={{fontSize:14,color:"black",fontWeight:'500'}}>Date</div>
+                    <div style={{ fontSize: 14, color: "black", fontWeight: '500' }}>Date</div>
                   </div>
                 </div>
 
@@ -799,7 +809,7 @@ function AdminAffiliates({ selectedUser }) {
                               {item.uniqueUrl ? item.uniqueUrl : "-"}
                             </div>
                           </div>
-                         
+
                           <div className="w-1/12">
                             <div style={styles.text2}>
                               {item.totalSpent ? `$${item.totalSpent}` : "-"}
@@ -850,7 +860,7 @@ function AdminAffiliates({ selectedUser }) {
               style={{
                 backgroundColor: "#ffffff",
 
-              Radius: "13px",
+                Radius: "13px",
               }}
             >
               <div className="flex flex-row justify-between">
@@ -1042,7 +1052,7 @@ function AdminAffiliates({ selectedUser }) {
                         //   emailCheckResponse?.status !== true ||
                         //   checkPhoneResponse?.status !== true ||
                         !!urlError ||
-                          !!urlError2 ||
+                        !!urlError2 ||
                         !uniqueUrl ||
                         !officeHourUrl
                         ? "#00000020"

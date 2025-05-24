@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { CircularProgress } from "@mui/material";
+import Link from "next/link";
 
 const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
   return (
@@ -94,8 +95,9 @@ const UrlCard = ({ kb }) => {
 };
 
 const YoutubeCard = ({ kb }) => {
+  console.log("youtube url is",kb.webUrl)
   return (
-    <a
+    <Link
       style={{
         flexWrap: "wrap",
         width: "100%",
@@ -109,7 +111,7 @@ const YoutubeCard = ({ kb }) => {
       className="text-purple underline"
     >
       {kb.webUrl.trim()}
-    </a>
+    </Link>
   );
 };
 
