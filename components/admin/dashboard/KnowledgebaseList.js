@@ -95,8 +95,9 @@ const UrlCard = ({ kb }) => {
 };
 
 const YoutubeCard = ({ kb }) => {
+  console.log("youtube url is",kb.webUrl)
   return (
-    <a
+    <Link
       style={{
         flexWrap: "wrap",
         width: "100%",
@@ -106,7 +107,7 @@ const YoutubeCard = ({ kb }) => {
       }}
     >
       {kb.webUrl.trim()}
-    </a>
+    </Link>
   );
 };
 
