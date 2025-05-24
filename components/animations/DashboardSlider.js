@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-const DashboardSlider = () => {
+const DashboardSlider = ({
+    onTop = false
+}) => {
     const [visible, setVisible] = useState(false);
     const [showIcon, setShowIcon] = useState(false);
 
@@ -28,10 +30,21 @@ const DashboardSlider = () => {
         exit: { x: "100%", opacity: 0 },
     };
 
+    //get position bassed on the components
+    const getPosition = () => {
+        if(onTop){
+            const style = { position: "fixed", top: 50, right: 30, zIndex: 999 }
+            return style;
+        }else{
+            const style = { position: "fixed", bottom: 30, right: 30, zIndex: 999 }
+            return style;
+        }
+    }
+
     return (
         <>
             {/* Snackbar */}
-            <div style={{ position: "fixed", bottom: 30, right: 30, zIndex: 999 }}>
+            <div style={getPosition()}>
                 <AnimatePresence>
                     {visible && (
                         <motion.div
@@ -59,16 +72,16 @@ const DashboardSlider = () => {
                                 className="w-full">
                                 <div className="w-full">
                                     <div className="flex flex-row items-center justify-between">
-                                        <div className="flex flex-row items-center gap-2">
+                                        <div
+                                            className="outline-none border-none flex flex-row items-center gap-2">
                                             <Image
                                                 src={"/agencyIcons/questionMark.jpg"}
                                                 alt="*"
                                                 height={20}
                                                 width={20}
+                                                style={{ borderRadius: "50%" }}
                                             />
-                                            <div style={{ fontWeight: "600", fontSize: 17 }}>
-                                                Get Help
-                                            </div>
+                                            <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
                                         </div>
                                         <button
                                             className="border-none outline-none"
@@ -83,7 +96,7 @@ const DashboardSlider = () => {
                                     </div>
                                     <div
                                         className="mt-2"
-                                        style={{ fontWeight: "500", fontSize: 17 }}>
+                                        style={{ fontWeight: "600", fontSize: 17 }}>
                                         Need Help Setting Up Your AI Agent?
                                     </div>
                                     <div
@@ -99,12 +112,12 @@ const DashboardSlider = () => {
                                             {`If you're unsure where to start or want expert guidance, we're here to help. You can join our weekly support webinar to get answers to your questions—or let our team handle it and build out your AI for you.`}
                                         </div>
                                     </div>
-                                    <button
-                                        className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
-                                        style={{ fontSize: 15, fontWeight: "500" }}>
-                                        Join Support Webinar
-                                    </button>
-                                    <div>
+                                    <div className="w-full flex flex-row items-center gap-4">
+                                        <button
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                                            style={{ fontSize: 15, fontWeight: "500" }}>
+                                            Join Support Webinar
+                                        </button>
                                         <button
                                             className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
                                             style={{ fontSize: 15, fontWeight: "500" }}>
@@ -161,8 +174,8 @@ const DashboardSlider = () => {
                             <Image
                                 src={"/agencyIcons/questionMark.jpg"}
                                 alt="*"
-                                height={32}
-                                width={32}
+                                height={20}
+                                width={20}
                                 style={{ borderRadius: "50%" }}
                             />
                             <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
