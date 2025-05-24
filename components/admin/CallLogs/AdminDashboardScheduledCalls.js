@@ -100,6 +100,16 @@ function AdminDashboardScheduledCalls({ }) {
 
   //code to get agents
   const getAgents = async () => {
+
+    //get stored scheduled calls
+    const localScheduleCalls = localStorage.getItem("adminScheduledCalls");
+    if (localScheduleCalls) {
+      const S = JSON.parse(localScheduleCalls);
+      setFilteredAgentsList(S);
+      setCallDetails(S);
+      setAgentsList(S);
+    }
+
     try {
       setInitialLoader(true);
 
@@ -136,7 +146,10 @@ function AdminDashboardScheduledCalls({ }) {
       });
 
       if (response) {
-        // //console.log;
+        const D = response.data.data
+        console.log("Length of response", D.length);
+
+        localStorage.setItem("adminScheduledCalls", JSON.stringify(D));
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);

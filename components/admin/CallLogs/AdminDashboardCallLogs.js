@@ -112,6 +112,10 @@ function AdminDashboardCallLogs({ }) {
     },
   ];
 
+  useEffect(() => {
+    console.log("Call logs list is", filteredCallDetails.length);
+  }, [filteredCallDetails]);
+
   // useEffect(() => {
   //   //console.log;
   //   // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
@@ -185,7 +189,21 @@ function AdminDashboardCallLogs({ }) {
 
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
-    //console.log;
+
+    const localAllCalls = localStorage.getItem("filteredCallDetails");
+    if(localAllCalls){
+      const C = JSON.parse(localAllCalls);
+      setFilteredCallDetails(C);
+      setCallDetails(C);
+      console.log("Get admin all calls length is", C.length);
+      //set pagination false
+      if (C.length < LimitPerPage) {
+        setHasMore(false);
+      }
+      
+    }
+
+    console.log("check 1");
     try {
       setLoading(true);
       setInitialLoader(true);
@@ -252,6 +270,13 @@ function AdminDashboardCallLogs({ }) {
         localStorage.setItem("callDetails", response.data.data);
         setCallDetails((prevDetails) => [...prevDetails, ...data]);
         setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
+
+        //set the data on localstorage
+        const updatedDetails = [...callDetails, ...data];
+        console.log("Length storing localstorage", updatedDetails.length);
+
+        // Save to localStorage
+        localStorage.setItem("filteredCallDetails", JSON.stringify(updatedDetails));
 
         if (data.length < LimitPerPage) {
           setHasMore(false);

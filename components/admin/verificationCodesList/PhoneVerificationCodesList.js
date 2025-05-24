@@ -44,7 +44,7 @@ function PhoneVerificationCodesList() {
             setLoading(false);
 
             if (response.data) {
-                //console.log;
+                // console.log("response of phone verification lists", response.data.data);
                 setVerificationCodes(response.data.data)
             }
 

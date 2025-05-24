@@ -108,7 +108,19 @@ function AdminDashboardActiveCall({ }) {
 
   //code to get agents
   const getAgents = async () => {
+
+    const localAdminCallActivity = localStorage.getItem("adminCallActivity");
+    if (localAdminCallActivity) {
+      const C = JSON.parse(localAdminCallActivity);
+      console.log("Local calls are", C.length);
+      setFilteredAgentsList(C);
+      setCallDetails(C);
+      setAgentsList(C);
+    }
+
     try {
+      // if (!localAdminCallActivity) {
+      // }
       setInitialLoader(true);
 
       let AuthToken = null;
@@ -145,6 +157,9 @@ function AdminDashboardActiveCall({ }) {
         //console.log;
 
         setFilteredAgentsList(response.data.data);
+        console.log("length od response is", response.data.data.length);
+        const D = response.data.data;
+        localStorage.setItem("adminCallActivity", JSON.stringify(D));
         setCallDetails(response.data.data);
         setAgentsList(response.data.data);
       }

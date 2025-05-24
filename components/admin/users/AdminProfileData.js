@@ -31,17 +31,17 @@ function AdminProfileData({ selectedUser, from }) {
             heading: "Phone Numbers",
             subHeading: "All agent phone numbers",
             icon: "/assets/unSelectedCallIcon.png",
-        }, {
-            id: 4,
-            heading: "Send Feedback",
-            subHeading: "Report bugs, new features and more",
-            icon: "/otherAssets/feedbackIcon.png",
         },
         {
-            id: 5,
+            id: 4,
             heading: "Bar Services",
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
+        }, {
+            id: 5,
+            heading: "Send Feedback",
+            subHeading: "Report bugs, new features and more",
+            icon: "/otherAssets/feedbackIcon.png",
         },
     ];
 
@@ -77,10 +77,10 @@ function AdminProfileData({ selectedUser, from }) {
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 4:
-                return <AdminSendFeedback selectedUser={selectedUser} />;
+                return <AdminXbarServices selectedUser={selectedUser} />;
 
             case 5:
-                return <AdminXbarServices selectedUser={selectedUser} />;
+                return <AdminSendFeedback selectedUser={selectedUser} />;
 
             default:
                 return <div>Please select an option.</div>;

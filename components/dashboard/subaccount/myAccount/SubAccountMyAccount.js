@@ -46,21 +46,21 @@ function SubAccountMyAccount() {
     },
     {
       id: 4,
+      heading: "Bar Services",
+      subHeading: "Our version of the genius bar",
+      icon: "/assets/X.svg",
+    },
+    {
+      id: 5,
       heading: "Support",
       subHeading: "Get in touch with our team and get help",
       icon: "/otherAssets/headPhoneIcon.png",
     },
     {
-      id: 5,
+      id: 6,
       heading: "Send Feedback",
       subHeading: "Report bugs, new features and more",
       icon: "/otherAssets/feedbackIcon.png",
-    },
-    {
-      id: 6,
-      heading: "Bar Services",
-      subHeading: "Our version of the genius bar",
-      icon: "/assets/X.svg",
     },
   ];
 
@@ -107,14 +107,14 @@ function SubAccountMyAccount() {
       case 3:
         return <SubAccountMyPhoneNumber />;
       case 4:
-        return <SubAccountSupport />;
+        return <SubAccountBarServices
+        selectedUser={selectedUserData} />;
       case 5:
-        return <SubAccountSendFeedback />;
+        return <SubAccountSupport />;
       // case 6:
       //   return <SubAccountInviteAgentX />;
       case 6:
-        return <SubAccountBarServices
-          selectedUser={selectedUserData} />;
+        return <SubAccountSendFeedback />;
       default:
         return <div>Please select an option.</div>;
     }

@@ -39,27 +39,27 @@ function MyAccount() {
     },
     {
       id: 4,
-      heading: "Support",
-      subHeading: "Get in touch with our team and get help",
-      icon: "/otherAssets/headPhoneIcon.png",
-    },
-    {
-      id: 5,
-      heading: "Send Feedback",
-      subHeading: "Report bugs, new features and more",
-      icon: "/otherAssets/feedbackIcon.png",
-    },
-    {
-      id: 6,
       heading: "Invite Agents",
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
     {
-      id: 7,
+      id: 5,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
+    },
+    {
+      id: 6,
+      heading: "Support",
+      subHeading: "Get in touch with our team and get help",
+      icon: "/otherAssets/headPhoneIcon.png",
+    },
+    {
+      id: 7,
+      heading: "Send Feedback",
+      subHeading: "Report bugs, new features and more",
+      icon: "/otherAssets/feedbackIcon.png",
     },
   ];
 
@@ -98,13 +98,13 @@ function MyAccount() {
       case 3:
         return <MyPhoneNumber />;
       case 4:
-        return <Support />;
-      case 5:
-        return <SendFeedback />;
-      case 6:
         return <InviteAgentX />;
-      case 7:
+      case 5:
         return <BarServices />;
+      case 6:
+        return <Support />;
+      case 7:
+        return <SendFeedback />;
       default:
         return <div>Please select an option.</div>;
     }
