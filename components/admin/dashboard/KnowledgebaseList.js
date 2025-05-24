@@ -95,9 +95,20 @@ const UrlCard = ({ kb }) => {
 };
 
 const YoutubeCard = ({ kb }) => {
-  console.log("youtube url is",kb.webUrl)
+  console.log("youtube url is", kb.webUrl)
   return (
-    <Link
+    <button
+      onClick={() => {
+        let url = kb.webUrl.trim();
+        // Prepend https:// if not already present
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+          url = "https://" + url;
+        }
+
+        console.log("Web url link is", url);
+        window.open(url, "_blank");
+      }}
+      className="text-purple underline border-none outline-none text-start"
       style={{
         flexWrap: "wrap",
         width: "100%",
@@ -107,7 +118,7 @@ const YoutubeCard = ({ kb }) => {
       }}
     >
       {kb.webUrl.trim()}
-    </Link>
+    </button>
   );
 };
 
