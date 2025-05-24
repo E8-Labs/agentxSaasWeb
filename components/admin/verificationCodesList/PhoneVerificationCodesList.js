@@ -97,7 +97,7 @@ function PhoneVerificationCodesList() {
           }
           endMessage={
             <p className="text-center py-4 text-[#00000060] text-base">
-              You're all caught up
+              {`You're all caught up`}
             </p>
           }
         >
