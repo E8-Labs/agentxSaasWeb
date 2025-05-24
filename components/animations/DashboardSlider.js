@@ -3,19 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 const DashboardSlider = ({
-    onTop = false
+    onTop = false,
+    needHelp = true,
+    closeHelp
 }) => {
-    const [visible, setVisible] = useState(false);
+    const [visible, setVisible] = useState(needHelp);
     const [showIcon, setShowIcon] = useState(false);
 
-    useEffect(() => {
-        setVisible(true);
-    }, []);
+    // useEffect(() => {
+    //     setVisible(true);
+    // }, []);
 
     const handleClose = () => {
         setVisible(false);
         setTimeout(() => {
-            setShowIcon(true);
+            if (!onTop) {
+                setShowIcon(true);
+            }else{
+                closeHelp();
+            }
         }, 1000); // show icon after 1 sec
     };
 
@@ -32,10 +38,10 @@ const DashboardSlider = ({
 
     //get position bassed on the components
     const getPosition = () => {
-        if(onTop){
+        if (onTop) {
             const style = { position: "fixed", top: 50, right: 30, zIndex: 999 }
             return style;
-        }else{
+        } else {
             const style = { position: "fixed", bottom: 30, right: 30, zIndex: 999 }
             return style;
         }

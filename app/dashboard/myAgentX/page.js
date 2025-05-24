@@ -76,6 +76,7 @@ import AgentInfoCard from "@/components/dashboard/myagentX/AgentInfoCard";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import PipelineLoading from "@/components/dashboardPipeline/PipelineLoading";
 import MyAgentXLoader from "@/components/loaders/MyAgentXLoader";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Page() {
   const timerRef = useRef();
@@ -264,6 +265,9 @@ function Page() {
   const [loading, setLoading] = useState(false);
 
   const [search, setSearch] = useState("");
+
+  //nedd help popup
+  const [needHelp, setNeedHelp] = useState(false);
 
   //it saves previous list of agents before search
   const [allAgentsList, setAllAgentsList] = useState([]);
@@ -2042,11 +2046,11 @@ function Page() {
               }
             }
           });
-        
+
           setAgentsListSeparated(subAgents);
           return
         }
-        
+
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -2398,8 +2402,36 @@ function Page() {
             </button>
           </div>
           <NotficationsDrawer />
+          <button
+            className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
+            onClick={() => {
+              setNeedHelp(!needHelp);
+            }}
+          >
+            <Image
+              src={"/agencyIcons/questionMark.jpg"}
+              alt="*"
+              height={20}
+              width={20}
+              style={{ borderRadius: "50%" }}
+            />
+            <div className="font-semibold text-[16px]">Get Help</div>
+          </button>
+
         </div>
       </div>
+
+      {
+        needHelp && (
+          <DashboardSlider
+            onTop={true}
+            needHelp={needHelp}
+            closeHelp={() => {
+              setNeedHelp(false);
+            }}
+          />
+        )
+      }
 
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
@@ -3170,10 +3202,10 @@ function Page() {
                     : "text-black-500"
                     }`}
                   style={{
-                     fontSize: 15,
-                      fontWeight: "500",
-                      whiteSpace: "nowrap"
-                    }}
+                    fontSize: 15,
+                    fontWeight: "500",
+                    whiteSpace: "nowrap"
+                  }}
                 >
                   {tab}
                 </button>
