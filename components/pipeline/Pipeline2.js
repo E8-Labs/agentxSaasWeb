@@ -848,7 +848,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   Advanced Settings
                 </button>
               </div>
-              <KYCs kycsDetails={setKycsData} user={user} />
+              {/*<KYCs kycsDetails={setKycsData} user={user} />*/}
               {/* <div className='mt-4' style={styles.headingStyle}>
                                 {`Agent's Objective`}
                             </div>

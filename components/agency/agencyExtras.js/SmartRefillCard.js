@@ -83,11 +83,31 @@ const SmartRefillCard = () => {
                         }
                     }}
                     sx={{
+                        // ✅ Checked: green thumb, white track
                         '& .MuiSwitch-switchBase.Mui-checked': {
-                            color: 'white',
+                            color: '#01CB76',
+                            '& + .MuiSwitch-track': {
+                                backgroundColor: '#ffffff',
+                                opacity: 1,
+                            },
                         },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                            backgroundColor: 'green', //#01CB76
+                        // ✅ Checked + focused: green thumb
+                        '& .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb': {
+                            backgroundColor: '#01CB76',
+                        },
+
+                        // ✅ Unchecked: gray thumb, gray track
+                        '& .MuiSwitch-thumb': {
+                            backgroundColor: '#9e9e9e',
+                        },
+                        '& .MuiSwitch-track': {
+                            backgroundColor: '#bdbdbd',
+                            opacity: 1,
+                        },
+
+                        // ✅ Focus ring (optional): remove default blue ring
+                        '& .Mui-focusVisible .MuiSwitch-thumb': {
+                            outline: '2px solid #01CB76',
                         },
                     }}
                 />

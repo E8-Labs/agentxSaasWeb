@@ -106,7 +106,10 @@ const YoutubeCard = ({ kb }) => {
         overflowWrap: "break-word", // Ensures text wraps properly
         whiteSpace: "normal", // Allows text to wrap
       }}
-      href={kb.webUrl}
+      href={kb.webUrl.trim()}
+      onClick={() => {
+        console.log("Web url link is", kb.webUrl);
+      }}
       target="_blank"
       className="text-purple underline"
     >
