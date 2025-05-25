@@ -43,7 +43,68 @@ function Support() {
         {"Account > Support"}
       </div>
 
-      <div
+      <div className="w-full flex flex-row items-center justify-center">
+        <div
+          // style={{ flex: 1 }}
+          className="w-9/12 border border-[#00000010] rounded-xl p-4 mt-12">
+          <div className="w-full">
+            <div className="flex flex-row items-center justify-between">
+              <div
+                className="outline-none border-none flex flex-row items-center gap-2">
+                <Image
+                  src={"/agencyIcons/questionMark.jpg"}
+                  alt="*"
+                  height={20}
+                  width={20}
+                  style={{ borderRadius: "50%" }}
+                />
+                <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
+              </div>
+              {/*<button
+                className="border-none outline-none">
+                <Image
+                  src={"/assets/cross.png"}
+                  alt="*"
+                  width={15}
+                  height={15}
+                />
+    </button>*/}
+            </div>
+            <div
+              className="mt-2"
+              style={{ fontWeight: "600", fontSize: 17 }}>
+              Need Help Setting Up Your AI Agent?
+            </div>
+            <div
+              className="flex flex-row items-start gap-2 mt-4">
+              <Image
+                src={"/agencyIcons/suportPlaceholder.png"}
+                alt="*"
+                height={64}
+                width={64}
+              />
+              <div
+                style={{ fontWeight: "500", fontSize: 17 }}>
+                {`If you're unsure where to start or want expert guidance, we're here to help. You can join our weekly support webinar to get answers to your questions—or let our team handle it and build out your AI for you.`}
+              </div>
+            </div>
+            <div className="w-full flex flex-row items-center gap-4">
+              <button
+                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                style={{ fontSize: 15, fontWeight: "500" }}>
+                Join Support Webinar
+              </button>
+              <button
+                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                style={{ fontSize: 15, fontWeight: "500" }}>
+                Hire Pro AI Team
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/*<div
         style={{
           alignSelf: "center",
           cursor: "pointer",
@@ -58,11 +119,6 @@ function Support() {
         onClick={getSupport}
       >
         <div className="flex flex-row gap-2">
-          {/* <Image src={'/otherAssets/calenderIcon.png'}
-                        alt='calender'
-                        height={24}
-                        width={24}
-                    /> */}
           {HoverAIWebinar ? (
             <Image
               src={"/assets/whiteCalenderIcon.svg"}
@@ -149,7 +205,7 @@ function Support() {
             "Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals."
           }
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 }

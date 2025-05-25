@@ -104,13 +104,15 @@ const CreateAgentVoice = ({ handleBack, user }) => {
         // //console.log;
         if (response.data.status === true) {
           // //console.log;
-          if (user.user.userType == UserTypes.RealEstateAgent) {
-            // //console.log;
-            router.push("/sellerskycquestions");
-          } else {
-            // //console.log;
-            router.push("/customerkycquestions");
-          }
+          // if (user.user.userType == UserTypes.RealEstateAgent) {
+          //   // //console.log;
+          //   router.push("/sellerskycquestions");
+          // } else {
+          //   // //console.log;
+          //   router.push("/customerkycquestions");
+          // }
+
+          router.push("/pipeline");
 
           localStorage.removeItem("claimNumberData");
         } else {

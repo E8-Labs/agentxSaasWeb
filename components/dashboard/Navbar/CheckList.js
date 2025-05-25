@@ -52,7 +52,7 @@ const CheckList = ({ userDetails }) => {
         window.addEventListener("UpdateCheckList", getChecklist);
 
         return () => {
-          document.removeEventListener("UpdateCheckList", getChecklist); // Clean up
+            document.removeEventListener("UpdateCheckList", getChecklist); // Clean up
         };
         // console.log("Check list", checklistData);
 
@@ -95,7 +95,7 @@ const CheckList = ({ userDetails }) => {
                             className='w-full flex flex-rw items-center justify-between outline-none border-none ps-2'
                             onClick={() => { setShowList(!showList) }}>
                             <div>
-                                <div style={{ fontWeight: "500", fontSize: "16px" }}>
+                                <div className='font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px] whitespace-nowrap overflow-hidden text-ellipsis'>
                                     Agentx Checklist
                                 </div>
                                 <div>
@@ -151,8 +151,10 @@ const CheckList = ({ userDetails }) => {
                                                             width={20}
                                                         />}
                                                     <div
-                                                        style={styles.text}
-                                                        className={`${item.status === true ? "line-through" : ""}`}
+                                                        // style={styles.text}
+                                                        // className={`${item.status === true ? "line-through" : ""} font-medium text-base sm:text-lg md:text-xl`}
+                                                        // className={`${item.status === true ? "line-through" : ""} font-medium text-sm sm:text-base md:text-lg lg:text-base xl:text-lg`}
+                                                        className={`${item.status === true ? "line-through" : ""} font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px]`}
                                                     >
                                                         {item.label}
                                                     </div>
@@ -173,9 +175,9 @@ const CheckList = ({ userDetails }) => {
                 showAddCalendar && (
                     <div>
                         <AddNewCalendar
-                            handleContinue={() => { 
+                            handleContinue={() => {
                                 getChecklist();
-                                setShowAddCalendar(false) ;
+                                setShowAddCalendar(false);
                             }}
                             showModal={showAddCalendar}
                         />
