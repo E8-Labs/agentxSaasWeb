@@ -1243,50 +1243,50 @@ const AdminLeadDetails = ({
                                                 </div>
 
 
-                                                                      <Modal
-                                                                        open={isExpanded}
-                                                                        onClose={() => setIsExpanded(null)}
-                                                                        closeAfterTransition
-                                                                        BackdropProps={{
-                                                                          timeout: 1000,
-                                                                          sx: {
-                                                                            backgroundColor: "#00000020",
-                                                                          },
-                                                                        }}
-                                                                      >
-                                                                        <Box
-                                                                          className="lg:w-4/12 sm:w-4/12 w-6/12"
-                                                                          sx={styles.modalsStyle}
+                                                <Modal
+                                                    open={isExpanded}
+                                                    onClose={() => setIsExpanded(null)}
+                                                    closeAfterTransition
+                                                    BackdropProps={{
+                                                        timeout: 1000,
+                                                        sx: {
+                                                            backgroundColor: "#00000020",
+                                                        },
+                                                    }}
+                                                >
+                                                    <Box
+                                                        className="lg:w-4/12 sm:w-4/12 w-6/12"
+                                                        sx={styles.modalsStyle}
+                                                    >
+                                                        <div className="flex flex-row justify-center w-full">
+                                                            <div
+                                                                className="w-full"
+                                                                style={{
+                                                                    backgroundColor: "#ffffff",
+                                                                    padding: 20,
+                                                                    borderRadius: "13px",
+                                                                }}
+                                                            >
+                                                                <div className="w-full flex flex-row items-center justify-between">
+                                                                    <div className="font-bold text-xl mt-4 mb-4">
+                                                                        Call Transcript
+                                                                    </div>
+                                                                    <div>
+                                                                        <button
+                                                                            className="font-bold outline-none border-none"
+                                                                            onClick={() => setIsExpanded(null)}
                                                                         >
-                                                                          <div className="flex flex-row justify-center w-full">
-                                                                            <div
-                                                                              className="w-full"
-                                                                              style={{
-                                                                                backgroundColor: "#ffffff",
-                                                                                padding: 20,
-                                                                                borderRadius: "13px",
-                                                                              }}
-                                                                            >
-                                                                              <div className="w-full flex flex-row items-center justify-between">
-                                                                                <div className="font-bold text-xl mt-4 mb-4">
-                                                                                  Call Transcript
-                                                                                </div>
-                                                                                <div>
-                                                                                  <button
-                                                                                    className="font-bold outline-none border-none"
-                                                                                    onClick={() => setIsExpanded(null)}
-                                                                                  >
-                                                                                    <CloseIcon />
-                                                                                  </button>
-                                                                                </div>
-                                                                              </div>
-                                                                              <TranscriptViewer
-                                                                                callId={isExpanded?.id || ""}
-                                                                              />
-                                                                            </div>
-                                                                          </div>
-                                                                        </Box>
-                                                                      </Modal>
+                                                                            <CloseIcon />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                                <TranscriptViewer
+                                                                    callId={isExpanded?.id || ""}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </Box>
+                                                </Modal>
 
                                                 {/* Modal for All Emails */}
                                                 <Modal
@@ -2039,34 +2039,49 @@ const AdminLeadDetails = ({
                                                                                     {item.status === "voicemail" ||
                                                                                         item.callOutcome === "Voicemail" ? (
                                                                                         <div className="flex border items-center justify-center rounded mt-2">
-                                                                                            {item.agent.hasVoicemail ? (
-                                                                                                <div>
-                                                                                                    {item.voicemailsent ? (
-
-                                                                                                        <NoVoicemailView
-                                                                                                            showAddBtn={false}
-                                                                                                            title={"Voicemail Delivered"}
-                                                                                                            subTitle={
-                                                                                                                "Delivered during the first missed call"
-                                                                                                            }
-                                                                                                        />
-                                                                                                    ) : (
-                                                                                                        <NoVoicemailView
-                                                                                                            showAddBtn={false}
-                                                                                                            title={
-                                                                                                                "Not able to Leave a Voicemail"
-                                                                                                            }
-                                                                                                            subTitle={
-                                                                                                                "The phone was either a landline or has a full voicemail"
-                                                                                                            }
-                                                                                                        />
+                                                                                            <div>
+                                                                                                <div
+                                                                                                    className="-ms-4"
+                                                                                                    style={{
+                                                                                                        fontsize: 15,
+                                                                                                        fontWeight: "500",
+                                                                                                        color: "#15151560",
+                                                                                                    }}
+                                                                                                >
+                                                                                                    {GetFormattedDateString(
+                                                                                                        item?.createdAt,
+                                                                                                        true
                                                                                                     )}
                                                                                                 </div>
-                                                                                            ) : (
-                                                                                                <NoVoicemailView
-                                                                                                    showAddBtn={false}
-                                                                                                />
-                                                                                            )}
+                                                                                                {item.agent.hasVoicemail ? (
+                                                                                                    <div>
+                                                                                                        {item.voicemailsent ? (
+
+                                                                                                            <NoVoicemailView
+                                                                                                                showAddBtn={false}
+                                                                                                                title={"Voicemail Delivered"}
+                                                                                                                subTitle={
+                                                                                                                    "Delivered during the first missed call"
+                                                                                                                }
+                                                                                                            />
+                                                                                                        ) : (
+                                                                                                            <NoVoicemailView
+                                                                                                                showAddBtn={false}
+                                                                                                                title={
+                                                                                                                    "Not able to Leave a Voicemail"
+                                                                                                                }
+                                                                                                                subTitle={
+                                                                                                                    "The phone was either a landline or has a full voicemail"
+                                                                                                                }
+                                                                                                            />
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                ) : (
+                                                                                                    <NoVoicemailView
+                                                                                                        showAddBtn={false}
+                                                                                                    />
+                                                                                                )}
+                                                                                            </div>
                                                                                         </div>
                                                                                     ) : (
                                                                                         <div className="mt-4">
@@ -2399,7 +2414,7 @@ const AdminLeadDetails = ({
                                                                                                                         item.id
                                                                                                                     )
                                                                                                                         ? `${item.transcript}` */}
-                                                                                                                        {initialText}
+                                                                                                                    {initialText}
                                                                                                                 </div>
                                                                                                                 <button
                                                                                                                     style={{
