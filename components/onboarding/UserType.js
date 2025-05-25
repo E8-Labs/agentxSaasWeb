@@ -91,46 +91,51 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 1,
       title: "Real Estate Agent",
       agentType: "Real Estate Agent",
-      icon: "/usertype/avt1.png",
+      // icon: "/usertype/avt1.png",
+      icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What area of real estate do you focus on?",
       userType: "RealEstateAgent",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 2,
       title: "Sales Dev Agent",
       agentType: "SDR/BDR Agent",
-      icon: "/usertype/avt2.png",
+      // icon: "/usertype/avt2.png",
+      icon: "/agencyIcons/agentsView/salesDev.jpg",
       areaOfFocusTitle: "What area of sales do you focus on?",
       userType: "SalesDevRep",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 3,
       title: "Solar Agent",
       agentType: "Solar Agent",
-      icon: "/usertype/avt3.png",
+      // icon: "/usertype/avt3.png",
+      icon: "/agencyIcons/agentsView/solar.jpg",
       areaOfFocusTitle: "What area of solar do you focus on?",
       userType: "SolarRep",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 4,
       title: "Insurance Agent",
       agentType: "Insurance Agent",
-      icon: "/usertype/avt4.png",
+      // icon: "/usertype/avt4.png",
+      icon: "/agencyIcons/agentsView/insurance.jpg",
       areaOfFocusTitle: "What area of insurance do you focus on?",
       userType: "InsuranceAgent",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 5,
       title: "Marketer",
       agentType: "Marketer Agent",
-      icon: "/usertype/avt5.png",
+      // icon: "/usertype/avt5.png",
+      icon: "/agencyIcons/agentsView/marketer.jpg",
       areaOfFocusTitle: "What area of marketing do you focus on?",
       userType: "MarketerAgent",
-      roundedImage: false,
+      roundedImage: true,
     },
 
     {
@@ -138,6 +143,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Recruiter Agentt",
       agentType: "Recruiter Agent",
       icon: "/usertype/avt8.png",
+      // icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What industries do you specialize in?",
       userType: "RecruiterAgent",
       roundedImage: false,
@@ -147,6 +153,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Tax Agent",
       agentType: "Tax Agent",
       icon: "/usertype/avt9.png",
+      // icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
       userType: "TaxAgent",
       roundedImage: false,
@@ -164,7 +171,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 10,
       title: "Website Agent",
       agentType: "Website Agent",
-      icon: "/agentXOrb.gif",
+      // icon: "/agentXOrb.gif",
+      icon: "/agencyIcons/agentsView/website.jpg",
       areaOfFocusTitle: "How would you use AgentX?",
       userType: "WebsiteAgent",
       roundedImage: true,
@@ -196,7 +204,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       userType: "LoanOfficerAgent",
       roundedImage: false,
     },
-    
+
     {
       id: 100,
       title: "More",
@@ -230,11 +238,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       <div
         className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4"
         style={{ scrollbarWidth: "none" }}
-        //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+      //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
       >
         <div
           className={`h-[90svh] sm:h-[80svh] `}
-          //84svh
+        //84svh
         >
           {/* header */}
           <div className="w-full h-[10%]">
@@ -262,11 +270,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
 
             <div
               className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-              // style={{
-              //   scrollbarWidth: "none",
-              //   msOverflowStyle: "none",
-              //   WebkitOverflowScrolling: "none",
-              // }}
+            // style={{
+            //   scrollbarWidth: "none",
+            //   msOverflowStyle: "none",
+            //   WebkitOverflowScrolling: "none",
+            // }}
             >
               {userType.map((item, index) => {
                 if (index == userType.length - 1) {
@@ -325,10 +333,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                           <img
                             src={item.icon}
                             style={{
-                              width: item.id === 10 ? "50%" : "100%",
+                              width: [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" : item.id === 1 ? "75%" : "60%",
                               transform: "scale(1.1)",
                               resize: "contain",
                               borderRadius: item.roundedImage ? "50%" : "1%",
+                              // borderRadius: "50%"
                             }}
                             alt="*"
                           />
