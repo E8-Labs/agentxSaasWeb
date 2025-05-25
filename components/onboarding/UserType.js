@@ -91,46 +91,51 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 1,
       title: "Real Estate Agent",
       agentType: "Real Estate Agent",
-      icon: "/usertype/avt1.png",
+      // icon: "/usertype/avt1.png",
+      icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What area of real estate do you focus on?",
       userType: "RealEstateAgent",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 2,
       title: "Sales Dev Agent",
       agentType: "SDR/BDR Agent",
-      icon: "/usertype/avt2.png",
+      // icon: "/usertype/avt2.png",
+      icon: "/agencyIcons/agentsView/salesDev.jpg",
       areaOfFocusTitle: "What area of sales do you focus on?",
       userType: "SalesDevRep",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 3,
       title: "Solar Agent",
       agentType: "Solar Agent",
-      icon: "/usertype/avt3.png",
+      // icon: "/usertype/avt3.png",
+      icon: "/agencyIcons/agentsView/solar.jpg",
       areaOfFocusTitle: "What area of solar do you focus on?",
       userType: "SolarRep",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 4,
       title: "Insurance Agent",
       agentType: "Insurance Agent",
-      icon: "/usertype/avt4.png",
+      // icon: "/usertype/avt4.png",
+      icon: "/agencyIcons/agentsView/insurance.jpg",
       areaOfFocusTitle: "What area of insurance do you focus on?",
       userType: "InsuranceAgent",
-      roundedImage: false,
+      roundedImage: true,
     },
     {
       id: 5,
       title: "Marketer",
       agentType: "Marketer Agent",
-      icon: "/usertype/avt5.png",
+      // icon: "/usertype/avt5.png",
+      icon: "/agencyIcons/agentsView/marketer.jpg",
       areaOfFocusTitle: "What area of marketing do you focus on?",
       userType: "MarketerAgent",
-      roundedImage: false,
+      roundedImage: true,
     },
 
     {
@@ -138,6 +143,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Recruiter Agentt",
       agentType: "Recruiter Agent",
       icon: "/usertype/avt8.png",
+      // icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What industries do you specialize in?",
       userType: "RecruiterAgent",
       roundedImage: false,
@@ -147,6 +153,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Tax Agent",
       agentType: "Tax Agent",
       icon: "/usertype/avt9.png",
+      // icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
       userType: "TaxAgent",
       roundedImage: false,
@@ -164,7 +171,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 10,
       title: "Website Agent",
       agentType: "Website Agent",
-      icon: "/agentXOrb.gif",
+      // icon: "/agentXOrb.gif",
+      icon: "/agencyIcons/agentsView/website.jpg",
       areaOfFocusTitle: "How would you use AgentX?",
       userType: "WebsiteAgent",
       roundedImage: true,
@@ -261,7 +269,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-x-hidden overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
             // style={{
             //   scrollbarWidth: "none",
             //   msOverflowStyle: "none",
@@ -273,14 +281,15 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   return (
                     <div
                       key={index}
-                      className="flex flex-col gap-3 w-full mb-6 py-2 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
+                      className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
                     >
-                      <Image className="hidden sm:flex"
+                      <Image
                         src={"/svgIcons/halfOrb.svg"}
                         height={282}
                         width={282}
                         alt="*"
                       />
+
                       <div
                         style={{
                           fontSize: 15,
@@ -291,7 +300,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         More agents coming in the future
                       </div>
 
-                      <Image className="hidden sm:flex"
+                      <Image
                         src={"/svgIcons/blueThreeDots.svg"}
                         height={9}
                         width={37}
@@ -301,35 +310,48 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   );
                 } else {
                   return (
-                    <div key={index} className="flex w-full md:w-4/12 p-2">
+                    <div key={index} className="flex w-6/12 md:w-4/12 p-2">
                       <div
-                        className={`w-full rounded-lg p-2 border transition-all duration-300 ease-in-out ${item.id === SelectUserType ? "border-[#7902DF] border-2" : "border-[#00000010]"
-                          } md:hover:border-[#7902DF] md:hover:border-2 md:hover:scale-105`}
-                        onClick={() => handleUserType(item)}
+                        className="w-full rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90"
+                        onClick={(e) => {
+                          handleUserType(item);
+                        }}
+                        style={{
+                          border:
+                            item.id === SelectUserType
+                              ? "2px solid #7902DF"
+                              : "",
+                          // transform: "scale(0.99)",
+                          // transition: "0.4s ease",
+                        }}
                       >
                         <div
-                          className="w-[100%] rounded w-full flex flex-col justify-center pb-[10px] items-center"
+                          className="h-[100px] sm:h-[198px] bg-gray-200 rounded w-full flex flex-col justify-center pb-[10px] items-center"
                           style={{ backgroundColor: "#FAF9FF" }}
                         >
+                          {/* <img src={item.icon} style={{ width: "100%", resize: "contain" }} alt='*' /> */}
                           <img
                             src={item.icon}
-                            alt="*"
-                            className={`${item.id === 10
-                                ? "w-[25%] sm:w-[50%]" // smaller on mobile, larger on desktop
-                                : "w-[full]"
-                              } transform scale-[1.1]`}
                             style={{
+                              width: [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" : item.id === 1 ? "75%" : "60%",
+                              transform: "scale(1.1)",
                               resize: "contain",
                               borderRadius: item.roundedImage ? "50%" : "1%",
+                              // borderRadius: "50%"
                             }}
+                            alt="*"
                           />
                         </div>
-
-                        <div className="text-center mt-4 pb-4 font-semibold text-[17px]">
+                        <div
+                          className="text-center mt-4 pb-4"
+                          style={{
+                            fontWeight: "600",
+                            fontSize: 17,
+                          }}
+                        >
                           {item.agentType}
                         </div>
                       </div>
-
                     </div>
                   );
                 }
