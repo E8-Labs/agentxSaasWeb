@@ -12,8 +12,8 @@ const AllowSmartRefillPopup = ({
 }) => {
   return (
     <div>
-      <Modal
-        open={showSmartRefillPopUp}
+      {/*<Modal
+        open={true}
         // onClose={() => setShowSmartRefillPopUp(false)}
         closeAfterTransition
         BackdropProps={{
@@ -25,82 +25,82 @@ const AllowSmartRefillPopup = ({
         }}
       >
         <Box className="lg:w-4/12 sm:w-7/12 w-8/12" sx={styles.modalsStyle}>
-          <div className="bg-[#ffffff] px-8 py-6 rounded-xl">
-            <div className="flex flex-row items-center justify-between">
-              <div
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "600",
-                }}
-              >
-                Smart Refill
-              </div>
-              <button
-                className="text-xl font-semibold"
-                onClick={() => {
-                  handleCloseReillPopup();
-                }}
-              >
-                <Image
-                  src={"/assets/cross.png"}
-                  alt="*"
-                  height={10}
-                  width={10}
-                />
-              </button>
-            </div>
-            <div
-              className="mt-8"
-              style={{
-                fontSize: "22px",
-                fontWeight: "600",
-              }}
-            >
-              Turn on Smart Refill
-            </div>
-            <div
-              className="mt-6"
-              style={{
-                fontSize: "15px",
-                fontWeight: "500",
-              }}
-            >
-              {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.`}
-            </div>
-            <div className="w-full flex flex-row items-center mt-6 outline-none border-none">
-              {smartRefillLoaderLater ? (
-                <div className="w-1/2 flex flex-row items-center justify-center">
-                  <CircularProgress size={35} />
-                </div>
-              ) : (
-                <button
-                  className="w-1/2 outline-none border-none"
-                  onClick={() => {
-                    handleSmartRefillLater();
-                  }}
-                >
-                  Maybe later
-                </button>
-              )}
-
-              {smartRefillLoader ? (
-                <div className="w-1/2 flex flex-row items-center justify-center">
-                  <CircularProgress size={35} />
-                </div>
-              ) : (
-                <button
-                  className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
-                  onClick={() => {
-                    handleSmartRefill();
-                  }}
-                >
-                  Turn On
-                </button>
-              )}
-            </div>
-          </div>
         </Box>
-      </Modal>
+      </Modal>*/}
+      <div className="bg-[#ffffff] px-8 py-6 rounded-xl">
+        <div className="flex flex-row items-center justify-between">
+          <div
+            style={{
+              fontSize: "17px",
+              fontWeight: "600",
+            }}
+          >
+            Smart Refill
+          </div>
+          <button
+            className="text-xl font-semibold"
+            onClick={() => {
+              handleCloseReillPopup();
+            }}
+          >
+            <Image
+              src={"/assets/cross.png"}
+              alt="*"
+              height={10}
+              width={10}
+            />
+          </button>
+        </div>
+        <div
+          className="mt-8"
+          style={{
+            fontSize: "22px",
+            fontWeight: "600",
+          }}
+        >
+          Turn on Smart Refill
+        </div>
+        <div
+          className="mt-6"
+          style={{
+            fontSize: "15px",
+            fontWeight: "500",
+          }}
+        >
+          {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.`}
+        </div>
+        <div className="w-full flex flex-row items-center mt-6 outline-none border-none">
+          {smartRefillLoaderLater ? (
+            <div className="w-1/2 flex flex-row items-center justify-center">
+              <CircularProgress size={35} />
+            </div>
+          ) : (
+            <button
+              className="w-1/2 outline-none border-none"
+              onClick={() => {
+                handleSmartRefillLater();
+              }}
+            >
+              Maybe later
+            </button>
+          )}
+
+          {smartRefillLoader ? (
+            <div className="w-1/2 flex flex-row items-center justify-center">
+              <CircularProgress size={35} />
+            </div>
+          ) : (
+            <button
+              className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
+              onClick={() => {
+                handleSmartRefill();
+              }}
+            >
+              Turn On
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

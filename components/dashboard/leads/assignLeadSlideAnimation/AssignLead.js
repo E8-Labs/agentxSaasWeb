@@ -253,15 +253,18 @@ const AssignLead = ({
   }
 
   function GetInboundAgent(mainAgent) {
+    // console.log("Main Agents Passed are", mainAgent);
     if (mainAgent.agents.length == 0) {
-      return null;
+      return false;
     }
     if (mainAgent.agents.length > 0) {
-      let inbound = null;
+      let inbound = false;
       for (const a of mainAgent.agents) {
-        if (a.agentType == "inbound") {
-          inbound = a;
+        if (a.agentType === "inbound") {
+          inbound = true;
           // console.log("returned the agent", a);
+        }else if(a.agentType === "outbound"){
+          inbound = false;
         }
       }
       return inbound;
@@ -271,6 +274,7 @@ const AssignLead = ({
   //check inbound and nostages agent
   const checkNostageAndInboundAgent = (item) => {
     if (GetInboundAgent(item) || item.stages.length === 0) {
+      // console.log("get InBound Agent data is", GetInboundAgent(item));
       return true
     } else {
       return false
