@@ -31,7 +31,8 @@ const Page = () => {
                         }
                     });
                     if (response) {
-                        console.log("Response of get verify link api is", response);
+                        console.log("Route user to connect stripe");
+                        console.log("Payment link is", response.data.data.url);
                         window.open(response.data.data.url, "_blank");
                         setLoader(false);
                     }

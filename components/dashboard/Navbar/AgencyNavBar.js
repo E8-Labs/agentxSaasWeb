@@ -174,7 +174,7 @@ const AgencyNavBar = () => {
             }
           });
           if (response) {
-            console.log("Response of get verify link api is", response);
+            // console.log("Response of get verify link api is", response);
             window.open(response?.data?.data?.url, "_blank");
             setLoader(false);
           }

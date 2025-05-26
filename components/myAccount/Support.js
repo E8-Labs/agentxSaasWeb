@@ -35,7 +35,15 @@ function Support() {
         scrollbarWidth: "none",
       }}
     >
-      <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+      <iframe
+        src="https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK"
+        width="100%"
+        height="600px"
+        frameBorder="0"
+        allowFullScreen>
+      </iframe>
+
+      {/*<div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
         Support
       </div>
 
@@ -60,15 +68,6 @@ function Support() {
                 />
                 <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
               </div>
-              {/*<button
-                className="border-none outline-none">
-                <Image
-                  src={"/assets/cross.png"}
-                  alt="*"
-                  width={15}
-                  height={15}
-                />
-    </button>*/}
             </div>
             <div
               className="mt-2"
@@ -102,7 +101,7 @@ function Support() {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/*<div
         style={{
