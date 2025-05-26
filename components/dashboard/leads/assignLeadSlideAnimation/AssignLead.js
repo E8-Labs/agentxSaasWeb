@@ -254,14 +254,16 @@ const AssignLead = ({
 
   function GetInboundAgent(mainAgent) {
     if (mainAgent.agents.length == 0) {
-      return null;
+      return false;
     }
     if (mainAgent.agents.length > 0) {
-      let inbound = null;
+      let inbound = false;
       for (const a of mainAgent.agents) {
         if (a.agentType == "inbound") {
-          inbound = a;
+          inbound = true;
           // console.log("returned the agent", a);
+        }else if (a.agentType == "outbound"){
+          inbound = false;
         }
       }
       return inbound;
