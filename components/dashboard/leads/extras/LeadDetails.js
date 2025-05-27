@@ -306,8 +306,8 @@ const LeadDetails = ({
       const localDetails = localStorage.getItem("User");
       if (localDetails) {
         const Data = JSON.parse(localDetails);
-        //// //console.log;
         AuthToken = Data.token;
+        // console.log(AuthToken);
       }
 
       // //console.log;
@@ -335,6 +335,7 @@ const LeadDetails = ({
           },
         ];
         // setLeadColumns(response.data.columns);
+        console.log("Response of selected leads is", response.data.data);
         setSelectedLeadsDetails(response.data.data);
         //// //console.log
         setSelectedStage(response?.data?.data?.stage?.stageTitle);
@@ -2026,21 +2027,26 @@ const LeadDetails = ({
                                     <div key={index}>
                                       {item.status === "voicemail" ||
                                         item.callOutcome === "Voicemail" ? (
-                                        <div className="flex border items-center justify-center rounded mt-2">
-                                          <div>
-                                            <div
-                                              className="-ms-4"
-                                              style={{
-                                                fontsize: 15,
-                                                fontWeight: "500",
-                                                color: "#15151560",
-                                              }}
-                                            >
-                                              {GetFormattedDateString(
-                                                item?.createdAt,
-                                                true
-                                              )}
-                                            </div>
+                                        <div
+                                          className="flex flex-col items-center justify-start rounded mt-2"
+                                          style={{
+                                            // borderLeft:
+                                            //   "1px solid #00000020",
+                                          }}>
+                                          <div
+                                            className="-ms-6 w-full"
+                                            style={{
+                                              fontsize: 15,
+                                              fontWeight: "500",
+                                              color: "#15151560",
+                                            }}
+                                          >
+                                            {GetFormattedDateString(
+                                              item?.createdAt,
+                                              true
+                                            )}
+                                          </div>
+                                          <div className="border rounded mt-2 w-full p-4">
                                             {item.agent.hasVoicemail ? (
                                               <div>
                                                 {item.voicemailsent ? (

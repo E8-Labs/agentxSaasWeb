@@ -12,11 +12,11 @@ function NoVoicemailView({
                 height={50} width={193} alt='*'
             />
 
-            <div style={{ fontSize: 22, fontWeight: '700', color: '#151515' }}>
+            <div className='text-center' style={{ fontSize: 22, fontWeight: '700', color: '#151515' }}>
                 {title}
             </div>
 
-            <div style={{ fontSize: 15, fontWeight: '500', color: '#151515',marginTop: 10 }}>
+            <div className='text-center' style={{ fontSize: 15, fontWeight: '500', color: '#151515',marginTop: 10 }}>
                 {subTitle}
             </div>
 

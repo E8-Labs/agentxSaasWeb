@@ -23,7 +23,7 @@ const CheckList = ({ userDetails }) => {
     if (D) {
       const LocalData = JSON.parse(D);
       const T = LocalData?.user?.checkList?.checkList;
-      console.log("Check list on main check list screen is", T);
+      // console.log(LocalData.token);
       let percentage = 0;
 
       for (let key in T) {
