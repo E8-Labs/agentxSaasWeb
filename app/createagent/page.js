@@ -105,6 +105,12 @@ const Page = () => {
         }
       } else {
         if (windowSize < 640) {
+          // setComponents([
+          //   <BuildAgentName />,
+          //   <BuildAgentTask />,
+          //   <BuildAgentObjective />,
+          //   <CreatAgent3 smallTerms={true} />, // pass value here
+          // ]);
           setComponents([
             BuildAgentName,
             BuildAgentTask,

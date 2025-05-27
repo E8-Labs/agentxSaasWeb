@@ -22,7 +22,7 @@ let stripePublickKey =
 // //console.log;
 const stripePromise = loadStripe(stripePublickKey);
 
-const CreatAgent3 = ({ handleContinue, user }) => {
+const CreatAgent3 = ({ handleContinue, smallTerms, user }) => {
   const router = useRouter();
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -889,8 +889,8 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     handleClose={handleClose}
                     togglePlan={togglePlan}
                     textBelowContinue={`${selectedPlan?.mints === 30
-                        ? "Trial is limited to 30 mins"
-                        : ""
+                      ? "Trial is limited to 30 mins"
+                      : ""
                       }`}
                   // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
@@ -907,8 +907,8 @@ const CreatAgent3 = ({ handleContinue, user }) => {
           BackdropProps={{
             timeout: 1000,
             sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(20px)",
+              backgroundColor: "#00000090",
+              backdropFilter: "blur(10px)",
             },
           }}
         >
@@ -1013,7 +1013,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
             }}
           >
             <div
-              className="flex flex-col w-[95%] sm:w-5/12 max-h-[95svh]  md:max-h-[95vh] bg-white"
+              className="flex flex-col w-[100%] sm:w-5/12 max-h-[95svh]  md:max-h-[95vh] bg-white"
               style={{
                 borderRadius: "13px",
                 overflow: "hidden", // Prevents overflow of the modal content
@@ -1275,10 +1275,18 @@ const CreatAgent3 = ({ handleContinue, user }) => {
 export default CreatAgent3;
 
 function TermsText() {
+
+  const windowWidth = () => {
+    if (typeof window !== "undefined") {
+      console.log("Window width is", window.innerWidth);
+      return window.innerWidth;
+    }
+  }
+
   return (
     <div
       className="flex flex-row w-full items-center gap-1"
-      style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+      style={{ color: "#151515", fontSize: windowWidth() < 640 ? 10 : 13, fontWeight: "600" }}
     >
       <p style={{ color: "#15151580" }}>
         I agree to the monthly subscription and understand that additional

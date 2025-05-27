@@ -482,8 +482,8 @@ const BuildAgentTask = ({
                   {InBoundCalls ? (
                     <Image
                       src={"/svgIcons/callInFocus.svg"}
-                      height={24}
-                      width={24}
+                      height={29}
+                      width={29}
                       alt="*"
                     />
                   ) : (

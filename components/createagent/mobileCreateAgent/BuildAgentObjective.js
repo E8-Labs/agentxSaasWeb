@@ -162,7 +162,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     {
       id: 100,
       icon: "",
-      title: "Something Else",
+      title: "Other",
       details: "",
       focusIcn: "/svgIcons/obj6F.svg",
       unFocusIcon: "/objectiveIcons/obj6UF.png",
@@ -395,12 +395,15 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
             >
               <div className="" style={{
                 fontSize: 14,
-                fontWeight: "500"
+                fontWeight: "600"
               }}>
-                {`What's this agent's primary objective during the call`}
+                {`What's this agent's primary objective during the call?`}
               </div>
 
-              <div style={styles.inputStyle}>
+              <div style={{
+                fontSize: 13,
+                fontWeight: "300",
+              }}>
                 Select only one. You can create new agents to dedicate them to
                 other objectives.
               </div>
@@ -409,7 +412,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                 {AgentObjective.map((item) => (
                   <div
                     key={item.id}
-                    className="w-full text-start md:w-1/2 pe-2 flex py-4"
+                    className="w-full text-start md:w-1/2 pe-2 flex py-1"
                   >
                     <button
                       className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
@@ -441,20 +444,20 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                         {item.title}
                       </div>
                       <div
-                        className="mt-4"
+                        className="mt-4 text-center"
                         style={{ fontSize: 11, fontWeight: "300" }}
                       >
                         {item.details}
                       </div>
 
-                      { item.title === "Something Else" && showOtherObjective &&
+                      {item.title === "Other" && showOtherObjective &&
                         <input
                           ref={bottomRef}
                           // autoComplete="off"
                           // autoCorrect="off"
                           // spellCheck="false"
                           enterKeyHint="done"
-                          placeholder="Agent's objective"
+                          placeholder="Your objective"
                           className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
                           style={{
                             ...styles.inputStyle,
@@ -500,7 +503,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
         }}
       >
         <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full h-[70vh]">
+          <div className="flex flex-row justify-center w-full h-[85vh]">
             <div
               className="w-full overflow-auto"
               style={{

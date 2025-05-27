@@ -722,7 +722,7 @@ country={"us"} // restrict to US only
               </div>
 
               <div style={styles.headingStyle} className="mt-6">
-                Where do you primarily operate or serve customers
+                Where do you primarily operate or serve customer
               </div>
               <input
                 placeholder="Specific cities, counties, or regions"

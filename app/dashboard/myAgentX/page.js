@@ -3757,12 +3757,12 @@ function Page() {
                                   }}
                                 >
                                   <Image
-                                    src={selectedVoice.flag}
+                                    src={selectedVoice?.flag}
                                     height={22}
                                     width={22}
                                     alt="Selected Language"
                                   />
-                                  <div>{selectedVoice.title}</div>
+                                  <div>{selectedVoice?.title}</div>
                                 </div>
                               )
                             }}
@@ -3796,18 +3796,18 @@ function Page() {
                             {AgentLanguagesList.map((item, index) => {
                               return (
                                 <MenuItem
-                                  className="flex flex-row items-center gap-2"
-                                  value={item.title}
+                                  className="flex flex-row items-center gap-2 bg-purple10 w-full"
+                                  value={item?.title}
                                   key={index}
-                                  disabled={languageValue === item.title}
+                                  disabled={index !== 0}//languageValue === item?.title ||
                                 >
                                   <Image
-                                    src={item.flag}
+                                    src={item?.flag}
                                     alt="*"
                                     height={22}
                                     width={22}
                                   />
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                   <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
                                 </MenuItem>
                               );

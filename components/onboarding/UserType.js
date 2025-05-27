@@ -300,12 +300,14 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         More agents coming in the future
                       </div>
 
-                      <Image
-                        src={"/svgIcons/blueThreeDots.svg"}
-                        height={9}
-                        width={37}
-                        alt="*"
-                      />
+                      <div className="flex sm:flex hidden">
+                        <Image
+                          src={"/svgIcons/blueThreeDots.svg"}
+                          height={9}
+                          width={37}
+                          alt="*"
+                        />
+                      </div>
                     </div>
                   );
                 } else {
