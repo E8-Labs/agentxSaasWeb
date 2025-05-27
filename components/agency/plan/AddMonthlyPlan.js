@@ -74,6 +74,20 @@ export default function AddMonthlyPlan({
     }
   };
 
+  //reset values after plan added
+  const handleResetValues = () => {
+    setTitle("")
+    setTag("")
+    setPlanDescription("")
+    setOriginalPrice("")
+    setDiscountedPrice("")
+    setMinutes("")
+    setMinCostErr(false)
+    setSnackMsg(null)
+    setSnackMsgType(null)
+    setTrialValidForDays("")
+  }
+
   //code to create plan
   const handleCreatePlan = async () => {
     try {
@@ -118,6 +132,7 @@ export default function AddMonthlyPlan({
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);
+          handleResetValues();
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);

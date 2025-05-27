@@ -57,6 +57,19 @@ export default function AddXBarPlan({
     }
   };
 
+  //reset values after plan added
+  const handleResetValues = () => {
+    setTitle("")
+    setTag("")
+    setPlanDescription("")
+    setOriginalPrice("")
+    setDiscountedPrice("")
+    setMinutes("")
+    setMinCostErr(false)
+    setSnackMsg(null)
+    setSnackMsgType(null)
+  }
+
   //code to add plan
   const handleAddPlanClick = async () => {
     try {
@@ -92,6 +105,7 @@ export default function AddXBarPlan({
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);
+          handleResetValues()
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);

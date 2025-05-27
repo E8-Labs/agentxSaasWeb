@@ -2008,9 +2008,14 @@ const LeadDetails = ({
                                     <div key={index}>
                                       {item.status === "voicemail" ||
                                         item.callOutcome === "Voicemail" ? (
-                                        <div>
+                                        <div
+                                          className="flex flex-col items-center justify-start rounded mt-2"
+                                          style={{
+                                            // borderLeft:
+                                            //   "1px solid #00000020",
+                                          }}>
                                           <div
-                                            className="-ms-4"
+                                            className="-ms-6 w-full"
                                             style={{
                                               fontsize: 15,
                                               fontWeight: "500",
@@ -2022,8 +2027,7 @@ const LeadDetails = ({
                                               true
                                             )}
                                           </div>
-                                          <div className="flex border items-center justify-center rounded mt-2">
-
+                                          <div className="border rounded mt-2 w-full p-4">
                                             {item.agent.hasVoicemail ? (
                                               <div>
                                                 {item.voicemailsent ? (
