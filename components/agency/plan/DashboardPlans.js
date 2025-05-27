@@ -388,7 +388,7 @@ function DashboardPlans() {
                                                             <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
                                                                 <div>
                                                                     <button
-                                                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                                        className="px-4 py-2 hover:bg-purple10 w-full text-start bg-transparent cursor-pointer text-sm font-medium text-gray-800"
                                                                         onClick={() => {
                                                                             setmoreDropdown(null)
                                                                         }}
@@ -397,7 +397,7 @@ function DashboardPlans() {
                                                                     </button>
                                                                 </div>
                                                                 <button
-                                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium text-gray-800"
+                                                                    className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start bg-transparent"
                                                                     onClick={() => {
                                                                         setShowDeleteModal(true);
                                                                     }}

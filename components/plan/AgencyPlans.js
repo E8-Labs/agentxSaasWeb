@@ -306,13 +306,16 @@ function AgencyPlans() {
     }
 
     //continue yearly plan
-    const continueYearlyPlan = () => {
+  const continueYearlyPlan = () => {
         setSelectedDuration(duration[2]);
         // const selectedYearlyPlan = yearlyPlans[selectedPlanIndex];
         // console.log(selectedYearlyPlan);
         setSelectedPlan(yearlyPlans[selectedPlanIndex]);
         setShowYearlyPlan(false);
+        handleSubscribePlan();
     }
+
+
 
     //check the profit state
     const checkCanSelectYearly = () => {
@@ -439,6 +442,7 @@ function AgencyPlans() {
     //subscribe plan
     const handleSubscribePlan = async () => {
 
+        console.log('trying to subscribe')
         // code for show plan add card popup
         const D = localStorage.getItem("User");
         if (D) {
