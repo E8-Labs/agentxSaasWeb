@@ -3704,7 +3704,7 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                  disabled={ index !== 0}//languageValue === item?.title ||
+                                  disabled={index !== 0}//languageValue === item?.title ||
                                 >
                                   <Image
                                     src={item?.flag}
@@ -3885,8 +3885,8 @@ function Page() {
                                 value={showGlobalBtn ? 16505403715 : ""}
                                 // disabled={!showGlobalBtn}
                                 disabled={
-                                  assignNumber.replace("+", "") ===
-                                  Constants.GlobalPhoneNumber.replace("+", "")
+                                  (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
+                                  (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
                                 }
                                 onClick={() => {
                                   console.log(

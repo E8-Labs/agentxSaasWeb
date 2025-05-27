@@ -275,7 +275,8 @@ const ClaimNumber = ({
                       }
 
                       const value = e.target.value;
-                      setFindNumber(e.target.value.replace(/[^0-9]/g, ""));
+                      setFindNumber(value.replace(/[^0-9]/g, ""));
+                      // setFindNumber(e.target.value?.replace(/[^0-9]/g, ""));
                       // handleFindeNumbers(value)
                       if (value) {
                         timerRef.current = setTimeout(() => {
