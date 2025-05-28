@@ -263,7 +263,7 @@ const FocusArea = ({
                           : "",
                       }}
                     >
-                      <div className="w-full flex flex-row items-start justify-between px-4 py-2 gap-2">
+                      <div className="w-full flex flex-row items-start px-4 py-2 gap-2">
 
                         {/* heck mark for small screens */}
                         <div className="mt-2 sm:hidden">

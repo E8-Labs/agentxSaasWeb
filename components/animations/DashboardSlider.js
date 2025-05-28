@@ -1,18 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const DashboardSlider = ({
     onTop = false,
     needHelp = true,
-    closeHelp
+    closeHelp,
+    autoFocus = true
 }) => {
-    const [visible, setVisible] = useState(needHelp);
+    const [visible, setVisible] = useState(false);
     const [showIcon, setShowIcon] = useState(false);
+    //stores local data
+    const [userDetails, setUserDetails] = useState(null);
 
-    // useEffect(() => {
-    //     setVisible(true);
-    // }, []);
+    //fetch local details
+    useEffect(() => {
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+            const UserDetails = JSON.parse(localData);
+            // //console.log;
+            setUserDetails(UserDetails.user);
+            AuthToken = UserDetails.token;
+        }
+    }, [])
+
+    useEffect(() => {
+        if (needHelp) {
+            setVisible(true)
+        } else {
+            setVisible(false);
+            setShowIcon(true);
+        }
+    }, [needHelp]);
 
     const handleClose = () => {
         setVisible(false);
@@ -124,12 +145,27 @@ const DashboardSlider = ({
                                     <div className="w-full flex flex-row items-center gap-4">
                                         <button
                                             className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
-                                            style={{ fontSize: 15, fontWeight: "500" }}>
+                                            style={{ fontSize: 15, fontWeight: "500" }}
+                                            onClick={() => {
+                                                if (typeof window !== "undefined") {
+                                                    let url = userDetails?.campaignee
+                                                        ? userDetails?.campaignee.officeHoursUrl
+                                                        : PersistanceKeys.GlobalWebinarUrl;
+                                                    //console.log
+                                                    window.open(url, "_blank");
+                                                }
+                                            }}>
                                             Join Support Webinar
                                         </button>
                                         <button
                                             className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
-                                            style={{ fontSize: 15, fontWeight: "500" }}>
+                                            style={{ fontSize: 15, fontWeight: "500" }}
+                                            onClick={() => {
+                                                let url = PersistanceKeys.GlobalConsultationUrl;
+                                                if (typeof window !== "undefined") {
+                                                    window.open(url, "_blank");
+                                                }
+                                            }}>
                                             Hire Pro AI Team
                                         </button>
                                     </div>

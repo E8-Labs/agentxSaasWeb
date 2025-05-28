@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { getSupportUrlFor } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
@@ -6,6 +6,19 @@ import { PersistanceKeys } from "@/constants/Constants";
 function Support() {
   const [HoverAIWebinar, setHoverAIWebinar] = useState(false);
   const [hoverConsultation, setHoverConsultation] = useState(false);
+
+  const [userDetails, setUserDetails] = useState(null);
+
+  useEffect(() => {
+    const localData = localStorage.getItem("User");
+    let AuthToken = null;
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      // //console.log;
+      setUserDetails(UserDetails.user);
+      AuthToken = UserDetails.token;
+    }
+  }, [])
 
   //function to get support
   const getSupport = () => {
@@ -35,15 +48,7 @@ function Support() {
         scrollbarWidth: "none",
       }}
     >
-      <iframe
-        src="https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK"
-        width="100%"
-        height="600px"
-        frameBorder="0"
-        allowFullScreen>
-      </iframe>
-
-      {/*<div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+      <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
         Support
       </div>
 
@@ -90,18 +95,33 @@ function Support() {
             <div className="w-full flex flex-row items-center gap-4">
               <button
                 className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
-                style={{ fontSize: 15, fontWeight: "500" }}>
+                style={{ fontSize: 15, fontWeight: "500" }}
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    let url = userDetails?.campaignee
+                      ? userDetails?.campaignee.officeHoursUrl
+                      : PersistanceKeys.GlobalWebinarUrl;
+                    //console.log
+                    window.open(url, "_blank");
+                  }
+                }}>
                 Join Support Webinar
               </button>
               <button
                 className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
-                style={{ fontSize: 15, fontWeight: "500" }}>
+                style={{ fontSize: 15, fontWeight: "500" }}
+                onClick={() => {
+                  let url = PersistanceKeys.GlobalConsultationUrl;
+                  if (typeof window !== "undefined") {
+                    window.open(url, "_blank");
+                  }
+                }}>
                 Hire Pro AI Team
               </button>
             </div>
           </div>
         </div>
-      </div>}
+      </div>
 
       {/*<div
         style={{

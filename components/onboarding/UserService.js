@@ -191,7 +191,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                           : "",
                       }}
                     >
-                      <div className="flex flex-row items-start justify-between px-4 w-full py-2">
+                      <div className="flex flex-row items-start px-4 w-full py-2 gap-2">
                       {/* heck mark for small screens */}
                         <div className="mt-2 sm:hidden">
                           {serviceId.includes(item.id) ? (
@@ -230,7 +230,7 @@ const UserService = ({ handleContinue, handleBack }) => {
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-2 items-start w-[90%]">
+                        <div className="text-start w-[100%] md:w-[90%]">
                           <div
                             style={{
                               fontFamily: "",

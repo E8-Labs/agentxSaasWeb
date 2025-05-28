@@ -1988,38 +1988,19 @@ const Pipeline1 = () => {
                   <div className="flex flex-col">
                     <NotficationsDrawer />
                   </div>
-                  <button
-                    className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
-                    onClick={() => {
-                      setNeedHelp(!needHelp);
-                    }}
-                  >
-                    <Image
-                      src={"/agencyIcons/questionMark.jpg"}
-                      alt="*"
-                      height={20}
-                      width={20}
-                      style={{ borderRadius: "50%" }}
-                    />
-                    <div className="font-semibold text-[16px]">Get Help</div>
-                  </button>
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      bottom: 0
+                    }}>
+                    <DashboardSlider
+                      needHelp={false} />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-
-          {
-            needHelp && (
-              <DashboardSlider
-                onTop={true}
-                needHelp={needHelp}
-                closeHelp={() => {
-                  // console.log("I am trigered");
-                  setNeedHelp(!needHelp);
-                }}
-              />
-            )
-          }
 
           {pipelineDetailLoader ? (
             <PipelineLoading fullScreen={false} />

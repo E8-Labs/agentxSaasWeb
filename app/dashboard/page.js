@@ -630,7 +630,7 @@ const Page = () => {
                     />
                   </div>
 
-                  <div className="w-full flex flex-row items-center justify-between mt-4">
+                 {/* <div className="w-full flex flex-row items-center justify-between mt-4">
                     <div
                       className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
                       style={{
@@ -744,7 +744,7 @@ const Page = () => {
                         {`Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals.`}
                       </div>
                     </div>
-                  </div>
+                      </div>*/}
                 </div>
               </div>
             </div>

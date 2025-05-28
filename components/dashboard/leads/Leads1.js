@@ -39,6 +39,7 @@ import EnrichModal from "./EnrichModal";
 import EnrichConfirmModal from "./EnrichCofirmModal";
 import getProfileDetails from "@/components/apis/GetProfile";
 import ConfirmPerplexityModal from "./extras/CofirmPerplexityModal";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -1016,6 +1017,16 @@ const Leads1 = () => {
           title={errSnackTitle}
         />
 
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0
+          }}>
+          <DashboardSlider
+            needHelp={false} />
+        </div>
+
         {/* <EnrichConfirmModal /> */}
 
         <div className="w-full">
@@ -1082,13 +1093,13 @@ const Leads1 = () => {
               </div>
 
               <div
-              className="w-full flex flex-row justify-center mt-4"
-                // style={{
-                //   position: "absolute",
-                //   bottom: "70px",
-                //   left: "50%",
-                //   transform: "translateX(-50%)",
-                // }}
+                className="w-full flex flex-row justify-center mt-4"
+              // style={{
+              //   position: "absolute",
+              //   bottom: "70px",
+              //   left: "50%",
+              //   transform: "translateX(-50%)",
+              // }}
               >
                 <VideoCard
                   duration={"11 min 27 sec"}

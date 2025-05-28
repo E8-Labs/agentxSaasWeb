@@ -39,36 +39,17 @@ function Page() {
 
         <div className="flex flex-row items-center gap-4">
           <NotficationsDrawer user={user} />
-          <button
-            className="outline-none border-none flex flex-row items-center gap-2 whitespace-nowrap"
-            onClick={() => {
-              setNeedHelp(!needHelp);
-            }}
-          >
-            <Image
-              src={"/agencyIcons/questionMark.jpg"}
-              alt="*"
-              height={20}
-              width={20}
-              style={{ borderRadius: "50%" }}
-            />
-            <div className="font-semibold text-[16px]">Get Help</div>
-          </button>
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              bottom: 0
+            }}>
+            <DashboardSlider
+              needHelp={false} />
+          </div>
         </div>
       </div>
-
-      {
-        needHelp && (
-          <DashboardSlider
-            onTop={true}
-            needHelp={needHelp}
-            closeHelp={() => {
-              // console.log("I am trigered");
-              setNeedHelp(!needHelp);
-            }}
-          />
-        )
-      }
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
         {["All Calls", "Call Activities", "Scheduled"].map((tab) => (

@@ -92,12 +92,21 @@ function SendFeedback() {
         {"Account > Send Feedback"}
       </div>
 
-      <div className="w-full flex justify-center items-cetner flex-col mt-20">
+      <div className="w-full flex justify-center items-cetner flex-col mt-4">
         <div
           style={{ alignSelf: "center" }}
-          className="flex flex-col items-center w-8/12 p-2 rounded-xl border bg-white"
+          className="flex flex-col items-center w-full p-2 bg-transparent"
         >
-          <div
+
+          <iframe
+            src="https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK"
+            width="100%"
+            height="600px"
+            frameBorder="0"
+            allowFullScreen>
+          </iframe>
+
+          {/*<div
             className="sm:w-full w-full p-4"
             style={{
               backgroundColor: "#ffffff",
@@ -175,10 +184,7 @@ function SendFeedback() {
                 </div>
               </button>
             )}
-
-            {/* Can be use full to add shadow */}
-            {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-          </div>
+          </div>*/}
         </div>
       </div>
     </div>
