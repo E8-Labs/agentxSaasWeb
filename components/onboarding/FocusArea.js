@@ -241,7 +241,7 @@ const FocusArea = ({
             ) : (
               <div
                 className="mt-2 sm:mt-8 pb-2 md:10/12 w-full lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                // style={{ scrollbarWidth: "none" }}
+              // style={{ scrollbarWidth: "none" }}
               >
                 {focusData.map((item, index) => (
                   <button
@@ -263,7 +263,24 @@ const FocusArea = ({
                           : "",
                       }}
                     >
-                      <div className="w-full flex flex-row items-start justify-between px-4 py-2">
+                      <div className="w-full flex flex-row items-start gap-4 px-4 py-2">
+                        {focusArea.includes(item.id) ? (
+                          <Image
+                          className="mt-2"
+                            src={"/assets/charmTick.png"}
+                            alt="*"
+                            height={28}
+                            width={28}
+                          />
+                        ) : (
+                          <Image
+                          className="mt-2"
+                            src={"/assets/charmUnMark.png"}
+                            alt="*"
+                            height={28}
+                            width={28}
+                          />
+                        )}
                         <div className="text-start w-[100%] md:w-[90%]">
                           <div
                             style={{
@@ -276,21 +293,6 @@ const FocusArea = ({
                           </div>
                           <div className="mt-2">{item.description}</div>
                         </div>
-                        {focusArea.includes(item.id) ? (
-                          <Image
-                            src={"/assets/charmTick.png"}
-                            alt="*"
-                            height={36}
-                            width={36}
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/charmUnMark.png"}
-                            alt="*"
-                            height={36}
-                            width={36}
-                          />
-                        )}
                       </div>
                     </div>
                   </button>

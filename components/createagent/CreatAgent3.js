@@ -401,9 +401,8 @@ const CreatAgent3 = ({ handleContinue, user }) => {
 
               {/*  Plans array start here  */}
               <div
-                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${
-                  selectedPlan ? "pb-36" : ""
-                }`}
+                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${selectedPlan ? "pb-36" : ""
+                  }`}
                 style={{ scrollbarWidth: "none" }}
               >
                 {/* For mobile view */}
@@ -909,12 +908,11 @@ const CreatAgent3 = ({ handleContinue, user }) => {
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue={`${
-                      selectedPlan?.mints === 30
-                        ? "Trial is limited to 30 mins"
-                        : ""
-                    }`}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    textBelowContinue={`${selectedPlan?.mints === 30
+                      ? "Trial is limited to 30 mins"
+                      : ""
+                      }`}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
@@ -929,8 +927,8 @@ const CreatAgent3 = ({ handleContinue, user }) => {
           BackdropProps={{
             timeout: 1000,
             sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(20px)",
+              backgroundColor: "#00000080",
+              backdropFilter: "blur(10px)",
             },
           }}
         >
@@ -1035,7 +1033,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
             }}
           >
             <div
-              className="flex flex-col w-[95%] sm:w-5/12 max-h-[95svh]  md:max-h-[95vh] bg-white"
+              className="flex flex-col w-[100%] sm:w-5/12 max-h-[95svh]  md:max-h-[95vh] bg-white"
               style={{
                 borderRadius: "13px",
                 overflow: "hidden", // Prevents overflow of the modal content
@@ -1045,7 +1043,7 @@ const CreatAgent3 = ({ handleContinue, user }) => {
               <div
                 className="flex flex-col items-center w-full overflow-auto"
                 style={{
-                  padding: 20,
+                  padding: 7,
                   flex: 1, // Allows the scrollable content to take remaining space
                 }}
               >
@@ -1297,10 +1295,21 @@ const CreatAgent3 = ({ handleContinue, user }) => {
 export default CreatAgent3;
 
 function TermsText() {
+
+  const smallWindow = () => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 640) {
+        return true;
+      } else {
+        return false
+      }
+    }
+  }
+
   return (
     <div
       className="flex flex-row items-center gap-1 w-full"
-      style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
+      style={{ color: "#151515", fontSize: smallWindow() ? 10 : 13, fontWeight: "600" }}
     >
       <p style={{ color: "#15151580" }}>
         I agree to the monthly subscription and understand that additional

@@ -169,7 +169,7 @@ const UserService = ({ handleContinue, handleBack }) => {
             ) : (
               <div
                 className="mt-2 pb-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-                // style={{ scrollbarWidth: "none" }}
+              // style={{ scrollbarWidth: "none" }}
               >
                 {servicesData.map((item, index) => (
                   <button
@@ -191,9 +191,27 @@ const UserService = ({ handleContinue, handleBack }) => {
                           : "",
                       }}
                     >
-                      <div className="flex flex-row items-end sm:items-start justify-between px-4 w-full py-2">
-                        <div className="flex flex-col gap-2 items-start w-[90%]">
+                      <div className="flex flex-row items-start sm:items-start gap-4 px-4 w-full py-2">
+                        {serviceId.includes(item.id) ? (
+                          <Image
+                            className="mt-2"
+                            src={"/assets/charmTick.png"}
+                            alt="*"
+                            height={28}
+                            width={28}
+                          />
+                        ) : (
+                          <Image
+                            className="mt-2"
+                            src={"/assets/charmUnMark.png"}
+                            alt="*"
+                            height={28}
+                            width={28}
+                          />
+                        )}
+                        <div className="w-[90%]">
                           <div
+                            className="text-start"
                             style={{
                               fontFamily: "",
                               fontWeight: "700",
@@ -207,22 +225,6 @@ const UserService = ({ handleContinue, handleBack }) => {
                             {item.description}
                           </div>
                         </div>
-
-                        {serviceId.includes(item.id) ? (
-                          <Image
-                            src={"/assets/charmTick.png"}
-                            alt="*"
-                            height={36}
-                            width={36}
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/charmUnMark.png"}
-                            alt="*"
-                            height={36}
-                            width={36}
-                          />
-                        )}
                       </div>
                     </div>
                   </button>

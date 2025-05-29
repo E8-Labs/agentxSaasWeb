@@ -394,7 +394,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
               style={{ scrollbarWidth: "none" }}
             >
               <div className="" style={styles.headingStyle}>
-                {`What's this agent's primary objective during the call`}
+                {`What's this agent's primary objective during the call?`}
               </div>
 
               <div style={styles.inputStyle}>
@@ -406,7 +406,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                 {AgentObjective.map((item) => (
                   <div
                     key={item.id}
-                    className="w-full text-start md:w-1/2 pe-2 flex py-4"
+                    className="w-full text-start md:w-1/2 pe-2 flex py-1"
                   >
                     <button
                       className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
@@ -507,7 +507,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
         }}
       >
         <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full h-[70vh]">
+          <div className="flex flex-row justify-center w-full h-[88vh]">
             <div
               className="w-full overflow-auto"
               style={{

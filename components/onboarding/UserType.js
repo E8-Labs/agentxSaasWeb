@@ -300,12 +300,12 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         More agents coming in the future
                       </div>
 
-                      <Image
+                     {/* <Image
                         src={"/svgIcons/blueThreeDots.svg"}
                         height={9}
                         width={37}
                         alt="*"
-                      />
+                      />*/}
                     </div>
                   );
                 } else {

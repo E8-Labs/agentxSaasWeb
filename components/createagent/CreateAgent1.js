@@ -707,7 +707,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   >
                     {InBoundCalls ? (
                       <Image
-                        src={"/svgIcons/callInFocus.svg"}
+                        // src={"/svgIcons/callInFocus.svg"}
+                        src={"/assets/callInFocus2.png"}
                         height={24}
                         width={24}
                         alt="*"
