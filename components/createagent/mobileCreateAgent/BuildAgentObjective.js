@@ -77,10 +77,10 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
   useEffect(() => {
     if (toggleClick) {
       setShouldContinue(false);
-     // //console.log;
+      // //console.log;
     } else if (!toggleClick) {
       setShouldContinue(true);
-     // //console.log;
+      // //console.log;
     }
   }, [agentName, agentRole, agentObjective, otherObjVal]);
 
@@ -93,7 +93,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       setShowModal(true);
     }
     if (item.id === 100) {
-     // //console.log;
+      // //console.log;
       // if (bottomRef.current) {
       //     bottomRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
       // }
@@ -162,7 +162,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     {
       id: 100,
       icon: "",
-      title: "Something Else",
+      title: "Other",
       details: "",
       focusIcn: "/svgIcons/obj6F.svg",
       unFocusIcon: "/objectiveIcons/obj6UF.png",
@@ -191,14 +191,14 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       let LocalDetails = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-       // //console.log;
+        // //console.log;
         AuthToken = UserDetails.token;
         LocalDetails = UserDetails;
       }
       // return
-     // //console.log;
+      // //console.log;
       const ApiPath = Apis.buildAgent;
-     // //console.log;
+      // //console.log;
       const formData = new FormData();
       formData.append("name", AgentDetails.name);
       formData.append("agentRole", AgentDetails.agentRole);
@@ -223,9 +223,9 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
         formData.append("agentObjectiveId", agentObjective.id);
       }
 
-     // //console.log;
+      // //console.log;
       for (let [key, value] of formData.entries()) {
-       // //console.log;
+        // //console.log;
       }
 
       // return
@@ -236,9 +236,9 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       });
 
       if (response) {
-       // //console.log;
+        // //console.log;
         if (response.data.status === true) {
-         //console.log;
+          //console.log;
           localStorage.setItem(
             "agentDetails",
             JSON.stringify(response.data.data)
@@ -253,7 +253,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
         }
       }
     } catch (error) {
-     console.error("Error occured in build agent api is: ----", error);
+      console.error("Error occured in build agent api is: ----", error);
     } finally {
       setBuildAgentLoader(false);
       setLoaderModal(false);
@@ -291,7 +291,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     if (placesService) {
       placesService.getDetails({ placeId }, (details) => {
         setSelectedPlace(details);
-       // //console.log;
+        // //console.log;
       });
     }
   };
@@ -335,7 +335,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     },
     {
       id: 5,
-      title: "Something else",
+      title: "Other",
     },
   ];
 
@@ -397,7 +397,10 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                 {`What's this agent's primary objective during the call?`}
               </div>
 
-              <div style={styles.inputStyle}>
+              <div style={{
+                fontSize: 13,
+                fontWeight: "400",
+              }}>
                 Select only one. You can create new agents to dedicate them to
                 other objectives.
               </div>
@@ -443,38 +446,29 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                       >
                         {item.details}
                       </div>
+
+                      {item.title === "Other" && showOtherObjective &&
+                        <input
+                          ref={bottomRef}
+                          // autoComplete="off"
+                          // autoCorrect="off"
+                          // spellCheck="false"
+                          enterKeyHint="done"
+                          placeholder="Your objective"
+                          className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
+                          style={{
+                            ...styles.inputStyle,
+                            border: "1px solid #00000020",
+                          }}
+                          value={otherObjVal}
+                          onChange={(e) => setOtherObjVal(e.target.value)}
+                        />
+                      }
+
                     </button>
                   </div>
                 ))}
               </div>
-
-              {showOtherObjective && (
-                <div>
-                  <div style={styles.headingStyle}>{`Agent's Objective`}</div>
-                  {/* <input ref={bottomRef}
-                                            placeholder="Type Here.... "
-                                            className='border   rounded p-3 outline-none w-full mt-1 mx-2'
-                                            style={styles.inputStyle}
-                                            value={otherObjVal}
-                                            onChange={(e) => { setOtherObjVal(e.target.value) }}
-                                        /> */}
-                  <input
-                    ref={bottomRef}
-                    // autoComplete="off"
-                    // autoCorrect="off"
-                    // spellCheck="false"
-                    enterKeyHint="done"
-                    placeholder="Type Here...."
-                    className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
-                    style={{
-                      ...styles.inputStyle,
-                      border: "1px solid #00000020",
-                    }}
-                    value={otherObjVal}
-                    onChange={(e) => setOtherObjVal(e.target.value)}
-                  />
-                </div>
-              )}
 
               {/* <Body /> */}
             </div>
@@ -639,12 +633,12 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                       placeholder="Type here ..."
                       value={addressValue}
                       readOnly={true}
-                      // disabled={true}
-                      // onChange={(evt) => {
-                      //   setAddressValue(evt.target.value); // Update input field value
-                      //   // getPlacePredictions({ input: evt.target.value });
-                      //   // setShowDropdown(true); // Show dropdown on input
-                      // }}
+                    // disabled={true}
+                    // onChange={(evt) => {
+                    //   setAddressValue(evt.target.value); // Update input field value
+                    //   // getPlacePredictions({ input: evt.target.value });
+                    //   // setShowDropdown(true); // Show dropdown on input
+                    // }}
                     />
                   </div>
                 </div>
