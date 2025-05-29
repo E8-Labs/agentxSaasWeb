@@ -1023,7 +1023,7 @@ const Leads1 = () => {
               />
             </div>
           ) : (
-            <div className="h-screen">
+            <div className="h-[100svh] relative">
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}
@@ -1077,7 +1077,7 @@ const Leads1 = () => {
               <div
                 style={{
                   position: "absolute",
-                  bottom: "70px",
+                  bottom: "140px",
                   left: "50%",
                   transform: "translateX(-50%)",
                 }}
@@ -2114,8 +2114,8 @@ const Leads1 = () => {
                   ) : (
                     <button
                       className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                          ? "bg-purple text-white"
-                          : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
+                        ? "bg-purple text-white"
+                        : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
                         }`}
                       style={{
                         fontWeight: "600",

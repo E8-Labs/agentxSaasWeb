@@ -701,7 +701,7 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                     <PhoneInput
                                         ref={(el) => (inputsFields.current[2] = el)}
                                         className="border outline-none bg-white"
-                                        country={countryCode} // Set the default country
+                                        country={"us"} // Set the default country
                                         value={userPhoneNumber}
                                         onChange={handlePhoneNumberChange}
                                         placeholder={
@@ -730,7 +730,8 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
                                             maxHeight: "150px",
                                             overflowY: "auto",
                                         }}
-                                        countryCodeEditable={true}
+                                        countryCodeEditable={false}
+                                        disableDropdown={true}
                                         defaultMask={loading ? "Loading..." : undefined}
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter" || e.key === "Done") {
@@ -855,10 +856,10 @@ const AgencySignUp = ({ handleContinue, handleBack, length = 6, onComplete }) =>
 
                                 <button
                                     disabled={shouldContinue}
-                                    className='rounded-lg text-white bg-purple mt-4' 
+                                    className='rounded-lg text-white bg-purple mt-4'
                                     style={{
                                         fontWeight: "700", fontSize: "16", backgroundColor: shouldContinue && "#00000020",
-                                        color: shouldContinue && "#000000", height: "40px", width: "100px",alignSelf:'flex-end'
+                                        color: shouldContinue && "#000000", height: "40px", width: "100px", alignSelf: 'flex-end'
                                     }}
                                     onClick={handleVerifyPopup}>
                                     Continue

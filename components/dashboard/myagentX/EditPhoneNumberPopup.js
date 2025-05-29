@@ -23,7 +23,7 @@ export const EditPhoneNumberModal = ({
   const [locationLoader, setLocationLoader] = useState(false);
 
   useEffect(() => {
-    setUserPhoneNumber(number||"");
+    setUserPhoneNumber(number || "");
   }, [number]);
 
   //getlocation
@@ -98,7 +98,7 @@ export const EditPhoneNumberModal = ({
           <div className="w-full">
             <PhoneInput
               className="outline-none bg-transparent focus:ring-0"
-              country={countryCode} // Default country
+              country={"us"} // Default country
               value={userPhoneNumber}
               onChange={handlePhoneNumberChange}
               placeholder={
@@ -131,7 +131,8 @@ export const EditPhoneNumberModal = ({
                 maxHeight: "150px",
                 overflowY: "auto",
               }}
-              countryCodeEditable={true}
+              countryCodeEditable={false}
+              disableDropdown={true}
               defaultMask={locationLoader ? "Loading..." : undefined}
             />
           </div>

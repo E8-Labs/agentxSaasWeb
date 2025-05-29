@@ -74,6 +74,8 @@ import NoAgent from "@/components/dashboard/myagentX/NoAgent";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
 import AgentInfoCard from "@/components/dashboard/myagentX/AgentInfoCard";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import MyAgentXLoader from "@/components/loaders/MyAgentXLoader";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Page() {
   const timerRef = useRef();
@@ -1891,7 +1893,6 @@ function Page() {
   };
 
   useEffect(() => {
-    getCalenders();
     const agentLocalDetails = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
     );
@@ -1907,19 +1908,22 @@ function Page() {
     const userData = localStorage.getItem("User");
 
     try {
-      // setInitialLoader(true);
+      setInitialLoader(true);
       if (userData) {
         const userLocalData = JSON.parse(userData);
         getAgents();
       }
     } catch (error) {
+      setInitialLoader(false);
       //// console.error("Error occured is :", error);
     } finally {
       setShowPhoneLoader(false);
 
-      // setInitialLoder(false)
+      setInitialLoader(false)
     }
+    getCalenders();
   }, []);
+
 
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();
@@ -2354,6 +2358,15 @@ function Page() {
             </button>
           </div>
           <NotficationsDrawer />
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              bottom: 0
+            }}>
+            <DashboardSlider
+              needHelp={false} />
+          </div>
         </div>
       </div>
 
@@ -2361,7 +2374,7 @@ function Page() {
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
-            <CircularProgress size={45} />
+            <MyAgentXLoader />
           </div>
         ) : (
           <AgentsListPaginated
@@ -2658,7 +2671,7 @@ function Page() {
                 <div style={{ marginTop: "8px" }}>
                   <PhoneInput
                     className="border outline-none bg-white"
-                    country={countryCode} // Set the default country
+                    country={"us"} // Set the default country
                     value={phone}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -2685,7 +2698,8 @@ function Page() {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={true}
+                    countryCodeEditable={false}
+                    disableDropdown={true}
                   // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>

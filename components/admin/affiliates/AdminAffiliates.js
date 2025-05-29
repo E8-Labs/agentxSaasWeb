@@ -979,7 +979,8 @@ function AdminAffiliates({ selectedUser }) {
                         maxHeight: "150px",
                         overflowY: "auto",
                       }}
-                      countryCodeEditable={true}
+                      countryCodeEditable={false}
+                      disableDropdown={true}
                     // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>

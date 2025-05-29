@@ -701,7 +701,7 @@ const BasicDetails = ({
                 <PhoneInput
                   // ref={phoneInputRef}
                   className="border outline-none bg-white"
-                  country={countryCode} // Set the default country
+                  country={"us"} // Set the default country
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
@@ -734,15 +734,16 @@ const BasicDetails = ({
                     maxHeight: "150px",
                     overflowY: "auto",
                   }}
-                  countryCodeEditable={true}
+                  countryCodeEditable={false}
+                  disableDropdown={true}
                   defaultMask={loading ? "Loading..." : undefined}
-                  // onKeyDown={(e) => {
-                  //   if (e.key === "Enter" || e.key === "Done") {
-                  //     // inputsFields.current[3]?.focus(); // Move to the second input
-                  //    // //console.log
-                  //     handleContinue();
-                  //   }
-                  // }}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter" || e.key === "Done") {
+                //     // inputsFields.current[3]?.focus(); // Move to the second input
+                //    // //console.log
+                //     handleContinue();
+                //   }
+                // }}
                 />
               </div>
 

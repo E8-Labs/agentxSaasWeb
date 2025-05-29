@@ -33,12 +33,12 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
     let windowSize = 1000;
     if (typeof window !== "undefined") {
-      windowSize = window.innerWidth;
-      // //console.log;
+        windowSize = window.innerWidth;
+        // //console.log;
     } else {
-      // //console.log;
+        // //console.log;
     }
-  
+
 
     const router = useRouter();
     const [userName, setUserName] = useState("");
@@ -343,7 +343,7 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                         // //console.log;
                     } else {
                         //console.log;
-                       router.push("/onboarding/agencyOnboarding/plans");
+                        router.push("/onboarding/agencyOnboarding/plans");
                     }
                 }
             }
@@ -696,7 +696,7 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                                     <PhoneInput
                                         ref={(el) => (inputsFields.current[2] = el)}
                                         className="border outline-none bg-white"
-                                        country={countryCode} // Set the default country
+                                        country={"us"} // Set the default country
                                         value={userPhoneNumber}
                                         onChange={handlePhoneNumberChange}
                                         placeholder={
@@ -725,7 +725,8 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                                             maxHeight: "150px",
                                             overflowY: "auto",
                                         }}
-                                        countryCodeEditable={true}
+                                        countryCodeEditable={false}
+                                        disableDropdown={true}
                                         defaultMask={loading ? "Loading..." : undefined}
                                         onKeyDown={(e) => {
                                             if (e.key === "Enter" || e.key === "Done") {

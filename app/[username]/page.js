@@ -476,7 +476,7 @@ const Page = ({ length = 6, onComplete }) => {
                   <div className="w-[90%]">
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
-                      country={countryCode} // Default country
+                      country={"us"} // Default country
                       value={userPhoneNumber}
                       onChange={handlePhoneNumberChange}
                       placeholder={
@@ -522,7 +522,8 @@ const Page = ({ length = 6, onComplete }) => {
                         maxHeight: "150px",
                         overflowY: "auto",
                       }}
-                      countryCodeEditable={true}
+                      countryCodeEditable={false}
+                      disableDropdown={true}
                       defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>

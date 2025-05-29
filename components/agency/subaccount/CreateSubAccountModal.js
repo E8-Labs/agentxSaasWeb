@@ -483,7 +483,7 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                     <PhoneInput
                         specialLabel=""
                         className="border outline-none bg-white"
-                        country={countryCode} // Set the default country
+                        country={"us"} // Set the default country
                         value={userPhoneNumber}
                         onChange={handlePhoneNumberChange}
                         placeholder={
@@ -512,7 +512,8 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                             maxHeight: "150px",
                             overflowY: "auto",
                         }}
-                        countryCodeEditable={true}
+                        countryCodeEditable={false}
+                        disableDropdown={true}
                         defaultMask={loading ? "Loading..." : undefined}
                     />
                 </div>
@@ -582,14 +583,16 @@ export default function CreateSubAccountModal({ isOpen, onClose }) {
                                     <div className='w-[90%] flex flex-row items-center'>
                                         <div className="w-full">
                                             <PhoneInput
-                                                country={countryCode}
+                                                country={"us"}
                                                 value={member.phone}
                                                 onChange={(value, countryData, e) => {
                                                     handleChange(index, 'phone', value);
                                                     // if (e?.type === 'input') {
-                                                    validateMemberPhone(index, value, countryCode);
+                                                    validateMemberPhone(index, value, "us");
                                                     // }
                                                 }}
+                                                countryCodeEditable={false}
+                                                disableDropdown={true}
                                                 specialLabel=""
                                                 inputStyle={{
                                                     width: "100%",

@@ -638,7 +638,7 @@ const MarketerAgentSignUp = ({
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-                  country={countryCode} // Set the default country
+                  country={"us"} // Set the default country
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
@@ -667,7 +667,8 @@ const MarketerAgentSignUp = ({
                     maxHeight: "150px",
                     overflowY: "auto",
                   }}
-                  countryCodeEditable={true}
+                  countryCodeEditable={false}
+                  disableDropdown={true}
                   defaultMask={loading ? "Loading..." : undefined}
                 />
               </div>
