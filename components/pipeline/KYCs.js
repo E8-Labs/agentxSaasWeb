@@ -8,8 +8,11 @@ import AddSellerKyc from "./AddSellerKyc";
 import AddBuyerKyc from "./AddBuyerKyc";
 import UserType from "../onboarding/UserType";
 import { UserTypes } from "@/constants/UserTypes";
+import VideoCard from "../createagent/VideoCard";
+import IntroVideoModal from "../createagent/IntroVideoModal";
+import { HowtoVideos } from "@/constants/Constants";
 
-const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
+const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [BuyerAnchor, setBuyerAnchor] = useState(null);
   const [kycsData, setKycsData] = useState([]);
@@ -53,6 +56,8 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
 
   //code for deleting the kycs
   const [DelKycLoader, setDelKycLoader] = useState(false);
+  //kycs guide video
+  const [introVideoModal, setIntroVideoModal] = useState(false);
 
   //popover code here
   const handleOpenPopover = (event, item) => {
@@ -95,7 +100,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
 
       if (mainAgentId) {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`;
-      
+
       } else {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
       }
@@ -785,7 +790,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
                 SellerMotivationData={SellerMotivationData}
                 SellerUrgencyData={SellerUrgencyData}
                 allKYCs={kycsData}
-                selectedUser = {selectedUser}
+                selectedUser={selectedUser}
               />
 
               {/* Can be use full to add shadow */}
@@ -1127,6 +1132,24 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
         </>
       )}
 
+      <IntroVideoModal
+        open={introVideoModal}
+        onClose={() => setIntroVideoModal(false)}
+        videoTitle="Learn about asking questions (KYC)"
+        videoUrl={HowtoVideos.KycQuestions}
+      />
+
+      <div className="w-full flex flex-row items-center justify-center mt-4">
+        <VideoCard
+          duration="1 min 38 sec"
+          horizontal={false}
+          playVideo={() => {
+            setIntroVideoModal(true);
+          }}
+          title="Learn about asking questions (KYC)"
+        />
+      </div>
+
       {/* Add modals code */}
       <Modal
         open={addBuyerKyc}
@@ -1181,7 +1204,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
                 BuyerMotivationData={BuyerMotivationData}
                 BuyerUrgencyData={BuyerUrgencyData}
                 mainAgentId={mainAgentId}
-                selectedUser = {selectedUser}
+                selectedUser={selectedUser}
                 hideTitle={true}
               />
 

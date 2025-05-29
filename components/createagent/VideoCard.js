@@ -10,9 +10,8 @@ const VideoCard = ({
 }) => {
   return (
     <div
-      className={`flex ${
-        horizontal ? "flex-row items-center" : "flex-col items-start"
-      } 
+      className={`flex ${horizontal ? "flex-row items-center" : "flex-col items-start"
+        } 
     p-4 rounded-lg border border-purple max-w-md cursor-pointer bg-white`}
       onClick={() => {
         playVideo();
@@ -45,6 +44,18 @@ const VideoCard = ({
         >
           {title}
         </h3>
+        <div className="flex flex-row items-center gap-2 p-1 bg-[#00000010] rounded-lg">
+          <Image
+            src={'/svgIcons/youtube.svg'}
+            height={20} width={20} alt="*"
+          />
+
+          <div style={{
+            fontSize: 12, fontWeight: 500, color: "black"
+          }}>
+            Show me how!
+          </div>
+        </div>
       </div>
     </div>
   );

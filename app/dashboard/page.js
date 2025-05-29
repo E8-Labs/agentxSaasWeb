@@ -18,6 +18,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const Page = () => {
   const router = useRouter();
@@ -235,6 +236,7 @@ const Page = () => {
         }}
       >
         <div className="w-10/12 ps-4 py-4">
+
           {/* Icon */}
 
           <div className="flex flex-row w-full items-center justify-between">
@@ -303,6 +305,15 @@ const Page = () => {
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
       {/* <div style={backgroundImage}></div> */}
+      {/* Slider code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider />
+      </div>
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
           <CircularProgress size={45} />
@@ -632,7 +643,7 @@ const Page = () => {
                     />
                   </div>
 
-                  <div className="w-full flex flex-row items-center justify-between mt-4">
+                  {/*<div className="w-full flex flex-row items-center justify-between mt-4">
                     <div
                       className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
                       style={{
@@ -746,7 +757,8 @@ const Page = () => {
                         {`Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals.`}
                       </div>
                     </div>
-                  </div>
+                      </div>*/}
+
                 </div>
               </div>
             </div>

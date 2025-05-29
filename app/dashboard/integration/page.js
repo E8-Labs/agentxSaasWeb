@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { Searchbar } from "@/components/general/MuiSearchBar";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 const allIntegrations = [
   {
     title: "Mailchimp",
@@ -366,6 +367,15 @@ function Page() {
         <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
         <div className="flex flex-col">
           <NotficationsDrawer />
+        </div>
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0
+          }}>
+          <DashboardSlider
+            needHelp={false} />
         </div>
       </div>
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>

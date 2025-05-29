@@ -22,6 +22,7 @@ import { formatPhoneNumber } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Page() {
   const timerRef = useRef(null);
@@ -100,7 +101,7 @@ function Page() {
     },
   ];
 
-  useEffect(() => {});
+  useEffect(() => { });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -496,6 +497,15 @@ function Page() {
         <div>
           <NotficationsDrawer />
         </div>
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0
+          }}>
+          <DashboardSlider
+            needHelp={false} />
+        </div>
       </div>
       <div
         className="flex h-[90vh] w-full justify-center overflow-auto pb-50"
@@ -576,11 +586,10 @@ function Page() {
                             {item.email}
                           </div>
                           <div
-                            className={`text-sm font-medium ${
-                              item.status === "Pending"
+                            className={`text-sm font-medium ${item.status === "Pending"
                                 ? "text-red-500"
                                 : "text-green-500"
-                            }`}
+                              }`}
                           >
                             {item.status}
                           </div>
@@ -886,7 +895,7 @@ function Page() {
                         overflowY: "auto",
                       }}
                       countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -902,10 +911,10 @@ function Page() {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                         ? "#00000020"
                         : "",
                   }}
@@ -932,10 +941,10 @@ function Page() {
                       fontWeight: "500",
                       color:
                         !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                          !email ||
+                          !phone ||
+                          emailCheckResponse?.status !== true ||
+                          checkPhoneResponse?.status !== true
                           ? "#000000"
                           : "#ffffff",
                     }}

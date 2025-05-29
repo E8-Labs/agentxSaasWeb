@@ -48,6 +48,7 @@ import { fromJSON } from "postcss";
 import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -1827,6 +1828,15 @@ const Userleads = ({
               </button>
               <div className="flex flex-col">
                 <NotficationsDrawer />
+              </div>
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  bottom: 0
+                }}>
+                <DashboardSlider
+                  needHelp={false} />
               </div>
             </div>
           </div>

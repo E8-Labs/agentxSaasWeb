@@ -14,7 +14,7 @@ import React, { useState } from "react";
 
 const Page = () => {
   const [index, setIndex] = useState(0);
-  let components = [AddCalender, Pipeline1, Pipeline2];
+  let components = [ Pipeline1, Pipeline2];//AddCalender,
 
   let CurrentComp = components[index];
 

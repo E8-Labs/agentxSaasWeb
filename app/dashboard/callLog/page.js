@@ -10,6 +10,7 @@ import axios from "axios";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { PersistanceKeys } from "@/constants/Constants";
 import LeadLoading from "@/components/dashboard/leads/LeadLoading";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Page() {
   // //console.log;
@@ -36,6 +37,15 @@ function Page() {
         <div>
           <NotficationsDrawer user={user} />
         </div>
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0
+          }}>
+          <DashboardSlider
+            needHelp={false} />
+        </div>
       </div>
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
@@ -43,11 +53,10 @@ function Page() {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`${
-              activeTab === tab
+            className={`${activeTab === tab
                 ? "text-purple border-b-2 border-purple outline-none"
                 : ""
-            }`}
+              }`}
             style={{ fontSize: 15, fontWeight: "500" }}
           >
             {tab}
