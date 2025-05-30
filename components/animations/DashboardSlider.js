@@ -104,7 +104,7 @@ const DashboardSlider = ({
                                     <div className="flex flex-row items-center justify-between">
                                         <div
                                             className="outline-none border-none flex flex-row items-center gap-2">
-                                            <img
+                                            <Image
                                                 src={"/agencyIcons/questionMark.jpg"}
                                                 alt="*"
                                                 height={20}
@@ -116,7 +116,7 @@ const DashboardSlider = ({
                                         <button
                                             className="border-none outline-none"
                                             onClick={handleClose}>
-                                            <img
+                                            <Image
                                                 src={"/assets/cross.png"}
                                                 alt="*"
                                                 width={15}
@@ -131,7 +131,7 @@ const DashboardSlider = ({
                                     </div>
                                     <div
                                         className="flex flex-row items-start gap-2 mt-4">
-                                        <img
+                                        <Image
                                             src={"/agencyIcons/suportPlaceholder.png"}
                                             alt="*"
                                             height={64}
@@ -148,9 +148,7 @@ const DashboardSlider = ({
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 if (typeof window !== "undefined") {
-                                                    let url = userDetails?.campaignee
-                                                        ? userDetails?.campaignee.officeHoursUrl
-                                                        : PersistanceKeys.GlobalWebinarUrl;
+                                                    let url = PersistanceKeys.SupportWebinarUrl;
                                                     //console.log
                                                     window.open(url, "_blank");
                                                 }
