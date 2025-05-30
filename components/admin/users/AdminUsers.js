@@ -183,7 +183,7 @@ function AdminUsers() {
             // style={styles.paragraph}
             className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
             placeholder="Search by name, email or phone"
-            readOnly={initialLoader}
+            readOnly={loading}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
