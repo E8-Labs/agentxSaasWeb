@@ -187,6 +187,7 @@ function AdminUsers() {
             className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
             placeholder="Search by name, email or phone"
             value={search}
+            readOnly = {loading}
             onChange={(e) => {
               setSearch(e.target.value);
               // Handle search input
