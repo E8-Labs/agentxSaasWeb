@@ -142,8 +142,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 7,
       title: "Recruiter Agentt",
       agentType: "Recruiter Agent",
-      icon: "/usertype/avt8.png",
-      // icon: "/agencyIcons/agentsView/realState.jpg",
+      // icon: "/usertype/avt8.png",
+      icon: "/agencyIcons/agentsView/website.jpg",
       areaOfFocusTitle: "What industries do you specialize in?",
       userType: "RecruiterAgent",
       roundedImage: false,
@@ -152,8 +152,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 8,
       title: "Tax Agent",
       agentType: "Tax Agent",
-      icon: "/usertype/avt9.png",
-      // icon: "/agencyIcons/agentsView/realState.jpg",
+      // icon: "/usertype/avt9.png",
+      icon: "/agencyIcons/agentsView/salesDev.jpg",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
       userType: "TaxAgent",
       roundedImage: false,
@@ -162,7 +162,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 9,
       title: "Debt Collector Agent",
       agentType: "Debt Collector Agent",
-      icon: "/usertype/debtcollectoragent.svg",
+      // icon: "/usertype/debtcollectoragent.svg",
+      icon: "/agencyIcons/agentsView/insurance.jpg",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
       userType: "DebtCollectorAgent",
       roundedImage: false,
@@ -181,7 +182,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 11,
       title: "Med Spa Agent",
       agentType: "Med Spa Agent",
-      icon: "/usertype/avt8.png",
+      // icon: "/usertype/avt8.png",
+      icon: "/agencyIcons/agentsView/marketer.jpg",
       areaOfFocusTitle: "What types of services do you primarily offer",
       userType: "MedSpaAgent",
       roundedImage: false,
@@ -190,7 +192,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 12,
       title: "Law Agent",
       agentType: "Law Agent",
-      icon: "/usertype/avt4.png",
+      // icon: "/usertype/avt4.png",
+      icon: "/agencyIcons/agentsView/solar.jpg",
       areaOfFocusTitle: "What area of law do you primarily practice?",
       userType: "LawAgent",
       roundedImage: false,
@@ -199,7 +202,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       id: 13,
       title: "Loan Officer Agent",
       agentType: "Loan Officer Agent",
-      icon: "/usertype/avt2.png",
+      // icon: "/usertype/avt2.png",
+      icon: "/agencyIcons/agentsView/realState.jpg",
       areaOfFocusTitle: "What type of loans do you primarily work with?",
       userType: "LoanOfficerAgent",
       roundedImage: false,
@@ -283,12 +287,14 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                       key={index}
                       className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
                     >
-                      <Image
-                        src={"/svgIcons/halfOrb.svg"}
-                        height={282}
-                        width={282}
-                        alt="*"
-                      />
+                      <div className="flex sm:flex hidden">
+                        <Image
+                          src={"/svgIcons/halfOrb.svg"}
+                          height={282}
+                          width={282}
+                          alt="*"
+                        />
+                      </div>
 
                       <div
                         style={{
@@ -300,12 +306,14 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                         More agents coming in the future
                       </div>
 
-                     {/* <Image
-                        src={"/svgIcons/blueThreeDots.svg"}
-                        height={9}
-                        width={37}
-                        alt="*"
-                      />*/}
+                      <div className="flex sm:flex hidden">
+                        <Image
+                          src={"/svgIcons/blueThreeDots.svg"}
+                          height={9}
+                          width={37}
+                          alt="*"
+                        />
+                      </div>
                     </div>
                   );
                 } else {
@@ -333,11 +341,11 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                           <img
                             src={item.icon}
                             style={{
-                              width: [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" : item.id === 1 ? "75%" : "60%",
+                              width: [1, 13].includes(item.id) ? "78%" : "60%",// [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" :  
                               transform: "scale(1.1)",
                               resize: "contain",
-                              borderRadius: item.roundedImage ? "50%" : "1%",
-                              // borderRadius: "50%"
+                              // borderRadius: item.roundedImage ? "50%" : "1%",
+                              borderRadius: "50%"
                             }}
                             alt="*"
                           />
