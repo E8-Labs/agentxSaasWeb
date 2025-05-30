@@ -340,7 +340,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                           <img
                             src={item.icon}
                             style={{
-                              width: [1, 13].includes(item.id) ? "78%" : "60%",// [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" :  
+                              width: [1, 13].includes(item.id) ? "68" : "50%",// [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" :  
                               transform: "scale(1.1)",
                               resize: "contain",
                               // borderRadius: item.roundedImage ? "50%" : "1%",
