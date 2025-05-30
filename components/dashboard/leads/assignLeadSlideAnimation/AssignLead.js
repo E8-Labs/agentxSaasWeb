@@ -49,7 +49,7 @@ const AssignLead = ({
   oldAgents
 
 }) => {
-  // //console.log;
+  // console.log("Selected agents passed are", selectedAgents);
   // console.log("leadIs length is:",leadIs.length)
   // console.log('selectedAll', selectedAll)
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
