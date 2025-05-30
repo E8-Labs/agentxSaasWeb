@@ -347,6 +347,18 @@ function AdminAgentX({ selectedUser, from }) {
     setAudio(ad); // Play the audio
   };
 
+   //refill the test ai popup input fields
+  useEffect(() => {
+    let d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
+    //console.log;
+    if (d) {
+      let cr = JSON.parse(d);
+      //console.log;
+      setName(cr?.name);
+      setPhone(cr?.phone);
+    }
+  }, [openTestAiModal]);
+
   useEffect(() => {
     const updateAgentManueList = () => {
       if (showDrawerSelectedAgent?.agentType === "outbound") {
@@ -1615,6 +1627,9 @@ function AdminAgentX({ selectedUser, from }) {
 
       if (response) {
         ////console.log;
+
+      localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
+
         setShowSuccessSnack(response.data.message);
         setIsVisibleSnack(true);
         if (response.data.status === true) {
