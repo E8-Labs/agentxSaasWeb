@@ -394,7 +394,7 @@ function Page() {
   }, [showDrawerSelectedAgent]);
 
   useEffect(() => {
-    let d = localStorage.getItem("TestAiCredentials");
+    let d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
     //console.log;
     if (d) {
       let cr = JSON.parse(d);
@@ -1822,7 +1822,7 @@ function Page() {
         extraColumns: newArray,
       };
 
-      localStorage.setItem("TestAiCredentials", JSON.stringify(ApiData));
+      localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
 
       const ApiPath = Apis.testAI;
 
