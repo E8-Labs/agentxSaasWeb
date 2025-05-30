@@ -147,10 +147,8 @@ const DashboardSlider = ({
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 if (typeof window !== "undefined") {
-                                                    let url = userDetails?.campaignee
-                                                        ? userDetails?.campaignee.officeHoursUrl
-                                                        : PersistanceKeys.GlobalWebinarUrl;
                                                     //console.log
+                                                    let url = PersistanceKeys.SupportWebinarUrl;
                                                     window.open(url, "_blank");
                                                 }
                                             }}>

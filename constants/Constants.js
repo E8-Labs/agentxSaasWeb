@@ -9,7 +9,7 @@ export const PersistanceKeys = {
   LocalStoragePipelines: "LocalStoragePipelines",
   RegisterDetails: "registerDetails",
   LocalStoredAgentsListMain: "localAgentDetails",
-  TestAiCredentials:"TestAiCredentials",
+  TestAiCredentials: "TestAiCredentials",
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   GlobalConsultationUrl:
@@ -18,6 +18,8 @@ export const PersistanceKeys = {
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   ExternalCalendarLink:
     "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
+  SupportWebinarUrl:
+    "https://api.leadconnectorhq.com/widget/bookings/noah-support-webinar"
   // LocalStoredAgentsList
 };
 export const HowtoVideos = {
