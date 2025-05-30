@@ -1514,7 +1514,9 @@ const Userleads = ({
     setSnackMessage(showSnack);
     if (disSelectLeads === true) {
       setSelectedLeadsList([]);
-      setShowSnackMessage(true);
+      if(showSnack){
+        setShowSnackMessage(true);
+      }
       setSelectedAll(false);
       setMessageType(SnackbarTypes.Success);
     } else if (disSelectLeads === false) {

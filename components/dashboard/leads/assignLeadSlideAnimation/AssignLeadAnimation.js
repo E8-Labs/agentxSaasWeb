@@ -319,8 +319,14 @@ export default function AssignLeadAnimation({
                                 <div className="">
                                     <AssignLead
                                         selectedLead={selectedLead}
-                                        handleCloseAssignLeadModal={
-                                            handleClose //(false, showSnack, disSelectLeads)
+                                        handleCloseAssignLeadModal={() => {
+                                            handleClose({
+                                                status: false,
+                                                showSnack: "",
+                                                disSelectLeads: true,
+                                            }); //(false, showSnack, disSelectLeads)
+                                            resetValues();
+                                        }
                                         }
                                         leadIs={leadIs}
                                         selectedAll={selectedAll}
