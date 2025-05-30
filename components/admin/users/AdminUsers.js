@@ -32,7 +32,7 @@ function AdminUsers() {
 
   const [selectedSort, setSelectedSort] = useState(null);
   const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
-  const [initialLoader,setInitialLoader] = useState(true)
+  const [initialLoader, setInitialLoader] = useState(true)
 
   const LimitPerLoad = 30;
 
@@ -183,7 +183,7 @@ function AdminUsers() {
             // style={styles.paragraph}
             className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
             placeholder="Search by name, email or phone"
-            readOnly = {!initialLoader}
+            readOnly={initialLoader}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -220,296 +220,302 @@ function AdminUsers() {
         className="h-[90svh] border overflow-auto pb-[100px] w-full"
         style={{ scrollbarWidth: "none" }}
       >
-        <InfiniteScroll
-          className="flex flex-col w-full"
-          endMessage={
-            <p
-              style={{
-                textAlign: "center",
-                paddingTop: "10px",
-                fontWeight: "400",
-                fontFamily: "inter",
-                fontSize: 16,
-                color: "#00000060",
-              }}
-            >
-              {`You're all caught up`}
-            </p>
-          }
-          scrollableTarget="scrollableDiv1"
-          dataLength={users.length}
-          next={() => {
-            //console.log;
-            let sortData = {
-              sort: selectedSort,
-              sortOrder: selectedSortOrder,
-            };
-
-            getUsersList(users.length, filters, sortData);
-          }}
-          hasMore={hasMore}
-          loader={
-            <div className="w-full flex flex-row justify-center mt-8">
-              {loading && hasMore && (
-                <CircularProgress size={35} sx={{ color: "#7902DF" }} />
-              )}
-            </div>
-          }
-          style={{ overflow: "unset" }}
-        >
-          <div className="h-[90svh] w-full overflow-auto pb-[100px]" id="scrollableDiv1">
-            <table className="table-auto w-full border-collapse border border-none">
-              {/* Table Header */}
-              <thead className="w-full" style={{
-                overflowX: 'auto',
-                position: "sticky",
-                top: 0,
-                background: "white",
-                zIndex: 10,
-              }}>
-                <tr className="bg-gray-100 text-sm font-semibold text-gray-600 ">
-                  <th className="px-4 py-2 text-left">Name</th>
-                  <th className="px-4 py-2 text-left">Email</th>
-                  <th className=" py-2 text-left w-[110px] flex flex-row gap-2">
-                    <button className=""
-                      onClick={() => {
-
-                        let sortOrder = selectedSortOrder;
-                        if (selectedSort == "Leads") {
-                          sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-                        }
-
-                        setSelectedSortOrder(sortOrder);
-
-                        sortData = {
-                          sort: "Leads",
-                          sortOrder: sortOrder,
-                        };
-                        setSelectedSort("Leads");
-                        getUsersList(0, filters, sortData);
-                      }}
-                    >
-                      Leads
-                      {selectedSort === "Leads" ? (
-                        <Image
-                          src={
-                            selectedSortOrder == "DESC"
-                              ? "/downArrow.png"
-                              : "/upArrow.png"
-                          }
-                          height={3}
-                          width={10}
-                          className="inline-block align-middle"
-                          alt="*"
-                        />
-                      ) : null}
-                    </button>
-                  </th>
-                  <th className="px-4 py-2 text-left">Plan</th>
-                  <th className="px-4 py-2 text-left w-[100px]">Teams</th>
-                  <th className=" py-2 text-left flex flex-row  w-[100px]">
-                    <button className=""
-                      onClick={() => {
-                        let sortOrder = selectedSortOrder;
-                        if (selectedSort == "TotalSpent") {
-                          sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-                        }
-                        setSelectedSortOrder(sortOrder);
-                        sortData = {
-                          sort: "TotalSpent",
-                          sortOrder: sortOrder,
-                        };
-                        setSelectedSort("TotalSpent");
-                        getUsersList(0, filters, sortData);
-                      }}
-                    >
-                      Total Spents
-                      {selectedSort === "TotalSpent" && (
-                        <Image
-                          src={
-                            selectedSortOrder == "DESC"
-                              ? "/downArrow.png"
-                              : "/upArrow.png"
-                          }
-                          height={3}
-                          width={12}
-                          className="inline-block align-middle"
-                          alt="*"
-                        />
-                      )}
-                    </button>
-                  </th>
-                  <th className=" py-2 text-left w-[100px]">
-                    <button className="whitespace-nowrap"
-                      onClick={() => {
-                        let sortOrder = selectedSortOrder;
-                        if (selectedSort == "MinutesUsed") {
-                          sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-                        }
-                        setSelectedSortOrder(sortOrder);
-                        sortData = {
-                          sort: "MinutesUsed",
-                          sortOrder: sortOrder,
-                        };
-                        getUsersList(0, filters, sortData);
-                        setSelectedSort("MinutesUsed");
-                      }}
-                    >
-                      Mins Used
-                      {selectedSort === "MinutesUsed" && (
-                        <Image
-                          src={
-                            selectedSortOrder == "DESC"
-                              ? "/downArrow.png"
-                              : "/upArrow.png"
-                          }
-                          height={3}
-                          width={12}
-                          className="inline-block align-middle"
-                          alt="*"
-                        />
-                      )}
-                    </button>
-                  </th>
-                  <th className=" py-2 text-left  w-[150px]">
-                    <button className="whitespace-nowrap"
-                      onClick={() => {
-                        let sortOrder = selectedSortOrder;
-                        if (selectedSort == "MinutesBalance") {
-                          sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-                        }
-                        setSelectedSortOrder(sortOrder);
-                        sortData = {
-                          sort: "MinutesBalance",
-                          sortOrder: sortOrder,
-                        };
-                        setSelectedSort("MinutesBalance");
-
-                        getUsersList(0, filters, sortData);
-                      }}
-                    >
-                      Balance
-                      {selectedSort === "MinutesBalance" && (
-                        <Image
-                          src={
-                            selectedSortOrder == "DESC"
-                              ? "/downArrow.png"
-                              : "/upArrow.png"
-                          }
-                          height={3}
-                          width={12}
-                          className="inline-block align-middle"
-                          alt="*"
-                        />
-                      )}
-                    </button>
-                  </th>
-                  <th className=" py-2 text-left  w-[150px]">
-                    <button className="whitespace-nowrap"
-                      onClick={() => {
-
-                        let sortOrder = selectedSortOrder;
-                        if (selectedSort == "Renewal") {
-                          sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
-                        }
-
-                        setSelectedSortOrder(sortOrder);
-
-                        sortData = {
-                          sort: "Renewal",
-                          sortOrder: sortOrder,
-                        };
-                        setSelectedSort("Renewal");
-                        getUsersList(0, filters, sortData);
-                      }}>
-                      Renewal
-                      {selectedSort === "Renewal" ? (
-                        <Image
-                          src={
-                            selectedSortOrder == "DESC"
-                              ? "/downArrow.png"
-                              : "/upArrow.png"
-                          }
-                          height={3}
-                          width={10}
-                          className="inline-block align-middle"
-                          alt="*"
-                        />
-                      ) : null
-                      }
-                    </button>
-                  </th>
-                  <th className="px-4 py-2 text-left w-[150px]">Agents</th>
-                  <th className="px-4 py-2 text-left w-[150px]">Referred</th>
-                  <th className="px-4 py-2 text-left w-[150px]">Closer</th>
-                  <th className="px-4 py-2 text-left w-[150px]">Source</th>
-                  <th className="px-4 py-2 text-left w-[150px]">Created</th>
-                </tr>
-              </thead>
-
-              {/* Table Body */}
-              <tbody>
-                {users.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
-                      }`}
-                    onClick={() => {
-                      //console.log;
-                      setSelectedUser(item);
-                      // setShowUserDetails(true)
-                    }}
-                  >
-                    <td className="px-4 py-2">
-                      <div className="flex items-center gap-3">
-                        {item.thumb_profile_image ? (
-                          <Image
-                            src={item.thumb_profile_image}
-                            height={40}
-                            width={40}
-                            className="rounded-full object-cover"
-                            style={{ minWidth: "40px", minHeight: "40px" }} // Ensures consistency
-                            alt="User"
-                          />
-                        ) : (
-                          <div
-                            className="w-[40px] h-[40px] rounded-full bg-black flex items-center justify-center text-white text-lg font-meduim uppercase"
-                            style={{ minWidth: "40px", minHeight: "40px" }}
-                          >
-                            {item.name?.charAt(0) || "U"}
-                          </div>
-                        )}
-                        <span className="whitespace-nowrap">{item.name}</span>
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-2">{item.email}</td>
-                    <td className="px-4 py-2">{item.leads || "0"}</td>
-                    <td className="px-4 py-2">{item.plan || "-"}</td>
-                    <td className="px-4 py-2">{item.team || "-"}</td>
-                    <td className="px-4 py-2  ">${item.totalSpent || "0"}</td>
-                    <td className="px-4 py-2 w-[100px] whitespace-nowrap">
-                      {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} mins
-                    </td>
-                    <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
-                      {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}mins
-                    </td>
-                    <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
-                      {GetFormattedDateString(item.nextChargeDate)}
-                    </td>
-                    <td className="px-4 py-2">{item.agents || "-"}</td>
-                    <td className="px-4 py-2">{item.campaignee || "-"}</td>
-                    <td className="px-4 py-2">{item.closerName || "-"}</td>
-                    <td className="px-4 py-2">{item.uniqueUrl || "-"}</td>
-                    <td className="px-4 py-2">
-                      {GetFormattedDateString(item.createdAt)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {users.length === 0 && loading ? (
+          <div className="w-full flex flex-row justify-center my-2">
+            <CircularProgress size={50} sx={{ color: "#7902DF" }} />
           </div>
-        </InfiniteScroll>
+        ) :
+          <InfiniteScroll
+            className="flex flex-col w-full"
+            endMessage={
+              <p
+                style={{
+                  textAlign: "center",
+                  paddingTop: "10px",
+                  fontWeight: "400",
+                  fontFamily: "inter",
+                  fontSize: 16,
+                  color: "#00000060",
+                }}
+              >
+                {`You're all caught up`}
+              </p>
+            }
+            scrollableTarget="scrollableDiv1"
+            dataLength={users.length}
+            next={() => {
+              //console.log;
+              let sortData = {
+                sort: selectedSort,
+                sortOrder: selectedSortOrder,
+              };
+
+              getUsersList(users.length, filters, sortData);
+            }}
+            hasMore={hasMore}
+            loader={
+              <div className="w-full flex flex-row justify-center mt-8">
+                {loading && hasMore && (
+                  <CircularProgress size={35} sx={{ color: "#7902DF" }} />
+                )}
+              </div>
+            }
+            style={{ overflow: "unset" }}
+          >
+            <div className="h-[90svh] w-full overflow-auto pb-[100px]" id="scrollableDiv1">
+              <table className="table-auto w-full border-collapse border border-none">
+                {/* Table Header */}
+                <thead className="w-full" style={{
+                  overflowX: 'auto',
+                  position: "sticky",
+                  top: 0,
+                  background: "white",
+                  zIndex: 10,
+                }}>
+                  <tr className="bg-gray-100 text-sm font-semibold text-gray-600 ">
+                    <th className="px-4 py-2 text-left">Name</th>
+                    <th className="px-4 py-2 text-left">Email</th>
+                    <th className=" py-2 text-left w-[110px] flex flex-row gap-2">
+                      <button className=""
+                        onClick={() => {
+
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "Leads") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+
+                          setSelectedSortOrder(sortOrder);
+
+                          sortData = {
+                            sort: "Leads",
+                            sortOrder: sortOrder,
+                          };
+                          setSelectedSort("Leads");
+                          getUsersList(0, filters, sortData);
+                        }}
+                      >
+                        Leads
+                        {selectedSort === "Leads" ? (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={10}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        ) : null}
+                      </button>
+                    </th>
+                    <th className="px-4 py-2 text-left">Plan</th>
+                    <th className="px-4 py-2 text-left w-[100px]">Teams</th>
+                    <th className=" py-2 text-left flex flex-row  w-[100px]">
+                      <button className=""
+                        onClick={() => {
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "TotalSpent") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+                          setSelectedSortOrder(sortOrder);
+                          sortData = {
+                            sort: "TotalSpent",
+                            sortOrder: sortOrder,
+                          };
+                          setSelectedSort("TotalSpent");
+                          getUsersList(0, filters, sortData);
+                        }}
+                      >
+                        Total Spents
+                        {selectedSort === "TotalSpent" && (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={12}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        )}
+                      </button>
+                    </th>
+                    <th className=" py-2 text-left w-[100px]">
+                      <button className="whitespace-nowrap"
+                        onClick={() => {
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "MinutesUsed") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+                          setSelectedSortOrder(sortOrder);
+                          sortData = {
+                            sort: "MinutesUsed",
+                            sortOrder: sortOrder,
+                          };
+                          getUsersList(0, filters, sortData);
+                          setSelectedSort("MinutesUsed");
+                        }}
+                      >
+                        Mins Used
+                        {selectedSort === "MinutesUsed" && (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={12}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        )}
+                      </button>
+                    </th>
+                    <th className=" py-2 text-left  w-[150px]">
+                      <button className="whitespace-nowrap"
+                        onClick={() => {
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "MinutesBalance") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+                          setSelectedSortOrder(sortOrder);
+                          sortData = {
+                            sort: "MinutesBalance",
+                            sortOrder: sortOrder,
+                          };
+                          setSelectedSort("MinutesBalance");
+
+                          getUsersList(0, filters, sortData);
+                        }}
+                      >
+                        Balance
+                        {selectedSort === "MinutesBalance" && (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={12}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        )}
+                      </button>
+                    </th>
+                    <th className=" py-2 text-left  w-[150px]">
+                      <button className="whitespace-nowrap"
+                        onClick={() => {
+
+                          let sortOrder = selectedSortOrder;
+                          if (selectedSort == "Renewal") {
+                            sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+                          }
+
+                          setSelectedSortOrder(sortOrder);
+
+                          sortData = {
+                            sort: "Renewal",
+                            sortOrder: sortOrder,
+                          };
+                          setSelectedSort("Renewal");
+                          getUsersList(0, filters, sortData);
+                        }}>
+                        Renewal
+                        {selectedSort === "Renewal" ? (
+                          <Image
+                            src={
+                              selectedSortOrder == "DESC"
+                                ? "/downArrow.png"
+                                : "/upArrow.png"
+                            }
+                            height={3}
+                            width={10}
+                            className="inline-block align-middle"
+                            alt="*"
+                          />
+                        ) : null
+                        }
+                      </button>
+                    </th>
+                    <th className="px-4 py-2 text-left w-[150px]">Agents</th>
+                    <th className="px-4 py-2 text-left w-[150px]">Referred</th>
+                    <th className="px-4 py-2 text-left w-[150px]">Closer</th>
+                    <th className="px-4 py-2 text-left w-[150px]">Source</th>
+                    <th className="px-4 py-2 text-left w-[150px]">Created</th>
+                  </tr>
+                </thead>
+
+                {/* Table Body */}
+                <tbody>
+                  {users.map((item, index) => (
+                    <tr
+                      key={index}
+                      className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
+                        }`}
+                      onClick={() => {
+                        //console.log;
+                        setSelectedUser(item);
+                        // setShowUserDetails(true)
+                      }}
+                    >
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-3">
+                          {item.thumb_profile_image ? (
+                            <Image
+                              src={item.thumb_profile_image}
+                              height={40}
+                              width={40}
+                              className="rounded-full object-cover"
+                              style={{ minWidth: "40px", minHeight: "40px" }} // Ensures consistency
+                              alt="User"
+                            />
+                          ) : (
+                            <div
+                              className="w-[40px] h-[40px] rounded-full bg-black flex items-center justify-center text-white text-lg font-meduim uppercase"
+                              style={{ minWidth: "40px", minHeight: "40px" }}
+                            >
+                              {item.name?.charAt(0) || "U"}
+                            </div>
+                          )}
+                          <span className="whitespace-nowrap">{item.name}</span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-2">{item.email}</td>
+                      <td className="px-4 py-2">{item.leads || "0"}</td>
+                      <td className="px-4 py-2">{item.plan || "-"}</td>
+                      <td className="px-4 py-2">{item.team || "-"}</td>
+                      <td className="px-4 py-2  ">${item.totalSpent || "0"}</td>
+                      <td className="px-4 py-2 w-[100px] whitespace-nowrap">
+                        {parseFloat((item.minutesUsed || 0) / 60).toFixed(2)} mins
+                      </td>
+                      <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
+                        {parseFloat((item.totalSecondsAvailable / 60).toFixed(2))}{" "}mins
+                      </td>
+                      <td className="px-4 py-2 w-[100px]  whitespace-nowrap">
+                        {GetFormattedDateString(item.nextChargeDate)}
+                      </td>
+                      <td className="px-4 py-2">{item.agents || "-"}</td>
+                      <td className="px-4 py-2">{item.campaignee || "-"}</td>
+                      <td className="px-4 py-2">{item.closerName || "-"}</td>
+                      <td className="px-4 py-2">{item.uniqueUrl || "-"}</td>
+                      <td className="px-4 py-2">
+                        {GetFormattedDateString(item.createdAt)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </InfiniteScroll>
+        }
       </div>
       {/* {selectedUser && (
         <SelectedUserDetails
