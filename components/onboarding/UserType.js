@@ -143,7 +143,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Recruiter Agentt",
       agentType: "Recruiter Agent",
       // icon: "/usertype/avt8.png",
-      icon: "/agencyIcons/agentsView/website.jpg",
+      icon: "/agencyIcons/agentsView/recruiter.jpg",
       areaOfFocusTitle: "What industries do you specialize in?",
       userType: "RecruiterAgent",
       roundedImage: false,
@@ -153,7 +153,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Tax Agent",
       agentType: "Tax Agent",
       // icon: "/usertype/avt9.png",
-      icon: "/agencyIcons/agentsView/salesDev.jpg",
+      icon: "/agencyIcons/agentsView/tax.jpg",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
       userType: "TaxAgent",
       roundedImage: false,
@@ -163,7 +163,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Debt Collector Agent",
       agentType: "Debt Collector Agent",
       // icon: "/usertype/debtcollectoragent.svg",
-      icon: "/agencyIcons/agentsView/insurance.jpg",
+      icon: "/agencyIcons/agentsView/debt.jpg",
       areaOfFocusTitle: "What type of clients do you primarily serve?",
       userType: "DebtCollectorAgent",
       roundedImage: false,
@@ -183,7 +183,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Med Spa Agent",
       agentType: "Med Spa Agent",
       // icon: "/usertype/avt8.png",
-      icon: "/agencyIcons/agentsView/marketer.jpg",
+      icon: "/agencyIcons/agentsView/medspa.jpg",
       areaOfFocusTitle: "What types of services do you primarily offer",
       userType: "MedSpaAgent",
       roundedImage: false,
@@ -193,7 +193,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Law Agent",
       agentType: "Law Agent",
       // icon: "/usertype/avt4.png",
-      icon: "/agencyIcons/agentsView/solar.jpg",
+      icon: "/agencyIcons/agentsView/law.jpg",
       areaOfFocusTitle: "What area of law do you primarily practice?",
       userType: "LawAgent",
       roundedImage: false,
@@ -203,7 +203,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       title: "Loan Officer Agent",
       agentType: "Loan Officer Agent",
       // icon: "/usertype/avt2.png",
-      icon: "/agencyIcons/agentsView/realState.jpg",
+      icon: "/agencyIcons/agentsView/loan.jpg",
       areaOfFocusTitle: "What type of loans do you primarily work with?",
       userType: "LoanOfficerAgent",
       roundedImage: false,
@@ -340,7 +340,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                           <img
                             src={item.icon}
                             style={{
-                              width: [1, 13].includes(item.id) ? "68" : "50%",// [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" :  
+                              width: item.id === 1 ? "66%" : "50%",// [6, 7, 8, 9, 11, 12, 13].includes(item.id) ? "100%" :  
                               transform: "scale(1.1)",
                               resize: "contain",
                               // borderRadius: item.roundedImage ? "50%" : "1%",
