@@ -23,6 +23,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
+import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -70,6 +71,10 @@ function Billing() {
 
   //smart refill variables
   const [allowSmartRefill, setAllowSmartRefill] = useState(false);
+
+  //confirmation popup for update plan
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -1053,12 +1058,32 @@ function Billing() {
                     togglePlan === currentPlan ? "#00000020" : "#7902DF",
                   color: togglePlan === currentPlan ? "#000000" : "#ffffff",
                 }}
-                onClick={handleSubscribePlan}
+                // onClick={handleSubscribePlan}
+                onClick={() => {
+                  setShowConfirmationModal(true);
+                }}
               >
                 Continue
               </button>
             )}
           </div>
+
+          {/* Code for Confirmation poup */}
+          {
+            showConfirmationModal && (
+              <UpgradePlanConfirmation
+                plan={togglePlan}
+                open={showConfirmationModal}
+                onClose={() => {
+                  setShowConfirmationModal(false);
+                }}
+                onConfirm={() => {
+                  handleSubscribePlan();
+                  setTimeout(() => setShowConfirmationModal(false), 0);
+                }}
+              />
+            )
+          }
 
           {/* {togglePlan === currentPlan && (
             <button

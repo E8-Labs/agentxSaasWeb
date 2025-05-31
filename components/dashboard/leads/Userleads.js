@@ -2024,7 +2024,7 @@ const Userleads = ({
                   </div>
                 </div>
 
-                <div className="flex flex-row items-center gap-2 w-[15%]">
+                <div className="flex flex-row items-center gap-2">
                   {selectedLeadsList.length >= 0 && (
                     <div>
                       {selectedAll ? (
@@ -2064,7 +2064,8 @@ const Userleads = ({
                             onClick={() => {
                               //if select all then in the selectedLeads, we include the leads that are excluded
                               //if selected all is false then in selected Leads we include the included leads
-                              setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id));
+                              setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id)); 
+                              //LeadsList.map((item) => item.id)
                               setSelectedAll(true);
                             }}
                           ></button>
