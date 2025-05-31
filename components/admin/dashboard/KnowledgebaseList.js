@@ -43,7 +43,7 @@ const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
   );
 };
 
-const KBCard = ({ kb, onDelete ,isLoading}) => {
+const KBCard = ({ kb, onDelete, isLoading }) => {
   return (
     <div className="p-4 border rounded-lg shadow-sm bg-white relative ">
       <div className="flex justify-between items-center mb-2">
@@ -97,24 +97,28 @@ const UrlCard = ({ kb }) => {
 
 const YoutubeCard = ({ kb }) => {
   return (
-    <a
+    <button
+      onClick={() => {
+        let url = kb.webUrl.trim();
+        // Prepend https:// if not already present
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+          url = "https://" + url;
+        }
+
+        console.log("Web url link is", url);
+        window.open(url, "_blank");
+      }}
+      className="text-purple underline border-none outline-none text-start"
       style={{
         flexWrap: "wrap",
         width: "100%",
-        // borderWidth: 1,
-        wordBreak: "break-word", // Breaks long words if needed
-        overflowWrap: "break-word", // Ensures text wraps properly
-        whiteSpace: "normal", // Allows text to wrap
+        wordBreak: "break-word",
+        overflowWrap: "break-word",
+        whiteSpace: "normal",
       }}
-      href={kb.webUrl.trim()}
-      onClick={() => {
-        console.log("Web url link is", kb.webUrl);
-      }}
-      target="_blank"
-      className="text-purple underline"
     >
-      {kb.webUrl}
-    </a>
+      {kb.webUrl.trim()}
+    </button>
   );
 };
 

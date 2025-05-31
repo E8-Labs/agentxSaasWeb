@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
+import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -68,8 +69,11 @@ function Billing() {
     useState(false);
 
   const [allowSmartRefill, setAllowSmartRefill] = useState(false);
-    const [userDataLoader, setUserDataLoader] = useState(false);
-  
+  const [userDataLoader, setUserDataLoader] = useState(false);
+
+  //confirmation popup for update plan
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
 
 
   useEffect(() => {
@@ -648,27 +652,27 @@ function Billing() {
   };
 
 
-    //function to remove smart refill
-    const handleRemoveSmartRefill = async () => {
-      try {
-        setUserDataLoader(true);
-        const response = await RemoveSmartRefillApi();
-        if (response) {
-          setUserDataLoader(false);
-          console.log("Response of remove smart refill api is", response);
-          if (response.data.status === true) {
-            setSuccessSnack(response.data.message);
-            setAllowSmartRefill(false);
-          } else if (response.data.status === false) {
-            setErrorSnack(response.data.message)
-          }
-        }
-      } catch (error) {
-        console.error("Error occured in api is", error);
+  //function to remove smart refill
+  const handleRemoveSmartRefill = async () => {
+    try {
+      setUserDataLoader(true);
+      const response = await RemoveSmartRefillApi();
+      if (response) {
         setUserDataLoader(false);
+        console.log("Response of remove smart refill api is", response);
+        if (response.data.status === true) {
+          setSuccessSnack(response.data.message);
+          setAllowSmartRefill(false);
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message)
+        }
       }
+    } catch (error) {
+      console.error("Error occured in api is", error);
+      setUserDataLoader(false);
     }
-  
+  }
+
 
   return (
     <div
@@ -855,7 +859,7 @@ function Billing() {
         )}
       </div>
 
-       <SmartRefillCard />
+      <SmartRefillCard />
 
       {/* code for current plans available */}
 
@@ -1034,12 +1038,32 @@ function Billing() {
                     togglePlan === currentPlan ? "#00000020" : "#7902DF",
                   color: togglePlan === currentPlan ? "#000000" : "#ffffff",
                 }}
-                onClick={handleSubscribePlan}
+                // onClick={handleSubscribePlan}
+                onClick={() => {
+                  setShowConfirmationModal(true);
+                }}
               >
                 Continue
               </button>
             )}
           </div>
+
+          {/* Code for Confirmation poup */}
+          {
+            showConfirmationModal && (
+              <UpgradePlanConfirmation
+                plan={togglePlan}
+                open={showConfirmationModal}
+                onClose={() => {
+                  setShowConfirmationModal(false);
+                }}
+                onConfirm={() => {
+                  handleSubscribePlan();
+                  setTimeout(() => setShowConfirmationModal(false), 0);
+                }}
+              />
+            )
+          }
 
           {/* {togglePlan === currentPlan && (
             <button

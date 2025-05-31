@@ -813,7 +813,8 @@ const LastStep = ({
                     //   }
                     // }
                     const lastStepData = {
-                      numberOfLeads: NoOfLeadsToSend,
+                      // numberOfLeads: NoOfLeadsToSend,
+                      numberOfLeads: getLeadSelectedCount(),
                       cutomLeads: customLeadsToSend,
                       selectedDate: selectedDateTime,
                       DncChecked: isDncChecked,
