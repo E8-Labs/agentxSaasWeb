@@ -177,8 +177,8 @@ export default function AssignLeadAnimation({
                 dncCheck: isDncChecked ? true : false,
             };
 
-            console.log("Data sending in api is", Apidata);
-            return;
+            // console.log("Data sending in api is", Apidata);
+            // return;
             if (filters && selectedAll) {
                 Apidata = {
                     pipelineId: SelectedAgents[0].pipeline.id,
