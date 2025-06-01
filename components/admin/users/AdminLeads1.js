@@ -94,6 +94,11 @@ const AdminLeads1 = ({ selectedUser }) => {
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
   let [NewColumnsObtained, setNewColumnsObtained] = useState([]);
+
+  useEffect(() => {
+    console.log("New columns values", NewColumnsObtained);
+  }, [NewColumnsObtained]);
+
   //This will have the default columns only
   let defaultColumns = {
     firstName: {
@@ -247,6 +252,10 @@ const AdminLeads1 = ({ selectedUser }) => {
       dbName: "address",
     },
   ];
+
+  useEffect(() => {
+    console.log("Mapping list added is", NewColumnsObtained);
+  }, [NewColumnsObtained])
 
   //function to scroll to the bottom when add new column
   useEffect(() => {
@@ -585,6 +594,211 @@ const AdminLeads1 = ({ selectedUser }) => {
       .replace(/[\s\-]/g, "_")
       .replace(/[^\w]/g, "");
 
+  // const handleFileUpload = useCallback(
+  //   (file) => {
+  //     const reader = new FileReader();
+  //     const isCSV = file.name.toLowerCase().endsWith(".csv");
+  //     reader.onload = (event) => {
+  //       const binaryStr = event.target.result;
+  //       // const workbook = XLSX.read(binaryStr, { type: "binary" });
+
+  //       const workbook = XLSX.read(binaryStr, {
+  //         type: "binary",
+  //         cellDates: false,
+  //         cellText: true, // important
+  //         raw: true, // VERY important for CSVs
+  //       });
+
+  //       // Extract data from the first sheet
+  //       const sheetName = workbook.SheetNames[0];
+  //       const sheet = workbook.Sheets[sheetName];
+  //       // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
+  //       const data = XLSX.utils.sheet_to_json(sheet, {
+  //         header: 1,
+  //         raw: isCSV, // This forces Excel dates to be converted to readable format
+  //       });
+  //       if (data.length > 1) {
+  //         const headers = data[0]; // First row as headers
+  //         const rows = data.slice(1); // Data without headers
+
+  //         let mappedColumns = headers.map((header) => {
+  //           // Find matching column from LeadDefaultColumns
+  //           let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+  //             LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+  //           );
+
+  //           return {
+  //             ColumnNameInSheet: header, // Original header from the file
+  //             matchedColumn: matchedColumnKey
+  //               ? { ...LeadDefaultColumns[matchedColumnKey] }
+  //               : null, // Default column if matched
+  //             UserFacingName: null, // Can be updated manually by user
+  //           };
+  //         });
+
+  //         // Transform rows based on the new column mapping
+  //         const transformedData = rows.map((row) => {
+  //           let transformedRow = {};
+  //           // //console.log;
+
+  //           mappedColumns.forEach((col, index) => {
+  //             transformedRow[col.ColumnNameInSheet] = row[index] || null;
+  //             // if (col.matchedColumn) {
+  //             //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
+  //             // } else {
+  //             //   // Handle extra/unmatched columns
+  //             //   if (!transformedRow.extraColumns)
+  //             //     transformedRow.extraColumns = {};
+  //             //   transformedRow.extraColumns[col.ColumnNameInSheet] =
+  //             //     row[index] || null;
+  //             // }
+  //           });
+  //           //console.log;
+
+  //           return transformedRow;
+  //         });
+
+  //         console.log("Check 1 clear");
+
+  //         // Update state
+  //         setProcessedData(transformedData);
+  //         setNewColumnsObtained(mappedColumns); // Store the column mappings
+  //         console.log("Check 2 clear");
+
+  //         //console.log;
+  //         //console.log;
+  //       }
+  //       console.log("Check 3 clear");
+  //     };
+  //     console.log("Check 4 clear");
+
+  //     reader.readAsBinaryString(file);
+  //     console.log("Check 5 clear");
+  //   },
+  //   [LeadDefaultColumns]
+  // );
+  //csv file code ends
+
+  //restrict user to only edit name of csv file
+
+  // const handleFileUpload = useCallback(
+  //   (file) => {
+  //     const reader = new FileReader();
+  //     const isCSV = file.name.toLowerCase().endsWith(".csv");
+  //     reader.onload = (event) => {
+  //       const binaryStr = event.target.result;
+  //       // const workbook = XLSX.read(binaryStr, { type: "binary" });
+
+  //       const workbook = XLSX.read(binaryStr, {
+  //         type: "binary",
+  //         cellDates: false,
+  //         cellText: true, // important
+  //         raw: true, // VERY important for CSVs
+  //       });
+
+  //       // Extract data from the first sheet
+  //       const sheetName = workbook.SheetNames[0];
+  //       const sheet = workbook.Sheets[sheetName];
+  //       // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
+  //       const data = XLSX.utils.sheet_to_json(sheet, {
+  //         header: 1,
+  //         raw: isCSV, // This forces Excel dates to be converted to readable format
+  //       });
+  //       if (data.length > 1) {
+  //         // const headers = data[0]; // First row as headers
+  //         // const rows = data.slice(1); // Data without headers
+
+  //         // let mappedColumns = headers.map((header) => {
+  //         //   // Find matching column from LeadDefaultColumns
+  //         //   let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+  //         //     LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+  //         //   );
+  //         //   console.log(
+  //         //     `Matched column ${header.toLowerCase} with `,
+  //         //     matchedColumnKey
+  //         //   );
+
+  //         //   return {
+  //         //     ColumnNameInSheet: header, // Original header from the file
+  //         //     matchedColumn: matchedColumnKey
+  //         //       ? { ...LeadDefaultColumns[matchedColumnKey] }
+  //         //       : null, // Default column if matched
+  //         //     UserFacingName: null, // Can be updated manually by user
+  //         //   };
+  //         // });
+
+  //         const headers = data[0]; // First row as headers
+  //         const rows = data.slice(1); // Data without headers
+
+  //         const usedKeys = new Set(); // Keep track of already matched default columns
+
+  //         let mappedColumns = headers.map((header) => {
+  //           // Find the first unused matching column
+  //           let matchedColumnKey = Object.keys(LeadDefaultColumns).find(
+  //             (key) => {
+  //               return (
+  //                 !usedKeys.has(key) &&
+  //                 LeadDefaultColumns[key].mappings.includes(
+  //                   header.toLowerCase()
+  //                 )
+  //               );
+  //             }
+  //           );
+
+  //           if (matchedColumnKey) {
+  //             usedKeys.add(matchedColumnKey); // Mark as used
+  //           }
+
+  //           console.log(
+  //             `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
+  //           );
+
+  //           return {
+  //             ColumnNameInSheet: header, // Original header from the file
+  //             matchedColumn: matchedColumnKey
+  //               ? { ...LeadDefaultColumns[matchedColumnKey] }
+  //               : null, // Default column if matched
+  //             UserFacingName: null, // Can be updated manually by user
+  //           };
+  //         });
+
+  //         // Transform rows based on the new column mapping
+  //         const transformedData = rows.map((row) => {
+  //           let transformedRow = {};
+  //           // //console.log;
+
+  //           mappedColumns.forEach((col, index) => {
+  //             transformedRow[col.ColumnNameInSheet] = row[index] || null;
+  //             // if (col.matchedColumn) {
+  //             //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
+  //             // } else {
+  //             //   // Handle extra/unmatched columns
+  //             //   if (!transformedRow.extraColumns)
+  //             //     transformedRow.extraColumns = {};
+  //             //   transformedRow.extraColumns[col.ColumnNameInSheet] =
+  //             //     row[index] || null;
+  //             // }
+  //           });
+  //           //console.log;
+
+  //           return transformedRow;
+  //         });
+
+  //         console.log("Transformed data is", transformedData);
+  //         console.log("Mapped data is", mappedColumns);
+
+  //         // Update state
+  //         setProcessedData(transformedData);
+  //         setNewColumnsObtained(mappedColumns); // Store the column mappings
+  //       }
+  //       console.log("Reader on load end");
+  //     };
+  //     console.log("Reader onload passed");
+  //     reader.readAsBinaryString(file);
+  //   },
+  //   [LeadDefaultColumns]
+  // );
+
   const handleFileUpload = useCallback(
     (file) => {
       const reader = new FileReader();
@@ -609,13 +823,56 @@ const AdminLeads1 = ({ selectedUser }) => {
           raw: isCSV, // This forces Excel dates to be converted to readable format
         });
         if (data.length > 1) {
+          // const headers = data[0]; // First row as headers
+          // const rows = data.slice(1); // Data without headers
+
+          // let mappedColumns = headers.map((header) => {
+          //   // Find matching column from LeadDefaultColumns
+          //   let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+          //     LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+          //   );
+          //   console.log(
+          //     `Matched column ${header.toLowerCase} with `,
+          //     matchedColumnKey
+          //   );
+
+          //   return {
+          //     ColumnNameInSheet: header, // Original header from the file
+          //     matchedColumn: matchedColumnKey
+          //       ? { ...LeadDefaultColumns[matchedColumnKey] }
+          //       : null, // Default column if matched
+          //     UserFacingName: null, // Can be updated manually by user
+          //   };
+          // });
+
           const headers = data[0]; // First row as headers
           const rows = data.slice(1); // Data without headers
 
+          const usedKeys = new Set(); // Keep track of already matched default columns
+
           let mappedColumns = headers.map((header) => {
-            // Find matching column from LeadDefaultColumns
-            let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-              LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
+            // Find the first unused matching column
+            console.log("Lead default columns values", LeadDefaultColumns);
+            let matchedColumnKey = Object.keys(LeadDefaultColumns).find(
+              (key) => {
+                return (
+                  !usedKeys.has(key) &&
+                  LeadDefaultColumns[key].mappings.includes(
+                    header.toLowerCase()
+                  )
+                );
+              }
+            );
+
+            if (matchedColumnKey) {
+              console.log("Found matched keys");
+              usedKeys.add(matchedColumnKey); // Mark as used
+            }else{
+              console.log("Not found any matching key");
+            }
+
+            console.log(
+              `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
             );
 
             return {
@@ -652,9 +909,6 @@ const AdminLeads1 = ({ selectedUser }) => {
           // Update state
           setProcessedData(transformedData);
           setNewColumnsObtained(mappedColumns); // Store the column mappings
-
-          //console.log;
-          //console.log;
         }
       };
 
@@ -662,9 +916,10 @@ const AdminLeads1 = ({ selectedUser }) => {
     },
     [LeadDefaultColumns]
   );
-  //csv file code ends
 
-  //restrict user to only edit name of csv file
+  useEffect(() => {
+    console.log("Processed data from api is", processedData);
+  }, [processedData])
 
   const handleSheetNameChange = (e) => {
     const baseName = sheetName.split(".")[0]; // Get the current base name
@@ -1308,11 +1563,12 @@ const AdminLeads1 = ({ selectedUser }) => {
                           matchingValue[item.dbName]
                         ) : (
                           <div>
-                            {item.dbName
+                            {processedData[0][item.ColumnNameInSheet]}
+                            {/*item.dbName
                               ? processedData[0].extraColumns[item.dbName]
                               : processedData[0].extraColumns[
                               item.ColumnNameInSheet
-                              ]}
+                              ]*/}
                           </div>
                         )}
                       </div>

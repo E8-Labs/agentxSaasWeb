@@ -85,13 +85,28 @@ const DocumentCard = ({ kb }) => {
 
 const UrlCard = ({ kb }) => {
   return (
-    <a
-      href={kb.originalContent}
-      target="_blank"
-      className="text-purple underline"
+    <button
+      onClick={() => {
+        let url = kb.webUrl.trim();
+        // Prepend https:// if not already present
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+          url = "https://" + url;
+        }
+
+        console.log("Web url link is", url);
+        window.open(url, "_blank");
+      }}
+      className="text-purple underline border-none outline-none text-start"
+      style={{
+        flexWrap: "wrap",
+        width: "100%",
+        wordBreak: "break-word",
+        overflowWrap: "break-word",
+        whiteSpace: "normal",
+      }}
     >
-      {kb.webUrl}
-    </a>
+      {kb.webUrl.trim()}
+    </button>
   );
 };
 
