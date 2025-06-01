@@ -107,30 +107,6 @@ export default function AssignLeadAnimation({
     //assign lead
     const handleAssignLead = async () => {
 
-        let timeoutTriggered = false;
-
-        // Set the 30-second fallback
-        const timeout = setTimeout(() => {
-            timeoutTriggered = true;
-            console.log("Timeout reached, showing success fallback...");
-
-            handleClose({
-                status: false,
-                showSnack: "Lead assigned",
-                disSelectLeads: true,
-            });
-            resetValues();
-            const localData = localStorage.getItem("User");
-            if (localData) {
-                let D = JSON.parse(localData);
-                D.user.checkList.checkList.callsCreated = true;
-                localStorage.setItem("User", JSON.stringify(D));
-            }
-            window.dispatchEvent(
-                new CustomEvent("UpdateCheckList", { detail: { update: true } })
-            );
-        }, 30000);
-
         let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
         const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
         const currentHour = selectedDate.hour(); // Get the current hour (0-23)
@@ -165,6 +141,7 @@ export default function AssignLeadAnimation({
 
         try {
             setLoader(true);
+            const startTime = Date.now();
 
             let timer = null;
             let batchSize = null;
@@ -239,39 +216,60 @@ export default function AssignLeadAnimation({
                 },
             });
 
-            //clears time
-            clearTimeout(timeout);
+            const endTime = Date.now(); // record end time
+            const duration = endTime - startTime; // in milliseconds
 
-            if (!timeoutTriggered) {
-                if (response) {
-                    // //console.log;
-                    setCurrentIndex(0);
-                    if (response.data.status === true) {
-                        handleClose({
-                            status: false,
-                            showSnack: "Lead assigned",
-                            disSelectLeads: true,
-                        });
-                        resetValues();
-                        const localData = localStorage.getItem("User");
-                        if (localData) {
-                            let D = JSON.parse(localData);
-                            D.user.checkList.checkList.callsCreated = true;
-                            localStorage.setItem("User", JSON.stringify(D));
-                        }
-                        window.dispatchEvent(
-                            new CustomEvent("UpdateCheckList", { detail: { update: true } })
-                        );
-                        // setLastStepModal(false);
-                        // window.location.reload();
-                    } else if (response.data.status === false) {
-                        handleClose({
-                            status: true,
-                            showSnack: "Error assigning lead",
-                            disSelectLeads: false,
-                        });
-                        resetValues();
+            console.log("API Response time (ms):", duration);
+
+            if (duration > 30000) {
+                console.log("⚠️ API response took MORE than 30 seconds!");
+                handleClose({
+                    status: false,
+                    showSnack: "Lead assigned",
+                    disSelectLeads: true,
+                });
+                resetValues();
+                const localData = localStorage.getItem("User");
+                if (localData) {
+                    let D = JSON.parse(localData);
+                    D.user.checkList.checkList.callsCreated = true;
+                    localStorage.setItem("User", JSON.stringify(D));
+                }
+                window.dispatchEvent(
+                    new CustomEvent("UpdateCheckList", { detail: { update: true } })
+                );
+            } else {
+                console.log("✅ API response took LESS than 30 seconds.");
+            }
+
+            if (response) {
+                // //console.log;
+                setCurrentIndex(0);
+                if (response.data.status === true) {
+                    handleClose({
+                        status: false,
+                        showSnack: "Lead assigned",
+                        disSelectLeads: true,
+                    });
+                    resetValues();
+                    const localData = localStorage.getItem("User");
+                    if (localData) {
+                        let D = JSON.parse(localData);
+                        D.user.checkList.checkList.callsCreated = true;
+                        localStorage.setItem("User", JSON.stringify(D));
                     }
+                    window.dispatchEvent(
+                        new CustomEvent("UpdateCheckList", { detail: { update: true } })
+                    );
+                    // setLastStepModal(false);
+                    // window.location.reload();
+                } else if (response.data.status === false) {
+                    handleClose({
+                        status: true,
+                        showSnack: "Error assigning lead",
+                        disSelectLeads: false,
+                    });
+                    resetValues();
                 }
             }
         } catch (error) {
