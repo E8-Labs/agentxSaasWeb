@@ -3,6 +3,7 @@
 
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
+import { AuthToken } from "../plan/AuthDetails";
 
 export const getMonthlyPlan = async () => {
     try {

@@ -649,6 +649,7 @@ const Pipeline1 = () => {
           //   "Current selected is same ",
           //   PipeLines[selectedPipelineIndex].id
           // );
+          // console.log("Pipeline details are", pipelineDetails);
           setLeadsCountInStage(pipelineDetails.leadsCountInStage);
           setSelectedPipeline(pipelineDetails);
           setStagesList(pipelineDetails.stages);

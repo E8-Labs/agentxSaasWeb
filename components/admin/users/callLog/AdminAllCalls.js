@@ -29,7 +29,7 @@ import {
 import AdminLeadDetails from "../AdminLeadDetails";
 
 function AdminAllCalls({selectedUser}) {
-  const LimitPerPage = 30;
+  const LimitPerPage = 20;
 
   const [searchValue, setSearchValue] = useState("");
 
@@ -199,7 +199,7 @@ function AdminAllCalls({selectedUser}) {
         setCallDetails(localCallData);
         setFilteredCallDetails(localCallData);
       } else {
-        getCallLogs();
+        getCallLogs(0);
       }
     } catch (error) {
       // console.error("Error ", error);
@@ -247,7 +247,7 @@ function AdminAllCalls({selectedUser}) {
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
     const currentRequestVersion = ++requestVersion.current;
-    // //console.log;
+    console.log("Request version is", currentRequestVersion);
     try {
       setLoading(true);
       setInitialLoader(true);
@@ -288,6 +288,8 @@ function AdminAllCalls({selectedUser}) {
 
       ApiPath = ApiPath+"&userId="+selectedUser.id
 
+      console.log("Api path for all call logs", ApiPath);
+
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
@@ -311,6 +313,8 @@ function AdminAllCalls({selectedUser}) {
           // setFilteredCallDetails(response.data.data);
 
           const data = response.data.data;
+          console.log("All call logs recieved from api are", data);
+          console.log("All call logs length recieved from api are", data.length);
           localStorage.setItem("callDetails", response.data.data);
           setCallDetails((prevDetails) => [...prevDetails, ...data]);
           setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);

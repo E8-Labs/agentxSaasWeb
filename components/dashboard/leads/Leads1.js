@@ -852,7 +852,7 @@ const Leads1 = () => {
         inbound: isInbound,
         enrich: isEnrich,
       };
-      // //console.log;
+      // console.log("Api data is", ApiData);
 
       const ApiPath = Apis.addSmartList;
       // //console.log;

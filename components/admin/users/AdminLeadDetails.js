@@ -2035,7 +2035,7 @@ const AdminLeadDetails = ({
                                                                         );
                                                                         return (
                                                                             <div key={index} className="mt-4">
-                                                                                <div key={index}>
+                                                                                <div>
                                                                                     {item.status === "voicemail" ||
                                                                                         item.callOutcome === "Voicemail" ? (
                                                                                         <div className="flex border items-center justify-center rounded mt-2">
@@ -2281,7 +2281,7 @@ const AdminLeadDetails = ({
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
-                                                                                <div className="w-full flex flex-row items-center gap-2 h-full">
+                                                                                {/*<div className="w-full flex flex-row items-center gap-2 h-full">
                                                                                     <div
                                                                                         className="pb-4 pt-6 ps-4 w-full"
                                                                                         style={{
@@ -2299,9 +2299,6 @@ const AdminLeadDetails = ({
                                                                                                     >
                                                                                                         Outcome
                                                                                                     </div>
-                                                                                                    {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                    </div> */}
                                                                                                 </div>
                                                                                                 <button
                                                                                                     className="text-end flex flex-row items-center gap-1"
@@ -2323,7 +2320,6 @@ const AdminLeadDetails = ({
                                                                                                     {item?.callOutcome
                                                                                                         ? item?.callOutcome
                                                                                                         : "Ongoing"}
-                                                                                                    {/* {checkCallStatus(item)} */}
                                                                                                     <div>
                                                                                                         {isExpandedActivity.includes(
                                                                                                             item.id
@@ -2380,6 +2376,7 @@ const AdminLeadDetails = ({
                                                                                                             </div>
                                                                                                             <button
                                                                                                                 onClick={() => {
+                                                                                                                    console.log("Trancsript audio url item is", item);
                                                                                                                     if (item?.recordingUrl) {
                                                                                                                         setShowAudioPlay(
                                                                                                                             item?.recordingUrl
@@ -2409,11 +2406,6 @@ const AdminLeadDetails = ({
                                                                                                                         fontSize: 15,
                                                                                                                     }}
                                                                                                                 >
-                                                                                                                    {/* {item.transcript} */}
-                                                                                                                    {/* {isExpanded.includes(
-                                                                                                                        item.id
-                                                                                                                    )
-                                                                                                                        ? `${item.transcript}` */}
                                                                                                                     {initialText}
                                                                                                                 </div>
                                                                                                                 <button
@@ -2445,7 +2437,7 @@ const AdminLeadDetails = ({
                                                                                                 )}
                                                                                         </div>
                                                                                     </div>
-                                                                                </div>
+                                                                                            </div>*/}
                                                                             </div>
                                                                         );
                                                                     }

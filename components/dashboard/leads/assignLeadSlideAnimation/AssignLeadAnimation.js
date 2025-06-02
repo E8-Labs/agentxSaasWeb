@@ -364,7 +364,8 @@ export default function AssignLeadAnimation({
                                                 disSelectLeads: true,
                                             }); //(false, showSnack, disSelectLeads)
                                             resetValues();
-                                        }}
+                                        }
+                                        }
                                         leadIs={leadIs}
                                         selectedAll={selectedAll}
                                         filters={filters}

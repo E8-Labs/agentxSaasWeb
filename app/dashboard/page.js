@@ -484,7 +484,7 @@ const Page = () => {
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "center",
                         width: "40vw",
-                        height: "13vh",
+                        minHeight: "13vh",
                         borderRadius: 10,
                       }}
                     >

@@ -2194,6 +2194,7 @@ const LeadDetails = ({
                                                         </div>
                                                         <button
                                                           onClick={() => {
+                                                            // console.log("Item details are", item);
                                                             if (
                                                               item?.recordingUrl
                                                             ) {

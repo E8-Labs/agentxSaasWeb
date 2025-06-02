@@ -30,6 +30,9 @@ import VideoCard from "@/components/createagent/VideoCard";
 import { HowtoVideos } from "@/constants/Constants";
 import AdminLeads from "./AdminLeads";
 import { LeadDefaultColumns } from "@/constants/DefaultLeadColumns";
+import EnrichModal from "@/components/dashboard/leads/EnrichModal";
+import EnrichConfirmModal from "@/components/dashboard/leads/EnrichCofirmModal";
+import ConfirmPerplexityModal from "@/components/dashboard/leads/extras/CofirmPerplexityModal";
 
 const AdminLeads1 = ({ selectedUser }) => {
   const addColRef = useRef(null);
@@ -69,6 +72,7 @@ const AdminLeads1 = ({ selectedUser }) => {
 
   const [newSheetName, setNewSheetName] = useState("");
   const [isInbound, setIsInbound] = useState(false);
+  const [isEnrich, setIsEnrich] = useState(false);
 
   const [inputs, setInputs] = useState([
     { id: 1, value: "First Name" },
@@ -94,6 +98,11 @@ const AdminLeads1 = ({ selectedUser }) => {
   //my custom logic
   //This variable will contain all columns from the sheet that we will obtain from the sheet or add new
   let [NewColumnsObtained, setNewColumnsObtained] = useState([]);
+
+  //enrich lead modal code
+  const [showenrichModal, setShowenrichModal] = useState(false);
+  const [showenrichConfirmModal, setShowenrichConfirmModal] = useState(false);
+  const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false);
 
   useEffect(() => {
     console.log("New columns values", NewColumnsObtained);
@@ -871,6 +880,7 @@ const AdminLeads1 = ({ selectedUser }) => {
         columnMappings: NewColumnsObtained,
         tags: tagsValue,
         enrich: enrich,
+        userId: selectedUser.id,
       };
 
       const ApiPath = Apis.createLead;
@@ -993,26 +1003,30 @@ const AdminLeads1 = ({ selectedUser }) => {
   //code to add new sheet list
   const handleAddSheetNewList = async () => {
     try {
+      // console.log("Check 1");
       setShowaddCreateListLoader(true);
-
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
       }
-
+      // console.log("Check 2");
       // //console.log;
 
       const ApiData = {
         sheetName: newSheetName,
         columns: inputs.map((columns) => columns.value),
         userId: selectedUser.id,
+        inbound: isInbound,
+        enrich: isEnrich,
       };
-      // //console.log;
+      // console.log("Api data for add sheet", ApiData);
+
+      // console.log("Check 3");
 
       const ApiPath = Apis.addSmartList;
-      // //console.log;
+      // console.log("Api path is", ApiPath);
 
       // return
 
@@ -1024,7 +1038,7 @@ const AdminLeads1 = ({ selectedUser }) => {
       });
 
       if (response) {
-        // //console.log;
+        console.log("Response is", response);
         if (response.data.status === true) {
           // setSheetsList([...SheetsList, response.data.data]);
           setUserLeads(response.data.data);
@@ -1239,7 +1253,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                     alt="Upload Icon"
                     height={30}
                     width={30}
-                    // style={{ marginBottom: "10px" }}
+                  // style={{ marginBottom: "10px" }}
                   />
                 </div>
                 <p style={{ ...styles.subHeadingStyle }}>
@@ -1592,6 +1606,40 @@ const AdminLeads1 = ({ selectedUser }) => {
         </Box>
       </Modal>
 
+      {/* Enrich Lead Modal And Cofirmation Modal */}
+      <EnrichModal
+        showenrichModal={showenrichModal}
+        setShowenrichConfirmModal={(value) => {
+          setShowenrichConfirmModal(value);
+          // setIsEnrich(value)
+        }}
+        setShowenrichModal={setShowenrichModal}
+        handleAddLead={handleAddLead}
+        Loader={Loader}
+      />
+      <EnrichConfirmModal
+        showenrichConfirmModal={showenrichConfirmModal}
+        setShowenrichConfirmModal={setShowenrichConfirmModal}
+        handleAddLead={() => handleAddLead(true)}
+        processedData={processedData}
+        Loader={Loader}
+      />
+
+      <ConfirmPerplexityModal
+        showConfirmPerplexity={showenrichConfirmModal2}
+        setshowConfirmPerplexity={(value) => {
+          console.log("value", value);
+          setShowenrichConfirmModal2(value);
+          setIsEnrich(value);
+        }}
+        handleEnrichLead={(value) => {
+          console.log("value", value);
+          setIsEnrich(value);
+          setShowenrichConfirmModal2(false);
+        }}
+        loading={Loader}
+      />
+
       {/* Modal to update header */}
       <Modal
         open={showPopUp}
@@ -1908,9 +1956,9 @@ const AdminLeads1 = ({ selectedUser }) => {
                             color: "#7902DF",
                           },
                           "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                            {
-                              backgroundColor: "#7902DF",
-                            },
+                          {
+                            backgroundColor: "#7902DF",
+                          },
                         }}
                       />
                     </div>

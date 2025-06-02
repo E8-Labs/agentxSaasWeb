@@ -677,7 +677,7 @@ function AdminActiveCalls({selectedUser}) {
                               <div className="w-1/12">
                                 {item?.createdAt ? (
                                   <div style={styles.text2}>
-                                    {GetFormattedDateString(item?.createdAt)}
+                                    {GetFormattedDateString(item?.createdAt, true)}
                                   </div>
                                 ) : (
                                   "-"

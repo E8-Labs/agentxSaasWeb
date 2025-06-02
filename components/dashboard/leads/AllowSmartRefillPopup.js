@@ -1,6 +1,7 @@
+import { userLocalData } from "@/components/agency/plan/AuthDetails";
 import { Box, CircularProgress, Modal } from "@mui/material";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const AllowSmartRefillPopup = ({
   showSmartRefillPopUp,
@@ -10,6 +11,30 @@ const AllowSmartRefillPopup = ({
   handleSmartRefillLater,
   handleSmartRefill,
 }) => {
+
+  const [userLocalDetails, setUserLocalDetails] = useState(null);
+
+  useEffect(() => {
+    const localData = userLocalData();
+    if (localData) {
+      console.log("Local data", localData);
+      setUserLocalDetails(localData);
+    }
+  }, []);
+
+  function convertTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    // If remaining seconds are zero, return only minutes
+    if (remainingSeconds === 0) {
+      return `${minutes} Min`;
+    }
+
+    // Otherwise, return minutes and seconds
+    return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
+  }
+
   return (
     <div>
       {/*<Modal
@@ -52,13 +77,23 @@ const AllowSmartRefillPopup = ({
           </button>
         </div>
         <div
-          className="mt-8"
-          style={{
-            fontSize: "22px",
-            fontWeight: "600",
-          }}
+          className="mt-8 flex flex-row items-center justify-between w-full"
         >
-          Turn on Smart Refill
+          <div
+            style={{
+              fontSize: "22px",
+              fontWeight: "600",
+            }}>
+            Turn on Smart Refill
+          </div>
+          <div
+            style={{
+              fontSize: "15px",
+              fontWeight: "500",
+              color: "#00000080"
+            }}>
+            Mins in your account: {convertTime(userLocalDetails?.totalSecondsAvailable || 0)}
+          </div>
         </div>
         <div
           className="mt-6"
