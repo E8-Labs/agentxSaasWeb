@@ -164,7 +164,9 @@ const UserCalender = ({
       formData.append("mainAgentId", calendarDetails.id);
       formData.append("timeZone", calendar.timeZone || selectTimeZone); //|| selectTimeZone
       formData.append("eventId", calendar.eventId || eventId); //|| eventId
+      formData.append("calendarId", calendar.id); //|| eventId
       formData.append("agentId", selectedAgent.id);
+      console.log("Sending calendar id ", calendar.id);
 
       for (let [key, value] of formData.entries()) {
         //console.log;
