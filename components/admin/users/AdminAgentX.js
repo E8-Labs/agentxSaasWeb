@@ -1296,6 +1296,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         showDrawerSelectedAgent?.liveTransferNumber
       );
       formData.append("agentId", showDrawerSelectedAgent.id);
+      if(selectedUser){
+        formData.append("userId", selectedUser.id)
+      }
 
       const ApiPath = Apis.asignPhoneNumber;
 
@@ -3985,6 +3988,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   </div>
 
                   <UserCalender
+                    selectedUser={selectedUser}
                     calendarDetails={calendarDetails}
                     setUserDetails={setMainAgentsList}
                     selectedAgent={showDrawerSelectedAgent}
@@ -5152,6 +5156,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       </Modal> */}
       {showClaimPopup && (
         <ClaimNumber
+          selectedUSer={selectedUser}
           showClaimPopup={showClaimPopup}
           handleCloseClaimPopup={handleCloseClaimPopup}
           setOpenCalimNumDropDown={setOpenCalimNumDropDown}

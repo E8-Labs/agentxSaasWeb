@@ -682,6 +682,13 @@ function Page() {
   const handleShowDrawer = (item) => {
     //console.log;
     // return
+
+    if(item.Calendar){
+      console.log("Agent has calendaer in item");
+    }else{
+      console.log("Agent donot have calendar in the item");
+    }
+
     setAssignNumber(item?.phoneNumber);
     setSelectedVoice(item?.voiceId);
     setVoicesList([voicesList]);

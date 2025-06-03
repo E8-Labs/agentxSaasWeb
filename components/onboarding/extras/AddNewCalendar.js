@@ -203,30 +203,10 @@ const AddNewCalendar = ({
 
             const formData = new FormData();
 
-            formData.append(
-                "apiKey",
-                calendarSelected ? calendarSelected.apiKey : calenderApiKey
-            );
-            formData.append(
-                "title",
-                calendarSelected ? calendarSelected.title : calenderTitle
-            );
-            if (currentAgentDetails?.id) {
-                formData.append("mainAgentId", currentAgentDetails?.id);
-            }
-            // if (selectTimeZone) {
-            formData.append(
-                "timeZone",
-                calendarSelected ? calendarSelected?.timeZone : selectTimeZone
-            );
-            // }
-
-            // if (eventId) {
-            formData.append(
-                "eventId",
-                calendarSelected ? calendarSelected?.eventId : eventId
-            );
-            // }
+            formData.append("apiKey", calendarSelected ? calendarSelected.apiKey : calenderApiKey);
+            formData.append("title", calendarSelected ? calendarSelected.title : calenderTitle);
+            formData.append("timeZone", calendarSelected ? calendarSelected?.timeZone : selectTimeZone);
+            formData.append("eventId", calendarSelected ? calendarSelected?.eventId : eventId);
 
             for (let [key, value] of formData.entries()) {
                 console.log(`${key} = ${value}`);

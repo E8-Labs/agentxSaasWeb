@@ -72,8 +72,12 @@ const ClaimNumber = ({
         formData.append("mainAgentId", MyAgentData?.id);
       }
 
+      if(selectedUser){
+        formData.append("userId", selectedUSer.id);
+      }
+
       for (let [key, value] of formData.entries()) {
-        // //console.log;
+        console.log(`${key} === ${value}`);
       }
 
       //for testing
@@ -87,7 +91,7 @@ const ClaimNumber = ({
       //     setOpenCalimNumDropDown(false);
       // }
 
-      // return
+      return
 
       const response = await axios.post(ApiPath, formData, {
         headers: {

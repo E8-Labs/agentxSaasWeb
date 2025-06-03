@@ -29,7 +29,7 @@ import {
 import AdminLeadDetails from "../AdminLeadDetails";
 
 function AdminAllCalls({selectedUser}) {
-  const LimitPerPage = 30;
+  const LimitPerPage = 20;
 
   const [searchValue, setSearchValue] = useState("");
 

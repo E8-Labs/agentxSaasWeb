@@ -50,7 +50,17 @@ const LastStep = ({
   const [CallNow, setCallNow] = useState("");
   const [CallLater, setCallLater] = useState(false);
   const [isRefill, setIsRefill] = useState(false)
-  const [showRefillToogle, setShwRefillToogle] = useState(false)
+  const [showRefillToogle, setShwRefillToogle] = useState(false);
+
+  const [userLocalDetails, setUserLocalDetails] = useState(null);
+
+  useEffect(() => {
+    const localData = userLocalData();
+    if (localData) {
+      console.log("Local data", localData);
+      setUserLocalDetails(localData);
+    }
+  }, []);
 
   useEffect(() => {
     if (lastStepData) {
@@ -753,7 +763,7 @@ const LastStep = ({
                   className='flex flex-row items-center justify-between w-full'
                 >
                   <div style={{ fontsize: 16, fontWeight: '600', color: 'black' }}>
-                    Turn on smart refill
+                    {`Turn on smart refill`}
                   </div>
 
                   <Switch
