@@ -16,6 +16,7 @@ const ClaimNumber = ({
   setPreviousNumber,
   previousNumber,
   AssignNumber,
+  selectedUser
 }) => {
   const timerRef = useRef(null);
 
@@ -72,8 +73,12 @@ const ClaimNumber = ({
         formData.append("mainAgentId", MyAgentData?.id);
       }
 
+      if (selectedUser) {
+        formData.append("userId", selectedUser.id)
+      }
+
       for (let [key, value] of formData.entries()) {
-        // //console.log;
+        console.log(`${key} ==== ${value}`);
       }
 
       //for testing

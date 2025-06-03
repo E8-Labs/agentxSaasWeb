@@ -347,7 +347,7 @@ function AdminAgentX({ selectedUser, from }) {
     setAudio(ad); // Play the audio
   };
 
-   //refill the test ai popup input fields
+  //refill the test ai popup input fields
   useEffect(() => {
     let d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
     //console.log;
@@ -1295,13 +1295,15 @@ function AdminAgentX({ selectedUser, from }) {
         showDrawerSelectedAgent?.liveTransferNumber
       );
       formData.append("agentId", showDrawerSelectedAgent.id);
+      formData.append("userId", selectedUser.id);
 
       const ApiPath = Apis.asignPhoneNumber;
+      // console.log("Check 1 clear");
 
       for (let [key, value] of formData.entries()) {
-        //// //console.log;
+        console.log(`${key} === ${value}`);
       }
-
+      // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -1628,7 +1630,7 @@ function AdminAgentX({ selectedUser, from }) {
       if (response) {
         ////console.log;
 
-      localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
+        localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
 
         setShowSuccessSnack(response.data.message);
         setIsVisibleSnack(true);
@@ -2952,8 +2954,8 @@ function AdminAgentX({ selectedUser, from }) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`${activeTab === tab
-                        ? "text-purple border-b-2 border-purple"
-                        : "text-black-500"
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
                       }`}
                     style={{ fontSize: 15, fontWeight: "500" }}
                   >
@@ -5133,6 +5135,7 @@ function AdminAgentX({ selectedUser, from }) {
       </Modal> */}
       {showClaimPopup && (
         <ClaimNumber
+          selectedUser={selectedUser}
           showClaimPopup={showClaimPopup}
           handleCloseClaimPopup={handleCloseClaimPopup}
           setOpenCalimNumDropDown={setOpenCalimNumDropDown}

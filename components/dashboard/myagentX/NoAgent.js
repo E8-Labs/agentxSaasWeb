@@ -5,7 +5,7 @@ import Link from "next/link";
 
 function NoAgent() {
   const handleAddNewAgent = (event) => {
-    event.preventDefault();
+    // event.preventDefault();
     // const data = {
     //   status: true,
     // };
