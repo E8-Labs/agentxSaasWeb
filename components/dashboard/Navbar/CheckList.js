@@ -39,7 +39,7 @@ const CheckList = ({ userDetails }) => {
       setCheckList([
         { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
         { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
-        { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
+        { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "" },
         { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
         { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" }///dashboard/callLog
       ]);

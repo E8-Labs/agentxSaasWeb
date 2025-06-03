@@ -155,12 +155,16 @@ const UserCalender = ({
 
       formData.append("apiKey", calendar.apiKey || calenderApiKey); //|| calenderApiKey
       formData.append("title", calendar.title || calenderTitle); //|| calenderTitle
-      formData.append("mainAgentId", calendarDetails.id);
       formData.append("timeZone", calendar.timeZone || selectTimeZone); //|| selectTimeZone
+      if (calendar) {
+        // formData.append("mainAgentId", calendarDetails.id);
+        formData.append("calendarId", calendar.id); //|| selected calendar id
+        console.log("Sending calendar id ", calendar.id);
+      }
       formData.append("eventId", calendar.eventId || eventId); //|| eventId
-      formData.append("calendarId", calendar.id); //|| eventId
-      formData.append("agentId", selectedAgent.id);
-      console.log("Sending calendar id ", calendar.id);
+      if (selectedAgent) {
+        formData.append("agentId", selectedAgent.id);
+      }
 
       for (let [key, value] of formData.entries()) {
         //console.log;
@@ -701,7 +705,7 @@ const UserCalender = ({
                               value={item}
                               key={index}
                             >
-                              <button onClick={() => {}}>{item}</button>
+                              <button onClick={() => { }}>{item}</button>
                             </MenuItem>
                           );
                         })}

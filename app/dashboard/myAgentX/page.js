@@ -2027,7 +2027,7 @@ function Page() {
       // }
 
       if (response) {
-        //console.log;
+        console.log("Response of get Agents api is", response);
         setPaginationLoader(false);
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
