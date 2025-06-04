@@ -702,7 +702,7 @@ const AdminAssignLead = ({
         </button>
       </div>
 
-      {/* Smart refill popup */}
+      {/* Smart refill popup
       <AllowSmartRefillPopup
         showSmartRefillPopUp={showSmartRefillPopUp}
         handleCloseReillPopup={() => {
@@ -712,7 +712,7 @@ const AdminAssignLead = ({
         smartRefillLoaderLater={smartRefillLoaderLater}
         handleSmartRefillLater={handleSmartRefillLater}
         handleSmartRefill={handleSmartRefill}
-      />
+      /> */}
 
       {/* last step modal */}
       <Modal
