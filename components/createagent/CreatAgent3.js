@@ -857,7 +857,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user }) => {
                 <div className="text-center mt-2 text-[18px] font-[700] md:text-[24px] md:font-[700]">
                   {selectedPlan?.id > 1
                     ? "Add your payment method" //"Select a plan that fits your needs"
-                    : "Start for Free. Then Pay as you go!"}
+                    : "Start for free. Then pay as you go!"}
                 </div>
 
                 {selectedPlan?.id > 1 ? (

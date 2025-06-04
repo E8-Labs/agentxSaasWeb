@@ -398,7 +398,7 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
       fontWeight: "600",
     },
     inputStyle: {
-      fontSize: 13,
+      fontSize: 15,
       fontWeight: "400",
       width: "95%",
     },
