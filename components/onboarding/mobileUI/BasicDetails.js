@@ -722,6 +722,7 @@ const BasicDetails = ({
                     paddingLeft: "60px",
                     paddingTop: "20px",
                     paddingBottom: "20px",
+                    fontSize:15,
                   }}
                   buttonStyle={{
                     border: "none",
