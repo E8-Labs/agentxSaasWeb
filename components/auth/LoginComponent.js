@@ -464,13 +464,22 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   router.push(redirect);
                 } else {
-                  if (data.data.user.userType == "admin") {
+                  console.log("user role is", response.data.data.user.userRole);
+                  // return
+                  if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
-                  } 
-                  
-                  else {
+                  } else if (response.data.data.user.userRole == "AgencySubAccount") {
+                    router.push("/agency/dashboard");
+                  } else {
                     router.push("/dashboard/leads");
                   }
+                  // if (data.data.user.userType == "admin") {
+                  //   router.push("/admin");
+                  // } 
+
+                  // else {
+                  //   router.push("/dashboard/leads");
+                  // }
                 }
               }
             } else {
