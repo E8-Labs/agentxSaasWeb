@@ -411,6 +411,9 @@ const LastStep = ({
                 let value = e.target.value;
                 if (!/[0-9]/.test(value) && value !== "") return;
                 setCustomLeadsToSend(e.target.value);
+                if(NoOfLeadsToSend){
+                  setNoOfLeadsToSend("");
+                }
               }}
               placeholder="Ex: 100"
             />
