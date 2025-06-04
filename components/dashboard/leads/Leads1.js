@@ -731,28 +731,126 @@ const Leads1 = () => {
   };
 
   //code to call api
+  // const handleAddLead = async (enrich = false) => {
+  //   // let validated = validateColumns();
+
+  //   // console.log("Validated", validated);
+  //   // return;
+  //   ////console.log;
+  //   // if (!validated) {
+
+  //   //   return;
+  //   // }
+  //   let pd = processedData;
+
+  //   let data = [];
+
+  //   //////console.log;
+
+  //   pd.forEach((item, index) => {
+  //     let row = { extraColumns: {} };
+  //     // //console.log;
+  //     NewColumnsObtained.forEach((col) => {
+  //       if (col.matchedColumn) {
+  //         //
+  //         row[col.matchedColumn.dbName] = item[col.ColumnNameInSheet];
+  //       } else if (col.UserFacingName) {
+  //         row.extraColumns[col.UserFacingName] = item[col.ColumnNameInSheet];
+  //       }
+  //     });
+  //     data.push(row);
+  //   });
+  //   //console.log;
+  //   // return;
+
+  //   //////console.log;
+  //   //////console.log;
+
+  //   // return;
+  //   try {
+  //     setLoader(true);
+
+  //     const localData = localStorage.getItem("User");
+  //     let AuthToken = null;
+  //     if (localData) {
+  //       const UserDetails = JSON.parse(localData);
+  //       AuthToken = UserDetails.token;
+  //     }
+  //     ////////console.log;
+
+  //     // const tagsList = tagsValue.map((tag))
+
+  //     const ApiData = {
+  //       sheetName: sheetName,
+  //       leads: data,
+  //       columnMappings: NewColumnsObtained,
+  //       tags: tagsValue,
+  //       enrich: enrich,
+  //     };
+
+  //     const ApiPath = Apis.createLead;
+  //     //console.log);
+  //     // return
+  //     ////console.log;
+  //     // return;
+  //     const response = await axios.post(ApiPath, ApiData, {
+  //       headers: {
+  //         Authorization: "Bearer " + AuthToken,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+
+  //     if (response) {
+  //       ////////console.log;
+  //       if (response.data.status === true) {
+
+  //         //update leads status
+  //         const localData = localStorage.getItem("User");
+  //         if (localData) {
+  //           let D = JSON.parse(localData);
+  //           D.user.checkList.checkList.leadCreated = true;
+  //           localStorage.setItem("User", JSON.stringify(D));
+  //         }
+  //         window.dispatchEvent(
+  //           new CustomEvent("UpdateCheckList", { detail: { update: true } })
+  //         );
+
+  //         let sheet = response.data.data;
+  //         let leads = response.data.leads;
+  //         // let sheetsList =
+  //         // //console.log;
+  //         setShowUploadLeadModal(false);
+  //         setSelectedFile(null);
+  //         localStorage.setItem("userLeads", JSON.stringify(response.data.data));
+  //         setUserLeads(sheet);
+  //         setShowenrichModal(false);
+  //         setShowenrichConfirmModal(false);
+  //         setAddNewLeadModal(false);
+  //         setSetData(true);
+  //         setSuccessSnack(response.data.message);
+  //         setShowSuccessSnack(true);
+  //         //add event to update profile data
+  //         // window.dispatchEvent(
+  //         //   new CustomEvent("UpdateProfile", { detail: { update: true } })
+  //         // );
+  //       }
+  //     }
+  //   } catch (error) {
+  //     // console.error("Error occured in add lead api is :", error);
+  //   } finally {
+  //     setLoader(false);
+  //   }
+  // };
+
   const handleAddLead = async (enrich = false) => {
-    // let validated = validateColumns();
-
-    // console.log("Validated", validated);
-    // return;
-    ////console.log;
-    // if (!validated) {
-
-    //   return;
-    // }
     let pd = processedData;
-
     let data = [];
 
-    //////console.log;
-
-    pd.forEach((item, index) => {
+    // Build full data array
+    pd.forEach((item) => {
       let row = { extraColumns: {} };
-      // //console.log;
       NewColumnsObtained.forEach((col) => {
         if (col.matchedColumn) {
-          //
           row[col.matchedColumn.dbName] = item[col.ColumnNameInSheet];
         } else if (col.UserFacingName) {
           row.extraColumns[col.UserFacingName] = item[col.ColumnNameInSheet];
@@ -760,87 +858,102 @@ const Leads1 = () => {
       });
       data.push(row);
     });
-    //console.log;
-    // return;
 
-    //////console.log;
-    //////console.log;
+    setLoader(true);
 
-    // return;
-    try {
-      setLoader(true);
+    const localData = localStorage.getItem("User");
+    let AuthToken = null;
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      AuthToken = UserDetails.token;
+    }
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
+    const ApiPath = Apis.createLead;
+    const BATCH_SIZE = 1000;
+    const totalBatches = Math.ceil(data.length / BATCH_SIZE);
+
+    console.log(`Uploading ${data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
+
+    // Recursive function to upload one batch at a time
+    const uploadBatch = async (batchIndex) => {
+      if (batchIndex >= totalBatches) {
+        // All batches done
+        console.log("✅ All batches uploaded successfully");
+
+        // Final success actions
+        const localData = localStorage.getItem("User");
+        if (localData) {
+          let D = JSON.parse(localData);
+          D.user.checkList.checkList.calendarCreated = true;
+          localStorage.setItem("User", JSON.stringify(D));
+        }
+
+        window.dispatchEvent(new CustomEvent("UpdateCheckList", { detail: { update: true } }));
+
+        // You can use the last response data if needed
+        // (Here for simplicity assuming last response still in scope)
+        setShowUploadLeadModal(false);
+        setSelectedFile(null);
+        setShowenrichModal(false);
+        setShowenrichConfirmModal(false);
+        setAddNewLeadModal(false);
+        setSetData(true);
+        setSuccessSnack("Leads uploaded successfully");
+        setShowSuccessSnack(true);
+
+        setLoader(false);
+        return;
       }
-      ////////console.log;
 
-      // const tagsList = tagsValue.map((tag))
+      // Upload current batch
+      const start = batchIndex * BATCH_SIZE;
+      const end = start + BATCH_SIZE;
+      const batchLeads = data.slice(start, end);
+
+      console.log(
+        `Uploading batch ${batchIndex + 1} / ${totalBatches} (leads ${start} - ${Math.min(end - 1, data.length - 1)})`
+      );
 
       const ApiData = {
         sheetName: sheetName,
-        leads: data,
+        leads: batchLeads,
         columnMappings: NewColumnsObtained,
         tags: tagsValue,
         enrich: enrich,
       };
 
-      const ApiPath = Apis.createLead;
-      //console.log);
-      // return
-      ////console.log;
-      // return;
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
+      try {
+        const response = await axios.post(ApiPath, ApiData, {
+          headers: {
+            Authorization: "Bearer " + AuthToken,
+            "Content-Type": "application/json",
+          },
+        });
 
-      if (response) {
-        ////////console.log;
-        if (response.data.status === true) {
+        if (response && response.data.status === true) {
+          console.log(`Batch ${batchIndex + 1} uploaded successfully`);
 
-          //update leads status
-          const localData = localStorage.getItem("User");
-          if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.leadCreated = true;
-            localStorage.setItem("User", JSON.stringify(D));
-          }
-          window.dispatchEvent(
-            new CustomEvent("UpdateCheckList", { detail: { update: true } })
-          );
-
+          // Store userLeads if you want per batch (optional)
           let sheet = response.data.data;
-          let leads = response.data.leads;
-          // let sheetsList =
-          // //console.log;
-          setShowUploadLeadModal(false);
-          setSelectedFile(null);
-          localStorage.setItem("userLeads", JSON.stringify(response.data.data));
+          localStorage.setItem("userLeads", JSON.stringify(sheet));
           setUserLeads(sheet);
-          setShowenrichModal(false);
-          setShowenrichConfirmModal(false);
-          setAddNewLeadModal(false);
-          setSetData(true);
-          setSuccessSnack(response.data.message);
-          setShowSuccessSnack(true);
-          //add event to update profile data
-          // window.dispatchEvent(
-          //   new CustomEvent("UpdateProfile", { detail: { update: true } })
-          // );
+
+          // 👉 Now call next batch
+          await uploadBatch(batchIndex + 1);
+        } else {
+          console.error(`Error uploading batch ${batchIndex + 1}:`, response?.data?.message);
+          setLoader(false);
         }
+      } catch (error) {
+        console.error(`Error occurred in batch ${batchIndex + 1}:`, error);
+        setLoader(false);
       }
-    } catch (error) {
-      // console.error("Error occured in add lead api is :", error);
-    } finally {
-      setLoader(false);
-    }
+    };
+
+    // Start from first batch
+    uploadBatch(0);
   };
+
 
   //code to check if lead sheets exists or not
   const handleShowUserLeads = (status) => {
