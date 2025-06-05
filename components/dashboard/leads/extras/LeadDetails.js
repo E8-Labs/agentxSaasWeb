@@ -321,7 +321,7 @@ const LeadDetails = ({
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`;
 
-      // //console.log;
+      console.log("Api path is ", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {

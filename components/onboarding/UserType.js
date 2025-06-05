@@ -268,8 +268,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                 textAlign: "center", //fontSize: 15
               }}
             >
-              Scale your salesforce. Handle any business use case. With AgentX,
-              <br></br>you can quickly build an AI agent in minutes.
+              Scale your salesforce. Handle any business use case. With AgentX,you can quickly build an AI agent in minutes.
             </div>
 
             <div
@@ -285,7 +284,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                   return (
                     <div
                       key={index}
-                      className="flex flex-col gap-3 w-full pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
+                      className="flex flex-col gap-3 w-full py-3 sm:py-0 sm:pb-6 border-[2px] border-white rounded-xl items-center justify-center bg-[#FAF9FF]"
                     >
                       <div className="flex sm:flex hidden">
                         <Image
@@ -319,8 +318,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                 } else {
                   return (
                     <div key={index} className="flex w-6/12 md:w-4/12 p-2">
-                      <div
-                        className="w-full rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90"
+                      <button
+                        className="w-full outline-none rounded-lg p-2 md:hover:border-2 md:hover:border-[#7902DF] border border-[#00000010] transition-all duration-400 ease-in-out transform active:scale-90"
                         onClick={(e) => {
                           handleUserType(item);
                         }}
@@ -373,15 +372,15 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
 
                         </div>
                         <div
-                          className="text-center mt-4 pb-4"
+                          className="text-center mt-4 pb-4 text-sm sm:text-md md:text-lg"
                           style={{
                             fontWeight: "600",
-                            fontSize: 17,
+                            // fontSize: 17,
                           }}
                         >
                           {item.agentType}
                         </div>
-                      </div>
+                      </button>
                     </div>
                   );
                 }

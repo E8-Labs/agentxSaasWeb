@@ -265,7 +265,8 @@ const FocusArea = ({
                     >
                       <div className="w-full flex flex-row items-start px-4 py-2 gap-2">
 
-                        {/* heck mark for small screens */}
+                        {/* heck mark for small screens
+                        Check merk for large screens 
                         <div className="mt-2 sm:hidden">
                           {focusArea.includes(item.id) ? (
                             <Image
@@ -284,7 +285,6 @@ const FocusArea = ({
                           )}
                         </div>
 
-                        {/* Check merk for large screens */}
                         <div className="mt-2 sm:flex hidden">
                           {focusArea.includes(item.id) ? (
                             <Image
@@ -314,7 +314,54 @@ const FocusArea = ({
                             {item.title}
                           </div>
                           <div className="mt-2">{item.description}</div>
+                        </div>*/}
+
+                        <div className="grid grid-cols-[auto_1fr] gap-2 items-start">
+                          {/* Check mark for small screens*/}
+                          <div className="sm:hidden flex items-center">
+                            {focusArea.includes(item.id) ? (
+                              <Image
+                                src={"/assets/charmTick.png"}
+                                alt="*"
+                                height={24}
+                                width={24}
+                              />
+                            ) : (
+                              <Image
+                                src={"/assets/charmUnMark.png"}
+                                alt="*"
+                                height={24}
+                                width={24}
+                              />
+                            )}
+                          </div>
+
+                          {/*Check merk for large screens */}
+                          <div className="flex items-center sm:flex hidden">
+                            {focusArea.includes(item.id) ? (
+                              <Image
+                                src={"/assets/charmTick.png"}
+                                alt="*"
+                                height={28}
+                                width={28}
+                              />
+                            ) : (
+                              <Image
+                                src={"/assets/charmUnMark.png"}
+                                alt="*"
+                                height={28}
+                                width={28}
+                              />
+                            )}
+                          </div>
+
+                          {/* Title + Description */}
+                          <div>
+                            <div className="font-semibold text-start text-base text-black leading-tight">{item.title}</div>
+                            <div className="mt-1 text-gray-700 text-sm text-start leading-snug">{item.description}</div>
+                          </div>
                         </div>
+
                       </div>
                     </div>
                   </button>

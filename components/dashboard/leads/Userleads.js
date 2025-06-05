@@ -49,6 +49,7 @@ import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { userLocalData } from "@/components/agency/plan/AuthDetails";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -66,7 +67,7 @@ const Userleads = ({
   const router = useRouter();
 
   //user local data
-  const [userLocalData, setUserLocalData] = useState(null);
+  const [userLocalDetails, setUserLocalDetails] = useState(null);
   const [snackMessage, setSnackMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
   const [showsnackMessage, setShowSnackMessage] = useState(false);
@@ -382,12 +383,16 @@ const Userleads = ({
   //code for get profile function
   const getProfile = async () => {
     try {
+
+      const LocalData = userLocalData();
+      setUserLocalDetails(LocalData);
+
       await getProfileDetails();
 
       const Data = localStorage.getItem("User");
       if (Data) {
         const localData = JSON.parse(Data);
-        setUserLocalData(localData.user);
+        setUserLocalDetails(localData.user);
       }
     } catch (error) {
       // console.error("Error occured in api is error", error);
@@ -1804,7 +1809,7 @@ const Userleads = ({
                 }}
                 className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
                 onClick={() => {
-                  if (userLocalData?.plan) {
+                  if (userLocalDetails?.plan) {
                     setAssignLeadModal(true);
                   } else {
                     setSnackMessage("Add payment method to continue");
@@ -1858,7 +1863,7 @@ const Userleads = ({
                     selectedAll={selectedAll}
                     filters={getFiltersObject()}
                     totalLeads={totalLeads}
-                    userProfile={userLocalData} // this is the .user object doesn't include token
+                    userProfile={userLocalDetails} // this is the .user object doesn't include token
                   />
 
                   {/* <Modal
@@ -1912,7 +1917,7 @@ const Userleads = ({
                               selectedAll={selectedAll}
                               filters={getFiltersObject()}
                               totalLeads={totalLeads}
-                              userProfile={userLocalData} // this is the .user object doesn't include token
+                              userProfile={userLocalDetails} // this is the .user object doesn't include token
                             />
                           </div>
                         </div>

@@ -48,6 +48,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AdminLeadDetails from "./AdminLeadDetails";
 import AdminGetProfileDetails from "../AdminGetProfileDetails";
 import AdminAssignLead from "./AdminAssignLead";
+import { userLocalData } from "@/components/agency/plan/AuthDetails";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -65,7 +66,7 @@ const AdminLeads = ({
   const router = useRouter();
 
   //user local data
-  const [userLocalData, setUserLocalData] = useState(null);
+  const [userLocalDetails, setUserLocalDetails] = useState(null);
     const [totalLeads, setTotalLeads] = useState(0);
   
   const [snackMessage, setSnackMessage] = useState(null);
@@ -290,9 +291,11 @@ const AdminLeads = ({
   //code for get profile function
   const getProfile = async () => {
     try {
+      const LocalData = userLocalData();
+      setUserLocalDetails(LocalData);
       let data = await AdminGetProfileDetails(selectedUser.id);
       // console.log('data', data)
-      setUserLocalData(data)
+      setUserLocalDetails(data)
 
     } catch (error) {
       // console.error("Error occured in api is error", error);
@@ -1584,7 +1587,7 @@ const AdminLeads = ({
             }}
             className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
             onClick={() => {
-              if (userLocalData?.plan) {
+              if (userLocalDetails?.plan) {
                 setAssignLeadModal(true);
               } else {
                 setSnackMessage("Add payment method to continue");
@@ -1670,7 +1673,7 @@ const AdminLeads = ({
                               handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
                             leadIs={toggleClick}
-                            userProfile={userLocalData}
+                            userProfile={userLocalDetails}
                             selectedUser ={selectedUser}
                             totalLeads={totalLeads}
                           />

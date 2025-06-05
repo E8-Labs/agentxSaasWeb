@@ -16,6 +16,7 @@ const ClaimNumber = ({
   setPreviousNumber,
   previousNumber,
   AssignNumber,
+  selectedUser
 }) => {
   const timerRef = useRef(null);
 
@@ -73,7 +74,7 @@ const ClaimNumber = ({
       }
 
       if(selectedUser){
-        formData.append("userId", selectedUSer.id);
+        formData.append("userId", selectedUser.id);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -91,7 +92,7 @@ const ClaimNumber = ({
       //     setOpenCalimNumDropDown(false);
       // }
 
-      return
+      // return
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
