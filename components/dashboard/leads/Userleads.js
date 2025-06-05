@@ -163,6 +163,9 @@ const Userleads = ({
   const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false);
   const [newSheetName, setNewSheetName] = useState("");
 
+  //render status
+  const isFirstRender = useRef(true);
+
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null);
   const [showNoLeadsLabel, setShowNoLeadsLabel] = useState(false);
@@ -222,6 +225,13 @@ const Userleads = ({
   };
 
   useEffect(() => {
+
+    //check the render
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     if (filterRef.current) {
       clearTimeout(filterRef.current);
     }
@@ -937,141 +947,141 @@ const Userleads = ({
   };
 
   //function for getting the leads
-  const getLeads = async (item, offset = 0, oldSheet) => {
-    try {
-      setSheetsLoader(true);
-      const id = item.id;
-      //Set leads in cache
-      let leadsData = LeadsInSheet[id] || null;
-      if (!leadsData) {
-        //////console.log;
-        let d = localStorage.getItem(`Leads${id}`);
-        if (d) {
-          //////console.log;
-          leadsData = JSON.parse(d);
-        }
-      }
-      let leads = leadsData?.data;
-      let leadColumns = leadsData?.columns;
-      setSelectedSheetId(item.id);
-      setLeadsList([]);
-      setFilterLeads([]);
-      if (leads && leadColumns) {
-        // //////console.log
-        setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-        setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-        let dynamicColumns = [];
-        if (leads.length > 0) {
-          dynamicColumns = [
-            ...leadColumns,
-            // { title: "Tag" },
-            {
-              title: "More",
-              idDefault: false,
-            },
-          ];
-        }
-        // setLeadColumns(response.data.columns);
-        setLeadColumns(dynamicColumns);
-        // return
-      } else {
-        //////console.log;
-      }
+  // const getLeads = async (item, offset = 0, oldSheet) => {
+  //   try {
+  //     setSheetsLoader(true);
+  //     const id = item.id;
+  //     //Set leads in cache
+  //     let leadsData = LeadsInSheet[id] || null;
+  //     if (!leadsData) {
+  //       //////console.log;
+  //       let d = localStorage.getItem(`Leads${id}`);
+  //       if (d) {
+  //         //////console.log;
+  //         leadsData = JSON.parse(d);
+  //       }
+  //     }
+  //     let leads = leadsData?.data;
+  //     let leadColumns = leadsData?.columns;
+  //     setSelectedSheetId(item.id);
+  //     setLeadsList([]);
+  //     setFilterLeads([]);
+  //     if (leads && leadColumns) {
+  //       // //////console.log
+  //       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
+  //       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
+  //       let dynamicColumns = [];
+  //       if (leads.length > 0) {
+  //         dynamicColumns = [
+  //           ...leadColumns,
+  //           // { title: "Tag" },
+  //           {
+  //             title: "More",
+  //             idDefault: false,
+  //           },
+  //         ];
+  //       }
+  //       // setLeadColumns(response.data.columns);
+  //       setLeadColumns(dynamicColumns);
+  //       // return
+  //     } else {
+  //       //////console.log;
+  //     }
 
-      // setSheetsLoader(true);
+  //     // setSheetsLoader(true);
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
-      }
+  //     const localData = localStorage.getItem("User");
+  //     let AuthToken = null;
+  //     if (localData) {
+  //       const UserDetails = JSON.parse(localData);
+  //       AuthToken = UserDetails.token;
+  //     }
 
-      //////console.log;
+  //     //////console.log;
 
-      //////console.log;
+  //     //////console.log;
 
-      // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
+  //     // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
 
-      const formtFromDate = moment(selectedFromDate).format("MM/DD/YYYY");
-      const formtToDate = moment(selectedToDate).format("MM/DD/YYYY");
+  //     const formtFromDate = moment(selectedFromDate).format("MM/DD/YYYY");
+  //     const formtToDate = moment(selectedToDate).format("MM/DD/YYYY");
 
-      let ApiPath = null;
-      const stages = selectedStage.join(",");
-      if (selectedFromDate && selectedToDate) {
-        ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-      } else {
-        ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
-      }
+  //     let ApiPath = null;
+  //     const stages = selectedStage.join(",");
+  //     if (selectedFromDate && selectedToDate) {
+  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
+  //     } else {
+  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
+  //     }
 
-      //////console.log;
+  //     //////console.log;
 
-      // return
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          // "Content-Type": "application/json"
-        },
-      });
+  //     // return
+  //     const response = await axios.get(ApiPath, {
+  //       headers: {
+  //         Authorization: "Bearer " + AuthToken,
+  //         // "Content-Type": "application/json"
+  //       },
+  //     });
 
-      if (response) {
-        //////console.log;
-        let leadData = [];
-        let leadColumns = [];
-        // setLeadsList(response.data.data);
-        // setFilterLeads(response.data.data);
+  //     if (response) {
+  //       //////console.log;
+  //       let leadData = [];
+  //       let leadColumns = [];
+  //       // setLeadsList(response.data.data);
+  //       // setFilterLeads(response.data.data);
 
-        const data = response.data.data;
-        //////console.log;
-        let firstLead = null;
-        if (data.length > 0) {
-          //////console.log;
-          let l = data[0];
-          let sheetOfLead = l.sheetId;
-          //////console.log;
-          if (item.id == sheetOfLead) {
-            //////console.log;
-            setLeadsList([...data]);
-            setFilterLeads([...data]);
-          }
-        }
-        // if (SelectedSheetId == item.id || SelectedSheetId == null) {
-        //   setLeadsList([...data]);
-        //   setFilterLeads([...data]);
-        // }
+  //       const data = response.data.data;
+  //       //////console.log;
+  //       let firstLead = null;
+  //       if (data.length > 0) {
+  //         //////console.log;
+  //         let l = data[0];
+  //         let sheetOfLead = l.sheetId;
+  //         //////console.log;
+  //         if (item.id == sheetOfLead) {
+  //           //////console.log;
+  //           setLeadsList([...data]);
+  //           setFilterLeads([...data]);
+  //         }
+  //       }
+  //       // if (SelectedSheetId == item.id || SelectedSheetId == null) {
+  //       //   setLeadsList([...data]);
+  //       //   setFilterLeads([...data]);
+  //       // }
 
-        leadData = data;
+  //       leadData = data;
 
-        if (leads) {
-          // leads = {...leads, ...data}
-        } else {
-          LeadsInSheet[id] = response.data;
-          localStorage.setItem(`Leads${id}`, JSON.stringify(response.data));
-        }
-        let dynamicColumns = [];
-        if (response.data.data.length > 0) {
-          dynamicColumns = [
-            ...response.data.columns,
-            // { title: "Tag" },
-            {
-              title: "More",
-              idDefault: false,
-            },
-          ];
-        }
-        // setLeadColumns(response.data.columns);
-        setLeadColumns(dynamicColumns);
-        leadColumns = response.data.columns;
-        //////console.log;
-        //////console.log;
-      }
-    } catch (error) {
-      // console.error("Error occured in api is :", error);
-    } finally {
-      setSheetsLoader(false);
-      //////console.log;
-    }
-  };
+  //       if (leads) {
+  //         // leads = {...leads, ...data}
+  //       } else {
+  //         LeadsInSheet[id] = response.data;
+  //         localStorage.setItem(`Leads${id}`, JSON.stringify(response.data));
+  //       }
+  //       let dynamicColumns = [];
+  //       if (response.data.data.length > 0) {
+  //         dynamicColumns = [
+  //           ...response.data.columns,
+  //           // { title: "Tag" },
+  //           {
+  //             title: "More",
+  //             idDefault: false,
+  //           },
+  //         ];
+  //       }
+  //       // setLeadColumns(response.data.columns);
+  //       setLeadColumns(dynamicColumns);
+  //       leadColumns = response.data.columns;
+  //       //////console.log;
+  //       //////console.log;
+  //     }
+  //   } catch (error) {
+  //     // console.error("Error occured in api is :", error);
+  //   } finally {
+  //     setSheetsLoader(false);
+  //     //////console.log;
+  //   }
+  // };
 
   //function to add lead notes
   const handleAddLeadNotes = async () => {
@@ -1514,7 +1524,7 @@ const Userleads = ({
     setSnackMessage(showSnack);
     if (disSelectLeads === true) {
       setSelectedLeadsList([]);
-      if(showSnack){
+      if (showSnack) {
         setShowSnackMessage(true);
       }
       setSelectedAll(false);

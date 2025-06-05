@@ -239,6 +239,7 @@ const ProfileNav = () => {
     const handleUpdateProfile = (event) => {
       // //console.log;
       getUserProfile(); // Refresh the profile data
+      console.log("Navbar called getprofile api 1");
     };
 
     window.addEventListener("UpdateProfile", handleUpdateProfile);

@@ -1092,22 +1092,22 @@ const Leads1 = () => {
     }
   };
 
-  const handleToogleChange = async (event) => {
-    const checked = event.target.checked;
+  // const handleToogleChange = async (event) => {
+  //   const checked = event.target.checked;
 
-    if (checked) {
-      let user = await getProfileDetails();
-      if (user) {
-        console.log("user credits are", user.data.data.enrichCredits);
-        if (user.data.data.enrichCredits === 0) {
-          setShowenrichConfirmModal2(true);
-          return;
-        }
-      }
-    }
+  //   if (checked) {
+  //     let user = await getProfileDetails();
+  //     if (user) {
+  //       console.log("user credits are", user.data.data.enrichCredits);
+  //       if (user.data.data.enrichCredits === 0) {
+  //         setShowenrichConfirmModal2(true);
+  //         return;
+  //       }
+  //     }
+  //   }
 
-    setIsEnrich(checked);
-  };
+  //   setIsEnrich(checked);
+  // };
 
   return (
     <div className="w-full">
