@@ -160,21 +160,23 @@ const UserCalender = ({
       // formData.append("eventId", calendar ? calendar.eventId : eventId); //|| eventId
       // formData.append("agentId", selectedAgent.id);
 
-      formData.append("apiKey", calendar.apiKey || calenderApiKey); //|| calenderApiKey
-      formData.append("title", calendar.title || calenderTitle); //|| calenderTitle
-      formData.append("timeZone", calendar.timeZone || selectTimeZone); //|| selectTimeZone
+      // console.log(`Apikey == ${calenderApiKey}; Title == ${calenderTitle}; TimeZone == ${selectTimeZone}`);
+
+      formData.append("apiKey", calendar?.apiKey || calenderApiKey);
+      formData.append("title", calendar?.title || calenderTitle);
+      formData.append("timeZone", calendar?.timeZone || selectTimeZone);
       if (calendar?.id) {
         // formData.append("mainAgentId", calendarDetails.id);
-        formData.append("calendarId", calendar.id); //|| selected calendar id
-        console.log("Sending calendar id ", calendar.id);
+        formData.append("calendarId", calendar?.id); //|| selected calendar id
+        console.log("Sending calendar id ", calendar?.id);
       }
-      formData.append("eventId", calendar.eventId || eventId); //|| eventId
+      formData.append("eventId", calendar?.eventId || eventId); //|| eventId
       if (selectedAgent) {
-        formData.append("agentId", selectedAgent.id);
+        formData.append("agentId", selectedAgent?.id);
       }
 
       if(selectedUser){
-        formData.append("userId", selectedUser.id);
+        formData.append("userId", selectedUser?.id);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -763,12 +765,12 @@ const UserCalender = ({
                           color: !isEnabled() ? "#000000" : "",
                         }}
                         onClick={() => {
-                          let calendar = {
-                            apiKey: calenderApiKey,
-                            eventId: eventId,
-                            timeZone: selectTimeZone,
-                          };
-                          handleAddCalender(calendar);
+                          // let calendar = {
+                          //   apiKey: calenderApiKey,
+                          //   eventId: eventId,
+                          //   timeZone: selectTimeZone,
+                          // };
+                          handleAddCalender();
                         }}
                       >
                         Add
