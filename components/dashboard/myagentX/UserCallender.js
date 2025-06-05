@@ -153,17 +153,17 @@ const UserCalender = ({
       // formData.append("eventId", calendar ? calendar.eventId : eventId); //|| eventId
       // formData.append("agentId", selectedAgent.id);
 
-      formData.append("apiKey", calendar.apiKey || calenderApiKey); //|| calenderApiKey
-      formData.append("title", calendar.title || calenderTitle); //|| calenderTitle
-      formData.append("timeZone", calendar.timeZone || selectTimeZone); //|| selectTimeZone
+      formData.append("apiKey", calendar?.apiKey || calenderApiKey); //|| calenderApiKey
+      formData.append("title", calendar?.title || calenderTitle); //|| calenderTitle
+      formData.append("timeZone", calendar?.timeZone || selectTimeZone); //|| selectTimeZone
       if (calendar) {
         // formData.append("mainAgentId", calendarDetails.id);
-        formData.append("calendarId", calendar.id); //|| selected calendar id
+        formData.append("calendarId", calendar?.id); //|| selected calendar id
         console.log("Sending calendar id ", calendar.id);
       }
-      formData.append("eventId", calendar.eventId || eventId); //|| eventId
+      formData.append("eventId", calendar?.eventId || eventId); //|| eventId
       if (selectedAgent) {
-        formData.append("agentId", selectedAgent.id);
+        formData.append("agentId", selectedAgent?.id);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -736,7 +736,7 @@ const UserCalender = ({
                             eventId: eventId,
                             timeZone: selectTimeZone,
                           };
-                          handleAddCalender(calendar);
+                          handleAddCalender();
                         }}
                       >
                         Add
