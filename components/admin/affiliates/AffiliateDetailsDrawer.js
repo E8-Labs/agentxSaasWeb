@@ -180,7 +180,7 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                             Revenue
                         </div>
                         <div style={{ fontSize: 18, fontWeight: '700', color: '#000' }}>
-                            {affiliate.Revenue ? `$${affiliate.Revenue}` : '-'}
+                            {affiliate.Revenue ? `$${affiliate.Revenue.toFixed(2)}` : '-'}
                         </div>
                     </div>
                     <div className="flex flex-col items-start gap-2 bg-[#15151506] rounded-lg h-[77px] w-[170px] p-2">
@@ -188,7 +188,7 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                             XBar Amount
                         </div>
                         <div style={{ fontSize: 18, fontWeight: '700', color: '#000' }}>
-                            {affiliate.xbarTotalRevenue?.totalSpent ? `$${affiliate.xbarTotalRevenue?.totalSpent}` : '-'}
+                            {affiliate.xbarTotalRevenue?.totalSpent ? `$${affiliate.xbarTotalRevenue?.totalSpent.toFixed(2)}` : '-'}
                         </div>
                     </div>
                     <div className="flex flex-col items-start gap-2 bg-[#15151506] rounded-lg h-[77px] w-[170px] p-2">
@@ -197,7 +197,7 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
                         </div>
                         <div style={{ fontSize: 14, fontWeight: '500', color: '#00000060' }}>
                             {affiliate.topSpender?.User?.name} <span style={{ fontSize: 14, fontWeight: '500', color: '#000000' }}>
-                                (${affiliate.topSpender?.totalSpent})
+                                (${affiliate.topSpender?.totalSpent.toFixed(2)})
                             </span>
                         </div>
                     </div>
