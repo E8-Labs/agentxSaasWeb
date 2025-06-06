@@ -87,10 +87,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
   useEffect(() => {
     // //console.log;
-  }, [countryCode]);
-
-  useEffect(() => {
-    // //console.log;
     const localData = localStorage.getItem("User");
     if (localData) {
       let d = JSON.parse(localData);
@@ -100,23 +96,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
       if (d.user.userType == "admin") {
         router.push("/admin");
-
-      } else if (d.user.userRole == "AgencySubAccount") {
-        if (d.user.plan && d.user.plan?.status === "active") {
-          router.push("/dashboard");
-        } else {
-          router.push("/subaccountInvite");
-        }
-      } else if (d.user.userRole == "Agency") {
-        if (d.user.plan && d.user.canAcceptPaymentsAgencyccount === false) {
-          router.push("/agency/verify")
-        } else {
-          router.push("/agency/dashboard");
-        }
-      }
-
-      else {
-        console.log('redirecting to dasboard')
+      } else {
         router.push("/dashboard");
       }
     }
@@ -164,7 +144,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           userPhoneNumberRef.current
         );
 
-        setCountryCode(data.countryCode.toLowerCase());
+        // setCountryCode(data.countryCode.toLowerCase());
       }
 
       // //console.log;
@@ -283,7 +263,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   //code to show verify popup
 
   const handleVerifyPopup = async () => {
-    console.log("Code trigerred");
+    //console.log;
     try {
       setShowVerifyPopup(true);
       setSendcodeLoader(true);
@@ -348,11 +328,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
         if (response.data.status === true) {
           setLoaderTitle("Redirecting to dashboard...");
-          // if (response.data.data.user.userRole == "AgencySubAccount"){
-          //   setLoaderTitle("Redirecting to invite...");
-          // }else{
-          //   setLoaderTitle("Redirecting to dashboard...");
-          // }
           // if (
           //   response.data.data.user.userType !== "RealEstateAgent" &&
           //   response.data.data.user.userRole !== "Invitee"
@@ -387,12 +362,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   router.push(redirect);
                 } else {
                   // setUserType()
-                  console.log("user role is", response.data.data.user.userRole);
-                  // return
                   if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
-                  } else if (response.data.data.user.userRole == "AgencySubAccount") {
-                    router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/leads");
                   }
@@ -422,19 +393,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       setLoginLoader(true);
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
+      const response = await axios.post(Apis.LogIn,ApiData ,{
+        
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Ensures cookies (JWT) are stored securely
-        body: JSON.stringify(ApiData),
+        // credentials: "include", // Ensures cookies (JWT) are stored securely
+       
       });
       // setLoginLoader(false);
-      const data = await response.json();
       //console.log;
-      if (response.ok) {
-        // //console.log;
+      if (response) {
+      // const data = response //await response.json();
+      console.log('data of login api is', response);
+
+        // console.log;
         // Redirect user or update state as needed
         let screenWidth = innerWidth;
 
@@ -443,17 +416,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setSnackMessage("Access your AI on Desktop");
         } else {
           setMsgType(
-            data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
+            response.data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
           );
 
-          setSnackMessage(data.message);
+          setSnackMessage(response.data.message);
         }
 
         setIsVisible(true);
 
-        if (data.status === true) {
+        if (response.data.status === true) {
 
-          if (data.data.user.profile_status === "paused") {
+          if (response.data.data.user.profile_status === "paused") {
             setLoginLoader(false)
             setMsgType(SnackbarTypes.Error)
             setSnackMessage("Your account has been frozen.")
@@ -464,25 +437,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           //   response.data.data.user.userType !== "RealEstateAgent" &&
           //   response.data.data.user.userRole !== "Invitee"
           // ) {
-          if (data.data.user.waitlist) {
+          if (response.data.data.user.waitlist) {
             // //console.log;
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
             if (typeof document !== "undefined") {
-              setCookie(data.data.user, document, twoHoursFromNow);
+              setCookie(response.data.user, document, twoHoursFromNow);
               router.push("/onboarding/WaitList");
             }
           } else {
             // //console.log;
             // let routeTo = ""
 
-            localStorage.setItem("User", JSON.stringify(data.data));
+            localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
               // //console.log;
 
-              setCookie(data.data.user, document);
+              setCookie(response.data.data.user, document);
               let w = innerWidth;
               if (w < 540) {
                 // //console.log;
@@ -493,21 +466,22 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 if (redirect) {
                   router.push(redirect);
                 } else {
-                  if (data.data.user.userType == "admin") {
+                  console.log("user role is", response.data.data.user.userRole);
+                  // return
+                  if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
-                  }
-                  else if (data.data.user.userRole == "AgencySubAccount") {
-                    router.push("/subaccountInvite");
-                  } else if (data.data.user.userRole == "Agency") {
-                    if (data.data.user.plan && data.data.user.canAcceptPaymentsAgencyccount === false) {
-                      router.push("/agency/verify")
-                    } else {
-                      router.push("/agency/dashboard");
-                    }
-                  }
-                  else {
+                  } else if (response.data.data.user.userRole == "AgencySubAccount") {
+                    router.push("/agency/dashboard");
+                  } else {
                     router.push("/dashboard/leads");
                   }
+                  // if (data.data.user.userType == "admin") {
+                  //   router.push("/admin");
+                  // } 
+
+                  // else {
+                  //   router.push("/dashboard/leads");
+                  // }
                 }
               }
             } else {
@@ -535,7 +509,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         phone: value,
       };
 
-      // console.log("Api ppath for check phone", ApiPath);
+      // //console.log;
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -544,7 +518,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       });
 
       if (response) {
-        // console.log("Send code response is", response);
+        // //console.log;
         if (response.data.status === true) {
           // //console.log;
           setCheckPhoneResponse(response.data.status);
@@ -720,11 +694,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 <div className="w-[90%]">
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
-                    country={"us"} // restrict to US only
-                    onlyCountries={["us"]}
-                    disableDropdown={true}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}
+                    country={"us"} // Default country
                     value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -770,6 +740,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
+                    countryCodeEditable={false}
+                    disableDropdown={true}
                     defaultMask={locationLoader ? "Loading..." : undefined}
                   />
                 </div>
@@ -782,7 +754,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     className="text-black bg-transparent border border-[#000000] rounded-full"
                     style={{ fontSize: 16, fontWeight: "600" }}
                     onClick={() => {
-                      console.log("Get code btn clicked");
                       if (checkPhoneResponse === false) {
                         handleVerifyPopup();
                       }
