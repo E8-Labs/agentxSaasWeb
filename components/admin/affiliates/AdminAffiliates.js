@@ -626,19 +626,19 @@ function AdminAffiliates({ selectedUser }) {
                     <div style={styles.text2}>
                       {item.topSpender
                         ? `${item.topSpender?.User?.name}
-                        ($${item.topSpender?.totalSpent})`
+                        ($${item.topSpender?.totalSpent?.toFixed(2)})`
                         : ""}
                     </div>
                   </div>
                   <div className="w-2/12  h-full border-r-2 border-[#15151510]">
                     <div style={styles.text2}>
-                      {item.Revenue ? `$${item.Revenue}` : "-"}
+                      {item.Revenue ? `$${item.Revenue?.toFixed(2)}` : "-"}
                     </div>
                   </div>
                   <div className="w-2/12 pl-4">
                     <div style={styles.text2}>
                       {item.xbarTotalRevenue?.totalSpent
-                        ? `$${item.xbarTotalRevenue?.totalSpent}`
+                        ? `$${item.xbarTotalRevenue?.totalSpent.toFixed(2)}`
                         : "-"}
                     </div>
                   </div>
@@ -802,7 +802,7 @@ function AdminAffiliates({ selectedUser }) {
                          
                           <div className="w-1/12">
                             <div style={styles.text2}>
-                              {item.totalSpent ? `$${item.totalSpent}` : "-"}
+                              {item.totalSpent ? `$${item.totalSpent.toFixed(2)}` : "-"}
                             </div>
                           </div>
 

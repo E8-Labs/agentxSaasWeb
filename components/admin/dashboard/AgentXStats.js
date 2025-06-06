@@ -77,7 +77,7 @@ function AgentXStats({ user }) {
       const data = await response.json();
 
       if (response.ok) {
-        //console.log;
+        console.log("dashboard data is",data)
         setStats(data.stats.data);
       } else {
         console.error("Failed to fetch admin stats:", data.error);
