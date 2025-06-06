@@ -393,19 +393,21 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       setLoginLoader(true);
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
+      const response = await axios.post(Apis.LogIn,ApiData ,{
+        
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // Ensures cookies (JWT) are stored securely
-        body: JSON.stringify(ApiData),
+        // credentials: "include", // Ensures cookies (JWT) are stored securely
+       
       });
       // setLoginLoader(false);
-      const data = await response.json();
       //console.log;
-      if (response.ok) {
-        // //console.log;
+      if (response) {
+      // const data = response //await response.json();
+      console.log('data of login api is', response);
+
+        // console.log;
         // Redirect user or update state as needed
         let screenWidth = innerWidth;
 
@@ -414,17 +416,17 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setSnackMessage("Access your AI on Desktop");
         } else {
           setMsgType(
-            data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
+            response.data.status === true ? SnackbarTypes.Success : SnackbarTypes.Error
           );
 
-          setSnackMessage(data.message);
+          setSnackMessage(response.data.message);
         }
 
         setIsVisible(true);
 
-        if (data.status === true) {
+        if (response.data.status === true) {
 
-          if (data.data.user.profile_status === "paused") {
+          if (response.data.data.user.profile_status === "paused") {
             setLoginLoader(false)
             setMsgType(SnackbarTypes.Error)
             setSnackMessage("Your account has been frozen.")
@@ -435,25 +437,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           //   response.data.data.user.userType !== "RealEstateAgent" &&
           //   response.data.data.user.userRole !== "Invitee"
           // ) {
-          if (data.data.user.waitlist) {
+          if (response.data.data.user.waitlist) {
             // //console.log;
 
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
             if (typeof document !== "undefined") {
-              setCookie(data.data.user, document, twoHoursFromNow);
+              setCookie(response.data.user, document, twoHoursFromNow);
               router.push("/onboarding/WaitList");
             }
           } else {
             // //console.log;
             // let routeTo = ""
 
-            localStorage.setItem("User", JSON.stringify(data.data));
+            localStorage.setItem("User", JSON.stringify(response.data.data));
             //set cokie on locastorage to run middle ware
             if (typeof document !== "undefined") {
               // //console.log;
 
-              setCookie(data.data.user, document);
+              setCookie(response.data.data.user, document);
               let w = innerWidth;
               if (w < 540) {
                 // //console.log;
