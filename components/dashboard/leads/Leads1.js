@@ -12,6 +12,7 @@ import {
   Snackbar,
   Switch,
   ToggleButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
@@ -1236,7 +1237,7 @@ const Leads1 = () => {
                   Leads
                 </div>
 
-                <div className="flex flex-row items-center gap-2 mt-8">
+                <div className="flex flex-row justify-between items-center gap-2 mt-8">
                   <span style={styles.subHeadingStyle}>List Name</span>{" "}
                   {/* <Image
                   src={"/svgIcons/infoIcon.svg"}
@@ -1244,6 +1245,62 @@ const Leads1 = () => {
                   width={18}
                   alt="*"
                 /> */}
+                  <div className="flex flex-row items-center gap-2 ">
+                    <Switch
+                      checked={showenrichModal}
+                      // color="#7902DF"
+                      // exclusive
+                      onChange={(event) => {
+                        //console.log;
+                        setShowenrichModal(event.target.checked);
+                      }}
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: "#7902DF",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "#7902DF",
+                        },
+                      }}
+                    />
+
+
+                    <Tooltip
+                      title="Our AI wil search the web to pull all current data on your leads."
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "16px",
+                            fontWeight: "500",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff", // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <div className="flex flex-row items-center gap-2">
+                        <div style={{ fontSize: 14, fontWeight: '500' }}>
+                          Enrich Leads
+                        </div>
+                        <Image
+                          src={"/svgIcons/infoIcon.svg"}
+                          height={16}
+                          width={16}
+                          alt="*"
+                        />
+                      </div>
+                    </Tooltip>
+                  </div>
                 </div>
 
                 <div className="w-full mt-4" style={styles.subHeadingStyle}>
@@ -1440,7 +1497,8 @@ const Leads1 = () => {
                         // return;
                         if (validated) {
                           console.log("Show enrich");
-                          setShowenrichModal(true);
+                          // setShowenrichModal(true);
+                          handleAddLead()
                         }
                       }}
                     >
