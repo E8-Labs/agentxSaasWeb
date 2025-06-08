@@ -114,7 +114,7 @@ export default function ConfirmPerplexityModal({
                         Cost Per Lead
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        $0.10
+                        $0.05
                     </Typography>
                 </Box>
 
