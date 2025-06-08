@@ -51,6 +51,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const [phoneNumberLoader, setPhoneNumberLoader] = useState(false);
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [enterPressed, setEnterPressed] = useState(false);
+
 
   const [loaderTitle, setLoaderTitle] = useState("Launching your account...");
   // const length = 6;
@@ -84,6 +86,14 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // router.replace("/login");
     }
   }, [params]);
+
+  useEffect(() => {
+  if (enterPressed && checkPhoneResponse === false) {
+    handleVerifyPopup();
+    setEnterPressed(false); // reset it
+  }
+}, [enterPressed, checkPhoneResponse]);
+
 
   useEffect(() => {
     // //console.log;
@@ -393,19 +403,19 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       setLoginLoader(true);
-      const response = await axios.post(Apis.LogIn,ApiData ,{
-        
+      const response = await axios.post(Apis.LogIn, ApiData, {
+
         headers: {
           "Content-Type": "application/json",
         },
         // credentials: "include", // Ensures cookies (JWT) are stored securely
-       
+
       });
       // setLoginLoader(false);
       //console.log;
       if (response) {
-      // const data = response //await response.json();
-      console.log('data of login api is', response);
+        // const data = response //await response.json();
+        console.log('data of login api is', response);
 
         // console.log;
         // Redirect user or update state as needed
@@ -565,28 +575,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     }
   };
 
-  // const handlePaste = (e) => {
-  //   const pastedText = e.clipboardData.getData("text").slice(0, 6);
-  //   const newValues = pastedText
-  //     .split("")
-  //     .map((char) => (/[0-9]/.test(char) ? char : ""));
-  //   setVerifyCode(newValues);
-
-  //   // Set each input's value and move focus to the last filled input
-  //   newValues.forEach((char, index) => {
-  //     verifyInputRef.current[index].value = char;
-  //     if (index === newValues.length - 1) {
-  //       verifyInputRef.current[index].focus();
-  //     }
-  //   });
-
-  //   if (newValues.every((num) => num !== "") && onComplete) {
-  //     onComplete(newValues.join(""));
-  //   }
-  // };
-
-  //code for number verification
-
+ 
   const handlePaste = (e) => {
     e.preventDefault(); // Prevent default behavior to avoid issues with pasting
     const pastedText = e.clipboardData.getData("text").slice(0, length); // Get the pasted text and slice to length
@@ -704,16 +693,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     }
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
-                      if (
-                        e.key === "Enter" &&
-                        userPhoneNumber &&
-                        !errorMessage
-                      ) {
-                        if (checkPhoneResponse === false) {
-                          handleVerifyPopup();
-                        }
-                        // setShowVerifyPopup(true)
+                      if (e.key === "Enter" && userPhoneNumber && !errorMessage) {
+                        setEnterPressed(true);
                       }
+                      // setShowVerifyPopup(true)
                     }}
                     style={{
                       borderRadius: "7px",
