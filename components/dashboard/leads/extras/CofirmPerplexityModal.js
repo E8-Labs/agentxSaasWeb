@@ -131,7 +131,7 @@ export default function ConfirmPerplexityModal({
                         Total Cost
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        $10
+                        $5
                     </Typography>
                 </Box>
             </DialogContent>
