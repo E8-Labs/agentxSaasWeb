@@ -3,7 +3,7 @@ import PurchaseNumberSuccess from "@/components/createagent/PurchaseNumberSucces
 import { Box, CircularProgress, Modal } from "@mui/material";
 import axios from "axios";
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
@@ -16,7 +16,7 @@ const ClaimNumber = ({
   setPreviousNumber,
   previousNumber,
   AssignNumber,
-  selectedUser
+  selectedUSer,
 }) => {
   const timerRef = useRef(null);
 
@@ -73,8 +73,8 @@ const ClaimNumber = ({
         formData.append("mainAgentId", MyAgentData?.id);
       }
 
-      if(selectedUser){
-        formData.append("userId", selectedUser.id);
+      if (selectedUSer) {
+        formData.append("userId", selectedUSer.id);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -286,7 +286,7 @@ const ClaimNumber = ({
                       if (value) {
                         timerRef.current = setTimeout(() => {
                           handleFindeNumbers(value);
-                        }, 300);
+                        }, 500);
                       } else {
                         // //console.log;
                         return;

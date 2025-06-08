@@ -995,8 +995,8 @@ function SubAccountBasicInfo() {
       {userRole && userRole != "Invitee" && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -1069,9 +1069,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedServiceArea ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedServiceArea ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1112,8 +1111,8 @@ function SubAccountBasicInfo() {
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div
                 style={{
@@ -1129,9 +1128,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedBrokerage ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedBrokerage ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1186,9 +1184,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedCompany ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1240,9 +1237,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedWebsite ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedWebsite ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1296,9 +1292,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
                 style={{
-                  border: `1px solid ${
-                    focusedCompany ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedCompany ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1354,20 +1349,23 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedTransaction ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedTransaction ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
                 <input
-                  type="text"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedTransaction(true)}
                   onBlur={() => setFocusedTransaction(false)}
                   value={transaction}
-                  onChange={(event) => {
-                    setTransaction(event.target.value);
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onChange={(e) => {
+                    // Only keep digits in state
+                    const onlyNums = e.target.value.replace(/\D/g, "");
+                    setTransaction(onlyNums);
                     setIsTransactionChange(true);
                   }}
                   placeholder="Type here"
@@ -1408,9 +1406,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedInstallationVolume ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedInstallationVolume ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1451,7 +1448,7 @@ function SubAccountBasicInfo() {
           )}
 
           {(userType && userType === UserTypes.SolarRep) ||
-          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div
                 style={{
@@ -1469,9 +1466,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedProjectSize ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedProjectSize ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1523,9 +1519,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1577,9 +1572,8 @@ function SubAccountBasicInfo() {
               <div
                 className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
                 style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? "#8a2be2" : "#00000010"
-                  }`,
+                  border: `1px solid ${focusedClientsPerMonth ? "#8a2be2" : "#00000010"
+                    }`,
                   transition: "border-color 0.3s ease",
                 }}
               >
@@ -1716,7 +1710,7 @@ function SubAccountBasicInfo() {
             ""
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-          (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type

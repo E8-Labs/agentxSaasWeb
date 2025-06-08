@@ -119,14 +119,14 @@ const Page = () => {
             // CreateAgent4,
             // CreateAgentVoice,
           ]);
-          setIndex(3)
+          // setIndex(3)
         } else {
           setComponents([
             CreateAgent1,
             CreatAgent3,
             CreateAgent4,
             CreateAgentVoice,
-            setIndex(3)
+            // setIndex(3)
           ]);
         }
       }

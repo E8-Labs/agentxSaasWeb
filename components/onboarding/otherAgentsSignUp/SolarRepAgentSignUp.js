@@ -822,7 +822,7 @@ country={"us"} // restrict to US only
                         style={{
                           ...styles.inputStyle,
                           borderRadius: "30px",
-                          paddingInline: index === 2 && "40px",
+                          // paddingInline: index === 2 && "40px",
                           border:
                             ClientType === item.title
                               ? "2px solid #7902DF"

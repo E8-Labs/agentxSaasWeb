@@ -33,21 +33,21 @@ function MyAccount() {
     },
     {
       id: 3,
+      heading: "Bar Services",
+      subHeading: "Our version of the genius bar",
+      icon: "/assets/X.svg",
+    },
+    {
+      id: 4,
       heading: "My Phone Numbers",
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
     {
-      id: 4,
+      id: 5,
       heading: "Invite Agents",
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
-    },
-    {
-      id: 5,
-      heading: "Bar Services",
-      subHeading: "Our version of the genius bar",
-      icon: "/assets/X.svg",
     },
     {
       id: 6,
@@ -96,11 +96,11 @@ function MyAccount() {
       case 2:
         return <Billing />;
       case 3:
-        return <MyPhoneNumber />;
-      case 4:
-        return <InviteAgentX />;
-      case 5:
         return <BarServices />;
+      case 4:
+        return <MyPhoneNumber />;
+      case 5:
+        return <InviteAgentX />;
       case 6:
         return <Support />;
       case 7:

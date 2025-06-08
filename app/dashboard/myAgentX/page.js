@@ -683,9 +683,9 @@ function Page() {
     //console.log;
     // return
 
-    if(item.Calendar){
+    if (item.Calendar) {
       console.log("Agent has calendaer in item");
-    }else{
+    } else {
       console.log("Agent donot have calendar in the item");
     }
 
@@ -4182,45 +4182,47 @@ function Page() {
             )}
           </div>
           {/* Delete agent button */}
-          <button
-            className="flex flex-row gap-2 items-center"
-            onClick={() => {
-              setDelAgentModal(true);
-            }}
-            style={{
-              marginTop: 20,
-              alignSelf: "end",
-              position: "absolute",
-              bottom: "2%",
-            }}
-          >
-            {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+          <div className="w-full flex flex-row items-center justify-end">
+            <button
+              className="flex flex-row gap-2 items-center"
+              onClick={() => {
+                setDelAgentModal(true);
+              }}
+              style={{
+                // // marginTop: 20,
+                // alignSelf: "end",
+                // position: "absolute",
+                // bottom: "7%",
+              }}
+            >
+              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
                 width={24}
                 alt='del'
               /> */}
 
-            <Image
-              src={"/otherAssets/redDeleteIcon.png"}
-              height={24}
-              width={24}
-              alt="del"
-              style={{
-                filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-              }}
-            />
+              <Image
+                src={"/otherAssets/redDeleteIcon.png"}
+                height={24}
+                width={24}
+                alt="del"
+                style={{
+                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+                }}
+              />
 
-            <div
-              style={{
-                fontSize: 15,
-                fontWeight: "600",
-                color: "#15151590",
-                textDecorationLine: "underline",
-              }}
-            >
-              Delete Agent
-            </div>
-          </button>
+              <div
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                  color: "#15151590",
+                  textDecorationLine: "underline",
+                }}
+              >
+                Delete Agent
+              </div>
+            </button>
+          </div>
         </div>
       </Drawer>
 

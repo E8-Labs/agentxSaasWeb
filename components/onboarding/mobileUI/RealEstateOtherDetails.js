@@ -68,12 +68,16 @@ function RealEstateOtherDetails({
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Type here"
-        type = "number"
+        type="text"
+        inputMode="numeric"
+        pattern="[0-9]*"
         className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
         style={{ ...styles.inputStyle, marginTop: "8px" }}
         value={userTransaction}
         onChange={(e) => {
-          setUserTransaction(e.target.value);
+          // Only keep digits in state
+          const onlyNums = e.target.value.replace(/\D/g, "");
+          setUserTransaction(onlyNums);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === "Done") {

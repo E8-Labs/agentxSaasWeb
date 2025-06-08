@@ -457,7 +457,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                           // autoCorrect="off"
                           // spellCheck="false"
                           enterKeyHint="done"
-                          placeholder="Your objective"
+                          placeholder="Agent's objective"
                           className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
                           style={{
                             ...styles.inputStyle,

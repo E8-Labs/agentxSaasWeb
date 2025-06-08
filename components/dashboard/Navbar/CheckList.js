@@ -5,18 +5,22 @@ import Image from 'next/image';
 import { Box, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 import { useRouter } from 'next/navigation';
+import ClaimNumber from '../myagentX/ClaimNumber';
 
 const CheckList = ({ userDetails }) => {
 
     const router = useRouter();
 
     console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
-    const [showList, setShowList] = useState(false);
+    const [showList, setShowList] = useState(true);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
 
     //sadd calendar popup
     const [showAddCalendar, setShowAddCalendar] = useState(false);
+
+    //calim popup
+    const [showClaimPopup, setShowClaimPopup] = useState(false);
 
     const getChecklist = () => {
         const D = localStorage.getItem("User");
@@ -28,11 +32,13 @@ const CheckList = ({ userDetails }) => {
 
             for (let key in T) {
                 if (T[key]) {
-                    percentage += 20;
+                    percentage += 16.67;
                 }
             }
 
-            setProgressValue(percentage);
+            // setProgressValue(percentage.toFixed(2));
+            //safe for number value
+            setProgressValue(parseFloat(percentage.toFixed(2)));
 
             console.log("percentage of check list is", percentage);   // Output: 60
 
@@ -41,7 +47,8 @@ const CheckList = ({ userDetails }) => {
                 { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
                 { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
                 { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
-                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" }///dashboard/callLog
+                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
+                { id: 6, label: 'Claim a number', status: false, route: "" }
             ]);
         }
     }
@@ -54,30 +61,14 @@ const CheckList = ({ userDetails }) => {
         return () => {
             document.removeEventListener("UpdateCheckList", getChecklist); // Clean up
         };
-        // console.log("Check list", checklistData);
-
-        // let percentage = 0;
-
-        // for (let key in checklistData) {
-        //     if (checklistData[key]) {
-        //         percentage += 20;
-        //     }
-        // }
-
-        // setProgressValue(percentage);
-
-        // console.log("percentage of check list is", percentage);   // Output: 60
-
-        // setCheckList([
-        //     { id: 1, label: 'Create your agent', status: checklistData?.agentCreated, route: "/createagent" },
-        //     { id: 2, label: 'Review your script', status: checklistData?.scriptReviewed, route: "/dashboard/myAgentX" },
-        //     { id: 3, label: 'Connect a calendar', status: checklistData?.calendarCreated, route: "/pipeline" },
-        //     { id: 4, label: 'Upload leads', status: checklistData?.leadCreated, route: "/dashboard/leads" },
-        //     { id: 5, label: 'Start calling', status: checklistData?.callsCreated, route: "/dashboard/callLog" }
-        // ]);
 
 
     }, []);
+
+    //close claim popup
+    const handleCloseClaimPopup = () => {
+        setShowClaimPopup(false);
+    };
 
     const styles = {
         text: {
@@ -124,6 +115,8 @@ const CheckList = ({ userDetails }) => {
                                                 onClick={() => {
                                                     if (item.label === "Connect a calendar") {
                                                         setShowAddCalendar(true);
+                                                    } else if (item.label === "Claim a number") {
+                                                        setShowClaimPopup(true);
                                                     } else {
                                                         const D = {
                                                             status: true
@@ -184,6 +177,19 @@ const CheckList = ({ userDetails }) => {
                     </div>
                 )
             }
+
+            {/* Code for claim number */}
+            {showClaimPopup && (
+                <ClaimNumber
+                    showClaimPopup={showClaimPopup}
+                    handleCloseClaimPopup={handleCloseClaimPopup}
+                // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                // setSelectNumber={setAssignNumber}
+                // setPreviousNumber={setPreviousNumber}
+                // previousNumber={previousNumber}
+                // AssignNumber={AssignNumber}
+                />
+            )}
 
         </div>
     )

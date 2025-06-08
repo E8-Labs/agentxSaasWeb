@@ -126,7 +126,7 @@ const DashboardSlider = ({
                                     </div>
                                     <div
                                         className="mt-2"
-                                        style={{ fontWeight: "600", fontSize: 17 }}>
+                                        style={{ fontWeight: "600", fontSize: 16 }}>
                                         Need Help Setting Up Your AI Agent?
                                     </div>
                                     <div
@@ -138,11 +138,11 @@ const DashboardSlider = ({
                                             width={64}
                                         />
                                         <div
-                                            style={{ fontWeight: "500", fontSize: 17 }}>
+                                            style={{ fontWeight: "500", fontSize: 13 }}>
                                             {`If you're unsure where to start or want expert guidance, we're here to help. You can join our weekly support webinar to get answers to your questions—or let our team handle it and build out your AI for you.`}
                                         </div>
                                     </div>
-                                    <div className="w-full flex flex-row items-center gap-4">
+                                    <div className="w-full flex flex-row items-center gap-2">
                                         <button
                                             className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
                                             style={{ fontSize: 15, fontWeight: "500" }}

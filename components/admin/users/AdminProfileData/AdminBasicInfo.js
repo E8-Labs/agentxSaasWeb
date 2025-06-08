@@ -214,7 +214,7 @@ function AdminBasicInfo({ selectedUser }) {
       if (LocalData) {
         const userData = LocalData;
         await getAgentDefaultData(userData);
-        console.log("image is ",LocalData)
+        console.log("image is ", LocalData)
 
         setUserRole(userData?.userRole);
         setUserType(userData?.userType);
@@ -347,7 +347,7 @@ function AdminBasicInfo({ selectedUser }) {
     if (!file) return;
 
     try {
-      
+
       const imageUrl = URL.createObjectURL(file); // Generate preview URL
 
       setSelectedImage(imageUrl); // Set the preview image
@@ -356,58 +356,58 @@ function AdminBasicInfo({ selectedUser }) {
     } catch (error) {
       // console.error("Error uploading image:", error);
     } finally {
-    
+
     }
   };
 
   const uploadeImage = async (imageUrl) => {
     setloading5(true);
-      try {
-        const data = localStorage.getItem("User");
-        if (data) {
-          let u = JSON.parse(data);
-          const apidata = new FormData();
-  
-          apidata.append("media", imageUrl);  
-          apidata.append("userId", selectedUser.id);  
-          // //console.log;
-          for (let pair of apidata.entries()) {
-            console.log(pair) // Debug FormData contents
-          }
-          let path = Apis.updateProfileApi;
-  
-          // //console.log;
-          // //console.log;
-          // return
-          const response = await axios.post(path, apidata, {
-            headers: {
-              Authorization: "Bearer " + u.token,
-            },
-          });
-  
-          if (response) {
-            if (response.data.status === true) {
-              console.log("imageUploaded",response.data.data)
-              u.user = response.data.data;
-  
-              //// //console.log
-              localStorage.setItem("User", JSON.stringify(u));
-              // //console.log;
-              window.dispatchEvent(
-                new CustomEvent("UpdateProfile", { detail: { update: true } })
-              );
-              return response.data.data;
-            }
+    try {
+      const data = localStorage.getItem("User");
+      if (data) {
+        let u = JSON.parse(data);
+        const apidata = new FormData();
+
+        apidata.append("media", imageUrl);
+        apidata.append("userId", selectedUser.id);
+        // //console.log;
+        for (let pair of apidata.entries()) {
+          console.log(pair) // Debug FormData contents
+        }
+        let path = Apis.updateProfileApi;
+
+        // //console.log;
+        // //console.log;
+        // return
+        const response = await axios.post(path, apidata, {
+          headers: {
+            Authorization: "Bearer " + u.token,
+          },
+        });
+
+        if (response) {
+          if (response.data.status === true) {
+            console.log("imageUploaded", response.data.data)
+            u.user = response.data.data;
+
+            //// //console.log
+            localStorage.setItem("User", JSON.stringify(u));
+            // //console.log;
+            window.dispatchEvent(
+              new CustomEvent("UpdateProfile", { detail: { update: true } })
+            );
+            return response.data.data;
           }
         }
-      } catch (e) {
-        console.log("error in upload image:",e);
       }
-      finally{
-        setloading5(false);
-      }
-    };
-  
+    } catch (e) {
+      console.log("error in upload image:", e);
+    }
+    finally {
+      setloading5(false);
+    }
+  };
+
 
 
   return (
@@ -483,7 +483,7 @@ function AdminBasicInfo({ selectedUser }) {
       </button>
 
       {/* Hidden file input */}
-       <input
+      <input
         type="file"
         accept="image/*"
         id="fileInput"
@@ -593,7 +593,7 @@ function AdminBasicInfo({ selectedUser }) {
         />
       </div>
 
-      {userRole && userRole != "Invitee" && userRole != "AgencySubAccount"&& (
+      {userRole && userRole != "Invitee" && userRole != "AgencySubAccount" && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
             (userType && userType === UserTypes.InsuranceAgent) ||
@@ -854,16 +854,20 @@ function AdminBasicInfo({ selectedUser }) {
                 }}
               >
                 <input
-                  type="text"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedTransaction(true)}
                   onBlur={() => setFocusedTransaction(false)}
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={transaction}
-                  onChange={(event) => {
-                    setTransaction(event.target.value);
+                  onChange={(e) => {
+                    // Only keep digits in state
+                    const onlyNums = e.target.value.replace(/\D/g, "");
+                    setTransaction(onlyNums);
                     setIsTransactionChange(true);
                   }}
-                  placeholder="Value"
+                  placeholder="Value" 
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
               </div>
