@@ -59,6 +59,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
   //code for detecting the window inner width
   const [InnerWidth, setInnerWidth] = useState("");
+  const [enterPressed, setEnterPressed] = useState(false);
+
 
   useEffect(() => {
     const redirect = searchParams.get("redirect"); // Get the value of 'tab'
@@ -84,6 +86,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // router.replace("/login");
     }
   }, [params]);
+  useEffect(() => {
+    if (enterPressed && checkPhoneResponse === false) {
+      handleVerifyPopup();
+      setEnterPressed(false); // reset it
+    }
+  }, [enterPressed, checkPhoneResponse]);
+
 
   useEffect(() => {
     // //console.log;
@@ -393,19 +402,19 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       setLoginLoader(true);
-      const response = await axios.post(Apis.LogIn,ApiData ,{
-        
+      const response = await axios.post(Apis.LogIn, ApiData, {
+
         headers: {
           "Content-Type": "application/json",
         },
         // credentials: "include", // Ensures cookies (JWT) are stored securely
-       
+
       });
       // setLoginLoader(false);
       //console.log;
       if (response) {
-      // const data = response //await response.json();
-      console.log('data of login api is', response);
+        // const data = response //await response.json();
+        console.log('data of login api is', response);
 
         // console.log;
         // Redirect user or update state as needed
@@ -704,15 +713,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     }
                     disabled={loading} // Disable input if still loading
                     onKeyDown={(e) => {
-                      if (
-                        e.key === "Enter" &&
-                        userPhoneNumber &&
-                        !errorMessage
-                      ) {
-                        if (checkPhoneResponse === false) {
-                          handleVerifyPopup();
-                        }
-                        // setShowVerifyPopup(true)
+                      if (e.key === "Enter" && userPhoneNumber && !errorMessage) {
+                        setEnterPressed(true);
                       }
                     }}
                     style={{
