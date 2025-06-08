@@ -9,7 +9,7 @@ function SalesDevRepOtherDetails({
     handleVerifyPopup
 }) {
     return (
-        <div className="w-full">
+        <div className="">
             <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customers
             </div>

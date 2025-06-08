@@ -123,7 +123,7 @@ const AdminAssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id;
+      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id+"&agentType=outbound";
       // return
       const response = await axios.get(ApiPath, {
         headers: {

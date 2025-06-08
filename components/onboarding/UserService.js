@@ -71,7 +71,7 @@ const UserService = ({ handleContinue, handleBack }) => {
 
       // //console.log;
       const ApiPath = `${Apis.defaultData}?type=${AgentTypeTitle}`;
-      // //console.log;
+      // console.log("api path of agent services api ",ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ const UserService = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        // //console.log;
+        // console.log("response of agent services api is",response.data.data)
         setServicesData(response.data.data.agentServices);
       } else {
         // alert(response.data);

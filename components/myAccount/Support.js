@@ -98,9 +98,7 @@ function Support() {
                 style={{ fontSize: 15, fontWeight: "500" }}
                 onClick={() => {
                   if (typeof window !== "undefined") {
-                    let url = userDetails?.campaignee
-                      ? userDetails?.campaignee.officeHoursUrl
-                      : PersistanceKeys.GlobalWebinarUrl;
+                    let url = PersistanceKeys.SupportWebinarUrl;
                     //console.log
                     window.open(url, "_blank");
                   }

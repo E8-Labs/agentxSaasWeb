@@ -769,7 +769,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 autoComplete="off"
                 autoCorrect="off"
                 type="text"
-                inputMode="numeric"
+                // inputMode="numeric"
                 pattern="[0-9]*"
                 spellCheck="false"
                 enterKeyHint="done"
@@ -779,8 +779,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 value={userTransaction}
                 onChange={(e) => {
                   // Only keep digits in state
-                  const onlyNums = e.target.value.replace(/\D/g, "");
-                  setUserTransaction(onlyNums);
+                  // const onlyNums = e.target.value.replace(/\D/g, "");
+                  setUserTransaction(e.target.value);
                 }}
               />
 

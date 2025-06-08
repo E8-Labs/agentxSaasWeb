@@ -329,14 +329,14 @@ const AddCalender = ({ handleContinue }) => {
                 // backgroundColor: "red"
               }}
             >
-              <VideoCard
+              {/* <VideoCard
                 duration="2 min 42 sec"
                 horizontal={false}
                 playVideo={() => {
                   setIntroVideoModal(true);
                 }}
                 title="Learn how to add a calendar"
-              />
+              /> */}
             </div>
 
             <div>
@@ -495,12 +495,12 @@ const AddCalender = ({ handleContinue }) => {
           </div>
         </div>
         {/* Modal for video */}
-        <IntroVideoModal
+        {/* <IntroVideoModal
           open={introVideoModal}
           onClose={() => setIntroVideoModal(false)}
           videoTitle="Learn how to add a calendar"
           videoUrl={HowtoVideos.Calendar}
-        />
+        /> */}
 
         {/* Modal to add custom calender */}
 

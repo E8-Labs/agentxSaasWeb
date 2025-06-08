@@ -177,7 +177,7 @@ const AssignLead = ({
       // const ApiPath = Apis.getAgents;
       const offset = agentsList.length;
       const ApiPath = `${Apis.getAgents}?offset=${offset}`
-      console.log("Api path is", ApiPath);
+      console.log("Api path is of get agents", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {

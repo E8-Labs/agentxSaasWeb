@@ -95,7 +95,7 @@ const CheckList = ({ userDetails }) => {
                             </div>
                             <div className='flex flex-row items-center gap-2 ps-2'>
                                 <p className='bg-purple text-white rounded-md p-2' style={{ fontWeight: "600", fontSize: "14px" }}>
-                                    {progressValue}%
+                                    {progressValue?.toFixed(0)}%
                                 </p>
                                 {
                                     showList ?

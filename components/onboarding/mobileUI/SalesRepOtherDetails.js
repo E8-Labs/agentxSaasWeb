@@ -136,20 +136,22 @@ function SolarRepOtherDetails({
                                 onClick={() => {
                                     handleSelectClientType(item);
                                 }}
-                                className="border border-[#00000010] text-start rounded px-4 rounded py-1 outline-none focus:outline-none focus:ring-0 w-full"
+                                className="border border-[#00000010] text-start  px-4 py-4 outline-none focus:outline-none focus:ring-0 w-full"
                                 style={{
                                     ...styles.inputStyle,
                                     // borderRadius: "30px",
-                                    paddingInline: index === 2 && "40px",
                                     border:
                                         ClientType === item.title
                                             ? "2px solid #7902DF"
                                             : "",
                                     backgroundColor:
                                         ClientType === item.title ? "#402FFF20" : "",
+                                        borderRadius:100
                                 }}
                             >
-                                {item.title}
+                                <div className='text-start'>
+                                    {item.title}
+                                </div>
                             </button>
                         </div>
                     );

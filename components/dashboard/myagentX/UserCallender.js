@@ -514,22 +514,22 @@ const UserCalender = ({
               )}
             </div>
             {/* video modal to add calendar */}
-            <VideoCard
+            {/* <VideoCard
               duration="2 min 42 sec"
               horizontal={false}
               playVideo={() => {
                 setIntroVideoModal2(true);
               }}
               title="Learn how to add a calendar"
-            />
+            /> */}
 
             {/* Intro modal */}
-            <IntroVideoModal
+            {/* <IntroVideoModal
               open={introVideoModal2}
               onClose={() => setIntroVideoModal2(false)}
               videoTitle="Learn how to add a calendar"
               videoUrl={HowtoVideos.Calendar}
-            />
+            /> */}
             {/* <div className='w-full mt-4'>
                                 {
                                     calenderLoader ?
@@ -730,22 +730,22 @@ const UserCalender = ({
                   </div>
 
                   {/* video modal to add calendar */}
-                  <VideoCard
+                  {/* <VideoCard
                     duration="2 min 42 sec"
                     horizontal={false}
                     playVideo={() => {
                       setIntroVideoModal2(true);
                     }}
                     title="Learn how to add a calendar"
-                  />
+                  /> */}
 
                   {/* Intro modal */}
-                  <IntroVideoModal
+                  {/* <IntroVideoModal
                     open={introVideoModal2}
                     onClose={() => setIntroVideoModal2(false)}
                     videoTitle="Learn how to add a calendar"
                     videoUrl={HowtoVideos.Calendar}
-                  />
+                  /> */}
 
                   <div className="w-full mt-4">
                     {calenderLoader ? (
