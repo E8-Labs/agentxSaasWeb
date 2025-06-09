@@ -37,10 +37,20 @@ export function GetFormattedDateString(
       // //console.log;
 
       // Parse the date string as UTC and convert to local timezone
-      const dateInLocalTz = moment.utc(dateString).local();
-
+      // const dateInLocalTz = moment.utc(dateString).local();
       // Format the date as "Jan 02, 2025 12:30 PM"
+      // formatted = dateInLocalTz.format(dateFormat);
+
+      const dateInLocalTz = moment.utc(dateString).local().seconds(0).milliseconds(0);
       formatted = dateInLocalTz.format(dateFormat);
+
+      //if not works then use the following
+      // const dateInLocalTz = moment.utc(dateString).local().startOf('minute');
+      // formatted = dateInLocalTz.format(dateFormat);
+
+
+      console.log("Full date:", dateInLocalTz.format("YYYY-MM-DD HH:mm:ss.SSS"));
+
     } else {
       // //console.log;
 
@@ -95,11 +105,10 @@ export function ToUppercase(text) {
   if (text == null || text == "" || text == undefined) {
     return ""
   }
-  
+
   return `${text.slice(0, 1)
     .toUpperCase()
-}${
-  text.slice(
-    1
-  )}`
+    }${text.slice(
+      1
+    )}`
 }

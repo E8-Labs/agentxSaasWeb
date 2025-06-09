@@ -61,9 +61,11 @@ const Apis = {
   addCustomStage: `${BasePath}api/pipeline/createStage`,
   deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,
   UpdateStage: `${BasePath}api/pipeline/updateStage`,
+  //advance setting
   addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
   getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
   DelObjectGuard: `${BasePath}api/agent/deleteObjectionGuardRail`,
+  UpdateAdvanceSetting:`${BasePath}api/agent/updateObjectionGuardRail`,
   reorderStages: `${BasePath}api/pipeline/reorderStages`,
   createPipeLine: `${BasePath}api/pipeline/createPipeline`,
   testAI: `${BasePath}api/agent/testAi`,

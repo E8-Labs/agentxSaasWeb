@@ -16,6 +16,8 @@ import { CaretDown, CaretUp, DotsThree } from "@phosphor-icons/react";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import EditModal from "./EditModal";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const Objection = ({ showTitle, selectedAgentId }) => {
   const [ObjectionsList, setObjectionsList] = useState([]);
@@ -33,6 +35,10 @@ const Objection = ({ showTitle, selectedAgentId }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [SelectedObjection, setSelectedObjection] = useState(null);
   const [delLoader, setDelLoader] = useState(false);
+  //edit popup
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  //update loader
+  const [updateLoader, setUpdateLoader] = useState(false);
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
@@ -43,7 +49,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
   useEffect(() => {
     // //console.log
-    const objectionsList = localStorage.getItem("ObjectionsList");
+    const objectionsList = localStorage.getItem(PersistanceKeys.ObjectionsList);
     if (objectionsList) {
       // //console.log;
       const objectionsData = JSON.parse(objectionsList);
@@ -99,7 +105,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       if (response) {
         // //console.log;
         localStorage.setItem(
-          "ObjectionsList",
+          PersistanceKeys.ObjectionsList,
           JSON.stringify(response.data.data.objections)
         );
         setObjectionsList(response.data.data.objections);
@@ -171,7 +177,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
         if (response.data.status === true) {
           setObjectionsList(response.data.data.objections);
           localStorage.setItem(
-            "ObjectionsList",
+            PersistanceKeys.ObjectionsList,
             JSON.stringify(response.data.data.objections)
           );
           setShowAddObjForm(false);
@@ -204,7 +210,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
 
   //functions for del popover
   const handleClick = (event, item) => {
-    // //console.log;
+    // console.log("Item selected is", item);
     setSelectedObjection(item);
     setAnchorEl(event.currentTarget);
   };
@@ -249,7 +255,7 @@ const Objection = ({ showTitle, selectedAgentId }) => {
           setObjectionsList(response.data.data.objections);
           setShowSuccessSnack(response.data.message);
           localStorage.setItem(
-            "ObjectionsList",
+            PersistanceKeys.ObjectionsList,
             JSON.stringify(response.data.data.objections)
           );
           setAnchorEl(null);
@@ -264,6 +270,19 @@ const Objection = ({ showTitle, selectedAgentId }) => {
       // //console.log;
     }
   };
+
+  //function to update the objections
+  const handleUpdateArray = async () => {
+    const objectionsList = localStorage.getItem(PersistanceKeys.ObjectionsList);
+    if (objectionsList) {
+      // //console.log;
+      const objectionsData = JSON.parse(objectionsList);
+      // //console.log;
+      setObjectionsList(objectionsData);
+      setShowEditPopup(false);
+    }
+    setAnchorEl(null);
+  }
 
   const styles = {
     modalsStyle: {
@@ -397,23 +416,50 @@ const Objection = ({ showTitle, selectedAgentId }) => {
                           },
                         }}
                       >
-                        {delLoader ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={() => {
-                              handleDelObjection();
-                            }}
-                            className="text-red p-2 px-4"
-                            style={{
-                              fontsize: 15,
-                              fontWeight: "500",
-                              padding: 2,
-                            }}
-                          >
-                            Delete
-                          </button>
-                        )}
+                        <div
+                          className="pt-2 px-4"
+                        >
+                          {updateLoader ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setShowEditPopup(true);
+                              }}
+                              className="text-start"
+                              style={{
+                                fontsize: 15,
+                                fontWeight: "500",
+                                padding: 2,
+                              }}
+                            >
+                              Edit
+                            </button>
+                          )}
+                        </div>
+
+                        <div
+                          className="pb-2 px-4"
+                        >
+                          {delLoader ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <button
+                              onClick={() => {
+                                handleDelObjection();
+                              }}
+                              className="text-red text-start"
+                              style={{
+                                fontsize: 15,
+                                fontWeight: "500",
+                                padding: 2,
+                              }}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
+
                       </Popover>
                     </div>
                   </div>
@@ -461,6 +507,26 @@ const Objection = ({ showTitle, selectedAgentId }) => {
           Add New
         </button>
       )}
+
+      {/* Code for Edit modal */}
+      {
+        showEditPopup && (
+          <EditModal
+            editName={"Objection"}
+            isOpen={showEditPopup}
+            onClose={() => { setShowEditPopup(false) }}
+            selectedItem={SelectedObjection}
+            handleUpdateArray={(data) => {
+              if (data.status === true) {
+                setShowSuccessSnack(data.message);
+                handleUpdateArray();
+              } else if (data.status === false) {
+                setShowErrorSnack(data.message);
+              }
+            }}
+          />
+        )
+      }
 
       {/* Modal for Adding new item in array */}
       <Modal

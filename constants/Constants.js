@@ -16,6 +16,8 @@ export const PersistanceKeys = {
   LocalVerificationCodes: "LocalVerificationCodes",
   LocalAffiliates: "LocalAffiliates",
   TestAiCredentials: "TestAiCredentials",
+  GuadrailsList: "GuadrailsList",
+  ObjectionsList: "ObjectionsList",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",

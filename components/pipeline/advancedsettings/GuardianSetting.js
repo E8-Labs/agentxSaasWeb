@@ -16,6 +16,8 @@ import { CaretDown, CaretUp, DotsThree } from "@phosphor-icons/react";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import EditModal from "./EditModal";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   const [guardrailsList, setGuardrailsList] = useState([]);
@@ -33,6 +35,10 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [SelectedGuardrail, setSelectedGuardrail] = useState(null);
   const [delLoader, setDelLoader] = useState(false);
+  //edit popup
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  //update loader
+  const [updateLoader, setUpdateLoader] = useState(false);
 
   const open = Boolean(anchorEl);
   const id = open ? "simple-popover" : undefined;
@@ -42,7 +48,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
   useEffect(() => {
-    const guadrailsList = localStorage.getItem("GuadrailsList");
+    const guadrailsList = localStorage.getItem(PersistanceKeys.GuadrailsList);
     if (guadrailsList) {
       // //console.log;
       const guardrailsData = JSON.parse(guadrailsList);
@@ -105,7 +111,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         // //console.log;
         setGuardrailsList(response.data.data.guardrails);
         localStorage.setItem(
-          "GuadrailsList",
+          PersistanceKeys.GuadrailsList,
           JSON.stringify(response.data.data.guardrails)
         );
       }
@@ -176,7 +182,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
           localStorage.setItem(
-            "GuadrailsList",
+            PersistanceKeys.GuadrailsList,
             JSON.stringify(response.data.data.guardrails)
           );
           setShowAddObjForm(false);
@@ -255,7 +261,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
           setGuardrailsList(response.data.data.guardrails);
           setShowSuccessSnack(response.data.message);
           localStorage.setItem(
-            "GuadrailsList",
+            PersistanceKeys.GuadrailsList,
             JSON.stringify(response.data.data.guardrails)
           );
           setAnchorEl(null);
@@ -270,6 +276,19 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       // //console.log;
     }
   };
+
+  //function to update the objections
+  const handleUpdateArray = async () => {
+    const guadrailsList = localStorage.getItem(PersistanceKeys.GuadrailsList);
+    if (guadrailsList) {
+      // //console.log;
+      const guardrailsData = JSON.parse(guadrailsList);
+      // //console.log;
+      setGuardrailsList(guardrailsData);
+      setShowEditPopup(false);
+    }
+    setAnchorEl(null);
+  }
 
   const styles = {
     modalsStyle: {
@@ -340,7 +359,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
             maxHeight: showTitle ? "60vh" : "40vh",
           }}
         >
-          {guardrailsList.reverse().map((item, index) => {
+          {guardrailsList.map((item, index) => {
             const isExpanded = showDetails.some(
               (detail) => detail.id === item.id
             );
@@ -406,23 +425,48 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
                         },
                       }}
                     >
-                      {delLoader ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          onClick={() => {
-                            handleDelGuadrail();
-                          }}
-                          className="text-red p-2 px-4"
-                          style={{
-                            fontsize: 15,
-                            fontWeight: "500",
-                            padding: 2,
-                          }}
-                        >
-                          Delete
-                        </button>
-                      )}
+                      <div
+                        className="pt-2 px-4"
+                      >
+                        {updateLoader ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setShowEditPopup(true);
+                            }}
+                            className="text-start"
+                            style={{
+                              fontsize: 15,
+                              fontWeight: "500",
+                              padding: 2,
+                            }}
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
+                      <div
+                        className="pb-2 px-4"
+                      >
+                        {delLoader ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <button
+                            onClick={() => {
+                              handleDelGuadrail();
+                            }}
+                            className="text-red text-start"
+                            style={{
+                              fontsize: 15,
+                              fontWeight: "500",
+                              padding: 2,
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </Popover>
                   </div>
                 )}
@@ -469,6 +513,26 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
           Add New
         </button>
       )}
+
+      {/* Code for Edit modal */}
+      {
+        showEditPopup && (
+          <EditModal
+            editName={"Guardrails"}
+            isOpen={showEditPopup}
+            onClose={() => { setShowEditPopup(false) }}
+            selectedItem={SelectedGuardrail}
+            handleUpdateArray={(data) => {
+              if (data.status === true) {
+                setShowSuccessSnack(data.message);
+                handleUpdateArray();
+              } else if (data.status === false) {
+                setShowErrorSnack(data.message);
+              }
+            }}
+          />
+        )
+      }
 
       {/* Modal for Adding new item in array */}
       <Modal
