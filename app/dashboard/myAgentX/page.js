@@ -2724,7 +2724,10 @@ function Page() {
                 <div style={{ marginTop: "8px" }}>
                   <PhoneInput
                     className="border outline-none bg-white"
-                    country={countryCode} // Set the default country
+                    country={"us"}
+                    onlyCountries={["us", "sv"]}
+                    disableDropdown={false}
+                    countryCodeEditable={false}
                     value={phone}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -2751,7 +2754,6 @@ function Page() {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={true}
                   // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
