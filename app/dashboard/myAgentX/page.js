@@ -1860,26 +1860,29 @@ function Page() {
   };
 
   //function for phonenumber input
-  const handlePhoneNumberChange = (phone) => {
-    setPhone(phone);
-    validatePhoneNumber(phone);
+  const handlePhoneNumberChange = (phoneNumber, countryData) => {
+    setPhone(phoneNumber);
+    setCountryCode(countryData.countryCode); // save current country ("us", "sv", etc.)
 
-    if (!phone) {
+    if (!phoneNumber) {
       setErrorMessage("");
+      return;
     }
+
+    validatePhoneNumber(phoneNumber, countryData.countryCode);
   };
 
   // Function to validate phone number
-  const validatePhoneNumber = (phoneNumber) => {
-    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
+  const validatePhoneNumber = (phoneNumber, selectedCountryCode) => {
     const parsedNumber = parsePhoneNumberFromString(
-      `+${phoneNumber}`,
-      countryCode?.toUpperCase()
+      phoneNumber,
+      selectedCountryCode?.toUpperCase()
     );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+
     if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
+      setErrorMessage("Invalid phone number");
+    } else if (parsedNumber.country !== selectedCountryCode?.toUpperCase()) {
+      setErrorMessage("Invalid country for this number");
     } else {
       setErrorMessage("");
 
@@ -1887,11 +1890,9 @@ function Page() {
         clearTimeout(timerRef.current);
       }
 
-      // setCheckPhoneResponse(null);
-      ////console.log
+      // Example: trigger API call here if needed
     }
   };
-
   useEffect(() => {
     const agentLocalDetails = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
@@ -2671,7 +2672,10 @@ function Page() {
                 <div style={{ marginTop: "8px" }}>
                   <PhoneInput
                     className="border outline-none bg-white"
-                    country={"us"} // Set the default country
+                    country={"us"}
+                    onlyCountries={["us", "sv"]}
+                    disableDropdown={false}
+                    countryCodeEditable={false}
                     value={phone}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -2698,8 +2702,6 @@ function Page() {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    countryCodeEditable={false}
-                    disableDropdown={true}
                   // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>

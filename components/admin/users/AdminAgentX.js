@@ -2478,7 +2478,10 @@ function AdminAgentX({ selectedUser, from }) {
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-                  country={"us"} // Set the default country
+                  country={"us"}
+                  onlyCountries={["us", "sv"]}
+                  disableDropdown={false}
+                  countryCodeEditable={false}
                   value={phone}
                   onChange={handlePhoneNumberChange}
                   placeholder={
@@ -2505,8 +2508,6 @@ function AdminAgentX({ selectedUser, from }) {
                     maxHeight: "150px",
                     overflowY: "auto",
                   }}
-                  countryCodeEditable={false}
-                  disableDropdown={true}
                 // defaultMask={loading ? 'Loading...' : undefined}
                 />
               </div>
