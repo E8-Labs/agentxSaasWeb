@@ -481,6 +481,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   if (response.data.data.user.userType == "admin") {
                     router.push("/admin");
                   } else if (response.data.data.user.userRole == "AgencySubAccount") {
+                    router.push("/dashboard");
+                  }else if (response.data.data.user.userRole == "Agency") {
                     router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/leads");

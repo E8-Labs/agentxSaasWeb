@@ -232,7 +232,7 @@ function DashboardPlans() {
                         className='flex px-5 py-3 bg-white rounded-lg text-purple font-medium'
                         onClick={handleAddPlan}
                     >
-                        New Plan
+                        Create New Plan
                     </button>
 
 
@@ -285,198 +285,203 @@ function DashboardPlans() {
                     </div>
                 </div>
 
-                <div className="w-full flex flex-row justify-between mt-4">
-                    <div className="w-2/12">
-                        <div style={styles.text}>Name</div>
-                    </div>
-                    <div className="w-2/12">
-                        <div style={styles.text}>Description</div>
-                    </div>
-                    <div className="w-2/12">
-                        <div style={styles.text}>Tag</div>
-                    </div>
-                    <div className="w-1/12">
-                        <div style={styles.text}>Price</div>
-                    </div>
-                    <div className="w-2/12">
-                        <div style={styles.text}>Strikethrough Price</div>
-                    </div>
-                    <div className="w-1/12">
-                        <div style={styles.text}>Minutes</div>
-                    </div>
-                    <div className="w-1/12">
-                        <div style={styles.text}>Action</div>
-                    </div>
-                </div>
+                {
+                    plansList.length > 0 ? (
+                        <>
+                            <div className="w-full flex flex-row justify-between mt-4">
+                                <div className="w-2/12">
+                                    <div style={styles.text}>Name</div>
+                                </div>
+                                <div className="w-2/12">
+                                    <div style={styles.text}>Description</div>
+                                </div>
+                                <div className="w-2/12">
+                                    <div style={styles.text}>Tag</div>
+                                </div>
+                                <div className="w-1/12">
+                                    <div style={styles.text}>Price</div>
+                                </div>
+                                <div className="w-2/12">
+                                    <div style={styles.text}>Strikethrough Price</div>
+                                </div>
+                                <div className="w-1/12">
+                                    <div style={styles.text}>Minutes</div>
+                                </div>
+                                <div className="w-1/12">
+                                    <div style={styles.text}>Action</div>
+                                </div>
+                            </div>
 
-                {/* Code for plans */}
-
-
-                <div
-                    className={`h-[71vh] overflow-auto w-full`}
-                    id="scrollableDiv1"
-                    style={{ scrollbarWidth: "none" }}
-                >
-                    <div className='w-full'>
-                        {
-                            initialLoader ?
-                                <div className='w-full flex flex-row items-center justify-center'>
-                                    <CircularProgress size={30} />
-                                </div> :
+                            <div
+                                className={`h-[71vh] overflow-auto w-full`}
+                                id="scrollableDiv1"
+                                style={{ scrollbarWidth: "none" }}
+                            >
                                 <div className='w-full'>
-                                    {plansList?.length > 0 ? (
-                                        <div>
-                                            {plansList.slice().reverse().map((item) => (
-                                                <div
-                                                    key={item.id}
-                                                    style={{ cursor: "pointer" }}
-                                                    className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
-                                                >
-                                                    <div
-                                                        className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
-                                                        onClick={() => {
-                                                            // // //console.log;
-                                                            // setselectedLeadsDetails(item);
-                                                            // setShowDetailsModal(true);
-                                                        }}
-                                                    >
-                                                        {/*<div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                    {
+                                        initialLoader ?
+                                            <div className='w-full flex flex-row items-center justify-center'>
+                                                <CircularProgress size={30} />
+                                            </div> :
+                                            <div className='w-full'>
+
+                                                <div>
+                                                    {plansList.slice().reverse().map((item) => (
+                                                        <div
+                                                            key={item.id}
+                                                            style={{ cursor: "pointer" }}
+                                                            className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
+                                                        >
+                                                            <div
+                                                                className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                                                                onClick={() => {
+                                                                    // // //console.log;
+                                                                    // setselectedLeadsDetails(item);
+                                                                    // setShowDetailsModal(true);
+                                                                }}
+                                                            >
+                                                                {/*<div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                                 {item.name.slice(0, 1).toUpperCase()}
                         </div>*/}
-                                                        <div style={{ ...styles.text2, ...{ width: "80%", } }}>
-                                                            {item.title}
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-2/12 ">
-                                                        <div style={styles.text2}>
-                                                            {item.planDescription}
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-2/12">
-                                                        {/* (item.LeadModel?.phone) */}
-                                                        <div style={styles.text2}>
-                                                            {item.tag}
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-1/12">
-                                                        <div style={styles.text2}>
-                                                            ${item.discountedPrice || 0}
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-2/12">
-                                                        <div style={styles.text2}>
-                                                            ${item.originalPrice || 0}
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-1/12">
-                                                        {item.minutes || "X"}-Mins
-                                                    </div>
-
-                                                    <div className="w-1/12 relative">
-                                                        <button
-                                                            id={`dropdown-toggle-${item.id}`}
-                                                            onClick={() =>
-                                                                setmoreDropdown(
-                                                                    moreDropdown === item.id ? null : item.id
-                                                                )
-                                                            }
-                                                        >
-                                                            <Image src={'/svgIcons/threeDotsIcon.svg'} height={24} width={24} alt="menu" />
-                                                        </button>
-
-                                                        {moreDropdown === item.id && (
-                                                            <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
-                                                                <div>
-                                                                    <button
-                                                                        className="px-4 py-2 hover:bg-purple10 w-full text-start bg-transparent cursor-pointer text-sm font-medium text-gray-800"
-                                                                        onClick={() => {
-                                                                            setmoreDropdown(null)
-                                                                        }}
-                                                                    >
-                                                                        Edit
-                                                                    </button>
+                                                                <div style={{ ...styles.text2, ...{ width: "80%", } }}>
+                                                                    {item.title}
                                                                 </div>
-                                                                <button
-                                                                    className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start bg-transparent"
-                                                                    onClick={() => {
-                                                                        setShowDeleteModal(true);
-                                                                    }}
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                                {
-                                                                    showDeleteModal && (
-                                                                        <DelConfirmationPopup
-                                                                            showDeleteModal={showDeleteModal}
-                                                                            handleClose={() => {
-                                                                                setShowDeleteModal(false);
-                                                                            }}
-                                                                        />
-                                                                    )
-                                                                }
                                                             </div>
-                                                        )}
-                                                    </div>
+                                                            <div className="w-2/12 ">
+                                                                <div style={styles.text2}>
+                                                                    {item.planDescription}
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-2/12">
+                                                                {/* (item.LeadModel?.phone) */}
+                                                                <div style={styles.text2}>
+                                                                    {item.tag}
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-1/12">
+                                                                <div style={styles.text2}>
+                                                                    ${item.discountedPrice || 0}
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-2/12">
+                                                                <div style={styles.text2}>
+                                                                    ${item.originalPrice || 0}
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-1/12">
+                                                                {item.minutes || "X"}-Mins
+                                                            </div>
 
+                                                            <div className="w-1/12 relative">
+                                                                <button
+                                                                    id={`dropdown-toggle-${item.id}`}
+                                                                    onClick={() =>
+                                                                        setmoreDropdown(
+                                                                            moreDropdown === item.id ? null : item.id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Image src={'/svgIcons/threeDotsIcon.svg'} height={24} width={24} alt="menu" />
+                                                                </button>
+
+                                                                {moreDropdown === item.id && (
+                                                                    <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[200px]">
+                                                                        <div>
+                                                                            <button
+                                                                                className="px-4 py-2 hover:bg-purple10 w-full text-start bg-transparent cursor-pointer text-sm font-medium text-gray-800"
+                                                                                onClick={() => {
+                                                                                    setmoreDropdown(null)
+                                                                                }}
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                        </div>
+                                                                        <button
+                                                                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start bg-transparent"
+                                                                            onClick={() => {
+                                                                                setShowDeleteModal(true);
+                                                                            }}
+                                                                        >
+                                                                            Delete
+                                                                        </button>
+                                                                        {
+                                                                            showDeleteModal && (
+                                                                                <DelConfirmationPopup
+                                                                                    showDeleteModal={showDeleteModal}
+                                                                                    handleClose={() => {
+                                                                                        setShowDeleteModal(false);
+                                                                                    }}
+                                                                                />
+                                                                            )
+                                                                        }
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="text-center mt-4"
-                                            style={{ fontWeight: "bold", fontSize: 20 }}
-                                        >
-                                            {
-                                                planType === "monthly" ? (
-                                                    <div className='h-full w-full flex flex-col items-center justify-center'>
-                                                        <Image
-                                                            alt='*'
-                                                            src={"/agencyIcons/nomonthlyplan.jpg"}
-                                                            height={230}
-                                                            width={420}
-                                                        />
-                                                        <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
-                                                            No Plans
-                                                        </div>
-                                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
-                                                            You have no monthly plans created
-                                                        </div>
-                                                        <button
-                                                            className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
-                                                            style={{ fontWeight: "500", fontSize: 15 }}
-                                                            onClick={handleAddPlan}>
-                                                            Create Plan
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className='h-full w-full flex flex-col items-center justify-center'>
-                                                        <Image
-                                                            alt='*'
-                                                            src={"/agencyIcons/noXBarPlans.jpg"}
-                                                            height={230}
-                                                            width={420}
-                                                        />
-                                                        <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
-                                                            No Plans
-                                                        </div>
-                                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
-                                                            You have no monthly plans created
-                                                        </div>
-                                                        <button
-                                                            className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
-                                                            style={{ fontWeight: "500", fontSize: 15 }}
-                                                            onClick={handleAddPlan}>
-                                                            Create Plan
-                                                        </button>
-                                                    </div>
-                                                )
-                                            }
-                                        </div>
-                                    )}
+
+                                            </div>
+                                    }
                                 </div>
-                        }
-                    </div>
-                </div>
+                            </div>
+
+                        </>
+                    ) : (
+                        <div
+                            className="text-center mt-4"
+                            style={{ fontWeight: "bold", fontSize: 20 }}
+                        >
+                            {
+                                planType === "monthly" ? (
+                                    <div className='h-full w-full flex flex-col items-center justify-center'>
+                                        <Image
+                                            alt='*'
+                                            src={"/agencyIcons/nomonthlyplan.jpg"}
+                                            height={230}
+                                            width={420}
+                                        />
+                                        <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
+                                            No Plans
+                                        </div>
+                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
+                                            You have no monthly plans created
+                                        </div>
+                                        <button
+                                            className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
+                                            style={{ fontWeight: "500", fontSize: 15 }}
+                                            onClick={handleAddPlan}>
+                                            Create New Plan
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className='h-full w-full flex flex-col items-center justify-center'>
+                                        <Image
+                                            alt='*'
+                                            src={"/agencyIcons/noXBarPlans.jpg"}
+                                            height={230}
+                                            width={420}
+                                        />
+                                        <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
+                                            No Xbar
+                                        </div>
+                                        <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
+                                            You have no Xbars created
+                                        </div>
+                                        <button
+                                            className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
+                                            style={{ fontWeight: "500", fontSize: 15 }}
+                                            onClick={handleAddPlan}>
+                                            Create Xbar
+                                        </button>
+                                    </div>
+                                )
+                            }
+                        </div>
+                    )
+                }
+
 
                 {/* code for modals */}
 
@@ -498,7 +503,7 @@ function DashboardPlans() {
 
             </div>
 
-        </div>
+        </div >
     )
 }
 

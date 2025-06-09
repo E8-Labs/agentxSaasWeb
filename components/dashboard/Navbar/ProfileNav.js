@@ -447,10 +447,11 @@ const ProfileNav = () => {
               (Data?.plan == null ||
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
-                  Data?.totalSecondsAvailable <= 120) ||
+                  Data?.totalSecondsAvailable >= 120)
+                   ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable <= 120))
+                  Data?.totalSecondsAvailable >= 120))
             ) {
               const fromDashboard = { fromDashboard: true };
               localStorage.setItem(
@@ -651,13 +652,14 @@ const ProfileNav = () => {
     }
   };
 
-  const handleClose = (data) => {
+  const handleClose =async (data) => {
     // //console.log;
     if (data.status === true) {
       let newCard = data.data;
       setAddPaymentPopup(false);
-      getProfile();
+      await getProfile();
       // setCards([newCard, ...cards]);
+      setSubscribePlanLoader(false)
     }
   };
 
@@ -1127,6 +1129,7 @@ const ProfileNav = () => {
                         color: togglePlan ? "" : "#000000",
                       }}
                       onClick={() => {
+                        setSubscribePlanLoader(true);
                         let localDetails = null;
                         const localData = localStorage.getItem(
                           PersistanceKeys.LocalStorageUser

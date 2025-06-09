@@ -96,8 +96,8 @@ function SubAccountBarServices({
     getPlans();
   }, []);
 
-   //function to get subaccount plans
-   const getPlans = async () => {
+  //function to get subaccount plans
+  const getPlans = async () => {
     try {
       const Token = AuthToken();
       const ApiPath = Apis.getSubAccountPlans
@@ -164,15 +164,6 @@ function SubAccountBarServices({
 
       //// //console.log;
 
-      if (togglePlan === 1) {
-        planType = "Starter";
-      } else if (togglePlan === 2) {
-        planType = "Professional";
-      } else if (togglePlan === 3) {
-        planType = "Enterprise";
-      }
-
-      // //console.log;
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -198,11 +189,15 @@ function SubAccountBarServices({
       // };
 
       const formData = new FormData();
-      formData.append("planId", togglePlan);
+      formData.append("supportPlan", togglePlan);
 
-      // console.log("formData", formData);
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
-      const ApiPath = Apis.subAgencyAndSubAccountPlans;
+
+
+      const ApiPath = Apis.purchaseSupportPlan;
       // //console.log;
 
       // return
@@ -235,11 +230,11 @@ function SubAccountBarServices({
           // localStorage.setItem("User", JSON.stringify(localDetails));
 
           let response2 = await getProfileDetails();
-          if(response2){
+          if (response2) {
             console.log("res2 recieved", response2);
-            let newPlanId = response2?.data?.data?.plan?.planId
-            setTogglePlan(newPlanId);
-            setCurrentPlan(newPlanId);
+            // let newPlanId = response2?.data?.data?.plan?.planId
+            setTogglePlan(togglePlan);
+            setCurrentPlan(togglePlan);
           }
           setSuccessSnack("Your plan successfully updated");
         } else if (response.data.status === false) {
@@ -307,13 +302,11 @@ function SubAccountBarServices({
   //function to get card brand image
   const getPlanFromId = () => {
     let planType = "";
-    if (togglePlan === 1) {
-      planType = "Starter";
-    } else if (togglePlan === 2) {
-      planType = "Professional";
-    } else if (togglePlan === 3) {
-      planType = "Enterprise";
-    }
+    plans.forEach((item) => {
+      if (item.id === togglePlan) {
+        planType = item.type;
+      }}
+    )
     return planType;
   };
 
@@ -430,7 +423,7 @@ function SubAccountBarServices({
           </div>
         </div>
 
-        {plans.length>0 && plans.map((item, index) => (
+        {plans.length > 0 && plans.map((item, index) => (
           <button
             key={item.id}
             className="w-9/12 mt-4 outline-none"
@@ -604,7 +597,7 @@ function SubAccountBarServices({
                     fontWeight: "600",
                   }}
                 >
-                Payment Details
+                  Payment Details
                 </div>
                 <button onClick={() => setAddPaymentPopup(false)}>
                   <Image

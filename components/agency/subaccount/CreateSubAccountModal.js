@@ -813,19 +813,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         }
                     </div>
                     <div className='flex flex-row items-center gap-4'>
-                        {
-                            alowSellSeats && (
-                                <button
-                                    className='underline text-purple'
-                                    style={styles.inputs}
-                                    onClick={() => {
-                                        setShowSellSeatsModal(true);
-                                    }}
-                                >
-                                    Edit
-                                </button>
-                            )
-                        }
+                        
                         <Switch
                             checked={alowSellSeats}
                             onChange={(e) => setAlowSellSeats(e.target.checked)}
@@ -1005,12 +993,12 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         ))}
                     </div>
 
-                    <div className='w-full flex flex-row items-center justify-end pe-4'>
+                    <div className='w-full flex flex-row items-center justify-start pe-4'>
                         <button
                             onClick={handleAddMember}
                             className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
                         >
-                            New Member
+                           + New Member
                         </button>
                     </div>
                 </div>

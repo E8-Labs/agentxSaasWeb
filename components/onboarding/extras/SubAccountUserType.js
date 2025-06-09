@@ -11,13 +11,6 @@ const SubAccountUserType = ({
     const [selectedUserType, setSelectedUserType] = useState(null);
 
     useEffect(() => {
-        console.log(userType);
-        if (userData) {
-            setSelectedUserType(userData);
-        }
-    }, []);
-
-    useEffect(() => {
         console.log("selected user", selectedUserType);
     }, [selectedUserType]);
 
@@ -152,11 +145,11 @@ const SubAccountUserType = ({
 
         {
             id: 100,
-            title: "More",
-            agentType: "More Agent",
+            title: "General Agent",
+            agentType: "General Agent",
             icon: "/agentXOrb.gif", //"/usertype/avt7.png",
             areaOfFocusTitle: "How would you use AgentX?",
-            userType: "WebsiteAgent",
+            userType: "GenralAgent",
             roundedImage: true,
         },
     ];

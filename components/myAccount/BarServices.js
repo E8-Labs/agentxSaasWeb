@@ -68,6 +68,7 @@ function BarServices() {
     useState(false);
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
+  const [role, setRole] = useState("")
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -128,6 +129,8 @@ function BarServices() {
     try {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
+
+       setRole(response?.data?.data?.userRole)
       //console.log;
       if (response) {
         let togglePlan = response?.data?.data?.supportPlan;
@@ -165,11 +168,13 @@ function BarServices() {
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
+
+    console.log('try to subscribe')
     try {
       let planType = null;
 
       //// //console.log;
-
+ if (role !== "AgencySubAccount") {
       if (togglePlan === 1) {
         planType = "Starter";
       } else if (togglePlan === 2) {
@@ -177,10 +182,13 @@ function BarServices() {
       } else if (togglePlan === 3) {
         planType = "Enterprise";
       }
+    }else{
+      let type = plans?.find((item) => item.title === togglePlan);
+        planType = type?.id;
+    }
+      // console.log;
 
-      // //console.log;
-
-      setSubscribePlanLoader(true);
+      // setSubscribePlanLoader(true);
       let AuthToken = null;
       let localDetails = null;
       const localData = localStorage.getItem("User");
@@ -203,7 +211,7 @@ function BarServices() {
         supportPlan: planType,
       };
 
-      // //console.log;
+      console.log("apidata",ApiData)
 
       const ApiPath = Apis.purchaseSupportPlan;
       // //console.log;

@@ -227,6 +227,20 @@ export default function AddMonthlyPlan({
     },
   };
 
+  const isFormValid = () => {
+    const requiredFieldsFilled =
+      title.trim() &&
+      planDescription.trim() &&
+      originalPrice &&
+      discountedPrice &&
+      minutes;
+
+    const trialValid = allowTrial ? trialValidForDays : true;
+
+    return requiredFieldsFilled && trialValid && !minCostErr;
+  };
+
+
   return (
     <Modal
       open={open}
@@ -444,6 +458,14 @@ export default function AddMonthlyPlan({
                 <label className="text-sm font-medium">Allow Trial</label>
                 <Switch
                   checked={allowTrial}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'white',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#7902DF',
+                    },
+                  }}
                   onChange={(e) => {
                     if (canAddPlan) {
                       setAllowTrial(e.target.checked);
@@ -487,8 +509,10 @@ export default function AddMonthlyPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className="bg-purple w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg"
+                  className={` ${isFormValid() ? "bg-purple" : "bg-[#00000020]"} w-[12vw] hover:bg-purple-700 ${isFormValid() ? "text-white" : "text-black"} font-semibold py-2 px-4 rounded-lg`}
                   onClick={handleCreatePlan}
+                  disabled={!isFormValid()}
+
                 >
                   Create Plan
                 </button>

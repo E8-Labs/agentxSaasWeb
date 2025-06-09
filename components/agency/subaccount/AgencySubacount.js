@@ -201,9 +201,17 @@ function AgencySubacount() {
       />
 
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
-        <div>
-          <EditAgencyName
-            flex={true} />
+        <div
+            style={{
+              fontSize: 29,
+              fontWeight: "700",
+              color: "black",
+            }}
+          >
+            Sub Accounts
+          {/* <EditAgencyName
+            flex={true} /> */}
+
         </div>
 
         <div>
@@ -263,7 +271,7 @@ function AgencySubacount() {
             <div style={styles.text}>Plan</div>
           </div>
           <div className="w-1/12">
-            <div style={styles.text}>Total Spent</div>
+            <div style={styles.text}>Spend</div>
           </div>
           <div className="w-1/12">
             <div style={styles.text}>Balance</div>
