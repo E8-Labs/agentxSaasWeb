@@ -35,6 +35,8 @@ import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import EditAgencyName from "@/components/agency/agencyExtras.js/EditAgencyName";
+import CheckList from "./CheckList";
+import AgencyChecklist from "./AgencyChecklist";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -73,7 +75,7 @@ const AgencyNavBar = () => {
   useEffect(() => {
     getAgencyPlans();
     const LocalData = localStorage.getItem("User");
-    if(LocalData){
+    if (LocalData) {
       const D = JSON.parse(LocalData);
       setUserDetails(D);
     }
@@ -91,31 +93,31 @@ const AgencyNavBar = () => {
   //get agency plans list
   const getAgencyPlans = async () => {
     try {
-        console.log('trying to get plans')
-        let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
-        if (localData) {
-            let u = JSON.parse(localData);
+      console.log('trying to get plans')
+      let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+      if (localData) {
+        let u = JSON.parse(localData);
 
-            const response = await axios.get(Apis.getPlansForAgency, {
-                headers: {
-                    Authorization: `Bearer ${u.token}`,
-                }
-            })
+        const response = await axios.get(Apis.getPlansForAgency, {
+          headers: {
+            Authorization: `Bearer ${u.token}`,
+          }
+        })
 
-            if (response.data) {
-                if (response.data.status === true) {
-                    console.log('plans list is: ', response.data.data);
-                    let plansList = response.data.data;
-                    localStorage.setItem("agencyPlansList", JSON.stringify(plansList));
-                } else {
-                    console.log('Error in getting plans: ', response.data.message);
-                }
-            }
+        if (response.data) {
+          if (response.data.status === true) {
+            console.log('plans list is: ', response.data.data);
+            let plansList = response.data.data;
+            localStorage.setItem("agencyPlansList", JSON.stringify(plansList));
+          } else {
+            console.log('Error in getting plans: ', response.data.message);
+          }
         }
+      }
     } catch (error) {
-        console.log("Error in getPlans: ", error);
+      console.log("Error in getPlans: ", error);
     }
-}
+  }
 
   const getUserProfile = async () => {
     const data = localStorage.getItem("User");
@@ -154,6 +156,21 @@ const AgencyNavBar = () => {
 
   useEffect(() => {
     getUserProfile();
+  }, []);
+
+  //update the profile after updating the checklist
+  useEffect(() => {
+    const handleUpdateProfile = (event) => {
+      // //console.log;
+      getUserProfile(); // Refresh the profile data
+      console.log("Agency Navbar called getprofile api to update checklist");
+    };
+
+    window.addEventListener("UpdateAgencyCheckList", handleUpdateProfile);
+
+    return () => {
+      document.removeEventListener("UpdateAgencyCheckList", handleUpdateProfile); // Clean up
+    };
   }, []);
 
   //code for verify now
@@ -339,140 +356,150 @@ const AgencyNavBar = () => {
         </Box>
       </Modal>
 
-      <div
-        className="w-full pt-5 flex flex-col items-center ps-4"
-        style={{
-          height: "90vh",
-          overflow: "auto",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <div className="w-full flex flex-row gap-3 items-center justify-center">
-          <div className="w-9/12 flex flex-col justify-end">
-            <div className="w-full">
-              {/*userDetails?.user?.name || "Agency Name"*/}
-              <EditAgencyName />
+      <div className="h-screen w-full flex flex-col items-center justify-between">
+        <div
+          className="w-full pt-5 flex flex-col items-center ps-4"
+          style={{
+            maxHeight: "90vh",
+            overflow: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          <div className="w-full flex flex-row gap-3 items-center justify-center">
+            <div className="w-9/12 flex flex-col justify-end">
+              <div className="w-full">
+                {/*userDetails?.user?.name || "Agency Name"*/}
+                <EditAgencyName />
+              </div>
+              <Image
+                src={"/agencyIcons/poweredByIcon.png"}
+                alt="*"
+                height={33}
+                width={140}
+                objectFit="contain"
+              />
             </div>
-            <Image
-              src={"/agencyIcons/poweredByIcon.png"}
-              alt="*"
-              height={33}
-              width={140}
-              objectFit="contain"
-            />
           </div>
-        </div>
 
-        <div className="w-full mt-8 flex flex-col items-center gap-3">
-          {agencyLinks.map((item) => (
-            <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-              <Link
-                sx={{ cursor: "pointer", textDecoration: "none" }}
-                href={item.href}
-              // onClick={(e) => handleOnClick(e, item.href)}
-              >
-                <div
-                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                  style={{}}
+          <div
+            className="w-full mt-8 flex flex-col items-center gap-3 overflow-auto"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
+          >
+            {agencyLinks.map((item) => (
+              <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
+                <Link
+                  sx={{ cursor: "pointer", textDecoration: "none" }}
+                  href={item.href}
+                // onClick={(e) => handleOnClick(e, item.href)}
                 >
-                  <Image
-                    src={
-                      pathname === item.href ? item.selected : item.uneselected
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                  />
                   <div
-                    className={
-                      pathname === item.href ? "text-purple" : "text-black"
-                    }
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                    }}
+                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    style={{}}
                   >
-                    {item.name}
+                    <Image
+                      src={
+                        pathname === item.href ? item.selected : item.uneselected
+                      }
+                      height={24}
+                      width={24}
+                      alt="icon"
+                    />
+                    <div
+                      className={
+                        pathname === item.href ? "text-purple" : "text-black"
+                      }
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                      }}
+                    >
+                      {item.name}
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </div>
-          ))}
-        </div>
+                </Link>
+              </div>
+            ))}
+          </div>
 
-        {/* <div>
+          {/* <div>
           <button onClick={requestNotificationPermission}>
             Req Not
           </button>
         </div> */}
+        </div>
+
+        <div className="w-full flex flex-col items-center pt-2">
+          {/* Code for Check list menu bar */}
+          <div
+            // className="w-full"
+            style={{
+              borderBottom: "1px solid #00000010",
+            }}>{userDetails && <AgencyChecklist userDetails={userDetails} />}</div>
+          <Link
+            href={"/agency/dashboard/myAccount"}
+            className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
+            style={{
+              textOverflow: "ellipsis",
+              textDecoration: "none",
+            }}
+          >
+            {userDetails?.user?.thumb_profile_image ? (
+              <div
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%", // Ensures circular shape
+                  overflow: "hidden", // Clips any overflow from the image
+                  display: "flex", // Centers the image if needed
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src={userDetails?.user?.thumb_profile_image}
+                  alt="*"
+                  style={{ height: "100%", width: "100%" }}
+                />
+              </div>
+            ) : (
+              <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+                {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+              </div>
+            )}
+
+            <div>
+              <div
+                className="truncate"
+                style={{
+                  fontSize: 15,
+                  fontWeight: "500",
+                  color: "",
+                  width: "100px",
+                  color: "black",
+                }}
+              >
+                {userDetails?.user?.name?.split(" ")[0]}
+              </div>
+              <div
+                className="truncate w-[120px]"
+                style={{
+                  fontSize: 15,
+                  fontWeight: "500",
+                  color: "#15151560",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {userDetails?.user?.email}
+              </div>
+            </div>
+          </Link>
+        </div>
       </div>
 
-      <div
-        className="w-full flex flex-row items-start justify-center h-[10%] pt-2"
-        style={{
-          borderTop: "1px solid #00000010",
-        }}
-      >
-        <Link
-          href={"/agency/dashboard/myAccount"}
-          className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
-          style={{
-            textOverflow: "ellipsis",
-            textDecoration: "none",
-          }}
-        >
-          {userDetails?.user?.thumb_profile_image ? (
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%", // Ensures circular shape
-                overflow: "hidden", // Clips any overflow from the image
-                display: "flex", // Centers the image if needed
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src={userDetails?.user?.thumb_profile_image}
-                alt="*"
-                style={{ height: "100%", width: "100%" }}
-              />
-            </div>
-          ) : (
-            <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-              {userDetails?.user?.name.slice(0, 1).toUpperCase()}
-            </div>
-          )}
-
-          <div>
-            <div
-              className="truncate"
-              style={{
-                fontSize: 15,
-                fontWeight: "500",
-                color: "",
-                width: "100px",
-                color: "black",
-              }}
-            >
-              {userDetails?.user?.name?.split(" ")[0]}
-            </div>
-            <div
-              className="truncate w-[120px]"
-              style={{
-                fontSize: 15,
-                fontWeight: "500",
-                color: "#15151560",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {userDetails?.user?.email}
-            </div>
-          </div>
-        </Link>
-      </div>
     </div>
   );
 };

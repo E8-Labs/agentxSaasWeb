@@ -95,6 +95,7 @@ export default function SetXBarOptions({
             if (response) {
                 console.log("responese of create sub account api is", response.data);
                 if (response.data.status === true) {
+                    window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
                     closeModal();
                 }
             }

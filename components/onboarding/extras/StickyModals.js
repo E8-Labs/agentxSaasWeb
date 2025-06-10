@@ -121,9 +121,9 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
       formData.append("twilioSid", sid);
       formData.append("twilioAuthToken", twilioAuthToken);
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
-      }
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(`${key} = ${value}`);
+      // }
 
       const response = await axios.post(ApiPAth, formData, {
         headers: {
@@ -135,6 +135,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
         console.log("Response of add twilio api is", response);
         setTwillioLoader(false);
         if (response.data.status === true) {
+          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
           console.log("Sending the success message");
           const localData = localStorage.getItem("User");
           if (localData) {
