@@ -8,7 +8,14 @@ export default function EnrichModal({
     setShowenrichConfirmModal,
     handleAddLead,
     Loader,
+    setIsEnrichToggle
 }) {
+
+    const handleEnrichFalse = () => {
+        setIsEnrichToggle(false);
+        setShowenrichModal(false);
+    }
+
     return (
         <Modal open={showenrichModal}
             // onClose={() => setShowAddLeadModal(false)}
@@ -52,7 +59,7 @@ export default function EnrichModal({
                             </div>
                             <button
                                 onClick={() => {
-                                    setShowenrichModal(false);
+                                    handleEnrichFalse();
                                 }}
                             >
                                 <Image
@@ -122,7 +129,8 @@ export default function EnrichModal({
                      items-center justify-center"
                                         style={{}}
                                         onClick={() => {
-                                            handleAddLead(false)
+                                            // handleAddLead(false)
+                                            handleEnrichFalse();
                                         }}
                                     >
                                         Not Interested

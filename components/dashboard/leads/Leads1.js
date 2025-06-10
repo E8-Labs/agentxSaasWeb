@@ -112,6 +112,8 @@ const Leads1 = () => {
   const [showenrichModal, setShowenrichModal] = useState(false);
   const [showenrichConfirmModal, setShowenrichConfirmModal] = useState(false);
   const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false);
+  //enrich toggle value
+  const [isEnrichToggle, setIsEnrichToggle] = useState(false);
 
   useEffect(() => {
     //console.log;
@@ -896,6 +898,7 @@ const Leads1 = () => {
         setShowUploadLeadModal(false);
         setSelectedFile(null);
         setShowenrichModal(false);
+        setIsEnrichToggle(false);
         setShowenrichConfirmModal(false);
         setAddNewLeadModal(false);
         setSetData(true);
@@ -920,8 +923,11 @@ const Leads1 = () => {
         leads: batchLeads,
         columnMappings: NewColumnsObtained,
         tags: tagsValue,
-        enrich: enrich,
+        enrich: isEnrichToggle,
       };
+
+      // console.log("Data sending for add lead is;", ApiData);
+      // return
 
       try {
         const response = await axios.post(ApiPath, ApiData, {
@@ -1449,20 +1455,19 @@ const Leads1 = () => {
 
                 <div className="flex flex-row items-center justify-between gap-2 mt-8">
                   <span style={styles.subHeadingStyle}>List Name</span>{" "}
-                  {/* <Image
-                  src={"/svgIcons/infoIcon.svg"}
-                  height={18}
-                  width={18}
-                  alt="*"
-                /> */}
                   <div className="flex flex-row items-center gap-2 ">
                     <Switch
-                      checked={showenrichModal}
+                      checked={isEnrichToggle}
                       // color="#7902DF"
                       // exclusive
                       onChange={(event) => {
                         //console.log;
-                        setShowenrichModal(event.target.checked);
+                        if (isEnrichToggle === true) {
+                          setIsEnrichToggle(false)
+                        } else {
+                          setIsEnrichToggle(true);
+                          setShowenrichModal(true);
+                        }
                       }}
                       sx={{
                         "& .MuiSwitch-switchBase.Mui-checked": {
@@ -1477,7 +1482,7 @@ const Leads1 = () => {
 
 
                     <Tooltip
-                      title="Our AI wil search the web to pull all current data on your leads."
+                      title="Our AI will search the web to pull all current data on your leads."
                       arrow
                       componentsProps={{
                         tooltip: {
@@ -1499,7 +1504,7 @@ const Leads1 = () => {
                       }}
                     >
                       <div className="flex flex-row items-center gap-2">
-                        <div style={{fontSize:14 ,fontWeight:'500'}}>
+                        <div style={{ fontSize: 14, fontWeight: '500' }}>
                           Enrich Leads
                         </div>
                         <Image
@@ -1732,13 +1737,23 @@ const Leads1 = () => {
             // setIsEnrich(value)
           }}
           setShowenrichModal={setShowenrichModal}
+          setIsEnrichToggle={setIsEnrichToggle}
           handleAddLead={handleAddLead}
           Loader={Loader}
         />
         <EnrichConfirmModal
           showenrichConfirmModal={showenrichConfirmModal}
           setShowenrichConfirmModal={setShowenrichConfirmModal}
-          handleAddLead={() => handleAddLead(true)}
+          handleAddLead={(value) => {
+            if (value === true) {
+              console.log("Value passed is", value);
+              setIsEnrich(value);
+              setShowenrichModal(false);
+              setShowenrichConfirmModal(false);
+            }
+            // handleAddLead(value);
+
+          }}
           processedData={processedData}
           Loader={Loader}
         />
@@ -1751,8 +1766,7 @@ const Leads1 = () => {
             setIsEnrich(value);
           }}
           handleEnrichLead={(value) => {
-            console.log("value", value);
-            setIsEnrich(value);
+            setIsEnrichToggle(value);
             setShowenrichConfirmModal2(false);
           }}
           loading={Loader}

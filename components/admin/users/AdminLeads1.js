@@ -12,6 +12,7 @@ import {
   Snackbar,
   Switch,
   ToggleButton,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
@@ -39,7 +40,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import ConfirmPerplexityModal from "@/components/dashboard/leads/extras/CofirmPerplexityModal";
 import AdminLeads from "./AdminLeads";
 
-const AdminLeads1 = ({selectedUser}) => {
+const AdminLeads1 = ({ selectedUser }) => {
   const addColRef = useRef(null);
   const bottomRef = useRef(null);
 
@@ -703,7 +704,7 @@ const AdminLeads1 = ({selectedUser}) => {
         columnMappings: NewColumnsObtained,
         tags: tagsValue,
         enrich: enrich,
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
 
       console.log("Add lead data is", ApiData);
@@ -841,7 +842,7 @@ const AdminLeads1 = ({selectedUser}) => {
         columns: inputs.map((columns) => columns.value),
         inbound: isInbound,
         enrich: isEnrich,
-        userId:selectedUser.id
+        userId: selectedUser.id
       };
       // //console.log;
 
@@ -1093,7 +1094,7 @@ const AdminLeads1 = ({selectedUser}) => {
                       alt="Upload Icon"
                       height={30}
                       width={30}
-                      // style={{ marginBottom: "10px" }}
+                    // style={{ marginBottom: "10px" }}
                     />
                   </div>
                   <p style={{ ...styles.subHeadingStyle }}>
@@ -1228,14 +1229,69 @@ const AdminLeads1 = ({selectedUser}) => {
                   Leads
                 </div>
 
-                <div className="flex flex-row items-center gap-2 mt-8">
+                <div className="flex flex-row items-center justify-between gap-2 mt-8">
                   <span style={styles.subHeadingStyle}>List Name</span>{" "}
-                  {/* <Image
-                  src={"/svgIcons/infoIcon.svg"}
-                  height={18}
-                  width={18}
-                  alt="*"
-                /> */}
+                  <div className="flex flex-row items-center gap-2 ">
+                    <Switch
+                      checked={isEnrichToggle}
+                      // color="#7902DF"
+                      // exclusive
+                      onChange={(event) => {
+                        //console.log;
+                        if (isEnrichToggle === true) {
+                          setIsEnrichToggle(false)
+                        } else {
+                          setIsEnrichToggle(true);
+                          setShowenrichModal(true);
+                        }
+                      }}
+                      sx={{
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: "#7902DF",
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                        {
+                          backgroundColor: "#7902DF",
+                        },
+                      }}
+                    />
+
+
+                    <Tooltip
+                      title="Our AI will search the web to pull all current data on your leads."
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "16px",
+                            fontWeight: "500",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff", // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <div className="flex flex-row items-center gap-2">
+                        <div style={{ fontSize: 14, fontWeight: '500' }}>
+                          Enrich Leads
+                        </div>
+                        <Image
+                          src={"/svgIcons/infoIcon.svg"}
+                          height={16}
+                          width={16}
+                          alt="*"
+                        />
+                      </div>
+                    </Tooltip>
+                  </div>
                 </div>
 
                 <div className="w-full mt-4" style={styles.subHeadingStyle}>
@@ -1456,7 +1512,9 @@ const AdminLeads1 = ({selectedUser}) => {
         <EnrichConfirmModal
           showenrichConfirmModal={showenrichConfirmModal}
           setShowenrichConfirmModal={setShowenrichConfirmModal}
-          handleAddLead={() => handleAddLead(true)}
+          handleAddLead={() => {
+            handleAddLead(true)
+          }}
           processedData={processedData}
           Loader={Loader}
         />
@@ -1893,9 +1951,9 @@ const AdminLeads1 = ({selectedUser}) => {
                                 color: "#7902DF",
                               },
                               "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
-                                {
-                                  backgroundColor: "#7902DF",
-                                },
+                              {
+                                backgroundColor: "#7902DF",
+                              },
                             }}
                           />
                         </div>
@@ -2020,11 +2078,10 @@ const AdminLeads1 = ({selectedUser}) => {
                     </div>
                   ) : (
                     <button
-                      className={`h-[50px] rounded-xl w-full ${
-                        newSheetName && newSheetName.length > 0
+                      className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
                           ? "bg-purple text-white"
                           : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
-                      }`}
+                        }`}
                       style={{
                         fontWeight: "600",
                         fontSize: 16.8,
