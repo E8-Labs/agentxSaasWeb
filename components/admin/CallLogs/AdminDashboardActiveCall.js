@@ -52,10 +52,16 @@ function AdminDashboardActiveCall({ }) {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  const [selectedSort, setSelectedSort] = useState(null);
+  const [selectedSortOrder, setSelectedSortOrder] = useState("ASC");
+
+  let sortData = { sort: "", sortOrder: "" };
+
   useEffect(() => {
     getAgents({
       length: "",
-      isPagination: false
+      isPagination: false,
+      sortData: null
     });
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (localD) {
@@ -121,7 +127,7 @@ function AdminDashboardActiveCall({ }) {
 
     const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
 
-    if (cache && !passedData.length) {
+    if (cache && !passedData.length && !passedData.sortData) {
       try {
         const parsed = JSON.parse(cache);
         console.log("Loaded agents from cache", parsed);
@@ -131,18 +137,22 @@ function AdminDashboardActiveCall({ }) {
         return; // ✅ Skip network call if cached
       } catch (err) {
         console.warn("Error parsing cached agent data", err);
-        localStorage.removeItem(CACHE_KEY); // Corrupted cache fallback
+        localStorage.removeItem(PersistanceKeys.LocalActiveCalls); // Corrupted cache fallback
       }
     }
 
     try {
+      console.log("Fetching agents from API with pagination data", passedData);
       if (passedData?.isPagination === false) {
         setInitialLoader(true);
       }
 
       const token = AuthToken();
       if (!token) return;
-      const ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length}`
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}`
+      if (passedData?.sortData) {
+        ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;
+      }
       console.log("Api path is", ApiPath);
 
       const response = await axios.get(ApiPath, {
@@ -152,19 +162,24 @@ function AdminDashboardActiveCall({ }) {
         },
       });
 
-      // console.log("Response is", response);
-
       if (response?.data?.data) {
         const agents = response.data.data;
         console.log("Response of paginated api is", agents);
-        setFilteredAgentsList([...filteredAgentsList, ...agents]);
-        setCallDetails([...callDetails, ...agents]);
-        setAgentsList([...agentsList, ...agents]);
+        if (passedData?.isPagination === false) {
+          setFilteredAgentsList(agents); 
+          setCallDetails(agents);
+          setAgentsList(agents);
+        } else {
+          setFilteredAgentsList(prev => [...prev, ...agents]); // append
+          setCallDetails(prev => [...prev, ...agents]);
+          setAgentsList(prev => [...prev, ...agents]);
+        }
+        
         console.log("Data is set in variables");
         setInitialLoader(false);
         setLoading(false);
         //stoped temporarily
-        if(!passedData?.length){
+        if (!passedData?.length && !passedData?.sortData ) {
           localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
         }
         if (agents.length < LimitPerPage) {
@@ -619,10 +634,85 @@ function AdminDashboardActiveCall({ }) {
           <div style={styles.text}>Objective</div>
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>Leads</div>
+
+          <button className=""
+            onClick={() => {
+
+              let sortOrder = selectedSortOrder;
+              if (selectedSort == "Leads") {
+                sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+              }
+
+              setSelectedSortOrder(sortOrder);
+
+              sortData = {
+                sort: "totalLeads",
+                sortOrder: sortOrder,
+              };
+              setSelectedSort("Leads");
+              getAgents({
+                length: 0,
+                isPagination: false,
+                sortData: sortData
+              });
+            }}
+          >
+            Leads
+            {selectedSort === "Leads" ? (
+              <Image
+                src={
+                  selectedSortOrder == "DESC"
+                    ? "/downArrow.png"
+                    : "/upArrow.png"
+                }
+                height={3}
+                width={10}
+                className="inline-block align-middle"
+                alt="*"
+              />
+            ) : null}
+          </button>
+
         </div>
         <div className="w-1/12">
-          <div style={styles.text}>Date created</div>
+          <button className=""
+            onClick={() => {
+
+              let sortOrder = selectedSortOrder;
+              if (selectedSort == "CreatedAt") {
+                sortOrder = selectedSortOrder == "ASC" ? "DESC" : "ASC";
+              }
+
+              setSelectedSortOrder(sortOrder);
+
+              sortData = {
+                sort: "CreatedAt",
+                sortOrder: sortOrder,
+              };
+
+              setSelectedSort("CreatedAt");
+              getAgents({
+                length: 0,
+                isPagination: false,
+                sortData: sortData
+              });
+            }}
+          >
+            Date created
+            {selectedSort === "CreatedAt" ? (
+              <Image
+                src={
+                  selectedSortOrder == "DESC"
+                    ? "/downArrow.png"
+                    : "/upArrow.png"
+                }
+                height={3}
+                width={10}
+                className="inline-block align-middle"
+                alt="*"
+              />
+            ) : null}
+          </button>
         </div>
         <div className="w-2/12">
           <div style={styles.text}>Call Status</div>
@@ -666,7 +756,8 @@ function AdminDashboardActiveCall({ }) {
                 if (!loading && hasMore) {
                   getAgents({
                     length: filteredAgentsList.length,
-                    isPagination: true
+                    isPagination: true,
+                    sortData: null
                   });
                 }
 

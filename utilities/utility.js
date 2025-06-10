@@ -49,7 +49,7 @@ export function GetFormattedDateString(
       // formatted = dateInLocalTz.format(dateFormat);
 
 
-      console.log("Full date:", dateInLocalTz.format("YYYY-MM-DD HH:mm:ss.SSS"));
+      // console.log("Full date:", dateInLocalTz.format("YYYY-MM-DD HH:mm:ss.SSS"));
 
     } else {
       // //console.log;
