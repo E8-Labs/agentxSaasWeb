@@ -111,6 +111,9 @@ const AdminLeads1 = ({ selectedUser }) => {
   const [showenrichConfirmModal, setShowenrichConfirmModal] = useState(false);
   const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false);
 
+  const [isEnrichToggle, setIsEnrichToggle] = useState(false);
+
+
   useEffect(() => {
     //console.log;
     if (ShowUploadLeadModal == false) {
@@ -651,7 +654,7 @@ const AdminLeads1 = ({ selectedUser }) => {
   };
 
   //code to call api
-  const handleAddLead = async (enrich = false) => {
+  const handleAddLead = async () => {
     // let validated = validateColumns();
 
     ////console.log;
@@ -703,7 +706,7 @@ const AdminLeads1 = ({ selectedUser }) => {
         leads: data,
         columnMappings: NewColumnsObtained,
         tags: tagsValue,
-        enrich: enrich,
+        enrich: isEnrichToggle,
         userId: selectedUser.id
       };
 
@@ -901,6 +904,7 @@ const AdminLeads1 = ({ selectedUser }) => {
 
     setIsEnrich(checked);
   };
+
 
   return (
     <div className="w-full">
@@ -1229,6 +1233,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                   Leads
                 </div>
 
+
                 <div className="flex flex-row items-center justify-between gap-2 mt-8">
                   <span style={styles.subHeadingStyle}>List Name</span>{" "}
                   <div className="flex flex-row items-center gap-2 ">
@@ -1482,7 +1487,14 @@ const AdminLeads1 = ({ selectedUser }) => {
                       className="bg-purple text-white rounded-lg h-[50px] w-4/12"
                       onClick={() => {
                         // validateColumns();
-                        setShowenrichModal(true);
+                        let validated = validateColumns();
+
+                        console.log("Validated", validated);
+                        // return;
+                        if (validated) {
+                          console.log("Show enrich");
+                          handleAddLead()
+                        }
                       }}
                     >
                       Continue
@@ -1506,17 +1518,39 @@ const AdminLeads1 = ({ selectedUser }) => {
             // setIsEnrich(value)
           }}
           setShowenrichModal={setShowenrichModal}
+          setIsEnrichToggle={setIsEnrichToggle}
           handleAddLead={handleAddLead}
           Loader={Loader}
         />
         <EnrichConfirmModal
           showenrichConfirmModal={showenrichConfirmModal}
           setShowenrichConfirmModal={setShowenrichConfirmModal}
-          handleAddLead={() => {
-            handleAddLead(true)
+          handleAddLead={(value) => {
+            if (value === true) {
+              console.log("Value passed is", value);
+              setIsEnrich(value);
+              setShowenrichModal(false);
+              setShowenrichConfirmModal(false);
+            }
+            // handleAddLead(value);
+
           }}
           processedData={processedData}
           Loader={Loader}
+        />
+
+        <ConfirmPerplexityModal
+          showConfirmPerplexity={showenrichConfirmModal2}
+          setshowConfirmPerplexity={(value) => {
+            console.log("value", value);
+            setShowenrichConfirmModal2(value);
+            setIsEnrich(value);
+          }}
+          handleEnrichLead={(value) => {
+            setIsEnrichToggle(value);
+            setShowenrichConfirmModal2(false);
+          }}
+          loading={Loader}
         />
 
         <ConfirmPerplexityModal
@@ -2079,8 +2113,8 @@ const AdminLeads1 = ({ selectedUser }) => {
                   ) : (
                     <button
                       className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                          ? "bg-purple text-white"
-                          : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
+                        ? "bg-purple text-white"
+                        : "bg-btngray text-gray-600 cursor-not-allowed" // Disabled state styling
                         }`}
                       style={{
                         fontWeight: "600",
