@@ -8,9 +8,11 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 function AdminDashboardActiveCall({ }) {
   const Limit = 30;
+  const LimitPerPage = 20;
   const [user, setUser] = useState(null);
   const [leadsLoading, setLeadsLoading] = useState(false);
   const [hasMoreLeads, setHasMoreLeads] = useState(true);
@@ -46,8 +48,15 @@ function AdminDashboardActiveCall({ }) {
   const [extraTagsModal, setExtraTagsModal] = useState(false);
   const [otherTags, setOtherTags] = useState([]);
 
+  //code for pagination
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    getAgents();
+    getAgents({
+      length: "",
+      isPagination: false
+    });
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (localD) {
       let d = JSON.parse(localD);
@@ -107,11 +116,12 @@ function AdminDashboardActiveCall({ }) {
   };
 
   //code to get agents
-  const getAgents = async () => {
-   
+  const getAgents = async (passedData) => {
+    console.log("Data passed is", passedData);
+
     const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
 
-    if (!cache) {
+    if (cache && !passedData.length) {
       try {
         const parsed = JSON.parse(cache);
         console.log("Loaded agents from cache", parsed);
@@ -126,24 +136,40 @@ function AdminDashboardActiveCall({ }) {
     }
 
     try {
-      setInitialLoader(true);
+      if (passedData?.isPagination === false) {
+        setInitialLoader(true);
+      }
 
-      const token = JSON.parse(localStorage.getItem("User"))?.token;
+      const token = AuthToken();
       if (!token) return;
+      const ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length}`
+      console.log("Api path is", ApiPath);
 
-      const response = await axios.get(Apis.getAdminSheduledCallLogs, {
+      const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
+      // console.log("Response is", response);
+
       if (response?.data?.data) {
         const agents = response.data.data;
-        setFilteredAgentsList(agents);
-        setCallDetails(agents);
-        setAgentsList(agents);
-        localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
+        console.log("Response of paginated api is", agents);
+        setFilteredAgentsList([...filteredAgentsList, ...agents]);
+        setCallDetails([...callDetails, ...agents]);
+        setAgentsList([...agentsList, ...agents]);
+        console.log("Data is set in variables");
+        setInitialLoader(false);
+        setLoading(false);
+        //stoped temporarily
+        if(!passedData?.length){
+          localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
+        }
+        if (agents.length < LimitPerPage) {
+          setHasMore(false);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch agents", error);
@@ -615,53 +641,93 @@ function AdminDashboardActiveCall({ }) {
           <div
             className={`h-[65vh] overflow-auto`}
             style={{ scrollbarWidth: "none" }}
+            id="scrollableDiv1"
           >
-            {filteredAgentsList.length > 0 ? (
-              <div className={`h-[65vh] overflow-auto`}>
-                {filteredAgentsList?.map((item, index) => {
-                  return (
-                    <div key={index}>
-                      {item.agents?.map((agent, index) => {
-                        return (
-                          <div key={index}>
-                            <div
-                              className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                              key={index}
-                            >
-                              <button className="w-2/12 flex flex-row gap-3 items-center"
-                                onClick={() => {
-                                  if (item?.user?.id) {
-                                    // Open a new tab with user ID as query param
-                                    let url = ` admin/users?userId=${item?.user?.id}`
-                                    //console.log
-                                    window.open(url, "_blank");
-                                  }
-                                }}
+            <InfiniteScroll
+              className="lg:flex hidden flex-col w-full"
+              endMessage={
+                <p
+                  style={{
+                    textAlign: "center",
+                    paddingTop: "10px",
+                    fontWeight: "400",
+                    fontFamily: "inter",
+                    fontSize: 16,
+                    color: "#00000060",
+                  }}
+                >
+                  {`You're all caught up`}
+                </p>
+              }
+              scrollableTarget="scrollableDiv1"
+              dataLength={filteredAgentsList.length}
+              next={() => {
+                // console.log("Trying to triger pagination");
+                if (!loading && hasMore) {
+                  getAgents({
+                    length: filteredAgentsList.length,
+                    isPagination: true
+                  });
+                }
+
+              }} // Fetch more when scrolled
+              hasMore={hasMore} // Check if there's more data
+              loader={
+
+                <div className="w-full flex flex-row justify-center mt-8">
+                  <CircularProgress size={35} />
+                </div>
+              }
+              style={{ overflow: "unset" }}
+            >
+              {filteredAgentsList?.length > 0 ? (
+                <div
+                // className={`h-[65vh] overflow-auto`}
+                >
+                  {filteredAgentsList?.map((item, index) => {
+                    return (
+                      <div key={index}>
+                        {item.agents?.map((agent, index) => {
+                          return (
+                            <div key={index}>
+                              <div
+                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                                key={index}
                               >
-                                {item?.user?.thumb_profile_image ? (
-                                  <Image
-                                    className="rounded-full"
-                                    src={item?.user?.thumb_profile_image}
-                                    height={40}
-                                    width={40}
-                                    style={{
-                                      height: "40px",
-                                      width: "40px",
-                                      resize: "cover",
-                                    }}
-                                    alt="*"
-                                  />
-                                ) : (
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                    {item?.user?.name.slice(0, 1).toUpperCase()}
-                                  </div>
-                                )}
-                                <div style={styles.text2}>{item?.user?.name}</div>
+                                <button className="w-2/12 flex flex-row gap-3 items-center"
+                                  onClick={() => {
+                                    if (item?.user?.id) {
+                                      // Open a new tab with user ID as query param
+                                      let url = ` admin/users?userId=${item?.user?.id}`
+                                      //console.log
+                                      window.open(url, "_blank");
+                                    }
+                                  }}
+                                >
+                                  {item?.user?.thumb_profile_image ? (
+                                    <Image
+                                      className="rounded-full"
+                                      src={item?.user?.thumb_profile_image}
+                                      height={40}
+                                      width={40}
+                                      style={{
+                                        height: "40px",
+                                        width: "40px",
+                                        resize: "cover",
+                                      }}
+                                      alt="*"
+                                    />
+                                  ) : (
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                      {item?.user?.name.slice(0, 1).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div style={styles.text2}>{item?.user?.name}</div>
 
-                              </button>
+                                </button>
 
-                              <div className="w-2/12 flex flex-row gap-4 items-center">
-                                {/* {agent?.agents[0]?.thumb_profile_image ? (
+                                <div className="w-2/12 flex flex-row gap-4 items-center">
+                                  {/* {agent?.agents[0]?.thumb_profile_image ? (
                                     <Image
                                       className="rounded-full"
                                       src={agent?.agents[0].thumb_profile_image}
@@ -680,79 +746,80 @@ function AdminDashboardActiveCall({ }) {
                                     </div>
                                   )} */}
 
-                                <div>
-                                  {getAgentsListImage(agent?.agents[0])}
-                                </div>
+                                  <div>
+                                    {getAgentsListImage(agent?.agents[0])}
+                                  </div>
 
-                                <div style={styles.text2}>{agent.name}</div>
-                              </div>
-                              <div className="w-2/12 ">
-                                {agent?.agents[0]?.agentObjective ? (
-                                  <div style={styles.text2}>
-                                    {agent.agents[0]?.agentObjective}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
-                              <div className="w-1/12">
-                                <button
-                                  style={styles.text2}
-                                  className="text-purple underline outline-none"
-                                  onClick={() => {
-                                    fetchLeadsInBatch(item);
-                                    handleShowLeads(agent, item);
-                                  }}
-                                >
-                                  {item?.totalLeads}
-                                </button>
-                              </div>
-                              <div className="w-1/12">
-                                {item?.createdAt ? (
-                                  <div style={styles.text2}>
-                                    {GetFormattedDateString(item?.createdAt)}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
-                              <div className="w-2/12">{item.status}</div>
-                              <div className="w-1/12">
-                                <button
-                                  aria-describedby={id}
-                                  variant="contained"
-                                  onClick={(event) => {
-                                    handleShowPopup(event, item, agent);
-                                  }}
-                                >
-                                  <Image
-                                    src={"/otherAssets/threeDotsIcon.png"}
-                                    height={24}
-                                    width={24}
-                                    alt="icon"
-                                  />
-                                </button>
+                                  <div style={styles.text2}>{agent.name}</div>
+                                </div>
+                                <div className="w-2/12 ">
+                                  {agent?.agents[0]?.agentObjective ? (
+                                    <div style={styles.text2}>
+                                      {agent.agents[0]?.agentObjective}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
+                                <div className="w-1/12">
+                                  <button
+                                    style={styles.text2}
+                                    className="text-purple underline outline-none"
+                                    onClick={() => {
+                                      fetchLeadsInBatch(item);
+                                      handleShowLeads(agent, item);
+                                    }}
+                                  >
+                                    {item?.totalLeads}
+                                  </button>
+                                </div>
+                                <div className="w-1/12">
+                                  {item?.createdAt ? (
+                                    <div style={styles.text2}>
+                                      {GetFormattedDateString(item?.createdAt)}
+                                    </div>
+                                  ) : (
+                                    "-"
+                                  )}
+                                </div>
+                                <div className="w-2/12">{item.status}</div>
+                                <div className="w-1/12">
+                                  <button
+                                    aria-describedby={id}
+                                    variant="contained"
+                                    onClick={(event) => {
+                                      handleShowPopup(event, item, agent);
+                                    }}
+                                  >
+                                    <Image
+                                      src={"/otherAssets/threeDotsIcon.png"}
+                                      height={24}
+                                      width={24}
+                                      alt="icon"
+                                    />
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div
-                style={{
-                  fontWeight: "600",
-                  fontSize: 24,
-                  textAlign: "center",
-                  marginTop: 20,
-                }}
-              >
-                No Call Activity Found
-              </div>
-            )}
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontWeight: "600",
+                    fontSize: 24,
+                    textAlign: "center",
+                    marginTop: 20,
+                  }}
+                >
+                  No Call Activity Found
+                </div>
+              )}
+            </InfiniteScroll>
           </div>
         )}
       </div>
