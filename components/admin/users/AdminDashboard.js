@@ -139,10 +139,12 @@ const AdminDashboard = ({ selectedUser }) => {
       ApiPath = ApiPath + "&userId=" + selectedUser.id;
 
       //console.log;
-      GetDashboardDataFromLocalStorage(ApiPath);
+      // GetDashboardDataFromLocalStorage(ApiPath);
       // if (isinItiallyLoaded === false) {
       // setInitialLoader(true);
       // }
+
+      console.log("ApiPath for dashboard data:", ApiPath);
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -169,8 +171,9 @@ const AdminDashboard = ({ selectedUser }) => {
       if (response) {
         //console.log;
         if (response.data.status === true) {
-          //console.log;
+          console.log("Response of selected user dasboard:", response.data.data);
           setStatsDetails(response.data.data.stats);
+
           setStatsComparisonDetails(response.data.data.statsComparison);
 
           SaveDashboardDataToLocal(ApiPath, response.data.data);

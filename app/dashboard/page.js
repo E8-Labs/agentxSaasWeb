@@ -167,7 +167,7 @@ const Page = () => {
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          // //console.log;
+          console.log("dashboard data is", response.data.data);
           setStatsDetails(response.data.data.stats);
           setStatsComparisonDetails(response.data.data.statsComparison);
 

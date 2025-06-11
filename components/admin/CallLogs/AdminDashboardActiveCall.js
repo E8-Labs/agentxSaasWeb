@@ -166,7 +166,7 @@ function AdminDashboardActiveCall({ }) {
         const agents = response.data.data;
         console.log("Response of paginated api is", agents);
         if (passedData?.isPagination === false) {
-          setFilteredAgentsList(agents); 
+          setFilteredAgentsList(agents);
           setCallDetails(agents);
           setAgentsList(agents);
         } else {
@@ -174,12 +174,12 @@ function AdminDashboardActiveCall({ }) {
           setCallDetails(prev => [...prev, ...agents]);
           setAgentsList(prev => [...prev, ...agents]);
         }
-        
+
         console.log("Data is set in variables");
         setInitialLoader(false);
         setLoading(false);
         //stoped temporarily
-        if (!passedData?.length && !passedData?.sortData ) {
+        if (!passedData?.length && !passedData?.sortData) {
           localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
         }
         if (agents.length < LimitPerPage) {
@@ -818,30 +818,19 @@ function AdminDashboardActiveCall({ }) {
                                 </button>
 
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  {/* {agent?.agents[0]?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={agent?.agents[0].thumb_profile_image}
-                                      height={40}
-                                      width={40}
-                                      style={{
-                                        height: "40px",
-                                        width: "40px",
-                                        resize: "cover",
-                                      }}
-                                      alt="*"
-                                    />
-                                  ) : (
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {agent.name.slice(0, 1).toUpperCase()}
-                                    </div>
-                                  )} */}
+                                  
 
                                   <div>
                                     {getAgentsListImage(agent?.agents[0])}
                                   </div>
 
-                                  <div style={styles.text2}>{agent.name}</div>
+                                  <div style={styles.text2}>{
+                                    agent?.agents[0].agentType === "outbound" ? (
+                                      agent?.agents[0]?.name
+                                    ) : (
+                                      agent?.agents[1]?.name
+                                    )
+                                  }</div>
                                 </div>
                                 <div className="w-2/12 ">
                                   {agent?.agents[0]?.agentObjective ? (
