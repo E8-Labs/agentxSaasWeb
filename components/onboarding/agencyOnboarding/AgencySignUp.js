@@ -1201,15 +1201,15 @@ country={"us"} // restrict to US only
                             </div>
                                 </div>*/}
             {/*parent div*/}
-            <div className="inline-flex flex-col absolute bottom-10 right-0 sm:right-40 max-w-full">
+            <div className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 max-w-full">
               {/*this one agency name div*/}
               <div className="inline-flex flex-col items-end mb-4">
                 <div
                   className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
                   style={{ fontWeight: "700", whiteSpace: "nowrap" }}
                 >
-                  {(company || "Agency Name").length > 12
-                    ? (company || "Agency Name").slice(0, 12) + '...'
+                  {(company || "Agency Name").length > 20
+                    ? (company || "Agency Name").slice(0, 20) + '...'
                     : (company || "Agency Name")}
                 </div>
                 <Image
@@ -1221,7 +1221,7 @@ country={"us"} // restrict to US only
                 />
               </div>
               {/* This is getting width of the agncy name div or parent div */}
-              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-fit self-end px-4">
+              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-fit px-4">
                 <div className="bg-white shadow-xl rounded-xl px-4 pb-4">
                   {[
                     {

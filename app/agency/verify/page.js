@@ -62,32 +62,42 @@ const Page = () => {
     }
 
     return (
-        <div className='h-screen w-full flex flex-row items-center justify-center'>
-            <div className='h-[60vh] flex flex-col items-center'>
+        <div
+            className='h-screen w-full flex flex-row items-center justify-center'
+            style={{
+                height: '100svh',
+                width: '100%',
+                backgroundImage: "url('/agencyIcons/congratsBg.jpg')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}>
+            <div className='flex flex-col items-center w-5/12 py-[10svh]  border-2 border-white rounded-xl bg-[#ffffff90]'>
                 <div style={{ fontWeight: "600", fontSize: "38px", marginBottom: 20 }}>
                     {`Congrats!`}
                 </div>
                 <Image
                     className=""
-                    src="/agentXOrb.gif"
-                    style={{ height: "142px", width: "152px", resize: "contain" }}
-                    height={142}
-                    width={142}
+                    src="/agencyIcons/congratsOrb.jpg"
+                    // style={{ resize: "contain" }}
+                    height={250}
+                    width={220}
                     alt="*"
                 />
-                <div style={{ fontWeight: "600", fontSize: "17px", color: "#000000" }}>
+                <div style={{ fontWeight: "700", fontSize: "17px", color: "#000000" }}>
                     Your agency account is created.
                 </div>
-                <div style={{ fontWeight: "600", fontSize: "17px", color: "#000000" }}>
+                <div style={{ fontWeight: "700", fontSize: "17px", color: "#000000" }}>
                     Lets add your Stripe detail for payouts.
                 </div>
                 {
                     loader ?
-                        <div className='mt-8'>
+                        <div className='mt-16'>
                             <CircularProgress size={30} />
                         </div> :
                         <button
-                            className='bg-purple text-white p-2 rounded-md w-20vw mt-8'
+                            className='bg-purple text-white p-2 rounded-md w-20vw mt-16'
                             style={styles.btnText}
                             onClick={() => {
                                 handleVerifyClick();

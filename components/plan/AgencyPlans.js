@@ -306,7 +306,7 @@ function AgencyPlans() {
     }
 
     //continue yearly plan
-  const continueYearlyPlan = () => {
+    const continueYearlyPlan = () => {
         setSelectedDuration(duration[2]);
         // const selectedYearlyPlan = yearlyPlans[selectedPlanIndex];
         // console.log(selectedYearlyPlan);
@@ -530,13 +530,13 @@ function AgencyPlans() {
     return (
         <div
             // style={backgroundImage}
-            className="overflow-hidden flex flex-col items-center w-[90%]"
+            className="overflow-hidden flex flex-col items-center w-[90%] max-h-[90vh]"
         >
 
             <div
-                className="flex flex-col items-center w-full"
+                className="flex flex-col items-center w-full scrollbar-hide"
                 style={{
-                    overflow: "hidden", // Prevent scrolling on the entire modal
+                    overflow: "auto", // Prevent scrolling on the entire modal
                 }}
             >
                 <AgentSelectSnackMessage
@@ -563,7 +563,7 @@ function AgencyPlans() {
                             style={{
                                 fontSize: 16,
                                 fontWeight: "500",
-                                color: '#00000060'
+                                color: '#808080'
                             }}
                         >
                             {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
@@ -598,11 +598,11 @@ function AgencyPlans() {
                     />
                 </div>
 
-                <div className='flex flex-row items-start gap-6 h-[80vh] w-full'
+                <div className='flex flex-row items-start gap-6 h-auto w-full'
                 // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                 >
                     <div
-                        className='w-8/12  flex flex-row items-start gap-3 mt-10 mb-12 min-h-[100%]'
+                        className='w-9/12  flex flex-row items-start gap-3 mt-10 mb-12 h-[100%] overflow-hidden'
                     >
                         {
                             loading ? (
@@ -616,10 +616,10 @@ function AgencyPlans() {
                                         onClick={() => handleTogglePlanClick(item, index)}
                                         onMouseEnter={() => { setHoverPlan(item) }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
-                                        className={`w-4/12 rounded-2xl hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
-                                        style={{ overflow: 'auto', scrollbarWidth: 'none' }}
+                                        className={`w-4/12 rounded-2xl hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
+                                        style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
                                     >
-                                        <div className='flex flex-col items-center h-[75vh] w-full'>
+                                        <div className='flex flex-col items-center h-auto w-full'>
                                             <div className='pb-2'>
                                                 {
                                                     item.tag ? (
@@ -698,6 +698,11 @@ function AgencyPlans() {
                                                                         alignSelf: 'center'
                                                                     }}
                                                                     onClick={() => {
+                                                                        console.log("selected duration is", selectedDuration);
+                                                                        if (selectedDuration.id === 3) {
+                                                                            handleSubscribePlan();
+                                                                            return;
+                                                                        }
                                                                         if (isContinueMonthly === false) {
                                                                             checkCanSelectYearly();
                                                                         } else if (isContinueMonthly === true) {
@@ -800,7 +805,7 @@ function AgencyPlans() {
                     </div>
 
 
-                    <div className='w-4/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border'>
+                    <div className='w-3/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border h-auto'>
 
                         <div style={{ fontSize: 24, fontWeight: '700' }}>
                             Whitelabel
@@ -812,8 +817,8 @@ function AgencyPlans() {
 
                         <div
                             style={{
-                                height: '448px',
-                                width: '335px',
+                                height: '358px',
+                                width: '100%',
                                 backgroundImage: "url('/svgIcons/contactTeamBg.svg')",
                                 backgroundSize: "cover",
                                 backgroundPosition: "center",
@@ -824,7 +829,7 @@ function AgencyPlans() {
                                 marginTop: 40
                             }}
                         >
-                            <div style={{ fontSize: 40, fontWeight: '700', color: 'white', marginTop: 40 }}>
+                            <div style={{ fontSize: 35, fontWeight: '700', color: 'white', marginTop: 40 }}>
                                 Run your agency SaaS
                             </div>
 
@@ -880,9 +885,12 @@ function AgencyPlans() {
                                             fontWeight: "600",
                                         }}
                                     >
-                                    Payment Details
+                                        Payment Details
                                     </div>
-                                    <button onClick={() => setAddPaymentPopUp(false)}>
+                                    <button onClick={() => {
+                                        setAddPaymentPopUp(false);
+                                        setIsContinueMonthly(false);
+                                    }}>
                                         <Image
                                             src={"/assets/crossIcon.png"}
                                             height={40}

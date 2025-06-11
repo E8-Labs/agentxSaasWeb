@@ -23,13 +23,14 @@ const EditAgencyName = ({
         const localData = localStorage.getItem("User");
         if (localData) {
             const d = JSON.parse(localData);
+            console.log("User Data", d?.user);
             setUserData(d);
-            setAgencyName(d?.user?.name)
+            setAgencyName(d?.user?.company)
         }
     }, []);
 
     useEffect(() => {
-        if (agencyName === userData?.user?.name) {
+        if (agencyName === userData?.user?.company) {
             setIsNameChanged(false);
         }
     }, [agencyName]);
@@ -38,7 +39,7 @@ const EditAgencyName = ({
     const handleNameSave = async () => {
         try {
             setloading(true);
-            const data = { name: agencyName };
+            const data = { company: agencyName };
             await UpdateProfile(data);
             setSnackMsg("Agency Name Updated");
             setloading(false);

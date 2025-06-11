@@ -23,7 +23,7 @@ function Page() {
     setCurrentIndex((prev) => prev + 1);
   };
   return (
-    <div className="flex flex-col w-full items-center justify-center p-5">
+    <div className="flex flex-col w-full items-center justify-center p-5 overflow-hidden">
       <div className="flex w-full flex-row items-center justify-center gap-2 mt-4">
         <Image src={"/assets/agentX.png"} height={30} width={130} alt="*" />
 
