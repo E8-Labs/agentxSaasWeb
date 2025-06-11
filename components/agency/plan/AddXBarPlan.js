@@ -270,7 +270,7 @@ export default function AddXBarPlan({
               />
 
               <div className="w-full flex flex-row items-center gap-2">
-                <div className="w-6/12">
+                <div className="w-full">
                   {/* Price */}
                   <label style={styles.labels}>Price</label>
                   <input
@@ -317,7 +317,7 @@ export default function AddXBarPlan({
                   />
                 </div>
 
-                <div className="bg-[#F9F9F9] rounded-lg p-2 w-6/12 h-full">
+                {/*<div className="bg-[#F9F9F9] rounded-lg p-2 w-6/12 h-full">
                   <div
                     style={{
                       fontWeight: "500",
@@ -372,7 +372,7 @@ export default function AddXBarPlan({
                       </div>
                     </div>
                   )}
-                </div>
+                </div>*/}
               </div>
 
               {/* Minutes */}
