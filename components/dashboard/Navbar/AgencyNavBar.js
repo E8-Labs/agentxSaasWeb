@@ -127,6 +127,8 @@ const AgencyNavBar = () => {
       const agencyProfile = await getProfileDetails();
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
+        window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+        // setUserDetails(agencyProfile?.data?.data);
         const agencyProfileData = agencyProfile.data.data
         if (!agencyProfileData.plan) {
           const d = {

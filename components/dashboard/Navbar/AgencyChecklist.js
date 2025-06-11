@@ -11,7 +11,7 @@ const AgencyChecklist = ({ userDetails }) => {
 
     const router = useRouter();
 
-    console.log("User data recieved to check list on agency side is", userDetails?.user?.checkList?.checkList);
+    // console.log("User data recieved to check list on agency side is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(true);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);

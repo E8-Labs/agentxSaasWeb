@@ -405,33 +405,35 @@ export default function AddMonthlyPlan({
                     <div>${agencyPlanCost}/ min</div>
                     <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
                   </div>
-                  <div className="w-full">
-                    <div
-                      className="flex flex-row items-center justify-between mt-4"
-                      style={{ ...styles.inputs, color: getClr() }}
-                    >
-                      <div>Your Profit</div>
-                      <div>
-                        ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
+                  {minutes && originalPrice && (
+                    <div className="w-full">
+                      <div
+                        className="flex flex-row items-center justify-between mt-4"
+                        style={{ ...styles.inputs, color: getClr() }}
+                      >
+                        <div>Your Profit</div>
+                        <div>
+                          ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
+                        </div>
+                        <div>
+                          $
+                          {((originalPrice - agencyPlanCost) * minutes).toFixed(
+                            2
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        $
-                        {((originalPrice - agencyPlanCost) * minutes).toFixed(
-                          2
-                        )}
+                      <div
+                        className="text-end w-full mt-2"
+                        style={{ color: getClr() }}
+                      >
+                        {(
+                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
+                          100
+                        ).toFixed(2)}
+                        %
                       </div>
                     </div>
-                    <div
-                      className="text-end w-full mt-2"
-                      style={{ color: getClr() }}
-                    >
-                      {(
-                        ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                        100
-                      ).toFixed(2)}
-                      %
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -579,7 +581,7 @@ export default function AddMonthlyPlan({
                     discountedPrice && minutes && (
                       <span style={styles.labelText}>
                         {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
+                          (originalPrice / discountedPrice) *
                           100
                         ).toFixed(0) || "-"}
                         %
