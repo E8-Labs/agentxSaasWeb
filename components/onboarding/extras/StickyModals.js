@@ -135,16 +135,10 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
         console.log("Response of add twilio api is", response);
         setTwillioLoader(false);
         if (response.data.status === true) {
-          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
           console.log("Sending the success message");
-          const localData = localStorage.getItem("User");
-          if (localData) {
-            let d = JSON.parse(localData);
-            d.user.isTwilioConnected = true;
-            localStorage.setItem("User", JSON.stringify(d));
-            getProfileDetails();
-            handleClose(response.data.message);
-          }
+          getProfileDetails();
+          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+          handleClose(response.data.message);
         } else if (response.data.status === false) {
           setShowSnackMessage(response.data.message);
         }
@@ -242,9 +236,8 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
                 <div className="w-full flex flex-row items-center justify-end">
                   <button
                     disabled={!canAddKey}
-                    className={`${
-                      canAddKey ? "bg-purple" : "bg-[#00000020]"
-                    } text-white p-2 rounded-md w-5/6`}
+                    className={`${canAddKey ? "bg-purple" : "bg-[#00000020]"
+                      } text-white p-2 rounded-md w-5/6`}
                     onClick={handleSetUpTwillio}
                   >
                     Save

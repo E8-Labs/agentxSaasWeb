@@ -6,6 +6,7 @@ import { Box, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 import { useRouter } from 'next/navigation';
 import ClaimNumber from '../myagentX/ClaimNumber';
+import Link from 'next/link';
 
 const AgencyChecklist = ({ userDetails }) => {
 
@@ -110,23 +111,24 @@ const AgencyChecklist = ({ userDetails }) => {
                                 <div>
                                     {
                                         checkList?.map((item) => (
-                                            <button
+                                            <Link
+                                                href={item.route}
                                                 key={item.id}
                                                 className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
-                                                onClick={() => {
-                                                    if (item.label === "Connect a calendar") {
-                                                        setShowAddCalendar(true);
-                                                    } else if (item.label === "Claim a number") {
-                                                        setShowClaimPopup(true);
-                                                    } else {
-                                                        const D = {
-                                                            status: true
-                                                        }
-                                                        localStorage.setItem("isFromCheckList", JSON.stringify(D))
-                                                        // window.open(item.route, "_blank");
-                                                        router.push(item.route);
-                                                    }
-                                                }}
+                                                // onClick={() => {
+                                                //     if (item.label === "Connect a calendar") {
+                                                //         setShowAddCalendar(true);
+                                                //     } else if (item.label === "Claim a number") {
+                                                //         setShowClaimPopup(true);
+                                                //     } else {
+                                                //         const D = {
+                                                //             status: true
+                                                //         }
+                                                //         localStorage.setItem("isFromCheckList", JSON.stringify(D))
+                                                //         // window.open(item.route, "_blank");
+                                                //         router.push(item.route);
+                                                //     }
+                                                // }}
                                                 disabled={item.status === true}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
@@ -154,7 +156,7 @@ const AgencyChecklist = ({ userDetails }) => {
                                                     </div>
                                                 </div>
                                                 <CaretRight size={20} />
-                                            </button>
+                                            </Link>
                                         ))
                                     }
                                 </div>
