@@ -181,7 +181,8 @@ const Apis = {
   createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
   //setup twillio
   setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`,
-  getCallTranscript:`${BasePath}api/leads/getCallTranscript`
+  getCallTranscript:`${BasePath}api/leads/getCallTranscript`,
+  duplicateAgent:`${BasePath}api/agent/duplicateAgent`,
 };
 
 export default Apis;
