@@ -129,6 +129,13 @@ export default function AddMonthlyPlan({
         setCreatePlanLoader(false);
         onPlanCreated(response);
         if (response.data.status === true) {
+          //update the monthlyplans state on localstorage to update checklist
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.plansAdded = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);

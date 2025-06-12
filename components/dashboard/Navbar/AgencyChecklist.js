@@ -26,8 +26,8 @@ const AgencyChecklist = ({ userDetails }) => {
         const D = localStorage.getItem("User");
         if (D) {
             const LocalData = JSON.parse(D);
-            // const T = LocalData?.user?.checkList?.checkList;
-            const T = userDetails?.checkList?.checkList;
+            const T = LocalData?.user?.checkList?.checkList;
+            // const T = userDetails?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
             let percentage = 0;
 

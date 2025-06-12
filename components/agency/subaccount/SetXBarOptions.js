@@ -95,6 +95,13 @@ export default function SetXBarOptions({
             if (response) {
                 console.log("responese of create sub account api is", response.data);
                 if (response.data.status === true) {
+                    //update the subaccounts state on localstorage to update checklist
+                    const localData = localStorage.getItem("User");
+                    if (localData) {
+                        let D = JSON.parse(localData);
+                        D.user.checkList.checkList.subaccountAdded = true;
+                        localStorage.setItem("User", JSON.stringify(D));
+                    }
                     window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
                     closeModal();
                 }
