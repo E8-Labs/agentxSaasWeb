@@ -308,9 +308,10 @@ function AgencyPlans() {
     //continue yearly plan
     const continueYearlyPlan = () => {
         setSelectedDuration(duration[2]);
-        // const selectedYearlyPlan = yearlyPlans[selectedPlanIndex];
-        // console.log(selectedYearlyPlan);
-        setSelectedPlan(yearlyPlans[selectedPlanIndex]);
+        const planSelected = yearlyPlans[selectedPlanIndex];
+        setSelectedPlan(planSelected);//yearlyPlans[selectedPlanIndex]
+        // console.log("Selected plan is", planSelected);
+        setTogglePlan(planSelected.id);
         setShowYearlyPlan(false);
         handleSubscribePlan();
     }
@@ -333,12 +334,29 @@ function AgencyPlans() {
 
     //handle select plan
     const handleTogglePlanClick = (item, index) => {
-        console.log("Selected plan index is", index);
+        // console.log("Selected plan index is", index);
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
         setSelectedPlan(item);
     };
+
+    //claim early access
+    const handleClaimEarlyAccess = (item, index) => {
+        setSelectedPlanIndex(index);
+        setTogglePlan(item.id);
+        // setSelectedPlan((prevId) => (prevId === item ? null : item));
+        setSelectedPlan(item);
+        if (selectedDuration.id === 3) {
+            handleSubscribePlan(item);
+            return;
+        }
+        if (isContinueMonthly === false) {
+            checkCanSelectYearly();
+        } else if (isContinueMonthly === true) {
+            handleSubscribePlan(item)
+        }
+    }
 
     //close add card popup
     const handleClose = async (data) => {
@@ -359,31 +377,6 @@ function AgencyPlans() {
     };
 
 
-    // const getCurrentPlans = () => {
-    //     console.log("Selected Duration ID:", selectedDuration.id);
-
-    //     if (selectedDuration.id === 1) {
-    //         console.log("Returning Monthly Plans:", monthlyPlans);
-    //         return monthlyPlans;
-    //     }
-
-    //     if (selectedDuration.id === 2) {
-    //         console.log("Returning Quarterly Plans:", quaterlyPlans);
-    //         return quaterlyPlans;
-    //     }
-
-    //     if (selectedDuration.id === 3) {
-    //         console.log("Returning Yearly Plans:", yearlyPlans);
-    //         return yearlyPlans;
-    //     }
-
-    //     console.log("No Matching Duration ID. Returning Empty Array");
-    //     return [];
-    // };
-
-
-
-    //api to get plans
     const getPlans = async () => {
         setLoading(true)
         try {
@@ -440,7 +433,7 @@ function AgencyPlans() {
 
     //code to subscribeplan handleSubscribePlan
     //subscribe plan
-    const handleSubscribePlan = async () => {
+    const handleSubscribePlan = async (planId = null) => {
 
         console.log('trying to subscribe')
         // code for show plan add card popup
@@ -458,11 +451,11 @@ function AgencyPlans() {
 
 
         try {
-            setSubPlanLoader(togglePlan);
+            setSubPlanLoader(planId ? planId.id : togglePlan);
             const Token = AuthToken();
             const ApiPath = Apis.subAgencyAndSubAccountPlans;
             const formData = new FormData();
-            formData.append("planId", togglePlan);
+            formData.append("planId", planId ? planId.id : togglePlan);
             for (let [key, value] of formData.entries()) {
                 console.log(`${key} = ${value}`);
             }
@@ -588,7 +581,9 @@ function AgencyPlans() {
                     <SelectYearlypopup
                         showYearlyPlan={showYearlyPlan}
                         continueMonthly={continueMonthly}
-                        continueYearlyPlan={continueYearlyPlan}
+                        continueYearlyPlan={() => {
+                            continueYearlyPlan();
+                        }}
                         handleClose={() => {
                             setSelectedPlanIndex(null);
                             setTogglePlan(null);
@@ -699,15 +694,7 @@ function AgencyPlans() {
                                                                     }}
                                                                     onClick={() => {
                                                                         console.log("selected duration is", selectedDuration);
-                                                                        if (selectedDuration.id === 3) {
-                                                                            handleSubscribePlan();
-                                                                            return;
-                                                                        }
-                                                                        if (isContinueMonthly === false) {
-                                                                            checkCanSelectYearly();
-                                                                        } else if (isContinueMonthly === true) {
-                                                                            handleSubscribePlan()
-                                                                        }
+                                                                        handleClaimEarlyAccess(item, index);
                                                                     }}>
                                                                     Claim Early Access
                                                                 </button>
