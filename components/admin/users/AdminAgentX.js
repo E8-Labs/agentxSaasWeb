@@ -3802,8 +3802,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                   value={showGlobalBtn ? 16505403715 : ""}
                                   // disabled={!showGlobalBtn}
                                   disabled={
-                                    assignNumber?.replace("+", "") ===
-                                    Constants.GlobalPhoneNumber.replace("+", "")
+                                    (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
+                                    (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
                                   }
                                   onClick={() => {
                                     console.log(

@@ -186,6 +186,8 @@ const Apis = {
   addUpSellPhone:`${BasePath}api/user/setPhoneNumberPrice`,
 
   getCallTranscript: `${BasePath}api/leads/getCallTranscript`,
+
+  duplicateAgent: `${BasePath}api/agent/duplicateAgent`,
 };
 
 export default Apis;

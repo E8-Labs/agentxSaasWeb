@@ -77,7 +77,7 @@ const AgencyNavBar = () => {
     const LocalData = localStorage.getItem("User");
     if (LocalData) {
       const D = JSON.parse(LocalData);
-      setUserDetails(D);
+      setUserDetails(D?.user);
     }
     let windowWidth = 1000;
     if (typeof window !== "undefined") {
@@ -127,9 +127,9 @@ const AgencyNavBar = () => {
       const agencyProfile = await getProfileDetails();
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
-        window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
-        // setUserDetails(agencyProfile?.data?.data);
+        
         const agencyProfileData = agencyProfile.data.data
+        setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
           const d = {
             subPlan: false
@@ -157,6 +157,7 @@ const AgencyNavBar = () => {
   };
 
   useEffect(() => {
+    console.log('called from useeffect')
     getUserProfile();
   }, []);
 
@@ -164,6 +165,8 @@ const AgencyNavBar = () => {
   useEffect(() => {
     const handleUpdateProfile = (event) => {
       // //console.log;
+    console.log('called from listener')
+
       getUserProfile(); // Refresh the profile data
       console.log("Agency Navbar called getprofile api to update checklist");
     };
@@ -334,18 +337,19 @@ const AgencyNavBar = () => {
           style: { backgroundColor: 'transparent' }
         }}
       >
-        <Box className="w-full flex flex-row items-center justify-center border-none outline-none" sx={{ backgroundColor: "transparent" }}>
-          <div className="flex flex-row items-center gap-4 bg-white mt-4 rounded-md shadow-lg p-2">
-            <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={40} width={40} />
-            <div className="text-black text-xl font-bold">
+        <Box className="w-full flex flex-row items-center justify-end border-none outline-none" sx={{ backgroundColor: "transparent" }}>
+          <div className="flex flex-row items-center gap-4 bg-white mt-4 mr-4 rounded-md shadow-lg p-2">
+            <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
+            <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
               {`You're Stripe account has not been connected.`}
             </div>
             {
               loader ? (
                 <CircularProgress size={20} />
               ) : (
-                <button
-                  className="bg-purple text-white text-lg rounded-md p-2 outline-none border-none"
+                
+                <button style={{ fontSize: 12, fontWeight: 500 }}
+                  className="bg-purple text-white rounded-md p-2 outline-none border-none"
                   onClick={() => {
                     handleVerifyClick()
                   }}

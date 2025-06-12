@@ -78,6 +78,12 @@ import PipelineLoading from "@/components/dashboardPipeline/PipelineLoading";
 import MyAgentXLoader from "@/components/loaders/MyAgentXLoader";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 
+import dynamic from 'next/dynamic';
+import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
+
+const DuplicateButton = dynamic(() => import('@/components/animation/DuplicateButton'), {
+  ssr: false,
+});
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
@@ -265,12 +271,15 @@ function Page() {
   const [loading, setLoading] = useState(false);
 
   const [search, setSearch] = useState("");
+  const [duplicateLoader, setDuplicateLoader] = useState(false);
 
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
 
   //it saves previous list of agents before search
   const [allAgentsList, setAllAgentsList] = useState([]);
+
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =useState(false)
 
   const playVoice = (url) => {
     if (audio) {
@@ -2214,39 +2223,62 @@ function Page() {
     }
   };
 
-  // const handleSearch = (e) => {
-  //   const searchTerm = e.target.value.toLowerCase();
-  //   console.log("Check 1");
-  //   if (!searchTerm) {
-  //     if (canKeepLoading === true) {
-  //       setCanGetMore(true);
-  //       setCanKeepLoading(false);
-  //     }
-  //     setAgentsListSeparated(agentsList); // Reset to original data
-  //     // setCanGetMore(prev => (prev === false ? true : prev));
-  //     return;
-  //   }
+  const handleDuplicate = async () => {
+    console.log("Duplicate agent clicked");
+    setDuplicateLoader(true)
+    setShowDuplicateConfirmationPopup(false)
+    try {
+      const data = localStorage.getItem("User")
 
-  //   const filtered = agentsList.filter((item) => {
-  //     // Use original list here
-  //     const name = item.name.toLowerCase();
-  //     const email = item.email?.toLowerCase() || "";
-  //     const phone = item.phone || "";
+      if (data) {
+        const userData = JSON.parse(data);
+        const AuthToken = userData.token;
+        const ApiPath = Apis.duplicateAgent;
 
-  //     return (
-  //       name.includes(searchTerm) ||
-  //       email.includes(searchTerm) ||
-  //       phone.includes(searchTerm)
-  //     );
-  //   });
+        let apidata = {
+          agentId: showDrawerSelectedAgent.id,
+        }
 
-  //   console.log("Check 2 filtered agents", canKeepLoading);
+        const response = await axios.post(ApiPath,
+          apidata, {
+          headers: {
+            "Authorization": "Bearer " + AuthToken,
+          }
+        })
 
-  //   // setCanGetMore(prev => (prev === true ? false : prev));
-  //   setCanGetMore(false);
-  //   setAgentsListSeparated(filtered);
-  // };
+        if (response) {
+          setDuplicateLoader(false)
+          if (response.data.status === true) {
+            console.log('duplicate agent data ', response);
 
+            setShowSuccessSnack("Agent duplicated successfully");
+            setIsVisibleSnack(true);
+            const localAgentsList = localStorage.getItem(
+              PersistanceKeys.LocalStoredAgentsListMain
+            );
+
+            if (localAgentsList) {
+              const agentsList = JSON.parse(localAgentsList);
+              // agentsListDetails = agentsList;
+
+              const updatedArray = [response.data.data, ...agentsList];
+              localStorage.setItem(
+                PersistanceKeys.LocalStoredAgentsListMain,
+                JSON.stringify(updatedArray)
+              );
+              setMainAgentsList(updatedArray);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      setDuplicateLoader(false)
+      console.error("Error occured in duplicate agent api is", error);
+      setShowErrorSnack("Error occured while duplicating agent");
+      setIsVisibleSnack2(true);
+
+    }
+  }
   const styles = {
     claimPopup: {
       height: "auto",
@@ -3016,87 +3048,104 @@ function Page() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-2  ">
-                {/* GPT Button */}
 
-                {showModelLoader ? (
-                  <CircularProgress size={25} />
-                ) : (
-                  <div>
-                    <button
-                      id="gpt"
-                      onClick={(event) => setOpenGptManu(event.currentTarget)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        borderRadius: "20px",
-                        padding: "6px 12px",
-                        border: "1px solid #EEE",
-                        backgroundColor: "white",
-                        // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                        fontSize: "16px",
-                        fontWeight: "500",
-                        color: "#000",
-                        textTransform: "none",
-                        "&:hover": { backgroundColor: "#F5F5F5" },
-                      }}
-                    >
-                      <Avatar
-                        src={selectedGptManu?.icon}
-                        sx={{ width: 24, height: 24, marginRight: 1 }}
-                      />
-                      {selectedGptManu?.name}
-                      <Image
-                        src={"/svgIcons/downArrow.svg"}
-                        width={18}
-                        height={18}
-                        alt="*"
-                      />
-                    </button>
+              <div className="flex flex-row items-center gap-2">
 
-                    <Menu
-                      id="gpt"
-                      anchorEl={openGptManu}
-                      open={openGptManu}
-                      onClose={() => setOpenGptManu(null)}
-                      sx={{
-                        "& .MuiPaper-root": {
-                          borderRadius: "12px",
-                          padding: "8px",
-                          minWidth: "180px",
-                        },
-                      }}
-                    >
-                      {models.map((model, index) => (
-                        <MenuItem
-                          key={index}
-                          onClick={() => handleGptManuSelect(model)}
-                          disabled={model.disabled}
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            padding: "8px 12px",
-                            borderRadius: "8px",
-                            transition: "background 0.2s",
-                            "&:hover": {
-                              backgroundColor: model.disabled
-                                ? "inherit"
-                                : "#F5F5F5",
-                            },
-                            opacity: model.disabled ? 0.6 : 1,
-                          }}
-                        >
-                          <Avatar
-                            src={model.icon}
-                            sx={{ width: 24, height: 24 }}
-                          />
-                          {model.name}
-                        </MenuItem>
-                      ))}
-                    </Menu>
-                  </div>
-                )}
+
+                <DuplicateButton
+                  handleDuplicate={()=>{
+                    setShowDuplicateConfirmationPopup(true)
+                  }}
+                  loading={duplicateLoader}
+                />
+
+                <DuplicateConfirmationPopup 
+                  open={showDuplicateConfirmationPopup}
+                  handleClose={() => setShowDuplicateConfirmationPopup(false)}
+                  handleDuplicate={handleDuplicate}
+                />
+                <div className="flex flex-col gap-2  ">
+                  {/* GPT Button */}
+
+                  {showModelLoader ? (
+                    <CircularProgress size={25} />
+                  ) : (
+                    <div>
+                      <button
+                        id="gpt"
+                        onClick={(event) => setOpenGptManu(event.currentTarget)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          borderRadius: "20px",
+                          padding: "6px 12px",
+                          border: "1px solid #EEE",
+                          backgroundColor: "white",
+                          // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                          fontSize: "16px",
+                          fontWeight: "500",
+                          color: "#000",
+                          textTransform: "none",
+                          "&:hover": { backgroundColor: "#F5F5F5" },
+                        }}
+                      >
+                        <Avatar
+                          src={selectedGptManu?.icon}
+                          sx={{ width: 24, height: 24, marginRight: 1 }}
+                        />
+                        {selectedGptManu?.name}
+                        <Image
+                          src={"/svgIcons/downArrow.svg"}
+                          width={18}
+                          height={18}
+                          alt="*"
+                        />
+                      </button>
+
+                      <Menu
+                        id="gpt"
+                        anchorEl={openGptManu}
+                        open={openGptManu}
+                        onClose={() => setOpenGptManu(null)}
+                        sx={{
+                          "& .MuiPaper-root": {
+                            borderRadius: "12px",
+                            padding: "8px",
+                            minWidth: "180px",
+                          },
+                        }}
+                      >
+                        {models.map((model, index) => (
+                          <MenuItem
+                            key={index}
+                            onClick={() => handleGptManuSelect(model)}
+                            disabled={model.disabled}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              padding: "8px 12px",
+                              borderRadius: "8px",
+                              transition: "background 0.2s",
+                              "&:hover": {
+                                backgroundColor: model.disabled
+                                  ? "inherit"
+                                  : "#F5F5F5",
+                              },
+                              opacity: model.disabled ? 0.6 : 1,
+                            }}
+                          >
+                            <Avatar
+                              src={model.icon}
+                              sx={{ width: 24, height: 24 }}
+                            />
+                            {model.name}
+                          </MenuItem>
+                        ))}
+                      </Menu>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
