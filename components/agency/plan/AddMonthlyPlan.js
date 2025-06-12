@@ -136,6 +136,8 @@ export default function AddMonthlyPlan({
             D.user.checkList.checkList.plansAdded = true;
             localStorage.setItem("User", JSON.stringify(D));
           }
+          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);

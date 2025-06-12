@@ -86,7 +86,6 @@ function DashboardPlans() {
             localStorage.setItem("XBarOptions", JSON.stringify([...plansList, newPlan]));
         }
         setPlansList(prev => [...prev, newPlan]);
-        window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
     };
 
     // const subAcccounts = [

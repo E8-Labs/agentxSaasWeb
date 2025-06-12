@@ -161,23 +161,6 @@ const AgencyNavBar = () => {
     getUserProfile();
   }, []);
 
-  //update the profile after updating the checklist
-  useEffect(() => {
-    const handleUpdateProfile = (event) => {
-      // //console.log;
-    console.log('called from listener')
-
-      getUserProfile(); // Refresh the profile data
-      console.log("Agency Navbar called getprofile api to update checklist");
-    };
-
-    window.addEventListener("UpdateAgencyCheckList", handleUpdateProfile);
-
-    return () => {
-      document.removeEventListener("UpdateAgencyCheckList", handleUpdateProfile); // Clean up
-    };
-  }, []);
-
   //code for verify now
 
   const handleVerifyClick = async () => {
