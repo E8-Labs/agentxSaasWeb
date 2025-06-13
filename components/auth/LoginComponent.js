@@ -106,6 +106,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
       if (d.user.userType == "admin") {
         router.push("/admin");
+      } else if (d.user.userType == "Agency") {
+        router.push("/agency/dashboard");
       } else {
         router.push("/dashboard");
       }

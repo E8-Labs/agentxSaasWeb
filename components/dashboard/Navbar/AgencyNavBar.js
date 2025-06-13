@@ -56,13 +56,14 @@ const AgencyNavBar = () => {
 
 
   const initialUser =
-  typeof window !== "undefined"
-    ? JSON.parse(localStorage.getItem("User"))?.user ?? null
-    : null;
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("User"))?.user ?? null
+      : null;
 
 
 
-  const [userDetails, setUserDetails] = useState(initialUser);
+  const [localUser, setLocalUser] = useState(null);
+  const [userDetails, setUserDetails] = useState(null); // This is the API version
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
 
   const [togglePlan, setTogglePlan] = useState(false);
@@ -78,16 +79,41 @@ const AgencyNavBar = () => {
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   const [canAcceptPaymentsAgencyccount, setCanAcceptPaymentsAgencyccount] = useState(false);
+  const [navigatingTo, setNavigatingTo] = useState(null);
+
+  //reset navigation loader
+  useEffect(() => {
+    // Fallback reset after 2 seconds
+    if (navigatingTo) {
+      const timeout = setTimeout(() => {
+        setNavigatingTo(null);
+      }, 2000); // adjust if needed
+      return () => clearTimeout(timeout);
+    }
+  }, [navigatingTo]);
+
+
+
+  useEffect(() => {
+    const local = localStorage.getItem("User");
+    if (local) {
+      const parsed = JSON.parse(local);
+      setLocalUser(parsed.user);
+    }
+
+    // getAgencyPlans();
+    getUserProfile(); // sets `userDetails`
+  }, []);
+
+
+
 
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
     getAgencyPlans();
     const LocalData = localStorage.getItem("User");
-    if (LocalData) {
-      const D = JSON.parse(LocalData);
-      setUserDetails(D?.user);
-    }
+
     let windowWidth = 1000;
     if (typeof window !== "undefined") {
       windowWidth = window.innerWidth;
@@ -98,6 +124,13 @@ const AgencyNavBar = () => {
       const d = localStorage.getItem("User");
     }
   }, []);
+
+  // useEffect(() => {
+  //   agencyLinks.forEach((link) => {
+  //     router.prefetch(link.href);
+  //   });
+  // }, []);
+
 
   //get agency plans list
   const getAgencyPlans = async () => {
@@ -136,7 +169,7 @@ const AgencyNavBar = () => {
       const agencyProfile = await getProfileDetails();
       if (agencyProfile) {
         console.log("Agency profile details are", agencyProfile);
-        
+
         const agencyProfileData = agencyProfile.data.data
         setUserDetails(agencyProfileData);
         if (!agencyProfileData.plan) {
@@ -339,7 +372,7 @@ const AgencyNavBar = () => {
               loader ? (
                 <CircularProgress size={20} />
               ) : (
-                
+
                 <button style={{ fontSize: 12, fontWeight: 500 }}
                   className="bg-purple text-white rounded-md p-2 outline-none border-none"
                   onClick={() => {
@@ -389,10 +422,16 @@ const AgencyNavBar = () => {
           >
             {agencyLinks.map((item) => (
               <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-                <Link
+                <button
                   sx={{ cursor: "pointer", textDecoration: "none" }}
-                  href={item.href}
-                // onClick={(e) => handleOnClick(e, item.href)}
+                  // href={item.href}
+                  onClick={() => {
+                     router.prefetch(item.href);
+                    if (pathname !== item.href) {
+                      setNavigatingTo(item.href);
+                      router.push(item.href);
+                    }
+                  }}
                 >
                   <div
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -417,8 +456,12 @@ const AgencyNavBar = () => {
                     >
                       {item.name}
                     </div>
+
+                    {navigatingTo === item.href && (
+                      <CircularProgress size={14} />
+                    )}
                   </div>
-                </Link>
+                </button>
               </div>
             ))}
           </div>
@@ -436,7 +479,8 @@ const AgencyNavBar = () => {
             // className="w-full"
             style={{
               borderBottom: "1px solid #00000010",
-            }}>{userDetails && <AgencyChecklist userDetails={userDetails} />}</div>
+            }}>{userDetails && <AgencyChecklist userDetails={userDetails || localUser} />
+            }</div>
           <Link
             href={"/agency/dashboard/myAccount"}
             className="w-11/12  flex flex-row items-start gap-3 px-4 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
