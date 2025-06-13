@@ -2514,7 +2514,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 <PhoneInput
                   className="border outline-none bg-white"
                   country={"us"}
-                  onlyCountries={["us", "sv"]}
+                  onlyCountries={["us", "sv", "pk"]}
                   disableDropdown={false}
                   countryCodeEditable={false}
                   value={phone}

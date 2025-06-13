@@ -26,12 +26,13 @@ const Integrations = () => {
         let data = localStorage.getItem("User");
         if (data) {
             let u = JSON.parse(data);
-
-            if(u.user.phonePrice){
+            setAgencyData(u.user);
+            console.log("Agency data is", u.user.twilio);
+            if (u.user.phonePrice) {
                 setAllowUpSellPhone(true);
             }
 
-            setAgencyData(u.user);
+
         }
     };
 

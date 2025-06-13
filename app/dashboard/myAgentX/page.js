@@ -279,7 +279,7 @@ function Page() {
   //it saves previous list of agents before search
   const [allAgentsList, setAllAgentsList] = useState([]);
 
-  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =useState(false)
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false)
 
   const playVoice = (url) => {
     if (audio) {
@@ -2757,7 +2757,7 @@ function Page() {
                   <PhoneInput
                     className="border outline-none bg-white"
                     country={"us"}
-                    onlyCountries={["us", "sv"]}
+                    onlyCountries={["us", "sv", "pk"]}
                     disableDropdown={false}
                     countryCodeEditable={false}
                     value={phone}
@@ -3053,13 +3053,13 @@ function Page() {
 
 
                 <DuplicateButton
-                  handleDuplicate={()=>{
+                  handleDuplicate={() => {
                     setShowDuplicateConfirmationPopup(true)
                   }}
                   loading={duplicateLoader}
                 />
 
-                <DuplicateConfirmationPopup 
+                <DuplicateConfirmationPopup
                   open={showDuplicateConfirmationPopup}
                   handleClose={() => setShowDuplicateConfirmationPopup(false)}
                   handleDuplicate={handleDuplicate}

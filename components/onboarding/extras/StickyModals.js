@@ -136,7 +136,14 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
         setTwillioLoader(false);
         if (response.data.status === true) {
           console.log("Sending the success message");
-          getProfileDetails();
+          await getProfileDetails();
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let d = JSON.parse(localData);
+            d.user.isTwilioConnected = true;
+            d.user.checkList.checkList.twilioConnected = true;
+            localStorage.setItem("User", JSON.stringify(d));
+          }
           window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
           handleClose(response.data.message);
         } else if (response.data.status === false) {

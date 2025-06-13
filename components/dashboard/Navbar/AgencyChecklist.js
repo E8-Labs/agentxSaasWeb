@@ -61,9 +61,8 @@ const AgencyChecklist = ({ userDetails }) => {
         window.addEventListener("UpdateAgencyCheckList", getChecklist);
 
         return () => {
-            document.removeEventListener("UpdateAgencyCheckList", getChecklist); // Clean up
+            window.removeEventListener("UpdateAgencyCheckList", getChecklist); // Clean up
         };
-
 
     }, []);
 

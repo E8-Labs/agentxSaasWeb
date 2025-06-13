@@ -53,7 +53,16 @@ const AgencyNavBar = () => {
   const [loader, setLoader] = useState(false);
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
-  const [userDetails, setUserDetails] = useState(null);
+
+
+  const initialUser =
+  typeof window !== "undefined"
+    ? JSON.parse(localStorage.getItem("User"))?.user ?? null
+    : null;
+
+
+
+  const [userDetails, setUserDetails] = useState(initialUser);
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false);
 
   const [togglePlan, setTogglePlan] = useState(false);
