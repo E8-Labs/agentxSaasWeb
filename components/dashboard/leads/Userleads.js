@@ -2075,7 +2075,10 @@ const Userleads = ({
                       ) : (
                         <div className="flex flex-row items-center gap-2">
                           <button
-                            className="h-[20px] w-[20px] border-2 rounded outline-none"
+                            className="h-[20px] w-[20px] rounded outline-none"
+                            style={{
+                              border: "3px solid #00000070"
+                            }}
                             onClick={() => {
                               //if select all then in the selectedLeads, we include the leads that are excluded
                               //if selected all is false then in selected Leads we include the included leads

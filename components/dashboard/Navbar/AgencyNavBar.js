@@ -356,7 +356,7 @@ const AgencyNavBar = () => {
           }}
         >
           <div className="w-full flex flex-row gap-3 items-center justify-center">
-            <div className="w-9/12 flex flex-col justify-end">
+            <div className="w-9/12 flex flex-col items-end">
               <div className="w-full">
                 {/*userDetails?.user?.name || "Agency Name"*/}
                 <EditAgencyName />
@@ -449,14 +449,14 @@ const AgencyNavBar = () => {
                 }}
               >
                 <img
-                  src={userDetails?.user?.thumb_profile_image}
+                  src={userDetails?.thumb_profile_image}
                   alt="*"
                   style={{ height: "100%", width: "100%" }}
                 />
               </div>
             ) : (
               <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+                {userDetails?.name.slice(0, 1).toUpperCase()}
               </div>
             )}
 
@@ -471,7 +471,7 @@ const AgencyNavBar = () => {
                   color: "black",
                 }}
               >
-                {userDetails?.user?.name?.split(" ")[0]}
+                {userDetails?.name?.split(" ")[0]}
               </div>
               <div
                 className="truncate w-[120px]"
@@ -482,7 +482,7 @@ const AgencyNavBar = () => {
                   textOverflow: "ellipsis",
                 }}
               >
-                {userDetails?.user?.email}
+                {userDetails?.email}
               </div>
             </div>
           </Link>
