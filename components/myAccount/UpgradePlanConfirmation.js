@@ -22,13 +22,13 @@ export default function UpgradePlanConfirmation({
     const getPlanFromId = () => {
         let planType = "";
         if (plan === 1) {
-            planType = "Plan30";
+            planType = "30";
         } else if (plan === 2) {
-            planType = "Plan120";
+            planType = "120";
         } else if (plan === 3) {
-            planType = "Plan360";
+            planType = "360";
         } else if (plan === 4) {
-            planType = "Plan720";
+            planType = "720";
         }
         return planType;
     }
@@ -67,7 +67,7 @@ export default function UpgradePlanConfirmation({
             {/* Modal Content */}
             <DialogContent>
                 <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                    Confirm <span style={{ color: "black" }}>{`${getPlanFromId()}`}</span>
+                    Confirm <span style={{ color: "black" }}>{`${getPlanFromId()}`} Mins</span>
                 </Typography>
                 <Typography sx={{ color: "#000", fontSize: "16px" }}>
                     {` Please confirm you’d like to proceed with the plan you’ve

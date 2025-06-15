@@ -538,8 +538,9 @@ const AdminPipeline1 = ({ selectedUser }) => {
     let data = localStorage.getItem(PersistanceKeys.LocalStoragePipelines);
     if (data) {
       let jsonData = JSON.parse(data);
-
+      console.log("Cached data of pipeline", jsonData[0].leadsCountInStage);
       setPipeLines(jsonData);
+      setLeadsCountInStage(jsonData[0].leadsCountInStage);
       if (jsonData.length > 0) {
         let index = 0;
         if (selectedPipelineIndex < jsonData.length) {
@@ -559,7 +560,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
           setReservedLeads(jsonData[index].leads);
-          // //console.log;
+          console.log("Cached data of pipeline", jsonData);
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
