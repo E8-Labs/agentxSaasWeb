@@ -16,7 +16,7 @@ export default function EnrichConfirmModal({
     processedData,
     Loader
 }) {
-    let totalCost = processedData?.length * 0.10
+    let totalCost = processedData?.length * 0.05
     return (
         <Dialog
             open={showenrichConfirmModal}
@@ -75,7 +75,7 @@ export default function EnrichConfirmModal({
                 >
                     <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
                     <Typography sx={{ fontSize: "14px", color: "#000" }}>
-                        {`Enrichment is $0.5 / lead `}
+                        {`Enrichment is $0.05 / lead `}
                     </Typography>
 
                    
@@ -130,7 +130,7 @@ export default function EnrichConfirmModal({
                         Cost Per Lead
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        $0.10
+                        $0.05
                     </Typography>
                 </Box>
 

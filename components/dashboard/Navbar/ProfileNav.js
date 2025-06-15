@@ -317,7 +317,7 @@ const ProfileNav = () => {
     },
     {
       id: 2,
-      name: "My Agents",
+      name: "Agents",
       href: "/dashboard/myAgentX",
       selected: "/svgIcons/selectedAgentXIcon.svg",
       uneselected: "/svgIcons/agentXIcon.svg",

@@ -540,6 +540,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
       let jsonData = JSON.parse(data);
 
       setPipeLines(jsonData);
+      setLeadsCountInStage(jsonData[0].leadsCountInStage);
       if (jsonData.length > 0) {
         let index = 0;
         if (selectedPipelineIndex < jsonData.length) {
@@ -1918,7 +1919,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
                           )}
                         </span>
                         <div
-                          className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                          // className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                          className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
                           style={{ ...styles.paragraph, fontSize: 14 }}
                         >
                           {/* {leadCounts[stage.id] ? (

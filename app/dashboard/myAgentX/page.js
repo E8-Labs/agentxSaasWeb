@@ -90,7 +90,7 @@ function Page() {
   const searchTimeoutRef = useRef(null);
   // const fileInputRef = useRef(null);
   const router = useRouter();
-  let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
+  let tabs = ["Agent Info", "Calendar", "Pipeline", "Knowledge"];
   const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
@@ -4208,7 +4208,7 @@ function Page() {
                 />
 
               </div>
-            ) : activeTab === "Pipeline | Stages" ? (
+            ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
                 <PiepelineAdnStage
                   selectedAgent={showDrawerSelectedAgent}
@@ -4216,7 +4216,7 @@ function Page() {
                   mainAgent={calendarDetails}
                 />
               </div>
-            ) : activeTab === "Knowledge Base" ? (
+            ) : activeTab === "Knowledge" ? (
               <div className="flex flex-col gap-4">
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>
