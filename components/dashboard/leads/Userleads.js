@@ -1521,7 +1521,7 @@ const Userleads = ({
     setSnackMessage(showSnack);
     if (disSelectLeads === true) {
       setSelectedLeadsList([]);
-      if(showSnack){
+      if (showSnack) {
         setShowSnackMessage(true);
       }
       setSelectedAll(false);
@@ -2046,21 +2046,20 @@ const Userleads = ({
                     <div>
                       {selectedAll ? (
                         <div>
-                          <div className="flex flex-row items-center gap-2">
-                            <button
-                              className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                              onClick={() => {
-                                setSelectedLeadsList([]);
-                                setSelectedAll(false);
-                              }}
-                            >
+                          <button
+                            className="flex flex-row items-center gap-2"
+                            onClick={() => {
+                              setSelectedLeadsList([]);
+                              setSelectedAll(false);
+                            }}>
+                            <div className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center">
                               <Image
                                 src={"/assets/whiteTick.png"}
                                 height={10}
                                 width={10}
                                 alt="*"
                               />
-                            </button>
+                            </div>
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
                               Select All
                             </div>
@@ -2072,23 +2071,24 @@ const Userleads = ({
                               {/* {LeadsList.length} */}
                               {getLeadSelectedCount()}
                             </div>
-                          </div>
+                          </button>
                         </div>
                       ) : (
-                        <div className="flex flex-row items-center gap-2">
-                          <button
-                            className="h-[20px] w-[20px] rounded outline-none" style={{border:'2px solid #d3d3d3'}}
-                            onClick={() => {
-                              //if select all then in the selectedLeads, we include the leads that are excluded
-                              //if selected all is false then in selected Leads we include the included leads
-                              setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id));
-                              setSelectedAll(true);
-                            }}
-                          ></button>
+                        <button
+                          className="flex flex-row items-center gap-2 outline-none border-none"
+                          onClick={() => {
+                            //if select all then in the selectedLeads, we include the leads that are excluded
+                            //if selected all is false then in selected Leads we include the included leads
+                            setSelectedLeadsList([]); // setToggleClick(FilterLeads.map((item) => item.id));
+                            setSelectedAll(true);
+                          }}>
+                          <div
+                            className="h-[20px] w-[20px] rounded outline-none" style={{ border: '2px solid #d3d3d3' }}
+                          ></div>
                           <div style={{ fontSize: "15", fontWeight: "600" }}>
                             Select All
                           </div>
-                        </div>
+                        </button>
                       )}
                     </div>
                   )}

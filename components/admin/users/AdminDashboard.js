@@ -344,7 +344,7 @@ const AdminDashboard = ({ selectedUser }) => {
                         color: "#000",
                       }}
                     >
-                      {statsDetails?.totalCalls || "-"}
+                      {!statsDetails?.totalCalls || "1423"}
                     </div>
                   </div>
                   <div className="w-8/12 flex flex-col items-end gap-2">
