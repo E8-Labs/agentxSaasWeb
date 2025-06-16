@@ -34,7 +34,6 @@ const CheckList = ({ userDetails }) => {
 
       setProgressValue(LocalData?.user?.checkList?.percentage || 0);
 
-      console.log("percentage of check list is", percentage);   // Output: 60
 
       setCheckList([
         { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
