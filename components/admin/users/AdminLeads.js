@@ -66,8 +66,8 @@ const AdminLeads = ({
 
   //user local data
   const [userLocalData, setUserLocalData] = useState(null);
-    const [totalLeads, setTotalLeads] = useState(0);
-  
+  const [totalLeads, setTotalLeads] = useState(0);
+
   const [snackMessage, setSnackMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
   const [showsnackMessage, setShowSnackMessage] = useState(false);
@@ -1671,7 +1671,7 @@ const AdminLeads = ({
                             }
                             leadIs={toggleClick}
                             userProfile={userLocalData}
-                            selectedUser ={selectedUser}
+                            selectedUser={selectedUser}
                             totalLeads={totalLeads}
                           />
                         </div>
@@ -1802,38 +1802,36 @@ const AdminLeads = ({
                     {toggleClick.length === FilterLeads.length ? (
                       <div>
                         {LeadsList.length > 0 && (
-                          <div className="flex flex-row items-center gap-2">
-                            <button
-                              className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-                              onClick={() => {
-                                setToggleClick([]);
-                              }}
-                            >
+                          <button
+                            className="flex flex-row items-center gap-2"
+                            onClick={() => {
+                              setToggleClick([]);
+                            }}>
+                            <div className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center">
                               <Image
                                 src={"/assets/whiteTick.png"}
                                 height={10}
                                 width={10}
                                 alt="*"
                               />
-                            </button>
+                            </div>
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
                               Select All
                             </div>
-                          </div>
+                          </button>
                         )}
                       </div>
                     ) : (
-                      <div className="flex flex-row items-center gap-2">
-                        <button
-                          className="h-[20px] w-[20px] border-2 rounded outline-none"
-                          onClick={() => {
-                            setToggleClick(FilterLeads.map((item) => item.id));
-                          }}
-                        ></button>
+                      <button
+                        className="flex flex-row items-center gap-2"
+                        onClick={() => {
+                          setToggleClick(FilterLeads.map((item) => item.id));
+                        }}>
+                        <div className="h-[20px] w-[20px] border-2 rounded outline-none"></div>
                         <div style={{ fontSize: "15", fontWeight: "600" }}>
                           Select All
                         </div>
-                      </div>
+                      </button>
                     )}
                   </div>
                 )}

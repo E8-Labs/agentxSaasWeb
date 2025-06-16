@@ -83,10 +83,11 @@ function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
+  const profileImgInputRef = useRef(null);
 
   // const fileInputRef = useRef(null);
   const router = useRouter();
-  let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
+  let tabs = ["Agent Info", "Calendar", "Pipeline", "Knowledge"];
   const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
@@ -266,7 +267,7 @@ function Page() {
   const [paginationLoader, setPaginationLoader] = useState(false);
   const [oldAgentsList, setOldAgentsList] = useState([]);
 
-  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =useState(false)
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false)
   const [duplicateLoader, setDuplicateLoader] = useState(false);
 
   const playVoice = (url) => {
@@ -1925,7 +1926,7 @@ function Page() {
     } finally {
       setShowPhoneLoader(false);
 
-      setInitialLoader(false)
+      // setInitialLoader(false)
     }
     getCalenders();
   }, []);
@@ -2302,7 +2303,7 @@ function Page() {
   };
 
 
-    const handleDuplicate = async () => {
+  const handleDuplicate = async () => {
     console.log("Duplicate agent clicked");
     setDuplicateLoader(true)
     setShowDuplicateConfirmationPopup(false)
@@ -2898,9 +2899,10 @@ function Page() {
                   <button
                     // className='mt-8'
                     onClick={() => {
-                      document.getElementById("fileInput").click();
-                      // if (typeof document === "undefined") {
+                      // if (typeof window !== "undefined") {
+                      //   document.getElementById("fileInput").click();
                       // }
+                      profileImgInputRef.current?.click();
                     }}
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
@@ -2950,6 +2952,7 @@ function Page() {
                     type="file"
                     accept="image/*"
                     id="fileInput"
+                    ref={profileImgInputRef}
                     style={{ display: "none" }}
                     onChange={handleImageChange}
                   />
@@ -4171,7 +4174,7 @@ function Page() {
                   updateVariableData={updateAfterAddCalendar}
                 />
               </div>
-            ) : activeTab === "Pipeline | Stages" ? (
+            ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
                 <PiepelineAdnStage
                   selectedAgent={showDrawerSelectedAgent}
@@ -4179,7 +4182,7 @@ function Page() {
                   mainAgent={calendarDetails}
                 />
               </div>
-            ) : activeTab === "Knowledge Base" ? (
+            ) : activeTab === "Knowledge" ? (
               <div className="flex flex-col gap-4">
                 <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
               </div>

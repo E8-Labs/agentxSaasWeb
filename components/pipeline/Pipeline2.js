@@ -563,7 +563,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         //////console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
-          router.push("/dashboard/leads");
+          // router.push("/dashboard/leads");
+          router.push("/dashboard/myAgentX");
         } else {
           // setLoader(false);
         }
