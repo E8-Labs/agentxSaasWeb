@@ -84,7 +84,7 @@ const Page = () => {
       if (d) {
         fromAdmin = JSON.parse(d);
       }
-      console, log("data form admin is", fromAdmin)
+      console.log("data form admin is", fromAdmin)
       if (!fromAdmin) {
         if (Data.user.plan) {
           if (windowSize < 640) {

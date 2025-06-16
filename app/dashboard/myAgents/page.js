@@ -73,21 +73,11 @@ import { AgentLanguagesList } from "@/utilities/AgentLanguages";
 import NoAgent from "@/components/dashboard/myagentX/NoAgent";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
 import AgentInfoCard from "@/components/dashboard/myagentX/AgentInfoCard";
-import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import PipelineLoading from "@/components/dashboardPipeline/PipelineLoading";
-import MyAgentXLoader from "@/components/loaders/MyAgentXLoader";
-import DashboardSlider from "@/components/animations/DashboardSlider";
+import EditAgentName from "@/components/dashboard/myagentX/EditAgentName";
 
-import dynamic from 'next/dynamic';
-import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
-
-const DuplicateButton = dynamic(() => import('@/components/animation/DuplicateButton'), {
-  ssr: false,
-});
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
-  const searchTimeoutRef = useRef(null);
   // const fileInputRef = useRef(null);
   const router = useRouter();
   let tabs = ["Agent Info", "Calendar", "Pipeline", "Knowledge"];
@@ -108,12 +98,8 @@ function Page() {
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [mainAgentsList, setMainAgentsList] = useState([]);
-  const [canGetMore, setCanGetMore] = useState(false);
-  const [paginationLoader, setPaginationLoader] = useState(false);
-  const [oldAgentsList, setOldAgentsList] = useState([]);
-  //supporting variable
-  const [canKeepLoading, setCanKeepLoading] = useState(false);
-  const [initialLoader, setInitialLoader] = useState(true);
+  const [canGetMore, setCanGetMore] = useState(true);
+  const [initialLoader, setInitialLoader] = useState(false);
 
   //code for assigning the umber
   // const []
@@ -213,9 +199,6 @@ function Page() {
   const [hasMoreAgents, setHasMoreAgents] = useState(true);
   const [agentsListSeparated, setAgentsListSeparated] = useState([]); //agentsListSeparated: Inbound and outbound separated. Api gives is under one main agent
   const [agentsList, setAgentsList] = useState([]);
-  //agents before search
-  const [agentsBeforeSearch, setAgentsBeforeSearch] = useState([]);
-
   const [actionInfoEl, setActionInfoEl] = React.useState(null);
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null);
   const [hoveredIndexAddress, setHoveredIndexAddress] = useState(null);
@@ -271,15 +254,6 @@ function Page() {
   const [loading, setLoading] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [duplicateLoader, setDuplicateLoader] = useState(false);
-
-  //nedd help popup
-  const [needHelp, setNeedHelp] = useState(false);
-
-  //it saves previous list of agents before search
-  const [allAgentsList, setAllAgentsList] = useState([]);
-
-  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false)
 
   const playVoice = (url) => {
     if (audio) {
@@ -377,8 +351,18 @@ function Page() {
       value: "Natural Conversation Flow",
     },
   ];
-
-  //storing agents in backup variable before
+  const callRecordingPermitionList = [
+    {
+      id: 1,
+      title: "✅ Enable Call Recording",
+      value: true,
+    },
+    {
+      id: 2,
+      title: "❌ Disable Call Recording",
+      value: false,
+    },
+  ];
 
   useEffect(() => {
     const updateAgentManueList = () => {
@@ -691,22 +675,8 @@ function Page() {
   const handleShowDrawer = (item) => {
     //console.log;
     // return
-    console.log("Agent  item", item?.voiceId);
-
-    if (item.Calendar) {
-      console.log("Agent has calendaer in item");
-    } else {
-      console.log("Agent donot have calendar in the item");
-    }
-
     setAssignNumber(item?.phoneNumber);
-    const matchedVoice = voicesList.find(
-  (voice) => voice.voice_id === item?.voiceId
-);
-
-setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found by ID, otherwise fallback to voice name
-
-    // setSelectedVoice(item?.voiceId);
+    setSelectedVoice(item?.voiceId);
     setVoicesList([voicesList]);
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
@@ -719,7 +689,11 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
     if (modelValue) {
       let model = findLLMModel(modelValue);
       setSelectedGptManu(model);
-
+      // if (modelValue === AgentLLmModels.Gpt4o) {
+      //   setSelectedGptManu(models[0]);
+      // } else if (modelValue === AgentLLmModels.Gpt4oMini) {
+      //   setSelectedGptManu(models[1]);
+      // }
     }
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
@@ -1374,10 +1348,10 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
             );
           }
 
-          if (voiceData.liveTransferNumber || voiceData.liveTransferNumber !== undefined) {
+          if (voiceData.liveTransferNumber) {
             formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
-          if (voiceData.callbackNumber || voiceData.callbackNumber !== undefined) {
+          if (voiceData.callbackNumber) {
             formData.append("callbackNumber", voiceData.callbackNumber);
           }
         }
@@ -1395,7 +1369,6 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
           console.log(`${key}: ${value}`);
         }
 
-        // return
         const response = await axios.post(ApiPath, formData, {
           headers: {
             Authorization: "Bearer " + AuthToken,
@@ -1911,6 +1884,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
   };
 
   useEffect(() => {
+    getCalenders();
     const agentLocalDetails = localStorage.getItem(
       PersistanceKeys.LocalStoredAgentsListMain
     );
@@ -1926,21 +1900,18 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
     const userData = localStorage.getItem("User");
 
     try {
-      setInitialLoader(true);
+      // setInitialLoader(true);
       if (userData) {
         const userLocalData = JSON.parse(userData);
-        getAgents();//userLocalData
+        getAgents(userLocalData);
       }
     } catch (error) {
       //// console.error("Error occured is :", error);
     } finally {
       setShowPhoneLoader(false);
 
-      setInitialLoader(false);
+      // setInitialLoder(false)
     }
-
-    getCalenders();
-
   }, []);
 
   const handleSelectProfileImg = (index) => {
@@ -1962,118 +1933,38 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
   };
 
   //code to get agents
-  const getAgents = async (paginationStatus, search = null, searchLoader = false) => {
-
-    setPaginationLoader(true);
-
-    //test code failed for saving search value
-
-    // if (searchLoader && !search) {
-    //   console.log('search clear', search)
-    //   setAgentsListSeparated(allAgentsList);
-    //   return
-    // }
-
-
-
-    console.log("Pagination status passed is", paginationStatus);
-    // console.log('search', search)
+  const getAgents = async (userData) => {
     try {
       const agentLocalDetails = localStorage.getItem(
         PersistanceKeys.LocalStoredAgentsListMain
       );
-      if (!agentLocalDetails || searchLoader) {
+      if (!agentLocalDetails) {
         setInitialLoader(true);
       }
-      let offset = mainAgentsList.length;
-      let ApiPath = `${Apis.getAgents}?offset=${offset}`; //?agentType=outbound
+      const offset = mainAgentsList.length;
+      const ApiPath = `${Apis.getAgents}?offset=${offset}`; //?agentType=outbound
 
-      if (search) {
-        offset = 0;
-        ApiPath = `${Apis.getAgents}?offset=${offset}&search=${search}`;
-      }
-      console.log("Api path is", ApiPath);
-
-      const Auth = AuthToken();
       ////console.log;
-      // const AuthToken = userData.token;
+
+      const AuthToken = userData.token;
+      ////console.log;
 
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + Auth,
+          Authorization: "Bearer " + AuthToken,
           "Content-Type": "application/json",
         },
       });
 
-      // if (response) {
-      //   //console.log;
-      //   setPaginationLoader(false);
-      //   let agents = response.data.data || [];
-      //   console.log("Agents from api", agents);
-      //   if (!search) {
-      //     setAllAgentsList(agents)
-
-      //   }
-      //   setOldAgentsList(agents)
-      //   if (agents.length >= 6) {
-      //     setCanGetMore(true);
-      //   } else {
-      //     setPaginationLoader(false);
-      //     setCanGetMore(false);
-      //   }
-
-      //   if (search) {
-      //     setAgentsListSeparated(agents);
-      //     return
-      //   }
-
-
-
-      //   let newList = [...mainAgentsList]; // makes a shallow copy
-      //   if (Array.isArray(agents) && agents.length > 0) {
-      //     newList.push(...agents); // append all agents at once
-      //   }
-
-      //   console.log("Agents after pushing", newList);
-
-      //   localStorage.setItem(
-      //     PersistanceKeys.LocalStoredAgentsListMain,
-      //     JSON.stringify(newList)
-      //   );
-
-      //   setMainAgentsList(newList);
-      // }
-
       if (response) {
         //console.log;
-        setPaginationLoader(false);
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
-        setOldAgentsList(agents)
-        if (agents.length >= 6) {
+        if (agents.length > 0) {
           setCanGetMore(true);
         } else {
-          setPaginationLoader(false);
-          setCanGetMore(false);
+          setCanGetMore(false)
         }
-
-        if (search) {
-          let subAgents = [];
-          agents.forEach((item) => {
-            if (item.agents && item.agents.length > 0) {
-              for (let i = 0; i < item.agents.length; i++) {
-                const agent = item.agents[i];
-                if (agent) {
-                  subAgents.push(agent);
-                }
-              }
-            }
-          });
-
-          setAgentsListSeparated(subAgents);
-          return
-        }
-
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -2090,11 +1981,9 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
         setMainAgentsList(newList);
       }
     } catch (error) {
-      setInitialLoader(false);
       //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
-
     }
   };
 
@@ -2166,20 +2055,12 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
-    const selectedVoice = voicesList.find(
-      (voice) => voice.name === event.target.value
-    );
-
-    if (!selectedVoice) {
-      setShowVoiceLoader(false);
-      return;
-    }
-
-    await updateAgent(selectedVoice.name); // ✅ send name
-    setSelectedVoice(selectedVoice.name); // ✅ store name now
+    await updateAgent(event.target.value);
     setShowVoiceLoader(false);
-
-
+    setSelectedVoice(event.target.value);
+    const selectedVoice = voicesList.find(
+      (voice) => voice.voice_id === event.target.value
+    );
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
     } else {
@@ -2238,62 +2119,31 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
     }
   };
 
-  const handleDuplicate = async () => {
-    console.log("Duplicate agent clicked");
-    setDuplicateLoader(true)
-    setShowDuplicateConfirmationPopup(false)
-    try {
-      const data = localStorage.getItem("User")
-
-      if (data) {
-        const userData = JSON.parse(data);
-        const AuthToken = userData.token;
-        const ApiPath = Apis.duplicateAgent;
-
-        let apidata = {
-          agentId: showDrawerSelectedAgent.id,
-        }
-
-        const response = await axios.post(ApiPath,
-          apidata, {
-          headers: {
-            "Authorization": "Bearer " + AuthToken,
-          }
-        })
-
-        if (response) {
-          setDuplicateLoader(false)
-          if (response.data.status === true) {
-            console.log('duplicate agent data ', response);
-
-            setShowSuccessSnack("Agent duplicated successfully");
-            setIsVisibleSnack(true);
-            const localAgentsList = localStorage.getItem(
-              PersistanceKeys.LocalStoredAgentsListMain
-            );
-
-            if (localAgentsList) {
-              const agentsList = JSON.parse(localAgentsList);
-              // agentsListDetails = agentsList;
-
-              const updatedArray = [response.data.data, ...agentsList];
-              localStorage.setItem(
-                PersistanceKeys.LocalStoredAgentsListMain,
-                JSON.stringify(updatedArray)
-              );
-              setMainAgentsList(updatedArray);
-            }
-          }
-        }
-      }
-    } catch (error) {
-      setDuplicateLoader(false)
-      console.error("Error occured in duplicate agent api is", error);
-      setShowErrorSnack("Error occured while duplicating agent");
-      setIsVisibleSnack2(true);
-
+  const handleSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setSearch(searchTerm);
+    k;
+    if (!searchTerm) {
+      setAgentsListSeparated(agentsList); // Reset to original data
+      return;
     }
-  }
+
+    const filtered = agentsList.filter((item) => {
+      // Use original list here
+      const name = item.name.toLowerCase();
+      const email = item.email?.toLowerCase() || "";
+      const phone = item.phone || "";
+
+      return (
+        name.includes(searchTerm) ||
+        email.includes(searchTerm) ||
+        phone.includes(searchTerm)
+      );
+    });
+
+    setAgentsListSeparated(filtered);
+  };
+
   const styles = {
     claimPopup: {
       height: "auto",
@@ -2383,68 +2233,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
               className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
               placeholder="Search an agent"
               value={search}
-              onChange={(e) => {
-
-                //test code failed
-                // let a = e.target.value;
-                // if (a) {
-                //   console.log("There was some value");
-                //   setAgentsBeforeSearch(agentsListSeparated);
-                //   clearTimeout(searchTimeoutRef.current);
-                //   searchTimeoutRef.current = setTimeout(() => {
-                //     // handleSearch(e);
-                //     let searchLoader = true;
-                //     getAgents(false, e.target.value, searchLoader)
-                //   }, 500);
-                // } else if (!a) {
-                //   console.log("There was no value");
-                //   setAgentsListSeparated(agentsBeforeSearch);
-
-                // }
-
-                setSearch(e.target.value);
-                if (canGetMore === true) {
-                  setCanKeepLoading(true);
-                } else {
-                  setCanKeepLoading(false);
-                }
-
-                clearTimeout(searchTimeoutRef.current);
-                searchTimeoutRef.current = setTimeout(() => {
-                  // handleSearch(e);
-                  let searchLoader = true;
-                  getAgents(false, e.target.value, searchLoader)
-                }, 500);
-              }}
-            //test code 2 failed
-            // onChange={(e) => {
-            //   const a = e.target.value;
-            //   setSearch(a);
-
-            //   if (a) {
-            //     console.log("There was some value");
-
-            //     // ✅ Only save original list once
-            //     if (agentsBeforeSearch.length === 0) {
-            //       setAgentsBeforeSearch(agentsListSeparated);
-            //     }
-
-            //     clearTimeout(searchTimeoutRef.current);
-            //     searchTimeoutRef.current = setTimeout(() => {
-            //       const searchLoader = true;
-            //       getAgents(false, a, searchLoader);
-            //     }, 500);
-            //   } else {
-            //     console.log("There was no value");
-
-            //     // ✅ Restore the original list when search is cleared
-            //     setAgentsListSeparated(agentsBeforeSearch);
-            //   }
-
-            //   // ✅ Optional: toggle loading based on canGetMore
-            //   setCanKeepLoading(canGetMore === true);
-            // }}
-
+              onChange={handleSearch}
             />
             <button className="outline-none border-none">
               <Image
@@ -2456,37 +2245,24 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
             </button>
           </div>
           <NotficationsDrawer />
-          <div
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 0
-            }}>
-            <DashboardSlider
-              needHelp={false} />
-          </div>
         </div>
       </div>
 
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
-          <div className="h-[70vh] flex flex-row justify-center gap-4">
-            {/*<CircularProgress size={45} />*/}
-            <MyAgentXLoader />
+          <div className="h-[70vh] flex flex-row justify-center pt-32 gap-4">
+            <CircularProgress size={45} />
           </div>
         ) : (
           <AgentsListPaginated
-            oldAgentsList={oldAgentsList}
             agentsListSeparatedParam={agentsListSeparated}
             selectedImagesParam={selectedImages}
             handlePopoverClose={handlePopoverClose}
             user={user}
-            getAgents={(p, s) => {
-              console.log('p', s)
-              getAgents(p, s,);//user
+            getAgents={() => {
+              getAgents(user);
             }}
-            search={search}
             setObjective={setObjective}
             setOldObjective={setOldObjective}
             setGreetingTagInput={setGreetingTagInput}
@@ -2510,8 +2286,6 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
             setSelectedAgent={setSelectedAgent}
             keys={keys}
             canGetMore={canGetMore}
-            paginationLoader={paginationLoader}
-            initialLoader={initialLoader}
           />
         )}
 
@@ -2545,7 +2319,18 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
       </div>
 
       {/* Modal to rename the agent */}
-      <Modal
+      {
+        showRenameAgentPopup && (
+          <EditAgentName
+            showRenameAgentPopup={showRenameAgentPopup}
+            handleClose={() => { setShowRenameAgentPopup(false) }}
+            agentNamePassed={renameAgent}
+            renameAgentLoader={renameAgentLoader}
+            handleEditAgentName={handleRenameAgent}
+          />
+        )
+      }
+      {/*<Modal
         open={showRenameAgentPopup}
         onClose={() => {
           setShowRenameAgentPopup(false);
@@ -2576,7 +2361,6 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                   alignItems: "center",
                 }}
               >
-                {/* <div style={{ width: "20%" }} /> */}
                 <div style={{ fontWeight: "700", fontSize: 22 }}>
                   Rename Agent
                 </div>
@@ -2651,7 +2435,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
             )}
           </div>
         </Box>
-      </Modal>
+          </Modal>*/}
 
       {/* Test ai modal */}
 
@@ -2771,10 +2555,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                 <div style={{ marginTop: "8px" }}>
                   <PhoneInput
                     className="border outline-none bg-white"
-                    country={"us"}
-                    onlyCountries={["us", "sv", "pk"]}
-                    disableDropdown={false}
-                    countryCodeEditable={false}
+                    country={countryCode} // Set the default country
                     value={phone}
                     onChange={handlePhoneNumberChange}
                     placeholder={
@@ -2801,6 +2582,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
+                    countryCodeEditable={true}
                   // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
@@ -3001,27 +2783,15 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                 <div className="flex flex-col gap-1 items-start">
                   <div className="flex flex-row justify-center items-center gap-2">
                     <button
-
+                      style={{ fontSize: 22, fontWeight: "600" }}
                       onClick={() => {
                         setShowRenameAgentPopup(true);
                         setSelectedRenameAgent(showDrawerSelectedAgent);
                         setRenameAgent(showDrawerSelectedAgent?.name);
                       }}
                     >
-                      <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={"/svgIcons/editIcon2.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                        <div
-                          style={{ fontSize: 22, fontWeight: "600" }}
-                        >
-                          {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
-                          {showDrawerSelectedAgent?.name?.slice(1)}
-                        </div>
-                      </div>
+                      {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
+                      {showDrawerSelectedAgent?.name?.slice(1)}
                     </button>
                     <div
                       className="text-purple"
@@ -3063,104 +2833,87 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                   </div>
                 </div>
               </div>
+              <div className="flex flex-col gap-2  ">
+                {/* GPT Button */}
 
-              <div className="flex flex-row items-center gap-2">
+                {showModelLoader ? (
+                  <CircularProgress size={25} />
+                ) : (
+                  <div>
+                    <button
+                      id="gpt"
+                      onClick={(event) => setOpenGptManu(event.currentTarget)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        borderRadius: "20px",
+                        padding: "6px 12px",
+                        border: "1px solid #EEE",
+                        backgroundColor: "white",
+                        // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                        fontSize: "16px",
+                        fontWeight: "500",
+                        color: "#000",
+                        textTransform: "none",
+                        "&:hover": { backgroundColor: "#F5F5F5" },
+                      }}
+                    >
+                      <Avatar
+                        src={selectedGptManu?.icon}
+                        sx={{ width: 24, height: 24, marginRight: 1 }}
+                      />
+                      {selectedGptManu?.name}
+                      <Image
+                        src={"/svgIcons/downArrow.svg"}
+                        width={18}
+                        height={18}
+                        alt="*"
+                      />
+                    </button>
 
-
-                <DuplicateButton
-                  handleDuplicate={() => {
-                    setShowDuplicateConfirmationPopup(true)
-                  }}
-                  loading={duplicateLoader}
-                />
-
-                <DuplicateConfirmationPopup
-                  open={showDuplicateConfirmationPopup}
-                  handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                  handleDuplicate={handleDuplicate}
-                />
-                <div className="flex flex-col gap-2  ">
-                  {/* GPT Button */}
-
-                  {showModelLoader ? (
-                    <CircularProgress size={25} />
-                  ) : (
-                    <div>
-                      <button
-                        id="gpt"
-                        onClick={(event) => setOpenGptManu(event.currentTarget)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          borderRadius: "20px",
-                          padding: "6px 12px",
-                          border: "1px solid #EEE",
-                          backgroundColor: "white",
-                          // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                          fontSize: "16px",
-                          fontWeight: "500",
-                          color: "#000",
-                          textTransform: "none",
-                          "&:hover": { backgroundColor: "#F5F5F5" },
-                        }}
-                      >
-                        <Avatar
-                          src={selectedGptManu?.icon}
-                          sx={{ width: 24, height: 24, marginRight: 1 }}
-                        />
-                        {selectedGptManu?.name}
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          width={18}
-                          height={18}
-                          alt="*"
-                        />
-                      </button>
-
-                      <Menu
-                        id="gpt"
-                        anchorEl={openGptManu}
-                        open={openGptManu}
-                        onClose={() => setOpenGptManu(null)}
-                        sx={{
-                          "& .MuiPaper-root": {
-                            borderRadius: "12px",
-                            padding: "8px",
-                            minWidth: "180px",
-                          },
-                        }}
-                      >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: "8px",
-                              transition: "background 0.2s",
-                              "&:hover": {
-                                backgroundColor: model.disabled
-                                  ? "inherit"
-                                  : "#F5F5F5",
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {model.name}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </div>
-                  )}
-                </div>
+                    <Menu
+                      id="gpt"
+                      anchorEl={openGptManu}
+                      open={openGptManu}
+                      onClose={() => setOpenGptManu(null)}
+                      sx={{
+                        "& .MuiPaper-root": {
+                          borderRadius: "12px",
+                          padding: "8px",
+                          minWidth: "180px",
+                        },
+                      }}
+                    >
+                      {models.map((model, index) => (
+                        <MenuItem
+                          key={index}
+                          onClick={() => handleGptManuSelect(model)}
+                          disabled={model.disabled}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            padding: "8px 12px",
+                            borderRadius: "8px",
+                            transition: "background 0.2s",
+                            "&:hover": {
+                              backgroundColor: model.disabled
+                                ? "inherit"
+                                : "#F5F5F5",
+                            },
+                            opacity: model.disabled ? 0.6 : 1,
+                          }}
+                        >
+                          <Avatar
+                            src={model.icon}
+                            sx={{ width: 24, height: 24 }}
+                          />
+                          {model.name}
+                        </MenuItem>
+                      ))}
+                    </Menu>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -3246,7 +2999,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
               />
             </div>
             {/* Bottom Agent Info */}
-            <div className="flex flex-row justify-between items-center pb-2 mb-4">
+            <div className="flex gap-8 pb-2 mb-4">
               {AgentMenuOptions.map((tab) => (
                 <button
                   key={tab}
@@ -3255,11 +3008,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                     ? "text-purple border-b-2 border-purple"
                     : "text-black-500"
                     }`}
-                  style={{
-                    fontSize: 15,
-                    fontWeight: "500",
-                    whiteSpace: "nowrap"
-                  }}
+                  style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
                 </button>
@@ -3312,27 +3061,31 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                             onChange={handleChangeVoice}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
-                              if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
-
+                              if (!selected) {
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                ); // Placeholder style
+                              }
                               const selectedVoice = voicesList.find(
-                                (voice) => voice.name === selected
+                                (voice) => voice.voice_id === selected
                               );
-
                               return selectedVoice ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                  {selectedVoice.img && (
-                                    <Image
-                                      src={selectedVoice.img}
-                                      height={40}
-                                      width={35}
-                                      alt="Selected Voice"
-                                    />
-                                  )}
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <Image
+                                    src={selectedVoice.img}
+                                    height={40}
+                                    width={35}
+                                    alt="Selected Voice"
+                                  />
                                   <div>{selectedVoice.name}</div>
                                 </div>
                               ) : null;
                             }}
-
                             sx={{
                               border: "none", // Default border
                               "&:hover": { border: "none" }, // Same border on hover
@@ -3368,9 +3121,9 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                     alignItems: "center",
                                     justifyContent: "space-between",
                                   }}
-                                  value={item.name}
+                                  value={item.voice_id}
                                   key={index}
-                                  disabled={SelectedVoice === item.name}
+                                  disabled={SelectedVoice === item.voice_id}
                                 >
                                   <Image
                                     src={item.img}
@@ -3378,7 +3131,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                     width={35}
                                     alt="*"
                                   />
-                                  <div>{item.name}</div>
+                                  <div>{selectedVoiceName(item.voice_id)}</div>
 
                                   {/* Play/Pause Button (Prevents dropdown close) */}
                                   {item.preview ? (
@@ -3796,25 +3549,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                               console.log(
                                 `Selected Language for ${selected} is ${selectedVoice.title}`
                               );
-                              //  return selectedVoice ? selectedVoice.title : null;
-
-                              return (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 10,
-                                  }}
-                                >
-                                  <Image
-                                    src={selectedVoice?.flag}
-                                    height={22}
-                                    width={22}
-                                    alt="Selected Language"
-                                  />
-                                  <div>{selectedVoice?.title}</div>
-                                </div>
-                              )
+                              return selectedVoice ? selectedVoice.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3846,18 +3581,18 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                             {AgentLanguagesList.map((item, index) => {
                               return (
                                 <MenuItem
-                                  className="flex flex-row items-center gap-2 bg-purple10 w-full"
-                                  value={item?.title}
+                                  className="flex flex-row items-center gap-2"
+                                  value={item.title}
                                   key={index}
-                                  disabled={index !== 0}//languageValue === item?.title ||
+                                  disabled={languageValue === item.title}
                                 >
                                   <Image
-                                    src={item?.flag}
+                                    src={item.flag}
                                     alt="*"
                                     height={22}
                                     width={22}
                                   />
-                                  <div>{item?.title}</div>
+                                  <div>{item.title}</div>
                                   <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
                                 </MenuItem>
                               );
@@ -3911,16 +3646,16 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                               displayEmpty
                               value={assignNumber}
                               // onChange={handleSelectNumber}
-                              // onChange={(e) => {
-                              //   let value = e.target.value;
-                              //   console.log(
-                              //     "Assign number here: Value changed",
-                              //     value
-                              //   );
-                              //   // return;
-                              //   setAssignNumber(value);
-                              //   // setOpenCalimNumDropDown(false);
-                              // }}
+                              onChange={(e) => {
+                                let value = e.target.value;
+                                console.log(
+                                  "Assign number here: Value changed",
+                                  value
+                                );
+                                // return;
+                                setAssignNumber(value);
+                                // setOpenCalimNumDropDown(false);
+                              }}
                               renderValue={(selected) => {
                                 if (selected === "") {
                                   return <div>Select Number</div>;
@@ -3947,7 +3682,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                     value={item.phoneNumber.slice(1)}
                                     className="flex flex-row items-center gap-2 "
                                     disabled={
-                                      assignNumber?.replace("+", "") ===
+                                      assignNumber.replace("+", "") ===
                                       item.phoneNumber.replace("+", "")
                                     }
                                     onClick={(e) => {
@@ -4030,8 +3765,8 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                 value={showGlobalBtn ? 16505403715 : ""}
                                 // disabled={!showGlobalBtn}
                                 disabled={
-                                  (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
-                                  (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
+                                  assignNumber.replace("+", "") ===
+                                  Constants.GlobalPhoneNumber.replace("+", "")
                                 }
                                 onClick={() => {
                                   console.log(
@@ -4050,7 +3785,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                   " (Only for outbound agents. You must buy a number)"}
                               </MenuItem>
                               <div
-                                className="ms-4 pe-4"
+                                className="ms-4"
                                 style={{
                                   ...styles.inputStyle,
                                   color: "#00000070",
@@ -4207,6 +3942,14 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                     }
                   }
                 >
+                  {/*<VideoCard
+                    duration="2 min 42 sec"
+                    horizontal={false}
+                    playVideo={() => {
+                      setIntroVideoModal2(true);
+                    }}
+                    title="Learn how to add a calendar"
+                  />*/}
                 </div>
 
                 <UserCalender
@@ -4217,7 +3960,6 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                   previousCalenders={previousCalenders}
                   updateVariableData={updateAfterAddCalendar}
                 />
-
               </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
@@ -4244,56 +3986,55 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
             )}
           </div>
           {/* Delete agent button */}
-          <div className="w-full flex flex-row items-center justify-end">
-            <button
-              className="flex flex-row gap-2 items-center"
-              onClick={() => {
-                setDelAgentModal(true);
-              }}
-              style={{
-                // // marginTop: 20,
-                // alignSelf: "end",
-                // position: "absolute",
-                // bottom: "7%",
-              }}
-            >
-              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+          <button
+            className="flex flex-row gap-2 items-center"
+            onClick={() => {
+              setDelAgentModal(true);
+            }}
+            style={{
+              marginTop: 20,
+              alignSelf: "end",
+              position: "absolute",
+              bottom: "2%",
+            }}
+          >
+            {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
                 width={24}
                 alt='del'
               /> */}
 
-              <Image
-                src={"/otherAssets/redDeleteIcon.png"}
-                height={24}
-                width={24}
-                alt="del"
-                style={{
-                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-                }}
-              />
+            <Image
+              src={"/otherAssets/redDeleteIcon.png"}
+              height={24}
+              width={24}
+              alt="del"
+              style={{
+                filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
+              }}
+            />
 
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                  color: "#15151590",
-                  textDecorationLine: "underline",
-                }}
-              >
-                Delete Agent
-              </div>
-            </button>
-          </div>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: "600",
+                color: "#15151590",
+                textDecorationLine: "underline",
+              }}
+            >
+              Delete Agent
+            </div>
+          </button>
         </div>
-      </Drawer>
+      </Drawer >
 
       {/* Code to del agent */}
-      <Modal
+      < Modal
         open={delAgentModal}
         onClose={() => {
           setDelAgentModal(false);
-        }}
+        }
+        }
         BackdropProps={{
           timeout: 200,
           sx: {
@@ -4379,7 +4120,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal >
 
       {/*  Test comment */}
       {/* Code for the confirmation of reassign button */}
@@ -4979,18 +4720,20 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
         videoUrl={HowtoVideos.Calendar}
       />
 
-      {showClaimPopup && (
-        <ClaimNumber
-          showClaimPopup={showClaimPopup}
-          handleCloseClaimPopup={handleCloseClaimPopup}
-          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-          setSelectNumber={setAssignNumber}
-          setPreviousNumber={setPreviousNumber}
-          previousNumber={previousNumber}
-          AssignNumber={AssignNumber}
-        />
-      )}
-    </div>
+      {
+        showClaimPopup && (
+          <ClaimNumber
+            showClaimPopup={showClaimPopup}
+            handleCloseClaimPopup={handleCloseClaimPopup}
+            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+            setSelectNumber={setAssignNumber}
+            setPreviousNumber={setPreviousNumber}
+            previousNumber={previousNumber}
+            AssignNumber={AssignNumber}
+          />
+        )
+      }
+    </div >
   );
 }
 

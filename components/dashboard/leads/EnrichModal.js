@@ -126,7 +126,7 @@ export default function EnrichModal({
                                     <CircularProgress size={27} />
                                 ) : (
                                     <button className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-[#7902DF] py-3 rounded-lg
-                     items-center justify-center"
+                     items-center justify-center border rounded-lg"
                                         style={{}}
                                         onClick={() => {
                                             // handleAddLead(false)

@@ -622,10 +622,10 @@ function SheduledCalls({ user }) {
               <div className="w-1/12">
                 <div style={styles.text}>Leads</div>
               </div>
-              <div className="w-1/12">
+              <div className="w-2/12">
                 <div style={styles.text}>Date created</div>
               </div>
-              <div className="w-2/12">
+              <div className="w-1/12">
                 <div style={styles.text}>Call Status</div>
               </div>
               <div className="w-1/12">
@@ -685,7 +685,7 @@ function SheduledCalls({ user }) {
                                       {item?.totalLeads}
                                     </button>
                                   </div>
-                                  <div className="w-1/12">
+                                  <div className="w-2/12">
                                     {item?.createdAt ? (
                                       <div style={styles.text2}>
                                         {GetFormattedDateString(item?.createdAt, true)}
@@ -694,7 +694,7 @@ function SheduledCalls({ user }) {
                                       "-"
                                     )}
                                   </div>
-                                  <div className="w-2/12">{item.status}</div>
+                                  <div className="w-1/12">{item.status}</div>
                                   <div className="w-1/12">
                                     <button
                                       aria-describedby={id}

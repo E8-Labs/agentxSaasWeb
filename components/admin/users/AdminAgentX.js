@@ -307,7 +307,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const [user, setUser] = useState(null);
 
-  let tabs = ["Agent Info", "Calendar", "Pipeline | Stages", "Knowledge Base"];
+  let tabs = ["Agent Info", "Calendar", "Pipeline", "Knowledge"];
   const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
 
   const [preview, setPreview] = useState(null);
@@ -4006,7 +4006,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     updateVariableData={updateAfterAddCalendar}
                   />
                 </div>
-              ) : activeTab === "Pipeline | Stages" ? (
+              ) : activeTab === "Pipeline" ? (
                 <div className="flex flex-col gap-4">
                   <PiepelineAdnStage
                     selectedAgent={showDrawerSelectedAgent}
@@ -4014,7 +4014,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     mainAgent={calendarDetails}
                   />
                 </div>
-              ) : activeTab === "Knowledge Base" ? (
+              ) : activeTab === "Knowledge" ? (
                 <div className="flex flex-col gap-4">
                   <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
                 </div>

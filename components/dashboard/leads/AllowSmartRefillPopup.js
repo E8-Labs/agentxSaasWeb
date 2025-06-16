@@ -68,14 +68,14 @@ const AllowSmartRefillPopup = ({
         >
           {`To avoid interruptions when you're making calls, turn it back on and ensure your AI always has minutes to work with.`}
         </div>
-        <div className="w-full flex flex-row items-center mt-6 outline-none border-none">
+        <div className="w-full flex flex-row items-center mt-6 outline-none border-none gap-2">
           {smartRefillLoaderLater || loader ? (
             <div className="w-1/2 flex flex-row items-center justify-center">
               <CircularProgress size={35} />
             </div>
           ) : (
             <button
-              className="w-1/2 outline-none border-none"
+              className="w-1/2 outline-none border rounded-lg h-[50px]"
               onClick={() => {
                 handleSmartRefillLater();
               }}

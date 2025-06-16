@@ -280,9 +280,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     localStorage.removeItem("ObjectionsList");
   };
 
-  useEffect(() => {
+  useEffect(()=>{
     getAgentDetails()
-  }, [])
+  },[])
+
   useEffect(() => {
     const agentDetailsLocal = localStorage.getItem("agentDetails");
     if (agentDetailsLocal) {
@@ -562,12 +563,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         //////console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
-          const isFromAdmin = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-          if (isFromAdmin) {
-            router.push("/admin");            
-          } else {
-            router.push("/dashboard/myAgentX");
-          }
+          // router.push("/dashboard/leads");
+
+          
+          router.push("/dashboard/myAgentX");
         } else {
           // setLoader(false);
         }
@@ -579,6 +578,98 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
     }
   };
 
+   const getAgentDetails = async () => {
+      //console.log
+      try {
+        const data = localStorage.getItem("User")
+  
+        if (data) {
+          let u = JSON.parse(data)
+          // //console.log
+  
+          let ag = localStorage.getItem(PersistanceKeys.LocalSavedAgentDetails)
+  
+          if (ag) {
+            let agent = JSON.parse(ag)
+  
+            //console.log
+            let apiPath = Apis.getAgentDetails + "?mainAgentId=" + agent?.id
+  
+            //console.log
+  
+            const response = await axios.get(apiPath, {
+              headers: {
+                "Authorization": "Bearer " + u.token
+              }
+            })
+  
+            if (response.data) {
+              if (response.data.status === true) {
+            console.log("agent data from api",response.data.data)
+
+            let agentData = response.data.data
+
+            if (
+        agentData.agents.length === 2 ||
+        agentData.agents[0].agentType === "outbound"
+      ) {
+        // console.log(
+        // "Check case for 2Agents",
+        // localAgentData.agents.filter((item) =>
+        //   item.agentType === "outbound" ? item : ""
+        // )
+        // );
+        const outBoundAgent = agentData.agents.filter((item) =>
+          item.agentType === "outbound" ? item : ""
+        );
+        setGreetingTagInput(outBoundAgent[0]?.prompt?.greeting);
+        setScriptTagInput(outBoundAgent[0]?.prompt?.callScript);
+        setObjective(outBoundAgent[0]?.prompt?.objective);
+      } else if (agentData.agents[0].agentType === "inbound") {
+        // //console.log;
+        setGreetingTagInput(agentData?.agents[0]?.prompt?.greeting);
+        setScriptTagInput(agentData?.agents[0]?.prompt?.callScript);
+        setObjective(agentData?.agents[0]?.prompt?.objective);
+      }
+
+                localStorage.setItem(
+                  PersistanceKeys.LocalSavedAgentDetails,
+                  JSON.stringify(response.data.data)
+                );
+              }
+            }
+          }
+        }
+      } catch (e) {
+        //console.log
+      }
+    }
+
+  //handleGet kyc details
+  const handleGetKYCs = () => {
+    const test = [
+      {
+        id: 1,
+        question: "name",
+      },
+      {
+        id: 2,
+        question: "phone",
+      },
+      {
+        id: 3,
+        question: "email",
+      },
+      {
+        id: 4,
+        question: "address",
+      },
+      {
+        id: 5,
+        question: "name han",
+      },
+    ];
+  };
 
   const advanceSettingType = [
     {
@@ -625,74 +716,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       outline: "none",
     },
   };
-
-
-  const getAgentDetails = async () => {
-    //console.log
-    try {
-      const data = localStorage.getItem("User")
-
-      if (data) {
-        let u = JSON.parse(data)
-        // //console.log
-
-        let ag = localStorage.getItem(PersistanceKeys.LocalSavedAgentDetails)
-
-        if (ag) {
-          let agent = JSON.parse(ag)
-
-          //console.log
-          let apiPath = Apis.getAgentDetails + "?mainAgentId=" + agent?.id
-
-          //console.log
-
-          const response = await axios.get(apiPath, {
-            headers: {
-              "Authorization": "Bearer " + u.token
-            }
-          })
-
-          if (response.data) {
-            if (response.data.status === true) {
-              console.log("agent data from api", response.data.data)
-
-              let agentData = response.data.data
-
-              if (
-                agentData.agents.length === 2 ||
-                agentData.agents[0].agentType === "outbound"
-              ) {
-                // console.log(
-                // "Check case for 2Agents",
-                // localAgentData.agents.filter((item) =>
-                //   item.agentType === "outbound" ? item : ""
-                // )
-                // );
-                const outBoundAgent = agentData.agents.filter((item) =>
-                  item.agentType === "outbound" ? item : ""
-                );
-                setGreetingTagInput(outBoundAgent[0]?.prompt?.greeting);
-                setScriptTagInput(outBoundAgent[0]?.prompt?.callScript);
-                setObjective(outBoundAgent[0]?.prompt?.objective);
-              } else if (agentData.agents[0].agentType === "inbound") {
-                // //console.log;
-                setGreetingTagInput(agentData?.agents[0]?.prompt?.greeting);
-                setScriptTagInput(agentData?.agents[0]?.prompt?.callScript);
-                setObjective(agentData?.agents[0]?.prompt?.objective);
-              }
-
-              localStorage.setItem(
-                PersistanceKeys.LocalSavedAgentDetails,
-                JSON.stringify(response.data.data)
-              );
-            }
-          }
-        }
-      }
-    } catch (e) {
-      //console.log
-    }
-  }
 
   return (
     <div
@@ -899,7 +922,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   Advanced Settings
                 </button>
               </div>
-              <KYCs kycsDetails={setKycsData} user={user} />
+              {/*<KYCs kycsDetails={setKycsData} user={user} />*/}
               {/* <div className='mt-4' style={styles.headingStyle}>
                                 {`Agent's Objective`}
                             </div>
@@ -1080,7 +1103,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                           uniqueColumns={uniqueColumns}
                           tagValue={setObjective}
                           scrollOffset={scrollOffset}
-                        // showSaveChangesBtn={showSaveChangesBtn}
+                          // showSaveChangesBtn={showSaveChangesBtn}
                         />
 
                         {/* <DynamicDropdown /> */}

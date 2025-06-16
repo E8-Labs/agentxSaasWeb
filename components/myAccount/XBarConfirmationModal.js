@@ -53,8 +53,8 @@ export default function XBarConfirmationModal({
           Confirm <span style={{ color: "black" }}>{`${plan}`}</span>
         </Typography>
         <Typography sx={{ color: "#000", fontSize: "16px" }}>
-          Please confirm you’d like to proceed with the service option you’ve
-          selected.
+          {`Please confirm you’d like to proceed with the service option you’ve
+          selected.`}
         </Typography>
       </DialogContent>
 
