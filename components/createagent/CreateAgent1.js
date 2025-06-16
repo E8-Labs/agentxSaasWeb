@@ -314,7 +314,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       //code for sending the user  id if from agency subaccount flow
       let userId = null;
 
-      const U = localStorage.getItem("isFromAgency");
+      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
 
       if (U) {
         const d = JSON.parse(U);

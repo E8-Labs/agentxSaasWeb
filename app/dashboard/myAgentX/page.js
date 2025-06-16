@@ -2159,12 +2159,19 @@ function Page() {
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
-    await updateAgent(event.target.value);
-    setShowVoiceLoader(false);
-    setSelectedVoice(event.target.value);
+
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === event.target.value
     );
+
+    if (!selectedVoice) {
+      setShowVoiceLoader(false);
+      return;
+    }
+
+    await updateAgent(selectedVoice.name); // ✅ send name, not ID
+    setShowVoiceLoader(true);
+    setSelectedVoice(selectedVoice.voice_id);
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
     } else {

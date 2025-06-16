@@ -54,10 +54,6 @@ const Page = () => {
 
   let CurrentComp = components[index];
 
-  function GetEmptyComponent() {
-    return <div>Loading..</div>;
-  }
-
   useEffect(() => {
     let size = null;
     if (typeof window !== "undefined") {
@@ -82,55 +78,73 @@ const Page = () => {
       const Data = JSON.parse(localData);
       // //console.log;
       // //console.log;
-      if (Data.user.plan) {
-        if (windowSize < 640) {
-          //console.log;
-          setComponents([
-            BuildAgentName,
-            BuildAgentTask,
-            BuildAgentObjective,
 
-            // CreatAgent3,
-            // CreateAgent4,
-            // CreateAgentVoice,
-          ]);
+      let d = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      let fromAdmin = ""
+      if (d) {
+        fromAdmin = JSON.parse(d);
+      }
+      console, log("data form admin is", fromAdmin)
+      if (!fromAdmin) {
+        if (Data.user.plan) {
+          if (windowSize < 640) {
+            //console.log;
+            setComponents([
+              BuildAgentName,
+              BuildAgentTask,
+              BuildAgentObjective,
+
+              // CreatAgent3,
+              // CreateAgent4,
+              // CreateAgentVoice,
+            ]);
+          } else {
+            setComponents([
+              CreateAgent1,
+              // CreatAgent3,
+              CreateAgent4,
+              CreateAgentVoice,
+            ]);
+            // setIndex(1)
+          }
         } else {
-          setComponents([
-            CreateAgent1,
-            // CreatAgent3,
-            CreateAgent4,
-            CreateAgentVoice,
-          ]);
-          // setIndex(1)
+          if (windowSize < 640) {
+            // setComponents([
+            //   <BuildAgentName />,
+            //   <BuildAgentTask />,
+            //   <BuildAgentObjective />,
+            //   <CreatAgent3 smallTerms={true} />, // pass value here
+            // ]);
+            setComponents([
+              BuildAgentName,
+              BuildAgentTask,
+              BuildAgentObjective,
+              CreatAgent3,
+              // CreateAgent4,
+              // CreateAgentVoice,
+            ]);
+            // setIndex(3)
+          } else {
+            setComponents([
+              CreateAgent1,
+              CreatAgent3,
+              CreateAgent4,
+              CreateAgentVoice,
+              // setIndex(3)
+            ]);
+          }
         }
       } else {
-        if (windowSize < 640) {
-          // setComponents([
-          //   <BuildAgentName />,
-          //   <BuildAgentTask />,
-          //   <BuildAgentObjective />,
-          //   <CreatAgent3 smallTerms={true} />, // pass value here
-          // ]);
-          setComponents([
-            BuildAgentName,
-            BuildAgentTask,
-            BuildAgentObjective,
-            CreatAgent3,
-            // CreateAgent4,
-            // CreateAgentVoice,
-          ]);
-          // setIndex(3)
-        } else {
-          setComponents([
-            CreateAgent1,
-            CreatAgent3,
-            CreateAgent4,
-            CreateAgentVoice,
-            // setIndex(3)
-          ]);
-        }
+        setComponents([
+          CreateAgent1,
+          // CreatAgent3,
+          CreateAgent4,
+          CreateAgentVoice,
+        ]);
+        console.log('This is admin')
       }
     }
+
   }, [windowSize]);
 
   // Function to proceed to the next step

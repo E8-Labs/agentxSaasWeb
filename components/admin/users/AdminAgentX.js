@@ -1877,7 +1877,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       subAccountData: selectedUser,
       isFromAgency: true,
     };
-    localStorage.setItem("isFromAgency", JSON.stringify(d));
+
+    let u = {
+      user:selectedUser,
+      isFrom: from,
+    }
+
+    localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(d));
+
     router.push("/createagent");
   };
 

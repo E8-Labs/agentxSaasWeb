@@ -18,6 +18,8 @@ export const PersistanceKeys = {
   TestAiCredentials: "TestAiCredentials",
   GuadrailsList: "GuadrailsList",
   ObjectionsList: "ObjectionsList",
+  //moving from admin to creat agent
+  isFromAdminOrAgency: "isFromAdminOrAgency",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",

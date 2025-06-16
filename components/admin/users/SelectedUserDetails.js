@@ -254,11 +254,6 @@ function SelectedUserDetails({
                                                 } else if (from === "subaccount") {
                                                     // url = `/agency/users?userId=${selectedUser.id}`
                                                     url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`;
-                                                    // const d = {
-                                                    //     subAccountData: selectedUser,
-                                                    //     isFromAgency: true
-                                                    // }
-                                                    // localStorage.setItem("isFromAgency", JSON.stringify(d));
                                                 }
                                                 // url = `admin/users?userId=${selectedUser.id}`
                                                 //console.log
