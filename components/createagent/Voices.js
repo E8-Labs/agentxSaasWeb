@@ -1,6 +1,6 @@
 const voicesList = [
   {
-    voice_id: "JVFlaC5njBD4JVXTPOyq", //"o3E7GHj69RKX5xFrKDhd",
+    voice_id: "Paige", //"o3E7GHj69RKX5xFrKDhd",
     name: "Ava",
     preview: "/voicesList/Ava.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/o3E7GHj69RKX5xFrKDhd/6a8be761-9a5a-4858-bbb1-a1aa5bd88c51.mp3",
@@ -10,7 +10,7 @@ const voicesList = [
     Dialect: "Dramatic, Intense, Mid 20s | Californian",
   },
   {
-    voice_id: "PFIFGOLGFTh5WCxNE7aV", //"7oWqznej0zTv1hLyDxYb",
+    voice_id: "bxPMdBTxMIOLMo67TDEK", //"7oWqznej0zTv1hLyDxYb",
     name: "Zane",
     preview: "/voicesList/Zane.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
@@ -20,7 +20,7 @@ const voicesList = [
     Dialect: "Confident, Charismatic, Mid 20s | Californian",
   },
   {
-    voice_id: "SqVGDZffOHdbKuvIy7MP", //"7oWqznej0zTv1hLyDxYb",
+    voice_id: "JSWO6cw2AyFE324d5kEr", //"7oWqznej0zTv1hLyDxYb",
     name: "Trinity",
     preview: "/voicesList/Trinity.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
@@ -30,7 +30,7 @@ const voicesList = [
     Dialect: "Sophisticated, Poised, Late 20s | New Yorker",
   },
   {
-    voice_id: "sz74KZZVMr3DwJuTXjRF",
+    voice_id: "Elliot",
     name: "Dax",
     preview: "/voicesList/Dax.MP3", //"https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
     workspace: "1711297163700x954223200313016300",
@@ -49,7 +49,7 @@ const voicesList = [
     Dialect: "Expressive, Playful, Mid 20s | Californian",
   },
   {
-    voice_id: "ZwJfYE5yKIrtfxX9ngRG",
+    voice_id: "nl6oV3xkd5WQwnsbR0By",
     name: "Kaia",
     preview: "/voicesList/Kaia.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
@@ -59,7 +59,7 @@ const voicesList = [
     Dialect: "Calm, poise, Mid 30s | New Yorker",
   },
   {
-    voice_id: "LCsWedsKZj9Tc6Cv7z5x", //"oz7FsqINAUL7e6EWZ0tH",
+    voice_id: "Rohan", //"oz7FsqINAUL7e6EWZ0tH",
     name: "Axel",
     preview: "/voicesList/Axel.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/6GVyQucC304UHGgMcWVg/4f5dd560-2475-444d-9775-14eec0af0185.mp3",
@@ -78,7 +78,7 @@ const voicesList = [
     Dialect: "Calm, Focused, Mid 20s | Chicagoan",
   },
   {
-    voice_id: "NKQQQqwuO4W6e6NMiZSU",
+    voice_id: "gsOtAILXbY5DNrJrsM6F",
     name: "Max",
     preview: "/voicesList/Max.MP3",
     workspace: "1711297163700x954223200313016300",
@@ -87,7 +87,7 @@ const voicesList = [
     Dialect: "Charismatic, Energetic, Mid 20s | New Yorker",
   },
   {
-    voice_id: "S3XNUJMmw9TG9iGjiJTl",
+    voice_id: "bTEswxYhpv7UDkQg5VRu",
     name: "Niko",
     preview: "/voicesList/Niko.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -97,7 +97,7 @@ const voicesList = [
     Dialect: "Confident, Assertive, Mid 20s | New Yorker",
   },
   {
-    voice_id: "Yjai8zZQhM9wP0TXg4sz",
+    voice_id: "02N42Ac51|YGp3HHsqw2",
     name: "Lex",
     preview: "/voicesList/Lex.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -107,7 +107,7 @@ const voicesList = [
     Dialect: "Energetic, Assertive, Late 20s | Arizonan",
   },
   {
-    voice_id: "CvxifsWrvd7KUAkDHUTq",
+    voice_id: "60zrBCQf8cjERkYgzSg8",
     name: "Xen",
     preview: "/voicesList/Xen.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -117,7 +117,7 @@ const voicesList = [
     Dialect: "Thoughtful, Empathetic, Late 20s | Londoner ",
   },
   {
-    voice_id: "Gcmr5NT3wNIhORAVGknr",
+    voice_id: "8sZxD42zKDv•EXNxBTdX",
     name: "Elon",
     preview: "/voicesList/Elon.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -127,7 +127,7 @@ const voicesList = [
     Dialect: "Poise, Analytical, Mid 20s | Californian",
   },
   {
-    voice_id: "8iKM7M97Poa57n6zNwYk",
+    voice_id: "P7x743VjyZEOihNNygQ9",
     name: "Aria",
     preview: "/voicesList/Aria.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/8bcxjQ6X7kOds3OyEf6Q/e0e495f0-2b7c-4847-9b61-ea33ede5288d.mp3",
@@ -138,7 +138,7 @@ const voicesList = [
   },
 
   {
-    voice_id: "54TUjxRZp1CTKeNbtpUc",
+    voice_id: "1SM7GgM6lMuvQIz2BwM3",
     name: "Cade",
     preview: "/voicesList/Cade.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
