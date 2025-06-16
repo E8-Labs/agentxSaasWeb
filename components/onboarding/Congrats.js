@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 // import Lottie from 'lottie-react';
 import congratsAnimation from "../../public/congratsanimation.json";
 import Link from "next/link";
+import LoaderAnimation from "../animations/LoaderAnimation";
 // const lottie = dynamic(() => import('lottie-react'), {
 //     ssr: false,
 // });
@@ -11,8 +12,11 @@ import Link from "next/link";
 const Congrats = () => {
   const lottieRef = useRef();
   const router = useRouter();
+    const [loading, setLoading] = useState(false);
+
 
   const handleNext = (e) => {
+    setLoading(true);
     e.preventDefault();
     router.push("/createagent");
   };
@@ -73,6 +77,11 @@ const Congrats = () => {
           </div>
         </div>
       </div>
+
+      <LoaderAnimation
+        isOpen={loading}
+        title="Redirecting to create agent page..."
+      />
     </div>
   );
 };

@@ -234,6 +234,9 @@ const AddNewCalendar = ({
                     if (localData) {
                         let D = JSON.parse(localData);
                         D.user.checkList.checkList.calendarCreated = true;
+                        let percantage = D.user.checkList.percentage
+
+                        D.user.checkList.percentage = percantage + 20;
                         localStorage.setItem("User", JSON.stringify(D));
                     }
                     window.dispatchEvent(

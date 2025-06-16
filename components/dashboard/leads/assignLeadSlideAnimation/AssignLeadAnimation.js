@@ -232,7 +232,9 @@ export default function AssignLeadAnimation({
                 const localData = localStorage.getItem("User");
                 if (localData) {
                     let D = JSON.parse(localData);
-                    D.user.checkList.checkList.callsCreated = true;
+                    // D.user.checkList.checkList.callsCreated = true;
+                    // D.user.checkList.percentage = D.user.checkList.percentage + 20;
+
                     localStorage.setItem("User", JSON.stringify(D));
                 }
                 window.dispatchEvent(
@@ -256,6 +258,9 @@ export default function AssignLeadAnimation({
                     if (localData) {
                         let D = JSON.parse(localData);
                         D.user.checkList.checkList.callsCreated = true;
+                        let percantage = D.user.checkList.percentage
+
+                        D.user.checkList.percentage = percantage + 20;
                         localStorage.setItem("User", JSON.stringify(D));
                     }
                     window.dispatchEvent(

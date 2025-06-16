@@ -25,8 +25,9 @@ import { setCookie } from "@/utilities/cookies";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "./services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
+import Congrats from "./Congrats";
 
-const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
+const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,setCongratsPopup }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
@@ -67,7 +68,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
   const [shouldContinue, setShouldContinue] = useState(true);
 
   //congrats popup for small size screens
-  const [congratsPopup, setCongratsPopup] = useState(false);
+  // const [congratsPopup, setCongratsPopup] = useState(false);
 
   //load the user location
   useEffect(() => {
@@ -907,7 +908,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                 </Box>
               </Modal>
 
-              {/* Modal for congrats */}
+              {/* Modal for congrats
               <Modal
                 open={congratsPopup}
                 // onClose={() => setAddKYCQuestion(false)}
@@ -920,98 +921,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                   },
                 }}
               >
-                <Box className="w-full" sx={styles.verifyPopup}>
-                  <div className="flex flex-row justify-center w-full">
-                    <div
-                      className="w-full mx-4"
-                      style={{
-                        backgroundColor: "#ffffff",
-                        padding: 20,
-                        borderRadius: "13px",
-                      }}
-                    >
-                      <div className="flex flex-row justify-end">
-                        {/* <button>
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button> */}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 26,
-                          fontWeight: "700",
-                          textAlign: "center",
-                        }}
-                      >
-                        Congrats!
-                      </div>
-
-                      <div className="w-full mt-8 flex flex-row justify-center">
-                        <Image
-                          className=""
-                          src="/agentXOrb.gif"
-                          style={{
-                            height: "100px",
-                            width: "110px",
-                            resize: "contain",
-                          }}
-                          height={102}
-                          width={102}
-                          alt="*"
-                        />
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "600",
-                          textAlign: "center",
-                          marginTop: 50,
-                          color: "#00000070",
-                        }}
-                      >
-                        Your account is created!
-                      </div>
-
-                      <div
-                        style={{
-                          fontSize: 17,
-                          fontWeight: "700",
-                          textAlign: "center",
-                          marginTop: 15,
-                          color: "#000000",
-                        }}
-                      >
-                        {`Let’s build your AI AgentX`}
-                      </div>
-
-                      {registerLoader ? (
-                        <div className="flex fex-row items-center justify-center mt-8">
-                          <CircularProgress size={35} />
-                        </div>
-                      ) : (
-                        <button
-                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
-                          style={{
-                            height: "50px",
-                            fontSize: 15,
-                            fontWeight: "700",
-                          }}
-                          onClick={() => {
-                            router.push("/createagent");
-                          }}
-                        >
-                          Build AI Sales Agent
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
+               <Congrats />
+              </Modal> */}
 
               <SnackMessages
                 message={response.message}

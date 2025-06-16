@@ -38,6 +38,7 @@ import MedSpaAgentOtherDetails from "./MedSpaAgentOtherDetails";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import LawAgentOtherDetails from "./LawAgentOtherDetails";
 import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 const OtherDetails = ({
   handleContinue,
@@ -87,6 +88,9 @@ const OtherDetails = ({
 
   //congrats popup for small size screens
   const [congratsPopup, setCongratsPopup] = useState(false);
+
+  const [globalLoader, setGlobalLoader] = useState(false);
+
 
   //code for other agents variables
 
@@ -778,7 +782,7 @@ const OtherDetails = ({
             companyName={firmOrCompanyAffiliation}
             setCompanyName={setFirmOrCompanyAffiliation}
             ClientType={ClientType}
-            handleSelectClientType={() => handleSelectClientType()}
+            handleSelectClientType={(item) => handleSelectClientType(item)}
             handleVerifyPopup={handleVerifyPopup}
           />
         )
@@ -1059,7 +1063,9 @@ const OtherDetails = ({
                             fontWeight: "700",
                           }}
                           onClick={() => {
+                            setGlobalLoader(true)
                             router.push("/createagent");
+                            console.log('routing')
                           }}
                         >
                           Build AI Sales Agent
@@ -1067,8 +1073,17 @@ const OtherDetails = ({
                       )}
                     </div>
                   </div>
+                  {
+                    globalLoader && (
+                      <LoaderAnimation isOpen={globalLoader}
+                        title="Redirecting to create agent page..."
+
+                      />
+                    )
+                  }
                 </Box>
               </Modal>
+
 
               <SnackMessages
                 message={response.message}

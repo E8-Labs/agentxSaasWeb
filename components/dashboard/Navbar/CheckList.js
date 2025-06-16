@@ -24,15 +24,15 @@ const CheckList = ({ userDetails }) => {
       const LocalData = JSON.parse(D);
       const T = LocalData?.user?.checkList?.checkList;
       // console.log(LocalData.token);
-      let percentage = 0;
+      // let percentage = 0;
 
-      for (let key in T) {
-        if (T[key]) {
-          percentage += 20;
-        }
-      }
+      // for (let key in T) {
+      //   if (T[key]) {
+      //     percentage += 20;
+      //   }
+      // }
 
-      setProgressValue(percentage);
+      setProgressValue(LocalData?.user?.checkList?.percentage || 0);
 
       console.log("percentage of check list is", percentage);   // Output: 60
 
