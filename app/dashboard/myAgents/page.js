@@ -269,43 +269,49 @@ function Page() {
   const models = [
     {
       name: "AgentX",
-      value: "synthflow",
+      provider: "openai",
+      value: "gpt-4.1-nano",
       icon: "/agentXOrb.gif",
       disabled: false,
     },
     {
       name: "GPT-4o",
-      value: "gpt-4o",
+      provider: "openai",
+      value: "gpt-4o-mini",
       icon: "/svgIcons/chatgptIcon.svg",
       disabled: false,
     },
     {
       name: "GPT-4 Mini",
-      value: "gpt-4-turbo",
+      value: "gpt-4.1-mini",
+      provider: "openai",
       icon: "/svgIcons/chatgptIcon.svg",
       disabled: false,
     },
+    // {
+    //   name: "Grok",
+    //   value: "grok",
+    //   icon: "/svgIcons/grokIcon.svg",
+    //   disabled: false,
+    // },
     {
-      name: "Grok",
-      value: "grok",
-      icon: "/svgIcons/grokIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "LLaMA",
-      value: "llama",
+      name: "LLaMA", // mapped to groq
+      value: "compound-beta",
+      provider: "groq",
       icon: "/svgIcons/llamaIcon.svg",
       disabled: false,
     },
     {
-      name: "Gemini",
-      value: "gemini",
+      name: "XAI",
+      provider: "groq",
+      value: "compound-beta-mini",
       icon: "/svgIcons/geminiIcon.svg",
       disabled: false,
     },
     {
-      name: "DeepSeek (Coming Soon)",
-      value: "deepseek",
+      name: "DeepSeek",
+      provider: "deep-seek",
+      value: "deepseek-reasoner",
       icon: "/svgIcons/deepseekIcon.svg",
       disabled: true,
     },
@@ -856,7 +862,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1244,7 +1251,8 @@ function Page() {
 
             const updateAgentData = response.data.data;
             console.log(
-              `Agent updated data ${updateAgentData.agents.length
+              `Agent updated data ${
+                updateAgentData.agents.length
               } ${!showScriptModal}`,
               updateAgentData
             );
@@ -1495,7 +1503,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1818,7 +1827,10 @@ function Page() {
         extraColumns: newArray,
       };
 
-      localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
+      localStorage.setItem(
+        PersistanceKeys.TestAiCredentials,
+        JSON.stringify(ApiData)
+      );
 
       const ApiPath = Apis.testAI;
 
@@ -1963,7 +1975,7 @@ function Page() {
         if (agents.length > 0) {
           setCanGetMore(true);
         } else {
-          setCanGetMore(false)
+          setCanGetMore(false);
         }
 
         let newList = [...mainAgentsList]; // makes a shallow copy
@@ -2319,17 +2331,17 @@ function Page() {
       </div>
 
       {/* Modal to rename the agent */}
-      {
-        showRenameAgentPopup && (
-          <EditAgentName
-            showRenameAgentPopup={showRenameAgentPopup}
-            handleClose={() => { setShowRenameAgentPopup(false) }}
-            agentNamePassed={renameAgent}
-            renameAgentLoader={renameAgentLoader}
-            handleEditAgentName={handleRenameAgent}
-          />
-        )
-      }
+      {showRenameAgentPopup && (
+        <EditAgentName
+          showRenameAgentPopup={showRenameAgentPopup}
+          handleClose={() => {
+            setShowRenameAgentPopup(false);
+          }}
+          agentNamePassed={renameAgent}
+          renameAgentLoader={renameAgentLoader}
+          handleEditAgentName={handleRenameAgent}
+        />
+      )}
       {/*<Modal
         open={showRenameAgentPopup}
         onClose={() => {
@@ -2583,7 +2595,7 @@ function Page() {
                       overflowY: "auto",
                     }}
                     countryCodeEditable={true}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                    // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2614,8 +2626,9 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2698,7 +2711,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-        // style={{  }}
+          // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -2923,7 +2936,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -2937,7 +2950,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -2977,16 +2990,16 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
-                          .utc(
-                            (showDrawerSelectedAgent?.totalDuration || 0) *
-                            1000
-                          )
-                          .format("HH:mm:ss")
+                            .utc(
+                              (showDrawerSelectedAgent?.totalDuration || 0) *
+                                1000
+                            )
+                            .format("HH:mm:ss")
                         : "-"}
                     </div>
                   ) : (
@@ -3004,10 +3017,11 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
                   style={{ fontSize: 15, fontWeight: "500" }}
                 >
                   {tab}
@@ -3254,9 +3268,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3353,9 +3367,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3457,9 +3471,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3560,9 +3574,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3593,7 +3607,11 @@ function Page() {
                                     width={22}
                                   />
                                   <div>{item.title}</div>
-                                  <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
+                                  <div
+                                    style={{ color: "#00000060", fontSize: 13 }}
+                                  >
+                                    {item.subLang}
+                                  </div>
                                 </MenuItem>
                               );
                             })}
@@ -3722,37 +3740,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                              <div>
+                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                {reassignLoader === item ? (
+                                                  <CircularProgress size={15} />
+                                                ) : (
+                                                  <button
+                                                    className="text-purple underline"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setShowConfirmationModal(
+                                                        item
+                                                      );
+                                                    }}
+                                                  >
+                                                    Reassign
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -4026,15 +4044,14 @@ function Page() {
             </div>
           </button>
         </div>
-      </Drawer >
+      </Drawer>
 
       {/* Code to del agent */}
-      < Modal
+      <Modal
         open={delAgentModal}
         onClose={() => {
           setDelAgentModal(false);
-        }
-        }
+        }}
         BackdropProps={{
           timeout: 200,
           sx: {
@@ -4120,7 +4137,7 @@ function Page() {
             </div>
           </div>
         </Box>
-      </Modal >
+      </Modal>
 
       {/*  Test comment */}
       {/* Code for the confirmation of reassign button */}
@@ -4720,20 +4737,18 @@ function Page() {
         videoUrl={HowtoVideos.Calendar}
       />
 
-      {
-        showClaimPopup && (
-          <ClaimNumber
-            showClaimPopup={showClaimPopup}
-            handleCloseClaimPopup={handleCloseClaimPopup}
-            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-            setSelectNumber={setAssignNumber}
-            setPreviousNumber={setPreviousNumber}
-            previousNumber={previousNumber}
-            AssignNumber={AssignNumber}
-          />
-        )
-      }
-    </div >
+      {showClaimPopup && (
+        <ClaimNumber
+          showClaimPopup={showClaimPopup}
+          handleCloseClaimPopup={handleCloseClaimPopup}
+          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+          setSelectNumber={setAssignNumber}
+          setPreviousNumber={setPreviousNumber}
+          previousNumber={previousNumber}
+          AssignNumber={AssignNumber}
+        />
+      )}
+    </div>
   );
 }
 
