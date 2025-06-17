@@ -9,18 +9,18 @@ const voicesList = [
     status: "Popular",
     Dialect: "Dramatic, Intense, Mid 20s | Californian",
   },
+  // {
+  //   voice_id: "bxPMdBTxMI0LMo67TDEK", //"7oWqznej0zTv1hLyDxYb",
+  //   name: "Zane",
+  //   preview: "/voicesList/Zane.MP3",
+  //   // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
+  //   workspace: "1711297163700x954223200313016300",
+  //   img: "/otherAssets/zane.png",
+  //   status: "Popular",
+  //   Dialect: "Confident, Charismatic, Mid 20s | Californian",
+  // },
   {
-    voice_id: "bxPMdBTxMI0LMo67TDEK", //"7oWqznej0zTv1hLyDxYb",
-    name: "Zane",
-    preview: "/voicesList/Zane.MP3",
-    // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
-    workspace: "1711297163700x954223200313016300",
-    img: "/otherAssets/zane.png",
-    status: "Popular",
-    Dialect: "Confident, Charismatic, Mid 20s | Californian",
-  },
-  {
-    voice_id: "JSWO6cw2AyFE324d5kEr", //"7oWqznej0zTv1hLyDxYb",
+    voice_id: "56AoDkrOh6qfVPDXZ7Pt", //"JSWO6cw2AyFE324d5kEr", //"7oWqznej0zTv1hLyDxYb",
     name: "Trinity",
     preview: "/voicesList/Trinity.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
@@ -30,7 +30,7 @@ const voicesList = [
     Dialect: "Sophisticated, Poised, Late 20s | New Yorker",
   },
   {
-    voice_id: "Elliot",
+    voice_id: "XUK4JY4Yz2FXn6NAbXKz",
     name: "Dax",
     preview: "/voicesList/Dax.MP3", //"https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
     workspace: "1711297163700x954223200313016300",
@@ -49,7 +49,7 @@ const voicesList = [
     Dialect: "Expressive, Playful, Mid 20s | Californian",
   },
   {
-    voice_id: "nI6oV3xkd5WQwnsbR0By", //"nl6oV3xkd5WQwnsbR0By", TODO: Arslan compare your vocieId
+    voice_id: "uYXf8XasLslADfZ2MB4u", //"nl6oV3xkd5WQwnsbR0By", TODO: Arslan compare your vocieId
     name: "Kaia",
     preview: "/voicesList/Kaia.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
@@ -59,7 +59,7 @@ const voicesList = [
     Dialect: "Calm, poise, Mid 30s | New Yorker",
   },
   {
-    voice_id: "Rohan", //"oz7FsqINAUL7e6EWZ0tH",
+    voice_id: "aqXKinCxkMOvW6f3qU8l", //"oz7FsqINAUL7e6EWZ0tH",
     name: "Axel",
     preview: "/voicesList/Axel.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/6GVyQucC304UHGgMcWVg/4f5dd560-2475-444d-9775-14eec0af0185.mp3",
@@ -78,7 +78,7 @@ const voicesList = [
   //   Dialect: "Calm, Focused, Mid 20s | Chicagoan",
   // },
   {
-    voice_id: "Harry", //"gsOtAILXbY5DNrJrsM6F",
+    voice_id: "gs0tAILXbY5DNrJrsM6F", //"gsOtAILXbY5DNrJrsM6F",
     name: "Max",
     preview: "/voicesList/Max.MP3",
     workspace: "1711297163700x954223200313016300",
@@ -97,7 +97,7 @@ const voicesList = [
     Dialect: "Confident, Assertive, Mid 20s | New Yorker",
   },
   {
-    voice_id: "02N42Ac51lYGp3HHsqw2", //"02N42Ac51|YGp3HHsqw2",
+    voice_id: "1fz2mW1imKTf5Ryjk5su", //"02N42Ac51lYGp3HHsqw2", //"02N42Ac51|YGp3HHsqw2",
     name: "Lex",
     preview: "/voicesList/Lex.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -107,7 +107,7 @@ const voicesList = [
     Dialect: "Energetic, Assertive, Late 20s | Arizonan",
   },
   {
-    voice_id: "6OzrBCQf8cjERkYgzSg8", //"60zrBCQf8cjERkYgzSg8",
+    voice_id: "L0Dsvb3SLTyegXwtm47J", //"60zrBCQf8cjERkYgzSg8",
     name: "Xen",
     preview: "/voicesList/Xen.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
