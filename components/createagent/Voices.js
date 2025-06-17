@@ -30,7 +30,7 @@ const voicesList = [
     Dialect: "Sophisticated, Poised, Late 20s | New Yorker",
   },
   {
-    voice_id: "XUK4JY4Yz2FXn6NAbXKz",
+    voice_id:"DAX wqS2JTzjt7fARO3ZxCVZ", //"XUK4JY4Yz2FXn6NAbXKz",
     name: "Dax",
     preview: "/voicesList/Dax.MP3", //"https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
     workspace: "1711297163700x954223200313016300",

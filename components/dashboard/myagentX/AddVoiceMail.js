@@ -232,83 +232,8 @@ function AddVoiceMail({
                             {message?.length}/200
                         </div>
 
-                        <div style={{
-                            fontSize: 16, fontWeight: '700',
-                        }}>
-                            Select a voice
-                        </div>
 
-                        {voices.map((item, index) => (
-                            <button
-                                key={index}
-                                style={{
-                                    border:
-                                        item.voice_id === selectedVoice
-                                            ? "2px solid #7902DF"
-                                            : "",
-                                    backgroundColor:
-                                        item.voice_id === selectedVoice ? "#402FFF10" : "",
-                                }}
-                                className="flex w-full flex-row items-center border mt-4 p-2 justify-between h-[68px] px-8 rounded-xl outline-none"
-                                onClick={(e) => {
-                                    handleToggleClick(item);
-                                }}
-                            >
 
-                                <div
-                                    className="text-start flex flex-row items-center gap-2"
-                                    style={{
-                                        fontSize: 17,
-                                        fontWeight: "700",
-                                    }}
-                                >
-                                    {item.name}
-
-                                </div>
-                                <div className="flex flex-row items-center gap-4">
-                                    <div>
-                                        <Image
-                                            src={"/assets/voice.png"}
-                                            height={15}
-                                            width={23}
-                                            alt="*"
-                                        />
-                                    </div>
-                                    <div>
-
-                                        <div>
-                                            {preview === item.preview ? (
-                                                <div
-                                                    onClick={() => {
-                                                        if (audio) {
-                                                            audio.pause();
-                                                        }
-                                                        setPreview(null);
-                                                    }}
-                                                >
-                                                    <PauseCircle size={38} weight="regular" />
-                                                </div>
-                                            ) : (
-                                                <div
-                                                    onClick={(e) => {
-                                                        setPreview(item.preview);
-                                                        playVoice(item.preview);
-                                                    }}
-                                                >
-                                                    <Image
-                                                        src={"/assets/play.png"}
-                                                        height={25}
-                                                        width={25}
-                                                        alt="*"
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </button>
-                        ))}
                         {
                             loading ? (
                                 <div style={{ alignSelf: 'flex-end' }}>
@@ -316,7 +241,8 @@ function AddVoiceMail({
                                 </div>
                             ) : (
                                 <button
-                                    className="self-end rounded-lg bg-purple text-white mt-2 h-[97px] w-[197px] font-medium"
+                                    className="text-white bg-purple outline-none rounded-xl  mt-4"
+                                    style={{ height: "50px",width: "100px" , alignSelf: 'flex-end'}} 
                                     onClick={() => {
                                         const data = {
                                             message,

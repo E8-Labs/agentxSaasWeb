@@ -14,7 +14,7 @@ export const PromptTagInput = ({
   saveUpdates,
   from,
 }) => {
-  console.log("Text received ", promptTag);
+  // console.log("Text received ", promptTag);
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });

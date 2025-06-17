@@ -18,7 +18,7 @@ function NoAgent() {
 
   return (
     <div
-      className='flex flex-col items-center w-full h-full'
+      className='flex flex-col items-center w-[80vw] h-full'
     >
       <Image
         alt="No img"

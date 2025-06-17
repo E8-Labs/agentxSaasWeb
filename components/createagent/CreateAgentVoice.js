@@ -56,7 +56,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   const handleToggleClick = (id, item) => {
     setToggleClick((prevId) => (prevId === id ? null : id));
     //// //console.log;
-    setSelectedVoiceId(item.voice_id);
+    setSelectedVoiceId(item.name);
   };
 
   const handleContinue = async () => {
@@ -105,7 +105,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
         if (response.data.status === true) {
           // //console.log;
           // if (user.user.userType == UserTypes.RealEstateAgent) {
-          //   // //console.log;
+            console.log("agent add voice response ",response.data.data)
           //   router.push("/sellerskycquestions");
           // } else {
           //   // //console.log;
@@ -295,11 +295,11 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                     key={index}
                     style={{
                       border:
-                        item.voice_id === selectedVoiceId
+                        item.name === selectedVoiceId
                           ? "2px solid #7902DF"
                           : "",
                       backgroundColor:
-                        item.voice_id === selectedVoiceId ? "#402FFF10" : "",
+                        item.name === selectedVoiceId ? "#402FFF10" : "",
                     }}
                     className="flex flex-row items-center border mt-4 p-2 justify-between h-[100px] px-8 rounded-xl outline-none"
                     onClick={(e) => {
@@ -315,7 +315,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                           width: "62px",
                           borderRadius: "50%",
                           backgroundColor:
-                            item.voice_id === selectedVoiceId
+                            item.name === selectedVoiceId
                               ? "white"
                               : "#d3d3d380",
                         }}

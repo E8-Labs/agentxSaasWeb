@@ -308,9 +308,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
             }}>
               {agent.voicemail?.message}
             </div>
-
-
-            <div className='w-full flex flex-row items-center justify-between mt-2'>
+            {/* <div className='w-full flex flex-row items-center justify-between mt-2'>
               <div style={{ fontSize: 15, fontWeight: '500' }}>
                 Voice
               </div>
@@ -354,7 +352,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
                   )}
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         )
 

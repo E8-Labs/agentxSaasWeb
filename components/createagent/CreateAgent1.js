@@ -170,8 +170,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Lead Reactivation",
       details:
         "Reconnect with past leads who previously expressed interest but did not convert, to reignite their interest in your services.",
-      focusIcn: "/svgIcons/obj4F.svg",
-      unFocusIcon: "/objectiveIcons/obj4UF.png",
+      focusIcn: "/svgIcons/obj3F.svg",
+      unFocusIcon: "/objectiveIcons/obj3UF.png",
     },
     {
       id: 5,
@@ -215,8 +215,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "FSBO (For Sale By Owner)",
       details:
         "Connect with homeowners trying to sell on their own, offering professional guidance and solutions to help them successfully close.",
-      focusIcn: "/svgIcons/obj5F.svg",
-      unFocusIcon: "/objectiveIcons/obj5UF.png",
+      focusIcn: "/svgIcons/obj2F.svg",
+      unFocusIcon: "/objectiveIcons/obj2UF.png",
     },
     {
       id: 10,
@@ -224,8 +224,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Probate",
       details:
         "Reach out to property heirs navigating probate, providing support and options for handling inherited real estate during a difficult time.",
-      focusIcn: "/svgIcons/obj5F.svg",
-      unFocusIcon: "/objectiveIcons/obj5UF.png",
+      focusIcn: "/svgIcons/obj1F.svg",
+      unFocusIcon: "/objectiveIcons/obj1UF.png",
     },
     {
       id: 100,

@@ -1600,10 +1600,10 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
       }
     });
     //// //console.log;
-    if (typeof agentData == undefined || agentData == null) {
+    if (typeof agentData == undefined || agentData == null || agentData.length === 0) { 
       return;
     }
-    ////console.log;
+    console.log("Matching agent data:", agentData);
     setKYCList(agentData[0].kyc);
 
     ////console.log;

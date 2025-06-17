@@ -1,42 +1,16 @@
 import React from "react";
-import { Skeleton, Box, Typography, Avatar } from "@mui/material";
+import { Skeleton, Box } from "@mui/material";
 
 function MyAgentXLoader({ fullScreen = true }) {
     return (
         <div className="scroll-container w-full h-full flex flex-col items-start justify-start max-h-[70vh] overflow-auto">
             <style jsx>{`
-    .scroll-container::-webkit-scrollbar {
-      display: none;
-    }
-  `}</style>
-            <Box sx={{ width: "100%" }}>
-                {/*fullScreen ? (
-          <>
-            <Skeleton
-              variant="text"
-              width="40%"
-              height={70}
-              sx={{ marginTop: 0 }}
-            />
+                .scroll-container::-webkit-scrollbar {
+                    display: none;
+                }
+            `}</style>
 
-            <Box
-              sx={{
-                flexDirection: "column",
-                gap: 3,
-                display: "flex",
-                marginTop: 4,
-              }}
-            >
-              <Skeleton variant="text" width={250} height={20} />
-              <Skeleton variant="text" width={250} height={20} />
-              <Skeleton variant="text" width={250} height={20} />
-              <Skeleton variant="text" width={250} height={20} />
-            </Box>
-          </>
-        ) : (
-          <></>
-        )*/}
-
+            <Box sx={{ width: "100%",}}>
                 <Box
                     sx={{
                         display: "flex",
@@ -44,117 +18,19 @@ function MyAgentXLoader({ fullScreen = true }) {
                         gap: 3,
                     }}
                 >
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 3,
-                        }}
-                    >
-                        <Skeleton variant="text" width={800} height={250} />
+                    {Array.from({ length: 7 }).map((_, idx) => (
                         <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
+                            key={idx}
+                            variant="rectangular"
+                            sx={{
+                                width:"100%",
+                                height: 120,
+                                mx: "auto",
+                                mt: 1,
+                                borderRadius: 2,
+                            }}
                         />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                    </Box>
-
-                    {/*<Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 3,
-                        }}
-                    >
-                        <Skeleton variant="text" width={800} height={250} />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                    </Box>
-
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 3,
-                        }}
-                    >
-                        <Skeleton variant="text" width={800} height={250} />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                    </Box>
-
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 3,
-                        }}
-                    >
-                        <Skeleton variant="text" width={800} height={250} />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                        <Skeleton
-                            variant="text"
-                            width={800}
-                            height={250}
-                            sx={{ marginTop: -10 }}
-                        />
-                    </Box>*/}
+                    ))}
                 </Box>
             </Box>
         </div>

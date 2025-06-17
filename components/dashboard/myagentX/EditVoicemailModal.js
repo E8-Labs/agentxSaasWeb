@@ -166,7 +166,7 @@ function EditVoicemailModal({
 
 
 
-                        <div style={{
+                        {/* <div style={{
                             fontSize: 16, fontWeight: '700',
                         }}>
                             Select a voice
@@ -242,15 +242,15 @@ function EditVoicemailModal({
 
                                 </div>
                             </button>
-                        ))}
+                        ))} */}
                         {
                             loading ? (
                                 <div style={{ alignSelf: 'flex-end' }}>
                                     <CircularProgress size={25} />
                                 </div>
                             ) : (
-                                <button className='w-[197px] h-[55px] items-center justify-center rounded-lg bg-purple text-white mt-2'
-                                    style={{ alignSelf: 'flex-end', fontWeight: '500' }}
+                                <button className="text-white bg-purple outline-none rounded-xl  mt-4"
+                                    style={{ height: "50px",width: "100px" , alignSelf: 'flex-end'}} 
                                     onClick={() => {
                                         let data = {
                                             message: message,
