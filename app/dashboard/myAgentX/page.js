@@ -3903,7 +3903,7 @@ function Page() {
                                     value={item.phoneNumber.slice(1)}
                                     className="flex flex-row items-center gap-2 "
                                     disabled={
-                                      assignNumber.replace("+", "") ===
+                                      assignNumber?.replace("+", "") ===
                                       item.phoneNumber.replace("+", "")
                                     }
                                     onClick={(e) => {
