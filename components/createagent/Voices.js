@@ -10,7 +10,7 @@ const voicesList = [
     Dialect: "Dramatic, Intense, Mid 20s | Californian",
   },
   {
-    voice_id: "bxPMdBTxMIOLMo67TDEK", //"7oWqznej0zTv1hLyDxYb",
+    voice_id: "bxPMdBTxMI0LMo67TDEK", //"7oWqznej0zTv1hLyDxYb",
     name: "Zane",
     preview: "/voicesList/Zane.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/dET7jF0sHOQ3QYYh1ATa/a294e51a-c27b-4389-ae11-8bbaa8eda1f7.mp3",
@@ -49,7 +49,7 @@ const voicesList = [
     Dialect: "Expressive, Playful, Mid 20s | Californian",
   },
   {
-    voice_id: "nl6oV3xkd5WQwnsbR0By",
+    voice_id: "nI6oV3xkd5WQwnsbR0By", //"nl6oV3xkd5WQwnsbR0By", TODO: Arslan compare your vocieId
     name: "Kaia",
     preview: "/voicesList/Kaia.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/YdyNcsfx3kERGPH9K5lz/724ddcde-3d8d-4bcf-ae52-df490babe737.mp3",
@@ -68,17 +68,17 @@ const voicesList = [
     status: "Popular",
     Dialect: "Straightforward, Persuasive, Late 20s | Californian",
   },
+  // {//TODO: Arslan why is this here. This is not in the list i provided
+  //   voice_id: "WXO1RZNBdwLjgHLljVv9",
+  //   name: "Neo",
+  //   preview: "/voicesList/Neo.MP3",
+  //   workspace: "1711297163700x954223200313016300",
+  //   img: "/otherAssets/neo.png",
+  //   status: "Popular",
+  //   Dialect: "Calm, Focused, Mid 20s | Chicagoan",
+  // },
   {
-    voice_id: "WXO1RZNBdwLjgHLljVv9",
-    name: "Neo",
-    preview: "/voicesList/Neo.MP3",
-    workspace: "1711297163700x954223200313016300",
-    img: "/otherAssets/neo.png",
-    status: "Popular",
-    Dialect: "Calm, Focused, Mid 20s | Chicagoan",
-  },
-  {
-    voice_id: "gsOtAILXbY5DNrJrsM6F",
+    voice_id: "Harry", //"gsOtAILXbY5DNrJrsM6F",
     name: "Max",
     preview: "/voicesList/Max.MP3",
     workspace: "1711297163700x954223200313016300",
@@ -97,7 +97,7 @@ const voicesList = [
     Dialect: "Confident, Assertive, Mid 20s | New Yorker",
   },
   {
-    voice_id: "02N42Ac51|YGp3HHsqw2",
+    voice_id: "02N42Ac51lYGp3HHsqw2", //"02N42Ac51|YGp3HHsqw2",
     name: "Lex",
     preview: "/voicesList/Lex.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -107,7 +107,7 @@ const voicesList = [
     Dialect: "Energetic, Assertive, Late 20s | Arizonan",
   },
   {
-    voice_id: "60zrBCQf8cjERkYgzSg8",
+    voice_id: "6OzrBCQf8cjERkYgzSg8", //"60zrBCQf8cjERkYgzSg8",
     name: "Xen",
     preview: "/voicesList/Xen.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -117,7 +117,7 @@ const voicesList = [
     Dialect: "Thoughtful, Empathetic, Late 20s | Londoner ",
   },
   {
-    voice_id: "8sZxD42zKDv•EXNxBTdX",
+    voice_id: "8sZxD42zKDvoEXNxBTdX", //"8sZxD42zKDv•EXNxBTdX",
     name: "Elon",
     preview: "/voicesList/Elon.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
@@ -138,7 +138,7 @@ const voicesList = [
   },
 
   {
-    voice_id: "1SM7GgM6lMuvQIz2BwM3",
+    voice_id: "1SM7GgM6IMuvQlz2BwM3", //"1SM7GgM6lMuvQIz2BwM3",
     name: "Cade",
     preview: "/voicesList/Cade.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
