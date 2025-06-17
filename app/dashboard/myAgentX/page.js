@@ -55,6 +55,7 @@ import {
   Constants,
   fromatMessageName,
   HowtoVideos,
+  models,
   PersistanceKeys,
 } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
@@ -241,10 +242,7 @@ function Page() {
   const [renameAgentLoader, setRenameAgentLoader] = useState(false);
 
   const [openGptManu, setOpenGptManu] = useState("");
-  const [selectedGptManu, setSelectedGptManu] = useState({
-    name: "GPT-4o",
-    icon: "/svgIcons/chatgptIcon.svg", // Replace with actual icon path
-  });
+  const [selectedGptManu, setSelectedGptManu] = useState(models[0]);
 
   const [voiceExpressiveness, setVoiceExpressiveness] = useState("");
   const [startingPace, setStartingPace] = useState("");
@@ -292,50 +290,7 @@ function Page() {
 
   // const Languages  = AgentLanguagesList
 
-  const models = [
-    {
-      name: "AgentX",
-      value: "synthflow",
-      icon: "/agentXOrb.gif",
-      disabled: false,
-    },
-    {
-      name: "GPT-4o",
-      value: "gpt-4o",
-      icon: "/svgIcons/chatgptIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "GPT-4 Mini",
-      value: "gpt-4-turbo",
-      icon: "/svgIcons/chatgptIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "Grok",
-      value: "grok",
-      icon: "/svgIcons/grokIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "LLaMA",
-      value: "llama",
-      icon: "/svgIcons/llamaIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "Gemini",
-      value: "gemini",
-      icon: "/svgIcons/geminiIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "DeepSeek (Coming Soon)",
-      value: "deepseek",
-      icon: "/svgIcons/deepseekIcon.svg",
-      disabled: true,
-    },
-  ];
+ 
   const voiceExpressivenessList = [
     {
       id: 1,
@@ -501,6 +456,12 @@ function Page() {
         model = m;
       }
     }
+    console.log("Selected model:", model);
+    if(model === null) {
+      return models[0]; // Default to the first model if not found
+    }
+
+    
     return model;
   }
 
@@ -718,6 +679,8 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
     let modelValue = item.agentLLmModel;
     if (modelValue) {
       let model = findLLMModel(modelValue);
+
+      console.log("Selected model 2:", model);
       setSelectedGptManu(model);
 
     }
@@ -1339,7 +1302,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
   };
 
   const updateSubAgent = async (voiceData = null, model = null) => {
-    //console.log;
+    console.log("Updating sub agent with voiceData:", voiceData, "and model:", model);
 
     // return
     try {
@@ -1619,15 +1582,8 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
       setSelectedGptManu(model);
     }
 
-    let m = model.value;
-
-    if (model.name === "GPT-4o") {
-      m = AgentLLmModels.Gpt4o;
-    } else if (model.name === "GPT-4 Mini") {
-      m = AgentLLmModels.Gpt4oMini;
-    }
     setShowModelLoader(true);
-    await updateSubAgent(null, m);
+    await updateSubAgent(null, model.value);
     setShowModelLoader(false);
     setOpenGptManu(null);
   };

@@ -81,3 +81,56 @@ export const AgentLLmModels = {
   Gpt4oMini: "gpt-4-turbo",
   synthflow: "synthflow",
 };
+
+
+
+export   const models = [
+    {
+      name: "AgentX",
+      provider: "openai",
+      value: "gpt-4.1-nano",
+      icon: "/agentXOrb.gif",
+      disabled: false,
+    },
+    {
+      name: "GPT-4o",
+      provider: "openai",
+      value: "gpt-4o-mini",
+      icon: "/svgIcons/chatgptIcon.svg",
+      disabled: false,
+    },
+    {
+      name: "GPT-4 Mini",
+      value: "gpt-4.1-mini",
+      provider: "openai",
+      icon: "/svgIcons/chatgptIcon.svg",
+      disabled: false,
+    },
+    // {
+    //   name: "Grok",
+    //   value: "grok",
+    //   icon: "/svgIcons/grokIcon.svg",
+    //   disabled: false,
+    // },
+    {
+      name: "LLaMA", // mapped to groq
+      value: "compound-beta",
+      provider: "groq",
+      icon: "/svgIcons/llamaIcon.svg",
+      disabled: false,
+    },
+    {
+      name: "XAI",
+      provider: "groq",
+      value: "compound-beta-mini",
+      icon: "/svgIcons/geminiIcon.svg",
+      disabled: false,
+    },
+    {
+      name: "DeepSeek",
+      provider: "deep-seek",
+      value: "deepseek-reasoner",
+      icon: "/svgIcons/deepseekIcon.svg",
+      disabled: true,
+    },
+  ];

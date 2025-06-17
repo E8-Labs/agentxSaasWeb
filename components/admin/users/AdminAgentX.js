@@ -54,6 +54,7 @@ import {
   Constants,
   fromatMessageName,
   HowtoVideos,
+  models,
   PersistanceKeys,
 } from "@/constants/Constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
@@ -72,50 +73,7 @@ import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
-  const models = [
-    {
-      name: "AgentX",
-      value: "synthflow",
-      icon: "/agentXOrb.gif",
-      disabled: false,
-    },
-    {
-      name: "GPT-4o",
-      value: "gpt-4o",
-      icon: "/svgIcons/chatgptIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "GPT-4 Mini",
-      value: "gpt-4-turbo",
-      icon: "/svgIcons/chatgptIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "Grok",
-      value: "grok",
-      icon: "/svgIcons/grokIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "LLaMA",
-      value: "llama",
-      icon: "/svgIcons/llamaIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "Gemini",
-      value: "gemini",
-      icon: "/svgIcons/geminiIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "DeepSeek (Coming Soon)",
-      value: "deepseek",
-      icon: "/svgIcons/deepseekIcon.svg",
-      disabled: true,
-    },
-  ];
+
   const voiceExpressivenessList = [
     {
       id: 1,
@@ -300,10 +258,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showModelLoader, setShowModelLoader] = useState(false);
   const [openGptManu, setOpenGptManu] = useState("");
 
-  const [selectedGptManu, setSelectedGptManu] = useState({
-    name: "GPT-4o",
-    icon: "/svgIcons/chatgptIcon.svg", // Replace with actual icon path
-  });
+  const [selectedGptManu, setSelectedGptManu] = useState(models[0]);
 
   const [user, setUser] = useState(null);
 
@@ -443,15 +398,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       setSelectedGptManu(model);
     }
 
-    let m = model.value;
-
-    if (model.name === "GPT-4o") {
-      m = AgentLLmModels.Gpt4o;
-    } else if (model.name === "GPT-4 Mini") {
-      m = AgentLLmModels.Gpt4oMini;
-    }
+    
     setShowModelLoader(true);
-    await updateSubAgent(null, m);
+    await updateSubAgent(null, model.value);
     setShowModelLoader(false);
     setOpenGptManu(null);
   };
@@ -748,6 +697,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     for (const m of models) {
       if (m.value == value) {
         model = m;
+      }
+      if (model === null) {
+        return models[0]; // Default to the first model if not found
       }
     }
     return model;
@@ -1879,7 +1831,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     };
 
     let u = {
-      user:selectedUser,
+      user: selectedUser,
       isFrom: from,
     }
 
