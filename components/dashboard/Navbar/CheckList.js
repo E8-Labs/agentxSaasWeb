@@ -89,7 +89,7 @@ const CheckList = ({ userDetails }) => {
                                 <div className='font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px] whitespace-nowrap overflow-hidden text-ellipsis'>
                                     Agentx Checklist
                                 </div>
-                                <div>
+                                <div className='mt-2'>
                                     <ProgressBar value={progressValue} />
                                 </div>
                             </div>
