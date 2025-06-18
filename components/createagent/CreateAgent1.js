@@ -388,6 +388,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             PersistanceKeys.LocalSavedAgentDetails,
             JSON.stringify(response.data.data)
           );
+
+          let AT = agentType;
+          localStorage.setItem("agentType", JSON.stringify(AT));
+
           // if (LocalDetails.plan) {
           //    // //console.log
           //     handleSkipAddPayment();

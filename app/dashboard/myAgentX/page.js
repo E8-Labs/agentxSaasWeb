@@ -311,24 +311,24 @@ function Page() {
 
   // 🐢
   const PatienceLevels = [
-    { id: 1, title: "💨 Fast ~1 sec", value: "Fast" },
-    { id: 2, title: "⚖️ Balanced ~3 sec", value: "Balanced" },
-    { id: 3, title: "🐢 Slow ~5 sec", value: "Slow" },
+    { id: 1, title: "💨 Fast ", value: "Fast" },
+    { id: 2, title: "⚖️ Balanced", value: "Balanced" },
+    { id: 3, title: "🐢 Slow", value: "Slow" },
   ];
   const StartingPaceList = [
     {
       id: 1,
-      title: "⚡️ Instant ~1 sec",
+      title: "⚡️ Instant",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~2 sec",
+      title: "⏳ Short Pause",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~3 sec",
+      title: "🧘 Delayed",
       value: "Natural Conversation Flow",
     },
   ];
