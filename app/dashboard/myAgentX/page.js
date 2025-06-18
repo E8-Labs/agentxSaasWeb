@@ -674,7 +674,7 @@ function Page() {
     setStartingPace(item.talkingPace);
     //console.log;
     setPatienceValue(item.responseSpeed);
-    setLanguageValue(item.agentLanguage);
+    setLanguageValue(item?.agentLanguage ? item.agentLanguage : "");
 
     let modelValue = item.agentLLmModel;
     if (modelValue) {
@@ -3446,7 +3446,7 @@ function Page() {
                                 voiceExpressivenessList.find(
                                   (voice) => voice.value === selected
                                 );
-                              return selectedVoice ? selectedVoice.title : null;
+                              return selectedVoice ? selectedVoice?.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3478,11 +3478,11 @@ function Page() {
                             {voiceExpressivenessList.map((item, index) => {
                               return (
                                 <MenuItem
-                                  value={item.value}
+                                  value={item?.value}
                                   key={index}
-                                  disabled={voiceExpressiveness === item.title}
+                                  disabled={voiceExpressiveness === item?.title}
                                 >
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                 </MenuItem>
                               );
                             })}
@@ -3545,7 +3545,7 @@ function Page() {
                               const selectedVoice = TalkingPaceList.find(
                                 (voice) => voice.value === selected
                               );
-                              return selectedVoice ? selectedVoice.title : null;
+                              return selectedVoice ? selectedVoice?.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3579,9 +3579,9 @@ function Page() {
                                 <MenuItem
                                   value={item.value}
                                   key={index}
-                                  disabled={startingPace === item.title}
+                                  disabled={startingPace === item?.title}
                                 >
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                 </MenuItem>
                               );
                             })}
@@ -3647,9 +3647,9 @@ function Page() {
                               );
                               console
                                 .log
-                                // `Selected Patience Level for ${selected} is ${selectedVoice.title}`
+                                // `Selected Patience Level for ${selected} is ${selectedVoice?.title}`
                                 ();
-                              return selectedVoice ? selectedVoice.title : null;
+                              return selectedVoice ? selectedVoice?.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3683,9 +3683,9 @@ function Page() {
                                 <MenuItem
                                   value={item.value}
                                   key={index}
-                                  disabled={patienceValue === item.title}
+                                  disabled={patienceValue === item?.title}
                                 >
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                 </MenuItem>
                               );
                             })}
@@ -3747,10 +3747,10 @@ function Page() {
                                 ); // Placeholder style
                               }
                               const selectedVoice = AgentLanguagesList.find(
-                                (lang) => lang.title === selected
+                                (lang) => lang?.title === selected
                               );
                               console.log(
-                                `Selected Language for ${selected} is ${selectedVoice.title}`
+                                `Selected Language for ${selected} is ${selectedVoice?.title}`
                               );
                               //  return selectedVoice ? selectedVoice.title : null;
 
@@ -3805,7 +3805,7 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                  // disabled={index !== 0}//languageValue === item?.title ||
+                                // disabled={index !== 0}//languageValue === item?.title ||
                                 >
                                   <Image
                                     src={item?.flag}
