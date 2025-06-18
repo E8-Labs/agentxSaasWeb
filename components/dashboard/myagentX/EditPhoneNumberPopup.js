@@ -40,6 +40,11 @@ export const EditPhoneNumberModal = ({
       `+${phoneNumber}`,
       countryCode?.toUpperCase()
     );
+    console.log("Parsed number is", parsedNumber);
+    if(!parsedNumber){
+      setErrorMessage("");
+      return
+    }
     // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
     if (!parsedNumber || !parsedNumber.isValid()) {
       setErrorMessage("Invalid");
@@ -59,7 +64,7 @@ export const EditPhoneNumberModal = ({
   return (
     <Modal
       open={open != null}
-      onClose={close}
+      // onClose={close}
       BackdropProps={{
         timeout: 100,
         sx: {
@@ -138,6 +143,9 @@ export const EditPhoneNumberModal = ({
               defaultMask={locationLoader ? "Loading..." : undefined}
             />
           </div>
+          <div className="mt-2 text-sm font-medium text-red">
+            {errorMessage}
+          </div>
 
           {loading ? (
             <div className="flex w-full items-center flex col justify-center h-[52px]">
@@ -145,8 +153,19 @@ export const EditPhoneNumberModal = ({
             </div>
           ) : (
             <button
-              className="w-full outline-none bg-purple h-[52px] text-white rounded-lg"
-              onClick={() => { update(userPhoneNumber) }}
+              className={`w-full outline-none bg-purple h-[52px] rounded-lg ${errorMessage ? "bg-[#E0E0E0] text-black":"bg-purple text-white"}`}
+              disabled={errorMessage}
+              onClick={() => {
+                if (!errorMessage) {
+                  console.log("Phone number passing is", userPhoneNumber.length);
+                  if(userPhoneNumber.length > 2){
+                    update(userPhoneNumber);
+                  }else{
+                    let emptyPhone = "";
+                    update(emptyPhone);
+                  }
+                }
+              }}
             >
               Save
             </button>

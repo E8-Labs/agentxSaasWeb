@@ -93,25 +93,25 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   ];
 
   // 🐢
-  const PatienceLevels = [
-    { id: 1, title: "💨 Fast ~1 sec", value: "Fast" },
-    { id: 2, title: "⚖️ Balanced ~3 sec", value: "Balanced" },
-    { id: 3, title: "🐢 Slow ~5 sec", value: "Slow" },
+  const TalkingPaceList = [
+    { id: 1, title: "💨 Fast ~1.1", value: "Fast" },
+    { id: 2, title: "⚖️ Balanced ~3.0", value: "Balanced" },
+    { id: 3, title: "🐢 Slow ~0.9", value: "Slow" },
   ];
-  const StartingPaceList = [
+  const ResponseSpeedList = [
     {
       id: 1,
-      title: "⚡️ Instant ~1 sec",
+      title: "⚡️ Instant ~100ms",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~2 sec",
+      title: "⏳ Short Pause ~400ms",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~3 sec",
+      title: "🧘 Delayed ~600ms",
       value: "Natural Conversation Flow",
     },
   ];
@@ -712,9 +712,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setVoicesList([voicesList]);
     // setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
-    setStartingPace(item.initialPauseSeconds);
+    setStartingPace(item.talkingPace);
     //console.log;
-    setPatienceValue(item.patienceLevel);
+    setPatienceValue(item.responseSpeed);
     setLanguageValue(item.agentLanguage);
 
     let modelValue = item.agentLLmModel;
@@ -1987,11 +1987,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           if (voiceData.agentLanguage) {
             formData.append("agentLanguage", voiceData.agentLanguage);
           }
-          if (voiceData.startingPace) {
-            formData.append("initialPauseSeconds", voiceData.startingPace);
+          if (voiceData.talkingPace) {
+            formData.append("talkingPace", voiceData.talkingPace);
           }
-          if (voiceData.patienceLevel) {
-            formData.append("patienceLevel", voiceData.patienceLevel);
+          if (voiceData.responseSpeed) {
+            formData.append("responseSpeed", voiceData.responseSpeed);
           }
           if (voiceData.callRecordingPermition) {
             formData.append(
@@ -3250,7 +3250,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         )}
                       </div>
                     </div>
-                    {/* Starting Pace */}
+                    {/* Talking Pace */}
                     <div className="flex w-full justify-between items-center -mt-4">
                       <div
                         style={{
@@ -3259,7 +3259,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           color: "#666",
                         }}
                       >
-                        Starting Pace
+                        Talking Pace
                       </div>
 
                       <div
@@ -3291,7 +3291,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 let value = event.target.value;
                                 //console.log;
                                 let voiceData = {
-                                  startingPace: value,
+                                  talkingPace: value,
                                 };
                                 await updateSubAgent(voiceData);
                                 setShowStartingPaceLoader(false);
@@ -3305,7 +3305,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     <div style={{ color: "#aaa" }}>Select</div>
                                   ); // Placeholder style
                                 }
-                                const selectedVoice = StartingPaceList.find(
+                                const selectedVoice = TalkingPaceList.find(
                                   (voice) => voice.value === selected
                                 );
                                 return selectedVoice
@@ -3339,7 +3339,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 },
                               }}
                             >
-                              {StartingPaceList.map((item, index) => {
+                              {TalkingPaceList.map((item, index) => {
                                 return (
                                   <MenuItem
                                     value={item.value}
@@ -3397,7 +3397,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 let value = event.target.value;
                                 //console.log;
                                 let voiceData = {
-                                  patienceLevel: value,
+                                  responseSpeed: value,
                                 };
                                 await updateSubAgent(voiceData);
                                 setShowPatienceLoader(false);
@@ -3411,7 +3411,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     <div style={{ color: "#aaa" }}>Select</div>
                                   ); // Placeholder style
                                 }
-                                const selectedVoice = PatienceLevels.find(
+                                const selectedVoice = ResponseSpeedList.find(
                                   (voice) => voice.value === selected
                                 );
                                 console
@@ -3449,7 +3449,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 },
                               }}
                             >
-                              {PatienceLevels.map((item, index) => {
+                              {ResponseSpeedList.map((item, index) => {
                                 return (
                                   <MenuItem
                                     value={item.value}

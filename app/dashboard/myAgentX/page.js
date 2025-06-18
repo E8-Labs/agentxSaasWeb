@@ -290,7 +290,7 @@ function Page() {
 
   // const Languages  = AgentLanguagesList
 
- 
+
   const voiceExpressivenessList = [
     {
       id: 1,
@@ -311,24 +311,24 @@ function Page() {
 
   // 🐢
   const PatienceLevels = [
-    { id: 1, title: "💨 Fast ", value: "Fast" },
-    { id: 2, title: "⚖️ Balanced", value: "Balanced" },
-    { id: 3, title: "🐢 Slow", value: "Slow" },
+    { id: 1, title: "💨 Fast ~1 sec", value: "Fast" },
+    { id: 2, title: "⚖️ Balanced ~3 sec", value: "Balanced" },
+    { id: 3, title: "🐢 Slow ~5 sec", value: "Slow" },
   ];
-  const StartingPaceList = [
+  const ResponseSpeedList = [
     {
       id: 1,
-      title: "⚡️ Instant",
+      title: "⚡️ Instant ~1 sec",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause",
+      title: "⏳ Short Pause ~2 sec",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed",
+      title: "🧘 Delayed ~3 sec",
       value: "Natural Conversation Flow",
     },
   ];
@@ -457,11 +457,11 @@ function Page() {
       }
     }
     console.log("Selected model:", model);
-    if(model === null) {
+    if (model === null) {
       return models[0]; // Default to the first model if not found
     }
 
-    
+
     return model;
   }
 
@@ -662,19 +662,19 @@ function Page() {
 
     setAssignNumber(item?.phoneNumber);
     const matchedVoice = voicesList.find(
-  (voice) => voice.voice_id === item?.voiceId
-);
+      (voice) => voice.voice_id === item?.voiceId
+    );
 
-setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found by ID, otherwise fallback to voice name
+    setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found by ID, otherwise fallback to voice name
 
     // setSelectedVoice(item?.voiceId);
     setVoicesList([voicesList]);
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
-    setStartingPace(item.initialPauseSeconds);
+    setStartingPace(item.talkingPace);
     //console.log;
-    setPatienceValue(item.patienceLevel);
-    setLanguageValue(item.agentLanguage);
+    setPatienceValue(item.responseSpeed);
+    setLanguageValue(item?.agentLanguage ? item.agentLanguage : "");
 
     let modelValue = item.agentLLmModel;
     if (modelValue) {
@@ -1324,11 +1324,11 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
           if (voiceData.agentLanguage) {
             formData.append("agentLanguage", voiceData.agentLanguage);
           }
-          if (voiceData.startingPace) {
-            formData.append("initialPauseSeconds", voiceData.startingPace);
+          if (voiceData.talkingPace) {
+            formData.append("talkingPace", voiceData.talkingPace);
           }
-          if (voiceData.patienceLevel) {
-            formData.append("patienceLevel", voiceData.patienceLevel);
+          if (voiceData.responseSpeed) {
+            formData.append("responseSpeed", voiceData.responseSpeed);
           }
           if (voiceData.callRecordingPermition) {
             formData.append(
@@ -1600,7 +1600,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
       }
     });
     //// //console.log;
-    if (typeof agentData == undefined || agentData == null || agentData.length === 0) { 
+    if (typeof agentData == undefined || agentData == null || agentData.length === 0) {
       return;
     }
     console.log("Matching agent data:", agentData);
@@ -3446,7 +3446,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                 voiceExpressivenessList.find(
                                   (voice) => voice.value === selected
                                 );
-                              return selectedVoice ? selectedVoice.title : null;
+                              return selectedVoice ? selectedVoice?.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3478,11 +3478,11 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                             {voiceExpressivenessList.map((item, index) => {
                               return (
                                 <MenuItem
-                                  value={item.value}
+                                  value={item?.value}
                                   key={index}
-                                  disabled={voiceExpressiveness === item.title}
+                                  disabled={voiceExpressiveness === item?.title}
                                 >
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                 </MenuItem>
                               );
                             })}
@@ -3491,12 +3491,12 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                       )}
                     </div>
                   </div>
-                  {/* Starting Pace */}
+                  {/* Talking Pace */}
                   <div className="flex w-full justify-between items-center -mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
-                      Starting Pace
+                      Talking Pace
                     </div>
 
                     <div
@@ -3528,7 +3528,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                               let value = event.target.value;
                               //console.log;
                               let voiceData = {
-                                startingPace: value,
+                                talkingPace: value,
                               };
                               await updateSubAgent(voiceData);
                               setShowStartingPaceLoader(false);
@@ -3542,10 +3542,10 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                   <div style={{ color: "#aaa" }}>Select</div>
                                 ); // Placeholder style
                               }
-                              const selectedVoice = StartingPaceList.find(
+                              const selectedVoice = TalkingPaceList.find(
                                 (voice) => voice.value === selected
                               );
-                              return selectedVoice ? selectedVoice.title : null;
+                              return selectedVoice ? selectedVoice?.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3574,14 +3574,14 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                               },
                             }}
                           >
-                            {StartingPaceList.map((item, index) => {
+                            {TalkingPaceList.map((item, index) => {
                               return (
                                 <MenuItem
                                   value={item.value}
                                   key={index}
-                                  disabled={startingPace === item.title}
+                                  disabled={startingPace === item?.title}
                                 >
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                 </MenuItem>
                               );
                             })}
@@ -3628,7 +3628,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                               let value = event.target.value;
                               //console.log;
                               let voiceData = {
-                                patienceLevel: value,
+                                responseSpeed: value,
                               };
                               await updateSubAgent(voiceData);
                               setShowPatienceLoader(false);
@@ -3642,14 +3642,14 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                   <div style={{ color: "#aaa" }}>Select</div>
                                 ); // Placeholder style
                               }
-                              const selectedVoice = PatienceLevels.find(
+                              const selectedVoice = ResponseSpeedList.find(
                                 (voice) => voice.value === selected
                               );
                               console
                                 .log
-                                // `Selected Patience Level for ${selected} is ${selectedVoice.title}`
+                                // `Selected Patience Level for ${selected} is ${selectedVoice?.title}`
                                 ();
-                              return selectedVoice ? selectedVoice.title : null;
+                              return selectedVoice ? selectedVoice?.title : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3678,14 +3678,14 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                               },
                             }}
                           >
-                            {PatienceLevels.map((item, index) => {
+                            {ResponseSpeedList.map((item, index) => {
                               return (
                                 <MenuItem
                                   value={item.value}
                                   key={index}
-                                  disabled={patienceValue === item.title}
+                                  disabled={patienceValue === item?.title}
                                 >
-                                  <div>{item.title}</div>
+                                  <div>{item?.title}</div>
                                 </MenuItem>
                               );
                             })}
@@ -3747,10 +3747,10 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                 ); // Placeholder style
                               }
                               const selectedVoice = AgentLanguagesList.find(
-                                (lang) => lang.title === selected
+                                (lang) => lang?.title === selected
                               );
                               console.log(
-                                `Selected Language for ${selected} is ${selectedVoice.title}`
+                                `Selected Language for ${selected} is ${selectedVoice?.title}`
                               );
                               //  return selectedVoice ? selectedVoice.title : null;
 
@@ -3805,7 +3805,7 @@ setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found 
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                  disabled={index !== 0}//languageValue === item?.title ||
+                                // disabled={index !== 0}//languageValue === item?.title ||
                                 >
                                   <Image
                                     src={item?.flag}

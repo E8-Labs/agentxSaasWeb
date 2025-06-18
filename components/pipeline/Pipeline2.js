@@ -500,6 +500,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       if (response) {
         //////console.log;
         if (response.data.status === true) {
+          console.log("Update agent done");
           handleAddCadence();
           // router.push("/dashboard");
         }
@@ -564,7 +565,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        //////console.log;
+        console.log("add cadence done");
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
           // router.push("/dashboard/leads");
