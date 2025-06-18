@@ -29,6 +29,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
   const router = useRouter();
   const selectRef = useRef(null);
+  //agent type
+  const [agentType, setAgentType] = useState("");
   //variable for video card
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [toggleClick, setToggleClick] = useState(false);
@@ -70,22 +72,28 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     let loc = getLocalLocation();
     setCountryCode(loc);
 
+    const AT = localStorage.getItem("agentType");
+    if (AT) {
+      const A = JSON.parse(AT);
+      setAgentType(A);
+    }
+
     if (localData) {
       const claimNumberDetails = JSON.parse(localData);
 
       // //console.log;
 
-      if (claimNumberDetails.officeNo) {
-        // //console.log;
-        setUseOfficeNumber(true);
-        setShowOfficeNumberInput(true);
-        setOfficeNumber(claimNumberDetails.officeNo);
-      } else {
-        setUserSelectedNumber(claimNumberDetails.usernumber2);
-      }
-      setCallBackNumber(claimNumberDetails.callBackNumber);
-      setSelectNumber(claimNumberDetails.userNumber);
-      setShouldContinue(false);
+      // if (claimNumberDetails.officeNo) {
+      //   // //console.log;
+      //   setUseOfficeNumber(true);
+      //   setShowOfficeNumberInput(true);
+      //   setOfficeNumber(claimNumberDetails.officeNo);
+      // } else {
+      //   setUserSelectedNumber(claimNumberDetails.usernumber2);
+      // }
+      // setCallBackNumber(claimNumberDetails.callBackNumber);
+      // setSelectNumber(claimNumberDetails.userNumber);
+      // setShouldContinue(false);
     }
     getAvailabePhoneNumbers();
     const localAgentsData = localStorage.getItem("agentDetails");
@@ -388,19 +396,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       const ApiPath = Apis.asignPhoneNumber;
 
       for (let [key, value] of formData.entries()) {
-        // //console.log;
+        // console.log(`${key} ==== ${value}`);
       }
 
       // return;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          "Authorization": "Bearer " + AuthToken,
         },
       });
 
       if (response) {
-        // //console.log;
+        // console.log("Response 2", response);
         if (response.data.status === true) {
           handleContinue();
           const calimNoData = {
@@ -413,7 +421,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is:", error);
+      // console.error("Error occured in api is:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        console.error("General error:", error);
+      }
     } finally {
       // //console.log;
       setAssignLoader(false);
@@ -901,7 +914,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           </div>
 
           <Footer
-            handleContinue={AssignNumber}
+            handleContinue={() => {
+              if (agentType === "inbound" && !selectNumber) {
+                console.log("Without api call");
+                handleContinue();
+              } else {
+                console.log("With api call");
+                AssignNumber();
+              }
+            }}
             handleBack={handleBack}
             registerLoader={assignLoader}
             shouldContinue={shouldContinue}

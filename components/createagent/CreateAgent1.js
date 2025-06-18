@@ -369,7 +369,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             let D = JSON.parse(localData);
             let percantage = D.user.checkList.percentage
             D.user.checkList.checkList.agentCreated = true;
-            D.user.checkList.percentage = percantage+ 20;
+            D.user.checkList.percentage = percantage + 20;
             localStorage.setItem("User", JSON.stringify(D));
           }
           window.dispatchEvent(
@@ -378,6 +378,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           // //console.log;
           setSnackMessage("Agent created successfully.");
           setMsgType(SnackbarTypes.Success);
+          let AT = agentType;
+          localStorage.setItem("agentType", JSON.stringify(AT));
           localStorage.setItem(
             PersistanceKeys.LocalSavedAgentDetails,
             JSON.stringify(response.data.data)
