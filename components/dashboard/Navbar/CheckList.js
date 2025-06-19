@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, CaretDown, CaretDownIcon, CaretRight, CaretUp, CaretUpIcon } from '@phosphor-icons/react';
+import { ArrowDown, ArrowUp, CaretDown, CaretRight, CaretUp, } from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
@@ -99,8 +99,8 @@ const CheckList = ({ userDetails }) => {
                                 </p>
                                 {
                                     showList ?
-                                        <CaretDownIcon size={20} /> :
-                                        <CaretUpIcon size={20} />
+                                        <CaretDown size={20} /> :
+                                        <CaretUp size={20} />
                                 }
                             </div>
                         </button>

@@ -910,6 +910,7 @@ function BasicInfo() {
         }}
       >
         <input
+          readOnly
           className="w-11/12 outline-none focus:ring-0"
           onFocus={() => setFocusedName(true)}
           onBlur={() => setFocusedName(false)}
@@ -968,7 +969,7 @@ function BasicInfo() {
           placeholder="Email"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
-        {isEmailChanged &&
+        {isEmailChanged ?
           (loading13 ? (
             <CircularProgress size={20} />
           ) : (
@@ -980,7 +981,11 @@ function BasicInfo() {
             >
               Save
             </button>
-          ))}
+          )):(
+            <button>
+              <Image src={'/svgIcons/editIcon.svg'} />
+            </button>
+          )}
       </div>
 
       <div
