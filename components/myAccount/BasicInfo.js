@@ -9,9 +9,27 @@ import { UpdateProfile } from "../apis/UpdateProfile";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import { UserTypes } from "@/constants/UserTypes";
+import { useRef } from 'react';
+
 
 function BasicInfo() {
   const router = useRouter();
+
+
+  const emailRef = useRef(null);
+  const farmRef = useRef(null);
+  const serviceAreaRef = useRef(null);
+  const brokerAgeRef = useState(null)
+  const companyRef = useState(null)
+  const websiteRef = useState(null)
+  const companyAffiliationRef = useState(null)
+  const transactionRef = useState(null)
+  const installationVolumeRef = useState(null)
+  const projectSizeRef = useState(null)
+  const clientsPerMonthRef = useState(null)
+  const casesPerMonthRef = useState(null)
+
+
   const [focusedName, setFocusedName] = useState(false);
   const [focusedFarm, setFocusedFarm] = useState(false);
   const [focusedTerritory, setFocusedTerritory] = useState(false);
@@ -905,7 +923,7 @@ function BasicInfo() {
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
         style={{
-          border: `1px solid ${focusedName ? "#8a2be2" : "#00000010"}`,
+          border: `1px solid #00000010`,
           transition: "border-color 0.3s ease",
         }}
       >
@@ -948,7 +966,7 @@ function BasicInfo() {
       >
         Email address
       </div>
-      
+
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
         style={{
@@ -957,6 +975,7 @@ function BasicInfo() {
         }}
       >
         <input
+          ref={emailRef}
           className="w-11/12 outline-none focus:ring-0"
           onFocus={() => setFocusedEmail(true)}
           onBlur={() => setFocusedEmail(false)}
@@ -981,9 +1000,15 @@ function BasicInfo() {
             >
               Save
             </button>
-          )):(
-            <button>
-              <Image src={'/svgIcons/editIcon.svg'} />
+          )) : (
+            <button
+              onClick={() => {
+                emailRef.current?.focus();
+              }}
+            >
+              <Image src={'/svgIcons/editIcon.svg'}
+                width={24} height={24} alt="*"
+              />
             </button>
           )}
       </div>
@@ -1045,6 +1070,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={farmRef}
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedFarm(true)}
                   onBlur={() => setFocusedFarm(false)}
@@ -1057,7 +1083,7 @@ function BasicInfo() {
                   placeholder="Farm"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isFarmChanged &&
+                {isFarmChanged ?
                   (loading2 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1073,7 +1099,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        farmRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (userType && userType === UserTypes.SolarRep) ||
@@ -1103,6 +1139,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={serviceAreaRef}
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedServiceArea(true)}
                   onBlur={() => setFocusedServiceArea(false)}
@@ -1115,7 +1152,7 @@ function BasicInfo() {
                   placeholder="Farm"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isServiceAreaChanged &&
+                {isServiceAreaChanged ?
                   (loading6 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1131,7 +1168,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        serviceAreaRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (
@@ -1162,6 +1209,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={brokerAgeRef}
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedBrokerage(true)}
                   onBlur={() => setFocusedBrokerage(false)}
@@ -1174,7 +1222,7 @@ function BasicInfo() {
                   placeholder="Brokerage"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isBrokerageChanged &&
+                {isBrokerageChanged ?
                   (loading3 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1190,7 +1238,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        brokerAgeRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (userType && userType === UserTypes.SolarRep) ||
@@ -1218,6 +1276,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={companyRef}
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedCompany(true)}
                   onBlur={() => setFocusedCompany(false)}
@@ -1230,7 +1289,7 @@ function BasicInfo() {
                   placeholder="Company"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isCompanyChanged &&
+                {isCompanyChanged ?
                   (loading8 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1246,7 +1305,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        companyRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : userType && userType === UserTypes.WebsiteAgent ? (
@@ -1271,6 +1340,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={websiteRef}
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedWebSite(true)}
                   onBlur={() => setFocusedWebSite(false)}
@@ -1283,7 +1353,7 @@ function BasicInfo() {
                   placeholder="Brokerage"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isWebsiteUrlChanged &&
+                {isWebsiteUrlChanged ?
                   (loading10 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1299,7 +1369,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        websiteRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (userType && userType === UserTypes.MedSpaAgent) ||
@@ -1326,6 +1406,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={companyAffiliationRef}
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedCompanyAffiliation(true)}
                   onBlur={() => setFocusedCompanyAffiliation(false)}
@@ -1338,7 +1419,7 @@ function BasicInfo() {
                   placeholder="Company"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isCompanyAffiliationChanged &&
+                {isCompanyAffiliationChanged ?
                   (loading11 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1354,7 +1435,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        companyAffiliationRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (
@@ -1383,6 +1474,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={transactionRef}
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -1399,7 +1491,7 @@ function BasicInfo() {
                   placeholder="Type here"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isTransactionChanged &&
+                {isTransactionChanged ?
                   (loading4 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1415,7 +1507,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        transactionRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : userType && userType === UserTypes.SolarRep ? (
@@ -1440,6 +1542,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={installationVolumeRef}
                   type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedInstallationVolume(true)}
@@ -1452,7 +1555,7 @@ function BasicInfo() {
                   placeholder="Value"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isInstallationVolumechanged &&
+                {isInstallationVolumechanged ?
                   (loading7 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1468,7 +1571,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        installationVolumeRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (
@@ -1500,6 +1613,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={projectSizeRef}
                   type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedProjectSize(true)}
@@ -1512,7 +1626,7 @@ function BasicInfo() {
                   placeholder="Value"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isProjectSizeChanged &&
+                {isProjectSizeChanged ?
                   (loading9 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1528,7 +1642,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )) : (
+                    <button
+                      onClick={() => {
+                        projectSizeRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : userType && userType === UserTypes.MedSpaAgent ? (
@@ -1553,6 +1677,7 @@ function BasicInfo() {
                 }}
               >
                 <input
+                  ref={clientsPerMonthRef}
                   type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedClientsPerMonth(true)}
@@ -1565,7 +1690,7 @@ function BasicInfo() {
                   placeholder="Value"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {isClientsPerMonthChanged &&
+                {isClientsPerMonthChanged ?
                   (loading12 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1581,7 +1706,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )):(
+                     <button
+                      onClick={() => {
+                        clientsPerMonthRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : userType && userType === UserTypes.LawAgent ? (
@@ -1606,6 +1741,8 @@ function BasicInfo() {
                 }}
               >
                 <input
+                ref={casesPerMonthRef}
+                
                   type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedCasesPerMonth(true)}
@@ -1618,7 +1755,7 @@ function BasicInfo() {
                   placeholder="Value"
                   style={{ border: "0px solid #000000", outline: "none" }}
                 />
-                {iscasesPerMonthChanged &&
+                {iscasesPerMonthChanged ?
                   (loading12 ? (
                     <CircularProgress size={20} />
                   ) : (
@@ -1634,7 +1771,17 @@ function BasicInfo() {
                     >
                       Save
                     </button>
-                  ))}
+                  )):(
+                     <button
+                      onClick={() => {
+                        casesPerMonthRef.current?.focus();
+                      }}
+                    >
+                      <Image src={'/svgIcons/editIcon.svg'}
+                        width={24} height={24} alt="*"
+                      />
+                    </button>
+                  )}
               </div>
             </>
           ) : (
