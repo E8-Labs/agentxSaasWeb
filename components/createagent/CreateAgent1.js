@@ -240,7 +240,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   function canShowObjectives() {
     console.log("U_Ser type is", user);
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-    if ((U && U?.userType && U.userType == UserTypes.RealEstateAgent) || (user && user.user.userType == UserTypes.RealEstateAgent)) {
+    let FromAdminOrAgency = null
+    if (U) {
+      const Data = JSON.parse(U);
+      FromAdminOrAgency = Data.subAccountData;
+    }
+    if ((FromAdminOrAgency && FromAdminOrAgency?.userType && FromAdminOrAgency?.userType == UserTypes.RealEstateAgent) || (user && user.user.userType == UserTypes.RealEstateAgent)) {
       return true;
     } else {
       return false;
