@@ -452,7 +452,7 @@ function Page() {
   function findLLMModel(value) {
     let model = null;
     for (const m of models) {
-      if (m.value == value) {
+      if (m.model == value) {
         model = m;
       }
     }
@@ -680,7 +680,7 @@ function Page() {
     if (modelValue) {
       let model = findLLMModel(modelValue);
 
-      // console.log("Selected model 2:", model);
+      console.log("Selected model 2:", model);
       setSelectedGptManu(model);
 
     }
@@ -1583,7 +1583,7 @@ function Page() {
     }
 
     setShowModelLoader(true);
-    await updateSubAgent(null, model.value);
+    await updateSubAgent(null, model.model);
     setShowModelLoader(false);
     setOpenGptManu(null);
   };

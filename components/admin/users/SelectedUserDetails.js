@@ -16,6 +16,7 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
 
 function SelectedUserDetails({
     selectedUser,
@@ -85,6 +86,7 @@ function SelectedUserDetails({
     const [pauseLoader, setpauseLoader] = useState(false);
     //pause confirmations
     const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
+    const [user,setUser] = useState(null)
 
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
@@ -97,6 +99,21 @@ function SelectedUserDetails({
             setPauseToggleBtn(false);
         }
     }, [selectedUser]);
+
+    useEffect(()=>{
+        const getData = async () =>{
+
+            let d = await AdminGetProfileDetails(selectedUser.id)
+
+            if(d){
+                setUser(d)
+            }
+
+            // console.log('selectedUser after api', selectedUser)
+        }
+
+        getData()
+    },[selectedUser])
 
 
     const handleManuClick = (item) => {
@@ -382,7 +399,7 @@ function SelectedUserDetails({
                                         <AdminPipeline1 selectedUser={selectedUser} />
                                     ) : selectedManu.name == "Agents" ? (
                                         <AdminAgentX
-                                            selectedUser={selectedUser}
+                                            selectedUser={user&&user}
                                             from={from}
                                             agencyUser={agencyUser}
                                         />

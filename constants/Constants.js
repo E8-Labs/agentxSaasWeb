@@ -84,53 +84,63 @@ export const AgentLLmModels = {
 
 
 
-export   const models = [
-    {
-      name: "AgentX",
-      provider: "openai",
-      value: "gpt-4.1-nano",
-      icon: "/agentXOrb.gif",
-      disabled: false,
-    },
-    {
-      name: "GPT-4o",
-      provider: "openai",
-      value: "gpt-4o-mini",
-      icon: "/svgIcons/chatgptIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "GPT-4 Mini",
-      value: "gpt-4.1-mini",
-      provider: "openai",
-      icon: "/svgIcons/chatgptIcon.svg",
-      disabled: false,
-    },
-    // {
-    //   name: "Grok",
-    //   value: "grok",
-    //   icon: "/svgIcons/grokIcon.svg",
-    //   disabled: false,
-    // },
-    {
-      name: "LLaMA", // mapped to groq
-      value: "compound-beta",
-      provider: "groq",
-      icon: "/svgIcons/llamaIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "XAI",
-      provider: "groq",
-      value: "compound-beta-mini",
-      icon: "/svgIcons/geminiIcon.svg",
-      disabled: false,
-    },
-    {
-      name: "DeepSeek",
-      provider: "deep-seek",
-      value: "deepseek-reasoner",
-      icon: "/svgIcons/deepseekIcon.svg",
-      disabled: false,
-    },
-  ];
+export const models = [
+  {
+    name: "AgentX",
+    provider: "openai",
+    value: "gpt-4.1-mini",
+    icon: "/agentXOrb.gif",
+    disabled: false,
+    model: 'gpt-4.1-mini'//'gpt-4.1-nano',
+
+  },
+  {
+    name: "GPT-4o",
+    provider: "openai",
+    value: "gpt-4o-mini",
+    icon: "/svgIcons/chatgptIcon.svg",
+    disabled: false,
+    model: 'gpt-4o-mini',
+
+  },
+  {
+    name: "GPT-4 Mini",
+    value: "gpt-4.1-mini",
+    provider: "openai",
+    icon: "/svgIcons/chatgptIcon.svg",
+    disabled: false,
+    model: 'gpt-4.1-nano',
+
+  },
+  // {
+  //   name: "Grok",
+  //   value: "grok",
+  //   icon: "/svgIcons/grokIcon.svg",
+  //   disabled: false,
+  // },
+  {
+    name: "LLaMA", // mapped to groq
+    value: "compound-beta",
+    provider: "groq",
+    icon: "/svgIcons/llamaIcon.svg",
+    disabled: false,
+    model: 'compound-beta',
+
+  },
+  {
+    name: "XAI",
+    provider: "groq",
+    value: "compound-beta-mini",
+    icon: "/svgIcons/geminiIcon.svg",
+    disabled: false,
+    model: 'compound-beta-mini',
+  },
+  {
+    name: "DeepSeek",
+    provider: 'deep-seek',
+    value: "deepseek-chat",
+    icon: "/svgIcons/deepseekIcon.svg",
+    model: 'deepseek-chat',
+    disabled: false,
+  },
+];

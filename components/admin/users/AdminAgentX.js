@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
-import { Plus } from "@phosphor-icons/react";
+import { Plus, } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import PhoneInput from "react-phone-input-2";
@@ -1820,6 +1820,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   //function to add new agent
   const handleAddNewAgent = (event) => {
+    console.log('selectedUser create agent', selectedUser)
+    // return
     event.preventDefault();
     const data = {
       status: true,

@@ -113,6 +113,15 @@ const ClaimNumber = ({
             new CustomEvent("UpdateCheckList", { detail: { update: true } })
           );
           setOpenPurchaseSuccessModal(true);
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.numberClaimed = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(
+            new CustomEvent("UpdateCheckList", { detail: { update: true } })
+          );
           localStorage.setItem(
             "purchasedNumberDetails",
             JSON.stringify(response.data.data)
@@ -138,6 +147,20 @@ const ClaimNumber = ({
       setPurchaseLoader(false);
     }
   };
+
+  //test code for checking update check list
+  const handleTestClose = () => {
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      let D = JSON.parse(localData);
+      D.user.checkList.checkList.numberClaimed = true;
+      localStorage.setItem("User", JSON.stringify(D));
+    }
+    window.dispatchEvent(
+      new CustomEvent("UpdateCheckList", { detail: { update: true } })
+    );
+    handleCloseClaimPopup();
+  }
 
   //function to fine numbers api
   const requestCounter = useRef(0);
