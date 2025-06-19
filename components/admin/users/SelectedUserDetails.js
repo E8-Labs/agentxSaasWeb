@@ -16,6 +16,7 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
 
 function SelectedUserDetails({
     selectedUser,
@@ -97,6 +98,21 @@ function SelectedUserDetails({
             setPauseToggleBtn(false);
         }
     }, [selectedUser]);
+
+    useEffect(()=>{
+        const getData = async () =>{
+
+            let d = await AdminGetProfileDetails(selectedUser.id)
+
+            if(d){
+                selectedUser = d
+            }
+
+            console.log('selectedUser after api', selectedUser)
+        }
+
+        getData()
+    },[selectedUser])
 
 
     const handleManuClick = (item) => {

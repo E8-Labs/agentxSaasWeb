@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
-import { Plus, PlusIcon } from "@phosphor-icons/react";
+import { Plus, } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import PhoneInput from "react-phone-input-2";
@@ -2353,7 +2353,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               color: "#000",
             }}
           >
-            <PlusIcon weight="bold" size={22} /> Add New Agent
+            <Plus weight="bold" size={22} /> Add New Agent
           </div>
         </Link>
       </div>
