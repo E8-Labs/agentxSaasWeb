@@ -104,12 +104,10 @@ const ClaimNumber = ({
         // //console.log;
         if (response.data.status === true) {
           setOpenPurchaseSuccessModal(true);
-          const localData = localStorage.getItem("User");
-          if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.numberClaimed = true;
+          
+            UserDetails.user.checkList.checkList.numberClaimed = true;
             localStorage.setItem("User", JSON.stringify(D));
-          }
+          
           window.dispatchEvent(
             new CustomEvent("UpdateCheckList", { detail: { update: true } })
           );
