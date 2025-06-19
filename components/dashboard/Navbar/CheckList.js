@@ -48,7 +48,7 @@ const CheckList = ({ userDetails }) => {
                 { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
                 { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
                 { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
-                { id: 6, label: 'Claim a number', status: false, route: "" }
+                { id: 6, label: 'Claim a number', status: T?.numberClaimed, route: "" }
             ]);
         }
     }
