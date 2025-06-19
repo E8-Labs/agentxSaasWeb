@@ -1820,6 +1820,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   //function to add new agent
   const handleAddNewAgent = (event) => {
+    console.log('selectedUser create agent', selectedUser)
+    // return
     event.preventDefault();
     const data = {
       status: true,

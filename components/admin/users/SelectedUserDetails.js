@@ -86,6 +86,7 @@ function SelectedUserDetails({
     const [pauseLoader, setpauseLoader] = useState(false);
     //pause confirmations
     const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
+    const [user,setUser] = useState(null)
 
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
@@ -105,10 +106,10 @@ function SelectedUserDetails({
             let d = await AdminGetProfileDetails(selectedUser.id)
 
             if(d){
-                selectedUser = d
+                setUser(d)
             }
 
-            console.log('selectedUser after api', selectedUser)
+            // console.log('selectedUser after api', selectedUser)
         }
 
         getData()
@@ -398,7 +399,7 @@ function SelectedUserDetails({
                                         <AdminPipeline1 selectedUser={selectedUser} />
                                     ) : selectedManu.name == "Agents" ? (
                                         <AdminAgentX
-                                            selectedUser={selectedUser}
+                                            selectedUser={user&&user}
                                             from={from}
                                             agencyUser={agencyUser}
                                         />
