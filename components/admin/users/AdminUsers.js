@@ -460,7 +460,7 @@ function AdminUsers() {
                       className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
                         }`}
                       onClick={() => {
-                        //console.log;
+                        console.log("Selectec user on  users screen", item);
                         setSelectedUser(item);
                         // setShowUserDetails(true)
                       }}

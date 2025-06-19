@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, CaretDown, CaretRight, CaretUp } from '@phosphor-icons/react';
+import { ArrowDown, ArrowUp, CaretDown, CaretDownIcon, CaretRight, CaretUp, CaretUpIcon } from '@phosphor-icons/react';
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
@@ -94,13 +94,13 @@ const CheckList = ({ userDetails }) => {
                                 </div>
                             </div>
                             <div className='flex flex-row items-center gap-2 ps-2'>
-                                <p className='bg-purple text-white rounded-md p-2' style={{ fontWeight: "600", fontSize: "14px" }}>
+                                <p className='bg-purple text-white rounded-md px-2 py-1' style={{ fontWeight: "600", fontSize: "14px" }}>
                                     {progressValue?.toFixed(0)}%
                                 </p>
                                 {
                                     showList ?
-                                        <CaretDown size={20} /> :
-                                        <CaretUp size={20} />
+                                        <CaretDownIcon size={20} /> :
+                                        <CaretUpIcon size={20} />
                                 }
                             </div>
                         </button>
