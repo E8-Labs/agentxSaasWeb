@@ -72,7 +72,7 @@ const ClaimNumber = ({
       }
 
       if (selectedUSer) {
-        formData.append("userId", selectedUSer.id);
+        formData.append("userId", selectedUSer?.id);
       }
 
       for (let [key, value] of formData.entries()) {
@@ -103,6 +103,15 @@ const ClaimNumber = ({
       if (response) {
         // //console.log;
         if (response.data.status === true) {
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.numberClaimed = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(
+            new CustomEvent("UpdateCheckList", { detail: { update: true } })
+          );
           setOpenPurchaseSuccessModal(true);
           localStorage.setItem(
             "purchasedNumberDetails",
