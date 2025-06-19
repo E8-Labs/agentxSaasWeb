@@ -131,6 +131,6 @@ export   const models = [
       provider: "deep-seek",
       value: "deepseek-reasoner",
       icon: "/svgIcons/deepseekIcon.svg",
-      disabled: true,
+      disabled: false,
     },
   ];
