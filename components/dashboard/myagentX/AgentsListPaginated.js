@@ -391,7 +391,10 @@ const AgentsListPaginated = ({
                           <div>View Script</div>
                         </button>
                         <div>|</div>
-                        <button onClick={() => handleShowDrawer(item)}>
+                        <button onClick={() => {
+                          handleShowDrawer(item);
+                          console.log("selected item is", item);
+                        }}>
                           <div>More info</div>
                         </button>
                       </div>

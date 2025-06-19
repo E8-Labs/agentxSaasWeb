@@ -310,25 +310,25 @@ function Page() {
   ];
 
   // 🐢
-  const PatienceLevels = [
-    { id: 1, title: "💨 Fast ~1 sec", value: "Fast" },
-    { id: 2, title: "⚖️ Balanced ~3 sec", value: "Balanced" },
-    { id: 3, title: "🐢 Slow ~5 sec", value: "Slow" },
+  const TalkingPaceList = [
+    { id: 1, title: "💨 Fast", value: "Fast" },
+    { id: 2, title: "⚖️ Balanced", value: "Balanced" },
+    { id: 3, title: "🐢 Slow", value: "Slow" },
   ];
   const ResponseSpeedList = [
     {
       id: 1,
-      title: "⚡️ Instant ~1 sec",
+      title: "⚡️ Instant",
       value: "Instant",
     },
     {
       id: 2,
-      title: "⏳ Short Pause ~2 sec",
+      title: "⏳ Short Pause",
       value: "Short Pause",
     },
     {
       id: 3,
-      title: "🧘 Delayed ~3 sec",
+      title: "🧘 Delayed",
       value: "Natural Conversation Flow",
     },
   ];
@@ -456,7 +456,7 @@ function Page() {
         model = m;
       }
     }
-    console.log("Selected model:", model);
+    // console.log("Selected model:", model);
     if (model === null) {
       return models[0]; // Default to the first model if not found
     }
@@ -680,7 +680,7 @@ function Page() {
     if (modelValue) {
       let model = findLLMModel(modelValue);
 
-      console.log("Selected model 2:", model);
+      // console.log("Selected model 2:", model);
       setSelectedGptManu(model);
 
     }
