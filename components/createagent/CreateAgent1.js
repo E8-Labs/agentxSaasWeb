@@ -238,6 +238,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   ];
 
   function canShowObjectives() {
+    console.log("U_Ser type is", user);
     if (user && user.user.userType == UserTypes.RealEstateAgent) {
       console.log("Showing objectives for realstate");
       return true;
