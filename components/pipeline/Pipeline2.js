@@ -578,6 +578,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           console.log("Is from agency or admin", isFromAgencyOrAdmin);
           if (isFromAgencyOrAdmin.isFromAgency === "admin") {
             router.push("/admin");
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
           } else {
             router.push("/dashboard/myAgentX");
           }

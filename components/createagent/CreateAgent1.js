@@ -239,11 +239,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   function canShowObjectives() {
     console.log("U_Ser type is", user);
-    if (user && user.user.userType == UserTypes.RealEstateAgent) {
-      console.log("Showing objectives for realstate");
+    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    if ((U && U?.userType && U.userType == UserTypes.RealEstateAgent) || (user && user.user.userType == UserTypes.RealEstateAgent)) {
       return true;
     } else {
-      console.log("Not Showing objectives");
       return false;
     }
   }
