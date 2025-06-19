@@ -569,9 +569,18 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
           // router.push("/dashboard/leads");
-
-
-          router.push("/dashboard/myAgentX");
+          let isFromAgencyOrAdmin = null;
+          const FromAgencyOrAdmin = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+          if (FromAgencyOrAdmin) {
+            const R = JSON.parse(FromAgencyOrAdmin);
+            isFromAgencyOrAdmin = R;
+          }
+          console.log("Is from agency or admin", isFromAgencyOrAdmin);
+          if (isFromAgencyOrAdmin.isFromAgency === "admin") {
+            router.push("/admin");
+          } else {
+            router.push("/dashboard/myAgentX");
+          }
         } else {
           // setLoader(false);
         }
@@ -913,17 +922,17 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               <div style={styles.headingStyle}>Call Script</div>
               <div className="mt-6">
                 {
-                loadingAgentDetails ? (
-                  <ScriptLoader height={100} />
-                ) : (
-                <PromptTagInput
-                  promptTag={scriptTagInput}
-                  kycsList={kycsData}
-                  tagValue={setScriptTagInput}
-                  scrollOffset={scrollOffset}
-                  uniqueColumns={uniqueColumns}
-                />
-                )}
+                  loadingAgentDetails ? (
+                    <ScriptLoader height={100} />
+                  ) : (
+                    <PromptTagInput
+                      promptTag={scriptTagInput}
+                      kycsList={kycsData}
+                      tagValue={setScriptTagInput}
+                      scrollOffset={scrollOffset}
+                      uniqueColumns={uniqueColumns}
+                    />
+                  )}
                 {/* <DynamicDropdown /> */}
               </div>
             </div>

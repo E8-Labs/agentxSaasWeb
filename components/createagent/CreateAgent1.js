@@ -239,12 +239,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   function canShowObjectives() {
     if (user && user.user.userType == UserTypes.RealEstateAgent) {
+      console.log("Showing objectives for realstate");
       return true;
-    }
-    // else if (user && user.user.userRole == "Invitee") {
-    //   return true;
-    // }
-    else {
+    } else {
+      console.log("Not Showing objectives");
       return false;
     }
   }

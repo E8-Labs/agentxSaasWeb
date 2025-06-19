@@ -1827,7 +1827,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     const d = {
       subAccountData: selectedUser,
-      isFromAgency: true,
+      isFromAgency: from,
     };
 
     let u = {

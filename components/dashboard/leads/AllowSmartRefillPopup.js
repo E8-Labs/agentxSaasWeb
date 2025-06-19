@@ -40,7 +40,8 @@ const AllowSmartRefillPopup = ({
           <button
             className="text-xl font-semibold"
             onClick={() => {
-              handleCloseReillPopup();
+              // handleCloseReillPopup();
+              handleSmartRefillLater();
             }}
           >
             <Image
