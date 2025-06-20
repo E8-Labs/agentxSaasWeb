@@ -22,7 +22,7 @@ let stripePublickKey =
 // //console.log;
 const stripePromise = loadStripe(stripePublickKey);
 
-const CreatAgent3 = ({ handleContinue, smallTerms, user }) => {
+const CreatAgent3 = ({ handleContinue, smallTerms, user ,handleBack}) => {
   const router = useRouter();
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -45,6 +45,23 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user }) => {
       setShouldContinue(false);
     }
   }, [togglePlan, agreeTerms]);
+
+
+  useEffect(() => {
+    const handlePopState = () => {
+      console.log("🔙 Back gesture or browser back triggered");
+      // if(window.screenWidth < 640){
+        handleBack()
+      // }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
 
   //selects 1st plan popup
   const handleTogglePlanClick = (item) => {
@@ -1289,9 +1306,7 @@ function TermsText() {
       style={{ color: "#151515", fontSize: windowWidth() < 640 ? 10 : 13, fontWeight: "600" }}
     >
       <p style={{ color: "#15151580" }}>
-        I agree to the monthly subscription and understand that additional
-        minutes will be automatically topped up when my balance reaches zero,
-        ensuring uninterrupted access to MyAgentX services. I accept the{" "}
+        I agree to{" "}
         <a
           href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
           style={{ textDecoration: "underline", color: "black" }} // Underline and color styling

@@ -537,9 +537,7 @@ function TermsText() {
       style={{ color: "#151515", fontSize: 13, fontWeight: "600" }}
     >
       <p style={{ color: "#15151580" }}>
-        I agree to the monthly subscription and understand that additional
-        minutes will be automatically topped up when my balance reaches zero,
-        ensuring uninterrupted access to MyAgentX services. I accept the{" "}
+        I agree to{" "}
         <a
           href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
           style={{ textDecoration: "underline", color: "black" }} // Underline and color styling

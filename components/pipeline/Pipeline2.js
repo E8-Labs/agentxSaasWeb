@@ -524,9 +524,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         cadence = cadenceDetails;
       }
 
-      ////console.log("cadence details are :",
-      //     cadence
-      // );
+      console.log("cadence details are :",
+          cadence
+      );
 
       let mainAgentId = null;
       const mainAgentData = localStorage.getItem("agentDetails");
@@ -549,7 +549,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       //////console.log;
 
       const ApiData = {
-        pipelineId: cadence.pipelineID,
+        pipelineId: cadence?.pipelineID,
         mainAgentId: mainAgentId,
         cadence: cadence.cadenceDetails,
       };
@@ -576,7 +576,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             isFromAgencyOrAdmin = R;
           }
           console.log("Is from agency or admin", isFromAgencyOrAdmin);
-          if (isFromAgencyOrAdmin.isFromAgency === "admin") {
+          if (isFromAgencyOrAdmin?.isFromAgency === "admin") {
             router.push("/admin");
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
           } else {
@@ -587,7 +587,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is :", error);
+      console.error("Error occured in api is :", error);
       setLoader(false);
     } finally {
     }

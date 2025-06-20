@@ -47,8 +47,16 @@ const Page = () => {
   return (
     <div
       // style={backgroundImage}
-      className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4"
+      className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4 px-4"
     >
+      <Image
+        className=""
+        src="/svgIcons/agentX3.svg"
+        style={{ height: "36px", width: "126px", resize: "contain",alignSelf:'flex-start' }}
+        height={12}
+        width={30}
+        alt="*"
+      />
       <div className="-mt-4 w-full ">
         <DesktopView width={width} />
       </div>
@@ -60,6 +68,7 @@ const Page = () => {
           className=" rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center justify-center  "
           style={{ scrollbarWidth: "none", backgroundColor: "transparent" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
         >
+
           <div className="w-full flex flex-col items-center ">
             <div
               className="w-full bg-[#ffffff80] p-2 px-4 pt-4 mt-2"
@@ -119,14 +128,7 @@ const Page = () => {
           </div>
         </div>
       </div>
-      <Image
-        className=""
-        src="/svgIcons/agentX3.svg"
-        style={{ height: "36px", width: "126px", resize: "contain" }}
-        height={12}
-        width={42}
-        alt="*"
-      />
+
     </div>
   );
 };

@@ -136,7 +136,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [activeTab, setActiveTab] = useState("Agent Info");
   const [mainAgentsList, setMainAgentsList] = useState([]);
   const [agentData, setAgentData] = useState([]);
-  const [initialLoader, setInitialLoader] = useState(false);
+  const [initialLoader, setInitialLoader] = useState(true);
 
   //code for assigning the umber
   // const []
@@ -398,7 +398,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       setSelectedGptManu(model);
     }
 
-    
+
     setShowModelLoader(true);
     await updateSubAgent(null, model.value);
     setShowModelLoader(false);
@@ -1568,7 +1568,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         name: name,
         phone: phone,
         extraColumns: newArray,
+        userId: selectedUser.id
       };
+      console.log('ApiData', ApiData)
 
       localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
 
@@ -1596,6 +1598,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       }
     } catch (error) {
       //// console.error("Error occured in test api is", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error:", error.response?.data || error.message);
+      } else {
+        console.error("General error:", error);
+      }
     } finally {
       ////console.log;
       setTestAIloader(false);
@@ -1637,33 +1644,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   useEffect(() => {
     getCalenders();
-    const agentLocalDetails = localStorage.getItem(
-      PersistanceKeys.LocalStoredAgentsListMain
-    );
-
-    if (agentLocalDetails) {
-      const agentData = JSON.parse(agentLocalDetails);
-      //// //console.log;
-      setMainAgentsList(agentData);
-    } else {
-      //// //console.log;
-    }
-
-    const userData = localStorage.getItem("User");
-
-    try {
-      // setInitialLoader(true);
-      if (userData) {
-        const userLocalData = JSON.parse(userData);
-        getAgents();
-      }
-    } catch (error) {
-      //// console.error("Error occured is :", error);
-    } finally {
-      setShowPhoneLoader(false);
-
-      // setInitialLoder(false)
-    }
+    setInitialLoader(true)
+    getAgents()
   }, [selectedUser]);
 
   const handleSelectProfileImg = (index) => {
@@ -1703,12 +1685,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     console.log("Pagination status passed is", paginationStatus);
     // console.log('search', search)
     try {
-      const agentLocalDetails = localStorage.getItem(
-        PersistanceKeys.LocalStoredAgentsListMain
-      );
-      if (!agentLocalDetails || searchLoader) {
-        setInitialLoader(true);
-      }
       let offset = mainAgentsList.length;
       let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser.id}`; //?agentType=outbound
 

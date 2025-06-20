@@ -69,16 +69,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
-    
+
     const AT = localStorage.getItem("agentType");
     if (AT) {
       let t = JSON.parse(AT);
+      console.log("Agent type is", t);
       setAgentType(t);
     }
     let loc = getLocalLocation();
     setCountryCode(loc);
 
-    
+
 
     if (localData) {
       const claimNumberDetails = JSON.parse(localData);
@@ -356,7 +357,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
       if (response) {
         // //console.log;
-        // //console.log;
+        console.log("Numbers list iis", response.data.data);
         setPreviousNumber(response.data.data);
       }
     } catch (error) {
@@ -415,6 +416,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         console.log("Response of assign number is", response.data);
         console.log("Check 1")
         if (response.data.status === true) {
+          setOpenCalimNumDropDown(false);
           handleContinue();
           const calimNoData = {
             officeNo: officeNumber,
@@ -570,9 +572,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       // onChange={handleSelectNumber}
                       onChange={(e) => {
                         let value = e.target.value;
-                        // //console.log;
-                        setSelectNumber(value);
-                        setOpenCalimNumDropDown(false);
+                        console.log("Value updated bcz clicked on menu item");
+                        if (agentType?.agentType !== "inbound") {
+                          console.log("Value for outbound is", value);
+                          setSelectNumber(value);
+                          setOpenCalimNumDropDown(false);
+                        }
                       }}
                       renderValue={(selected) => {
                         if (selected === "") {
@@ -597,15 +602,31 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               ? item?.phoneNumber.slice(1)
                               : item?.phoneNumber
                           }
+                          disabled={
+                            typeof selectNumber === "string" &&
+                            selectNumber.replace("+", "") === item.phoneNumber.replace("+", "")
+                          }
                           className="flex flex-row items-center gap-2"
+                          onClick={(e) => {
+                            console.log("Menu item clicked");
+                            // return;
+                            if (showReassignBtn && item?.claimedBy) {
+                              e.stopPropagation();
+                              setShowConfirmationModal(item);
+                              console.log(
+                                "Hit release number api",
+                                item
+                              );
+                              // AssignNumber
+                            }
+                          }}
                         >
                           <div
-                            onClick={(e) => {
-                              if (showReassignBtn && item?.claimedBy) {
-                                e.stopPropagation();
-                                setShowConfirmationModal(item);
-                              }
-                            }}
+                          // (
+                          //   console.log(
+                          //     `Comparing names: agentName="${agentType?.agentName}", claimedBy="${item.claimedBy.name}", equal=${agentType?.agentName?.trim() === item.claimedBy.name?.trim()}`
+                          //   ),
+                          //   agentType?.agentName?.trim() !== item.claimedBy.name?.trim() &&
                           >
                             {item.phoneNumber}
                           </div>
@@ -613,7 +634,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             <div>
                               {item.claimedBy && (
                                 <div
-                                  className="flex flex-row items-center "
+                                  className="flex flex-row items-center"
                                   onClick={(e) => {
                                     if (item?.claimedBy) {
                                       e.stopPropagation();
@@ -924,7 +945,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
           <Footer
             handleContinue={() => {
-              if (agentType === "inbound" && !selectNumber) {
+              if (agentType?.agentType === "inbound" && !selectNumber) {
                 console.log("Without api call");
                 handleContinue();
               } else {
@@ -977,6 +998,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   <button
                     onClick={() => {
                       setShowConfirmationModal(null);
+                      // setSelectNumber("");
                     }}
                   >
                     <Image
@@ -1027,7 +1049,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     fontSize: "20",
                   }}
                   onClick={() => {
+                    console.log("Discard  btn clicked");
+                    setShowConfirmationModal(null);
                     setShowClaimPopup(null);
+                    // setSelectNumber("");
                   }}
                 >
                   Discard

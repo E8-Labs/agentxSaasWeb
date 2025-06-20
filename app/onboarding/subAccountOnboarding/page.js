@@ -1008,7 +1008,7 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
                                                         color: "#000000",
                                                     }}
                                                 >
-                                                    {`Let’s build your AI AgentX`}
+                                                    {`Build Your AI Agent`}
                                                 </div>
 
                                                 {registerLoader ? (

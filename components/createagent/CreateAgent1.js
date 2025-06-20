@@ -206,7 +206,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Speed to Lead",
       details:
         "Instantly engage new leads from Zillow, Realtor.com, Facebook ads, and more the moment they enter your CRM to maximize conversion chances.",
-      focusIcn: "/svgIcons/obj5F.svg",
+      focusIcn: "/svgIcons/obj5RAF.svg",
       unFocusIcon: "/objectiveIcons/obj5UF.png",
     },
     {
@@ -244,7 +244,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       const Data = JSON.parse(U);
       FromAdminOrAgency = Data.subAccountData;
     }
-    console.log("U_Ser type is", FromAdminOrAgency);
+    // console.log("U_Ser type is", FromAdminOrAgency);
     if ((FromAdminOrAgency && FromAdminOrAgency?.userType && FromAdminOrAgency?.userType == UserTypes.RealEstateAgent) || (user && user.user.userType == UserTypes.RealEstateAgent)) {
       return true;
     } else {
@@ -392,7 +392,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             JSON.stringify(response.data.data)
           );
 
-          let AT = agentType;
+          let AT = { agentType, agentName };
           localStorage.setItem("agentType", JSON.stringify(AT));
 
           // if (LocalDetails.plan) {

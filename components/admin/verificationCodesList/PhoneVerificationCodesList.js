@@ -24,14 +24,17 @@ function PhoneVerificationCodesList() {
       setVerificationCodes(parsed);
       setIsCached(true);
       if (parsed.length < LimitPerPage) setHasMore(false);
+      getCodes(0, false);
     } else {
       getCodes(0);
     }
   }, []);
 
-  const getCodes = async (offset = 0) => {
+  const getCodes = async (offset = 0, loading = true) => {
     try {
-      setLoading(true);
+      if (loading) {
+        setLoading(true);
+      }
 
       const localData = localStorage.getItem("User");
       const AuthToken = localData ? JSON.parse(localData).token : null;

@@ -64,7 +64,7 @@ function SolarRepOtherDetails({
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder="Brokerage"
+                placeholder="Company"
                 className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
                 value={companyName}
