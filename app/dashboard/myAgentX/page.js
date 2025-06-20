@@ -433,13 +433,6 @@ function Page() {
   //function for numbers width
 
   const numberDropDownWidth = (agName) => {
-    // if (showDrawer?.agentType === "outbound") {
-    //   return "100%"
-    // }else{
-    //   if(showDrawer?.name == agName || !agName){
-    //     return "100%"
-    //   }
-    // }
     if (
       showDrawerSelectedAgent?.agentType === "outbound" ||
       showDrawerSelectedAgent?.name === agName ||
