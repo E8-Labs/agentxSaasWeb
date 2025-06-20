@@ -30,7 +30,7 @@ export const PersistanceKeys = {
   ExternalCalendarLink:
     "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
   SupportWebinarUrl:
-    "https://api.leadconnectorhq.com/widget/bookings/noah-support-webinar"
+    "https://api.leadconnectorhq.com/widget/bookings/noah-support-webinar",
   // LocalStoredAgentsList
 };
 export const HowtoVideos = {
@@ -82,8 +82,6 @@ export const AgentLLmModels = {
   synthflow: "synthflow",
 };
 
-
-
 export const models = [
   {
     name: "AgentX",
@@ -91,8 +89,7 @@ export const models = [
     value: "gpt-4.1-mini",
     icon: "/agentXOrb.gif",
     disabled: false,
-    model: 'gpt-4.1-mini'//'gpt-4.1-nano',
-
+    model: "gpt-4.1-mini", //'gpt-4.1-nano',
   },
   {
     name: "GPT-4o",
@@ -100,8 +97,7 @@ export const models = [
     value: "gpt-4o-mini",
     icon: "/svgIcons/chatgptIcon.svg",
     disabled: false,
-    model: 'gpt-4o-mini',
-
+    model: "gpt-4o-mini",
   },
   {
     name: "GPT-4 Mini",
@@ -109,8 +105,7 @@ export const models = [
     provider: "openai",
     icon: "/svgIcons/chatgptIcon.svg",
     disabled: false,
-    model: 'gpt-4.1-nano',
-
+    model: "gpt-4.1-nano",
   },
   // {
   //   name: "Grok",
@@ -119,13 +114,12 @@ export const models = [
   //   disabled: false,
   // },
   {
-    name: "LLaMA", // mapped to groq
+    name: "Llama", // mapped to groq
     value: "compound-beta",
     provider: "groq",
     icon: "/svgIcons/llamaIcon.svg",
     disabled: false,
-    model: 'compound-beta',
-
+    model: "compound-beta",
   },
   {
     name: "XAI",
@@ -133,14 +127,14 @@ export const models = [
     value: "compound-beta-mini",
     icon: "/svgIcons/geminiIcon.svg",
     disabled: false,
-    model: 'compound-beta-mini',
+    model: "compound-beta-mini",
   },
   {
     name: "DeepSeek",
-    provider: 'deep-seek',
+    provider: "deep-seek",
     value: "deepseek-chat",
     icon: "/svgIcons/deepseekIcon.svg",
-    model: 'deepseek-chat',
+    model: "deepseek-chat",
     disabled: false,
   },
 ];
