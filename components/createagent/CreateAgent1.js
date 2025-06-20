@@ -206,7 +206,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       title: "Speed to Lead",
       details:
         "Instantly engage new leads from Zillow, Realtor.com, Facebook ads, and more the moment they enter your CRM to maximize conversion chances.",
-      focusIcn: "/svgIcons/obj5F.svg",
+      focusIcn: "/svgIcons/obj5RAF.svg",
       unFocusIcon: "/objectiveIcons/obj5UF.png",
     },
     {
