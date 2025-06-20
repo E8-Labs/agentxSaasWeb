@@ -543,8 +543,15 @@ const AgentsListPaginated = ({
             ))}
           </div>
         </InfiniteScroll>
-      ) : (
-        <NoAgent />
+      ) : ( 
+        // <div> hello</div>
+        <NoAgent showBtn={
+          search ? false : true
+        } 
+        title={
+          search ? "No agent found":"You have no active agents"
+        }
+        />
       )}
     </div>
   );

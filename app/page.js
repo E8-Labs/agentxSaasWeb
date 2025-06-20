@@ -29,6 +29,22 @@ import LoginComponent from "@/components/auth/LoginComponent";
 // import { useRouter, useSearchParams } from "next/navigation";
 
 const Page = ({ length = 6, onComplete }) => {
+
+  useEffect(() => {
+    const handleChunkError = (e) => {
+      if (e.message?.includes('ChunkLoadError')) {
+        console.error('Chunk load failed. Reloading...');
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('error', handleChunkError);
+
+    return () => {
+      window.removeEventListener('error', handleChunkError);
+    };
+  }, []);
+
   return (
     <Suspense>
       {/* <MultiWindow3DScene /> */}

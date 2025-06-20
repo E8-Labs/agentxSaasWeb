@@ -512,7 +512,7 @@ const AddCardDetails = ({
             fontSize: 15
           }}>
           <div>
-            I agree to the
+            I agree to
           </div>
           <a
             href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
