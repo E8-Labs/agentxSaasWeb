@@ -22,6 +22,7 @@ import { formatPhoneNumber } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function AdminTeam({ selectedUser }) {
   const timerRef = useRef(null);
@@ -470,7 +471,7 @@ function AdminTeam({ selectedUser }) {
         user = user.user;
       }
       // //console.log;
-      if (user?.userRole == "AgentX") {
+      if (user?.userRole == "AgentX" && myTeam.length > 0) {
         return true;
       }
       return false;
@@ -479,6 +480,16 @@ function AdminTeam({ selectedUser }) {
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Slider code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider
+          needHelp={false} />
+      </div>
       {showSnak && (
         <AgentSelectSnackMessage
           isVisible={showSnak}
@@ -576,8 +587,8 @@ function AdminTeam({ selectedUser }) {
                           </div>
                           <div
                             className={`text-sm font-medium ${item.status === "Pending"
-                                ? "text-red-500"
-                                : "text-green-500"
+                              ? "text-red-500"
+                              : "text-green-500"
                               }`}
                           >
                             {item.status}

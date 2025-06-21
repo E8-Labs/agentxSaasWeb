@@ -49,6 +49,7 @@ import AdminLeadDetails from "./AdminLeadDetails";
 import AdminGetProfileDetails from "../AdminGetProfileDetails";
 import AdminAssignLead from "./AdminAssignLead";
 import { userLocalData } from "@/components/agency/plan/AuthDetails";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -67,8 +68,8 @@ const AdminLeads = ({
 
   //user local data
   const [userLocalDetails, setUserLocalDetails] = useState(null);
-    const [totalLeads, setTotalLeads] = useState(0);
-  
+  const [totalLeads, setTotalLeads] = useState(0);
+
   const [snackMessage, setSnackMessage] = useState(null);
   const [messageType, setMessageType] = useState(null);
   const [showsnackMessage, setShowSnackMessage] = useState(false);
@@ -1568,6 +1569,16 @@ const AdminLeads = ({
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Slider code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider
+          needHelp={false} />
+      </div>
       <AgentSelectSnackMessage
         isVisible={showsnackMessage}
         hide={() => setShowSnackMessage(false)}
@@ -1674,7 +1685,7 @@ const AdminLeads = ({
                             }
                             leadIs={toggleClick}
                             userProfile={userLocalDetails}
-                            selectedUser ={selectedUser}
+                            selectedUser={selectedUser}
                             totalLeads={totalLeads}
                           />
                         </div>

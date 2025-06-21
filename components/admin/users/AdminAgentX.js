@@ -71,6 +71,7 @@ import Knowledgebase from "@/components/dashboard/myagentX/Knowledgebase";
 import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPaginated";
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
 
@@ -2137,6 +2138,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   return (
     <div className="w-full flex flex-col items-center h-full overflow-hidden">
+    {/* Slider code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider
+          needHelp={false} />
+      </div>
       {/* Code for popover */}
       <Popover
         id="mouse-over-popover"

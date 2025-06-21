@@ -11,7 +11,8 @@ const AllowSmartRefillPopup = ({
   smartRefillLoaderLater,
   handleSmartRefillLater,
   handleSmartRefill,
-  loader
+  loader,
+  xLoader
 }) => {
 
 
@@ -37,20 +38,26 @@ const AllowSmartRefillPopup = ({
           >
             Smart Refill
           </div>
-          <button
-            className="text-xl font-semibold"
-            onClick={() => {
-              // handleCloseReillPopup();
-              handleSmartRefillLater();
-            }}
-          >
-            <Image
-              src={"/assets/cross.png"}
-              alt="*"
-              height={10}
-              width={10}
-            />
-          </button>
+          {
+            xLoader ? (
+              <CircularProgress size={15} />
+            ) : (
+              <button
+                className="text-xl font-semibold"
+                onClick={() => {
+                  // handleCloseReillPopup();
+                  handleSmartRefillLater(false);
+                }}
+              >
+                <Image
+                  src={"/assets/cross.png"}
+                  alt="*"
+                  height={10}
+                  width={10}
+                />
+              </button>
+            )
+          }
         </div>
         <div className="mt-8 flex flex-row items-center justify-between w-full">
           <div style={{ fontSize: "22px", fontWeight: "600", }}>

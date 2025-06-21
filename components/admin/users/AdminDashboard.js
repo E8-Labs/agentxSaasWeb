@@ -18,6 +18,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const AdminDashboard = ({ selectedUser }) => {
   const router = useRouter();
@@ -309,6 +310,16 @@ const AdminDashboard = ({ selectedUser }) => {
 
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
+
+      {/* Slider code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider />
+      </div>
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
@@ -341,8 +352,8 @@ const AdminDashboard = ({ selectedUser }) => {
                           screenHeight < 640
                             ? 35
                             : screenHeight < 800
-                            ? 50
-                            : 75,
+                              ? 50
+                              : 75,
                         fontWeight: "700",
                         color: "#000",
                       }}
@@ -544,8 +555,8 @@ const AdminDashboard = ({ selectedUser }) => {
                       rate={
                         statsComparisonDetails?.callsGt10Change
                           ? `${statsComparisonDetails?.callsGt10Change.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-b-2"
@@ -560,8 +571,8 @@ const AdminDashboard = ({ selectedUser }) => {
                       rate={
                         statsComparisonDetails?.hotLeadsChange
                           ? `${statsComparisonDetails?.hotLeadsChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -584,8 +595,8 @@ const AdminDashboard = ({ selectedUser }) => {
                       rate={
                         statsComparisonDetails?.bookingChange
                           ? `${statsComparisonDetails?.bookingChange.toFixed(
-                              2
-                            )}%`
+                            2
+                          )}%`
                           : "-"
                       }
                       borderSide="border-l-2 border-b-2"
@@ -617,121 +628,7 @@ const AdminDashboard = ({ selectedUser }) => {
                     />
                   </div>
 
-                  <div className="w-full flex flex-row items-center justify-between mt-4">
-                    <div
-                      className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
-                      style={{
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={() => {
-                        setAIWebinarhover(true);
-                      }}
-                      onMouseLeave={() => {
-                        setAIWebinarhover(false);
-                      }}
-                      onClick={() => {
-                        if (typeof window !== "undefined") {
-                          let url = userDetails?.campaignee
-                            ? userDetails?.campaignee.officeHoursUrl
-                            : PersistanceKeys.GlobalWebinarUrl;
-                          //console.log;
-                          window.open(url, "_blank");
-                        }
-                      }}
-                    >
-                      <div className="flex flex-row gap-2">
-                        {aIWebinarhover ? (
-                          <Image
-                            src={"/assets/whiteCalenderIcon.svg"}
-                            alt="calender"
-                            height={24}
-                            width={24}
-                          />
-                        ) : (
-                          <Image
-                            src={"/svgIcons/calenderIcon.svg"}
-                            alt="calender"
-                            height={24}
-                            width={24}
-                          />
-                        )}
 
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "600",
-                            color: aIWebinarhover ? "white" : "#7902DF",
-                          }}
-                        >
-                          Join our weekly AI Webinar
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: "400",
-                          marginTop: "1vh",
-                        }}
-                      >
-                        {`Learn tips and tricks to enhance your AI, perfect your script, and master best practices in our weekly live webinar. Don’t miss out on actionable insights to boost your success!`}
-                      </div>
-                    </div>
-
-                    <div
-                      className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
-                      onMouseEnter={() => {
-                        setConsulthover(true);
-                      }}
-                      onMouseLeave={() => {
-                        setConsulthover(false);
-                      }}
-                      onClick={() => {
-                        let url = PersistanceKeys.GlobalConsultationUrl;
-                        if (typeof window !== "undefined") {
-                          window.open(url, "_blank");
-                        }
-                      }}
-                      style={{
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div className="flex flex-row gap-2">
-                        {consultHover ? (
-                          <Image
-                            src={"/svgIcons/screenIcon.svg"}
-                            alt="calender"
-                            height={24}
-                            width={24}
-                          />
-                        ) : (
-                          <Image
-                            src={"/assets/blueScreenIcon.svg"}
-                            alt="calender"
-                            height={24}
-                            width={24}
-                          />
-                        )}
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "600",
-                            color: consultHover ? "white" : "#7902DF",
-                          }}
-                        >
-                          Done with you agent setup
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: "400",
-                          marginTop: "1vh",
-                        }}
-                      >
-                        {`Get up and running the right way. We'll work alongside to set up and integrate your CRM, ensuring everything is optimized for success from the start. See results faster and start closing more deals.`}
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

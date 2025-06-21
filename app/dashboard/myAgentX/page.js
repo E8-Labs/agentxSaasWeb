@@ -1810,16 +1810,17 @@ function Page() {
 
       if (response) {
         ////console.log;
+        setOpenTestAiModal(false);
         setShowSuccessSnack(response.data.message);
         setIsVisibleSnack(true);
-        if (response.data.status === true) {
-          setOpenTestAiModal(false);
-          // setName("");
-          // setPhone("");
-        }
+        // if (response.data.status === true) {
+        //   // setName("");
+        //   // setPhone("");
+        // }
       }
     } catch (error) {
-      //// console.error("Error occured in test api is", error);
+      console.error("Error occured in test api is", error);
+      setOpenTestAiModal(false);
     } finally {
       ////console.log;
       setTestAIloader(false);

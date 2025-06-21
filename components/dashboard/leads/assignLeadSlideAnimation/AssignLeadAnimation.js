@@ -67,6 +67,7 @@ export default function AssignLeadAnimation({
     //refill loader
     const [smartRefillLoader, setSmartRefillLoader] = useState(false);
     const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
+    const [xLoader, setXLoader] = useState(false);
 
     //handle Assign after values added
     const [shouldAssignLead, setShouldAssignLead] = useState(false);
@@ -286,20 +287,27 @@ export default function AssignLeadAnimation({
             // }
             setSmartRefillLoader(false);
             setSmartRefillLoaderLater(false);
+            setXLoader(false);
         } finally {
             setLoader(false);
             setSmartRefillLoader(false);
             setSmartRefillLoaderLater(false);
+            setXLoader(false);
         }
     };
 
     //refill later
-    const handleSmartRefillLater = async () => {
+    const handleSmartRefillLater = async (maybeLater = true) => {
         try {
-            setSmartRefillLoaderLater(true);
+            if (maybeLater) {
+                setSmartRefillLoaderLater(true);
+            } else {
+                setXLoader(true);
+            }
             handleAssignLead();
         } catch (error) {
             setSmartRefillLoaderLater(false);
+            setXLoader(false);
             console.error("Error occured is", error);
         }
     };
@@ -469,7 +477,10 @@ export default function AssignLeadAnimation({
                                     }}
                                     smartRefillLoader={smartRefillLoader}
                                     smartRefillLoaderLater={smartRefillLoaderLater}
-                                    handleSmartRefillLater={handleSmartRefillLater}
+                                    xLoader={xLoader}
+                                    handleSmartRefillLater={(value) => {
+                                        handleSmartRefillLater(value);
+                                    }}
                                     handleSmartRefill={handleSmartRefill}
                                     loader={loader}
                                 />

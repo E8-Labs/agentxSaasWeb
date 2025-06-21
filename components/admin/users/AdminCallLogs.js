@@ -8,9 +8,10 @@ import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 import AdminAllCalls from './callLog/AdminAllCalls';
 import AdminScheduledCalls from './callLog/AdminScheduledCalls';
 import AdminActiveCalls from './callLog/AdminActiveCalls';
+import DashboardSlider from '@/components/animations/DashboardSlider';
 
 
-function AdminCallLogs({selectedUser}) {
+function AdminCallLogs({ selectedUser }) {
 
   const [activeTab, setActiveTab] = useState("All Calls");
 
@@ -18,8 +19,18 @@ function AdminCallLogs({selectedUser}) {
   return (
     <div className='w-full flex flex-col items-center overflow-hidden'>
       <div className=' w-full flex flex-row justify-between items-center py-4 px-4'
-        // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
+      // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
+        {/* Slider code */}
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0
+          }}>
+          <DashboardSlider
+            needHelp={false} />
+        </div>
         <div style={{ fontSize: 24, fontWeight: '600' }}>
           Call Log
         </div>
@@ -45,12 +56,12 @@ function AdminCallLogs({selectedUser}) {
       <div className='w-full'>
         {
           activeTab === "All Calls" ? (
-            <AdminAllCalls selectedUser = {selectedUser} />
+            <AdminAllCalls selectedUser={selectedUser} />
           ) : (
             activeTab === "Scheduled" ? (
-              <AdminScheduledCalls   selectedUser = {selectedUser} />
+              <AdminScheduledCalls selectedUser={selectedUser} />
             ) : (
-              <AdminActiveCalls  selectedUser = {selectedUser}  />
+              <AdminActiveCalls selectedUser={selectedUser} />
             )
           )
         }

@@ -17,6 +17,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import ResetTrial from './ResetTrial'
 
 function SelectedUserDetails({
     selectedUser,
@@ -86,7 +87,9 @@ function SelectedUserDetails({
     const [pauseLoader, setpauseLoader] = useState(false);
     //pause confirmations
     const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
-    const [user,setUser] = useState(null)
+    const [user, setUser] = useState(null)
+    //reset trial
+    const [showResetTrialPopup, setShowResetTrialPopup] = useState(false);
 
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
@@ -100,12 +103,12 @@ function SelectedUserDetails({
         }
     }, [selectedUser]);
 
-    useEffect(()=>{
-        const getData = async () =>{
+    useEffect(() => {
+        const getData = async () => {
 
             let d = await AdminGetProfileDetails(selectedUser.id)
 
-            if(d){
+            if (d) {
                 setUser(d)
             }
 
@@ -113,7 +116,7 @@ function SelectedUserDetails({
         }
 
         getData()
-    },[selectedUser])
+    }, [selectedUser])
 
 
     const handleManuClick = (item) => {
@@ -246,7 +249,7 @@ function SelectedUserDetails({
             />
 
             <div className='flex flex-col items-center justify-center w-full'>
-                <div style={{ alignSelf: 'center' }} className={`w-full ${agencyUser ? "h-[100svh] overflow-hidden":"h-[80vh]"} bg-white items-center justify-center`}>
+                <div style={{ alignSelf: 'center' }} className={`w-full ${agencyUser ? "h-[100svh] overflow-hidden" : "h-[80vh]"} bg-white items-center justify-center`}>
                     <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
                         <div className='flex flex-row gap-2 items-center justify-start'>
                             <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
@@ -307,6 +310,28 @@ function SelectedUserDetails({
                                             )
                                         }
                                     </div>
+                                )
+                            }
+
+                            <div>
+                                <button
+                                    className='text-white bg-purple outline-none rounded-xl px-3'
+                                    style={{ height: "50px" }}
+                                    onClick={() => {
+                                        setShowResetTrialPopup(true);
+                                    }}
+                                >
+                                    Reset Trial
+                                </button>
+                            </div>
+
+                            {
+                                showResetTrialPopup && (
+                                    <ResetTrial
+                                        handleClose={() => {
+                                            setShowResetTrialPopup(false);
+                                        }}
+                                    />
                                 )
                             }
 
@@ -390,7 +415,7 @@ function SelectedUserDetails({
 
                         </div>
 
-                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? "h-[95vh]":"h-[70vh]"} overflow-auto w-10/12`}>
+                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? "h-[95vh]" : "h-[70vh]"} overflow-auto w-10/12`}>
                             {
                                 selectedManu.name == "Leads" ? (
                                     <AdminLeads1 selectedUser={selectedUser} />
@@ -399,7 +424,7 @@ function SelectedUserDetails({
                                         <AdminPipeline1 selectedUser={selectedUser} />
                                     ) : selectedManu.name == "Agents" ? (
                                         <AdminAgentX
-                                            selectedUser={user&&user}
+                                            selectedUser={user && user}
                                             from={from}
                                             agencyUser={agencyUser}
                                         />

@@ -9,6 +9,7 @@ import AdminPhoneNumber from "./AdminProfileData/AdminPhoneNumber";
 import AdminXbarServices from "./AdminProfileData/AdminXbarServices";
 import AdminSendFeedback from "./AdminSendFeedback";
 import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAccountBilling";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -93,6 +94,16 @@ function AdminProfileData({ selectedUser, from }) {
             className="w-full flex flex-col items-center"
             style={{ overflow: "hidden", height: "100vh" }}
         >
+            {/* Slider code */}
+            <div
+                style={{
+                    position: "absolute",
+                    right: 0,
+                    bottom: 0
+                }}>
+                <DashboardSlider
+                    needHelp={false} />
+            </div>
             <div
                 className=" w-full flex flex-row justify-between items-center py-4 px-10"
                 style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}

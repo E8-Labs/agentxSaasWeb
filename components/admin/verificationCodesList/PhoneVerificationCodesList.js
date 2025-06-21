@@ -18,16 +18,17 @@ function PhoneVerificationCodesList() {
   const [isCached, setIsCached] = useState(false);
 
   useEffect(() => {
-    const localCache = localStorage.getItem(PersistanceKeys.LocalVerificationCodes);
-    if (localCache) {
-      const parsed = JSON.parse(localCache);
-      setVerificationCodes(parsed);
-      setIsCached(true);
-      if (parsed.length < LimitPerPage) setHasMore(false);
-      getCodes(0, false);
-    } else {
-      getCodes(0);
-    }
+    getCodes(0);
+    // const localCache = localStorage.getItem(PersistanceKeys.LocalVerificationCodes);
+    // if (localCache) {
+    //   const parsed = JSON.parse(localCache);
+    //   setVerificationCodes(parsed);
+    //   setIsCached(true);
+    //   if (parsed.length < LimitPerPage) setHasMore(false);
+    //   getCodes(0, false);
+    // } else {
+    //   getCodes(0);
+    // }
   }, []);
 
   const getCodes = async (offset = 0, loading = true) => {

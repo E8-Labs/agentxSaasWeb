@@ -55,6 +55,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import AdminLeadDetails from "../AdminLeadDetails";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef();
@@ -1683,6 +1684,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
 
   return (
     <div className="w-full flex flex-col items-start h-[77vh] mt-7">
+      {/* Slider code */}
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider
+          needHelp={false} />
+      </div>
       <AgentSelectSnackMessage
         type={SnackbarTypes.Success}
         isVisible={SuccessSnack == null || SuccessSnack == false ? false : true}
