@@ -1,6 +1,6 @@
 const voicesList = [
   {
-    voice_id: "yM93hbw8Qtvdma2wCnJG ", //"o3E7GHj69RKX5xFrKDhd",Paige
+    voice_id: "yM93hbw8Qtvdma2wCnJG", //"o3E7GHj69RKX5xFrKDhd",Paige
     name: "Ava",
     preview: "/voicesList/Ava2.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/o3E7GHj69RKX5xFrKDhd/6a8be761-9a5a-4858-bbb1-a1aa5bd88c51.mp3",

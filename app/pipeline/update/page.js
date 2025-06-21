@@ -89,7 +89,7 @@ const Page = () => {
         //console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
-          router.push("/dashboard/leads");
+          router.push("/dashboard/myAgentX");
         } else {
           // setLoader(false);
         }
