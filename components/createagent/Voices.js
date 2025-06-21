@@ -1,8 +1,8 @@
 const voicesList = [
   {
-    voice_id: "Paige", //"o3E7GHj69RKX5xFrKDhd",
+    voice_id: "yM93hbw8Qtvdma2wCnJG ", //"o3E7GHj69RKX5xFrKDhd",Paige
     name: "Ava",
-    preview: "/voicesList/Ava.MP3",
+    preview: "/voicesList/Ava2.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/o3E7GHj69RKX5xFrKDhd/6a8be761-9a5a-4858-bbb1-a1aa5bd88c51.mp3",
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/ava.png",
@@ -32,7 +32,7 @@ const voicesList = [
   {
     voice_id:"wqS2JTzjt7fARO3ZxCVZ", //"XUK4JY4Yz2FXn6NAbXKz",
     name: "Dax",
-    preview: "/voicesList/Dax.MP3", //"https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
+    preview: "/voicesList/Dax2.MP3", //"https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/Mtewh2emAIf6sPTaximW/a46327b2-cbf7-42d8-b547-7391eeef8d3f.mp3",
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/dax.png",
     status: "Popular",
