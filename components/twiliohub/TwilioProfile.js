@@ -21,7 +21,7 @@ const TwilioProfile = () => {
             id: 2,
             title: "CNAM",
             img: "/twiliohubassets/cnam.jpg",
-            href: "",
+            href: "/cnam",
             width: 20,
             height: 20
         },

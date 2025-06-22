@@ -2,6 +2,7 @@
 import BusinessInfo from '@/components/twiliohub/customerprofile/BusinessInfo';
 import ContactPoint from '@/components/twiliohub/customerprofile/ContactPoint';
 import GeneralInfo from '@/components/twiliohub/customerprofile/GeneralInfo';
+import TwilioHeader from '@/components/twiliohub/twilioglobalcomponents/TwilioHeader';
 import React, { useState } from 'react';
 
 const Page = () => {
@@ -44,13 +45,8 @@ const Page = () => {
 
   return (
     <div className='h-screen w-full'>
-      <div className='w-full flex flex-row items-center justify-between px-8 h-[10vh] border-b'>
-        <div style={{ fontWeight: "700", fontSize: 22 }}>
-          Twilio Hub
-        </div>
-        <div>
-          Notifications
-        </div>
+      <div className='w-full px-8 h-[10vh] border-b'>
+        <TwilioHeader />
       </div>
       <div className='h-[90vh] flex flex-row items-start'>
         <div className='w-2/12 h-[100%] border-r pt-8 ms-8'>
