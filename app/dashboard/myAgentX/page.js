@@ -2324,7 +2324,7 @@ function Page() {
         className="w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>My Agents</div>
+        <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
 
         <div className="flex flex-row gap-4 items-center">
           <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">

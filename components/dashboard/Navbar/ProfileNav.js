@@ -817,12 +817,12 @@ const ProfileNav = () => {
         </div> */}
         </div>
         {/* Lower body */}
-        <div>
+        <div className="w-full">
           {/* Code for Check list menu bar */}
           <div>{userDetails && <CheckList userDetails={userDetails} />}</div>
 
           <div
-            className="w-full flex flex-row items-start justify-center pt-2"
+            className="w-full flex flex-row items-start justify-start pt-2"
             style={{
               borderTop: "1px solid #00000010",
             }}

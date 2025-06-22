@@ -2240,7 +2240,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         className="w-full flex flex-row justify-between items-center py-4 px-10"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>My Agent</div>
+        <div style={{ fontSize: 24, fontWeight: "600" }}>Agent</div>
         <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
           <input
             // style={styles.paragraph}

@@ -88,11 +88,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }, [params]);
 
   useEffect(() => {
-  if (enterPressed && checkPhoneResponse === false) {
-    handleVerifyPopup();
-    setEnterPressed(false); // reset it
-  }
-}, [enterPressed, checkPhoneResponse]);
+    if (enterPressed && checkPhoneResponse === false) {
+      handleVerifyPopup();
+      setEnterPressed(false); // reset it
+    }
+  }, [enterPressed, checkPhoneResponse]);
 
 
   useEffect(() => {
@@ -404,6 +404,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         verificationCode: VerifyCode.join(""),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
+      console.log("Data sending in login api", ApiData);
       setLoginLoader(true);
       const response = await axios.post(Apis.LogIn, ApiData, {
 
@@ -484,7 +485,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     router.push("/admin");
                   } else if (response.data.data.user.userRole == "AgencySubAccount") {
                     router.push("/dashboard");
-                  }else if (response.data.data.user.userRole == "Agency") {
+                  } else if (response.data.data.user.userRole == "Agency") {
                     router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/leads");
@@ -509,7 +510,11 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         // console.error("Login failed:", data.error);
       }
     } catch (error) {
-      console.error("Error during login:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Axios error while login api:", error.response?.data || error.message);
+      } else {
+        console.error("General error while login api:", error);
+      }
     }
   };
 
@@ -579,7 +584,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     }
   };
 
- 
+
   const handlePaste = (e) => {
     e.preventDefault(); // Prevent default behavior to avoid issues with pasting
     const pastedText = e.clipboardData.getData("text").slice(0, length); // Get the pasted text and slice to length

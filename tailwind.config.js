@@ -25,6 +25,7 @@ module.exports = {
         purple2: "#1C55FF",
         lightBlue: "#402fff10",
         brdColor: "#15151510",
+        grayclr75: "#757575",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

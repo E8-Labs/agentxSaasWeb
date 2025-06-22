@@ -511,9 +511,9 @@ const AdminLeadDetails = ({
                         return JSON.stringify(value); // Convert to string or handle as needed
                     }
                     const initialTextLength = Math.ceil(
-                        value.length > 60 ? 60 : value.length
+                        value.length > 20 ? 20 : value.length
                     ); // 50 characters
-                    var dots = value.length > 60 ? "..." : "";
+                    var dots = value.length > 20 ? "..." : "";
                     const initialText = expandedCustomFields.includes(title)
                         ? value
                         : value.slice(0, initialTextLength);
