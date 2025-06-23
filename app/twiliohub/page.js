@@ -2,6 +2,7 @@
 import BusinessInfo from '@/components/twiliohub/customerprofile/BusinessInfo';
 import ContactPoint from '@/components/twiliohub/customerprofile/ContactPoint';
 import GeneralInfo from '@/components/twiliohub/customerprofile/GeneralInfo';
+import TwilioCustomerProfileAnimation from '@/components/twiliohub/customerprofile/TwilioCustomerProfileAnimation';
 import TwilioHeader from '@/components/twiliohub/twilioglobalcomponents/TwilioHeader';
 import React, { useState } from 'react';
 
@@ -48,8 +49,8 @@ const Page = () => {
       <div className='w-full px-8 h-[10vh] border-b'>
         <TwilioHeader />
       </div>
-      <div className='h-[90vh] flex flex-row items-start'>
-        <div className='w-2/12 h-[100%] border-r pt-8 ms-8'>
+      <div className='h-[90vh] flex flex-row items-start flex flex-row justify-center overflow-hidden'>
+        {/*<div className='w-2/12 h-[100%] border-r pt-8 ms-8'>
           <div>
             {
               menuBar.map((item) => {
@@ -70,9 +71,9 @@ const Page = () => {
               })
             }
           </div>
-        </div>
+          </div>{renderMenuComponent()}*/}
         <div className='w-10/12 pt-8 flex flex-row items-start justify-center h-[100%]'>
-          {renderMenuComponent()}
+          <TwilioCustomerProfileAnimation />
         </div>
       </div>
     </div>

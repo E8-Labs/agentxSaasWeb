@@ -1069,8 +1069,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         AuthToken = UserDetails.token;
       }
       ////console.log;
-      const ApiPath = Apis.userAvailablePhoneNumber;
-      ////console.log;
+      const ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${selectedUser.id}`;
+      console.log(`Api path is ${ApiPath}`);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -1080,7 +1080,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       });
 
       if (response) {
-        //// //console.log;
+        console.log("response of get available numbersapi", response);
         ////// //console.log;
         setPreviousNumber(response.data.data);
       }

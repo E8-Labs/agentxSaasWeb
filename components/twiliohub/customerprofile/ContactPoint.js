@@ -1,7 +1,9 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 
-const ContactPoint = () => {
+const ContactPoint = ({
+  handleBack
+}) => {
 
   const [agreeTerms, setAgreeTerms] = useState(false);
 
@@ -20,7 +22,7 @@ const ContactPoint = () => {
 
   return (
     <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-      <div className='w-8/12 max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
+      <div className='w-8/12 h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
         <div style={{ fontWeight: "700", fontSize: 22 }}>
           Point of Contact
         </div>
@@ -120,8 +122,14 @@ const ContactPoint = () => {
           </div>
         </div>
       </div>
-      <div className='w-10/12 pb-12 max-h-[20%] flex flex-row items-center justify-between'>
-        <button className='outline-none border-none text-purple' style={styles.normalTxt}>
+      <div className='w-10/12 h-[20%] flex flex-row items-center justify-between'>
+        <button
+          className='outline-none border-none text-purple'
+          style={styles.normalTxt}
+          onClick={() => {
+            handleBack();
+          }}
+        >
           Back
         </button>
         <button className='h-[50px] w-[170px] text-white text-center rounded-lg bg-purple'>

@@ -1,6 +1,48 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
 
-const GeneralInfo = () => {
+const GeneralInfo = ({
+  legalBusinessNameP,
+  profileFirendlyNameP,
+  countryP,
+  street1P,
+  street2P,
+  cityP,
+  provienceP,
+  postalCodeP,
+  handleContinue
+}) => {
+
+  const [legalBusinessName, setLegalBusinessName] = useState("");
+  const [profileFirendlyName, setProfileFriendlyName] = useState("");
+  //physical business address
+  const [country, setCountry] = useState("");
+  const [street1, setStreet1] = useState("");
+  const [street2, setStreet2] = useState("");
+  const [city, setCity] = useState("");
+  const [provience, setProvience] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+
+  const [isDisabled, setIsDisabled] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!legalBusinessName) {
+        setIsDisabled(true);
+      } else {
+        setIsDisabled(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer); // Clean up the timer on component unmount
+  }, [legalBusinessName]);
+
+  //handle continue
+  const handleNext = () => {
+    const generalInfo = {
+      legalBusinessName: legalBusinessName
+    }
+    handleContinue(generalInfo);
+  }
 
   const styles = {
     normalTxt: {
@@ -11,7 +53,7 @@ const GeneralInfo = () => {
 
   return (
     <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-      <div className='w-8/12 max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
+      <div className='w-8/12 h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
         <div style={{ fontWeight: "700", fontSize: 22 }}>
           General Information
         </div>
@@ -30,6 +72,10 @@ const GeneralInfo = () => {
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Legal business name'
+            value={legalBusinessName}
+            onChange={(e) => {
+              setLegalBusinessName(e.target.value)
+            }}
           />
         </div>
         <div
@@ -92,11 +138,17 @@ const GeneralInfo = () => {
           />
         </div>
       </div>
-      <div className='w-10/12 pb-12 max-h-[20%] flex flex-row items-center justify-between'>
+      <div className='w-10/12 h-[10%] flex flex-row items-center justify-between'>
         <button className='outline-none border-none text-purple' style={styles.normalTxt}>
           Save&Exit
         </button>
-        <button className='h-[50px] w-[170px] text-white text-center rounded-lg bg-purple'>
+        <button
+          className={`h-[50px] w-[170px] text-center rounded-lg ${isDisabled ? "bg-[#00000040] text-black" : "bg-purple text-white"}`}
+          disabled={isDisabled}
+          onClick={() => {
+            handleContinue()
+          }}
+        >
           Continue
         </button>
       </div>

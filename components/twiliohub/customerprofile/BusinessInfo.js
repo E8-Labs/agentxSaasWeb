@@ -2,16 +2,25 @@ import { Box, FormControl, MenuItem, Select } from '@mui/material';
 import Image from 'next/image';
 import React, { useRef, useState } from 'react';
 
-const BusinessInfo = () => {
+const BusinessInfo = ({
+  handleContinue,
+  handleBack
+}) => {
 
   const selectRef = useRef(null);
 
-  const [selectedCustomerType, setSelectedCustomerType] = useState("");
   const [toggleBusinessRegion, setToggleBusinessRegion] = useState([]);
 
   //dropdown
-  const [selectBusinessType, setSelectBusinessType] = useState("");
   const [openBusinessTypeDropwDown, setOpenBusinessTypeDropwDown] = useState(false);
+
+
+  const [selectedCustomerType, setSelectedCustomerType] = useState("");
+  const [selectBusinessType, setSelectBusinessType] = useState("");
+  const [businessIndustry, setBusinessIndustry] = useState("");
+  const [businessRegIdType, setBusinessRegIdType] = useState("");
+  const [businessRegNumber, setBusinessRegNumber] = useState("");
+  const [businessOperatingRegion, setBusinessOperatingRegion] = useState("");
 
   //radios check images
   const getRadioImg = (id) => {
@@ -93,7 +102,7 @@ const BusinessInfo = () => {
 
   return (
     <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-      <div className='w-8/12 max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
+      <div className='w-8/12 h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
         <div style={{ fontWeight: "700", fontSize: 22 }}>
           Business Information
         </div>
@@ -283,11 +292,22 @@ const BusinessInfo = () => {
           Business Region of Operation
         </div>
       </div>
-      <div className='w-10/12 pb-12 max-h-[20%] flex flex-row items-center justify-between'>
-        <button className='outline-none border-none text-purple' style={styles.normalTxt}>
+      <div className='w-10/12 max-h-[10%] flex flex-row items-center justify-between'>
+        <button
+          className='outline-none border-none text-purple'
+          style={styles.normalTxt}
+          onClick={() => {
+            handleBack()
+          }}
+        >
           Back
         </button>
-        <button className='h-[50px] w-[170px] text-white text-center rounded-lg bg-purple'>
+        <button
+          className='h-[50px] w-[170px] text-white text-center rounded-lg bg-purple'
+          onClick={() => {
+            handleContinue()
+          }}
+        >
           Continue
         </button>
       </div>

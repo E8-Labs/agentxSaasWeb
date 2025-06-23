@@ -1,12 +1,21 @@
 import { ArrowLeftIcon } from '@phosphor-icons/react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const TwilioProfile = () => {
 
     const router = useRouter();
     const pathname = usePathname();
+
+    //prefetch the routes
+    useEffect(() => {
+        links.forEach((link) => {
+            if (link.href) {
+                router.prefetch(link.href);
+            }
+        });
+    }, []);
 
     const links = [
         {
@@ -21,7 +30,7 @@ const TwilioProfile = () => {
             id: 2,
             title: "CNAM",
             img: "/twiliohubassets/cnam.jpg",
-            href: "/cnam",
+            href: "/twiliohub/cnam",
             width: 20,
             height: 20
         },
@@ -29,7 +38,7 @@ const TwilioProfile = () => {
             id: 3,
             title: "SHAKEN/STIR Calling",
             img: "/twiliohubassets/stir.jpg",
-            href: "",
+            href: "/twiliohub/stirCalling",
             width: 21,
             height: 21
         },
@@ -37,7 +46,7 @@ const TwilioProfile = () => {
             id: 4,
             title: "Voice Integrity",
             img: "/twiliohubassets/voiceintegrity.jpg",
-            href: "",
+            href: "/twiliohub/twilioIntegrations",
             height: 18,
             width: 18
         },
@@ -51,6 +60,7 @@ const TwilioProfile = () => {
         },
     ];
 
+    //styles
     const styles = {
         linkTxt: {
             fontWeight: "500",
@@ -63,7 +73,12 @@ const TwilioProfile = () => {
         <div className='w-full flex flex-col items-center h-screen'>
             <div className='w-[80%] mt-8'>
                 <button className='outline-none border-none h-[50px] w-[120px] px-2 rounded-lg bg-[#ffffff30] flex flex-row items-center justify-center gap-2 text-white'>
-                    <ArrowLeftIcon size={16} className="text-white" />
+                    <Image
+                        alt='*'
+                        src={"/twiliohubAssets/arrowBack.jpg"}
+                        height={14}
+                        width={16}
+                    />
                     <p>
                         Back
                     </p>
@@ -76,6 +91,10 @@ const TwilioProfile = () => {
                             <button
                                 key={item.id}
                                 className='border-none mt-6 outline-none flex flex-row items-center gap-4 text-start'
+                                onClick={() => {
+                                    console.log(`Routing to ${item.href}`);
+                                    router.push(item.href);
+                                }}
                             >
                                 <div className={`bg-[#ffffff30] h-[40px] w-[40px] rounded-full ${pathname === item.href ? "border border-2 border-whte" : "bordere-transparent outline-none"} flex flex-row items-center justify-center`}>
                                     <Image
