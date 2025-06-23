@@ -1,5 +1,6 @@
 "use client"
 
+import Cnammain from '@/components/twiliohub/cnamtab/Cnammain'
 import TwilioHeader from '@/components/twiliohub/twilioglobalcomponents/TwilioHeader'
 import React from 'react'
 
@@ -10,7 +11,7 @@ const Page = () => {
         <TwilioHeader />
       </div>
       <div className='h-[90vh]'>
-        
+        <Cnammain />
       </div>
     </div>
   )
