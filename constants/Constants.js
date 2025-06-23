@@ -20,6 +20,7 @@ export const PersistanceKeys = {
   ObjectionsList: "ObjectionsList",
   //moving from admin to creat agent
   isFromAdminOrAgency: "isFromAdminOrAgency",
+  leadUploadState:"leadUploadState",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",

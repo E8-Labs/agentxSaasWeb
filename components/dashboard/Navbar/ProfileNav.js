@@ -34,6 +34,7 @@ import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import CheckList from "./CheckList";
+import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -155,6 +156,17 @@ const ProfileNav = () => {
 
   const [userType, setUserType] = useState("");
 
+
+  // Add state for batch upload persistence and progress
+  const [uploading, setUploading] = useState(false);
+  const [currentBatch, setCurrentBatch] = useState(0);
+  const [totalBatches, setTotalBatches] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [userLeads, setUserLeads] = useState("loading");
+
+
+
+
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
     let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
@@ -194,6 +206,53 @@ const ProfileNav = () => {
     };
     testNot();
   }, []);
+
+
+  //conde for continue lead uploading on route change
+
+  useEffect(() => {
+    const savedUpload = localStorage.getItem(PersistanceKeys.leadUploadState);
+    if (savedUpload) {
+      const {
+        data,
+        currentBatch,
+        sheetName,
+        columnMappings,
+        tagsValue,
+        enrich,
+      } = JSON.parse(savedUpload);
+
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      console.log("uploading in background after route change")
+
+      uploadBatchSequence({
+        data,
+        sheetName,
+        columnMappings,
+        tagsValue,
+        enrich,
+        startIndex: currentBatch,
+        AuthToken,
+        setUploading,
+        setUploadProgress,
+        setCurrentBatch,
+        setUserLeads,
+        // onProgress: (batch, total) => {
+        //   console.log(`Uploading batch ${batch}/${total}`);
+        // },
+        onComplete: () => {
+          console.log("Background lead upload complete.");
+        },
+      });
+    }
+  }, []);
+
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
@@ -448,7 +507,7 @@ const ProfileNav = () => {
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
                   Data?.totalSecondsAvailable >= 120)
-                   ||
+                ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
                   Data?.totalSecondsAvailable >= 120))
@@ -652,7 +711,7 @@ const ProfileNav = () => {
     }
   };
 
-  const handleClose =async (data) => {
+  const handleClose = async (data) => {
     // //console.log;
     if (data.status === true) {
       let newCard = data.data;

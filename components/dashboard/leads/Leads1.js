@@ -30,7 +30,7 @@ import AgentSelectSnackMessage, {
 import { SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import {
   LeadDefaultColumns,
   LeadDefaultColumnsArray,
@@ -41,6 +41,8 @@ import EnrichConfirmModal from "./EnrichCofirmModal";
 import getProfileDetails from "@/components/apis/GetProfile";
 import ConfirmPerplexityModal from "./extras/CofirmPerplexityModal";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { LeadProgressBanner } from "./extras/LeadProgressBanner";
+import { uploadBatchSequence } from "./extras/UploadBatch";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -115,6 +117,16 @@ const Leads1 = () => {
   //enrich toggle value
   const [isEnrichToggle, setIsEnrichToggle] = useState(false);
 
+
+  // Add state for batch upload persistence and progress
+  const [uploading, setUploading] = useState(false);
+  const [currentBatch, setCurrentBatch] = useState(0);
+  const [totalBatches, setTotalBatches] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+
+
+
   useEffect(() => {
     //console.log;
     if (ShowUploadLeadModal == false) {
@@ -132,9 +144,34 @@ const Leads1 = () => {
     }
   }, [ShowUploadLeadModal]);
 
+  // On component mount, check for upload state
   useEffect(() => {
-    //console.log;
-  }, [defaultColumns]); // This will log when `defaultColumns` actually updates
+    const savedUpload = localStorage.getItem(PersistanceKeys.leadUploadState);
+    if (savedUpload) {
+      const savedLeads = JSON.parse(savedUpload);
+
+      if (savedLeads.uploading && savedLeads.data?.length) {
+        setUploading(true);
+        setCurrentBatch(savedLeads.currentBatch);
+        setTotalBatches(savedLeads.totalBatches);
+        setUploadProgress(Math.floor((savedLeads.currentBatch / savedLeads.totalBatches) * 100));
+      }
+      let resumeData = {
+
+        data: savedLeads.data,
+        sheetName: savedLeads.sheetName,
+        columnMappings: savedLeads.columnMappings,
+        tags: savedLeads.tagsValue,
+        enrich: savedLeads.enrich
+
+      }
+
+      console.log('trying to resume leads from batch ', savedLeads.currentBatch)
+      handleAddLead(true, savedLeads.currentBatch, resumeData);
+    }
+
+  }, []);
+
 
   //function to scroll to the bottom when add new column
   useEffect(() => {
@@ -270,169 +307,6 @@ const Leads1 = () => {
     setShowPopUp(false);
   };
 
-  //code to update column
-  // function ChangeColumnName(UpdatedColumnName) {
-  //   //////console.log;
-  //   //////console.log;
-
-  //   let defaultColumnsDbNames = [
-  //     "First Name",
-  //     "Last Name",
-  //     // "Full Name",
-  //     "Phone Number",
-  //     "Email",
-  //     "Address",
-  //   ];
-  //   let isDefaultColumn = false;
-
-  //   if (
-  //     defaultColumnsDbNames.includes(UpdateHeader.UserFacingName) ||
-  //     defaultColumnsDbNames.includes(UpdateHeader.dbName)
-  //   ) {
-  //     isDefaultColumn = true;
-  //     // //console.log;
-  //   } else {
-  //     // //console.log;
-  //   }
-  //   // return;
-  //   ////////console.log;
-  //   ////////console.log;
-  //   let pd = processedData;
-  //   let dc = null;
-  //   let keys = Object.keys(defaultColumns);
-  //   // //////console.log;
-  //   // //////console.log;
-  //   keys.forEach((key) => {
-  //     let col = defaultColumns[key];
-  //     // console.log(
-  //     //   `Matching ${col.UserFacingName} with ${UpdatedColumnName} OR ${col.dbName}`
-  //     // );
-  //     if (
-  //       col.UserFacingName == UpdatedColumnName ||
-  //       col.dbName == UpdatedColumnName
-  //     ) {
-  //       dc = col;
-  //     }
-  //   });
-  //   // if (UpdateHeader.dbName) {
-  //   // let val = defaultColumns[UpdateHeader.dbName];
-  //   // dc = val;
-  //   // }
-  //   for (let i = 0; i < pd.length; i++) {
-  //     let d = pd[i];
-  //     if (isDefaultColumn) {
-  //       // changing the default column
-  //       if (dc) {
-  //         // //console.log;
-  //         let value = d[UpdateHeader.dbName];
-  //         delete d[UpdateHeader.dbName];
-  //         // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-  //         d[UpdatedColumnName] = value;
-  //         pd[i] = d;
-  //       } else {
-  //         // //console.log;
-  //         //mmove it to extra column
-
-  //         let value = d[UpdateHeader.dbName];
-  //         d.extraColumns[
-  //           UpdatedColumnName
-  //             ? UpdatedColumnName
-  //             : UpdateHeader.ColumnNameInSheet
-  //         ] = value;
-  //         delete d[UpdateHeader.dbName];
-  //         // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-  //         // d[UpdatedColumnName] = value;
-  //         pd[i] = d;
-  //       }
-  //     } else {
-  //       //we are changing the extra column
-
-  //       // defaultColumns.forEach((col) => {
-  //       // if (col.UserFacingName == UpdatedColumnName) {
-  //       // dc = col;
-  //       // }
-  //       // });
-  //       //The updated name is in default column list
-  //       if (dc) {
-  //         // //console.log;
-  //         let value =
-  //           d.extraColumns[
-  //             UpdateHeader.dbName
-  //               ? UpdateHeader.dbName
-  //               : UpdateHeader.ColumnNameInSheet
-  //           ];
-  //         delete d.extraColumns[
-  //           UpdateHeader.dbName
-  //             ? UpdateHeader.dbName
-  //             : UpdateHeader.ColumnNameInSheet
-  //         ];
-  //         // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-  //         d[dc.dbName] = value;
-  //         pd[i] = d;
-  //       } else {
-  //         // ////console.log(
-  //         // "the updated name is not in default column list",
-  //         // UpdatedColumnName
-  //         // );
-  //         // the updated name is not in default column list
-  //         let colName = UpdateHeader.dbName
-  //           ? UpdateHeader.dbName
-  //           : UpdateHeader.ColumnNameInSheet;
-  //         let value = d.extraColumns[colName];
-  //         // //console.log;
-  //         delete d.extraColumns[colName];
-  //         // d.extraColumns[UpdateHeader.columnNameTransformed] = null;
-  //         d.extraColumns[
-  //           UpdatedColumnName
-  //             ? UpdatedColumnName
-  //             : UpdateHeader.ColumnNameInSheet
-  //         ] = value;
-
-  //         pd[i] = d;
-  //       }
-  //     }
-  //   }
-
-  //   let NewCols = NewColumnsObtained;
-  //   NewCols.forEach((item) => {
-  //     //////console.log;
-  //     //////console.log;
-
-  //     if (item.dbName == UpdateHeader.dbName && isDefaultColumn) {
-  //       item.dbName = UpdatedColumnName;
-  //       item.UserFacingName = UpdatedColumnName;
-  //     } else if (item.ColumnNameInSheet == UpdateHeader.ColumnNameInSheet) {
-  //       //changing extra column
-  //       if (dc) {
-  //         //////console.log;
-  //         item.dbName = dc.dbName;
-  //         item.UserFacingName = UpdatedColumnName;
-  //       } else {
-  //         item.dbName = UpdatedColumnName;
-  //         item.UserFacingName = UpdatedColumnName;
-  //       }
-  //     }
-  //   });
-  //   //console.log;
-  //   // for (let i = 0; i < mappingList.length; i++) {
-  //   // let map = mappingList[i];
-  //   // if (map.columnNameTransformed == UpdateHeader.columnNameTransformed) {
-  //   // // update the column
-  //   // map.columnNameTransformed = UpdatedColumnName;
-  //   // }
-  //   // mappingList[i] = map;
-  //   // }
-  //   //console.log;
-  //   setProcessedData(pd);
-  //   // setColumnMappingsList(mappingList);
-  //   ////////console.log;
-  //   // if (pd && mappingList) {
-  //   setShowPopUp(false);
-  //   setcolumnAnchorEl(null);
-  //   setSelectedItem(null);
-  //   // }
-  // }
-
   useEffect(() => {
     //console.log;
   }, [NewColumnsObtained]);
@@ -519,92 +393,7 @@ const Leads1 = () => {
     return false;
   };
 
-  //File reading logic
-
-  const toSnakeCase = (str) =>
-    str
-      .toLowerCase()
-      .replace(/[\s\-]/g, "_")
-      .replace(/[^\w]/g, "");
-
-  // const handleFileUpload = useCallback(
-  //   (file) => {
-  //     const reader = new FileReader();
-  //     const isCSV = file.name.toLowerCase().endsWith(".csv");
-  //     reader.onload = (event) => {
-  //       const binaryStr = event.target.result;
-  //       // const workbook = XLSX.read(binaryStr, { type: "binary" });
-
-  //       const workbook = XLSX.read(binaryStr, {
-  //         type: "binary",
-  //         cellDates: false,
-  //         cellText: true, // important
-  //         raw: true, // VERY important for CSVs
-  //       });
-
-  //       // Extract data from the first sheet
-  //       const sheetName = workbook.SheetNames[0];
-  //       const sheet = workbook.Sheets[sheetName];
-  //       // const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Header included
-  //       const data = XLSX.utils.sheet_to_json(sheet, {
-  //         header: 1,
-  //         raw: isCSV, // This forces Excel dates to be converted to readable format
-  //       });
-  //       if (data.length > 1) {
-  //         const headers = data[0]; // First row as headers
-  //         const rows = data.slice(1); // Data without headers
-
-  //         let mappedColumns = headers.map((header) => {
-  //           // Find matching column from LeadDefaultColumns
-  //           let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-  //             LeadDefaultColumns[key].mappings.includes(header.toLowerCase())
-  //           );
-
-  //           return {
-  //             ColumnNameInSheet: header, // Original header from the file
-  //             matchedColumn: matchedColumnKey
-  //               ? { ...LeadDefaultColumns[matchedColumnKey] }
-  //               : null, // Default column if matched
-  //             UserFacingName: null, // Can be updated manually by user
-  //           };
-  //         });
-
-  //         // Transform rows based on the new column mapping
-  //         const transformedData = rows.map((row) => {
-  //           let transformedRow = {};
-  //           // //console.log;
-
-  //           mappedColumns.forEach((col, index) => {
-  //             transformedRow[col.ColumnNameInSheet] = row[index] || null;
-  //             // if (col.matchedColumn) {
-  //             //   transformedRow[col.matchedColumn.dbName] = row[index] || null;
-  //             // } else {
-  //             //   // Handle extra/unmatched columns
-  //             //   if (!transformedRow.extraColumns)
-  //             //     transformedRow.extraColumns = {};
-  //             //   transformedRow.extraColumns[col.ColumnNameInSheet] =
-  //             //     row[index] || null;
-  //             // }
-  //           });
-  //           //console.log;
-
-  //           return transformedRow;
-  //         });
-
-  //         // Update state
-  //         setProcessedData(transformedData);
-  //         setNewColumnsObtained(mappedColumns); // Store the column mappings
-
-  //         //console.log;
-  //         //console.log;
-  //       }
-  //     };
-
-  //     reader.readAsBinaryString(file);
-  //   },
-  //   [LeadDefaultColumns]
-  // );
-
+  //File readi
   const handleFileUpload = useCallback(
     (file) => {
       const reader = new FileReader();
@@ -733,119 +522,7 @@ const Leads1 = () => {
     setSheetName(e);
   };
 
-  //code to call api
-  // const handleAddLead = async (enrich = false) => {
-  //   // let validated = validateColumns();
-
-  //   // console.log("Validated", validated);
-  //   // return;
-  //   ////console.log;
-  //   // if (!validated) {
-
-  //   //   return;
-  //   // }
-  //   let pd = processedData;
-
-  //   let data = [];
-
-  //   //////console.log;
-
-  //   pd.forEach((item, index) => {
-  //     let row = { extraColumns: {} };
-  //     // //console.log;
-  //     NewColumnsObtained.forEach((col) => {
-  //       if (col.matchedColumn) {
-  //         //
-  //         row[col.matchedColumn.dbName] = item[col.ColumnNameInSheet];
-  //       } else if (col.UserFacingName) {
-  //         row.extraColumns[col.UserFacingName] = item[col.ColumnNameInSheet];
-  //       }
-  //     });
-  //     data.push(row);
-  //   });
-  //   //console.log;
-  //   // return;
-
-  //   //////console.log;
-  //   //////console.log;
-
-  //   // return;
-  //   try {
-  //     setLoader(true);
-
-  //     const localData = localStorage.getItem("User");
-  //     let AuthToken = null;
-  //     if (localData) {
-  //       const UserDetails = JSON.parse(localData);
-  //       AuthToken = UserDetails.token;
-  //     }
-  //     ////////console.log;
-
-  //     // const tagsList = tagsValue.map((tag))
-
-  //     const ApiData = {
-  //       sheetName: sheetName,
-  //       leads: data,
-  //       columnMappings: NewColumnsObtained,
-  //       tags: tagsValue,
-  //       enrich: enrich,
-  //     };
-
-  //     const ApiPath = Apis.createLead;
-  //     //console.log);
-  //     // return
-  //     ////console.log;
-  //     // return;
-  //     const response = await axios.post(ApiPath, ApiData, {
-  //       headers: {
-  //         Authorization: "Bearer " + AuthToken,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     if (response) {
-  //       ////////console.log;
-  //       if (response.data.status === true) {
-
-  //         //update leads status
-  //         const localData = localStorage.getItem("User");
-  //         if (localData) {
-  //           let D = JSON.parse(localData);
-  //           D.user.checkList.checkList.leadCreated = true;
-  //           localStorage.setItem("User", JSON.stringify(D));
-  //         }
-  //         window.dispatchEvent(
-  //           new CustomEvent("UpdateCheckList", { detail: { update: true } })
-  //         );
-
-  //         let sheet = response.data.data;
-  //         let leads = response.data.leads;
-  //         // let sheetsList =
-  //         // //console.log;
-  //         setShowUploadLeadModal(false);
-  //         setSelectedFile(null);
-  //         localStorage.setItem("userLeads", JSON.stringify(response.data.data));
-  //         setUserLeads(sheet);
-  //         setShowenrichModal(false);
-  //         setShowenrichConfirmModal(false);
-  //         setAddNewLeadModal(false);
-  //         setSetData(true);
-  //         setSuccessSnack(response.data.message);
-  //         setShowSuccessSnack(true);
-  //         //add event to update profile data
-  //         // window.dispatchEvent(
-  //         //   new CustomEvent("UpdateProfile", { detail: { update: true } })
-  //         // );
-  //       }
-  //     }
-  //   } catch (error) {
-  //     // console.error("Error occured in add lead api is :", error);
-  //   } finally {
-  //     setLoader(false);
-  //   }
-  // };
-
-  const handleAddLead = async (enrich = false) => {
+  const handleAddLead = async (enrich = false, startIndex = 0, resumeData = null) => {
     let pd = processedData;
     let data = [];
 
@@ -872,29 +549,47 @@ const Leads1 = () => {
     }
 
     const ApiPath = Apis.createLead;
-    const BATCH_SIZE = 1000;
-    const totalBatches = Math.ceil(data.length / BATCH_SIZE);
+    const BATCH_SIZE = 250;
+    const totalBatches = Math.ceil(resumeData ? resumeData.data.length : data.length / BATCH_SIZE);
+    setUploading(true);
+    setCurrentBatch(startIndex);
+    setTotalBatches(totalBatches);
+    setUploadProgress(Math.floor((startIndex / totalBatches) * 100));
 
-    console.log(`Uploading ${data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
+    console.log(`Uploading ${resumeData ? resumeData.data.length : data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
 
-    // Recursive function to upload one batch at a time
-    const uploadBatch = async (batchIndex) => {
-      if (batchIndex >= totalBatches) {
-        // All batches done
-        console.log("✅ All batches uploaded successfully");
+    let uploadData = {
+      uploading: true,
+      currentBatch: startIndex,
+      totalBatches: totalBatches,
+      sheetName: resumeData?.sheetName || sheetName,
+      columnMappings: resumeData?.columnMappings || NewColumnsObtained,
+      tagsValue: resumeData?.tags || tagsValue,
+      enrich: resumeData?.enrich ?? isEnrichToggle,
+      data: data.resumeData ? resumeData.data : data
+    }
 
-        // Final success actions
-        const localData = localStorage.getItem("User");
-        if (localData) {
-          let D = JSON.parse(localData);
-          D.user.checkList.checkList.calendarCreated = true;
-          localStorage.setItem("User", JSON.stringify(D));
-        }
+    localStorage.setItem(PersistanceKeys.leadUploadState, JSON.stringify(uploadData));
 
-        window.dispatchEvent(new CustomEvent("UpdateCheckList", { detail: { update: true } }));
+    setTimeout(() => {
+      setShowUploadLeadModal(false);
+      setAddNewLeadModal(false)
+    }, 2000);
 
-        // You can use the last response data if needed
-        // (Here for simplicity assuming last response still in scope)
+    await uploadBatchSequence({
+      data: resumeData ? resumeData.data : data,
+      sheetName: resumeData?.sheetName || sheetName,
+      columnMappings: resumeData?.columnMappings || NewColumnsObtained,
+      tagsValue: resumeData?.tags || tagsValue,
+      enrich: resumeData?.enrich ?? isEnrichToggle,
+      startIndex,
+      AuthToken,
+      setUploading,
+      setUploadProgress,
+      setCurrentBatch,
+      setUserLeads,
+      onComplete: () => {
+        localStorage.removeItem(PersistanceKeys.leadUploadState);
         setShowUploadLeadModal(false);
         setSelectedFile(null);
         setShowenrichModal(false);
@@ -904,61 +599,10 @@ const Leads1 = () => {
         setSetData(true);
         setSuccessSnack("Leads uploaded successfully");
         setShowSuccessSnack(true);
-
-        setLoader(false);
-        return;
-      }
-
-      // Upload current batch
-      const start = batchIndex * BATCH_SIZE;
-      const end = start + BATCH_SIZE;
-      const batchLeads = data.slice(start, end);
-
-      console.log(
-        `Uploading batch ${batchIndex + 1} / ${totalBatches} (leads ${start} - ${Math.min(end - 1, data.length - 1)})`
-      );
-
-      const ApiData = {
-        sheetName: sheetName,
-        leads: batchLeads,
-        columnMappings: NewColumnsObtained,
-        tags: tagsValue,
-        enrich: isEnrichToggle,
-      };
-
-      // console.log("Data sending for add lead is;", ApiData);
-      // return
-
-      try {
-        const response = await axios.post(ApiPath, ApiData, {
-          headers: {
-            Authorization: "Bearer " + AuthToken,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response && response.data.status === true) {
-          console.log(`Batch ${batchIndex + 1} uploaded successfully`);
-
-          // Store userLeads if you want per batch (optional)
-          let sheet = response.data.data;
-          localStorage.setItem("userLeads", JSON.stringify(sheet));
-          setUserLeads(sheet);
-
-          // 👉 Now call next batch
-          await uploadBatch(batchIndex + 1);
-        } else {
-          console.error(`Error uploading batch ${batchIndex + 1}:`, response?.data?.message);
-          setLoader(false);
-        }
-      } catch (error) {
-        console.error(`Error occurred in batch ${batchIndex + 1}:`, error);
         setLoader(false);
       }
-    };
+    });
 
-    // Start from first batch
-    uploadBatch(0);
   };
 
 
@@ -1137,15 +781,26 @@ const Leads1 = () => {
           title={errSnackTitle}
         />
 
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            bottom: 0
-          }}>
-          <DashboardSlider
-            needHelp={false} />
-        </div>
+        <LeadProgressBanner
+          uploading={uploading}
+          currentBatch={currentBatch}
+          totalBatches={totalBatches}
+          uploadProgress={uploadProgress}
+        />
+
+        {
+          !uploading && (
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 0
+              }}>
+              <DashboardSlider
+                needHelp={false} />
+            </div>
+          )
+        }
 
         {/* <EnrichConfirmModal /> */}
 

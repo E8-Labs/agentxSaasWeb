@@ -11,7 +11,7 @@ const CheckList = ({ userDetails }) => {
 
     const router = useRouter();
 
-    console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
+    // console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(true);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
