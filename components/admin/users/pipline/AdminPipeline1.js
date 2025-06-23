@@ -576,10 +576,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
   //code for get pipeline
   const getPipelines = async () => {
     try {
-      let data = GetPipelinesCached();
-      if (!data) {
-        setInitialLoader(true);
-      }
+      // let data = GetPipelinesCached();
+      // if (!data) {
+      //   setInitialLoader(true);
+      // }
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {

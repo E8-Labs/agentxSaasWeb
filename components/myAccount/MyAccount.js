@@ -11,6 +11,7 @@ import Billing from "./Billing";
 import NotficationsDrawer from "../notofications/NotficationsDrawer";
 import { useRouter, useSearchParams } from "next/navigation";
 import BarServices from "./BarServices";
+import { privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
 
 function MyAccount() {
   let searchParams = useSearchParams();
@@ -61,6 +62,18 @@ function MyAccount() {
       subHeading: "Report bugs, new features and more",
       icon: "/otherAssets/feedbackIcon.png",
     },
+    {
+      id: 8,
+      heading: "Terms & Condition",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
+    {
+      id: 9,
+      heading: "Privacy Policy",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
   ];
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
@@ -110,6 +123,29 @@ function MyAccount() {
     }
   };
 
+
+  const handleTabSelect = (item, index) => {
+
+    if (item.id === 8) {
+      window.open(
+        termsAndConditionUrl,
+        "_blank"
+      );
+      return
+    } else if(item.id === 9) {
+      window.open(
+        privacyPollicyUrl,
+        "_blank"
+      );
+      return
+    }
+    setTabSelected(index + 1);
+    setParamsInSearchBar(index + 1);
+
+
+
+  }
+
   return (
     // <Suspense>
     <div
@@ -139,8 +175,7 @@ function MyAccount() {
                 }}
                 onClick={() => {
                   //   setSelectedManu(index + 1);
-                  setTabSelected(index + 1);
-                  setParamsInSearchBar(index + 1);
+                  handleTabSelect(item, index)
                 }}
               >
                 <div
