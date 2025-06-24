@@ -637,23 +637,23 @@ const AdminPipeline1 = ({ selectedUser }) => {
         //   PersistanceKeys.LocalStoragePipelines,
         //   JSON.stringify(response.data.data)
         // );
-        // let index = 0;
-        // if (selectedPipelineIndex < response.data.data.length) {
-        //   index = selectedPipelineIndex;
-        // } else if (response.data.data.length > 0) {
-        //   index = 0;
-        // } else {
-        //   index = -1;
-        // }
+        let index = 0;
+        if (selectedPipelineIndex < response.data.data.length) {
+          index = selectedPipelineIndex;
+        } else if (response.data.data.length > 0) {
+          index = 0;
+        } else {
+          index = -1;
+        }
 
-        // if (index != -1) {
-        //   setPipeLines(response.data.data);
-        //   setSelectedPipeline(response.data.data[index]);
-        //   setStagesList(response.data.data[index].stages);
-        //   setOldStages(response.data.data[index].stages);
-        //   setLeadsList(response.data.data[index].leads);
-        //   // //console.log;
-        // }
+        if (index != -1) {
+          setPipeLines(response.data.data);
+          setSelectedPipeline(response.data.data[index]);
+          setStagesList(response.data.data[index].stages);
+          setOldStages(response.data.data[index].stages);
+          setLeadsList(response.data.data[index].leads);
+          // //console.log;
+        }
       }
     } catch (error) {
       // console.error("Error occured in api is:", error);
