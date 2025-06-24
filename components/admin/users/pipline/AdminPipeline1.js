@@ -602,7 +602,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
       if (response) {
 
         //updated logic same like users side
-        console.log("Initial response", response.data.data);
+        console.log("Initial response", JSON.stringify(response.data.data));
         setInitialLoader(false);
         const pipelineDetails = response.data.data;
         console.log("Leads count in stages are", pipelineDetails[0].leadsCountInStage);
