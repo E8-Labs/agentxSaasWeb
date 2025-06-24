@@ -188,6 +188,10 @@ const Apis = {
   getCallTranscript: `${BasePath}api/leads/getCallTranscript`,
 
   duplicateAgent: `${BasePath}api/agent/duplicateAgent`,
+  resetTrail: `${BasePath}api/admin/resetTrial`,
+
+
+  
 };
 
 export default Apis;

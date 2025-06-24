@@ -57,7 +57,7 @@ function AdminUsers() {
 
       getUsersList(0, filters, sortData);
       // getUsersList();
-    }, 400);
+    }, 800);
   }, [search]);
 
   const getUsersList = async (offset = 0, filters = null, sortData = null) => {

@@ -85,6 +85,7 @@ function SelectedUserDetails({
     //del user
     const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
     const [pauseLoader, setpauseLoader] = useState(false);
+    const [resetTrailLoader, setResetTrailLoader] = useState(false);
     //pause confirmations
     const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false);
     const [user, setUser] = useState(null)
@@ -242,6 +243,40 @@ function SelectedUserDetails({
 
     }
 
+
+    const handleResetTrail = async () => {
+        //profile_status
+        setResetTrailLoader(true)
+        try {
+            const data = localStorage.getItem("User")
+            if (data) {
+                let u = JSON.parse(data)
+                let apidata = {
+                    userId: selectedUser.id
+                }
+
+                const response = await axios.post(Apis.resetTrail, apidata, {
+                    headers: {
+                        "Authorization": 'Bearer ' + u.token,
+                        "Content-Type": 'application/json'
+                    }
+                })
+                if (response) {
+                    console.log("Respose of reset trail api is", response);
+                    if (response.data.status === true) {
+                        setShowSnackMessage(response.data.message);
+                        setResetTrailLoader(false);
+                        setShowResetTrialPopup(false);
+                    }
+                    console.log('response.data.data', response.data)
+                }
+            }
+        } catch (e) {
+            setResetTrailLoader(false);
+            console.error("Error occured in reset trail api is", e);
+        }
+    }
+
     return (
         <div className='w-full flex flex-col items-center justify-center bg-red'>
             <AgentSelectSnackMessage isVisible={showSnackMessage != null ? true : false} hide={() => { setShowSnackMessage(null) }}
@@ -319,21 +354,23 @@ function SelectedUserDetails({
                                     style={{ height: "50px" }}
                                     onClick={() => {
                                         setShowResetTrialPopup(true);
+                                        console.log('clicked')
                                     }}
                                 >
                                     Reset Trial
                                 </button>
                             </div>
-
                             {
                                 showResetTrialPopup && (
                                     <ResetTrial
-                                        handleClose={() => {
-                                            setShowResetTrialPopup(false);
-                                        }}
+                                        showConfirmationPopup={showResetTrialPopup}
+                                        handleClose={() => setShowResetTrialPopup(false)}
+                                        onContinue={handleResetTrail}
+                                        loader = {resetTrailLoader}
                                     />
-                                )
-                            }
+
+                                )}
+
 
                             {
                                 showPauseConfirmationPopup && (
