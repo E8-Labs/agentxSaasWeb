@@ -1379,14 +1379,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       return;
     }
     ////console.log;
-    setKYCList(agentData[0].kyc);
+    setKYCList(agentData[0]?.kyc);
 
     ////console.log;
     //// //console.log;
-    setMainAgentId(agentData[0].id);
+    setMainAgentId(agentData[0]?.id);
     let firstAgent = agentData[0];
     //// //console.log;
-    setUserPipeline(firstAgent.pipeline);
+    setUserPipeline(firstAgent?.pipeline);
     // if (
     //   firstAgent.agents?.length === 2
 

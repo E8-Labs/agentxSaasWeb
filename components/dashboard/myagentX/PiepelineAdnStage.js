@@ -11,6 +11,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
 import { color } from "framer-motion";
+import { UpdateCadenceConfirmationPopup } from "./UpdateCadenceConfirmationPopup";
 
 const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
   const [message, setMessage] = useState(null);
@@ -25,6 +26,9 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
   const [agentCadence, setAgentCadence] = useState([]);
 
   const [initialLoader, setInitialLoader] = useState(false);
+
+
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
@@ -155,49 +159,38 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 fontSize: 15,
               }}
               onClick={() => {
-                if ((mainAgent.currentOngoingCadence || 0) > 0) {
-                  setMessage({
-                    message:
-                      "This agent is assigned to leads, can’t update at this time.",
-                    type: SnackbarTypes.Warning,
-                  });
-                  return;
-                }
+                setShowConfirmationPopup(true)
+                // if ((mainAgent.currentOngoingCadence || 0) > 0) {
+                //   setMessage({
+                //     message:
+                //       "This agent is assigned to leads, can’t update at this time.",
+                //     type: SnackbarTypes.Warning,
+                //   });
+                //   return;
+                // }
                 //console.log;
                 localStorage.setItem(
                   PersistanceKeys.LocalSavedAgentDetails,
                   JSON.stringify(mainAgent)
                 );
-                router.push("/pipeline/update");
+                // router.push("/pipeline/update");
               }}
             >
               Update
               <EditIcon size={20} color="white" />
             </button>
-            {/* Old Update Button */}
-            {/* <div
-              className="mt-4 cursor-pointer"
-              style={{ fontWeight: "700", fontSize: 16.8 }}
-              onClick={() => {
-                if ((mainAgent.currentOngoingCadence || 0) > 0) {
-                  setMessage({
-                    message:
-                      "This agent is assigned to leads, can’t update at this time.",
-                    type: SnackbarTypes.Warning,
-                  });
-                  return;
-                }
-                //console.log;
-                localStorage.setItem(
-                  PersistanceKeys.LocalSavedAgentDetails,
-                  JSON.stringify(mainAgent)
-                );
-                router.push("/pipeline/update");
-              }}
-            >
-              Update
-            </div> */}
           </div>
+          <UpdateCadenceConfirmationPopup
+            showConfirmationPopuup={showConfirmationPopup}
+            setShowConfirmationPopup={setShowConfirmationPopup}
+            onContinue={() => {
+              setShowConfirmationPopup(false)
+              console.log('selectedAgent.id', selectedAgent.id)
+              console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
+              router.push("/pipeline/update");
+              
+            }}
+          />
           {initialLoader ? (
             <div className="w-full flex flex-row items-center justify-center">
               <CircularProgress size={25} />
