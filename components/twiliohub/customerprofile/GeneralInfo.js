@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const GeneralInfo = ({
   legalBusinessNameP,
-  profileFirendlyNameP,
+  profileFriendlyNameP,
   countryP,
   street1P,
   street2P,
@@ -13,7 +13,7 @@ const GeneralInfo = ({
 }) => {
 
   const [legalBusinessName, setLegalBusinessName] = useState("");
-  const [profileFirendlyName, setProfileFriendlyName] = useState("");
+  const [profileFriendlyName, setProfileFriendlyName] = useState("");
   //physical business address
   const [country, setCountry] = useState("");
   const [street1, setStreet1] = useState("");
@@ -23,6 +23,17 @@ const GeneralInfo = ({
   const [postalCode, setPostalCode] = useState("");
 
   const [isDisabled, setIsDisabled] = useState(true);
+
+  useEffect(() => {
+    setLegalBusinessName(legalBusinessNameP);
+    setProfileFriendlyName(profileFriendlyNameP);
+    setCountry(countryP);
+    setStreet1(street1P);
+    setStreet2(street2P);
+    setCity(cityP);
+    setProvience(provienceP);
+    setPostalCode(postalCodeP);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,7 +50,14 @@ const GeneralInfo = ({
   //handle continue
   const handleNext = () => {
     const generalInfo = {
-      legalBusinessName: legalBusinessName
+      legalBusinessName: legalBusinessName,
+      profileFriendlyName: profileFriendlyName,
+      country: country,
+      street1: street1,
+      street2: street2,
+      city: city,
+      provience: provience,
+      postalCode: postalCode
     }
     handleContinue(generalInfo);
   }
@@ -88,6 +106,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Type here...'
+            value={profileFriendlyName}
+            onChange={(e) => {
+              setProfileFriendlyName(e.target.value);
+            }}
           />
         </div>
         <div
@@ -100,6 +122,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Select a country'
+            value={country}
+            onChange={(e) => {
+              setCountry(e.target.value);
+            }}
           />
         </div>
         <div className='w-full mt-2'>
@@ -107,6 +133,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Address Street 1'
+            value={street1}
+            onChange={(e) => {
+              setStreet1(e.target.value);
+            }}
           />
         </div>
         <div className='w-full mt-2'>
@@ -114,6 +144,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Address Street 2'
+            value={street2}
+            onChange={(e) => {
+              setStreet2(e.target.value);
+            }}
           />
         </div>
         <div className='w-full mt-2'>
@@ -121,6 +155,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Address City'
+            value={city}
+            onChange={(e) => {
+              setCity(e.target.value);
+            }}
           />
         </div>
         <div className='w-full mt-2'>
@@ -128,6 +166,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Address State or Province'
+            value={provience}
+            onChange={(e) => {
+              setProvience(e.target.value);
+            }}
           />
         </div>
         <div className='w-full mt-2'>
@@ -135,6 +177,10 @@ const GeneralInfo = ({
             className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
             style={styles.normalTxt}
             placeholder='Address Postal Code'
+            value={postalCode}
+            onChange={(e) => {
+              setPostalCode(e.target.value);
+            }}
           />
         </div>
       </div>
@@ -146,7 +192,7 @@ const GeneralInfo = ({
           className={`h-[50px] w-[170px] text-center rounded-lg ${isDisabled ? "bg-[#00000040] text-black" : "bg-purple text-white"}`}
           disabled={isDisabled}
           onClick={() => {
-            handleContinue()
+            handleNext();
           }}
         >
           Continue

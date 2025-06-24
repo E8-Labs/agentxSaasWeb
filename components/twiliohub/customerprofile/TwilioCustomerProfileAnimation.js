@@ -7,6 +7,8 @@ import axios from "axios";
 import GeneralInfo from "./GeneralInfo";
 import BusinessInfo from "./BusinessInfo";
 import ContactPoint from "./ContactPoint";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -35,7 +37,7 @@ const TwilioCustomerProfileAnimation = ({
     //variables storing the data for passing
     //General Info
     const [legalBusinessName, setLegalBusinessName] = useState("");
-    const [profileFirendlyName, setProfileFriendlyName] = useState("");
+    const [profileFriendlyName, setProfileFriendlyName] = useState("");
     //physical business address
     const [country, setCountry] = useState("");
     const [street1, setStreet1] = useState("");
@@ -52,6 +54,22 @@ const TwilioCustomerProfileAnimation = ({
     const [businessRegNumber, setBusinessRegNumber] = useState("");
     const [businessOperatingRegion, setBusinessOperatingRegion] = useState("");
 
+    //pointof contact
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [businessTitle, setBusinessTitle] = useState("");
+    const [jobPosition, setJobPosition] = useState("");
+    const [agreeTerms, setAgreeTerms] = useState(false);
+
+    //snack messages
+    const [snackMessage, setSnackMessage] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false,
+    });
+    // const [loader, setLoader] = useState(false);
+
+
     const handleContinue = (formData) => {
         if (formData) {
             console.log(formData);
@@ -67,11 +85,122 @@ const TwilioCustomerProfileAnimation = ({
 
     //reset value on modal close
     const resetValues = () => {
-
+        setCurrentIndex(0);
+        setDirection(0);
+        setLegalBusinessName("");
+        setProfileFriendlyName("");
+        setCountry("");
+        setStreet1("");
+        setStreet2("");
+        setCity("");
+        setProvience("");
+        setPostalCode("");
+        setCustomerType("");
+        setBusinessType("");
+        setBusinessIndustry("");
+        setBusinessRegIdType("");
+        setBusinessRegNumber("");
+        setBusinessOperatingRegion("");
+        setFirstName("");
+        setLastName("");
+        setBusinessTitle("2");
+        setJobPosition("");
+        setAgreeTerms(false);
     }
+
+    //create trust hub profile
+
+    const handleCreateTrusthubProfile = async () => {
+        try {
+            // setLoader(true);
+            const ApiPath = Apis;
+            const token = AuthToken();
+            const formatString = (str) => {
+                if (typeof str !== 'string' || str === null || str === undefined) {
+                    return ''; // Or you could return the original string depending on your preference
+                }
+                return str.replace(/\s+/g, '').toLowerCase();
+            };
+            const ApiData = {
+                friendlyName: profileFriendlyName,
+                // email: "hello@myagentx.com",
+                // policySid: "RNdfbf3fae0e1107f8aded0e7cead80bf5",
+                legalName: legalBusinessName,
+                // dbaName: "E8labs",
+                addressStreet1: street1,
+                addressStreet2: street2,
+                city: city,
+                state: provience,
+                postalCode: postalCode,
+                country: country,
+                businessIdentity: customerType?.type,
+                businessType: formatString(businessType),
+                industry: formatString(businessIndustry),
+                registrationIdType: formatString(businessRegIdType),
+                registrationIdNumber: businessRegNumber,
+                regionsOfOperation: businessOperatingRegion,
+                // website: "https://www.e8-labs.com/",
+                contactFirstName: firstName,
+                contactLastName: lastName,
+                // contactEmail: "hello@myagentx.com",
+                // contactPhone: "+14086799068",
+                // contactTitle: "Mr.",
+                contactJobPosition: formatString(jobPosition),
+                contactTermsAccepted: agreeTerms
+            }
+
+            console.log("Data sending in api is", ApiData);
+
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of create trust hub profile api is", response.data);
+                setLoader(false);
+                if (response.data) {
+                    const result = response.data;
+                    if (result.status === true) {
+                        setSnackMessage({
+                            type: SnackbarTypes.Success,
+                            message: result.message,
+                            isVisible: true,
+                        });
+                        resetValues();
+                    } else {
+                        setSnackMessage({
+                            type: SnackbarTypes.Error,
+                            message: result.message,
+                            isVisible: true,
+                        });
+                    }
+                }
+            }
+        } catch (error) {
+            setLoader(false);
+            console.error("Error occured in creae trust hub profile api is:", error);
+        }
+    }
+
 
     return (
         <div className="h-[100%] overflow-hidden">
+            <AgentSelectSnackMessage
+                type={snackMessage.type}
+                message={snackMessage.message}
+                isVisible={snackMessage.isVisible}
+                hide={() => {
+                    setSnackMessage({
+                        message: "",
+                        isVisible: false,
+                        type: SnackbarTypes.Success,
+                    });
+                }}
+            />
             <AnimatePresence initial={false} custom={direction}>
                 {currentIndex === 0 && (
                     <motion.div
@@ -88,14 +217,26 @@ const TwilioCustomerProfileAnimation = ({
                         <div className="h-[100%] w-full">
                             <GeneralInfo
                                 legalBusinessNameP={legalBusinessName}
-                                profileFirendlyNameP={profileFirendlyName}
+                                profileFriendlyNameP={profileFriendlyName}
                                 countryP={country}
                                 street1P={street1}
                                 street2P={street2}
                                 cityP={city}
                                 provienceP={provience}
                                 postalCodeP={postalCode}
-                                handleContinueP={handleContinue}
+                                handleContinue={(d) => {
+                                    if (d) {
+                                        setLegalBusinessName(d.legalBusinessName);
+                                        setProfileFriendlyName(d.profileFriendlyName);
+                                        setCountry(d.country);
+                                        setStreet1(d.street1);
+                                        setStreet2(d.street2);
+                                        setCity(d.city);
+                                        setProvience(d.provience);
+                                        setPostalCode(d.postalCode);
+                                    }
+                                    handleContinue();
+                                }}
                             />
                         </div>
                     </motion.div>
@@ -115,8 +256,24 @@ const TwilioCustomerProfileAnimation = ({
                     >
                         <div className="h-[100%] w-full">
                             <BusinessInfo
-                                handleContinue={handleContinue}
+                                customerTypeP={customerType}
+                                businessTypeP={businessType}
+                                businessIndustryP={businessIndustry}
+                                businessRegIdTypeP={businessRegIdType}
+                                businessRegNumberP={businessRegNumber}
+                                businessOperatingRegionP={businessOperatingRegion}
                                 handleBack={handleBack}
+                                handleContinue={(d) => {
+                                    if (d) {
+                                        setCustomerType(d.selectedCustomerType);
+                                        setBusinessType(d.selectBusinessType);
+                                        setBusinessIndustry(d.businessIndustry);
+                                        setBusinessRegIdType(d.businessRegIdType);
+                                        setBusinessRegNumber(d.businessRegNumber);
+                                        setBusinessOperatingRegion(d.businessOperatingRegion);
+                                    }
+                                    handleContinue();
+                                }}
                             />
                         </div>
                     </motion.div>
@@ -135,8 +292,30 @@ const TwilioCustomerProfileAnimation = ({
                     >
                         <div className="h-[100%] w-full">
                             <ContactPoint
-                                // handleContinue={handleContinue}
-                                handleBack={handleBack}
+                                firstNameP={firstName}
+                                lastNameP={lastName}
+                                businessTitleP={businessTitle}
+                                jobPositionP={jobPosition}
+                                agreeTermsP={agreeTerms}
+                                loaderP={loader}
+                                handleBack={(d) => {
+                                    setFirstName(d.firstName);
+                                    setLastName(d.lastName);
+                                    setBusinessTitle(d.businessTitle);
+                                    setJobPosition(d.jobPosition);
+                                    setAgreeTerms(d.agreeTerms);
+                                    handleBack();
+                                }}
+                                handleContinue={(d) => {
+                                    setFirstName(d.firstName);
+                                    setLastName(d.lastName);
+                                    setBusinessTitle(d.businessTitle);
+                                    setJobPosition(d.jobPosition);
+                                    setAgreeTerms(d.agreeTerms);
+                                    setTimeout(() => {
+                                        handleCreateTrusthubProfile();
+                                    }, 100);
+                                }}
                             />
                         </div>
                     </motion.div>

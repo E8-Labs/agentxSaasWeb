@@ -1426,8 +1426,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
       ////////console.log;
 
-      const ApiPath = Apis.uniqueColumns;
-      ////////console.log;
+      const ApiPath = `Apis.uniqueColumns?userId=${selectedUser?.id}`;
+      console.log("Api path for getting unique columns", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
