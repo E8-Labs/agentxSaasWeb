@@ -11,3 +11,12 @@ export const SnackMessageTitles = {
   ErrorMessageFirstNameRequiredLeadImport:
     "Can't upload leads without a First Name",
 };
+
+export const BatchStatus = {
+  // Pending: "Pending",
+  Active: "Active",
+  Paused: "Paused",
+  PausedForNonPayment: "PausedForNonPayment",
+  PausedForUpdateCadence: "PausedForUpdateCadence",
+  Completed: "Completed", // the rest of the cadence for that
+};

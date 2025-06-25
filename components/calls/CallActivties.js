@@ -10,6 +10,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { UserTypes } from "@/constants/UserTypes";
 import LeadLoading from "../dashboard/leads/LeadLoading";
+import { BatchStatus } from "../constants/constants";
 
 function SheduledCalls({ user }) {
   const Limit = 30;
@@ -157,7 +158,7 @@ function SheduledCalls({ user }) {
       });
 
       if (response) {
-        console.log("response is",response.data.data)
+        console.log("response is", response.data.data);
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -412,7 +413,7 @@ function SheduledCalls({ user }) {
         //   JSON.stringify(data.data)
         // );
 
-        console.log('response is', response.data.length)
+        console.log("response is", response.data.length);
         if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);
@@ -526,581 +527,600 @@ function SheduledCalls({ user }) {
     }
   }
 
+  function getReadableStatus(status) {
+    if (status === BatchStatus.PausedForNonPayment) {
+      return "Paused (Non Payment)";
+    }
+    return status;
+  }
+
   return (
     <div className="w-full items-start overflow-hidden">
-
-      {
-        initialLoader ? (
-          <LeadLoading />
-        ) : (
-          <>
-            <Popover
-              id={id}
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleClosePopup}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
-              }}
-              PaperProps={{
-                elevation: 0, // This will remove the shadow
-                style: {
-                  boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
-                  borderRadius: "10px",
-                  width: "120px",
-                },
-              }}
+      {initialLoader ? (
+        <LeadLoading />
+      ) : (
+        <>
+          <Popover
+            id={id}
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClosePopup}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+            }}
+            PaperProps={{
+              elevation: 0, // This will remove the shadow
+              style: {
+                boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.05)",
+                borderRadius: "10px",
+                width: "120px",
+              },
+            }}
+          >
+            <div
+              className="p-2 flex flex-col gap-2"
+              style={{ fontWeight: "500", fontSize: 15 }}
             >
-              <div
-                className="p-2 flex flex-col gap-2"
-                style={{ fontWeight: "500", fontSize: 15 }}
-              >
-                <div>
-                  {PauseLoader ? (
-                    <CircularProgress size={18} />
-                  ) : (
-                    <button
-                      className="text-start outline-none"
-                      onClick={() => {
-                        if (SelectedItem?.status == "Paused") {
-                          //// //console.log
-                          setColor(true);
-                          setShowConfirmationPopup("resume Calls");
-                        } else {
-                          //// //console.log
-                          setShowConfirmationPopup("pause Calls");
-                          setColor(false);
-                        }
-                        // //console.log
-                      }}
-                    >
-                      {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
-                    </button>
-                  )}
-                </div>
-
-                <button
-                  className="text-start outline-none"
-                  onClick={() => {
-                    // handleShowLeads(SelectedAgent, SelectedItem);
-
-                    // fetchCallsInBatch(SelectedItem);
-                    handleShowBatchCalls(SelectedItem);
-                  }}
-                >
-                  View Details
-                </button>
-                {/* <div className="text-red">Delete</div> */}
-              </div>
-            </Popover>
-            {/* Confirmation popup */}
-            {showConfirmationPopuup && (
-              <ShowConfirmationPopup
-                showConfirmationPopuup={showConfirmationPopuup}
-                setShowConfirmationPopup={setShowConfirmationPopup}
-                pauseAgent={pauseAgents}
-                color={color}
-                PauseLoader={PauseLoader}
-                resumeCalls={resumeCalls}
-              />
-            )}
-
-            <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
-
-            <div className="w-full flex flex-row justify-between mt-10 px-10">
-              <div className="w-3/12">
-                <div style={styles.text}>Agent</div>
-              </div>
-              <div className="w-2/12 ">
-                <div style={styles.text}>Objective</div>
-              </div>
-              <div className="w-1/12">
-                <div style={styles.text}>Leads</div>
-              </div>
-              <div className="w-2/12">
-                <div style={styles.text}>Date created</div>
-              </div>
-              <div className="w-1/12">
-                <div style={styles.text}>Call Status</div>
-              </div>
-              <div className="w-1/12">
-                <div style={styles.text}>Action</div>
-              </div>
-            </div>
-
-            <div>
-              <div
-                className={`h-[70vh] overflow-auto`}
-                style={{ scrollbarWidth: "none" }}
-              >
-                {filteredAgentsList.length > 0 ? (
-                  <div>
-                    {filteredAgentsList.map((item, index) => {
-                      return (
-                        <div key={index}>
-                          {item.agents.map((agent, index) => {
-                            return (
-                              <div key={index}>
-                                <div
-                                  className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                                  key={index}
-                                >
-                                  <div className="w-3/12 flex flex-row gap-4 items-center">
-                                    <div>
-                                      {getAgentsListImage(agent?.agents[0])}
-                                    </div>
-
-                                    <div style={styles.text2}>{
-                                    agent?.agents[0].agentType === "outbound"? (
-                                      agent?.agents[0].name
-                                    ):(
-                                      agent?.agents[1].name
-                                    )
-                                    }</div>
-                                  </div>
-                                  <div className="w-2/12 ">
-                                    {user.user.userType == UserTypes.RealEstateAgent
-                                      ? `${ToUppercase(agent?.agents[0]?.agentObjective)}`
-                                      : `${agent?.agents[0]?.agentRole ||"Other"}`}
-                                  </div>
-                                  <div className="w-1/12">
-                                    <button
-                                      style={styles.text2}
-                                      className="text-purple underline outline-none"
-                                      onClick={(event) => {
-                                        // handleShowPopup(event, item, agent);
-                                        // fetchLeadsInBatch(item);
-                                        // handleShowLeads(agent, item);
-                                        // setShowDetailsModal(true);
-                                        // setHasMoreCalls(true);
-                                        // fetchCallsInBatch(SelectedItem);
-                                        handleShowBatchCalls(item, agent, null);
-                                      }}
-                                    >
-                                      {item?.totalLeads}
-                                    </button>
-                                  </div>
-                                  <div className="w-2/12">
-                                    {item?.createdAt ? (
-                                      <div style={styles.text2}>
-                                        {GetFormattedDateString(item?.createdAt, true)}
-                                      </div>
-                                    ) : (
-                                      "-"
-                                    )}
-                                  </div>
-                                  <div className="w-1/12">{item.status}</div>
-                                  <div className="w-1/12">
-                                    <button
-                                      aria-describedby={id}
-                                      variant="contained"
-                                      onClick={(event) => {
-                                        handleShowPopup(event, item, agent);
-                                      }}
-                                    >
-                                      <Image
-                                        src={"/otherAssets/threeDotsIcon.png"}
-                                        height={24}
-                                        width={24}
-                                        alt="icon"
-                                      />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                  </div>
+              <div>
+                {PauseLoader ? (
+                  <CircularProgress size={18} />
                 ) : (
-                  <div
-                    style={{
-                      fontWeight: "600",
-                      fontSize: 24,
-                      textAlign: "center",
-                      marginTop: 20,
+                  <button
+                    className="text-start outline-none"
+                    onClick={() => {
+                      if (SelectedItem?.status == "Paused") {
+                        //// //console.log
+                        setColor(true);
+                        setShowConfirmationPopup("resume Calls");
+                      } else {
+                        //// //console.log
+                        setShowConfirmationPopup("pause Calls");
+                        setColor(false);
+                      }
+                      // //console.log
                     }}
                   >
-                    No Call Activity Found
-                  </div>
+                    {SelectedItem?.status == "Paused"
+                      ? "Run Calls"
+                      : "Pause Calls"}
+                  </button>
                 )}
               </div>
-            </div>
 
-            {/* Calls List modal goes here */}
-            <Modal
-              open={showDetailsModal}
-              onClose={() => setShowDetailsModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100svh",
-                },
-              }}
-            >
-              <Box
-                className="flex flex-col justify-center items-center w-full h-[100svh] "
-                sx={{ scrollbarWidth: "none" }}
+              <button
+                className="text-start outline-none"
+                onClick={() => {
+                  // handleShowLeads(SelectedAgent, SelectedItem);
+
+                  // fetchCallsInBatch(SelectedItem);
+                  handleShowBatchCalls(SelectedItem);
+                }}
               >
-                <div className="flex flex-row justify-center w-full h-[90svh] ">
-                  <div className="sm:w-10/12 lg:w-9/12 xl:w-6/12 w-9/12 bg-white p-5 rounded-lg">
-                    <div className="flex flex-row justify-end">
-                      <button
-                        onClick={() => {
-                          setShowDetailsModal(false);
-                          setSheduledCalllogs([]);
-                          setFilteredSheduledCalllogs([]);
-                          setHasMoreCalls(true);
-                        }}
-                      >
-                        <Image
-                          src="/assets/crossIcon.png"
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                    <div className="overflow-hidden">
-                      {AgentCallLogLoader ? (
-                        <div className="flex flex-row items-center justify-center h-full">
-                          <CircularProgress size={35} />
-                        </div>
-                      ) : (
-                        <div className="flex flex-col h-full overflow-hidden">
-                          <div className="flex flex-col h-[20%] flex-shrink-0">
-                            <div>
-                              {SelectedAgent?.name
-                                ? SelectedAgent.name.charAt(0).toUpperCase() +
-                                SelectedAgent.name.slice(1)
-                                : ""}{" "}
-                              call activity
-                            </div>
-                            <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
-                              <input
-                                type="text"
-                                placeholder="Search by name or phone"
-                                className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-                                value={detailsFilterSearchValue}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-                                  // handleDetailsSearchChange(value);
-                                  setDetailsFilterSearchValue(value);
-                                }}
-                              />
-                              <img
-                                src="/otherAssets/searchIcon.png"
-                                alt="Search"
-                                width={20}
-                                height={20}
-                              />
-                            </div>
-                          </div>
-                          <div
-                            className="overflow-auto pb-4 flex-grow max-h-[74vh]"
-                            id="scrollableDiv1"
-                            style={{ scrollbarWidth: "none" }}
-                          >
-                            <InfiniteScroll
-                              className="flex flex-col "
-                              endMessage={
-                                <p
-                                  style={{
-                                    textAlign: "center",
-                                    paddingTop: "10px",
-                                    fontWeight: "400",
-                                    fontFamily: "inter",
-                                    fontSize: 16,
-                                    color: "#00000060",
-                                  }}
-                                >
-                                  {`You're all caught up`}
-                                </p>
-                              }
-                              scrollableTarget="scrollableDiv1"
-                              dataLength={filteredSheduledCalllogs.length}
-                              next={() => {
-                                //console.log;
-                                fetchCallsInBatch(
-                                  SelectedItem,
-                                  filteredSheduledCalllogs.length
-                                );
-                              }}
-                              hasMore={hasMoreCalls}
-                              loader={
-                                <div className="w-full flex flex-row justify-center mt-8">
-                                  {callsLoading && (
-                                    <CircularProgress
-                                      size={35}
-                                      sx={{ color: "#7902DF" }}
-                                    />
+                View Details
+              </button>
+              {/* <div className="text-red">Delete</div> */}
+            </div>
+          </Popover>
+          {/* Confirmation popup */}
+          {showConfirmationPopuup && (
+            <ShowConfirmationPopup
+              showConfirmationPopuup={showConfirmationPopuup}
+              setShowConfirmationPopup={setShowConfirmationPopup}
+              pauseAgent={pauseAgents}
+              color={color}
+              PauseLoader={PauseLoader}
+              resumeCalls={resumeCalls}
+            />
+          )}
+
+          <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
+
+          <div className="w-full flex flex-row justify-between mt-10 px-10">
+            <div className="w-3/12">
+              <div style={styles.text}>Agent</div>
+            </div>
+            <div className="w-2/12 ">
+              <div style={styles.text}>Objective</div>
+            </div>
+            <div className="w-1/12">
+              <div style={styles.text}>Leads</div>
+            </div>
+            <div className="w-2/12">
+              <div style={styles.text}>Date created</div>
+            </div>
+            <div className="w-1/12">
+              <div style={styles.text}>Call Status</div>
+            </div>
+            <div className="w-1/12">
+              <div style={styles.text}>Action</div>
+            </div>
+          </div>
+
+          <div>
+            <div
+              className={`h-[70vh] overflow-auto`}
+              style={{ scrollbarWidth: "none" }}
+            >
+              {filteredAgentsList.length > 0 ? (
+                <div>
+                  {filteredAgentsList.map((item, index) => {
+                    return (
+                      <div key={index}>
+                        {item.agents.map((agent, index) => {
+                          return (
+                            <div key={index}>
+                              <div
+                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                                key={index}
+                              >
+                                <div className="w-3/12 flex flex-row gap-4 items-center">
+                                  <div>
+                                    {getAgentsListImage(agent?.agents[0])}
+                                  </div>
+
+                                  <div style={styles.text2}>
+                                    {agent?.agents[0].agentType === "outbound"
+                                      ? agent?.agents[0].name
+                                      : agent?.agents[1].name}
+                                  </div>
+                                </div>
+                                <div className="w-2/12 ">
+                                  {user.user.userType ==
+                                  UserTypes.RealEstateAgent
+                                    ? `${ToUppercase(
+                                        agent?.agents[0]?.agentObjective
+                                      )}`
+                                    : `${
+                                        agent?.agents[0]?.agentRole || "Other"
+                                      }`}
+                                </div>
+                                <div className="w-1/12">
+                                  <button
+                                    style={styles.text2}
+                                    className="text-purple underline outline-none"
+                                    onClick={(event) => {
+                                      // handleShowPopup(event, item, agent);
+                                      // fetchLeadsInBatch(item);
+                                      // handleShowLeads(agent, item);
+                                      // setShowDetailsModal(true);
+                                      // setHasMoreCalls(true);
+                                      // fetchCallsInBatch(SelectedItem);
+                                      handleShowBatchCalls(item, agent, null);
+                                    }}
+                                  >
+                                    {item?.totalLeads}
+                                  </button>
+                                </div>
+                                <div className="w-2/12">
+                                  {item?.createdAt ? (
+                                    <div style={styles.text2}>
+                                      {GetFormattedDateString(
+                                        item?.createdAt,
+                                        true
+                                      )}
+                                    </div>
+                                  ) : (
+                                    "-"
                                   )}
                                 </div>
-                              }
-                              style={{ overflow: "unset" }}
-                            >
-                              <div
-                                className="flex flex-row items-center mt-6"
-                                style={{
-                                  fontSize: 15,
-                                  fontWeight: "500",
-                                  color: "#00000070",
-                                }}
-                              >
-                                <div className="w-3/12">Name</div>
-                                <div className="w-2/12">Phone Number</div>
-                                <div className="w-3/12">Address</div>
-                                <div className="w-2/12">Tag</div>
-                                <div className="w-2/12">Status</div>
-                              </div>
-                              {filteredSheduledCalllogs.length > 0 ? (
-                                <div
-                                  className="w-full "
-                                  style={{ scrollbarWidth: "none" }}
-                                >
-                                  {filteredSheduledCalllogs.map((item, index) => (
-                                    <div
-                                      key={index}
-                                      className="w-full mt-4"
-                                      style={{
-                                        fontSize: 15,
-                                        fontWeight: "500",
-                                        scrollbarWidth: "none",
-                                      }}
-                                    >
-                                      <div
-                                        className="flex flex-row items-center mt-4"
-                                        style={{ fontSize: 15, fontWeight: "500" }}
-                                      >
-                                        <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                          <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
-                                            {item?.LeadModel?.firstName
-                                              ?.charAt(0)
-                                              .toUpperCase()}
-                                          </div>
-                                          <div
-                                            className="truncate"
-                                            style={{
-                                              width: "100px",
-                                              textOverflow: "ellipsis",
-                                            }}
-                                          >
-                                            {item?.LeadModel.firstName}{" "}
-                                            {item?.LeadModel.lastName}
-                                          </div>
-                                        </div>
-                                        <div className="w-2/12 truncate">
-                                          {item?.LeadModel.phone || "-"}
-                                        </div>
-                                        <div className="w-3/12 truncate">
-                                          {item?.LeadModel.address || "-"}
-                                        </div>
-                                        <div className="w-2/12 truncate flex flex-row items-center gap-2">
-                                          {item?.tags?.length > 0 ? (
-                                            <div className="flex flex-row gap-2">
-                                              {item?.tags
-                                                .slice(0, 2)
-                                                .map((tag, idx) => (
-                                                  <div
-                                                    key={idx}
-                                                    className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
-                                                  >
-                                                    {tag}
-                                                  </div>
-                                                ))}
-                                            </div>
-                                          ) : (
-                                            "-"
-                                          )}
-                                          {item?.tags?.length > 2 && (
-                                            <div
-                                              className="text-purple underline cursor-pointer"
-                                              style={{
-                                                fontWeight: "500",
-                                                fontSize: 13,
-                                              }}
-                                              onClick={() => {
-                                                setExtraTagsModal(true);
-                                                setOtherTags(item?.tags);
-                                              }}
-                                            >
-                                              +{item.tags.length - 2}
-                                            </div>
-                                          )}
-                                        </div>
-                                        <div className="w-2/12 truncate">
-                                          {item?.status || "-"}
-                                        </div>
-                                      </div>
-                                    </div>
-                                  ))}
+                                <div className="w-1/12">
+                                  {getReadableStatus(item.status)}
                                 </div>
-                              ) : (
-                                GetLoadingOrNoCallsView()
-                              )}
-                            </InfiniteScroll>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-
-            {/* Leads list modal goes here */}
-            <Modal
-              open={showLeadDetailsModal}
-              onClose={() => setShowLeadDetailsModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 100,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box
-                className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
-                sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
-              >
-                <div className="flex flex-row justify-center w-full h-[80vh]">
-                  <div
-                    className="sm:w-10/12 w-full h-[100%] overflow-none"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <div className="flex flex-row items-center justify-between">
-                      <div
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 17,
-                        }}
-                      >
-                        {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                          SelectedAgent?.name.slice(1)}{" "}
-                        call activity
+                                <div className="w-1/12">
+                                  <button
+                                    aria-describedby={id}
+                                    variant="contained"
+                                    onClick={(event) => {
+                                      handleShowPopup(event, item, agent);
+                                    }}
+                                  >
+                                    <Image
+                                      src={"/otherAssets/threeDotsIcon.png"}
+                                      height={24}
+                                      width={24}
+                                      alt="icon"
+                                    />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <button
-                        onClick={() => {
-                          setShowLeadDetailsModal(false);
-                        }}
-                      >
-                        <Image
-                          src={"/assets/crossIcon.png"}
-                          height={40}
-                          width={40}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                    <div
-                      className="max-h-[92%] overflow-auto"
-                      style={{
-                        scrollbarWidth: "none",
+                    );
+                  })}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontWeight: "600",
+                    fontSize: 24,
+                    textAlign: "center",
+                    marginTop: 20,
+                  }}
+                >
+                  No Call Activity Found
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Calls List modal goes here */}
+          <Modal
+            open={showDetailsModal}
+            onClose={() => setShowDetailsModal(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: "#00000020",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100svh",
+              },
+            }}
+          >
+            <Box
+              className="flex flex-col justify-center items-center w-full h-[100svh] "
+              sx={{ scrollbarWidth: "none" }}
+            >
+              <div className="flex flex-row justify-center w-full h-[90svh] ">
+                <div className="sm:w-10/12 lg:w-9/12 xl:w-6/12 w-9/12 bg-white p-5 rounded-lg">
+                  <div className="flex flex-row justify-end">
+                    <button
+                      onClick={() => {
+                        setShowDetailsModal(false);
+                        setSheduledCalllogs([]);
+                        setFilteredSheduledCalllogs([]);
+                        setHasMoreCalls(true);
                       }}
                     >
-                      {AgentCallLogLoader ? (
-                        <div className="flex flex-row items-center justify-center h-full">
-                          <CircularProgress size={35} />
-                        </div>
-                      ) : (
-                        <div>
+                      <Image
+                        src="/assets/crossIcon.png"
+                        height={40}
+                        width={40}
+                        alt="*"
+                      />
+                    </button>
+                  </div>
+                  <div className="overflow-hidden">
+                    {AgentCallLogLoader ? (
+                      <div className="flex flex-row items-center justify-center h-full">
+                        <CircularProgress size={35} />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col h-full overflow-hidden">
+                        <div className="flex flex-col h-[20%] flex-shrink-0">
+                          <div>
+                            {SelectedAgent?.name
+                              ? SelectedAgent.name.charAt(0).toUpperCase() +
+                                SelectedAgent.name.slice(1)
+                              : ""}{" "}
+                            call activity
+                          </div>
                           <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
                             <input
                               type="text"
                               placeholder="Search by name or phone"
                               className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-                              value={leadsSearchValue}
+                              value={detailsFilterSearchValue}
                               onChange={(e) => {
                                 const value = e.target.value;
-                                // handleLeadsSearchChange(value);
-                                setLeadsSearchValue(e.target.value);
+                                // handleDetailsSearchChange(value);
+                                setDetailsFilterSearchValue(value);
                               }}
                             />
                             <img
-                              src={"/otherAssets/searchIcon.png"}
+                              src="/otherAssets/searchIcon.png"
                               alt="Search"
                               width={20}
                               height={20}
                             />
                           </div>
-
-                          <div
-                            className="flex flex-row items-center mt-6"
-                            style={{
-                              fontSize: 15,
-                              fontWeight: "500",
-                              color: "#00000070",
+                        </div>
+                        <div
+                          className="overflow-auto pb-4 flex-grow max-h-[74vh]"
+                          id="scrollableDiv1"
+                          style={{ scrollbarWidth: "none" }}
+                        >
+                          <InfiniteScroll
+                            className="flex flex-col "
+                            endMessage={
+                              <p
+                                style={{
+                                  textAlign: "center",
+                                  paddingTop: "10px",
+                                  fontWeight: "400",
+                                  fontFamily: "inter",
+                                  fontSize: 16,
+                                  color: "#00000060",
+                                }}
+                              >
+                                {`You're all caught up`}
+                              </p>
+                            }
+                            scrollableTarget="scrollableDiv1"
+                            dataLength={filteredSheduledCalllogs.length}
+                            next={() => {
+                              //console.log;
+                              fetchCallsInBatch(
+                                SelectedItem,
+                                filteredSheduledCalllogs.length
+                              );
                             }}
+                            hasMore={hasMoreCalls}
+                            loader={
+                              <div className="w-full flex flex-row justify-center mt-8">
+                                {callsLoading && (
+                                  <CircularProgress
+                                    size={35}
+                                    sx={{ color: "#7902DF" }}
+                                  />
+                                )}
+                              </div>
+                            }
+                            style={{ overflow: "unset" }}
                           >
-                            <div className="w-3/12">Name</div>
-                            <div className="w-2/12">Phone Number</div>
-                            <div className="w-3/12">Address</div>
-                            <div className="w-2/12">Tag</div>
-                            <div className="w-2/12">Status</div>
-                          </div>
-
-                          <div
-                            className="h-[70svh] overflow-auto pb-[100px] mt-6"
-                            id="scrollableDiv1"
-                            style={{ scrollbarWidth: "none" }}
-                          >
-                            {filteredSelectedLeadsList.length > 0 ? (
-                              <div className="w-full">
-                                <InfiniteScroll
-                                  className="lg:flex hidden flex-col w-full"
-                                  endMessage={
-                                    <p
+                            <div
+                              className="flex flex-row items-center mt-6"
+                              style={{
+                                fontSize: 15,
+                                fontWeight: "500",
+                                color: "#00000070",
+                              }}
+                            >
+                              <div className="w-3/12">Name</div>
+                              <div className="w-2/12">Phone Number</div>
+                              <div className="w-3/12">Address</div>
+                              <div className="w-2/12">Tag</div>
+                              <div className="w-2/12">Status</div>
+                            </div>
+                            {filteredSheduledCalllogs.length > 0 ? (
+                              <div
+                                className="w-full "
+                                style={{ scrollbarWidth: "none" }}
+                              >
+                                {filteredSheduledCalllogs.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="w-full mt-4"
+                                    style={{
+                                      fontSize: 15,
+                                      fontWeight: "500",
+                                      scrollbarWidth: "none",
+                                    }}
+                                  >
+                                    <div
+                                      className="flex flex-row items-center mt-4"
                                       style={{
-                                        textAlign: "center",
-                                        paddingTop: "10px",
-                                        fontWeight: "400",
-                                        fontFamily: "inter",
-                                        fontSize: 16,
-                                        color: "#00000060",
+                                        fontSize: 15,
+                                        fontWeight: "500",
                                       }}
                                     >
-                                      {`You're all caught up`}
-                                    </p>
-                                  }
-                                  scrollableTarget="scrollableDiv1"
-                                  dataLength={filteredSelectedLeadsList.length}
-                                  next={() => {
-                                    fetchLeadsInBatch(
-                                      SelectedItem,
-                                      filteredSelectedLeadsList.length
-                                    );
-                                  }}
-                                  hasMore={hasMoreLeads}
-                                  loader={
-                                    <div className="w-full flex flex-row justify-center mt-8">
-                                      {leadsLoading && (
-                                        <CircularProgress
-                                          size={35}
-                                          sx={{ color: "#7902DF" }}
-                                        />
-                                      )}
+                                      <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                        <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                          {item?.LeadModel?.firstName
+                                            ?.charAt(0)
+                                            .toUpperCase()}
+                                        </div>
+                                        <div
+                                          className="truncate"
+                                          style={{
+                                            width: "100px",
+                                            textOverflow: "ellipsis",
+                                          }}
+                                        >
+                                          {item?.LeadModel.firstName}{" "}
+                                          {item?.LeadModel.lastName}
+                                        </div>
+                                      </div>
+                                      <div className="w-2/12 truncate">
+                                        {item?.LeadModel.phone || "-"}
+                                      </div>
+                                      <div className="w-3/12 truncate">
+                                        {item?.LeadModel.address || "-"}
+                                      </div>
+                                      <div className="w-2/12 truncate flex flex-row items-center gap-2">
+                                        {item?.tags?.length > 0 ? (
+                                          <div className="flex flex-row gap-2">
+                                            {item?.tags
+                                              .slice(0, 2)
+                                              .map((tag, idx) => (
+                                                <div
+                                                  key={idx}
+                                                  className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                                >
+                                                  {tag}
+                                                </div>
+                                              ))}
+                                          </div>
+                                        ) : (
+                                          "-"
+                                        )}
+                                        {item?.tags?.length > 2 && (
+                                          <div
+                                            className="text-purple underline cursor-pointer"
+                                            style={{
+                                              fontWeight: "500",
+                                              fontSize: 13,
+                                            }}
+                                            onClick={() => {
+                                              setExtraTagsModal(true);
+                                              setOtherTags(item?.tags);
+                                            }}
+                                          >
+                                            +{item.tags.length - 2}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="w-2/12 truncate">
+                                        {item?.status || "-"}
+                                      </div>
                                     </div>
-                                  }
-                                  style={{ overflow: "unset" }}
-                                >
-                                  {filteredSelectedLeadsList.map((item, index) => (
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              GetLoadingOrNoCallsView()
+                            )}
+                          </InfiniteScroll>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Modal>
+
+          {/* Leads list modal goes here */}
+          <Modal
+            open={showLeadDetailsModal}
+            onClose={() => setShowLeadDetailsModal(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
+              sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+            >
+              <div className="flex flex-row justify-center w-full h-[80vh]">
+                <div
+                  className="sm:w-10/12 w-full h-[100%] overflow-none"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    borderRadius: "13px",
+                  }}
+                >
+                  <div className="flex flex-row items-center justify-between">
+                    <div
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 17,
+                      }}
+                    >
+                      {SelectedAgent?.name.slice(0, 1).toUpperCase() +
+                        SelectedAgent?.name.slice(1)}{" "}
+                      call activity
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowLeadDetailsModal(false);
+                      }}
+                    >
+                      <Image
+                        src={"/assets/crossIcon.png"}
+                        height={40}
+                        width={40}
+                        alt="*"
+                      />
+                    </button>
+                  </div>
+                  <div
+                    className="max-h-[92%] overflow-auto"
+                    style={{
+                      scrollbarWidth: "none",
+                    }}
+                  >
+                    {AgentCallLogLoader ? (
+                      <div className="flex flex-row items-center justify-center h-full">
+                        <CircularProgress size={35} />
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
+                          <input
+                            type="text"
+                            placeholder="Search by name or phone"
+                            className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                            value={leadsSearchValue}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // handleLeadsSearchChange(value);
+                              setLeadsSearchValue(e.target.value);
+                            }}
+                          />
+                          <img
+                            src={"/otherAssets/searchIcon.png"}
+                            alt="Search"
+                            width={20}
+                            height={20}
+                          />
+                        </div>
+
+                        <div
+                          className="flex flex-row items-center mt-6"
+                          style={{
+                            fontSize: 15,
+                            fontWeight: "500",
+                            color: "#00000070",
+                          }}
+                        >
+                          <div className="w-3/12">Name</div>
+                          <div className="w-2/12">Phone Number</div>
+                          <div className="w-3/12">Address</div>
+                          <div className="w-2/12">Tag</div>
+                          <div className="w-2/12">Status</div>
+                        </div>
+
+                        <div
+                          className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                          id="scrollableDiv1"
+                          style={{ scrollbarWidth: "none" }}
+                        >
+                          {filteredSelectedLeadsList.length > 0 ? (
+                            <div className="w-full">
+                              <InfiniteScroll
+                                className="lg:flex hidden flex-col w-full"
+                                endMessage={
+                                  <p
+                                    style={{
+                                      textAlign: "center",
+                                      paddingTop: "10px",
+                                      fontWeight: "400",
+                                      fontFamily: "inter",
+                                      fontSize: 16,
+                                      color: "#00000060",
+                                    }}
+                                  >
+                                    {`You're all caught up`}
+                                  </p>
+                                }
+                                scrollableTarget="scrollableDiv1"
+                                dataLength={filteredSelectedLeadsList.length}
+                                next={() => {
+                                  fetchLeadsInBatch(
+                                    SelectedItem,
+                                    filteredSelectedLeadsList.length
+                                  );
+                                }}
+                                hasMore={hasMoreLeads}
+                                loader={
+                                  <div className="w-full flex flex-row justify-center mt-8">
+                                    {leadsLoading && (
+                                      <CircularProgress
+                                        size={35}
+                                        sx={{ color: "#7902DF" }}
+                                      />
+                                    )}
+                                  </div>
+                                }
+                                style={{ overflow: "unset" }}
+                              >
+                                {filteredSelectedLeadsList.map(
+                                  (item, index) => (
                                     <div
                                       key={index}
                                       className="w-full mt-4"
@@ -1112,11 +1132,16 @@ function SheduledCalls({ user }) {
                                     >
                                       <div
                                         className="flex flex-row items-center mt-4"
-                                        style={{ fontSize: 15, fontWeight: 500 }}
+                                        style={{
+                                          fontSize: 15,
+                                          fontWeight: 500,
+                                        }}
                                       >
                                         <div className="w-3/12 flex flex-row items-center gap-2 truncate">
                                           <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
-                                            {item?.firstName?.charAt(0).toUpperCase()}
+                                            {item?.firstName
+                                              ?.charAt(0)
+                                              .toUpperCase()}
                                           </div>
                                           <div>
                                             <div className="truncate w-[100px]">
@@ -1164,88 +1189,89 @@ function SheduledCalls({ user }) {
                                         </div>
                                       </div>
                                     </div>
-                                  ))}
-                                </InfiniteScroll>
-                              </div>
-                            ) : !leadsLoading ? (
-                              <div className="text-center mt-6 text-3xl">
-                                No Call Found
-                              </div>
-                            ) : (
-                              <div className="text-center mt-6 text-3xl">
-                                Loading...
-                              </div>
-                            )}
-                          </div>
+                                  )
+                                )}
+                              </InfiniteScroll>
+                            </div>
+                          ) : !leadsLoading ? (
+                            <div className="text-center mt-6 text-3xl">
+                              No Call Found
+                            </div>
+                          ) : (
+                            <div className="text-center mt-6 text-3xl">
+                              Loading...
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </Box>
-            </Modal>
+              </div>
+            </Box>
+          </Modal>
 
-            {/* Modal for All Tags */}
-            <Modal
-              open={extraTagsModal}
-              onClose={() => setExtraTagsModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(20px)",
-                },
-              }}
-            >
-              <Box className="lg:w-3/12 sm:w-full w-4/12" sx={styles.modalsStyle}>
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="sm:w-full w-full"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <div className="w-full flex items-center justify-between">
-                      <div
-                        style={{
-                          fontsize: 15,
-                          fontWeight: "600",
+          {/* Modal for All Tags */}
+          <Modal
+            open={extraTagsModal}
+            onClose={() => setExtraTagsModal(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box className="lg:w-3/12 sm:w-full w-4/12" sx={styles.modalsStyle}>
+              <div className="flex flex-row justify-center w-full">
+                <div
+                  className="sm:w-full w-full"
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: 20,
+                    borderRadius: "13px",
+                  }}
+                >
+                  <div className="w-full flex items-center justify-between">
+                    <div
+                      style={{
+                        fontsize: 15,
+                        fontWeight: "600",
+                      }}
+                    >
+                      Other Tags
+                    </div>
+                    <div>
+                      <button
+                        onClick={() => {
+                          setExtraTagsModal(false);
                         }}
                       >
-                        Other Tags
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => {
-                            setExtraTagsModal(false);
-                          }}
-                        >
-                          <Image
-                            src={"/assets/blackBgCross.png"}
-                            height={20}
-                            width={20}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
+                        <Image
+                          src={"/assets/blackBgCross.png"}
+                          height={20}
+                          width={20}
+                          alt="*"
+                        />
+                      </button>
                     </div>
-                    <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
-                      {otherTags?.map((tag, index) => {
-                        return (
-                          <div
-                            key={index}
-                            className="flex flex-row items-center gap-2"
-                          >
-                            <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
-                              <div
-                                className="text-purple" //1C55FF10
-                              >
-                                {tag}
-                              </div>
-                              {/* {DelTagLoader &&
+                  </div>
+                  <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
+                    {otherTags?.map((tag, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className="flex flex-row items-center gap-2"
+                        >
+                          <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                            <div
+                              className="text-purple" //1C55FF10
+                            >
+                              {tag}
+                            </div>
+                            {/* {DelTagLoader &&
                           tag.includes(DelTagLoader) ? (
                           <div>
                             <CircularProgress size={15} />
@@ -1263,20 +1289,17 @@ function SheduledCalls({ user }) {
                             />
                           </button>
                         )} */}
-                            </div>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </Box>
-            </Modal>
-
-          </>
-        )
-      }
-
+              </div>
+            </Box>
+          </Modal>
+        </>
+      )}
     </div>
   );
 }
