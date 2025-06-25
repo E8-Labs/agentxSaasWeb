@@ -29,6 +29,13 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'apimyagentx.com',
           },
+          {
+
+            protocol: 'https',
+            hostname: 'api.myagentx.com',
+          },
+
+          
         ],
       },
 };

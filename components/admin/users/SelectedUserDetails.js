@@ -95,6 +95,8 @@ function SelectedUserDetails({
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
 
+    const [selectedDate,setSelectedDate] = useState(null)
+
     useEffect(() => {
         console.log("selected user", selectedUser);
         if (selectedUser?.profile_status === "paused") {
@@ -245,6 +247,10 @@ function SelectedUserDetails({
 
 
     const handleResetTrail = async () => {
+
+        if(!selectedDate){
+            return
+        }
         //profile_status
         setResetTrailLoader(true)
         try {
@@ -252,8 +258,11 @@ function SelectedUserDetails({
             if (data) {
                 let u = JSON.parse(data)
                 let apidata = {
-                    userId: selectedUser.id
+                    userId: selectedUser.id,
+                    trialEndDate:selectedDate
                 }
+
+                console.log('apidata of reset trail', apidata)
 
                 const response = await axios.post(Apis.resetTrail, apidata, {
                     headers: {
@@ -349,16 +358,19 @@ function SelectedUserDetails({
                             }
 
                             <div>
-                                <button
-                                    className='text-white bg-purple outline-none rounded-xl px-3'
-                                    style={{ height: "50px" }}
-                                    onClick={() => {
-                                        setShowResetTrialPopup(true);
-                                        console.log('clicked')
-                                    }}
-                                >
-                                    Reset Trial
-                                </button>
+                                {
+                                    selectedUser.isTrial &&
+                                    <button
+                                        className='text-white bg-purple outline-none rounded-xl px-3'
+                                        style={{ height: "50px" }}
+                                        onClick={() => {
+                                            setShowResetTrialPopup(true);
+                                            console.log('clicked')
+                                        }}
+                                    >
+                                        Reset Trial
+                                    </button>
+                                }
                             </div>
                             {
                                 showResetTrialPopup && (
@@ -366,7 +378,9 @@ function SelectedUserDetails({
                                         showConfirmationPopup={showResetTrialPopup}
                                         handleClose={() => setShowResetTrialPopup(false)}
                                         onContinue={handleResetTrail}
-                                        loader = {resetTrailLoader}
+                                        loader={resetTrailLoader}
+                                        selectedDate={selectedDate}
+                                        setSelectedData={setSelectedDate}
                                     />
 
                                 )}

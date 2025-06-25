@@ -4,7 +4,21 @@ import { Progress } from "@/components/ui/progress";
 import { CircularProgress } from "@mui/material";
 import Link from "next/link";
 
+
+const liveUrl = "https://apimyagentx.com/agentx";
+const testUrl = "https://apimyagentx.com/agentxtest";
+
+const isProduction = typeof window !== "undefined" && process.env.NODE_ENV === "production";
+
+const currentUrl = process.env.NODE_ENV === "production" ? liveUrl : testUrl;
+
+console.log('environment', isProduction)
+
+
 const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
+
+
+
   return (
     <div className="">
       <div className="flex flex-row justify-between mb-2">
@@ -68,10 +82,30 @@ const KBCard = ({ kb, onDelete, isLoading }) => {
 };
 
 const DocumentCard = ({ kb }) => {
+  const replaceUrl = (url) => {
+    let cleanedUrl = url.trim();
+
+    if (isProduction && cleanedUrl.startsWith(liveUrl)) return cleanedUrl;
+    if (!isProduction && cleanedUrl.startsWith(testUrl)) return cleanedUrl;
+
+    cleanedUrl = cleanedUrl
+      .replace(liveUrl, "")
+      .replace(testUrl, "");
+
+      console.log('cleanedUrl', cleanedUrl)
+
+    const finalUrl = (isProduction ? liveUrl : testUrl) + cleanedUrl;
+
+    console.log('Final safe URL:', finalUrl);
+    return finalUrl;
+  };
+
+  const safeUrl = replaceUrl(kb.documentUrl.trim());
+
   return (
     <div>
       <a
-        href={kb.documentUrl.trim()}
+        href={safeUrl}
         target="_blank"
         className="text-purple font-medium "
       >

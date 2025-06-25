@@ -50,6 +50,7 @@ import Player from "@madzadev/audio-player";
 import "@madzadev/audio-player/dist/index.css";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import NoVoicemailView from "../../myagentX/NoVoicemailView";
+import { callStatusColors } from "@/constants/Constants";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -2048,8 +2049,10 @@ const LeadDetails = ({
                                                                                                     </div> */}
                                                 </div>
                                                 <button
-                                                  className="text-end flex flex-row items-center gap-1"
-                                                  style={styles.paragraph}
+                                                  className="
+                                                  text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
+                                                  "
+                                                  style={{ backgroundColor: '#ececec' }}
                                                   onClick={() => {
                                                     handleShowMoreActivityData(
                                                       item
@@ -2059,10 +2062,8 @@ const LeadDetails = ({
                                                   <div
                                                     className="h-[10px] w-[10px] rounded-full"
                                                     style={{
-                                                      backgroundColor:
-                                                        selectedLeadsDetails
-                                                          ?.stage
-                                                          ?.defaultColor,
+                                                      backgroundColor: callStatusColors[item?.callOutcome] || "#000"
+
                                                     }}
                                                   ></div>
                                                   {item?.callOutcome
@@ -2206,27 +2207,44 @@ const LeadDetails = ({
                                                         ? `${item.transcript}`
                                                         : `${initialText}...`} */}
                                                             </div>
-                                                            <button
-                                                              style={{
-                                                                fontWeight: "600",
-                                                                fontSize: 15,
-                                                              }}
-                                                              onClick={() => {
-                                                                handleReadMoreToggle(
-                                                                  item
-                                                                );
-                                                              }}
-                                                              className="mt-2 text-black underline"
-                                                            >
-                                                              {
-                                                                // isExpanded.includes(
-                                                                //   item.id
-                                                                // )
-                                                                //   ? "Read Less"
-                                                                // :
-                                                                "Read more"
-                                                              }
-                                                            </button>
+                                                            <div className="w-full flex flex-row items-center justify-between">
+
+                                                              <button
+                                                                style={{
+                                                                  fontWeight: "600",
+                                                                  fontSize: 15,
+                                                                }}
+                                                                onClick={() => {
+                                                                  handleReadMoreToggle(
+                                                                    item
+                                                                  );
+                                                                }}
+                                                                className="mt-2 text-black underline"
+                                                              >
+                                                                {
+                                                                  // isExpanded.includes(
+                                                                  //   item.id
+                                                                  // )
+                                                                  //   ? "Read Less"
+                                                                  // :
+                                                                  "Read more"
+                                                                }
+                                                              </button>
+
+                                                              <button
+                                                                style={{
+                                                                  fontWeight: "600",
+                                                                  fontSize: 15,
+                                                                }}
+                                                                onClick={() => {
+                                                                
+                                                                }}
+                                                                className="mt-2 text-[#00000070]"
+                                                              >
+                                                                Delete
+                                                              </button>
+
+                                                            </div>
                                                           </div>
                                                         ) : (
                                                           <div

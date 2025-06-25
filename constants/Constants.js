@@ -20,7 +20,7 @@ export const PersistanceKeys = {
   ObjectionsList: "ObjectionsList",
   //moving from admin to creat agent
   isFromAdminOrAgency: "isFromAdminOrAgency",
-  leadUploadState:"leadUploadState",
+  leadUploadState: "leadUploadState",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
@@ -139,6 +139,23 @@ export const models = [
     disabled: false,
   },
 ];
+
+
+export const callStatusColors = {
+  "Not Interested": "#FF4E4E",
+  "Unknown": "#000000",
+  "Busy": "#9E9E9E",
+  "Call Back": "#2196F3",
+  "Booked": "#4CAF50",
+  "Hot Lead": "#FF5722",
+  "Agent Goodbye": "#000000",
+  "Hangup": "#673AB7",
+  "Voicemail": "#009FB1",
+  "No answer": "#FFC107",
+  "Forwarded": "#000000",
+  "Error": "#FF4E4E",
+  "Failed": "#D32F2F",
+};
 
 
 export const termsAndConditionUrl = "https://www.myagentx.com/terms-and-condition";
