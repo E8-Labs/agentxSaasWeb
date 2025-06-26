@@ -662,13 +662,11 @@ function Page() {
 
     // setSelectedVoice(item?.voiceId);
 
-    let v = item.agentLanguage === "English" ? "en" : "es"
+    let v = item.agentLanguage === "English" || item.agentLanguage === "Multilingual" ? "en" : "es"
+    console.log('v', v)
     let voices = []
-    if (v == "en") {
-      voices = voicesList.filter((voice) => voice.langualge === v)
-    } else {
-      voices = voicesList
-    }
+
+    voices = voicesList.filter((voice) => voice.langualge === v)
 
     console.log('filtered voices are', voices)
     setFilteredVoices(voices);
@@ -1202,7 +1200,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        //console.log;
+        console.log(`agnet key ${key} and value ${value}`)
       }
 
       // return
@@ -2254,6 +2252,44 @@ function Page() {
 
     }
   }
+
+
+
+  const handleLanguageChange = async (event) => {
+    setShowLanguageLoader(true);
+    let value = event.target.value;
+    console.log("selected language is", value)
+    // console.log("selected voice is",SelectedVoice)
+
+    let voice = voicesList.find((voice) => voice.name === SelectedVoice)
+
+    let selectedLanguage = value === "English" || value === "Multilingual" ? "en" : "es"
+
+    console.log('selected langualge', selectedLanguage)
+    let voiceData = {}
+
+
+    voiceData = {
+      agentLanguage: value,
+    };
+
+    await updateSubAgent(voiceData);
+
+    // if selected language is different from friltered voices list 
+    if (selectedLanguage != voice.langualge) {
+
+      // update voice list as well 
+      setFilteredVoices(voicesList.filter((voice) => voice.langualge === selectedLanguage))
+
+      const newVoiceName = selectedLanguage === "en" ? "Ava" : "Maria";
+      await updateAgent(newVoiceName);
+      
+      setSelectedVoice(newVoiceName);
+    }
+    setShowLanguageLoader(false);
+    // setSelectedVoice(event.target.value);
+    setLanguageValue(value);
+  }
   const styles = {
     claimPopup: {
       height: "auto",
@@ -3262,18 +3298,7 @@ function Page() {
                         <FormControl>
                           <Select
                             value={languageValue}
-                            onChange={async (event) => {
-                              setShowLanguageLoader(true);
-                              let value = event.target.value;
-                              //console.log;
-                              let voiceData = {
-                                agentLanguage: value,
-                              };
-                              await updateSubAgent(voiceData);
-                              setShowLanguageLoader(false);
-                              // setSelectedVoice(event.target.value);
-                              setLanguageValue(value);
-                            }}
+                            onChange={async (event) => { handleLanguageChange(event) }}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
                               if (!selected) {
@@ -3400,6 +3425,7 @@ function Page() {
                             onChange={handleChangeVoice}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
+                              console.log('selected', selected)
                               if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
 
                               const selectedVoice = filteredVoices.find(

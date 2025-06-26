@@ -5,12 +5,12 @@ export const AgentLanguages = {
     flag: "/agencyIcons/us.jpg",
     subLang: "",
   },
-  // Spanish: {
-  //   title: "Spanish (coming soon)",
-  //   value: "es",
-  //   flag: "/agencyIcons/spain.jpg",
-  //   subLang: "",
-  // },
+  Spanish: {
+    title: "Spanish",
+    value: "es",
+    flag: "/agencyIcons/spain.jpg",
+    subLang: "",
+  },
   Bilingual: {
     title: "Multilingual",
     value: "multi",
@@ -29,6 +29,6 @@ export const AgentLanguages = {
 };
 export const AgentLanguagesList = [
   AgentLanguages.English,
-  // AgentLanguages.Spanish,
+  AgentLanguages.Spanish,
   AgentLanguages.Bilingual,
 ];
