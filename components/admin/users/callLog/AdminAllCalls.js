@@ -210,7 +210,7 @@ function AdminAllCalls({selectedUser}) {
   //function for getting pipelines
   const getPipelines = async () => {
     try {
-      const ApiPath = Apis.getPipelines;
+      const ApiPath = Apis.getPipelines + "?userId="+selectedUser.id;
 
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");

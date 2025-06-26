@@ -159,6 +159,10 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 fontSize: 15,
               }}
               onClick={() => {
+                if (agentCadence.length === 0) {
+                  router.push("/pipeline/update");
+                  return
+                }
                 setShowConfirmationPopup(true)
                 // if ((mainAgent.currentOngoingCadence || 0) > 0) {
                 //   setMessage({

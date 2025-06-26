@@ -31,6 +31,7 @@ import UsersWithPipelines from "./UsersWIthPipelines";
 import UsersWithTeam from "./UsersWithTeam";
 import UsersWithLeads from "./UsersWithLeads";
 import UsersWithCalender from "./UsersWithCalenders";
+import { PersistanceKeys } from "@/constants/Constants";
 // import { stat } from "fs";
 
 const data = [
@@ -58,7 +59,15 @@ function AgentXStats({ user }) {
     // Example usage:
     if (user) {
       // //console.log;
+      let data = localStorage.getItem(PersistanceKeys.adminDashboardData)
+      if (data) {
+        console.log('data found from local')
+        let adminData = JSON.parse(data)
+        setStats(adminData)
+      } else {
+
       fetchAdminStats();
+      }
     }
   }, [user]);
 
@@ -79,6 +88,7 @@ function AgentXStats({ user }) {
       if (response.ok) {
         //console.log;
         setStats(data.stats.data);
+        localStorage.setItem(PersistanceKeys.adminDashboardData)
       } else {
         console.error("Failed to fetch admin stats:", data.error);
       }

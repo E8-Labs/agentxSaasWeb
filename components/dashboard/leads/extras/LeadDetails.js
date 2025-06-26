@@ -806,6 +806,18 @@ const LeadDetails = ({
 
   // console.log('enrichData', enrichData)
 
+    const showColor = (item) => {
+    
+  let color =  callStatusColors[
+      Object.keys(callStatusColors).find(
+        key => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
+      )
+    ] || "#000"
+
+    return color
+  }
+
+
   return (
     <div className="h-[100svh]">
       <Drawer
@@ -2062,7 +2074,7 @@ const LeadDetails = ({
                                                   <div
                                                     className="h-[10px] w-[10px] rounded-full"
                                                     style={{
-                                                      backgroundColor: callStatusColors[item?.callOutcome] || "#000"
+                                                      backgroundColor:showColor(item)
 
                                                     }}
                                                   ></div>

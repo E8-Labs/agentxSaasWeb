@@ -540,13 +540,13 @@ function Page() {
 
             {myTeam.length > 0 ? (
               <div
-                className="pt-3 flex flex-row flex-wrap gap-6"
+                className="pt-3 flex flex-row w-full justify-between flex-wrap"
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
                 {myTeam.map((item, index) => {
                   // //console.log;
                   return (
-                    <div key={item.id} className="relative">
+                    <div key={item.id} className="relative w-6/12 p-3">
                       <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
                         {item.invitedUser?.thumb_profile_image ? (
                           <div

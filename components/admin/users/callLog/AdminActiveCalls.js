@@ -9,7 +9,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-function AdminActiveCalls({selectedUser}) {
+function AdminActiveCalls({ selectedUser }) {
   const Limit = 30;
   const [user, setUser] = useState(null);
   const [leadsLoading, setLeadsLoading] = useState(false);
@@ -131,7 +131,7 @@ function AdminActiveCalls({selectedUser}) {
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=false`;
-      ApiPath = ApiPath+"&userId="+selectedUser.id
+      ApiPath = ApiPath + "&userId=" + selectedUser.id
       // //console.log; //scheduled
       // return
       const response = await axios.get(ApiPath, {
@@ -142,14 +142,14 @@ function AdminActiveCalls({selectedUser}) {
       });
 
       if (response) {
-        //console.log;
+        console.log("call activity list is", response.data.data)
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
         setAgentsList(response.data.data);
       }
     } catch (error) {
-      // console.error("Error occured in get Agents api is :", error);
+      console.error("Error occured in get call activity api is :", error);
     } finally {
       setInitialLoader(false);
     }
@@ -373,7 +373,7 @@ function AdminActiveCalls({selectedUser}) {
 
       const response = await fetch(
         "/api/calls/leadsInABatch" +
-          `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+        `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
         {
           method: "GET",
           headers: {
@@ -450,7 +450,7 @@ function AdminActiveCalls({selectedUser}) {
       //console.log;
       const response = await fetch(
         "/api/calls/callsInABatch" +
-          `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
+        `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
         {
           method: "GET",
           headers: {
@@ -616,97 +616,97 @@ function AdminActiveCalls({selectedUser}) {
             style={{ scrollbarWidth: "none" }}
           >
             {filteredAgentsList.length > 0 ? (
-              <div className={`h-[50vh] overflow-auto`}>
-                {filteredAgentsList.map((item, index) => {
-                  return (
-                    <div key={index}>
-                      {item.agents.map((agent, index) => {
-                        return (
-                          <div key={index}>
-                            <div
-                              className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                              key={index}
-                            >
-                              <div className="w-3/12 flex flex-row gap-4 items-center">
-                                {/* {agent?.agents[0]?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={agent?.agents[0].thumb_profile_image}
-                                      height={40}
-                                      width={40}
-                                      style={{
-                                        height: "40px",
-                                        width: "40px",
-                                        resize: "cover",
-                                      }}
-                                      alt="*"
-                                    />
-                                  ) : (
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {agent.name.slice(0, 1).toUpperCase()}
-                                    </div>
-                                  )} */}
+              <div>
+                {filteredAgentsList.map((item, index) => (
 
-                                <div>
-                                  {getAgentsListImage(agent?.agents[0])}
+                  <div key={index}>
+                    {item.agents.map((agent, index) => {
+                      return (
+                        <div key={index}>
+                          <div
+                            className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                            key={index}
+                          >
+                            <div className="w-3/12 flex flex-row gap-4 items-center">
+                              {agent?.agents[0]?.thumb_profile_image ? (
+                                <Image
+                                  className="rounded-full"
+                                  src={agent?.agents[0].thumb_profile_image}
+                                  height={40}
+                                  width={40}
+                                  style={{
+                                    height: "40px",
+                                    width: "40px",
+                                    resize: "cover",
+                                  }}
+                                  alt="*"
+                                />
+                              ) : (
+                                <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                  {agent.name.slice(0, 1).toUpperCase()}
                                 </div>
+                              )}
+                              {/* <div>
+                                  {getAgentsListImage(agent?.agents[0])}
+                                </div> */}
 
-                                <div style={styles.text2}>{agent.name}</div>
-                              </div>
-                              <div className="w-2/12 ">
-                                {agent?.agents[0]?.agentObjective ? (
-                                  <div style={styles.text2}>
-                                    {agent.agents[0]?.agentObjective}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
-                              <div className="w-1/12">
-                                <button
-                                  style={styles.text2}
-                                  className="text-purple underline outline-none"
-                                  onClick={() => {
-                                    fetchLeadsInBatch(item);
-                                    handleShowLeads(agent, item);
-                                  }}
-                                >
-                                  {item?.totalLeads}
-                                </button>
-                              </div>
-                              <div className="w-1/12">
-                                {item?.createdAt ? (
-                                  <div style={styles.text2}>
-                                    {GetFormattedDateString(item?.createdAt, true)}
-                                  </div>
-                                ) : (
-                                  "-"
-                                )}
-                              </div>
-                              <div className="w-2/12">{item.status}</div>
-                              <div className="w-1/12">
-                                <button
-                                  aria-describedby={id}
-                                  variant="contained"
-                                  onClick={(event) => {
-                                    handleShowPopup(event, item, agent);
-                                  }}
-                                >
-                                  <Image
-                                    src={"/otherAssets/threeDotsIcon.png"}
-                                    height={24}
-                                    width={24}
-                                    alt="icon"
-                                  />
-                                </button>
-                              </div>
+                              <div style={styles.text2}>{agent.name}</div>
+                            </div>
+                            <div className="w-2/12 ">
+                              {agent?.agents[0]?.agentObjective ? (
+                                <div style={styles.text2}>
+                                  {agent.agents[0]?.agentObjective}
+                                </div>
+                              ) : (
+                                "-"
+                              )}
+                            </div>
+                            <div className="w-1/12">
+                              <button
+                                style={styles.text2}
+                                className="text-purple underline outline-none"
+                                onClick={() => {
+                                  fetchLeadsInBatch(item);
+                                  handleShowLeads(agent, item);
+                                }}
+                              >
+                                {item?.totalLeads}
+                              </button>
+                            </div>
+                            <div className="w-1/12">
+                              {item?.createdAt ? (
+                                <div style={styles.text2}>
+                                  {GetFormattedDateString(item?.createdAt, true)}
+                                </div>
+                              ) : (
+                                "-"
+                              )}
+                            </div>
+                            <div className="w-2/12">{item.status}</div>
+                            <div className="w-1/12">
+                              <button
+                                aria-describedby={id}
+                                variant="contained"
+                                onClick={(event) => {
+                                  handleShowPopup(event, item, agent);
+                                }}
+                              >
+                                <Image
+                                  src={"/otherAssets/threeDotsIcon.png"}
+                                  height={24}
+                                  width={24}
+                                  alt="icon"
+                                />
+                              </button>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
+                        </div>
+                      );
+                    })}
+
+                  </div>
+
+                ))}
               </div>
             ) : (
               <div
@@ -773,7 +773,7 @@ function AdminActiveCalls({selectedUser}) {
                       <div>
                         {SelectedAgent?.name
                           ? SelectedAgent.name.charAt(0).toUpperCase() +
-                            SelectedAgent.name.slice(1)
+                          SelectedAgent.name.slice(1)
                           : ""}{" "}
                         call activity
                       </div>

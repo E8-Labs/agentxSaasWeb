@@ -42,7 +42,7 @@ export const UpdateCadenceConfirmationPopup = ({
                                     fontWeight: "600",
                                 }}
                             >
-                                Are you sure you want to update the existing candece
+                                Are you sure?
                             </p>
 
                             <p
@@ -53,7 +53,7 @@ export const UpdateCadenceConfirmationPopup = ({
 
                                 }}
                             >
-                                This is  distructive action. This will pause all the ongoing batches.
+                                By updating the pipeline and stages, you'll pause all active ongoing calls assigned to this agent.
                             </p>
                         </div>
                         <div className="flex flex-row items-center justify-between gap-4 mt-6">
