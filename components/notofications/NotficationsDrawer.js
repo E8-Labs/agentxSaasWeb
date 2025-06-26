@@ -407,8 +407,8 @@ function NotficationsDrawer({ close }) {
   const handleShowDetails = useCallback((item) => {
     //console.log;
     if (
-      item.pipelineId === null ||
-      item.id === undefined ||
+      // item.pipelineId === null ||
+      // item.id === undefined ||
       !item.lead
     ) {
       setSnackMessage("Lead has been deleted");
@@ -416,19 +416,18 @@ function NotficationsDrawer({ close }) {
       setselectedLeadsDetails(item);
       setShowDetailsModal(true);
     }
-
-
   }, []);
 
   const getNotificationBtn = (item) => {
     if (
       item.type === NotificationTypes.Hotlead ||
-      item.type === NotificationTypes.MeetingBooked || item.type === NotificationTypes.LeadCalledBack
+      item.type === NotificationTypes.MeetingBooked ||
+      item.type === NotificationTypes.LeadCalledBack
     ) {
       return (
         <button
           onClick={() => {
-            handleShowDetails(item)
+            handleShowDetails(item);
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
@@ -632,8 +631,6 @@ function NotficationsDrawer({ close }) {
           </div>
         </div>
         <div className="w-[20%]">{getNotificationBtn(item)}</div>
-
-
       </div>
     );
   };
