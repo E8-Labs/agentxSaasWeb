@@ -1,5 +1,7 @@
 import React from 'react'
 import CustomerProfile from '../twiliohub/getProfile/CustomerProfile'
+import CenamDetails from '../twiliohub/getProfile/CenamDetails'
+import StirDetails from '../twiliohub/getProfile/StirDetails'
 
 const TwilioTrustHub = () => {
     return (
@@ -24,7 +26,15 @@ const TwilioTrustHub = () => {
                 {"Account > Twilio"}
             </div>
 
-            <CustomerProfile />
+            <div className='w-full mt-2'>
+                <CustomerProfile />
+            </div>
+            <div className='w-full mt-4'>
+                <CenamDetails />
+            </div>
+            <div className='w-full mt-4'>
+                <StirDetails />
+            </div>
 
         </div>
     )

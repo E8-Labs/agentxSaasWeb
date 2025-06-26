@@ -190,6 +190,9 @@ const Apis = {
   duplicateAgent: `${BasePath}api/agent/duplicateAgent`,
   resetTrail: `${BasePath}api/admin/resetTrial`,
 
+  //twilio trust hub
+  createBusinessProfile: `${BasePath}api/business-profile`,
+  getBusinessProfile: `${BasePath}api/business-profile`
 
   
 };

@@ -100,3 +100,11 @@ export const jobPositionArray = [
     { id: 9, title: "IT Admin" },
     { id: 10, title: "Administrator" }
 ];
+
+//list of callingrules
+export const callingRules = [
+    { id: 1, title: "Collect explicit opt-in when required" },
+    { id: 2, title: "State the name of business and phone number within the first 30 seconds" },
+    { id: 3, title: "Maintain a do-not-call list for customers who opt-out" },
+    { id: 4, title: "Place calls between 8:00 am and 9:00 pm" },
+];
