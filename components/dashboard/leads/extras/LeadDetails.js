@@ -51,6 +51,7 @@ import "@madzadev/audio-player/dist/index.css";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import NoVoicemailView from "../../myagentX/NoVoicemailView";
 import { callStatusColors } from "@/constants/Constants";
+import DeleteCallLogConfimation from "./DeleteCallLogConfimation";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -143,6 +144,9 @@ const LeadDetails = ({
 
   const [showDelModal, setShowDelModal] = useState(false);
   const [showTranscriptModal, setShowTranscriptModal] = useState(false);
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
+  const [seletedCallLog, setSelectedCallLog] = useState(null)
+  const [delCallLoader, setdelCallLoader] = useState(false)
 
   useEffect(() => {
     const getData = async () => {
@@ -344,7 +348,7 @@ const LeadDetails = ({
         ];
         // setLeadColumns(response.data.columns);
         setSelectedLeadsDetails(response.data.data);
-        console.log("Lead details response", response.data.data.callActivity);
+        console.log("Lead details response", response.data.data);
         setSelectedStage(response?.data?.data?.stage?.stageTitle);
         // setSelectedStage(response?.data?.data?.stage?.stageTitle);
         setLeadColumns(dynamicColumns);
@@ -806,15 +810,68 @@ const LeadDetails = ({
 
   // console.log('enrichData', enrichData)
 
-    const showColor = (item) => {
-    
-  let color =  callStatusColors[
+  const showColor = (item) => {
+
+    let color = callStatusColors[
       Object.keys(callStatusColors).find(
         key => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
       )
     ] || "#000"
 
     return color
+  }
+
+  const handleCopy = async (id) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setShowSuccessSnack("Call ID copied to the clipboard.")
+      setShowSuccessSnack2(true)
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+
+  const deleteCallLog = async (item) => {
+    try {
+      setdelCallLoader(true)
+      let data = localStorage.getItem("User")
+      if (data) {
+        let u = JSON.parse(data)
+        let path = Apis.deleteCallLog
+
+        let apiData = {
+          id: item.id
+        }
+
+        const response = await axios.post(path, apiData, {
+          headers: {
+            "Authorization": 'Bearer ' + u.token
+          }
+        })
+
+        if (response) {
+          if (response.data) {
+            console.log('delete call log api data is', response.data.data)
+            let call = response.data.data
+            setSelectedLeadsDetails((prev) => ({
+              ...prev,
+              callActivity: prev.callActivity.filter((log) => log.id !== item.id),
+            }));
+
+            setShowConfirmationPopup(false);
+
+            setShowSuccessSnack("Call activity has been deleted successfully.");
+            setShowSuccessSnack2(true);
+          }
+        }
+      }
+    } catch (e) {
+      console.log('error in call log delete api is', e)
+    }
+    finally {
+      setdelCallLoader(false)
+    }
   }
 
 
@@ -2074,7 +2131,7 @@ const LeadDetails = ({
                                                   <div
                                                     className="h-[10px] w-[10px] rounded-full"
                                                     style={{
-                                                      backgroundColor:showColor(item)
+                                                      backgroundColor: showColor(item)
 
                                                     }}
                                                   ></div>
@@ -2155,15 +2212,26 @@ const LeadDetails = ({
                                                           paddingInline: 15,
                                                         }}
                                                       >
-                                                        <div
-                                                          className="mt-4"
-                                                          style={{
-                                                            fontWeight: "500",
-                                                            fontSize: 12,
-                                                            color: "#00000070",
-                                                          }}
-                                                        >
-                                                          Transcript
+                                                        <div className="flex mt-4 flex-row items-center gap-4">
+
+                                                          <div
+                                                            className=""
+                                                            style={{
+                                                              fontWeight: "500",
+                                                              fontSize: 12,
+                                                              color: "#00000070",
+                                                            }}
+                                                          >
+                                                            Transcript
+                                                          </div>
+
+                                                          <button
+                                                            onClick={() => handleCopy(item.callId)}
+                                                          >
+                                                            <Image src={'/svgIcons/copy.svg'}
+                                                              height={15} width={15} alt="*"
+                                                            />
+                                                          </button>
                                                         </div>
                                                         <div className="flex flex-row items-center justify-between mt-4">
                                                           <div
@@ -2243,18 +2311,6 @@ const LeadDetails = ({
                                                                 }
                                                               </button>
 
-                                                              <button
-                                                                style={{
-                                                                  fontWeight: "600",
-                                                                  fontSize: 15,
-                                                                }}
-                                                                onClick={() => {
-                                                                
-                                                                }}
-                                                                className="mt-2 text-[#00000070]"
-                                                              >
-                                                                Delete
-                                                              </button>
 
                                                             </div>
                                                           </div>
@@ -2268,6 +2324,32 @@ const LeadDetails = ({
                                                             No transcript
                                                           </div>
                                                         )}
+                                                        <div className="
+                                                        w-full flex flex-row justify-end -mt-2
+                                                        ">
+                                                          <button style={{
+                                                            fontWeight: "600",
+                                                            fontSize: 15,
+                                                            color: '#00000050'
+                                                          }}
+                                                            onClick={() => {
+                                                              setShowConfirmationPopup(true)
+                                                              setSelectedCallLog(item)
+                                                              //  deleteCallLog(item)
+                                                            }}
+                                                          >
+                                                            Delete
+                                                          </button>
+
+                                                          <DeleteCallLogConfimation
+                                                            showConfirmationPopup={showConfirmationPopup}
+                                                            setShowConfirmationPopup={showConfirmationPopup}
+                                                            onContinue={() => {
+                                                              deleteCallLog(seletedCallLog)
+                                                            }}
+                                                            loading={delCallLoader}
+                                                          />
+                                                        </div>
                                                       </div>
                                                     </>
                                                   )

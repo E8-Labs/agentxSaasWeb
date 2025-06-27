@@ -1,4 +1,5 @@
 import voicesList from "@/components/createagent/Voices";
+import { models } from "@/constants/Constants";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import Image from "next/image";
 
@@ -312,3 +313,22 @@ export const getAgentProfileImage = (subAgent) => {
     </div>
   );
 };
+
+
+export  function findLLMModel(value) {
+    let model = null;
+    for (const m of models) {
+      if (m.model == value) {
+        model = m;
+      }
+    }
+    console.log("Selected model:", model);
+    if (model === null) {
+      return models[0]; // Default to the first model if not found
+    }
+
+
+    return model;
+  }
+
+

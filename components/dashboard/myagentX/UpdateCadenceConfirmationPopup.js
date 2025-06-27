@@ -58,7 +58,7 @@ export const UpdateCadenceConfirmationPopup = ({
                         </div>
                         <div className="flex flex-row items-center justify-between gap-4 mt-6">
                             <button
-                                className="w-4/12"
+                                className="w-6/12 border rounded h-[50px]"
                                 onClick={() => {
                                     setShowConfirmationPopup(false);
                                 }}

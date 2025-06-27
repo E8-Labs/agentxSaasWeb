@@ -371,10 +371,10 @@ function Billing() {
       });
 
       if (response) {
-        // //console.log;
+        // console.log
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data;
-          // //console.log;
+          console.log("User plan sibscibe res[ponse is",response.data.data)
           let user = userLocalData
           user.plan = response.data.data
           setUserLocalData(user)
@@ -1039,6 +1039,7 @@ function Billing() {
       </div>
 
       {userLocalData?.plan && (
+
         <div className="w-full">
           <div className="w-full">
             {subscribePlanLoader ? (

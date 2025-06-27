@@ -432,9 +432,9 @@ function AllCalls({ user }) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          //console.log;
-          // setCallDetails(response.data.data);
-          // setFilteredCallDetails(response.data.data);
+          console.log;
+          setCallDetails(response.data.data);
+          setFilteredCallDetails(response.data.data);
 
           const data = response.data.data;
           localStorage.setItem("callDetails", response.data.data);

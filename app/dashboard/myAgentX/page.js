@@ -43,6 +43,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import {
+  findLLMModel,
   formatPhoneNumber,
   getAgentImage,
   getAgentProfileImage,
@@ -442,21 +443,21 @@ function Page() {
     }
   };
 
-  function findLLMModel(value) {
-    let model = null;
-    for (const m of models) {
-      if (m.model == value) {
-        model = m;
-      }
-    }
-    // console.log("Selected model:", model);
-    if (model === null) {
-      return models[0]; // Default to the first model if not found
-    }
+  // function findLLMModel(value) {
+  //   let model = null;
+  //   for (const m of models) {
+  //     if (m.model == value) {
+  //       model = m;
+  //     }
+  //   }
+  //   // console.log("Selected model:", model);
+  //   if (model === null) {
+  //     return models[0]; // Default to the first model if not found
+  //   }
 
 
-    return model;
-  }
+  //   return model;
+  // }
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -3265,9 +3266,17 @@ function Page() {
             {/* Code for agent info */}
             {activeTab === "Agent Info" ? (
               <div className="w-full">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col">
+                  
+                  <div className="flex flex-row items-center justify-between">
+                    <div
+                      style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
+                    >
+                      Voice Options
+                    </div>
+                  </div>
                   {/* Language */}
-                  <div className="flex w-full justify-between items-center -mt-4">
+                  <div className="flex w-full justify-between items-center ">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
@@ -3383,15 +3392,8 @@ function Page() {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-row items-center justify-between">
-                    <div
-                      style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
-                    >
-                      Voice Options
-                    </div>
-                  </div>
 
-                  <div className="flex w-full justify-between items-center">
+                  <div className="flex w-full justify-between items-center -mt-4">
                     <div
                       style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
                     >
@@ -3437,8 +3439,8 @@ function Page() {
                                   {selectedVoice.img && (
                                     <Image
                                       src={selectedVoice.img}
-                                      height={40}
-                                      width={35}
+                                      height={30}
+                                      width={30}
                                       alt="Selected Voice"
                                     />
                                   )}

@@ -42,6 +42,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import {
+  findLLMModel,
   formatPhoneNumber,
   getAgentImage,
   getAgentProfileImage,
@@ -693,18 +694,18 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
   };
 
-  function findLLMModel(value) {
-    let model = null;
-    for (const m of models) {
-      if (m.value == value) {
-        model = m;
-      }
-      if (model === null) {
-        return models[0]; // Default to the first model if not found
-      }
-    }
-    return model;
-  }
+  // function findLLMModel(value) {
+  //   let model = null;
+  //   for (const m of models) {
+  //     if (m.value == value) {
+  //       model = m;
+  //     }
+  //   }
+  //   if (model === null) {
+  //     return models[0]; // Default to the first model if not found
+  //   }
+  //   return model;
+  // }
 
   //function to open drawer
   const handleShowDrawer = (item) => {
@@ -714,7 +715,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     // setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
     setStartingPace(item.talkingPace);
-    //console.log;
+    console.log("show drawer", item.agentLLmModel)
     setPatienceValue(item.responseSpeed);
     setLanguageValue(item.agentLanguage);
 
@@ -2138,7 +2139,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   return (
     <div className="w-full flex flex-col items-center h-full overflow-hidden">
-    {/* Slider code */}
+      {/* Slider code */}
       <div
         style={{
           position: "absolute",

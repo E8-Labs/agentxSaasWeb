@@ -188,7 +188,7 @@ function BarServices() {
     }
       // console.log;
 
-      // setSubscribePlanLoader(true);
+      setSubscribePlanLoader(true);
       let AuthToken = null;
       let localDetails = null;
       const localData = localStorage.getItem("User");

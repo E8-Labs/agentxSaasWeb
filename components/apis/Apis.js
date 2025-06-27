@@ -192,7 +192,8 @@ const Apis = {
 
   //twilio trust hub
   createBusinessProfile: `${BasePath}api/business-profile`,
-  getBusinessProfile: `${BasePath}api/business-profile`
+  getBusinessProfile: `${BasePath}api/business-profile`,
+  deleteCallLog:`${BasePath}api/leads/deleteCallLog`
 
   
 };
