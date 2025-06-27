@@ -42,7 +42,7 @@ export const UpdateCadenceConfirmationPopup = ({
                                     fontWeight: "600",
                                 }}
                             >
-                                Are you sure?
+                                {`Are you sure?`}
                             </p>
 
                             <p
@@ -53,7 +53,7 @@ export const UpdateCadenceConfirmationPopup = ({
 
                                 }}
                             >
-                                By updating the pipeline and stages, you'll pause all active ongoing calls assigned to this agent.
+                                {`By updating the pipeline and stages, you'll pause all active ongoing calls assigned to this agent.`}
                             </p>
                         </div>
                         <div className="flex flex-row items-center justify-between gap-4 mt-6">
