@@ -10,7 +10,7 @@ import axios from "axios";
 function Knowledgebase({ user, agent }) {
   const [kb, setKb] = useState([]);
   const [showKbPopup, setShowKbPopup] = useState(false);
-  const [kbDelLoader,setKbDelLoader] = useState(null)
+  const [kbDelLoader, setKbDelLoader] = useState(null);
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
 
   useEffect(() => {
@@ -24,10 +24,9 @@ function Knowledgebase({ user, agent }) {
       const token = user.token; // Extract JWT token
 
       // let link = `/api/kb/getkb?agentId=${agent.id}`;
-      let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`
+      let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`;
       // //console.log
 
- 
       const response = await fetch(link, {
         method: "GET",
         headers: {
@@ -39,7 +38,7 @@ function Knowledgebase({ user, agent }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("kb list is ",data.data)
+        console.log("kb list is ", data.data);
         setKb(data.data);
       } else {
         console.error("Failed to fetch kb:", data.error);
@@ -72,13 +71,14 @@ function Knowledgebase({ user, agent }) {
             No knowledge base added
           </div>
 
-          <button className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
+          <button
+            className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
             onClick={() => addKnowledgebase()}
           >
             <Plus color="white"></Plus>
             <div
               className="flex items-center justify-center  text-black text-white font-medium"
-               // Fixed typo
+              // Fixed typo
             >
               Add New
             </div>
@@ -91,37 +91,35 @@ function Knowledgebase({ user, agent }) {
   async function handleDeleteKb(item) {
     //console.log
     try {
-      setKbDelLoader(item.id)
+      setKbDelLoader(item.id);
       const token = user.token; // Extract JWT token
       setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
-      
-      let link = `${Apis.deleteKnowledgebase}`
+
+      let link = `${Apis.deleteKnowledgebase}`;
       //console.log
 
       let apidata = {
-        kbId : item.id
-      }
+        kbId: item.id,
+        agentId: agent.id,
+      };
       //console.log
 
-      const response = await axios.post(link,apidata,{
+      const response = await axios.post(link, apidata, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      })
-        
+      });
+
       if (response.data) {
         //console.log;
-        
-        
       } else {
         console.error("Failed to delete kb:", data.error);
       }
     } catch (error) {
       console.error("Error fetching kb:", error);
-    }
-    finally{
-      setKbDelLoader(null)
+    } finally {
+      setKbDelLoader(null);
     }
   }
   function GetKbView() {
@@ -130,13 +128,12 @@ function Knowledgebase({ user, agent }) {
         // agent={agent}
         kbList={kb}
         onDelete={(item) => {
-          
-         handleDeleteKb(item)
+          handleDeleteKb(item);
         }}
         onAddKnowledge={() => {
           setShowKbPopup(true);
         }}
-        isLoading = {kbDelLoader}
+        isLoading={kbDelLoader}
       />
     );
   }
