@@ -69,6 +69,9 @@ const Page = () => {
 
       //console.log;
 
+      console.log("Cadence is ", cadence);
+      console.log("Main agent", mainAgentId);
+
       const ApiData = {
         pipelineId: cadence.pipelineID,
         mainAgentId: mainAgentId,

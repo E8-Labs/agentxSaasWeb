@@ -27,8 +27,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
   const [initialLoader, setInitialLoader] = useState(false);
 
-
-  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
+  const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
@@ -116,7 +115,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
     paragraph2: {
       fontWeight: "400",
       fontSize: 14,
-      color: '#00000080'
+      color: "#00000080",
     },
   };
 
@@ -159,11 +158,15 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 fontSize: 15,
               }}
               onClick={() => {
+                localStorage.setItem(
+                  PersistanceKeys.LocalSavedAgentDetails,
+                  JSON.stringify(mainAgent)
+                );
                 if (agentCadence.length === 0) {
                   router.push("/pipeline/update");
-                  return
+                  return;
                 }
-                setShowConfirmationPopup(true)
+                setShowConfirmationPopup(true);
                 // if ((mainAgent.currentOngoingCadence || 0) > 0) {
                 //   setMessage({
                 //     message:
@@ -173,10 +176,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 //   return;
                 // }
                 //console.log;
-                localStorage.setItem(
-                  PersistanceKeys.LocalSavedAgentDetails,
-                  JSON.stringify(mainAgent)
-                );
+
                 // router.push("/pipeline/update");
               }}
             >
@@ -188,11 +188,13 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
             showConfirmationPopuup={showConfirmationPopup}
             setShowConfirmationPopup={setShowConfirmationPopup}
             onContinue={() => {
-              setShowConfirmationPopup(false)
-              console.log('selectedAgent.id', selectedAgent.id)
-              console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
+              setShowConfirmationPopup(false);
+              console.log("selectedAgent.id", selectedAgent.id);
+              console.log(
+                "selectedAgent.mainAgentId",
+                selectedAgent.mainAgentId
+              );
               router.push("/pipeline/update");
-              
             }}
           />
           {initialLoader ? (
@@ -238,26 +240,18 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                           className="flex flex-row items-center gap-8 pl-20"
                           style={styles.paragraph2}
                         >
-                          <div
-                            className="text-center">
-                            Days
-                          </div>
-                          <div
-                            className="text-center">
-                            Hours
-                          </div>
-                          <div
-                            className="text-center">
-                            Mins
-                          </div>
+                          <div className="text-center">Days</div>
+                          <div className="text-center">Hours</div>
+                          <div className="text-center">Mins</div>
                         </div>
 
                         {stage.calls.map((item, index) => {
                           return (
-                            <div key={index} className="flex flex-col gap-2 items-ceter mt-2">
-
+                            <div
+                              key={index}
+                              className="flex flex-col gap-2 items-ceter mt-2"
+                            >
                               <div
-
                                 className="flex flex-row items-center gap-4"
                                 style={styles.paragraph}
                               >
@@ -327,17 +321,15 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                           </div>
                         </div>
                       </div>
-                    )
-                    }
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           )}
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 

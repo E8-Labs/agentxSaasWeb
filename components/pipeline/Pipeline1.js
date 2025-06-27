@@ -304,6 +304,7 @@ const Pipeline1 = ({ handleContinue }) => {
   };
 
   const printAssignedLeadsData = async () => {
+    console.log("print clicked", assignedLeads);
     setPipelineLoader(true);
 
     const allData = Object.keys(assignedLeads)
@@ -323,6 +324,7 @@ const Pipeline1 = ({ handleContinue }) => {
       })
       .filter((item) => item !== null); // Filter out null values
 
+    console.log("All Data ", allData);
     const pipelineID = selectedPipelineItem.id;
     const cadence = allData;
 
@@ -330,6 +332,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
     //getting local agent data then sending the cadence accordingly
     const agentDetails = localStorage.getItem("agentDetails");
+    console.log("Agent Details ", agentDetails);
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
       // //console.log;
