@@ -170,7 +170,7 @@ const voicesList = [
     name: "Maria",
     // TODO: Arslan Update ht voice mp3 from this url (https://drive.google.com/drive/u/2/folders/16VvoOUWHTIAorpAz-UuOt67Um7tzBl6u)
     //Download the voice for Maria and add here.
-    preview: "/voicesList/Cade.MP3",
+    preview: "/voicesList/MariaSpanish.mp3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/maria.png",
@@ -183,7 +183,7 @@ const voicesList = [
     name: "Andres",
     // TODO: Arslan Update ht voice mp3 from this url (https://drive.google.com/drive/u/2/folders/16VvoOUWHTIAorpAz-UuOt67Um7tzBl6u)
     //Download the voice for Andres and add here.
-    preview: "/voicesList/AndresSpanish.MP3",
+    preview: "/voicesList/AndresSpanish.mp3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/nefh8u15F5ECgY6ijXg3/a63a5568-0b7b-449a-bb27-65a8ee49138e.mp3",
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/andres.png",
