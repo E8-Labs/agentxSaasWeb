@@ -589,32 +589,12 @@ const Userleads = ({
     return found;
   }
   const handleSelectStage = (item) => {
-    // setSelectedStage(item);
-
-    let stages = [];
-    let found = -1;
-    for (let i = 0; i < selectedStage.length; i++) {
-      if (selectedStage[i].id == item.id) {
-        found = i;
-      } else {
-        stages.push(selectedStage[i]);
-      }
-    }
-    if (found >= 0) {
-    } else {
-      stages.push(item);
-    }
-    setSelectedStage(stages);
-
-    // setSelectedStage((prevIds) => {
-    //   if (prevIds.includes(item.id)) {
-    //     // Unselect the item if it's already selected
-    //     return prevIds.filter((prevId) => prevId !== item.id);
-    //   } else {
-    //     // Select the item if it's not already selected
-    //     return [...prevIds, item.id];
-    //   }
-    // });
+    setSelectedStage((prevStages) => {
+      const isSelected = prevStages.some((s) => s.id === item.id);
+      return isSelected
+        ? prevStages.filter((s) => s.id !== item.id)
+        : [...prevStages, item];
+    });
   };
 
   //function for del smartlist stage popover
@@ -2590,14 +2570,9 @@ const Userleads = ({
                           <div className="flex flex-row items-center mt-2 justify-start">
                             <button
                               onClick={() => {
-                                setNoStageSelected(!noStageSelected);
-                                let stages = [];
-                                stages.push({
-                                  id: 1,
-                                  stageTitle: "No Stage"
-                                });
-                                setSelectedStage(stages);
+                                setNoStageSelected((prev) => !prev);
                               }}
+
                               className={`p-2 border border-[#00000020] ${noStageSelected
                                 ? `bg-purple text-white`
                                 : "bg-transparent text-black"

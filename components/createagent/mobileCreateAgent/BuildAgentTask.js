@@ -141,7 +141,7 @@ const BuildAgentTask = ({
     {
       id: 1,
       icon: "",
-      title: "Call Absentee Owners",
+      title: "Absentee Owners",
       details:
         "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
       focusIcn: "/objectiveIcons/obj1FC.png",

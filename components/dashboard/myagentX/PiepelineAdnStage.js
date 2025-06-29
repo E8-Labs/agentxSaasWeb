@@ -144,7 +144,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
         </div>
       </div>
 
-      {selectedAgent?.agentType !== "inbound" && (
+      {/* {selectedAgent?.agentType !== "inbound" && ( */}
         <div className="w-full">
           <div className="flex flex-row justify-between items-center mt-4">
             <div className="" style={{ fontWeight: "700", fontSize: 16.8 }}>
@@ -328,7 +328,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
             </div>
           )}
         </div>
-      )}
+      {/* )} */}
     </div>
   );
 };

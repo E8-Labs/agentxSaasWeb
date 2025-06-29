@@ -108,7 +108,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     {
       id: 1,
       icon: "",
-      title: "Call Absentee Owners",
+      title: "Absentee Owners",
       details:
         "Reach out to property owners who may not live in the property to discuss potential selling or investment opportunities.",
       focusIcn: "/svgIcons/obj1F.svg",

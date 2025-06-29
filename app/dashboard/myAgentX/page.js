@@ -2284,7 +2284,7 @@ function Page() {
 
       const newVoiceName = selectedLanguage === "en" ? "Ava" : "Maria";
       await updateAgent(newVoiceName);
-      
+
       setSelectedVoice(newVoiceName);
     }
     setShowLanguageLoader(false);
@@ -3267,7 +3267,7 @@ function Page() {
             {activeTab === "Agent Info" ? (
               <div className="w-full">
                 <div className="flex flex-col">
-                  
+
                   <div className="flex flex-row items-center justify-between">
                     <div
                       style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
@@ -3500,6 +3500,7 @@ function Page() {
                                   {item.preview ? (
                                     <div //style={{marginLeft:15}}
                                       onClick={(e) => {
+                                        console.log('audio preview ', item.preview)
                                         e.stopPropagation(); // Prevent dropdown from closing
                                         e.preventDefault(); // Prevent selection event
 
@@ -3914,7 +3915,15 @@ function Page() {
                                 if (selected === "") {
                                   return <div>Select Number</div>;
                                 }
-                                return selected;
+                                return <div style={{
+                                  fontSize: 15,
+                                  fontWeight: "500",
+                                  color: "#000",
+                                }}>
+                                  <div>
+                                    {selected}
+                                  </div>
+                                </div>
                               }}
                               sx={{
                                 ...styles.dropdownMenu,
@@ -4085,7 +4094,7 @@ function Page() {
                       <div
                         style={{
                           fontSize: 15,
-                          fontWeight: "500",
+                          fontWeight: "400",
                           color: "#000",
                         }}
                       >
@@ -4129,7 +4138,7 @@ function Page() {
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div>
                         {showDrawerSelectedAgent?.liveTransferNumber ? (
-                          <div>
+                          <div >
                             {showDrawerSelectedAgent?.liveTransferNumber}
                           </div>
                         ) : (

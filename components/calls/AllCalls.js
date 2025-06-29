@@ -331,7 +331,7 @@ function AllCalls({ user }) {
       });
 
       if (response) {
-        // console.log("Pipelines list is ", response.data.data)
+        console.log("Pipelines list is ", response.data.data)
         setPipelineLoader(false);
 
         if (response.data.status === true) {
@@ -1119,13 +1119,14 @@ function AllCalls({ user }) {
                       className="outline-none w-full"
                       style={{ fontSize: 16.8, fontWeight: "600" }}
                       onClick={() => {
-                        // setSelectedFromDate(null);
-                        // setSelectedToDate(null);
-                        // setSelectedStage(null);
-                        // getLeads()
-                        if (typeof window !== "undefined") {
-                          window.location.reload();
-                        }
+                        setSelectedFromDate(null);
+                        setSelectedToDate(null);
+                        setSelectedStageIds([]);
+                        getLeads()
+                        setShowFilterModal(false)
+                        // if (typeof window !== "undefined") {
+                        //   window.location.reload();
+                        // }
                       }}
                     >
                       Reset

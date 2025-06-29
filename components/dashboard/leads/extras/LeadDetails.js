@@ -861,7 +861,7 @@ const LeadDetails = ({
 
             setShowConfirmationPopup(false);
 
-            setShowSuccessSnack("Call activity has been deleted successfully.");
+            setShowSuccessSnack("Call activity deleted");
             setShowSuccessSnack2(true);
           }
         }
@@ -2171,6 +2171,13 @@ const LeadDetails = ({
                                                   item.status === "voicemail" ||
                                                     item.callOutcome === "Voicemail" ? (
                                                     <div className="border rounded mt-2 w-full p-4">
+                                                      <button
+                                                        onClick={() => handleCopy(item.callId)}
+                                                      >
+                                                        <Image src={'/svgIcons/copy.svg'}
+                                                          height={15} width={15} alt="*"
+                                                        />
+                                                      </button>
                                                       {item.agent.hasVoicemail ? (
                                                         <div>
                                                           {item.voicemailsent ? (
@@ -2302,11 +2309,7 @@ const LeadDetails = ({
                                                                 className="mt-2 text-black underline"
                                                               >
                                                                 {
-                                                                  // isExpanded.includes(
-                                                                  //   item.id
-                                                                  // )
-                                                                  //   ? "Read Less"
-                                                                  // :
+                                                                  
                                                                   "Read more"
                                                                 }
                                                               </button>
@@ -2651,7 +2654,7 @@ const LeadDetails = ({
       </Modal>
 
       {/* Modal for audio play */}
-      <Modal
+      {/* <Modal
         open={showAudioPlay}
         onClose={() => setShowAudioPlay(null)}
         closeAfterTransition
@@ -2672,18 +2675,7 @@ const LeadDetails = ({
                 borderRadius: "13px",
               }}
             >
-              {/* <Player
-                trackList={[
-                  {
-                    url: showAudioPlay,
-                    title: "Call recording",
-                    tags: [],
-                  },
-                ]}
-                includeSearch={false}
-                showPlaylist={false}
-                sortTracks={false}
-              /> */}
+              
               <audio controls>
                 <source src={showAudioPlay} type="audio/mpeg" />
                 Your browser does not support the audio element.
@@ -2698,12 +2690,71 @@ const LeadDetails = ({
                 Close
               </button>
 
-              {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+              
+            </div>
+          </div>
+        </Box>
+      </Modal> */}
+
+      <Modal
+        open={showAudioPlay}
+        onClose={() => setShowAudioPlay(null)}
+        closeAfterTransition
+        BackdropProps={{
+          sx: {
+            backgroundColor: "#00000020",
+          },
+        }}
+      >
+        <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center">
+            <div
+              className="w-full flex flex-col items-center"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <audio
+                id="custom-audio"
+                controls
+                style={{ width: "100%" }}
+                src={showAudioPlay}
+              />
+
+              {/* Buttons */}
+              <div className="flex flex-row justify-between w-full mt-4 gap-4">
+                <button
+                  className="w-1/2 h-[50px] rounded-lg bg-purple text-white"
+                  style={{ fontWeight: "600", fontSize: 15 }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(showAudioPlay).then(() => {
+                      setShowAudioPlay(null)
+                      setShowSuccessSnack("Audio URL copied");
+                      setShowSuccessSnack2(true);
+                      
+                    });
+                  }}
+                >
+                  Share
+                </button>
+
+                <button
+                  className="w-1/2 h-[50px] rounded-lg bg-gray-300 text-black"
+                  style={{ fontWeight: "600", fontSize: 15 }}
+                  onClick={() => {
+                    setShowAudioPlay(null);
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </Box>
       </Modal>
+
     </div>
   );
 };

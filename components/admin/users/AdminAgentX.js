@@ -710,8 +710,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //function to open drawer
   const handleShowDrawer = (item) => {
     setAssignNumber(item?.phoneNumber);
-    setSelectedVoice(item?.voiceId);
-    setVoicesList([voicesList]);
+    // setVoicesList([voicesList]);
     // setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
     setStartingPace(item.talkingPace);
@@ -724,6 +723,24 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       let model = findLLMModel(modelValue);
       setSelectedGptManu(model);
     }
+
+    const matchedVoice = voicesList.find(
+      (voice) => voice.voice_id === item?.voiceId
+    );
+
+    console.log('voice', matchedVoice?.name || item?.voiceId)
+
+    setSelectedVoice(matchedVoice?.name || item?.voiceId); // ✅ use name if found by ID, otherwise fallback to voice name
+
+
+    let v = item.agentLanguage === "English" || item.agentLanguage === "Multilingual" ? "en" : "es"
+    console.log('v', v)
+    let voices = []
+
+    voices = voicesList.filter((voice) => voice.langualge === v)
+
+    console.log('filtered voices are', voices)
+    setFilteredVoices(voices)
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
       mainAgent.agents.some((subAgent) => subAgent.id === item.id)
@@ -1872,17 +1889,27 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //code for voices droopdown
   const [SelectedVoice, setSelectedVoice] = useState("");
   const [VoicesList, setVoicesList] = useState([]);
+  const [filteredVoices, setFilteredVoices] = useState([]);
+
 
   ////console.log);
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
-    await updateAgent(event.target.value);
-    setShowVoiceLoader(false);
-    setSelectedVoice(event.target.value);
-    const selectedVoice = voicesList.find(
-      (voice) => voice.voice_id === event.target.value
+    const selectedVoice = filteredVoices.find(
+      (voice) => voice.name === event.target.value
     );
+
+    if (!selectedVoice) {
+      setShowVoiceLoader(false);
+      return;
+    }
+
+    await updateAgent(selectedVoice.name); // ✅ send name
+    setSelectedVoice(selectedVoice.name); // ✅ store name now
+    setShowVoiceLoader(false);
+
+
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
     } else {
@@ -2082,6 +2109,42 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // setRenameAgentLoader(false);
     }
   };
+
+  const handleLanguageChange = async (event) => {
+    setShowLanguageLoader(true);
+    let value = event.target.value;
+    console.log("selected language is", value)
+    // console.log("selected voice is",SelectedVoice)
+
+    let voice = voicesList.find((voice) => voice.name === SelectedVoice)
+
+    let selectedLanguage = value === "English" || value === "Multilingual" ? "en" : "es"
+
+    console.log('selected langualge', selectedLanguage)
+    let voiceData = {}
+
+
+    voiceData = {
+      agentLanguage: value,
+    };
+
+    await updateSubAgent(voiceData);
+
+    // if selected language is different from friltered voices list 
+    if (selectedLanguage != voice.langualge) {
+
+      // update voice list as well 
+      setFilteredVoices(voicesList.filter((voice) => voice.langualge === selectedLanguage))
+
+      const newVoiceName = selectedLanguage === "en" ? "Ava" : "Maria";
+      await updateAgent(newVoiceName);
+
+      setSelectedVoice(newVoiceName);
+    }
+    setShowLanguageLoader(false);
+    // setSelectedVoice(event.target.value);
+    setLanguageValue(value);
+  }
 
   const styles = {
     claimPopup: {
@@ -2965,7 +3028,136 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       </div>
                     </div>
 
+                    {/* Language */}
                     <div className="flex w-full justify-between items-center">
+                      <div
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
+                      >
+                        Language
+                      </div>
+
+                      <div
+                        style={{
+                          // width: "115px",
+                          display: "flex",
+                          alignItems: "center",
+                          // borderWidth:1,
+                          marginRight: -15,
+                        }}
+                      >
+                        {showLanguageLoader ? (
+                          <div
+                            style={{
+                              width: "115px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <CircularProgress size={15} />
+                          </div>
+                        ) : (
+                          <FormControl>
+                            <Select
+                              value={languageValue}
+                              onChange={async (event) => { handleLanguageChange(event) }}
+                              displayEmpty // Enables placeholder
+                              r renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: "#aaa" }}>Select</div>
+                                  ); // Placeholder style
+                                }
+                                const selectedVoice = AgentLanguagesList.find(
+                                  (lang) => lang?.title === selected
+                                );
+                                console.log(
+                                  `Selected Language for ${selected} is ${selectedVoice?.title}`
+                                );
+                                //  return selectedVoice ? selectedVoice.title : null;
+
+                                return (
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 10,
+                                    }}
+                                  >
+                                    <Image
+                                      src={selectedVoice?.flag}
+                                      height={22}
+                                      width={22}
+                                      alt="Selected Language"
+                                    />
+                                    <div>{selectedVoice?.title}</div>
+                                  </div>
+                                )
+                              }}
+                              sx={{
+                                border: "none", // Default border
+                                "&:hover": {
+                                  border: "none", // Same border on hover
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove the default outline
+                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                                "&.MuiSelect-select": {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: "30vh", // Limit dropdown height
+                                    overflow: "auto", // Enable scrolling in dropdown
+                                    scrollbarWidth: "none",
+                                    // borderRadius: "10px"
+                                  },
+                                },
+                              }}
+                            >
+                              {AgentLanguagesList.map((item, index) => {
+                                return (
+                                  <MenuItem
+                                    className="flex flex-row items-center gap-2"
+                                    value={item.title}
+                                    key={index}
+                                  // disabled={languageValue === item.title || languageValue !== "en-US"}
+                                  >
+                                    <Image
+                                      src={item.flag}
+                                      alt="*"
+                                      height={22}
+                                      width={22}
+                                    />
+                                    <div>{item.title}</div>
+                                    <div
+                                      style={{
+                                        color: "#00000060",
+                                        fontSize: 13,
+                                      }}
+                                    >
+                                      {item.subLang}
+                                    </div>
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex w-full justify-between items-center -mt-4">
                       <div
                         style={{
                           fontSize: 15,
@@ -3003,27 +3195,23 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                               onChange={handleChangeVoice}
                               displayEmpty // Enables placeholder
                               renderValue={(selected) => {
-                                if (!selected) {
-                                  return (
-                                    <div style={{ color: "#aaa" }}>Select</div>
-                                  ); // Placeholder style
-                                }
-                                const selectedVoice = voicesList.find(
-                                  (voice) => voice.voice_id === selected
+                                console.log('selected', selected)
+                                if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
+
+                                const selectedVoice = filteredVoices.find(
+                                  (voice) => voice.name === selected
                                 );
+
                                 return selectedVoice ? (
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <Image
-                                      src={selectedVoice.img}
-                                      height={40}
-                                      width={35}
-                                      alt="Selected Voice"
-                                    />
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    {selectedVoice.img && (
+                                      <Image
+                                        src={selectedVoice.img}
+                                        height={30}
+                                        width={30}
+                                        alt="Selected Voice"
+                                      />
+                                    )}
                                     <div>{selectedVoice.name}</div>
                                   </div>
                                 ) : null;
@@ -3047,9 +3235,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 },
                               }}
                             >
-                              {voicesList.map((item, index) => {
+                              {filteredVoices.map((item, index) => {
                                 const selectedVoiceName = (id) => {
-                                  const voiceName = voicesList.find(
+                                  const voiceName = filteredVoices.find(
                                     (voice) => voice.voice_id === id
                                   );
                                   return voiceName?.name || "Unknown";
@@ -3456,129 +3644,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       </div>
                     </div>
 
-                    {/* Language */}
-                    <div className="flex w-full justify-between items-center -mt-4">
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#666",
-                        }}
-                      >
-                        Language
-                      </div>
 
-                      <div
-                        style={{
-                          // width: "115px",
-                          display: "flex",
-                          alignItems: "center",
-                          // borderWidth:1,
-                          marginRight: -15,
-                        }}
-                      >
-                        {showLanguageLoader ? (
-                          <div
-                            style={{
-                              width: "115px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <CircularProgress size={15} />
-                          </div>
-                        ) : (
-                          <FormControl>
-                            <Select
-                              value={languageValue}
-                              onChange={async (event) => {
-                                setShowLanguageLoader(true);
-                                let value = event.target.value;
-                                //console.log;
-                                let voiceData = {
-                                  agentLanguage: value,
-                                };
-                                await updateSubAgent(voiceData);
-                                setShowLanguageLoader(false);
-                                // setSelectedVoice(event.target.value);
-                                setLanguageValue(value);
-                              }}
-                              displayEmpty // Enables placeholder
-                              renderValue={(selected) => {
-                                if (!selected) {
-                                  return (
-                                    <div style={{ color: "#aaa" }}>Select</div>
-                                  ); // Placeholder style
-                                }
-                                const selectedVoice = AgentLanguagesList.find(
-                                  (lang) => lang.title === selected
-                                );
-                                console.log(
-                                  `Selected Language for ${selected} is ${selectedVoice.title}`
-                                );
-                                return selectedVoice
-                                  ? selectedVoice.title
-                                  : null;
-                              }}
-                              sx={{
-                                border: "none", // Default border
-                                "&:hover": {
-                                  border: "none", // Same border on hover
-                                },
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none", // Remove the default outline
-                                },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
-                                "&.MuiSelect-select": {
-                                  py: 0, // Optional padding adjustments
-                                },
-                              }}
-                              MenuProps={{
-                                PaperProps: {
-                                  style: {
-                                    maxHeight: "30vh", // Limit dropdown height
-                                    overflow: "auto", // Enable scrolling in dropdown
-                                    scrollbarWidth: "none",
-                                    // borderRadius: "10px"
-                                  },
-                                },
-                              }}
-                            >
-                              {AgentLanguagesList.map((item, index) => {
-                                return (
-                                  <MenuItem
-                                    className="flex flex-row items-center gap-2"
-                                    value={item.title}
-                                    key={index}
-                                    disabled={languageValue === item.title || languageValue !== "en-US"}
-                                  >
-                                    <Image
-                                      src={item.flag}
-                                      alt="*"
-                                      height={22}
-                                      width={22}
-                                    />
-                                    <div>{item.title}</div>
-                                    <div
-                                      style={{
-                                        color: "#00000060",
-                                        fontSize: 13,
-                                      }}
-                                    >
-                                      {item.subLang}
-                                    </div>
-                                  </MenuItem>
-                                );
-                              })}
-                            </Select>
-                          </FormControl>
-                        )}
-                      </div>
-                    </div>
                   </div>
                   <div className="flex flex-col gap-1 mt-4">
                     <div

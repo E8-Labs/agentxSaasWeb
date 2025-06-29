@@ -525,7 +525,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       }
 
       console.log("cadence details are :",
-          cadence
+        cadence
       );
 
       let mainAgentId = null;
@@ -920,7 +920,21 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               {/* <GreetingTag handleGreetingTag={handleGreetingTag} /> */}
             </div>
             <div className="w-7/12 mt-4">
-              <div style={styles.headingStyle}>Call Script</div>
+              <div className="flex flex-row items-center justify-between w-full">
+                <div style={styles.headingStyle}>Call Script</div>
+                <button
+                  className="text-purple underline"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "700",
+                  }}
+                  onClick={() => {
+                    setAdvancedSettingModal(true);
+                  }}
+                >
+                  Advanced Settings
+                </button>
+              </div>
               <div className="mt-6">
                 {
                   loadingAgentDetails ? (
@@ -939,18 +953,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             </div>
             <div className="w-7/12 mt-4">
               <div className="flex flex-row justify-end mt-4">
-                <button
-                  className="text-purple underline"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: "700",
-                  }}
-                  onClick={() => {
-                    setAdvancedSettingModal(true);
-                  }}
-                >
-                  Advanced Settings
-                </button>
+
               </div>
               {/*<KYCs kycsDetails={setKycsData} user={user} />*/}
               {/* <div className='mt-4' style={styles.headingStyle}>

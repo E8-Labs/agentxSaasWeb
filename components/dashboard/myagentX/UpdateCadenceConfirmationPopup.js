@@ -32,9 +32,6 @@ export const UpdateCadenceConfirmationPopup = ({
                             style={{ scrollbarWidth: "none" }}
                         >
 
-
-
-
                             <p
                                 className="text-black"
                                 style={{
@@ -42,7 +39,7 @@ export const UpdateCadenceConfirmationPopup = ({
                                     fontWeight: "600",
                                 }}
                             >
-                                {`Are you sure?`}
+                                {`Delete Call`}
                             </p>
 
                             <p
@@ -53,7 +50,7 @@ export const UpdateCadenceConfirmationPopup = ({
 
                                 }}
                             >
-                                {`By updating the pipeline and stages, you'll pause all active ongoing calls assigned to this agent.`}
+                                {`Are you sure you want to delete this call activity?`}
                             </p>
                         </div>
                         <div className="flex flex-row items-center justify-between gap-4 mt-6">
