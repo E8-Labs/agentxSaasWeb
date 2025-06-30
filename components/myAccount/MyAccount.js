@@ -18,7 +18,7 @@ function MyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(6);
+  const [tabSelected, setTabSelected] = useState(5);
 
   const manuBar = [
     {
@@ -51,18 +51,18 @@ function MyAccount() {
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
-    {
-      id: 6,
-      heading: "Support",
-      subHeading: "Get in touch with our team and get help",
-      icon: "/otherAssets/headPhoneIcon.png",
-    },
-    {
-      id: 7,
-      heading: "Send Feedback",
-      subHeading: "Report bugs, new features and more",
-      icon: "/otherAssets/feedbackIcon.png",
-    },
+    // {
+    //   id: 6,
+    //   heading: "Support",
+    //   subHeading: "Get in touch with our team and get help",
+    //   icon: "/otherAssets/headPhoneIcon.png",
+    // },
+    // {
+    //   id: 7,
+    //   heading: "Send Feedback",
+    //   subHeading: "Report bugs, new features and more",
+    //   icon: "/otherAssets/feedbackIcon.png",
+    // },
     {
       id: 8,
       heading: "Terms & Condition",
@@ -75,12 +75,12 @@ function MyAccount() {
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
-    {
-      id: 10,
-      heading: "Twilio Trsut Hub",
-      subHeading: "lorem ipsum",
-      icon: "/svgIcons/info.svg",
-    },
+    // {
+    //   id: 10,
+    //   heading: "Twilio Trsut Hub",
+    //   subHeading: "lorem ipsum",
+    //   icon: "/svgIcons/info.svg",
+    // },
   ];
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
@@ -88,11 +88,11 @@ function MyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 6;
+    let number = Number(tab) || 5;
     // //console.log;
     setTabSelected(number);
     if (!tab) {
-      setParamsInSearchBar(1);
+      setParamsInSearchBar(5);
     }
   }, []);
 
