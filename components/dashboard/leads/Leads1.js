@@ -43,6 +43,12 @@ import ConfirmPerplexityModal from "./extras/CofirmPerplexityModal";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { LeadProgressBanner } from "./extras/LeadProgressBanner";
 import { uploadBatchSequence } from "./extras/UploadBatch";
+import NoLeadView from "./NoLeadView";
+import { styles } from "@/components/globalsstyles/Stles";
+import AddLeadPopup from "./AddLeadPopup";
+import DelConfirmationModal from "./DelConfirmationModal";
+import AddLeadColumn from "./AddLeadColumn";
+import AddLeadWarning from "./AddLeadWarning";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -634,31 +640,6 @@ const Leads1 = () => {
     },
   ];
 
-  const styles = {
-    headingStyle: {
-      fontSize: 17,
-      fontWeight: "700",
-    },
-    subHeadingStyle: {
-      fontSize: 15,
-      fontWeight: "700",
-    },
-    paragraph: {
-      fontSize: 15,
-      fontWeight: "500",
-    },
-    modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
-    },
-  };
 
   function GetDefaultColumnsNotMatched() {
     // Extract all default column dbNames from LeadDefaultColumns
@@ -737,28 +718,11 @@ const Leads1 = () => {
         }
       }
     } catch (error) {
-      // console.error("Error occured in adding new list api is:", error);
+      console.error("Error occured in adding new list api is:", error);
     } finally {
       setShowaddCreateListLoader(false);
     }
   };
-
-  // const handleToogleChange = async (event) => {
-  //   const checked = event.target.checked;
-
-  //   if (checked) {
-  //     let user = await getProfileDetails();
-  //     if (user) {
-  //       console.log("user credits are", user.data.data.enrichCredits);
-  //       if (user.data.data.enrichCredits === 0) {
-  //         setShowenrichConfirmModal2(true);
-  //         return;
-  //       }
-  //     }
-  //   }
-
-  //   setIsEnrich(checked);
-  // };
 
   return (
     <div className="w-full">
@@ -766,7 +730,7 @@ const Leads1 = () => {
         initialLoader ? (
           // <LeadLoading />
         ) : ( */}
-      <>
+      <div>
         <AgentSelectSnackMessage
           isVisible={showSuccessSnack}
           message={SuccessSnack}
@@ -802,7 +766,6 @@ const Leads1 = () => {
           )
         }
 
-        {/* <EnrichConfirmModal /> */}
 
         <div className="w-full">
           {userLeads ? (
@@ -816,256 +779,28 @@ const Leads1 = () => {
               />
             </div>
           ) : (
-            <div className="h-screen">
-              <div className="flex flex-row items-start justify-center mt-48 w-full">
-                <Image
-                  src={"/assets/placeholder.png"}
-                  height={145}
-                  width={710}
-                  alt="*"
-                />
-              </div>
-              <div
-                className="mt-12 ms-8 text-center"
-                style={{ fontSize: 30, fontWeight: "700" }}
-              >
-                {`Looks like you don't have any leads yet`}
-              </div>
-
-              <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddLeadModal(true);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/addManIcon.png"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Upload Leads</span>
-                  </button>
-                </div>
-                <div className="">
-                  <button
-                    className="flex flex-row gap-2 bg-purple text-white h-[50px] w-[219px] rounded-lg items-center justify-center"
-                    onClick={() => {
-                      setShowAddNewSheetModal(true);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/smartlistIcn.svg"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                    <span style={styles.headingStyle}>Create Smartlist</span>
-                  </button>
-                </div>
-              </div>
-
-              <div
-                className="w-full flex flex-row justify-center mt-4"
-              // style={{
-              //   position: "absolute",
-              //   bottom: "70px",
-              //   left: "50%",
-              //   transform: "translateX(-50%)",
-              // }}
-              >
-                <VideoCard
-                  duration={"11 min 27 sec"}
-                  horizontal={false}
-                  playVideo={() => {
-                    setIntroVideoModal(true);
-                  }}
-                  title=" Learn how to add leads to your CRM"
-                />
-              </div>
-            </div>
+            <NoLeadView
+              setShowAddLeadModal={setShowAddLeadModal}
+              setShowAddNewSheetModal={setShowAddNewSheetModal}
+            />
             // </div>
           )}
         </div>
 
         {/* Modal to add lead */}
-        <Modal
-          open={showAddLeadModal}
-          // onClose={() => setShowAddLeadModal(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(20px)",
-            },
-          }}
-        >
-          <Box
-            className="lg:w-6/12 sm:w-9/12 w-10/12"
-            sx={{
-              height: "auto",
-              bgcolor: "transparent",
-              // p: 2,
-              mx: "auto",
-              my: "50vh",
-              transform: "translateY(-50%)",
-              borderRadius: 2,
-              border: "none",
-              outline: "none",
-            }}
-          >
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: "#ffffff",
-                  padding: 20,
-                  borderRadius: "13px",
-                  // height: window.innerHeight * 0.6
-                }}
-              >
-                <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      setShowAddLeadModal(false);
-                      setSelectedFile(null);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-                <div className="mt-2" style={styles.subHeadingStyle}>
-                  Import Leads
-                </div>
-
-                {/* CSV File drag and drop logic */}
-
-                <div
-                  className="w-10/12 h-[40vh] flex flex-col justify-center "
-                  {...getRootProps()}
-                  style={{
-                    border: "2px dashed #ddd",
-                    padding: "20px",
-                    textAlign: "center",
-                    borderRadius: "10px",
-                    cursor: "pointer",
-                    // width: "430px",
-                    margin: "auto",
-                    marginTop: "20px",
-                    backgroundColor: "#F4F0F5",
-                  }}
-                >
-                  <input {...getInputProps()} />
-                  <div
-                    className="w-full flex-row flex justify-center"
-                    style={{ marginBottom: "15px" }}
-                  >
-                    <Image
-                      src="/assets/docIcon2.png"
-                      alt="Upload Icon"
-                      height={30}
-                      width={30}
-                    // style={{ marginBottom: "10px" }}
-                    />
-                  </div>
-                  <p style={{ ...styles.subHeadingStyle }}>
-                    Drop your file here to upload
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "#888",
-                      marginTop: "10px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Works with only a CSV, TSV or Excel files
-                  </p>
-                  <button className="w-full flex flex-row justify-center mt-6 outline-none">
-                    <div className="border border-purple rounded-[10px]">
-                      <div
-                        className="bg-purple text-white flex flex-row items-center justify-center w-fit-content px-4 rounded-[10px]"
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 12,
-                          height: "32px",
-                          margin: "2px",
-                        }}
-                      >
-                        Choose File
-                      </div>
-                    </div>
-                  </button>
-                </div>
-
-                {/* <div className="mt-8" style={{ height: "50px" }}>
-                {SelectedFile && (
-                  <div className="w-full mt-4 flex flex-row justify-center">
-                    <button
-                      className="bg-purple text-white flex flex-row items-center justify-center rounded-lg gap-2"
-                      style={{
-                        ...styles.subHeadingStyle,
-                        height: "50px",
-                        width: "170px",
-                      }}
-                      onClick={() => {
-                        setShowUploadLeadModal(true);
-                        setShowAddLeadModal(false);
-                        setSelectedFile(null);
-                      }}
-                    >
-                      <Image
-                        src={"/assets/addLeadIcon.png"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                      <span>Add Leads</span>
-                    </button>
-                  </div>
-                )}
-              </div> */}
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
-            </div>
-            <Modal
-              open={SelectedFile}
-              // onClose={() => setShowAddLeadModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(2px)",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-6/12 sm:w-9/12 w-10/12"
-                sx={styles.modalsStyle}
-              >
-                <div className="w-full flex flex-row items-center justify-center">
-                  <CircularProgress
-                    className="text-purple"
-                    size={150}
-                    weight=""
-                    thickness={1}
-                  />
-                </div>
-              </Box>
-            </Modal>
-          </Box>
-        </Modal>
+        {
+          showAddLeadModal && (
+            <AddLeadPopup
+              showAddLeadModal={showAddLeadModal}
+              setShowAddLeadModal={setShowAddLeadModal}
+              setSelectedfileLoader={setSelectedfileLoader}
+              setSheetName={setSheetName}
+              setProcessedData={setProcessedData}
+              setNewColumnsObtained={setNewColumnsObtained}
+              setShowUploadLeadModal={setShowUploadLeadModal}
+            />
+          )
+        }
 
         {/* modal to upload lead */}
         <Modal
@@ -1218,13 +953,6 @@ const Leads1 = () => {
                   style={{ height: "calc(100vh - 500px)" }}
                 >
                   {NewColumnsObtained.map((item, index) => {
-                    // const matchingValue = processedData.find((data) =>
-                    //   Object.keys(data).includes(item.dbName)
-                    // );
-                    // console.log(
-                    //   `1342: matching val: ${item.dbName}`,
-                    //   matchingValue
-                    // );
                     return (
                       <div
                         key={index}
@@ -1254,19 +982,6 @@ const Leads1 = () => {
                         <div className="w-3/12">{item.ColumnNameInSheet}</div>
                         <div className="w-3/12 truncate">
                           {processedData[0][item.ColumnNameInSheet]}
-                          {/* {item.matchedColumn ? (
-                          processedData[0][item.matchedColumn.dbName]
-                        ) : (
-                          <div>
-                            {item.UserFacingName
-                              ? processedData[0].extraColumns[
-                                  item.UserFacingName
-                                ]
-                              : processedData[0].extraColumns[
-                                  item.ColumnNameInSheet
-                                ]}
-                          </div>
-                        )} */}
                         </div>
                         <div className="w-3/12 border rounded p-2">
                           <button
@@ -1275,14 +990,7 @@ const Leads1 = () => {
                               if (columnAnchorEl) {
                                 handleColumnPopoverClose();
                               } else {
-                                // if (index > 4) {
                                 setSelectedItem(index);
-                                ////////console.log;
-                                // //console.log;
-                                // console.log(
-                                //   "Array selected is :",
-                                //   NewColumnsObtained
-                                // );
                                 setUpdateColumnValue(
                                   item.columnNameTransformed
                                 );
@@ -1326,16 +1034,6 @@ const Leads1 = () => {
                           <div></div>
                         )}
 
-                        {/* <Modal
-                          open = {ShowDelCol}
-                          onClose={()=>setShowDelCol(false)}
-
-                      >
-                        <div style={{height:50,width:50,backgroundColor:'red'}}>
-                              jioprjfdlkm
-                        </div>
-
-                      </Modal> */}
                       </div>
                     );
                   })}
@@ -1428,51 +1126,13 @@ const Leads1 = () => {
         />
 
         {/* Delete Column Modal */}
-        <Modal
-          open={ShowDelCol}
-          onClose={() => setShowDelCol(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: { backgroundColor: "rgba(0, 0, 0, 0.1)" },
-          }}
-        >
-          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: "#ffffff",
-                  padding: 20,
-                  borderRadius: "13px",
-                }}
-              >
-                <div className="font-bold text-xl mt-6">
-                  Are you sure you want to delete this column
-                </div>
-                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                  <button
-                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={() => {
-                      setShowDelCol(false);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={() => {
-                      ChangeColumnName(null);
-                      setShowDelCol(false);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Box>
-        </Modal>
+        {ShowDelCol && (<DelConfirmationModal
+          description={"Are you sure you want to delete this column"}
+          ShowDelCol={ShowDelCol}
+          setShowDelCol={setShowDelCol}
+          ChangeColumnName={() => ChangeColumnName(null)}
+        />
+        )}
 
         {/* Not matched Columns popover */}
 
@@ -1526,143 +1186,27 @@ const Leads1 = () => {
         </Popover>
 
         {/* Modal to update header */}
-        <Modal
-          open={showPopUp}
-          onClose={() => setShowPopUp(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(5px)",
-            },
-          }}
-        >
-          <Box className="lg:w-4/12 sm:w-6/12 w-10/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: "#ffffff",
-                  padding: 20,
-                  borderRadius: "13px",
-                }}
-              >
-                <div className="flex flex-row justify-end">
-                  <button
-                    onClick={() => {
-                      setShowPopUp(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-                <div
-                  className="w-full text-center mt-2"
-                  style={{ fontSize: 22, fontWeight: "600" }}
-                >
-                  Add Column
-                </div>
-                <div className="mt-2" style={styles.subHeadingStyle}>
-                  Column Name
-                </div>
-
-                <input
-                  ref={addColRef}
-                  type="text"
-                  className="border outline-none rounded p-2 mt-2 w-full focus:ring-0"
-                  value={updateColumnValue}
-                  // onChange={(e) => { setUpdateColumnValue(e.target.value) }}
-                  onChange={(e) => {
-                    const regex = /^[a-zA-Z0-9_ ]*$/; // Allow only alphabets
-                    if (regex.test(e.target.value)) {
-                      setUpdateColumnValue(e.target.value);
-                    }
-                  }}
-                  placeholder="Type here..."
-                  style={{ border: "1px solid #00000020" }}
-                />
-
-                <button
-                  className="w-full h-[50px] rounded-xl bg-purple text-white mt-8"
-                  style={{
-                    ...styles.subHeadingStyle,
-                    backgroundColor: !updateColumnValue ? "#00000020" : "",
-                    color: !updateColumnValue ? "black" : "",
-                  }}
-                  disabled={!updateColumnValue}
-                  onClick={() => {
-                    if (
-                      NewColumnsObtained?.some(
-                        (item) =>
-                          item?.UserFacingName?.toLowerCase() ===
-                          updateColumnValue?.toLowerCase()
-                      )
-                    ) {
-                      // //console.log;
-                      // return
-                      setWarningModal(true);
-                    } else {
-                      // //console.log;
-                      ChangeColumnName(updateColumnValue);
-                    }
-                  }}
-                >
-                  Add
-                </button>
-
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
-            </div>
-          </Box>
-        </Modal>
+        {
+          showPopUp && (
+            <AddLeadColumn
+              showPopUp={showPopUp}
+              setShowPopUp={setShowPopUp}
+              addColRef={addColRef}
+              updateColumnValue={updateColumnValue}
+              setUpdateColumnValue={setUpdateColumnValue}
+              NewColumnsObtained={NewColumnsObtained}
+              setWarningModal={setWarningModal}
+              ChangeColumnName={(name) => { ChangeColumnName(name) }}
+            />
+          )
+        }
 
         {/* Code foor warning modal */}
-        <Modal
-          open={warningModal}
-          onClose={() => setWarningModal(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(2px)",
-            },
-          }}
-        >
-          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="w-full"
-                style={{
-                  backgroundColor: "#ffffff",
-                  padding: 20,
-                  borderRadius: "13px",
-                }}
-              >
-                <div className="font-bold text-xl text-center mt-6 text-red">
-                  Column already exists
-                </div>
-                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                  <button
-                    className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={() => {
-                      setWarningModal(false);
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          </Box>
-        </Modal>
+        {warningModal && (<AddLeadWarning
+          warningModal={warningModal}
+          setWarningModal={setWarningModal}
+        />
+        )}
 
         {/* Modal to add lead or import lead */}
         <Modal
@@ -1990,9 +1534,7 @@ const Leads1 = () => {
             </Box>
           </Modal>
         </div>
-      </>
-      {/* )
-      } */}
+      </div>
     </div>
   );
 };

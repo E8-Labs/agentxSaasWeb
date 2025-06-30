@@ -50,6 +50,7 @@ import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { userLocalData } from "@/components/agency/plan/AuthDetails";
+import LeadsfiltersModal from "./LeadsfiltersModal";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -581,10 +582,13 @@ const Userleads = ({
     for (let i = 0; i < selectedStage.length; i++) {
       if (selectedStage[i].id == item.id) {
         found = i;
+        // console.log("Return value is", i);
       } else {
         // stages.push(selectedStage[i]);
+        // console.log("Return value is none");
       }
     }
+    // console.log("Found value is", found);
 
     return found;
   }
@@ -812,15 +816,6 @@ const Userleads = ({
         AuthToken = UserDetails.token;
       }
 
-      //////console.log;
-      //   const formtFromDate = moment(selectedFromDate).format("MM/DD/YYYY");
-      //   const formtToDate = moment(selectedToDate).format("MM/DD/YYYY");
-      //////console.log;
-
-      //   const id = currentSheet.id;
-      //   let stageIds = selectedStage.map((stage) => stage.id);
-      //   const stages = stageIds.join(",");
-      //   //////console.log;
       let ApiPath = null;
       if (filterText) {
         //console.log;
@@ -833,7 +828,7 @@ const Userleads = ({
         }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
       }
-      //console.log;
+      console.log("Api path is", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -859,7 +854,9 @@ const Userleads = ({
             setShowFilterModal(false);
             //   setShowNoLeadErr("No leads found");
 
+            console.log("Api path 2 is", ApiPath);
             const data = response.data.data;
+            console.log("Response of filter leads api is", data);
             if (offset == 0) {
               let sheetId = null;
               if (data.length > 0) {
@@ -931,143 +928,6 @@ const Userleads = ({
     }
   };
 
-  //function for getting the leads
-  // const getLeads = async (item, offset = 0, oldSheet) => {
-  //   try {
-  //     setSheetsLoader(true);
-  //     const id = item.id;
-  //     //Set leads in cache
-  //     let leadsData = LeadsInSheet[id] || null;
-  //     if (!leadsData) {
-  //       //////console.log;
-  //       let d = localStorage.getItem(`Leads${id}`);
-  //       if (d) {
-  //         //////console.log;
-  //         leadsData = JSON.parse(d);
-  //       }
-  //     }
-  //     let leads = leadsData?.data;
-  //     let leadColumns = leadsData?.columns;
-  //     setSelectedSheetId(item.id);
-  //     setLeadsList([]);
-  //     setFilterLeads([]);
-  //     if (leads && leadColumns) {
-  //       // //////console.log
-  //       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-  //       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-  //       let dynamicColumns = [];
-  //       if (leads.length > 0) {
-  //         dynamicColumns = [
-  //           ...leadColumns,
-  //           // { title: "Tag" },
-  //           {
-  //             title: "More",
-  //             idDefault: false,
-  //           },
-  //         ];
-  //       }
-  //       // setLeadColumns(response.data.columns);
-  //       setLeadColumns(dynamicColumns);
-  //       // return
-  //     } else {
-  //       //////console.log;
-  //     }
-
-  //     // setSheetsLoader(true);
-
-  //     const localData = localStorage.getItem("User");
-  //     let AuthToken = null;
-  //     if (localData) {
-  //       const UserDetails = JSON.parse(localData);
-  //       AuthToken = UserDetails.token;
-  //     }
-
-  //     //////console.log;
-
-  //     //////console.log;
-
-  //     // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
-
-  //     const formtFromDate = moment(selectedFromDate).format("MM/DD/YYYY");
-  //     const formtToDate = moment(selectedToDate).format("MM/DD/YYYY");
-
-  //     let ApiPath = null;
-  //     const stages = selectedStage.join(",");
-  //     if (selectedFromDate && selectedToDate) {
-  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-  //     } else {
-  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
-  //     }
-
-  //     //////console.log;
-
-  //     // return
-  //     const response = await axios.get(ApiPath, {
-  //       headers: {
-  //         Authorization: "Bearer " + AuthToken,
-  //         // "Content-Type": "application/json"
-  //       },
-  //     });
-
-  //     if (response) {
-  //       //////console.log;
-  //       let leadData = [];
-  //       let leadColumns = [];
-  //       // setLeadsList(response.data.data);
-  //       // setFilterLeads(response.data.data);
-
-  //       const data = response.data.data;
-  //       //////console.log;
-  //       let firstLead = null;
-  //       if (data.length > 0) {
-  //         //////console.log;
-  //         let l = data[0];
-  //         let sheetOfLead = l.sheetId;
-  //         //////console.log;
-  //         if (item.id == sheetOfLead) {
-  //           //////console.log;
-  //           setLeadsList([...data]);
-  //           setFilterLeads([...data]);
-  //         }
-  //       }
-  //       // if (SelectedSheetId == item.id || SelectedSheetId == null) {
-  //       //   setLeadsList([...data]);
-  //       //   setFilterLeads([...data]);
-  //       // }
-
-  //       leadData = data;
-
-  //       if (leads) {
-  //         // leads = {...leads, ...data}
-  //       } else {
-  //         LeadsInSheet[id] = response.data;
-  //         localStorage.setItem(`Leads${id}`, JSON.stringify(response.data));
-  //       }
-  //       let dynamicColumns = [];
-  //       if (response.data.data.length > 0) {
-  //         dynamicColumns = [
-  //           ...response.data.columns,
-  //           // { title: "Tag" },
-  //           {
-  //             title: "More",
-  //             idDefault: false,
-  //           },
-  //         ];
-  //       }
-  //       // setLeadColumns(response.data.columns);
-  //       setLeadColumns(dynamicColumns);
-  //       leadColumns = response.data.columns;
-  //       //////console.log;
-  //       //////console.log;
-  //     }
-  //   } catch (error) {
-  //     // console.error("Error occured in api is :", error);
-  //   } finally {
-  //     setSheetsLoader(false);
-  //     //////console.log;
-  //   }
-  // };
-
   //function to add lead notes
   const handleAddLeadNotes = async () => {
     try {
@@ -1112,75 +972,6 @@ const Userleads = ({
       setAddLeadNoteLoader(false);
     }
   };
-
-  // const getMatchingData = (title) => {
-  //     // Special case for "Name" column
-  //     if (title === "Name") {
-  //         return FilterLeads.map((item) => `${item.firstName} ${item.lastName}`);
-  //     }
-  //     // For other columns
-  //     return FilterLeads.map((item) => item[title] || "-");
-  // };
-
-  //function for getting the sheets
-
-  // const getColumnData = (column, item) => {
-
-  //     const { title } = column;
-
-  //     switch (title) {
-  //         case "Name":
-  //             return (
-  //                 <div>
-  //                     <div className='w-full flex flex-row items-center gap-2 truncate'>
-  //                         {toggleClick.includes(item.id) ? (
-  //                             <button
-  //                                 className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
-  //                                 onClick={() => handleToggleClick(item.id)}
-  //                             >
-  //                                 <Image src={"/assets/whiteTick.png"} height={10} width={10} alt='*' />
-  //                             </button>
-  //                         ) : (
-  //                             <button
-  //                                 className="h-[20px] w-[20px] border-2 rounded outline-none"
-  //                                 onClick={() => handleToggleClick(item.id)}
-  //                             >
-  //                             </button>
-  //                         )}
-  //                         <div className='h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white'
-  //                             onClick={() => handleToggleClick(item.id)}>
-  //                             {item.firstName.slice(0, 1)}
-  //                         </div>
-  //                         <div className='truncate cursor-pointer'
-  //                             onClick={() => handleToggleClick(item.id)}>
-  //                             {item.firstName} {item.lastName}
-  //                         </div>
-  //                     </div>
-  //                 </div>
-  //             );
-  //         case "Date":
-  //             return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : "-";
-  //         case "Phone":
-  //             return item.phone ? item.phone : "-";
-  //         case "Stage":
-  //             return item.stage ? item.stage : "No Stage";
-  //         case "More":
-  //             return (
-  //                 <button
-  //                     className="underline text-purple"
-  //                     onClick={() => {
-  //                         //////console.log
-  //                         setSelectedLeadsDetails(item); // Pass selected lead data
-  //                         setShowDetailsModal(true); // Show modal
-  //                     }}
-  //                 >
-  //                     Details
-  //                 </button>
-  //             );
-  //         default:
-  //             return item[title] || "-"; // Match dynamically by converting title to lowercase
-  //     }
-  // };
 
   const getColumnData = (column, item) => {
     const { title } = column;
@@ -1230,8 +1021,8 @@ const Userleads = ({
                   onClick={() => handleToggleClick(item.id)}
                 ></button>
               )}
-              <div
-                className="h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
+              <button
+                className="outline-none h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
                 onClick={() => {
                   setSelectedLeadsDetails(item); // Pass selected lead data
                   setNoteDetails(item.notes);
@@ -1240,9 +1031,9 @@ const Userleads = ({
                 }}
               >
                 {item.firstName.slice(0, 1)}
-              </div>
-              <div
-                className="w-[80%] truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
+              </button>
+              <button
+                className="text-start outline-none w-[80%] truncate cursor-pointer  break-words overflow-hidden text-ellipsis"
                 onClick={() => {
                   setSelectedLeadsDetails(item); // Pass selected lead data
                   setNoteDetails(item.notes);
@@ -1251,7 +1042,7 @@ const Userleads = ({
                 }}
               >
                 {item.firstName} {item.lastName}
-              </div>
+              </button>
             </div>
           </div>
         );
@@ -1294,14 +1085,14 @@ const Userleads = ({
           value = JSON.stringify(value);
         }
         return (
-          <div
+          <button
             className="cursor-pointer  break-words overflow-hidden text-ellipsis"
             onClick={() => {
               handleToggleClick(item.id);
             }}
           >
             {value || "-"}
-          </div>
+          </button>
         );
     }
   };
@@ -1311,9 +1102,6 @@ const Userleads = ({
     let filteredColumns = column;
 
     const { title } = filteredColumns;
-
-    // //////console.log;
-    // //////console.log;
 
     if (item) {
       switch (title) {
@@ -1846,65 +1634,6 @@ const Userleads = ({
                     userProfile={userLocalDetails} // this is the .user object doesn't include token
                   />
 
-                  {/* <Modal
-                    open={AssignLeadModal}
-                    onClose={() => setAssignLeadModal(false)}
-                    closeAfterTransition
-                    BackdropProps={{
-                      timeout: 100,
-                      sx: {
-                        backgroundColor: "#00000020",
-                        // //backdropFilter: "blur(5px)",
-                      },
-                    }}
-                  >
-                    <Box
-                      className="w-[80%] sm:w-[546px]"
-                      sx={styles.modalsStyle}
-                    >
-                      <div className="flex flex-row justify-center w-full">
-                        <div
-                          className="w-full"
-                          style={{
-                            backgroundColor: "#ffffff",
-                            padding: 20,
-                            borderRadius: "13px",
-                            paddingTop: 30,
-                            paddingBottom: 30,
-                          }}
-                        >
-                          <div className="flex flex-row justify-end">
-                            <button
-                              onClick={() => {
-                                setAssignLeadModal(false);
-                              }}
-                            >
-                              <Image
-                                src={"/assets/cross.png"}
-                                height={14}
-                                width={14}
-                                alt="*"
-                              />
-                            </button>
-                          </div>
-                          <div className="w-full">
-                            <AssignLead
-                              selectedLead={selectedLeadsList}
-                              handleCloseAssignLeadModal={
-                                handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
-                              }
-                              leadIs={selectedLeadsList}
-                              selectedAll={selectedAll}
-                              filters={getFiltersObject()}
-                              totalLeads={totalLeads}
-                              userProfile={userLocalDetails} // this is the .user object doesn't include token
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </Box>
-                  </Modal>*/}
-
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
@@ -2317,314 +2046,43 @@ const Userleads = ({
               ) : (
                 <div className="w-full flex justify-center items-center">
                   <LeadLoading />
-                  {/* <div>Loading..</div>
-                  <CircularProgress size={35} sx={{ color: "#7902DF" }} /> */}
                 </div>
               )}
 
-              <Modal
-                open={showFilterModal}
-                closeAfterTransition
-                BackdropProps={{
-                  sx: {
-                    backgroundColor: "#00000020",
-                    maxHeight: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    // //backdropFilter: "blur(5px)",
-                  },
-                }}
-              >
-                <Box
-                  className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
-                  sx={{
-                    ...styles.modalsStyle,
-                    scrollbarWidth: "none",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div className="w-full flex flex-col items-center justify-start ">
-                    <div className="flex flex-row items-center justify-between w-full">
-                      <div>Filter</div>
-                      <button
-                        onClick={() => {
-                          setShowFilterModal(false);
-                        }}
-                      >
-                        <Image
-                          src={"/assets/cross.png"}
-                          height={17}
-                          width={17}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                    <div className="mt-2 w-full overflow-auto h-[85%]">
-                      <div className="flex flex-row items-start gap-4">
-                        <div className="w-1/2 h-full">
-                          <div
-                            className="h-full"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
-                            }}
-                          >
-                            From
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowFromDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-
-                            <div>
-                              {showFromDatePicker && (
-                                <div ref={fromCalendarRef}>
-                                  <Calendar
-                                    onChange={handleFromDateChange}
-                                    value={selectedFromDate}
-                                    locale="en-US"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="w-1/2 h-full">
-                          <div
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 12,
-                              color: "#00000060",
-                              marginTop: 10,
-                            }}
-                          >
-                            To
-                          </div>
-                          <div>
-                            <button
-                              style={{ border: "1px solid #00000020" }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowToDatePicker(true);
-                              }}
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : "Select Date"}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                            <div>
-                              {showToDatePicker && (
-                                <div
-                                  className="w-full border"
-                                  ref={toCalendarRef}
-                                >
-                                  <Calendar
-                                    onChange={handleToDateChange}
-                                    value={selectedToDate}
-                                    locale="en-US"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 14,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Select Pipeline
-                      </div>
-
-                      <div className="mt-2">
-                        <FormControl fullWidth>
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={selectedPipeline}
-                            label="Age"
-                            onChange={handleChange}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
-                              }
-                              return selected;
-                            }}
-                            sx={{
-                              border: "1px solid #00000020", // Default border
-                              "&:hover": {
-                                border: "1px solid #00000020", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {pipelinesList.map((item, index) => {
-                              return (
-                                <MenuItem key={index} value={item.title}>
-                                  <button
-                                    onClick={() => {
-                                      //////console.log;
-                                      setSelectedStage([]);
-                                      // getStagesList(item);
-                                    }}
-                                  >
-                                    {item.title}
-                                  </button>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      </div>
-
-                      <div
-                        className="mt-6"
-                        style={{
-                          fontWeight: "500",
-                          fontSize: 14,
-                          color: "#00000060",
-                          marginTop: 10,
-                        }}
-                      >
-                        Stage
-                      </div>
-
-                      {stagesLoader ? (
-                        <div className="w-full flex flex-row justify-center mt-8">
-                          <CircularProgress
-                            size={25}
-                            sx={{ color: "#7902DF" }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-full flex flex-wrap gap-4">
-                          {stagesList?.map((item, index) => {
-                            let found = isStageSelected(item);
-                            return (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center mt-2 justify-start"
-                                style={{ fontSize: 15, fontWeight: "500" }}
-                              >
-                                <button
-                                  onClick={() => {
-                                    handleSelectStage(item);
-                                  }}
-                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : "bg-transparent"
-                                    } px-6
-                              ${found >= 0 ? `text-white` : "text-black"
-                                    } rounded-2xl`}
-                                >
-                                  {item.stageTitle}
-                                </button>
-                              </div>
-                            );
-                          })}
-
-                          {/* Add "No Stage" button after the list */}
-                          <div className="flex flex-row items-center mt-2 justify-start">
-                            <button
-                              onClick={() => {
-                                setNoStageSelected((prev) => !prev);
-                              }}
-
-                              className={`p-2 border border-[#00000020] ${noStageSelected
-                                ? `bg-purple text-white`
-                                : "bg-transparent text-black"
-                                } px-6 rounded-2xl`}
-                            >
-                              No Stage
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
-                      <button
-                        className="outline-none w-[105px]"
-                        style={{ fontSize: 16.8, fontWeight: "600" }}
-                        onClick={() => {
-                          // setSelectedFromDate(null);
-                          // setSelectedToDate(null);
-                          // setSelectedStage(null);
-                          // getLeads()
-                          //   window.location.reload();
-                          setFiltersSelected([]);
-                        }}
-                      >
-                        Reset
-                      </button>
-                      {sheetsLoader ? (
-                        <CircularProgress size={25} sx={{ color: "#7902DF" }} />
-                      ) : (
-                        <button
-                          className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
-                          style={{
-                            fontSize: 16.8,
-                            fontWeight: "600",
-                            // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                          }}
-                          onClick={() => {
-                            //////console.log;
-                            // setLeadsList([]);
-                            // setFilterLeads([]);
-                            setShowFilterModal(false);
-                            setFiltersFromSelection();
-                          }}
-                        >
-                          Apply Filter
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
+              {
+                showFilterModal && (
+                  <LeadsfiltersModal
+                    showFilterModal={showFilterModal}
+                    setShowFilterModal={setShowFilterModal}
+                    setShowFromDatePicker={setShowFromDatePicker}
+                    showFromDatePicker={showFromDatePicker}
+                    selectedFromDate={selectedFromDate}
+                    setShowToDatePicker={setShowToDatePicker}
+                    selectedToDate={selectedToDate}
+                    showToDatePicker={showToDatePicker}
+                    handleFromDateChange={(date) => { handleFromDateChange(date) }}
+                    handleToDateChange={handleToDateChange}
+                    selectedPipeline={selectedPipeline}
+                    handleChange={handleChange}
+                    pipelinesList={pipelinesList}
+                    setSelectedStage={setSelectedStage}
+                    stagesLoader={stagesLoader}
+                    stagesList={stagesList}
+                    // isStageSelected={(item) => { isStageSelected(item) }}
+                    isStageSelected={isStageSelected}
+                    handleSelectStage={(stage) => { 
+                      // console.log("Staged selected in parent file is", stage);
+                      handleSelectStage(stage) 
+                    }}
+                    setNoStageSelected={setNoStageSelected}
+                    noStageSelected={noStageSelected}
+                    setFiltersSelected={setFiltersSelected}
+                    sheetsLoader={sheetsLoader}
+                    setFiltersFromSelection={setFiltersFromSelection}
+                    selectedStage={selectedStage}
+                  />
+                )
+              }
 
               {/* When Thre are leads and user choose to add SmartList */}
               <div>
@@ -2753,16 +2211,6 @@ const Userleads = ({
                             <div ref={bottomRef}></div>
                           </div>
                           <div style={{ height: "50px" }}>
-                            {/*
-                                                        inputs.length < 3 && (
-                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-purple rounded-lg underline' style={{
-                                                                fontSize: 15,
-                                                                fontWeight: "700"
-                                                            }}>
-                                                                Add New
-                                                            </button>
-                                                        )
-                                                    */}
                             <button
                               onClick={handleAddInput}
                               className="mt-4 p-2 outline-none border-none text-purple rounded-lg underline"
