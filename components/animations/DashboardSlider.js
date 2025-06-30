@@ -72,7 +72,7 @@ const DashboardSlider = ({
     }
 
     return (
-        <>
+        <div>
             {/* Snackbar */}
             <div style={getPosition()}>
                 <AnimatePresence>
@@ -94,7 +94,7 @@ const DashboardSlider = ({
                                 // alignItems: "center",
                                 // gap: "12px",
                                 // minWidth: "400px",
-                                maxWidth: "430px",
+                                maxWidth: "480px",
                             }}
                         >
                             <div
@@ -144,7 +144,19 @@ const DashboardSlider = ({
                                     </div>
                                     <div className="w-full flex flex-row items-center gap-2">
                                         <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px]"
+                                            style={{ fontSize: 15, fontWeight: "500" }}
+                                            onClick={() => {
+                                                if (typeof window !== "undefined") {
+                                                    let url = PersistanceKeys.ResourceHubUrl;
+                                                    //console.log
+                                                    window.open(url, "_blank");
+                                                }
+                                            }}>
+                                            Resource Hub
+                                        </button>
+                                        <button
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px]"
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 if (typeof window !== "undefined") {
@@ -153,10 +165,10 @@ const DashboardSlider = ({
                                                     window.open(url, "_blank");
                                                 }
                                             }}>
-                                            Join Support Webinar
+                                            Support Webinar
                                         </button>
                                         <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px]"
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 let url = PersistanceKeys.GlobalConsultationUrl;
@@ -164,7 +176,7 @@ const DashboardSlider = ({
                                                     window.open(url, "_blank");
                                                 }
                                             }}>
-                                            Hire Pro AI Team
+                                            Hire AI Team
                                         </button>
                                     </div>
                                 </div>
@@ -227,7 +239,7 @@ const DashboardSlider = ({
                 )}
             </AnimatePresence>
 
-        </>
+        </div>
     );
 };
 

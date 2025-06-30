@@ -21,7 +21,7 @@ export const PersistanceKeys = {
   //moving from admin to creat agent
   isFromAdminOrAgency: "isFromAdminOrAgency",
   leadUploadState: "leadUploadState",
-  aadminDashboardData:'aadminDashboardData',
+  aadminDashboardData: 'aadminDashboardData',
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
@@ -33,6 +33,8 @@ export const PersistanceKeys = {
     "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
   SupportWebinarUrl:
     "https://api.leadconnectorhq.com/widget/bookings/noah-support-webinar",
+  ResourceHubUrl:
+    "https://www.google.com/url?q=https://www.notion.so/AgentX-Support-Hub-21997b2f3bbe80799837ffd9494574fc?source%3Dcopy_link&sa=D&source=docs&ust=1751319070900437&usg=AOvVaw0kOnwWDKb5el_CB072MMDe"
   // LocalStoredAgentsList
 };
 export const HowtoVideos = {
