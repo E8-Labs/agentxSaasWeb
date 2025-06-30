@@ -4147,10 +4147,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             </div>
 
             <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2">Cancel</button>
+              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">Cancel</button>
               <div className="w-1/2">
                 {DelLoader ? (
-                  <div className="flex flex-row iems-center justify-center w-full mt-4">
+                  <div className="flex flex-row iems-center justify-center w-full">
                     <CircularProgress size={25} />
                   </div>
                 ) : (

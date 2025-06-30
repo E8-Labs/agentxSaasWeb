@@ -4351,7 +4351,7 @@ function Page() {
             </div>
 
             <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2">Cancel</button>
+              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">Cancel</button>
               <div className="w-1/2">
                 {DelLoader ? (
                   <div className="flex flex-row iems-center justify-center w-full mt-4">
@@ -4359,7 +4359,7 @@ function Page() {
                   </div>
                 ) : (
                   <button
-                    className="mt-4 outline-none bg-red"
+                    className="outline-none bg-red"
                     style={{
                       color: "white",
                       height: "50px",

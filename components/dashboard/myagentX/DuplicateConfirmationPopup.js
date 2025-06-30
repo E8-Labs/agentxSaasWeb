@@ -68,14 +68,17 @@ const DuplicateConfirmationPopup = ({
 
                             <div className="mt-6">
                                 <div style={{ fontWeight: "600", fontSize: 22 }}>
-                                    Are you sure to duplicate this agent?
+                                    Are you sure you want to duplicate this agent?
                                 </div>
-                                
+
                             </div>
                         </div>
 
                         <div className="mt-4 flex flex-row items-center gap-4 mt-6 ">
-                            <button onClick={handleClose} className="w-1/2 hover:text-purple">
+                            <button
+                                className="w-1/2 hover:text-purple outline-none border rounded-lg h-[50px]"
+                                onClick={handleClose}
+                            >
                                 Cancel
                             </button>
                             <div className="w-1/2">
@@ -94,9 +97,9 @@ const DuplicateConfirmationPopup = ({
                                         fontWeight: 600,
                                         fontSize: "20",
                                     }}
-                                onClick={handleDuplicate}
+                                    onClick={handleDuplicate}
                                 >
-                                   Yes, Duplicate
+                                    Yes. Duplicate
                                 </button>
                                 {/*})*/}
                             </div>
