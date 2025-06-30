@@ -144,7 +144,7 @@ const DashboardSlider = ({
                                     </div>
                                     <div className="w-full flex flex-row items-center gap-2">
                                         <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px]"
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px] whitespace-nowrap"
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 if (typeof window !== "undefined") {
@@ -156,7 +156,7 @@ const DashboardSlider = ({
                                             Resource Hub
                                         </button>
                                         <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px]"
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px] whitespace-nowrap"
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 if (typeof window !== "undefined") {
@@ -168,7 +168,7 @@ const DashboardSlider = ({
                                             Support Webinar
                                         </button>
                                         <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px]"
+                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px] whitespace-nowrap"
                                             style={{ fontSize: 15, fontWeight: "500" }}
                                             onClick={() => {
                                                 let url = PersistanceKeys.GlobalConsultationUrl;
