@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
+import { VapiWidget } from "../askSky/vapi-widget";
 
 const DashboardSlider = ({
     onTop = false,
@@ -75,36 +76,50 @@ const DashboardSlider = ({
 
     const buttons = [
         {
+            id: 1,
             label: "Resource Hub",
             image: "/otherAssets/resourceHubBlack.jpg",
             image2: "/otherAssets/resourceHubBlue.jpg",
             url: PersistanceKeys.ResourceHubUrl,
         },
         {
+            id: 2,
             label: "Support Webinar",
             image: "/otherAssets/supportBlack.jpg",
             image2: "/otherAssets/supportBlue.jpg",
             url: PersistanceKeys.SupportWebinarUrl,
         },
         {
+            id: 3,
             label: "Ask Sky for Help",
             image: "/otherAssets/askSkyBlack.jpg",
             image2: "/otherAssets/askSkyBlue.jpg",
             url: PersistanceKeys.SupportWebinarUrl,
         },
         {
+            id: 4,
             label: "Give Feedback",
             image: "/otherAssets/feedBackIcon.png",
             image2: "/otherAssets/feedBackIconBlue.jpg",
             url: PersistanceKeys.FeedbackFormUrl,
         },
         {
+            id: 5,
             label: "Hire the Team (Done For You)",
             image: "/otherAssets/hireTeamBlack.jpg",
             image2: "/otherAssets/hireTeamBlue.jpg",
             url: PersistanceKeys.HireTeamUrl,
         },
     ];
+
+    const handleOnClick = () => {
+        if (item.id === 3) {
+            <VapiWidget />
+        }
+        if (typeof window !== "undefined") {
+            window.open(item.url, "_blank");
+        }
+    }
 
     return (
         <div>
@@ -155,9 +170,7 @@ const DashboardSlider = ({
 
                                                     className="w-full flex flex-row items-center gap-2"
                                                     onClick={() => {
-                                                        if (typeof window !== "undefined") {
-                                                            window.open(item.url, "_blank");
-                                                        }
+                                                        handleOnClick(item)
                                                     }}>
                                                     <Image src={index === hoverIndex ? item.image2 : item.image}
                                                         width={24} height={24} alt="*"
@@ -223,7 +236,7 @@ const DashboardSlider = ({
                                 alt="*"
                                 height={20}
                                 width={20}
-                                // style={{ borderRadius: "50%" }}
+                            // style={{ borderRadius: "50%" }}
                             />
                             <div style={{ fontWeight: "500", fontSize: 15 }}>Get Help</div>
                         </button>
