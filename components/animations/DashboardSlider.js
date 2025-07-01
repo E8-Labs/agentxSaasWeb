@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
-import { VapiWidget } from "../askSky/vapi-widget";
+// import { VapiWidget } from "../askSky/vapi-widget";
 
 const DashboardSlider = ({
     onTop = false,
@@ -94,7 +94,7 @@ const DashboardSlider = ({
             label: "Ask Sky for Help",
             image: "/otherAssets/askSkyBlack.jpg",
             image2: "/otherAssets/askSkyBlue.jpg",
-            url: PersistanceKeys.SupportWebinarUrl,
+            url: "",
         },
         {
             id: 4,
@@ -113,9 +113,9 @@ const DashboardSlider = ({
     ];
 
     const handleOnClick = () => {
-        if (item.id === 3) {
-            <VapiWidget />
-        }
+        // if (item.id === 3) {
+        //     <VapiWidget />
+        // }
         if (typeof window !== "undefined") {
             window.open(item.url, "_blank");
         }
