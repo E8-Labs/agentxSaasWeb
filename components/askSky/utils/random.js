@@ -1,4 +1,4 @@
-export function random(max?: number, min?: number): number {
+export function random(max, min){
   if (typeof max !== "number") {
     return Math.random();
   }

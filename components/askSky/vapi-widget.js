@@ -1,7 +1,7 @@
+// JavaScript version of VapiWidget React component
 import React, { useState, useEffect } from "react";
-import Vapi from "@vapi-ai/web";
+import dynamic from "next/dynamic";
 import { X } from "lucide-react";
-import { VoiceWavesComponent } from "./components/voice-waves";
 import {
   API_KEY,
   BUTTON_TEXT,
@@ -9,69 +9,55 @@ import {
   MYAGENTX_URL,
 } from "./constants";
 import classNames from "classnames";
+import { VoiceWavesComponent } from "./askskycomponents/voice-waves";
 
-type VapiWidgetInputs = {
-  user?: string; // User ID
-  assistantId?: string; // Assistant ID
-};
-
-// TODO: Configure a default Agent and make sure that it sends a summary from the call analysis to the AgentX DB for that user.
-// NOTE: The field supportHistory should be added to Users - it should be an object/map keyed by timestamp and with the summary of that conversationas the value.
-
-export const VapiWidget: React.FC<VapiWidgetInputs> = ({
-  user,
-  assistantId = DEFAULT_ASSISTANT_ID,
-}: VapiWidgetInputs) => {
-  console.log(user, assistantId);
-  const [vapi, setVapi] = useState<Vapi | null>(null);
+export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_ASSISTANT_ID }) {
+  const [vapi, setVapi] = useState(null);
   const [open, setOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // Debug logging
-  console.log(
-    "Widget render - isConnected:",
-    isConnected,
-    "isSpeaking:",
-    isSpeaking,
-  );
-  useEffect(() => {
-    const vapiInstance = new Vapi(API_KEY);
-    setVapi(vapiInstance);
-    vapiInstance.on("call-start", () => {
-      console.log("📞 CALL-START: Call started");
-      setIsConnected(true);
-    });
-    vapiInstance.on("call-end", () => {
-      console.log("📞 CALL-END: Call ended");
-      setIsConnected(false);
-      setIsSpeaking(false);
-    });
-    vapiInstance.on("speech-start", () => {
-      console.log("🎤 SPEECH-START: Assistant started speaking");
-      setIsSpeaking(true);
-    });
-    vapiInstance.on("speech-end", () => {
-      console.log("🔇 SPEECH-END: Assistant stopped speaking");
-      setIsSpeaking(false);
-    });
-    vapiInstance.on("message", (message) => {
-      const mag = message?.transcript?.length
-        ? message.transcript.length / 100
-        : 100;
-      console.log("MESSAGE:", message);
-      console.log("MAGNITUDE:", mag);
-    });
-    vapiInstance.on("error", (error) => {
-      console.error("Vapi error:", error);
-    });
+  console.log("assistent id is", assistantId);
+  console.log("Widget render - isConnected:", isConnected, "isSpeaking:", isSpeaking);
 
-    return () => {
-      vapiInstance?.stop();
-    };
+  useEffect(() => {
+    async function init() {
+      if (typeof window === "undefined") return;
+      const { default: Vapi } = await import("@vapi-ai/web");
+      const vapiInstance = new Vapi(API_KEY);
+      setVapi(vapiInstance);
+
+      vapiInstance.on("call-start", () => {
+        console.log("📞 CALL-START: Call started");
+        setIsConnected(true);
+      });
+      vapiInstance.on("call-end", () => {
+        console.log("📞 CALL-END: Call ended");
+        setIsConnected(false);
+        setIsSpeaking(false);
+      });
+      vapiInstance.on("speech-start", () => {
+        console.log("🎤 SPEECH-START: Assistant started speaking");
+        setIsSpeaking(true);
+      });
+      vapiInstance.on("speech-end", () => {
+        console.log("🔇 SPEECH-END: Assistant stopped speaking");
+        setIsSpeaking(false);
+      });
+      vapiInstance.on("message", (message) => {
+        const mag = message?.transcript?.length
+          ? message.transcript.length / 100
+          : 100;
+        console.log("MESSAGE:", message);
+        console.log("MAGNITUDE:", mag);
+      });
+      vapiInstance.on("error", (error) => {
+        console.error("Vapi error:", error);
+      });
+    }
+    init();
   }, []);
 
-  // NOTE: Provides the context to the LLM about where they are in the page.
   useEffect(() => {
     const pathname = window?.location.pathname;
     if (pathname && vapi) {
@@ -79,7 +65,7 @@ export const VapiWidget: React.FC<VapiWidgetInputs> = ({
         type: "add-message",
         message: {
           role: "system",
-          content: `The user is currently on the "${pathname}" page`,
+          content: `The user is currently on the \"${pathname}\" page`,
         },
       });
     }
@@ -112,12 +98,10 @@ export const VapiWidget: React.FC<VapiWidgetInputs> = ({
   return (
     <div className="fixed bottom-6 right-6 z-modal flex flex-col items-end justify-start">
       <div
-        className={classNames(
-          "relative w-72 h-80 rounded-lg overflow-hidden p-6 object-center object-cover shadow-md border bg-white border-black/10 mb-6 translate-x-0 transition-all duration-300",
-          open
-            ? "translate-x-0 opacity-100 z-10"
-            : "translate-x-full opacity-0 -z-10",
-        )}
+        className={
+          `relative w-72 h-80 rounded-lg overflow-hidden p-6 object-center object-cover shadow-md border bg-purple border-black/10 mb-6 translate-x-0 transition-all duration-300",
+          ${open ? "translate-x-0 opacity-100 z-10" : "translate-x-full opacity-0 -z-10"}`
+        }
       >
         <div className="h-full w-full flex flex-col gap-0 items-center justify-between">
           <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
@@ -160,8 +144,7 @@ export const VapiWidget: React.FC<VapiWidgetInputs> = ({
         <button
           onClick={handleStartCall}
           className={classNames(
-            "py-2.5 px-6 absolute top-0 right-0 cursor-pointer rounded-full bg-purple-500 text-white font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
-            !open ? "opacity-100 z-10" : "opacity-0 -z-10",
+            "py-2.5 px-6 cursor-pointer rounded-full bg-white-500 text-black font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
           )}
         >
           🎙️ {BUTTON_TEXT}
@@ -170,7 +153,7 @@ export const VapiWidget: React.FC<VapiWidgetInputs> = ({
           onClick={handleCloseCall}
           className={classNames(
             "size-11 absolute top-0 right-0 border-black/5 shadow-sm border flex items-center justify-center cursor-pointer rounded-full font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
-            open ? "opacity-100 z-10" : "opacity-0 -z-10",
+            open ? "opacity-100 z-10" : "opacity-0 -z-10"
           )}
         >
           <X />
@@ -178,4 +161,4 @@ export const VapiWidget: React.FC<VapiWidgetInputs> = ({
       </div>
     </div>
   );
-};
+}

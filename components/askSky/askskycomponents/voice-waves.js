@@ -1,47 +1,38 @@
+// JavaScript version of VoiceWavesComponent and engine logic
 import React, { useEffect, useRef, useCallback } from "react";
 
-interface WaveCurveOptions {
-  controller: VoiceWaves;
-  color: [number, number, number];
-}
-
 class WaveCurve {
-  private controller: VoiceWaves;
-  private color: [number, number, number];
-  private tick: number;
-  private amplitude: number = 0;
-  private seed: number = 0;
-  private open_class: number = 0;
-
-  constructor(opt: WaveCurveOptions) {
+  constructor(opt) {
     this.controller = opt.controller;
     this.color = opt.color;
     this.tick = 0;
-
+    this.amplitude = 0;
+    this.seed = 0;
+    this.open_class = 0;
     this.respawn();
   }
 
-  private respawn(): void {
+  respawn() {
     this.amplitude = 0.3 + Math.random() * 0.7;
     this.seed = Math.random();
     this.open_class = 2 + Math.random() * 3;
   }
 
-  private equation(i: number): number {
+  equation(i) {
     const p = this.tick;
     const y =
       -1 *
       Math.abs(Math.sin(p)) *
       (this.controller.amplitude * this.amplitude) *
       this.controller.MAX *
-      (1 / (1 + (this.open_class * i) ** 2) ** 2);
+      (1 / Math.pow(1 + Math.pow(this.open_class * i, 2), 2));
     if (Math.abs(y) < 0.001) {
       this.respawn();
     }
     return y;
   }
 
-  private drawWave(m: number): void {
+  drawWave(m) {
     this.tick +=
       this.controller.speed * (1 - 0.5 * Math.sin(this.seed * Math.PI));
     const ctx = this.controller.ctx;
@@ -50,9 +41,7 @@ class WaveCurve {
       this.controller.width / 2 +
       (-this.controller.width / 4 + this.seed * (this.controller.width / 2));
     const yBase = this.controller.height / 2;
-    let x: number;
-    let y: number;
-    let xInit: number | undefined;
+    let x, y, xInit;
     let i = -3;
     while (i <= 3) {
       x = xBase + (i * this.controller.width) / 4;
@@ -68,62 +57,33 @@ class WaveCurve {
       h * 1.15,
       xBase,
       yBase,
-      h * 0.3,
+      h * 0.3
     );
     gradient.addColorStop(0, `rgba(${this.color.join(",")},0.4)`);
     gradient.addColorStop(1, `rgba(${this.color.join(",")},0.2)`);
     ctx.fillStyle = gradient;
-    ctx.lineTo(xInit!, yBase);
+    ctx.lineTo(xInit, yBase);
     ctx.closePath();
     ctx.fill();
   }
 
-  draw(): void {
+  draw() {
     this.drawWave(-1);
     this.drawWave(1);
   }
 }
 
-interface VoiceWavesOptions {
-  canvas: HTMLCanvasElement;
-  width?: number;
-  height?: number;
-  ratio?: number;
-  speed?: number;
-  amplitude?: number;
-  autostart?: boolean;
-  colors?: [number, number, number][] | null;
-}
-
 class VoiceWaves {
-  private opt: VoiceWavesOptions;
-  private run: boolean;
-  private animationId: number | null;
-  public ratio: number;
-  public width: number;
-  public height: number;
-  public MAX: number;
-  public speed: number;
-  public amplitude: number;
-  private canvas: HTMLCanvasElement;
-  public ctx: CanvasRenderingContext2D;
-  public curves: WaveCurve[];
-  private colors: [number, number, number][];
-
-  constructor(opt: VoiceWavesOptions) {
+  constructor(opt) {
     this.opt = opt;
     this.run = false;
     this.animationId = null;
-
-    // UI vars
     this.ratio = this.opt.ratio || window.devicePixelRatio || 1;
     this.width = this.ratio * (this.opt.width || 320);
     this.height = this.ratio * (this.opt.height || 100);
     this.MAX = this.height / 2;
     this.speed = this.opt.speed || 0.1;
     this.amplitude = this.opt.amplitude || 1;
-
-    // Canvas
     this.canvas = this.opt.canvas;
     this.canvas.width = this.width;
     this.canvas.height = this.height;
@@ -134,33 +94,23 @@ class VoiceWaves {
       throw new Error("Failed to get 2D context from canvas");
     }
     this.ctx = ctx;
-
-    // Create curves
     this.curves = [];
-
-    // Purple color scheme
     this.colors = this.opt.colors || [
-      [147, 51, 234], // Purple-600
-      [168, 85, 247], // Purple-500
-      [196, 125, 255], // Purple-400
-      [139, 69, 189], // Dark purple
-      [124, 58, 237], // Violet-600
+      [147, 51, 234],
+      [168, 85, 247],
+      [196, 125, 255],
+      [139, 69, 189],
+      [124, 58, 237],
     ];
-
     this.init();
   }
 
-  private init(): void {
-    for (let i = 0; i < this.colors.length; i += 1) {
+  init() {
+    for (let i = 0; i < this.colors.length; i++) {
       const color = this.colors[i];
-      const curveCount = Math.floor(Math.random() * 3) + 1; // 1-3 curves per color
-      for (let j = 0; j < curveCount; j += 1) {
-        this.curves.push(
-          new WaveCurve({
-            controller: this,
-            color,
-          }),
-        );
+      const curveCount = Math.floor(Math.random() * 3) + 1;
+      for (let j = 0; j < curveCount; j++) {
+        this.curves.push(new WaveCurve({ controller: this, color }));
       }
     }
     if (this.opt.autostart) {
@@ -168,27 +118,25 @@ class VoiceWaves {
     }
   }
 
-  private clear(): void {
+  clear() {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
-  private draw(): void {
-    if (this.run === false) return;
+  draw() {
+    if (!this.run) return;
     this.clear();
-
-    const len = this.curves.length;
-    for (let i = 0; i < len; i += 1) {
+    for (let i = 0; i < this.curves.length; i++) {
       this.curves[i].draw();
     }
     this.animationId = requestAnimationFrame(() => this.draw());
   }
 
-  start(): void {
+  start() {
     this.run = true;
     this.draw();
   }
 
-  stop(): void {
+  stop() {
     this.run = false;
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
@@ -196,7 +144,7 @@ class VoiceWaves {
     }
   }
 
-  destroy(): void {
+  destroy() {
     this.stop();
     if (this.canvas?.parentNode) {
       this.canvas.parentNode.removeChild(this.canvas);
@@ -204,18 +152,7 @@ class VoiceWaves {
   }
 }
 
-interface VoiceWavesComponentProps {
-  width?: number;
-  height?: number;
-  speed?: number;
-  amplitude?: number;
-  autostart?: boolean;
-  colors?: [number, number, number][] | null;
-  className?: string;
-  style?: React.CSSProperties;
-}
-
-export const VoiceWavesComponent: React.FC<VoiceWavesComponentProps> = ({
+export function VoiceWavesComponent({
   width = 250,
   height = 40,
   speed = 0.2,
@@ -224,19 +161,18 @@ export const VoiceWavesComponent: React.FC<VoiceWavesComponentProps> = ({
   colors = null,
   className = "",
   style = {},
-}) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const voiceWavesRef = useRef<VoiceWaves | null>(null);
+}) {
+  const canvasRef = useRef(null);
+  const voiceWavesRef = useRef(null);
 
   const initializeWaves = useCallback(() => {
     if (canvasRef.current) {
-      // Clean up existing instance if it exists
       if (voiceWavesRef.current) {
         voiceWavesRef.current.destroy();
         voiceWavesRef.current = null;
       }
 
-      const options: VoiceWavesOptions = {
+      const options = {
         canvas: canvasRef.current,
         width,
         height,
@@ -298,4 +234,4 @@ export const VoiceWavesComponent: React.FC<VoiceWavesComponentProps> = ({
       />
     </div>
   );
-};
+}
