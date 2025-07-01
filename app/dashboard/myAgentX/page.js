@@ -1,3 +1,6 @@
+
+//test file 
+
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -82,6 +85,15 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 
 import dynamic from 'next/dynamic';
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
+import RenameAgentModal from "@/components/dashboard/agents/RenameAgentModal";
+import TestAIModal from "@/components/dashboard/agents/TestAIModal";
+import ScriptModal from "@/components/dashboard/agents/ScriptModal";
+import AgentDrawerHeader from "@/components/dashboard/agents/AgentDrawerHeader";
+import AgentStats from "@/components/dashboard/agents/AgentStats";
+import AgentInfoTab from "@/components/dashboard/agents/AgentInfoTab";
+import CalendarTab from "@/components/dashboard/agents/CalendarTab";
+import PipelineTab from "@/components/dashboard/agents/PipelineTab";
+import KnowledgeTab from "@/components/dashboard/agents/KnowledgeTab";
 
 const DuplicateButton = dynamic(() => import('@/components/animation/DuplicateButton'), {
   ssr: false,
@@ -166,16 +178,13 @@ function Page() {
   //code for outboundObjective
   const [objective, setObjective] = useState("");
   const [oldObjective, setOldObjective] = useState("");
-  //code for objective
-  // const [objective, setobjective] = useState("");
-  // const [inboundOldObjective, setInboundOldObjective] = useState("");
+
   const [showObjectionsSaveBtn, setShowObjectionsSaveBtn] = useState(false);
   const [SeledtedScriptAdvanceSetting, setSeledtedScriptAdvanceSetting] =
     useState(false);
   const [introVideoModal, setIntroVideoModal] = useState(false);
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
   const [kycsData, setKycsData] = useState(null);
-  //greeting tag input
   const [greetingTagInput, setGreetingTagInput] = useState("");
   const [oldGreetingTagInput, setOldGreetingTagInput] = useState("");
   const [scrollOffset, setScrollOffset] = useState({
@@ -203,8 +212,6 @@ function Page() {
   const [scriptTagInput, setScriptTagInput] = useState("");
   const [OldScriptTagInput, setOldScriptTagInput] = useState("");
 
-  //code for testing the ai
-  let callScript = null;
   let keys = [];
 
   //variable string the keys
@@ -334,8 +341,6 @@ function Page() {
     },
   ];
 
-  //storing agents in backup variable before
-
   useEffect(() => {
     const updateAgentManueList = () => {
       if (showDrawerSelectedAgent?.agentType === "outbound") {
@@ -369,9 +374,6 @@ function Page() {
     }
   }, [openTestAiModal]);
 
-  ////// //console.log;
-
-  //code for scroll ofset
   useEffect(() => {
     getUniquesColumn();
     getAvailabePhoneNumbers();
@@ -405,20 +407,14 @@ function Page() {
 
   //check if need to show the save btn or not
   useEffect(() => {
-    ////// //console.log;
-    ////// //console.log;
-    ////console.log
+
     if (
       oldGreetingTagInput !== greetingTagInput ||
       OldScriptTagInput !== scriptTagInput
     ) {
-      //console.log;
-      //console.log
 
-      ////console.log
       setShowSaveChangesBtn(true);
     } else {
-      ////console.log
       setShowSaveChangesBtn(false);
     }
   }, [greetingTagInput, scriptTagInput]); //scriptTagInput
@@ -443,21 +439,6 @@ function Page() {
     }
   };
 
-  // function findLLMModel(value) {
-  //   let model = null;
-  //   for (const m of models) {
-  //     if (m.model == value) {
-  //       model = m;
-  //     }
-  //   }
-  //   // console.log("Selected model:", model);
-  //   if (model === null) {
-  //     return models[0]; // Default to the first model if not found
-  //   }
-
-
-  //   return model;
-  // }
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -471,19 +452,15 @@ function Page() {
     if (file) {
       //console.log;
       try {
-        // Compression options
-        //console.log;
+
         const options = {
           maxSizeMB: 1, // Maximum size in MB
           maxWidthOrHeight: 1920, // Max width/height
           useWebWorker: true, // Use web workers for better performance
         };
-        //console.log;
-        // Compress the image
+
         const compressedFile = file; //await imageCompression(file, options);
-        //console.log;
-        //console.log;
-        // Set the compressed image
+
         setSelectedImage2(compressedFile);
         updateAgentProfile(compressedFile);
       } catch (error) {
@@ -531,15 +508,6 @@ function Page() {
     // }, 100);
 
     return () => clearTimeout(timer);
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-    setDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setDragging(false);
   };
 
   //function to update agent profile image
@@ -1056,106 +1024,12 @@ function Page() {
     }
   };
 
-  //code for update agent api
-  const handleRenameAgent = async () => {
-    try {
-      setRenameAgentLoader(true);
-
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
-        AuthToken = Data.token;
-
-        const ApiPath = Apis.updateSubAgent;
-
-        let apidata = {
-          agentId: selectedRenameAgent.id,
-          name: renameAgent, //selectedRenameAgent?.name,
-        };
-        // console.log("Selected agent ", showDrawerSelectedAgent);
-        // console.log("data sending in api is", apidata);
-        // return
-        const response = await axios.post(ApiPath, apidata, {
-          headers: {
-            Authorization: "Bearer " + AuthToken,
-          },
-        });
-
-        if (response) {
-          setShowRenameAgentPopup(false);
-          // console.log("Response of api is", response);
-          // //console.log;
-          setShowSuccessSnack(
-            `${fromatMessageName(selectedRenameAgent.name)} updated`
-          );
-          if (response.data.status === true) {
-            setIsVisibleSnack(true);
-
-            const localAgentsList = localStorage.getItem(
-              PersistanceKeys.LocalStoredAgentsListMain
-            );
-
-            if (showDrawerSelectedAgent) {
-              const updateAgentData = response.data.data;
-
-              const matchedAgent = updateAgentData.agents.find(
-                (localItem) => localItem.id === showDrawerSelectedAgent.id
-              );
-
-              if (matchedAgent) {
-                setShowDrawerSelectedAgent(matchedAgent);
-                console.log("Matched Agent Stored:"); //, matchedAgent
-              } else {
-                console.log("No matching agent found.");
-              }
-            }
-
-            if (localAgentsList) {
-              const agentsList = JSON.parse(localAgentsList);
-              // agentsListDetails = agentsList;
-
-              const updateAgentData = response.data.data;
-
-              // showDrawerSelectedAgent();
-
-              const updatedArray = agentsList.map((localItem) => {
-                const apiItem =
-                  updateAgentData.id === localItem.id ? updateAgentData : null;
-
-                return apiItem ? { ...localItem, ...apiItem } : localItem;
-              });
-              // let updatedSubAgent = null
-
-              //// //console.log;
-              localStorage.setItem(
-                PersistanceKeys.LocalStoredAgentsListMain,
-                JSON.stringify(updatedArray)
-              );
-              setMainAgentsList(updatedArray);
-              // agentsListDetails = updatedArray
-            }
-            // setShowDrawer(null);
-          }
-        }
-      }
-    } catch (error) {
-      //// console.error("Error occured in api is", error);
-      setRenameAgentLoader(false);
-    } finally {
-      ////console.log;
-      setRenameAgentLoader(false);
-    }
-  };
 
   const updateAgent = async (voiceId) => {
-    //console.log;
-    // return
+
     try {
-      // return
       setUpdateAgentLoader(true);
-      // setGlobalLoader(true);
-      // getAgents()
+
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -1579,65 +1453,6 @@ function Page() {
     setShowGuardrails(false);
   };
 
-  const handleGptManuSelect = async (model) => {
-    if (!model.disabled) {
-      setSelectedGptManu(model);
-    }
-
-    setShowModelLoader(true);
-    await updateSubAgent(null, model.model);
-    setShowModelLoader(false);
-    setOpenGptManu(null);
-  };
-
-  //function ot compare the selected agent wiith the main agents list
-  const matchingAgent = (agent) => {
-    //// //console.log;
-    const agentData = mainAgentsList.filter((prevAgent) => {
-      //// //console.log;
-      if (prevAgent.id === agent.mainAgentId) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    //// //console.log;
-    if (typeof agentData == undefined || agentData == null || agentData.length === 0) {
-      return;
-    }
-    console.log("Matching agent data:", agentData);
-    setKYCList(agentData[0].kyc);
-
-    ////console.log;
-    //// //console.log;
-    setMainAgentId(agentData[0].id);
-    let firstAgent = agentData[0];
-    //// //console.log;
-    setUserPipeline(firstAgent.pipeline);
-    // if (
-    //   firstAgent.agents?.length === 2
-
-    // ) {
-    //   if(firstAgent.agents[0].agentType === "outbound"){
-    //     setUserPipeline(firstAgent.pipeline);
-    //   }
-
-    //   // setOldGreetingTagInput(firstAgent.greeting);
-    //   // setGreetingTagInput(firstAgent.greeting);
-    //   // setScriptTagInput(firstAgent.callScript);
-    //   // setOldScriptTagInput(firstAgent.callScript);
-    // } else if (firstAgent.agents[0].agentType === "inbound") {
-    //   setUserPipeline(firstAgent.pipeline);
-    //   // setGreetingTagInput(agentData[0].inboundGreeting);
-    //   // setOldGreetingTagInput(agentData[0].inboundGreeting);
-    //   // setScriptTagInput(agentData[0].inboundScript);
-    //   // setOldScriptTagInput(agentData[0].inboundScript);
-    // }
-
-    // setGreetingTagInput(agentData[0].greeting);
-    // // setOldGreetingTagInput(agentData[0].greeting);
-    // setScriptTagInput(agentData[0].callScript);
-  };
 
   //code for getting uniqueCcolumns
   const getUniquesColumn = async () => {
@@ -1679,14 +1494,6 @@ function Page() {
   ///code to show more unique columns
   const handleShowUniqueCols = () => {
     setShowMoreUniqueColumns(!showMoreUniqueColumns);
-  };
-
-  //function to handle input field change
-  const handleInputChange = (index, value) => {
-    setInputValues((prevValues) => ({
-      ...prevValues,
-      [index]: value, // Update the specific index value
-    }));
   };
 
   //function to delete the agent
@@ -1777,97 +1584,6 @@ function Page() {
     }
   };
 
-  //function to call testAi Api
-  const handleTestAiClick = async () => {
-    try {
-      setTestAIloader(true);
-      let AuthToken = null;
-      const userData = localStorage.getItem("User");
-
-      if (userData) {
-        const localData = JSON.parse(userData);
-        ////console.log;
-        AuthToken = localData.token;
-      }
-
-      const newArray = scriptKeys.map((key, index) => ({
-        [key]: inputValues[index] || "", // Use the input value or empty string if not set
-      }));
-      ////console.log;
-      ////console.log);
-
-      const ApiData = {
-        agentId: selectedAgent.id,
-        name: name,
-        phone: phone,
-        extraColumns: newArray,
-      };
-
-      localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
-
-      const ApiPath = Apis.testAI;
-
-      ////console.log);
-      ////console.log);
-      // return
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        ////console.log;
-        setOpenTestAiModal(false);
-        setShowSuccessSnack(response.data.message);
-        setIsVisibleSnack(true);
-        // if (response.data.status === true) {
-        //   // setName("");
-        //   // setPhone("");
-        // }
-      }
-    } catch (error) {
-      console.error("Error occured in test api is", error);
-      setOpenTestAiModal(false);
-    } finally {
-      ////console.log;
-      setTestAIloader(false);
-    }
-  };
-
-  //function for phonenumber input
-  const handlePhoneNumberChange = (phone) => {
-    setPhone(phone);
-    validatePhoneNumber(phone);
-
-    if (!phone) {
-      setErrorMessage("");
-    }
-  };
-
-  // Function to validate phone number
-  const validatePhoneNumber = (phoneNumber) => {
-    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
-    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
-    const parsedNumber = parsePhoneNumberFromString(
-      `+${phoneNumber}`,
-      countryCode?.toUpperCase()
-    );
-    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
-    if (!parsedNumber || !parsedNumber.isValid()) {
-      setErrorMessage("Invalid");
-    } else {
-      setErrorMessage("");
-
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-
-      // setCheckPhoneResponse(null);
-      ////console.log
-    }
-  };
 
   useEffect(() => {
     const agentLocalDetails = localStorage.getItem(
@@ -1897,14 +1613,9 @@ function Page() {
 
       setInitialLoader(false);
     }
-
     getCalenders();
 
   }, []);
-
-  const handleSelectProfileImg = (index) => {
-    fileInputRef.current[index]?.click();
-  };
 
   const handleProfileImgChange = (event, index) => {
     const file = event.target.files[0];
@@ -2067,13 +1778,6 @@ function Page() {
     router.push("/createagent");
   };
 
-  const handlePopoverOpen = (event, item) => {
-    ////// //console.log;
-    setActionInfoEl(event.currentTarget);
-    setHoveredIndexStatus(item.status);
-    setHoveredIndexAddress(item.address);
-  };
-
   const handlePopoverClose = () => {
     setActionInfoEl(null);
     setHoveredIndexStatus(null);
@@ -2123,29 +1827,7 @@ function Page() {
 
   ////console.log);
 
-  const handleChangeVoice = async (event) => {
-    setShowVoiceLoader(true);
-    const selectedVoice = filteredVoices.find(
-      (voice) => voice.name === event.target.value
-    );
 
-    if (!selectedVoice) {
-      setShowVoiceLoader(false);
-      return;
-    }
-
-    await updateAgent(selectedVoice.name); // ✅ send name
-    setSelectedVoice(selectedVoice.name); // ✅ store name now
-    setShowVoiceLoader(false);
-
-
-    if (showDrawerSelectedAgent.thumb_profile_image) {
-      return;
-    } else {
-      // setSelectedImage(selectedVoice.img);
-      // updateAgentProfile(selectedVoice.img);
-    }
-  };
 
   //function for getitng the calenders list
   const getCalenders = async () => {
@@ -2196,64 +1878,6 @@ function Page() {
       //// //console.log;
     }
   };
-
-  const handleDuplicate = async () => {
-    console.log("Duplicate agent clicked");
-    setDuplicateLoader(true)
-    setShowDuplicateConfirmationPopup(false)
-    try {
-      const data = localStorage.getItem("User")
-
-      if (data) {
-        const userData = JSON.parse(data);
-        const AuthToken = userData.token;
-        const ApiPath = Apis.duplicateAgent;
-
-        let apidata = {
-          agentId: showDrawerSelectedAgent.id,
-        }
-
-        const response = await axios.post(ApiPath,
-          apidata, {
-          headers: {
-            "Authorization": "Bearer " + AuthToken,
-          }
-        })
-
-        if (response) {
-          setDuplicateLoader(false)
-          if (response.data.status === true) {
-            console.log('duplicate agent data ', response);
-
-            setShowSuccessSnack("Agent duplicated successfully");
-            setIsVisibleSnack(true);
-            const localAgentsList = localStorage.getItem(
-              PersistanceKeys.LocalStoredAgentsListMain
-            );
-
-            if (localAgentsList) {
-              const agentsList = JSON.parse(localAgentsList);
-              // agentsListDetails = agentsList;
-
-              const updatedArray = [response.data.data, ...agentsList];
-              localStorage.setItem(
-                PersistanceKeys.LocalStoredAgentsListMain,
-                JSON.stringify(updatedArray)
-              );
-              setMainAgentsList(updatedArray);
-            }
-          }
-        }
-      }
-    } catch (error) {
-      setDuplicateLoader(false)
-      console.error("Error occured in duplicate agent api is", error);
-      setShowErrorSnack("Error occured while duplicating agent");
-      setIsVisibleSnack2(true);
-
-    }
-  }
-
 
 
   const handleLanguageChange = async (event) => {
@@ -2381,24 +2005,6 @@ function Page() {
               placeholder="Search an agent"
               value={search}
               onChange={(e) => {
-
-                //test code failed
-                // let a = e.target.value;
-                // if (a) {
-                //   console.log("There was some value");
-                //   setAgentsBeforeSearch(agentsListSeparated);
-                //   clearTimeout(searchTimeoutRef.current);
-                //   searchTimeoutRef.current = setTimeout(() => {
-                //     // handleSearch(e);
-                //     let searchLoader = true;
-                //     getAgents(false, e.target.value, searchLoader)
-                //   }, 500);
-                // } else if (!a) {
-                //   console.log("There was no value");
-                //   setAgentsListSeparated(agentsBeforeSearch);
-
-                // }
-
                 setSearch(e.target.value);
                 if (canGetMore === true) {
                   setCanKeepLoading(true);
@@ -2413,35 +2019,6 @@ function Page() {
                   getAgents(false, e.target.value, searchLoader)
                 }, 500);
               }}
-            //test code 2 failed
-            // onChange={(e) => {
-            //   const a = e.target.value;
-            //   setSearch(a);
-
-            //   if (a) {
-            //     console.log("There was some value");
-
-            //     // ✅ Only save original list once
-            //     if (agentsBeforeSearch.length === 0) {
-            //       setAgentsBeforeSearch(agentsListSeparated);
-            //     }
-
-            //     clearTimeout(searchTimeoutRef.current);
-            //     searchTimeoutRef.current = setTimeout(() => {
-            //       const searchLoader = true;
-            //       getAgents(false, a, searchLoader);
-            //     }, 500);
-            //   } else {
-            //     console.log("There was no value");
-
-            //     // ✅ Restore the original list when search is cleared
-            //     setAgentsListSeparated(agentsBeforeSearch);
-            //   }
-
-            //   // ✅ Optional: toggle loading based on canGetMore
-            //   setCanKeepLoading(canGetMore === true);
-            // }}
-
             />
             <button className="outline-none border-none">
               <Image
@@ -2491,15 +2068,12 @@ function Page() {
             setScriptTagInput={setScriptTagInput}
             setOldScriptTagInput={setOldScriptTagInput}
             setShowScriptModal={setShowScriptModal}
-            matchingAgent={matchingAgent}
             setShowScript={setShowScript}
             handleShowDrawer={handleShowDrawer}
             handleProfileImgChange={handleProfileImgChange}
             setShowRenameAgentPopup={setShowRenameAgentPopup}
             setSelectedRenameAgent={setSelectedRenameAgent}
             setRenameAgent={setRenameAgent}
-            // ShowWarningModal={ShowWarningModal}
-            // setShowWarningModal={setShowWarningModal}
             setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
             setOpenTestAiModal={setOpenTestAiModal}
             mainAgentsList={mainAgentsList}
@@ -2509,6 +2083,9 @@ function Page() {
             canGetMore={canGetMore}
             paginationLoader={paginationLoader}
             initialLoader={initialLoader}
+            setKYCList={setKYCList}
+            setMainAgentId={setMainAgentId}
+            setUserPipeline={setUserPipeline}
           />
         )}
 
@@ -2539,1752 +2116,121 @@ function Page() {
             </div>
           </Link>
         )}
+
+        <RenameAgentModal
+          showRenameAgentPopup={showRenameAgentPopup}
+          setShowRenameAgentPopup={setShowRenameAgentPopup}
+          selectedRenameAgent={selectedRenameAgent}
+          renameAgentLoader={renameAgentLoader}
+          setRenameAgentLoader={setReassignLoader}
+          setShowSuccessSnack={setShowSuccessSnack}
+          fromatMessageName={fromatMessageName}
+          setIsVisibleSnack={setIsVisibleSnack}
+          showDrawerSelectedAgent={showDrawerSelectedAgent}
+          setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+          setMainAgentsList={setMainAgentsList}
+          renameAgent={renameAgent}
+          setRenameAgent={setRenameAgent}
+        />
+        <TestAIModal
+          openTestAiModal={openTestAiModal}
+          setOpenTestAiModal={setOpenTestAiModal}
+          selectedAgent={selectedAgent}
+          setShowSuccessSnack={setShowSuccessSnack}
+          setIsVisibleSnack={setIsVisibleSnack}
+        />
+
+        <ScriptModal
+          showScriptModal={showScriptModal}
+          handleCloseScriptModal={handleCloseScriptModal}
+          kycsData={kycsData}
+          MainAgentId={MainAgentId}
+        />
+        <Drawer
+          anchor="right"
+          open={showDrawerSelectedAgent != null}
+          onClose={() => {
+            setShowDrawerSelectedAgent(null);
+            setActiveTab("Agent Info");
+          }}
+          PaperProps={{
+            sx: {
+              width: "45%", borderRadius: "20px", padding: "0px", boxShadow: 3, margin: "1%", height: "96.5vh",
+              overflow: "hidden",
+            },
+          }}
+        >
+          <div className="flex flex-col w-full h-full py-2 px-5 rounded-xl">
+            <div className="w-full flex flex-col h-[95%] overflow-auto"
+              style={{scrollbarWidth:'none'}}
+            >
+              <AgentDrawerHeader
+                showDrawerSelectedAgent={showDrawerSelectedAgent}
+                setShowRenameAgentPopup={setShowRenameAgentPopup}
+                setSelectedRenameAgent={setSelectedRenameAgent}
+                setRenameAgent={setRenameAgent}
+                setMainAgentsList={setMainAgentsList}
+                setShowSuccessSnack={setShowSuccessSnack}
+                setIsVisibleSnack2={setIsVisibleSnack2}
+                globalLoader = {globalLoader}
+                setGlobalLoader = {setGlobalLoader}
+                updateSubAgent={updateSubAgent}
+              />
+
+              <AgentStats showDrawerSelectedAgent={showDrawerSelectedAgent} />
+
+              <div className="flex justify-between items-center pb-2 mb-4">
+                {AgentMenuOptions.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`${activeTab === tab ? "text-purple border-b-2 border-purple" : "text-black-500"} text-sm font-medium whitespace-nowrap`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              {activeTab === "Agent Info" && <AgentInfoTab
+                showDrawerSelectedAgent={showDrawerSelectedAgent}
+                setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                updateAgent={updateAgent}
+                updateSubAgent={updateSubAgent}
+              />}
+              {activeTab === "Calendar" && <CalendarTab
+                calendarDetails={calendarDetails}
+                showDrawerSelectedAgent={showDrawerSelectedAgent}
+              />}
+              {activeTab === "Pipeline" && <PipelineTab
+                showDrawerSelectedAgent={showDrawerSelectedAgent}
+                UserPipeline={UserPipeline}
+                calendarDetails={calendarDetails}
+              />}
+              {activeTab === "Knowledge" && <KnowledgeTab
+                user={user}
+                agent={showDrawerSelectedAgent}
+              />}
+              {activeTab === "Voicemail" && <VoiceMailTab
+                setMainAgentsList={setMainAgentsList}
+                agent={showDrawerSelectedAgent}
+                setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+              />}
+            </div>
+
+            <div className="w-full flex justify-end">
+              <button
+                className="flex items-center gap-2"
+                onClick={() => setDelAgentModal(true)}
+              >
+                <Image src="/otherAssets/redDeleteIcon.png" height={24} width={24} alt="del" className="opacity-50" />
+                <div className="text-[#15151590] font-semibold underline">Delete Agent</div>
+              </button>
+            </div>
+          </div>
+        </Drawer>
       </div>
 
-      {/* Modal to rename the agent */}
-      <Modal
-        open={showRenameAgentPopup}
-        onClose={() => {
-          setShowRenameAgentPopup(false);
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-        >
-          <div style={{ width: "100%" }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: "none" }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                  direction: "row",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: "700", fontSize: 22 }}>
-                  Rename Agent
-                </div>
-                <div
-                  style={{
-                    direction: "row",
-                    display: "flex",
-                    justifyContent: "end",
-                  }}
-                >
-                  <button
-                    onClick={() => {
-                      setShowRenameAgentPopup(null);
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-              </div>
 
-              <div>
-                <div
-                  className="mt-4"
-                  style={{ fontWeight: "600", fontSize: 12, paddingBottom: 5 }}
-                >
-                  Agent Name
-                </div>
-                <input
-                  value={renameAgent || ""}
-                  // value = {showRenameAgentPopup?.name}
-                  onChange={(e) => {
-                    setRenameAgent(e.target.value);
-                  }}
-                  placeholder={
-                    "Enter agent title"
-                    // selectedRenameAgent?.name
-                    //   ? selectedRenameAgent.name
-                    //   : "Enter agent title"
-                  }
-                  className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                  style={{ border: "1px solid #00000020" }}
-                />
-              </div>
-            </div>
-
-            {renameAgentLoader ? (
-              <div className="flex flex-row iems-center justify-center w-full mt-4">
-                <CircularProgress size={25} />
-              </div>
-            ) : (
-              <button
-                className="mt-4 outline-none"
-                style={{
-                  backgroundColor: "#7902DF",
-                  color: "white",
-                  height: "50px",
-                  borderRadius: "10px",
-                  width: "100%",
-                  fontWeight: 600,
-                  fontSize: "20",
-                }}
-                onClick={handleRenameAgent}
-              >
-                Update
-              </button>
-            )}
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Test ai modal */}
-
-      <Modal
-        open={openTestAiModal}
-        onClose={() => {
-          setOpenTestAiModal(false);
-          setName("");
-          setPhone("");
-          setErrorMessage("");
-        }}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 500,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full max-h-[80vh]">
-            <div
-              className="sm:w-full w-full px-10 py-8 h-full"
-              style={{
-                backgroundColor: "#ffffff",
-                scrollbarWidth: "none",
-                borderRadius: "13px",
-              }}
-            >
-              <div className="h-[85%] overflow-auto">
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row gap-3">
-                    <Image
-                      src={"/otherAssets/testAiIcon.png"}
-                      height={19}
-                      width={19}
-                      alt="icon"
-                    />
-                    <div
-                      style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
-                    >
-                      Test
-                    </div>
-
-                    {!selectedAgent?.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2 -mt-1">
-                        <Image
-                          src={"/assets/warningFill.png"}
-                          height={20}
-                          width={20}
-                          alt="*"
-                        />
-                        <p>
-                          <i
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: "600",
-                            }}
-                          >
-                            No phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => {
-                      setOpenTestAiModal(false);
-                      setName("");
-                      setPhone("");
-                      setErrorMessage("");
-                    }}
-                  >
-                    <Image
-                      src={"/otherAssets/crossIcon.png"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: "700",
-                    color: "#000",
-                    marginTop: 20,
-                  }}
-                >
-                  Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
-                  {selectedAgent?.name.slice(1)})
-                </div>
-
-                <div className="pt-5" style={styles.headingStyle}>
-                  Who are you calling
-                </div>
-                <input
-                  placeholder="Name"
-                  className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
-                  style={{
-                    ...styles.inputStyle,
-                    border: "1px solid #00000010",
-                  }}
-                  value={name || ""}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                  }}
-                />
-
-                <div className="pt-5" style={styles.headingStyle}>
-                  Phone Number
-                </div>
-
-                <div style={{ marginTop: "8px" }}>
-                  <PhoneInput
-                    className="border outline-none bg-white"
-                    country={"us"}
-                    onlyCountries={["us", "sv", "pk"]}
-                    disableDropdown={false}
-                    countryCodeEditable={false}
-                    value={phone}
-                    onChange={handlePhoneNumberChange}
-                    placeholder={
-                      locationLoader ? "Loading location ..." : "Enter Number"
-                    }
-                    // disabled={loading} // Disable input if still loading
-                    style={{ borderRadius: "7px" }}
-                    inputStyle={{
-                      width: "100%",
-                      borderWidth: "0px",
-                      backgroundColor: "transparent",
-                      paddingLeft: "60px",
-                      paddingTop: "20px",
-                      paddingBottom: "20px",
-                    }}
-                    buttonStyle={{
-                      border: "none",
-                      backgroundColor: "transparent",
-                      // display: 'flex',
-                      // alignItems: 'center',
-                      // justifyContent: 'center',
-                    }}
-                    dropdownStyle={{
-                      maxHeight: "150px",
-                      overflowY: "auto",
-                    }}
-                  // defaultMask={loading ? 'Loading...' : undefined}
-                  />
-                </div>
-
-                {errorMessage ? (
-                  <p
-                    style={{
-                      ...styles.errmsg,
-                      color: errorMessage && "red",
-                      height: "20px",
-                    }}
-                  >
-                    {errorMessage}
-                  </p>
-                ) : (
-                  ""
-                )}
-
-                <div
-                  className="max-h-[37vh] overflow-none"
-                  style={{ scrollbarWidth: "none" }}
-                >
-                  {scriptKeys?.map((key, index) => (
-                    <div key={index}>
-                      <div className="pt-5" style={styles.headingStyle}>
-                        {key[0]?.toUpperCase()}
-                        {key?.slice(1)}
-                      </div>
-                      <input
-                        placeholder="Type here"
-                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
-                        style={{
-                          ...styles.inputStyle,
-                          border: "1px solid #00000010",
-                        }}
-                        value={inputValues[index] || ""} // Default to empty string if no value
-                        onChange={(e) =>
-                          handleInputChange(index, e.target.value)
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="w-full mt-6 h-[15%]" style={{}}>
-                {testAIloader ? (
-                  <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
-                    <CircularProgress size={30} />
-                  </div>
-                ) : (
-                  <div>
-                    {name && phone && (
-                      <button
-                        // style={{ marginTop: 10 }}
-                        className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
-                        onClick={handleTestAiClick}
-                      >
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: "500",
-                            color: "#fff",
-                          }}
-                        >
-                          Test AI
-                        </div>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Error snack bar message */}
-
-      {/* drawer */}
-
-      <Drawer
-        anchor="right"
-        open={showDrawerSelectedAgent != null}
-        onClose={() => {
-          setShowDrawerSelectedAgent(null);
-          setActiveTab("Agent Info");
-        }}
-        PaperProps={{
-          sx: {
-            width: "45%", // Adjust width as needed
-            borderRadius: "20px", // Rounded corners
-            padding: "0px", // Internal padding
-            boxShadow: 3, // Light shadow
-            margin: "1%", // Small margin for better appearance
-            backgroundColor: "white", // Ensure it's visible
-            height: "96.5vh",
-            overflow: "hidden",
-            scrollbarWidth: "none",
-          },
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <div
-          className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-        // style={{  }}
-        >
-          <div
-            className="w-full flex flex-col h-[95%]"
-            style={{
-              overflowY: "auto",
-              overflowX: "hidden",
-              scrollbarWidth: "none",
-            }}
-          >
-            {/* Agent TOp Info */}
-            <div className="flex flex-row items-start justify-between w-full mt-2 ">
-              <div className="flex flex-row items-start justify-start mt-2 gap-4">
-                {/* Profile Image */}
-                <div className="">
-                  <button
-                    // className='mt-8'
-                    onClick={() => {
-                      document.getElementById("fileInput").click();
-                      // if (typeof document === "undefined") {
-                      // }
-                    }}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                  >
-                    <div
-                      className="flex flex-row items-end"
-                      style={
-                        {
-                          // border: dragging ? "2px dashed #0070f3" : "",
-                        }
-                      }
-                    >
-                      {selectedImage ? (
-                        <div style={{ marginTop: "", background: "" }}>
-                          <Image
-                            src={selectedImage}
-                            height={45}
-                            width={45}
-                            alt="profileImage"
-                            className="rounded-full"
-                            style={{
-                              objectFit: "cover",
-                              resize: "cover",
-                              height: "74px",
-                              width: "74px",
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        getAgentsListImage(showDrawerSelectedAgent)
-                      )}
-
-                      <Image
-                        src={"/otherAssets/cameraBtn.png"}
-                        style={{ marginLeft: -25 }}
-                        height={20}
-                        width={20}
-                        alt="profileImage"
-                      />
-                    </div>
-                  </button>
-
-                  {/* Hidden file input */}
-                  <input
-                    value={""}
-                    type="file"
-                    accept="image/*"
-                    id="fileInput"
-                    style={{ display: "none" }}
-                    onChange={handleImageChange}
-                  />
-
-                  {/* Global Loader */}
-                  {globalLoader && (
-                    <CircularLoader
-                      globalLoader={globalLoader}
-                      setGlobalLoader={setGlobalLoader}
-                    />
-                  )}
-                </div>
-                <div className="flex flex-col gap-1 items-start">
-                  <div className="flex flex-row justify-center items-center gap-2">
-                    <button
-
-                      onClick={() => {
-                        setShowRenameAgentPopup(true);
-                        setSelectedRenameAgent(showDrawerSelectedAgent);
-                        setRenameAgent(showDrawerSelectedAgent?.name);
-                      }}
-                    >
-                      <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={"/svgIcons/editIcon2.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                        <div
-                          style={{ fontSize: 22, fontWeight: "600" }}
-                        >
-                          {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
-                          {showDrawerSelectedAgent?.name?.slice(1)}
-                        </div>
-                      </div>
-                    </button>
-                    <div
-                      className="text-purple"
-                      style={{ fontSize: 11, fontWeight: "600" }}
-                    >
-                      {showDrawerSelectedAgent?.agentObjective}{" "}
-                      <span>
-                        {" "}
-                        |{" "}
-                        {showDrawerSelectedAgent?.agentType
-                          ?.slice(0, 1)
-                          .toUpperCase(0)}
-                        {showDrawerSelectedAgent?.agentType?.slice(1)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{ fontSize: 15, fontWeight: "500", color: "#000" }}
-                  >
-                    {/* {showDrawer?.phoneNumber} */}
-                    {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
-                  </div>
-
-                  <div className="flex flex-row gap-2 items-center ">
-                    <div
-                      style={{ fontSize: 11, fontWeight: "500", color: "#666" }}
-                    >
-                      Created on:
-                    </div>
-                    <div
-                      style={{ fontSize: 11, fontWeight: "500", color: "#000" }}
-                    >
-                      {/* {showDrawer?.createdAt} */}
-                      {GetFormattedDateString(
-                        showDrawerSelectedAgent?.createdAt
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-row items-center gap-2">
-
-
-                <DuplicateButton
-                  handleDuplicate={() => {
-                    setShowDuplicateConfirmationPopup(true)
-                  }}
-                  loading={duplicateLoader}
-                />
-
-                <DuplicateConfirmationPopup
-                  open={showDuplicateConfirmationPopup}
-                  handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                  handleDuplicate={handleDuplicate}
-                />
-                <div className="flex flex-col gap-2  ">
-                  {/* GPT Button */}
-
-                  {showModelLoader ? (
-                    <CircularProgress size={25} />
-                  ) : (
-                    <div>
-                      <button
-                        id="gpt"
-                        onClick={(event) => setOpenGptManu(event.currentTarget)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          borderRadius: "20px",
-                          padding: "6px 12px",
-                          border: "1px solid #EEE",
-                          backgroundColor: "white",
-                          // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                          fontSize: "16px",
-                          fontWeight: "500",
-                          color: "#000",
-                          textTransform: "none",
-                          "&:hover": { backgroundColor: "#F5F5F5" },
-                        }}
-                      >
-                        <Avatar
-                          src={selectedGptManu?.icon}
-                          sx={{ width: 24, height: 24, marginRight: 1 }}
-                        />
-                        {selectedGptManu?.name}
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          width={18}
-                          height={18}
-                          alt="*"
-                        />
-                      </button>
-
-                      <Menu
-                        id="gpt"
-                        anchorEl={openGptManu}
-                        open={openGptManu}
-                        onClose={() => setOpenGptManu(null)}
-                        sx={{
-                          "& .MuiPaper-root": {
-                            borderRadius: "12px",
-                            padding: "8px",
-                            minWidth: "180px",
-                          },
-                        }}
-                      >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: "8px",
-                              transition: "background 0.2s",
-                              "&:hover": {
-                                backgroundColor: model.disabled
-                                  ? "inherit"
-                                  : "#F5F5F5",
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {model.name}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Center Stats View  */}
-            <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
-              <Card
-                name="Calls"
-                value={
-                  showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
-                    <div>{showDrawerSelectedAgent?.calls}</div>
-                  ) : (
-                    "-"
-                  )
-                }
-                icon="/svgIcons/selectedCallIcon.svg"
-                bgColor="bg-blue-100"
-                iconColor="text-blue-500"
-              />
-              <Card
-                name="Convos"
-                value={
-                  showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
-                    <div>{showDrawerSelectedAgent?.callsGt10}</div>
-                  ) : (
-                    "-"
-                  )
-                }
-                icon="/svgIcons/convosIcon2.svg"
-                bgColor="bg-purple-100"
-                iconColor="text-purple-500"
-              />
-              <Card
-                name="Hot Leads"
-                value={
-                  <div>
-                    {showDrawerSelectedAgent?.hotleads
-                      ? showDrawerSelectedAgent?.hotleads
-                      : "-"}
-                  </div>
-                }
-                icon="/otherAssets/hotLeadsIcon2.png"
-                bgColor="bg-orange-100"
-                iconColor="text-orange-500"
-              />
-              <Card
-                name="Booked"
-                value={
-                  <div>
-                    {showDrawerSelectedAgent?.booked
-                      ? showDrawerSelectedAgent?.booked
-                      : "-"}
-                  </div>
-                }
-                icon="/otherAssets/greenCalenderIcon.png"
-                bgColor="bg-green-100"
-                iconColor="text-green-500"
-              />
-              <Card
-                name="Mins Talked"
-                value={
-                  showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
-                    // <div>{showDrawer?.totalDuration}</div>
-                    <div>
-                      {showDrawerSelectedAgent?.totalDuration
-                        ? moment
-                          .utc(
-                            (showDrawerSelectedAgent?.totalDuration || 0) *
-                            1000
-                          )
-                          .format("HH:mm:ss")
-                        : "-"}
-                    </div>
-                  ) : (
-                    "-"
-                  )
-                }
-                icon="/otherAssets/minsCounter.png"
-                bgColor="bg-green-100"
-                iconColor="text-green-500"
-              />
-            </div>
-            {/* Bottom Agent Info */}
-            <div className="flex flex-row justify-between items-center pb-2 mb-4">
-              {AgentMenuOptions.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
-                  style={{
-                    fontSize: 15,
-                    fontWeight: "500",
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Code for agent info */}
-            {activeTab === "Agent Info" ? (
-              <div className="w-full">
-                <div className="flex flex-col">
-
-                  <div className="flex flex-row items-center justify-between">
-                    <div
-                      style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
-                    >
-                      Voice Options
-                    </div>
-                  </div>
-                  {/* Language */}
-                  <div className="flex w-full justify-between items-center ">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Language
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: "flex",
-                        alignItems: "center",
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showLanguageLoader ? (
-                        <div
-                          style={{
-                            width: "115px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={languageValue}
-                            onChange={async (event) => { handleLanguageChange(event) }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
-                              }
-                              const selectedVoice = AgentLanguagesList.find(
-                                (lang) => lang?.title === selected
-                              );
-                              console.log(
-                                `Selected Language for ${selected} is ${selectedVoice?.title}`
-                              );
-                              //  return selectedVoice ? selectedVoice.title : null;
-
-                              return (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 10,
-                                  }}
-                                >
-                                  <Image
-                                    src={selectedVoice?.flag}
-                                    height={22}
-                                    width={22}
-                                    alt="Selected Language"
-                                  />
-                                  <div>{selectedVoice?.title}</div>
-                                </div>
-                              )
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {AgentLanguagesList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  className="flex flex-row items-center gap-2 bg-purple10 w-full"
-                                  value={item?.title}
-                                  key={index}
-                                // disabled={index !== 0}//languageValue === item?.title ||
-                                >
-                                  <Image
-                                    src={item?.flag}
-                                    alt="*"
-                                    height={22}
-                                    width={22}
-                                  />
-                                  <div>{item?.title}</div>
-                                  <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Voice
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: "flex",
-                        alignItems: "center",
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showVoiceLoader ? (
-                        <div
-                          style={{
-                            width: "115px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={SelectedVoice}
-                            onChange={handleChangeVoice}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              console.log('selected', selected)
-                              if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
-
-                              const selectedVoice = filteredVoices.find(
-                                (voice) => voice.name === selected
-                              );
-
-                              return selectedVoice ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                  {selectedVoice.img && (
-                                    <Image
-                                      src={selectedVoice.img}
-                                      height={30}
-                                      width={30}
-                                      alt="Selected Voice"
-                                    />
-                                  )}
-                                  <div>{selectedVoice.name}</div>
-                                </div>
-                              ) : null;
-                            }}
-
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": { border: "none" }, // Same border on hover
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none",
-                              }, // Remove the default outline
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                { border: "none" },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                },
-                              },
-                            }}
-                          >
-                            {filteredVoices.map((item, index) => {
-                              const selectedVoiceName = (id) => {
-                                const voiceName = filteredVoices.find(
-                                  (voice) => voice.voice_id === id
-                                );
-                                return voiceName?.name || "Unknown";
-                              };
-
-                              return (
-                                <MenuItem
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                  }}
-                                  value={item.name}
-                                  key={index}
-                                  disabled={SelectedVoice === item.name}
-                                >
-                                  <Image
-                                    src={item.img}
-                                    height={40}
-                                    width={35}
-                                    alt="*"
-                                  />
-                                  <div>{item.name}</div>
-
-                                  {/* Play/Pause Button (Prevents dropdown close) */}
-                                  {item.preview ? (
-                                    <div //style={{marginLeft:15}}
-                                      onClick={(e) => {
-                                        console.log('audio preview ', item.preview)
-                                        e.stopPropagation(); // Prevent dropdown from closing
-                                        e.preventDefault(); // Prevent selection event
-
-                                        if (preview === item.preview) {
-                                          if (audio) {
-                                            audio.pause();
-                                          }
-                                          setPreview(null);
-                                        } else {
-                                          setPreview(item.preview);
-                                          playVoice(item.preview);
-                                        }
-                                      }}
-                                    >
-                                      {preview === item.preview ? (
-                                        <PauseCircle
-                                          size={38}
-                                          weight="regular"
-                                        />
-                                      ) : (
-                                        <Image
-                                          src={"/assets/play.png"}
-                                          height={25}
-                                          width={25}
-                                          alt="*"
-                                        />
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <div
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        e.preventDefault();
-                                        setShowNoAudioModal(item);
-                                      }}
-                                    >
-                                      <Image
-                                        src={"/assets/play.png"}
-                                        height={25}
-                                        width={25}
-                                        alt="*"
-                                      />
-                                    </div>
-                                  )}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-                  {/* Expression */}
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Personality
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: "flex",
-                        alignItems: "center",
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showVoiceExpressivenessLoader ? (
-                        <div
-                          style={{
-                            width: "115px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={voiceExpressiveness}
-                            onChange={async (event) => {
-                              setShowVoiceExpressivenessLoader(true);
-                              let value = event.target.value;
-                              //console.log;
-                              let voiceData = {
-                                voiceExpressiveness: value,
-                              };
-                              await updateSubAgent(voiceData);
-                              setShowVoiceExpressivenessLoader(false);
-                              setVoiceExpressiveness(value);
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
-                              }
-                              const selectedVoice =
-                                voiceExpressivenessList.find(
-                                  (voice) => voice.value === selected
-                                );
-                              return selectedVoice ? selectedVoice?.title : null;
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {voiceExpressivenessList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item?.value}
-                                  key={index}
-                                  disabled={voiceExpressiveness === item?.title}
-                                >
-                                  <div>{item?.title}</div>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-                  {/* Talking Pace */}
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Talking Pace
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: "flex",
-                        alignItems: "center",
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showStartingPaceLoader ? (
-                        <div
-                          style={{
-                            width: "115px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={startingPace}
-                            onChange={async (event) => {
-                              setShowStartingPaceLoader(true);
-                              let value = event.target.value;
-                              //console.log;
-                              let voiceData = {
-                                talkingPace: value,
-                              };
-                              await updateSubAgent(voiceData);
-                              setShowStartingPaceLoader(false);
-                              // setSelectedVoice(event.target.value);
-                              setStartingPace(value);
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
-                              }
-                              const selectedVoice = TalkingPaceList.find(
-                                (voice) => voice.value === selected
-                              );
-                              return selectedVoice ? selectedVoice?.title : null;
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {TalkingPaceList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item.value}
-                                  key={index}
-                                  disabled={startingPace === item?.title}
-                                >
-                                  <div>{item?.title}</div>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Patience level */}
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Response Speed
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: "flex",
-                        alignItems: "center",
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showPatienceLoader ? (
-                        <div
-                          style={{
-                            width: "115px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={patienceValue}
-                            onChange={async (event) => {
-                              setShowPatienceLoader(true);
-                              let value = event.target.value;
-                              //console.log;
-                              let voiceData = {
-                                responseSpeed: value,
-                              };
-                              await updateSubAgent(voiceData);
-                              setShowPatienceLoader(false);
-                              // setSelectedVoice(event.target.value);
-                              setPatienceValue(value);
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>Select</div>
-                                ); // Placeholder style
-                              }
-                              const selectedVoice = ResponseSpeedList.find(
-                                (voice) => voice.value === selected
-                              );
-                              console
-                                .log
-                                // `Selected Patience Level for ${selected} is ${selectedVoice?.title}`
-                                ();
-                              return selectedVoice ? selectedVoice?.title : null;
-                            }}
-                            sx={{
-                              border: "none", // Default border
-                              "&:hover": {
-                                border: "none", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {ResponseSpeedList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item.value}
-                                  key={index}
-                                  disabled={patienceValue === item?.title}
-                                >
-                                  <div>{item?.title}</div>
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-
-
-                </div>
-                <div className="flex flex-col gap-1 mt-4">
-                  <div
-                    style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
-                  >
-                    Contact
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div
-                      style={{ fontSize: 15, fontWeight: "500", color: "#666" }}
-                    >
-                      Number used for calls
-                    </div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#000",
-                      }}
-                    >
-                      {showPhoneLoader ? (
-                        <div
-                          style={{
-                            width: "150px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <Box className="w-full">
-                          <FormControl className="w-full">
-                            <Select
-                              ref={selectRef}
-                              open={openCalimNumDropDown}
-                              onClose={() => setOpenCalimNumDropDown(false)}
-                              onOpen={() => setOpenCalimNumDropDown(true)}
-                              className="border-none rounded-2xl outline-none p-0 m-0"
-                              displayEmpty
-                              value={assignNumber}
-                              // onChange={handleSelectNumber}
-                              // onChange={(e) => {
-                              //   let value = e.target.value;
-                              //   console.log(
-                              //     "Assign number here: Value changed",
-                              //     value
-                              //   );
-                              //   // return;
-                              //   setAssignNumber(value);
-                              //   // setOpenCalimNumDropDown(false);
-                              // }}
-                              renderValue={(selected) => {
-                                if (selected === "") {
-                                  return <div>Select Number</div>;
-                                }
-                                return <div style={{
-                                  fontSize: 15,
-                                  fontWeight: "500",
-                                  color: "#000",
-                                }}>
-                                  <div>
-                                    {selected}
-                                  </div>
-                                </div>
-                              }}
-                              sx={{
-                                ...styles.dropdownMenu,
-                                backgroundColor: "none",
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                  border: "none",
-                                },
-                                padding: 0,
-                                margin: 0,
-                              }}
-                            >
-                              {previousNumber?.map((item, index) => {
-                                // //console.log;
-                                // //console.log;
-                                return (
-                                  <MenuItem
-                                    key={index}
-                                    style={styles.dropdownMenu}
-                                    value={item.phoneNumber.slice(1)}
-                                    className="flex flex-row items-center gap-2 "
-                                    disabled={
-                                      assignNumber?.replace("+", "") ===
-                                      item.phoneNumber.replace("+", "")
-                                    }
-                                    onClick={(e) => {
-                                      //console.log;
-                                      // return;
-                                      if (showReassignBtn && item?.claimedBy) {
-                                        e.stopPropagation();
-                                        setShowConfirmationModal(item);
-                                        console.log(
-                                          "Hit release number api",
-                                          item
-                                        );
-                                        // AssignNumber
-                                      } else {
-                                        //console.log;
-                                        //// console.log(
-                                        //   "Should call assign number api"
-                                        // );
-                                        // return;
-                                        AssignNumber(item.phoneNumber);
-                                        //// console.log(
-                                        //   "Updated number is",
-                                        //   item.phoneNumber
-                                        // );
-                                      }
-                                    }}
-                                  >
-                                    <div
-                                      style={{
-                                        width: numberDropDownWidth(
-                                          item?.claimedBy?.name
-                                        ),
-                                      }}
-                                    >
-                                      {item.phoneNumber}
-                                    </div>
-                                    {showReassignBtn && (
-                                      <div
-                                        className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
-                                      >
-                                        {item.claimedBy && (
-                                          <div className="flex flex-row items-center gap-2">
-                                            {showDrawerSelectedAgent?.name !==
-                                              item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </MenuItem>
-                                );
-                              })}
-                              <MenuItem
-                                style={styles.dropdownMenu}
-                                value={showGlobalBtn ? 16505403715 : ""}
-                                // disabled={!showGlobalBtn}
-                                disabled={
-                                  (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
-                                  (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
-                                }
-                                onClick={() => {
-                                  console.log(
-                                    "This triggers when user clicks on assigning global number",
-                                    assignNumber
-                                  );
-                                  // return;
-                                  AssignNumber(Constants.GlobalPhoneNumber);
-                                  // handleReassignNumber(showConfirmationModal);
-                                }}
-                              >
-                                {Constants.GlobalPhoneNumber}
-                                {showGlobalBtn &&
-                                  " (available for testing calls only)"}
-                                {showGlobalBtn == false &&
-                                  " (Only for outbound agents. You must buy a number)"}
-                              </MenuItem>
-                              <div
-                                className="ms-4 pe-4"
-                                style={{
-                                  ...styles.inputStyle,
-                                  color: "#00000070",
-                                }}
-                              >
-                                <i>Get your own unique phone number.</i>{" "}
-                                <button
-                                  className="text-purple underline"
-                                  onClick={() => {
-                                    setShowClaimPopup(true);
-                                  }}
-                                >
-                                  Claim one
-                                </button>
-                              </div>
-                            </Select>
-                          </FormControl>
-                        </Box>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="flex flex-row gap-3">
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#666",
-                        }}
-                      >
-                        Call back number
-                      </div>
-                      <div
-                      // aria-owns={open ? 'mouse-over-popover' : undefined}
-                      // aria-haspopup="true"
-                      // onMouseEnter={handlePopoverOpen}
-                      // onMouseLeave={handlePopoverClose}
-                      ></div>
-                      {/* Code for popover */}
-                    </div>
-
-                    <div className="flex flex-row items-center justify-between gap-2">
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "400",
-                          color: "#000",
-                        }}
-                      >
-                        {showDrawerSelectedAgent?.callbackNumber ? (
-                          <div>{showDrawerSelectedAgent?.callbackNumber}</div>
-                        ) : (
-                          "-"
-                        )}
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setShowEditNumberPopup(
-                            showDrawerSelectedAgent?.callbackNumber
-                          );
-                          setSelectedNumber("Callback");
-                        }}
-                      >
-                        <Image
-                          src={"/svgIcons/editIcon2.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between mt-4">
-                    <div className="flex flex-row gap-3">
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "#666",
-                        }}
-                      >
-                        Call transfer number
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row items-center justify-between gap-2">
-                      <div>
-                        {showDrawerSelectedAgent?.liveTransferNumber ? (
-                          <div >
-                            {showDrawerSelectedAgent?.liveTransferNumber}
-                          </div>
-                        ) : (
-                          "-"
-                        )}
-                      </div>
-                      <button
-                        onClick={() => {
-                          setShowEditNumberPopup(
-                            showDrawerSelectedAgent?.liveTransferNumber
-                          );
-                          setSelectedNumber("Calltransfer");
-                        }}
-                      >
-                        <Image
-                          src={"/svgIcons/editIcon2.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="w-full">
-                  <EditPhoneNumberModal
-                    open={showEditNumberPopup}
-                    close={() => setShowEditNumberPopup(null)}
-                    number={showEditNumberPopup && showEditNumberPopup}
-                    title={
-                      selectedNumber === "Callback"
-                        ? "Call Back Number"
-                        : "Call Transfer Number"
-                    }
-                    loading={loading}
-                    update={async (value) => {
-                      let data = "";
-                      if (selectedNumber === "Callback") {
-                        data = {
-                          callbackNumber: value,
-                        };
-                      } else {
-                        data = {
-                          liveTransferNumber: value,
-                        };
-                      }
-                      //console.log;
-                      setLoading(true);
-                      await updateSubAgent(data);
-                      setLoading(false);
-                      setShowEditNumberPopup(null);
-                    }}
-                  />
-                </div>
-              </div>
-            ) : activeTab === "Calendar" ? (
-              <div>
-                <div
-                  className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-                  style={
-                    {
-                      // backgroundColor: "red"
-                    }
-                  }
-                >
-                </div>
-
-                <UserCalender
-                  calendarDetails={calendarDetails}
-                  setUserDetails={setMainAgentsList}
-                  selectedAgent={showDrawerSelectedAgent}
-                  mainAgentId={MainAgentId}
-                  previousCalenders={previousCalenders}
-                  updateVariableData={updateAfterAddCalendar}
-                />
-
-              </div>
-            ) : activeTab === "Pipeline" ? (
-              <div className="flex flex-col gap-4">
-                <PiepelineAdnStage
-                  selectedAgent={showDrawerSelectedAgent}
-                  UserPipeline={UserPipeline}
-                  mainAgent={calendarDetails}
-                />
-              </div>
-            ) : activeTab === "Knowledge" ? (
-              <div className="flex flex-col gap-4">
-                <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
-              </div>
-            ) : activeTab === "Voicemail" ? (
-              <div className="flex flex-col gap-4 w-full">
-                <VoiceMailTab
-                  setMainAgentsList={setMainAgentsList}
-                  agent={showDrawerSelectedAgent}
-                  setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                />
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
-          {/* Delete agent button */}
-          <div className="w-full flex flex-row items-center justify-end">
-            <button
-              className="flex flex-row gap-2 items-center"
-              onClick={() => {
-                setDelAgentModal(true);
-              }}
-              style={{
-                // // marginTop: 20,
-                // alignSelf: "end",
-                // position: "absolute",
-                // bottom: "7%",
-              }}
-            >
-              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
-                height={24}
-                width={24}
-                alt='del'
-              /> */}
-
-              <Image
-                src={"/otherAssets/redDeleteIcon.png"}
-                height={24}
-                width={24}
-                alt="del"
-                style={{
-                  filter: "brightness(0) saturate(100%) opacity(0.5)", // Convert to black and make semi-transparent
-                }}
-              />
-
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                  color: "#15151590",
-                  textDecorationLine: "underline",
-                }}
-              >
-                Delete Agent
-              </div>
-            </button>
-          </div>
-        </div>
-      </Drawer>
 
       {/* Code to del agent */}
       <Modal
@@ -4511,456 +2457,6 @@ function Page() {
         </Box>
       </Modal>
 
-      {/* code for script */}
-
-      <Modal
-        open={showScriptModal}
-        onClose={() => {
-          handleCloseScriptModal();
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-        >
-          <div style={{ width: "100%" }}>
-            <div className="h-[90vh]" style={{ scrollbarWidth: "none" }}>
-              <div
-                style={{
-                  height: "8%",
-                  width: "100%",
-                  direction: "row",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: "600", fontSize: 22 }}>
-                  {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}
-                  {showScriptModal?.name?.slice(1)}
-                </div>
-                <div
-                  style={{
-                    direction: "row",
-                    display: "flex",
-                    justifyContent: "end",
-                  }}
-                >
-                  <button
-                    onClick={() => {
-                      handleCloseScriptModal();
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-              </div>
-
-              <div
-                className="mt-4 flex flex-row gap-6"
-                style={{ height: "", fontWeight: "500", fontSize: 15 }}
-              >
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom: showScript && "2px solid #7902DF",
-                  }}
-                  onClick={handleShowScript}
-                >
-                  Script
-                </button>
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom: SeledtedScriptKYC && "2px solid #7902DF",
-                  }}
-                  onClick={handleShowKycs}
-                >
-                  KYC
-                </button>
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom:
-                      SeledtedScriptAdvanceSetting && "2px solid #7902DF",
-                  }}
-                  onClick={handleShowAdvanceSeting}
-                >
-                  Advanced Settings
-                </button>
-              </div>
-
-              {showScript && (
-                <div style={{ height: "73%", borderWidth: 0 }}>
-                  <div
-                    style={{
-                      height: showSaveChangesBtn ? "95%" : "100%",
-                      borderWidth: 0,
-                    }}
-                  >
-                    <div className="bg-[#00000002] p-2 mt-2">
-                      <div
-                        style={styles.inputStyle}
-                        className="flex flex-row items-center gap-2"
-                      >
-                        <Image
-                          src={"/assets/lightBulb.png"}
-                          alt="*"
-                          height={24}
-                          width={24}
-                        />{" "}
-                        Editing Tips
-                      </div>
-                      <div
-                        style={styles.inputStyle}
-                        className="flex flex-row flex-wrap gap-2"
-                      >
-                        <div>You can use these variables:</div>
-                        {/* <div className='flex flex-row items-center gap-2'> */}
-                        <div
-                          style={{ width: "fit-content" }}
-                          className="text-purple flex flex-row gap-2"
-                        >
-                          {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
-                          {/* {`{First Name}`}, {`{Email}`}, */}
-                        </div>
-
-                        {uniqueColumns?.length > 0 && showMoreUniqueColumns ? (
-                          <div className="flex flex-row flex-wrap gap-2">
-                            {uniqueColumns.map((item, index) => (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center gap-2 text-purple"
-                              >
-                                {`{${item}}`},
-                              </div>
-                            ))}
-                            <button
-                              className="text-purple outline-none"
-                              onClick={handleShowUniqueCols}
-                            >
-                              show less
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            {uniqueColumns?.length > 0 && (
-                              <button
-                                className="text-purple flex flex-row items-center font-bold outline-none"
-                                onClick={() => {
-                                  handleShowUniqueCols();
-                                }}
-                              >
-                                <Plus
-                                  weight="bold"
-                                  size={15}
-                                  style={{
-                                    strokeWidth: 40, // Adjust as needed
-                                  }}
-                                />
-                                {uniqueColumns?.length}
-                              </button>
-                            )}
-                          </div>
-                        )}
-
-                        {/* </div> */}
-                      </div>
-                    </div>
-
-                    <div className="w-full">
-                      <div className="w-5/12">
-                        <VideoCard
-                          duration={"13 min 56 sec"}
-                          width="60"
-                          height="40"
-                          horizontal={false}
-                          playVideo={() => {
-                            setIntroVideoModal(true);
-                          }}
-                          title="Learn how to customize your script"
-                        />
-                      </div>
-
-                      {/* <div
-                        className="mt-4"
-                        style={{ fontSize: 24, fontWeight: "700" }}
-                      >
-                        Script
-                      </div> */}
-
-                      <div
-                        style={{ fontSize: 24, fontWeight: "700" }}
-                        className="flex flex-row items-center center w-full justify-between"
-                      >
-                        <div>Script</div>
-                      </div>
-
-                      <div className="flex flex-row items-center justify-between">
-                        <div
-                          className="mt-2"
-                          style={{ ...styles.paragraph, color: "#00000060" }}
-                        >
-                          Greeting
-                        </div>
-
-                        <button
-                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-purple text-white px-4"
-                          style={{
-                            fontWeight: "500",
-                            fontSize: 15,
-                          }}
-                          onClick={() => {
-                            window.open(
-                              "https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder",
-                              "_blank"
-                            );
-                          }}
-                        >
-                          Use Script Builder
-                          <ArrowUpRight size={20} color="white" />
-                        </button>
-                      </div>
-
-                      <div className="mt-2">
-                        <GreetingTagInput
-                          greetTag={showScriptModal?.prompt?.greeting}
-                          kycsList={kycsData}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={(text) => {
-                            setGreetingTagInput(text);
-                            let agent = showScriptModal;
-                            agent.prompt.greeting = text;
-                            setShowScriptModal(agent);
-                          }}
-                          scrollOffset={scrollOffset}
-                        />
-                      </div>
-                      <div className="mt-4 w-full ">
-                        <PromptTagInput
-                          promptTag={scriptTagInput}
-                          kycsList={kycsData}
-                          from={"Promt"}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={(text) => {
-                            console.log("Text updated ", text);
-                            setScriptTagInput(text);
-                            // let agent = showScriptModal;
-                            // agent.prompt.callScript = text;
-                            // setShowScriptModal(agent);
-                          }}
-                          scrollOffset={scrollOffset}
-                          showSaveChangesBtn={showSaveChangesBtn}
-                          saveUpdates={async () => {
-                            await updateAgent();
-                            setShowSaveChangesBtn(false);
-                            setOldScriptTagInput(scriptTagInput);
-                          }}
-                        />
-
-                        {/* <DynamicDropdown /> */}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-2 right-7 left-7" style={{}}>
-                    {showSaveChangesBtn && (
-                      <div className="w-full">
-                        {UpdateAgentLoader ? (
-                          <div className="w-full flex flex-row mt-6 justify-center">
-                            <CircularProgress size={35} />
-                          </div>
-                        ) : (
-                          <button
-                            className="bg-purple w-full h-[50px] rounded-xl text-white"
-                            style={{ fontWeight: "600", fontSize: 15 }}
-                            onClick={async () => {
-                              await updateAgent();
-                              setShowScriptModal(null);
-                              setGreetingTagInput("");
-                              setScriptTagInput("");
-                              setShowScript(false);
-                              setSeledtedScriptKYC(false);
-                              setSeledtedScriptAdvanceSetting(false);
-                              setShowSaveChangesBtn(false);
-                              setShowObjectionsSaveBtn(false);
-                            }}
-                          >
-                            Save Changes
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {SeledtedScriptAdvanceSetting && (
-                <div style={{ height: "80%" }}>
-                  <div className="flex flex-row items-center gap-2 mt-4">
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showObjectives && "2px solid #7902DF",
-                      }}
-                      onClick={handleShowObjectives}
-                    >
-                      Objective
-                    </button>
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showGuardrails && "2px solid #7902DF",
-                      }}
-                      onClick={handleShowGuardrails}
-                    >
-                      Guardrails
-                    </button>
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showObjection && "2px solid #7902DF",
-                      }}
-                      onClick={handleShowObjection}
-                    >
-                      Objections
-                    </button>
-                  </div>
-
-                  {showObjection && (
-                    <div style={{ height: "80%" }}>
-                      <div style={{ marginTop: "40px", height: "80%" }}>
-                        <Objection
-                          showTitle={true}
-                          selectedAgentId={showScriptModal}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {showGuardrails && (
-                    <div style={{ height: "80%" }}>
-                      <div style={{ marginTop: "40px", height: "80%" }}>
-                        <GuarduanSetting
-                          showTitle={true}
-                          selectedAgentId={showScriptModal}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {showObjectives && (
-                    <div style={{ height: "80%" }}>
-                      <div style={{ marginTop: "40px", height: "80%" }}>
-                        {/* {showScriptModal?.prompt?.objective} */}
-
-                        {/* {
-                          <textarea
-                            className="outline-none rounded-xl focus:ring-0"
-                            // ref={objective}
-                            value={objective}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              setObjective(value);
-                            }}
-                            placeholder="Add Objective"
-                            style={{
-                              fontSize: "15px",
-                              padding: "15px",
-                              width: "100%",
-                              fontWeight: "500",
-                              height: "100%", // Initial height
-                              maxHeight: "100%", // Maximum height before scrolling
-                              overflowY: "auto", // Enable vertical scrolling when max-height is exceeded
-                              resize: "none", // Disable manual resizing
-                              border: "1px solid #00000020",
-                            }}
-                          />
-                        } */}
-
-                        <div className="mt-4 w-full">
-                          <PromptTagInput
-                            promptTag={objective}
-                            kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={setObjective}
-                            scrollOffset={scrollOffset}
-                            showSaveChangesBtn={showObjectionsSaveBtn}
-                            from={"Objective"}
-                            saveUpdates={async () => {
-                              await updateAgent();
-                              setShowObjectionsSaveBtn(false);
-                              setOldObjective(objective);
-                            }}
-                          />
-
-                          {/* <DynamicDropdown /> */}
-                        </div>
-
-                        <div>
-                          {showObjectionsSaveBtn && (
-                            <div>
-                              {UpdateAgentLoader ? (
-                                <div className="w-full flex flex-row justify-center">
-                                  <CircularProgress size={35} />
-                                </div>
-                              ) : (
-                                <button
-                                  className="bg-purple w-full h-[50px] rounded-xl mb-4 text-white"
-                                  style={{ fontWeight: "600", fontSize: 15 }}
-                                  onClick={async () => {
-                                    await updateAgent();
-                                    setShowObjectionsSaveBtn(false);
-                                    setOldObjective(objective);
-                                  }}
-                                >
-                                  Save Changes
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {SeledtedScriptKYC && (
-                <div
-                  style={{
-                    height: "80%",
-                    overflow: "auto",
-                    scrollbarWidth: "none",
-                    backgroundColor: "",
-                  }}
-                >
-                  <KYCs
-                    kycsDetails={setKycsData}
-                    mainAgentId={MainAgentId}
-                    user={user && user}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
       {/* Modal for video */}
 
       <IntroVideoModal
@@ -4978,7 +2474,7 @@ function Page() {
       />
 
       {showClaimPopup && (
-        <ClaimNumber
+        <ClaimNumbe
           showClaimPopup={showClaimPopup}
           handleCloseClaimPopup={handleCloseClaimPopup}
           setOpenCalimNumDropDown={setOpenCalimNumDropDown}

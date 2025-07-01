@@ -43,15 +43,12 @@ const AgentsListPaginated = ({
   setScriptTagInput,
   setOldScriptTagInput,
   setShowScriptModal,
-  matchingAgent,
   setShowScript,
   handleShowDrawer,
   handleProfileImgChange,
   setShowRenameAgentPopup,
   setSelectedRenameAgent,
   setRenameAgent,
-  // ShowWarningModal,
-  // setShowWarningModal,
   setOpenTestAiModal,
   mainAgentsList,
   setScriptKeys,
@@ -59,11 +56,14 @@ const AgentsListPaginated = ({
   keys,
   paginationLoader,
   setShowDrawerSelectedAgent,
-  //for stopping pagination loader
   canGetMore = true,
   from = "user",
   agencyUser,
-  initialLoader
+  initialLoader,
+  setKYCList,
+  setMainAgentId,
+  setUserPipeline,
+
 }) => {
   console.log('loader for more data ')
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
@@ -131,6 +131,32 @@ const AgentsListPaginated = ({
     setHoveredIndexStatus(null);
     setHoveredIndexAddress(null);
   };
+
+
+    //function ot compare the selected agent wiith the main agents list
+    const matchingAgent = (agent) => {
+      //// //console.log;
+      const agentData = mainAgentsList.filter((prevAgent) => {
+        //// //console.log;
+        if (prevAgent.id === agent.mainAgentId) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      //// //console.log;
+      if (typeof agentData == undefined || agentData == null || agentData.length === 0) {
+        return;
+      }
+      console.log("Matching agent data:", agentData);
+      setKYCList(agentData[0].kyc);
+  
+      setMainAgentId(agentData[0].id);
+      let firstAgent = agentData[0];
+      setUserPipeline(firstAgent.pipeline);
+    
+    };
+  
 
   return (
     <div
@@ -206,7 +232,7 @@ const AgentsListPaginated = ({
             >
               {hoveredIndexAddress ? (
                 <div>
-                  {hoveredIndexAddress.length > 15
+                  {hoveredIndexAddress?.length > 15
                     ? hoveredIndexAddress.slice(0, 15) + "..."
                     : hoveredIndexAddress}
                 </div>
@@ -223,9 +249,9 @@ const AgentsListPaginated = ({
         setShowWarningModal={setShowWarningModal}
         setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
       />
-      {!initialLoader && agentsListSeparated.length > 0 ? (
+      {!initialLoader && agentsListSeparated?.length > 0 ? (
         <InfiniteScroll
-          dataLength={agentsListSeparated.length}
+          dataLength={agentsListSeparated?.length}
           next={fetchMoreAgents}
           hasMore={hasMoreAgents}
           scrollableTarget="scrollableAgentDiv"
