@@ -13,6 +13,8 @@ const DashboardSlider = ({
     const [showIcon, setShowIcon] = useState(false);
     //stores local data
     const [userDetails, setUserDetails] = useState(null);
+    const [hoverIndex, setHoverIndex] = useState(null);
+
 
     //fetch local details
     useEffect(() => {
@@ -71,6 +73,39 @@ const DashboardSlider = ({
         }
     }
 
+    const buttons = [
+        {
+            label: "Resource Hub",
+            image: "/otherAssets/resourceHubBlack.jpg",
+            image2: "/otherAssets/resourceHubBlue.jpg",
+            url: PersistanceKeys.ResourceHubUrl,
+        },
+        {
+            label: "Support Webinar",
+            image: "/otherAssets/supportBlack.jpg",
+            image2: "/otherAssets/supportBlue.jpg",
+            url: PersistanceKeys.SupportWebinarUrl,
+        },
+        {
+            label: "Ask Sky for Help",
+            image: "/otherAssets/askSkyBlack.jpg",
+            image2: "/otherAssets/askSkyBlue.jpg",
+            url: PersistanceKeys.SupportWebinarUrl,
+        },
+        {
+            label: "Give Feedback",
+            image: "/otherAssets/feedBackIcon.png",
+            image2: "/otherAssets/feedBackIconBlue.jpg",
+            url: PersistanceKeys.FeedbackFormUrl,
+        },
+        {
+            label: "Hire the Team (Done For You)",
+            image: "/otherAssets/hireTeamBlack.jpg",
+            image2: "/otherAssets/hireTeamBlue.jpg",
+            url: PersistanceKeys.HireTeamUrl,
+        },
+    ];
+
     return (
         <div>
             {/* Snackbar */}
@@ -85,99 +120,56 @@ const DashboardSlider = ({
                             transition={{ type: "tween", duration: 0.4 }}
                             className="bg-white shadow-lg text-black"
                             style={{
-                                // backgroundColor: "#333",
-                                // color: "#fff",
+
                                 padding: "16px 24px",
-                                borderRadius: "8px",
-                                // boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-                                // display: "flex",
-                                // alignItems: "center",
-                                // gap: "12px",
-                                // minWidth: "400px",
-                                maxWidth: "480px",
+                                borderRadius: "20px",
+                                width: "350px",
                             }}
                         >
                             <div
                                 style={{ flex: 1 }}
-                                className="w-full">
-                                <div className="w-full">
-                                    <div className="flex flex-row items-center justify-between">
-                                        <div
-                                            className="outline-none border-none flex flex-row items-center gap-2">
-                                            <Image
-                                                src={"/agencyIcons/questionMark.jpg"}
-                                                alt="*"
-                                                height={20}
-                                                width={20}
-                                                style={{ borderRadius: "50%" }}
-                                            />
-                                            <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
-                                        </div>
-                                        <button
-                                            className="border-none outline-none"
-                                            onClick={handleClose}>
-                                            <Image
-                                                src={"/assets/cross.png"}
-                                                alt="*"
-                                                width={15}
-                                                height={15}
-                                            />
-                                        </button>
-                                    </div>
-                                    <div
-                                        className="mt-2"
-                                        style={{ fontWeight: "600", fontSize: 16 }}>
-                                        Need Help Setting Up Your AI Agent?
-                                    </div>
-                                    <div
-                                        className="flex flex-row items-start gap-2 mt-4">
-                                        <Image
-                                            src={"/agencyIcons/suportPlaceholder.png"}
-                                            alt="*"
-                                            height={64}
-                                            width={64}
-                                        />
-                                        <div
-                                            style={{ fontWeight: "500", fontSize: 13 }}>
-                                            {`If you're unsure where to start or want expert guidance, we're here to help. You can join our weekly support webinar to get answers to your questions—or let our team handle it and build out your AI for you.`}
-                                        </div>
-                                    </div>
-                                    <div className="w-full flex flex-row items-center gap-2">
-                                        <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px] whitespace-nowrap"
-                                            style={{ fontSize: 15, fontWeight: "500" }}
-                                            onClick={() => {
-                                                if (typeof window !== "undefined") {
-                                                    let url = PersistanceKeys.ResourceHubUrl;
-                                                    //console.log
-                                                    window.open(url, "_blank");
-                                                }
-                                            }}>
-                                            Resource Hub
-                                        </button>
-                                        <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px] whitespace-nowrap"
-                                            style={{ fontSize: 15, fontWeight: "500" }}
-                                            onClick={() => {
-                                                if (typeof window !== "undefined") {
-                                                    let url = PersistanceKeys.SupportWebinarUrl;
-                                                    //console.log
-                                                    window.open(url, "_blank");
-                                                }
-                                            }}>
-                                            Support Webinar
-                                        </button>
-                                        <button
-                                            className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[170px] h-[39px] whitespace-nowrap"
-                                            style={{ fontSize: 15, fontWeight: "500" }}
-                                            onClick={() => {
-                                                let url = PersistanceKeys.GlobalConsultationUrl;
-                                                if (typeof window !== "undefined") {
-                                                    window.open(url, "_blank");
-                                                }
-                                            }}>
-                                            Hire AI Team
-                                        </button>
+                                className="w-full ">
+                                <button style={{
+                                    position: "absolute",
+                                    top: 12,
+                                    right: 12,
+
+                                    border: "none",
+                                    padding: 0,
+                                    cursor: "pointer",
+                                }}
+                                    onClick={handleClose}
+                                >
+                                    <Image src={'/svgIcons/cross.svg'}
+                                        width={24} height={24} alt="*"
+                                    />
+                                </button>
+                                <div className="w-full mt-5">
+
+                                    <div className="w-full flex flex-col items-center gap-4">
+                                        {
+                                            buttons.map((item, index) =>
+                                                <button key={index}
+                                                    onMouseEnter={() => setHoverIndex(index)}
+                                                    onMouseLeave={() => setHoverIndex(null)}
+
+                                                    className="w-full flex flex-row items-center gap-2"
+                                                    onClick={() => {
+                                                        if (typeof window !== "undefined") {
+                                                            window.open(item.url, "_blank");
+                                                        }
+                                                    }}>
+                                                    <Image src={index === hoverIndex ? item.image2 : item.image}
+                                                        width={24} height={24} alt="*"
+                                                    />
+                                                    <div className="text-black hover:text-purple" style={{
+                                                        fontSize: 15, fontWeight: '500'
+                                                    }}>
+                                                        {item.label}
+                                                    </div>
+                                                </button>
+                                            )
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -216,7 +208,7 @@ const DashboardSlider = ({
                             backgroundColor: "#fff",
                             border: "none",
                             borderRadius: "9999px",
-                            padding: "6px 14px",
+                            padding: "12px 20px",
                             fontSize: "16px",
                             cursor: "pointer",
                             boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
@@ -227,19 +219,19 @@ const DashboardSlider = ({
                             className="outline-none border-none flex flex-row items-center gap-2"
                             onClick={handleReopen}>
                             <Image
-                                src={"/agencyIcons/questionMark.jpg"}
+                                src={"/svgIcons/getHelpIcon.svg"}
                                 alt="*"
                                 height={20}
                                 width={20}
-                                style={{ borderRadius: "50%" }}
+                                // style={{ borderRadius: "50%" }}
                             />
-                            <div style={{ fontWeight: "600", fontSize: 16 }}>Get Help</div>
+                            <div style={{ fontWeight: "500", fontSize: 15 }}>Get Help</div>
                         </button>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-        </div>
+        </div >
     );
 };
 

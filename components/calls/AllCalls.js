@@ -120,13 +120,6 @@ function AllCalls({ user }) {
     },
   ];
 
-  // useEffect(() => {
-  //   //console.log;
-  //   // if ((selectedFromDate && selectedToDate) || selectedStageIds.length > 0) {
-
-  //   // }
-  // }, []);
-
   const fromCalendarRef = useRef(null);
   const toCalendarRef = useRef(null);
 
@@ -279,16 +272,6 @@ function AllCalls({ user }) {
 
   useEffect(() => {
     getPipelines();
-
-    // const localPipelines = localStorage.getItem("pipelinesData");
-    // if (localPipelines) {
-    //   const PipelineDetails = JSON.parse(localPipelines);
-    //  // //console.log;
-    //   setPipelinesList(PipelineDetails);
-    //   setSelectedPipeline(PipelineDetails[0].title);
-    //   setStagesList(PipelineDetails[0].stages);
-    // }
-
     try {
       // //console.log;
       const localCalls = localStorage.getItem("calldetails");
@@ -297,14 +280,17 @@ function AllCalls({ user }) {
         // //console.log;
         setCallDetails(localCallData);
         setFilteredCallDetails(localCallData);
-      } else {
-        getCallLogs();
       }
     } catch (error) {
       // console.error("Error ", error);
     } finally {
     }
   }, []);
+
+
+  useEffect(()=>{
+    console.log('setFilteredCallDetails', filteredCallDetails)
+  },[filteredCallDetails])
 
   //function for getting pipelines
   const getPipelines = async () => {
@@ -433,11 +419,12 @@ function AllCalls({ user }) {
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
           console.log;
-          setCallDetails(response.data.data);
-          setFilteredCallDetails(response.data.data);
+          // setCallDetails(response.data.data);
+          // setFilteredCallDetails(response.data.data);
+          console.log('call logs length is', response.data.data.length)
 
           const data = response.data.data;
-          localStorage.setItem("callDetails", response.data.data);
+          localStorage.setItem("callDetails", JSON.stringify(response.data.data));
           setCallDetails((prevDetails) => [...prevDetails, ...data]);
           setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 

@@ -34,7 +34,13 @@ export const PersistanceKeys = {
   SupportWebinarUrl:
     "https://api.leadconnectorhq.com/widget/bookings/noah-support-webinar",
   ResourceHubUrl:
-    "https://www.google.com/url?q=https://www.notion.so/AgentX-Support-Hub-21997b2f3bbe80799837ffd9494574fc?source%3Dcopy_link&sa=D&source=docs&ust=1751319070900437&usg=AOvVaw0kOnwWDKb5el_CB072MMDe"
+    // "https://www.google.com/url?q=https://www.notion.so/AgentX-Support-Hub-21997b2f3bbe80799837ffd9494574fc?source%3Dcopy_link&sa=D&source=docs&ust=1751319070900437&usg=AOvVaw0kOnwWDKb5el_CB072MMDe",
+    "https://www.notion.so/AgentX-Support-Hub-21997b2f3bbe80799837ffd9494574fc?showMoveTo=true&pvs=32",
+    FeedbackFormUrl:
+    "https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK",
+    HireTeamUrl:
+    "https://api.leadconnectorhq.com/widget/bookings/agentx-done-with-you",
+
   // LocalStoredAgentsList
 };
 export const HowtoVideos = {
@@ -58,12 +64,21 @@ export const Constants = {
   GlobalPhoneNumber: "+16505403715",
 };
 
-export const isValidUrl = (url) => {
-  //console.log;
-  const urlPattern =
-    /^(https?:\/\/)?([\w-]+\.)+[a-zA-Z]{2,63}(\/[\w\-./?%&=]*)?$/;
+// export const isValidUrl = (url) => {
+//   //console.log;
+//   const urlPattern =
+//     /^(https?:\/\/)?([\w-]+\.)+[a-zA-Z]{2,63}(\/[\w\-./?%&=]*)?$/;
 
-  return urlPattern.test(url);
+//   return urlPattern.test(url);
+// };
+
+export const isValidUrl = (url) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (_) {
+    return false;
+  }
 };
 
 export const isValidYoutubeUrl = (url) => {

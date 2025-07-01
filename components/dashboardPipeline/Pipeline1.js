@@ -94,6 +94,7 @@ const Pipeline1 = () => {
   const [PipeLines, setPipeLines] = useState([]);
   const [StagesList, setStagesList] = useState([]);
   const [leadsCountInStage, setLeadsCountInStage] = useState(null);
+  const [reservedLeadsCountInStage, setReservedLeadsCountInStage] = useState(null);
   const [oldStages, setOldStages] = useState([]);
   const [LeadsList, setLeadsList] = useState([]);
   //for search
@@ -545,6 +546,7 @@ const Pipeline1 = () => {
 
           // getPipelineDetails(reversePipelinesList[0]);
           setLeadsCountInStage(response.data.data.leadsCountInStage);
+          setReservedLeadsCountInStage(response.data.data.leadsCountInStage);
           setSelectedPipeline(reversePipelinesList[0]);
           setStagesList(reversePipelinesList[0]?.stages);
           setLeadsList(reversePipelinesList[0]?.leads || []);
@@ -654,6 +656,7 @@ const Pipeline1 = () => {
           // );
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage);
+          setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage);
           setSelectedPipeline(pipelineDetails);
           setStagesList(pipelineDetails.stages);
           setLeadsList(pipelineDetails.leads);
@@ -715,6 +718,8 @@ const Pipeline1 = () => {
         if (search) {
           console.log("Set leads for search value", response.data.data);
           setLeadsList(newLeads)
+          setLeadsCountInStage(response.data.leadsCountInStage)
+          // setReservedLeadsCountInStage(response.data.leadsCountInStage)
         } else {
           setLeadsList([...LeadsList, ...newLeads]);
         }
@@ -895,6 +900,7 @@ const Pipeline1 = () => {
     // setSelectedPipeline(item);
     setStagesList(item.stages);
     setLeadsCountInStage(item.leadsCountInStage);
+    setReservedLeadsCountInStage(item.leadsCountInStage);
     setLeadsList(item?.leads || []);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
@@ -958,6 +964,7 @@ const Pipeline1 = () => {
         // console.log("Response of add stage api is", response.data);
         if (response.data.status === true) {
           setLeadsCountInStage(response.data.data.leadsCountInStage);
+          setReservedLeadsCountInStage(response.data.data.leadsCountInStage);
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
           setPipelinePopoverAnchorel(null);
@@ -1732,6 +1739,7 @@ const Pipeline1 = () => {
     searchTimeout.current = setTimeout(() => {
       if (search === "") {
         setLeadsList(reservedLeads);
+        setLeadsCountInStage(reservedLeadsCountInStage)
       } else {
         getMoreLeadsInStage({
           stageId: pipeline?.stages[0].id,
