@@ -534,6 +534,25 @@ function SheduledCalls({ user }) {
     return status;
   }
 
+  function getAgentNameForActiviti(agent) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
+      if (agents[0].agentType == "outbound") {
+        return agents[0]?.name || "-";
+      } else {
+        if (agents.length > 1) {
+          return agents[0]?.name || "-";
+        }
+      }
+    }
+    return "-";
+  }
+
+  function getFirstAlphabetFromName(agent) {
+    const name = getAgentNameForActiviti(agent);
+    return name.length > 0 ? name?.slice(0, 1).toUpperCase() : "";
+  }
+
   return (
     <div className="w-full items-start overflow-hidden">
       {initialLoader ? (
@@ -674,14 +693,12 @@ function SheduledCalls({ user }) {
                                     />
                                   ) : (
                                     <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {agent.name.slice(0, 1).toUpperCase()}
+                                      {getFirstAlphabetFromName(agent)}
                                     </div>
                                   )}
 
                                   <div style={styles.text2}>
-                                    {agent?.agents[0].agentType === "outbound"
-                                      ? agent?.agents[0].name
-                                      : agent?.agents[1].name}
+                                    {getAgentNameForActiviti(agent)}
                                   </div>
                                 </div>
                                 <div className="w-2/12 ">
