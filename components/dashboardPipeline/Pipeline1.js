@@ -64,6 +64,9 @@ const Pipeline1 = () => {
   let searchParams = useSearchParams();
   const router = useRouter();
 
+  //value storing of search bar
+  const [searchValue, setSearchValue] = useState("");
+
   //code for showing the reorder stages btn
   const [showReorderBtn, setShowReorderBtn] = useState(false);
 
@@ -681,15 +684,14 @@ const Pipeline1 = () => {
   }
 
   //code for get more Leads In Stage
-  const getMoreLeadsInStage = async ({ stageId, offset, search }) => {
+  const getMoreLeadsInStage = async ({ stageId, offset = 0, search }) => {
+    console.log("Search value is", search);
     try {
       // return;
       const Auth = AuthToken();
-      let ApiPath = "";
-      if (offset) {
-        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&offset=${offset}`;
-      } else if (search) {
-        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}`;
+      let ApiPath = `${Apis.getLeadsInStage}?offset=${offset}&stageId=${stageId}`;
+      if (search) {
+        ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}&offset=${offset}`;
       }
       console.log(`Api path is ${ApiPath}`);
       const response = await axios.get(ApiPath, {
@@ -715,10 +717,12 @@ const Pipeline1 = () => {
           return updated;
         });
 
-        if (search) {
+        console.log("New leads list is", newLeads);
+
+        if (offset === 0) {
           console.log("Set leads for search value", response.data.data);
-          setLeadsList(newLeads)
-          setLeadsCountInStage(response.data.leadsCountInStage)
+          setLeadsList(newLeads);
+          setLeadsCountInStage(response.data.leadsCountInStage);
           // setReservedLeadsCountInStage(response.data.leadsCountInStage)
         } else {
           setLeadsList([...LeadsList, ...newLeads]);
@@ -1730,6 +1734,7 @@ const Pipeline1 = () => {
 
   function handldSearch(e) {
     let search = e.target.value.toLowerCase();
+    setSearchValue(search);
     let pipeline = SelectedPipeline;
 
     if (searchTimeout.current) {
@@ -1980,6 +1985,7 @@ const Pipeline1 = () => {
                   >
                     <input
                       style={{ MozOutline: "none" }}
+                      value={searchValue}
                       onChange={handldSearch}
                       className="outline-none bg-transparent w-full mx-2 border-none focus:outline-none focus:ring-0"
                       placeholder="Search by name, phone or email"
@@ -2257,14 +2263,18 @@ const Pipeline1 = () => {
                                     (lead) => lead.lead.stage === stage.id
                                   );
 
-                                  // getMoreLeadsInStage(
-                                  //   stage.id,
-                                  //   leadsInStage.length
-                                  // );
-                                  getMoreLeadsInStage({
-                                    stageId: stage.id,
-                                    offset: leadsInStage.length
-                                  });
+                                  if (searchValue) {
+                                    getMoreLeadsInStage({
+                                      stageId: stage.id,
+                                      offset: leadsInStage.length,
+                                      search: searchValue
+                                    });
+                                  } else {
+                                    getMoreLeadsInStage({
+                                      stageId: stage.id,
+                                      offset: leadsInStage.length
+                                    });
+                                  }
 
                                 }} // Fetch more when scrolled
                                 hasMore={hasMoreMap[stage.id] !== false}

@@ -94,7 +94,19 @@ function Support() {
             </div>
             <div className="w-full flex flex-row items-center gap-4">
               <button
-                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px] whitespace-nowrap"
+                style={{ fontSize: 15, fontWeight: "500" }}
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    let url = PersistanceKeys.ResourceHubUrl;
+                    //console.log
+                    window.open(url, "_blank");
+                  }
+                }}>
+                Resource Hub
+              </button>
+              <button
+                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px] whitespace-nowrap"
                 style={{ fontSize: 15, fontWeight: "500" }}
                 onClick={() => {
                   if (typeof window !== "undefined") {
@@ -103,10 +115,10 @@ function Support() {
                     window.open(url, "_blank");
                   }
                 }}>
-                Join Support Webinar
+                Support Webinar
               </button>
               <button
-                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px]"
+                className="mt-4 p-2 border rounded-lg hover:bg-purple hover:text-white w-[187px] h-[39px] whitespace-nowrap"
                 style={{ fontSize: 15, fontWeight: "500" }}
                 onClick={() => {
                   let url = PersistanceKeys.GlobalConsultationUrl;
@@ -114,7 +126,7 @@ function Support() {
                     window.open(url, "_blank");
                   }
                 }}>
-                Hire Pro AI Team
+                Hire AI Team
               </button>
             </div>
           </div>

@@ -2247,10 +2247,13 @@ function Page() {
       }
     } catch (error) {
       setDuplicateLoader(false)
-      console.error("Error occured in duplicate agent api is", error);
-      setShowErrorSnack("Error occured while duplicating agent");
-      setIsVisibleSnack2(true);
+      // console.error("Error occured in duplicate agent api is", error);
+      // setShowErrorSnack("Error occured while duplicating agent");
+      const errorMessage = error?.response?.data?.message || error?.message || error.toString();
 
+      console.error("Error occurred in duplicate agent API:", errorMessage);
+      setShowErrorSnack(`Error occurred: ${errorMessage}`);
+      setIsVisibleSnack2(true);
     }
   }
 

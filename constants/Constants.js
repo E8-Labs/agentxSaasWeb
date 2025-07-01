@@ -178,4 +178,5 @@ export const callStatusColors = {
 
 export const termsAndConditionUrl = "https://www.myagentx.com/terms-and-condition";
 
-export const privacyPollicyUrl = "https://www.myagentx.com/privacy-policy"
+export const privacyPollicyUrl = "https://www.myagentx.com/privacy-policy";
+export const CancellationAndRefundUrl = "https://www.google.com/url?q=https://www.myagentx.com/cancellation-return-policy&sa=D&source=docs&ust=1751402335347404&usg=AOvVaw2aDueiwwhLkomUAiT_eTPT";

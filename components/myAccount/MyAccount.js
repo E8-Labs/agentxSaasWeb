@@ -11,7 +11,7 @@ import Billing from "./Billing";
 import NotficationsDrawer from "../notofications/NotficationsDrawer";
 import { useRouter, useSearchParams } from "next/navigation";
 import BarServices from "./BarServices";
-import { privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
+import { CancellationAndRefundUrl, privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
 import TwilioTrustHub from "./TwilioTrustHub";
 
 function MyAccount() {
@@ -75,12 +75,12 @@ function MyAccount() {
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
-    // {
-    //   id: 10,
-    //   heading: "Twilio Trsut Hub",
-    //   subHeading: "lorem ipsum",
-    //   icon: "/svgIcons/info.svg",
-    // },
+    {
+      id: 10,
+      heading: "Cancellation & Refund",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
   ];
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
@@ -125,8 +125,8 @@ function MyAccount() {
         return <Support />;
       case 7:
         return <SendFeedback />;
-      case 10:
-        return <TwilioTrustHub />;
+      // case 10:
+      //   return <TwilioTrustHub />;
       default:
         return <div>Please select an option.</div>;
     }
@@ -144,6 +144,12 @@ function MyAccount() {
     } else if (item.id === 9) {
       window.open(
         privacyPollicyUrl,
+        "_blank"
+      );
+      return
+    } else if (item.id === 10) {
+      window.open(
+        CancellationAndRefundUrl,
         "_blank"
       );
       return
