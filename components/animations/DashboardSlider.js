@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
-import { VapiWidget } from "../askSky/vapi-widget";
 
 const DashboardSlider = ({
     onTop = false,
@@ -113,9 +112,7 @@ const DashboardSlider = ({
     ];
 
     const handleOnClick = () => {
-        if (item.id === 3) {
-            <VapiWidget />
-        }
+       
         if (typeof window !== "undefined") {
             window.open(item.url, "_blank");
         }
