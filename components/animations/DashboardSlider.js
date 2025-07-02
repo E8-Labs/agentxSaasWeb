@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
-import { VapiWidget } from "../asksky/vapi-widget";
+import { VapiWidget } from "../askSky/vapi-widget";
 import { Box, Modal } from "@mui/material";
 
 const DashboardSlider = ({
@@ -156,7 +156,6 @@ const DashboardSlider = ({
                 touchAction: "pan-y", // allow horizontal pan
               }}
             >
-
               <div style={{ flex: 1 }} className="w-full ">
                 <button
                   style={{
@@ -261,9 +260,11 @@ const DashboardSlider = ({
                 alt="*"
                 height={20}
                 width={20}
-                style={{ borderRadius: "50%", filter: "invert(1)", }}
+                style={{ borderRadius: "50%", filter: "invert(1)" }}
               />
-              <div style={{ fontWeight: "500", fontSize: 15, color: "white" }}>Get Help</div>
+              <div style={{ fontWeight: "500", fontSize: 15, color: "white" }}>
+                Get Help
+              </div>
             </button>
           </motion.div>
         )}
