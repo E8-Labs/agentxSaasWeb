@@ -142,12 +142,21 @@ const DashboardSlider = ({
               variants={snackbarVariants}
               transition={{ type: "tween", duration: 0.4 }}
               className="bg-white shadow-lg text-black"
+              drag="x"
+              dragConstraints={{ left: 0, right: 100 }} // limit drag range
+              onDragEnd={(event, info) => {
+                if (info.offset.x > 100) {
+                  handleClose(); // close only if dragged right enough
+                }
+              }}
               style={{
                 padding: "16px 24px",
                 borderRadius: "20px",
                 width: "350px",
+                touchAction: "pan-y", // allow horizontal pan
               }}
             >
+
               <div style={{ flex: 1 }} className="w-full ">
                 <button
                   style={{
@@ -233,7 +242,7 @@ const DashboardSlider = ({
               bottom: 30,
               right: 10,
               zIndex: 999,
-              backgroundColor: "#fff",
+              backgroundColor: "#7902DF",
               border: "none",
               borderRadius: "9999px",
               padding: "12px 20px",
@@ -252,9 +261,9 @@ const DashboardSlider = ({
                 alt="*"
                 height={20}
                 width={20}
-                // style={{ borderRadius: "50%" }}
+                style={{ borderRadius: "50%", filter: "invert(1)", }}
               />
-              <div style={{ fontWeight: "500", fontSize: 15 }}>Get Help</div>
+              <div style={{ fontWeight: "500", fontSize: 15, color: "white" }}>Get Help</div>
             </button>
           </motion.div>
         )}
