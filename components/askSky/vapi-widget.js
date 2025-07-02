@@ -10,8 +10,15 @@ import {
 } from "./constants";
 import classNames from "classnames";
 import { VoiceWavesComponent } from "./askskycomponents/voice-waves";
+import Vapi from "@vapi-ai/web";
 
-export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_ASSISTANT_ID }) {
+export function VapiWidget({
+  user,
+  assistantId = DEFAULT_ASSISTANT_ID,
+  shouldStart = false,
+  setShowAskSkyModal,
+  setShouldStartCall
+}) {
   const [vapi, setVapi] = useState(null);
   const [open, setOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -23,7 +30,7 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
   useEffect(() => {
     async function init() {
       if (typeof window === "undefined") return;
-      const { default: Vapi } = await import("@vapi-ai/web");
+      // const { default: Vapi } = await import("@vapi-ai/web");
       const vapiInstance = new Vapi(API_KEY);
       setVapi(vapiInstance);
 
@@ -56,7 +63,7 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
       });
     }
     init();
-  }, []);
+  }, [shouldStart]);
 
   useEffect(() => {
     const pathname = window?.location.pathname;
@@ -70,6 +77,13 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
       });
     }
   }, [vapi]);
+
+
+   useEffect(() => {
+    if (shouldStart) {
+      handleStartCall()
+    }
+  }, [shouldStart]);
 
   function startCall() {
     if (vapi) {
@@ -88,6 +102,8 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
   function handleCloseCall() {
     setOpen(false);
     endCall();
+    setShouldStartCall(false)
+    setShowAskSkyModal(false)
   }
 
   function handleStartCall() {
@@ -99,7 +115,7 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
     <div className="fixed bottom-6 right-6 z-modal flex flex-col items-end justify-start">
       <div
         className={
-          `relative w-72 h-80 rounded-lg overflow-hidden p-6 object-center object-cover shadow-md border bg-purple border-black/10 mb-6 translate-x-0 transition-all duration-300",
+          `relative w-72 h-80 rounded-lg overflow-hidden p-6 object-center object-cover shadow-md border bg-white border-black/10 mb-6 translate-x-0 transition-all duration-300",
           ${open ? "translate-x-0 opacity-100 z-10" : "translate-x-full opacity-0 -z-10"}`
         }
       >
@@ -107,7 +123,7 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
           <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
             <img
               className="rounded-full bg-white shadow-lg size-36 shrink-0 z-0 object-center object-cover"
-              src="/orb.gif"
+              src="/agentXOrb.gif"
               alt="AgentX Orb"
             />
             {isSpeaking && (
@@ -141,14 +157,14 @@ export function VapiWidget({ user, assistantId = process.env.TEST_VITE_DEFAULT_A
         </div>
       </div>
       <div className="relative z-0 h-11 w-54">
-        <button
+        {/* <button
           onClick={handleStartCall}
           className={classNames(
             "py-2.5 px-6 cursor-pointer rounded-full bg-white-500 text-black font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
           )}
         >
           🎙️ {BUTTON_TEXT}
-        </button>
+        </button> */}
         <button
           onClick={handleCloseCall}
           className={classNames(

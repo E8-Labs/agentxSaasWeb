@@ -18,6 +18,12 @@ const DashboardSlider = ({
     const [hoverIndex, setHoverIndex] = useState(null);
 
     const [showAskSkyModal, setShowAskSkyModal] = useState(false)
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedIndex, setSelectedIndex] = useState(null);
+
+    const [shouldStartCall, setShouldStartCall] = useState(false);
+
+
 
 
     //fetch local details
@@ -115,17 +121,18 @@ const DashboardSlider = ({
         },
     ];
 
-    const handleOnClick = (item) => {
-
+    const handleOnClick = (item, index) => {
         if (item.id === 3) {
-            setShowAskSkyModal(true)
+            setShowAskSkyModal(true);
+            setShouldStartCall(true);
         } else {
             if (typeof window !== "undefined") {
                 window.open(item.url, "_blank");
             }
         }
+    };
 
-    }
+
 
     return (
         <div>
@@ -167,36 +174,36 @@ const DashboardSlider = ({
                                 </button>
                                 <div className="w-full mt-5">
 
-                                    <div className="w-full flex flex-col items-center gap-4">
+                                    <div className="w-full flex flex-col items-start gap-4">
                                         {
-                                            buttons.map((item, index) =>
-                                                <div key={index}>
-                                                    {
-                                                        item.id === 3 ? (
-                                                            <VapiWidget user={userDetails} />
-                                                        ) : (
-                                                            <button
-                                                                onMouseEnter={() => setHoverIndex(index)}
-                                                                onMouseLeave={() => setHoverIndex(null)}
-
-                                                                className="w-full flex flex-row items-center gap-2"
-                                                                onClick={() => {
-                                                                    handleOnClick(item)
-                                                                }}>
-                                                                <Image src={index === hoverIndex ? item.image2 : item.image}
-                                                                    width={24} height={24} alt="*"
-                                                                />
-                                                                <div className="text-black hover:text-purple" style={{
-                                                                    fontSize: 15, fontWeight: '500'
-                                                                }}>
-                                                                    {item.label}
-                                                                </div>
-                                                            </button>
-                                                        )
-                                                    }
+                                            buttons.map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    style={{ cursor: "pointer" }}
+                                                    onMouseEnter={() => setHoverIndex(index)}
+                                                    onMouseLeave={() => setHoverIndex(null)}
+                                                >
+                                                    <button
+                                                        className="w-full flex flex-row items-center gap-2"
+                                                        onClick={() => handleOnClick(item, index)}
+                                                    >
+                                                        <Image
+                                                            src={index === hoverIndex ? item.image2 : item.image}
+                                                            width={24}
+                                                            height={24}
+                                                            alt="*"
+                                                        />
+                                                        <div
+                                                            className="text-black hover:text-purple"
+                                                            style={{ fontSize: 15, fontWeight: "500" }}
+                                                        >
+                                                            {item.label}
+                                                        </div>
+                                                    </button>
                                                 </div>
-                                            )
+                                            ))
                                         }
+
                                     </div>
                                 </div>
                             </div>
@@ -258,27 +265,26 @@ const DashboardSlider = ({
                 )}
             </AnimatePresence>
 
-
             <Modal
                 open={showAskSkyModal}
                 onClose={() => {
                     setShowAskSkyModal(false);
+                    setShouldStartCall(false);
                 }}
-                BackdropProps={{
-                    timeout: 100,
-                    sx: {
-                        backgroundColor: "#00000020",
-                        // //backdropFilter: "blur(20px)",
-                    },
-                }}
+                hideBackdrop
+                sx={{ pointerEvents: "none" }} // allows VapiWidget to handle its own clicks
             >
-                {/* <Box
-                    className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-                    sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
-                > */}
-                <VapiWidget user={userDetails} />
-                {/* </Box> */}
+                <div style={{ pointerEvents: "auto" }}>
+                    <VapiWidget
+                        user={userDetails}
+                        shouldStart={shouldStartCall}
+                        setShowAskSkyModal={setShowAskSkyModal}
+                        setShouldStartCall={setShouldStartCall}
+                    />
+                </div>
             </Modal>
+
+
 
         </div >
     );
