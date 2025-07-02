@@ -119,10 +119,10 @@ const voicesList = [
     Dialect: "Energetic, Assertive, Late 20s | Arizonan",
   },
   {
-    voice_id: "L0Dsvb3SLTyegXwtm47J", //"60zrBCQf8cjERkYgzSg8",
+    voice_id: "aTxZrSrp47xsP6Ot4Kgd", //"L0Dsvb3SLTyegXwtm47J", //"60zrBCQf8cjERkYgzSg8",
     langualge: "en",
     name: "Xen",
-    preview: "/voicesList/Xen.MP3",
+    preview: "/voicesList/Xen.mp3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/xen.png",
@@ -190,6 +190,19 @@ const voicesList = [
     status: "",
     Dialect: "Strategic, Confident, Mid 30s | Texan",
   },
+
+
+  {
+    voice_id: "RPEIZnKMqlQiZyZd1Dae",
+    langualge: "en",
+    name: "Chris",
+    preview: "/voicesList/Chris.mp3",
+    workspace: "1711297163700x954223200313016300",
+    img: "/otherAssets/chris.jpg",
+    status: "",
+    Dialect: "Strategic, Confident, Mid 30s | Texan",
+  },
+
 
   // {
   //   voice_id: "yUeKuNxGTYAYe6vcplkT", //"5aOHxVGviCbvOnsHsrWn",
