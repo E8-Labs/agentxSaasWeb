@@ -945,7 +945,7 @@ const ProfileNav = () => {
       <div>
         {/* Subscribe Plan modal */}
         <Modal
-          open={false}  //showPlansPopup
+          open={showPlansPopup}  //showPlansPopup
           closeAfterTransition
           BackdropProps={{
             timeout: 100,
