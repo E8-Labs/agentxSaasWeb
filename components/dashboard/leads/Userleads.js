@@ -140,6 +140,7 @@ const Userleads = ({
   //code for pagination variables
   const [hasMore, setHasMore] = useState(true);
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false);
+  const [nextCursorValue, setNextCursorValue] = useState("");
 
   //code for delete smart list popover
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -244,7 +245,7 @@ const Userleads = ({
         setLeadsList([]);
         let filterText = getFilterText();
         //console.log;
-        handleFilterLeads(0, filterText);
+        handleFilterLeads(filterText);
         setShowNoLeadsLabel(false);
       }
     }, 400);
@@ -331,7 +332,7 @@ const Userleads = ({
     let filterText = getFilterText();
 
     // //console.log;
-    handleFilterLeads(0, filterText);
+    handleFilterLeads(filterText);
     setShowNoLeadsLabel(false);
   }, [filtersSelected, SelectedSheetId]);
 
@@ -641,6 +642,7 @@ const Userleads = ({
       if (response) {
         //////console.log;
         if (response.data.status === true) {
+          setNextCursorValue("");
           setSheetsList((prevSheetsList) =>
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
           );
@@ -670,7 +672,7 @@ const Userleads = ({
   };
 
   function getFilterText() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     let string = `sheetId=${SelectedSheetId}`;
     if (filtersSelected.length == 0) {
       if (searchLead && searchLead.length > 0) {
@@ -708,7 +710,7 @@ const Userleads = ({
   }
 
   function getFiltersObject() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     let filters = {};
     let string = `sheetId=${SelectedSheetId}`;
     if (SelectedSheetId) {
@@ -761,7 +763,7 @@ const Userleads = ({
     let leadsData = LeadsInSheet[SelectedSheetId] || null;
     // //console.log;
     if (!leadsData) {
-      // //console.log;
+      console.log("I am trigered check 1");
       let d = localStorage.getItem(`Leads${SelectedSheetId}`);
       if (d) {
         leadsData = JSON.parse(d);
@@ -775,7 +777,6 @@ const Userleads = ({
     // setLeadsList([]);
     // setFilterLeads([]);
     if (leads && leads.length > 0 && leadColumns && leadColumns.length > 0) {
-      // //console.log;
       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
       let dynamicColumns = [];
@@ -794,13 +795,13 @@ const Userleads = ({
       setLeadColumns(dynamicColumns);
       // return
     } else {
-      // //console.log;
+      console.log("I am trigered check 4");
     }
   }
 
   //function for filtering leads
-  const handleFilterLeads = async (offset = 0, filterText = null) => {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+  const handleFilterLeads = async (filterText = null) => {
+    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     const currentRequestVersion = ++requestVersion.current;
     try {
       setMoreLeadsLoader(true);
@@ -823,17 +824,16 @@ const Userleads = ({
       //   //////console.log;
       let ApiPath = null;
       if (filterText) {
-        //console.log;
-        ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
+        ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}`;
         ApiPath = ApiPath + "&noStage=" + noStageSelected;
-        ApiPath = ApiPath + `&offset=${offset}`;
+        ApiPath = ApiPath + `&id=${nextCursorValue}`;
       } else {
-        if (offset == 0) {
+        if (nextCursorValue == 0) {
           getLocallyCachedLeads();
         }
-        ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
+        ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&id=${nextCursorValue}`;
       }
-      //console.log;
+      console.log("Api path is", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -849,18 +849,21 @@ const Userleads = ({
         //   response.data
         // );
         if (currentRequestVersion === requestVersion.current) {
+          const responseData = response.data;
+          console.log("Response of get leads api is", responseData);
+          console.log("Cursor value is", responseData.nextCursor);
+          console.log("Has more value is", responseData.hasMore);
+          setNextCursorValue(responseData.nextCursor);
           if (response.data.status === true) {
             setShowFilterModal(false);
             setTotalLeads(response.data.leadCount);
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
-            let allLeads;
 
-            setShowFilterModal(false);
             //   setShowNoLeadErr("No leads found");
 
             const data = response.data.data;
-            if (offset == 0) {
+            if (!nextCursorValue) {
               let sheetId = null;
               if (data.length > 0) {
                 sheetId = data[0].sheetId;
@@ -911,12 +914,14 @@ const Userleads = ({
               setFilterLeads((prevDetails) => [...prevDetails, ...data]);
             }
 
-            if (data.length < LimitPerPage) {
-              setHasMore(false);
-            } else {
-              setHasMore(true);
-              // handleFilterLeads(offset + 30, filterText);
-            }
+            setHasMore(responseData.hasMore);
+
+            // if (data.length < LimitPerPage) {
+            //   setHasMore(responseData.hasMore);
+            // } else {
+            //   setHasMore(true);
+            //   // handleFilterLeads(offset + 30, filterText);
+            // }
           } else {
             // //console.log;
           }
@@ -931,142 +936,7 @@ const Userleads = ({
     }
   };
 
-  //function for getting the leads
-  // const getLeads = async (item, offset = 0, oldSheet) => {
-  //   try {
-  //     setSheetsLoader(true);
-  //     const id = item.id;
-  //     //Set leads in cache
-  //     let leadsData = LeadsInSheet[id] || null;
-  //     if (!leadsData) {
-  //       //////console.log;
-  //       let d = localStorage.getItem(`Leads${id}`);
-  //       if (d) {
-  //         //////console.log;
-  //         leadsData = JSON.parse(d);
-  //       }
-  //     }
-  //     let leads = leadsData?.data;
-  //     let leadColumns = leadsData?.columns;
-  //     setSelectedSheetId(item.id);
-  //     setLeadsList([]);
-  //     setFilterLeads([]);
-  //     if (leads && leadColumns) {
-  //       // //////console.log
-  //       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-  //       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-  //       let dynamicColumns = [];
-  //       if (leads.length > 0) {
-  //         dynamicColumns = [
-  //           ...leadColumns,
-  //           // { title: "Tag" },
-  //           {
-  //             title: "More",
-  //             idDefault: false,
-  //           },
-  //         ];
-  //       }
-  //       // setLeadColumns(response.data.columns);
-  //       setLeadColumns(dynamicColumns);
-  //       // return
-  //     } else {
-  //       //////console.log;
-  //     }
 
-  //     // setSheetsLoader(true);
-
-  //     const localData = localStorage.getItem("User");
-  //     let AuthToken = null;
-  //     if (localData) {
-  //       const UserDetails = JSON.parse(localData);
-  //       AuthToken = UserDetails.token;
-  //     }
-
-  //     //////console.log;
-
-  //     //////console.log;
-
-  //     // const ApiPath = `${Apis.getLeads}?sheetId=${id}`;
-
-  //     const formtFromDate = moment(selectedFromDate).format("MM/DD/YYYY");
-  //     const formtToDate = moment(selectedToDate).format("MM/DD/YYYY");
-
-  //     let ApiPath = null;
-  //     const stages = selectedStage.join(",");
-  //     if (selectedFromDate && selectedToDate) {
-  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
-  //     } else {
-  //       ApiPath = `${Apis.getLeads}?sheetId=${id}&offset=${offset}`;
-  //     }
-
-  //     //////console.log;
-
-  //     // return
-  //     const response = await axios.get(ApiPath, {
-  //       headers: {
-  //         Authorization: "Bearer " + AuthToken,
-  //         // "Content-Type": "application/json"
-  //       },
-  //     });
-
-  //     if (response) {
-  //       //////console.log;
-  //       let leadData = [];
-  //       let leadColumns = [];
-  //       // setLeadsList(response.data.data);
-  //       // setFilterLeads(response.data.data);
-
-  //       const data = response.data.data;
-  //       //////console.log;
-  //       let firstLead = null;
-  //       if (data.length > 0) {
-  //         //////console.log;
-  //         let l = data[0];
-  //         let sheetOfLead = l.sheetId;
-  //         //////console.log;
-  //         if (item.id == sheetOfLead) {
-  //           //////console.log;
-  //           setLeadsList([...data]);
-  //           setFilterLeads([...data]);
-  //         }
-  //       }
-  //       // if (SelectedSheetId == item.id || SelectedSheetId == null) {
-  //       //   setLeadsList([...data]);
-  //       //   setFilterLeads([...data]);
-  //       // }
-
-  //       leadData = data;
-
-  //       if (leads) {
-  //         // leads = {...leads, ...data}
-  //       } else {
-  //         LeadsInSheet[id] = response.data;
-  //         localStorage.setItem(`Leads${id}`, JSON.stringify(response.data));
-  //       }
-  //       let dynamicColumns = [];
-  //       if (response.data.data.length > 0) {
-  //         dynamicColumns = [
-  //           ...response.data.columns,
-  //           // { title: "Tag" },
-  //           {
-  //             title: "More",
-  //             idDefault: false,
-  //           },
-  //         ];
-  //       }
-  //       // setLeadColumns(response.data.columns);
-  //       setLeadColumns(dynamicColumns);
-  //       leadColumns = response.data.columns;
-  //       //////console.log;
-  //       //////console.log;
-  //     }
-  //   } catch (error) {
-  //     // console.error("Error occured in api is :", error);
-  //   } finally {
-  //     setSheetsLoader(false);
-  //     //////console.log;
-  //   }
-  // };
 
   //function to add lead notes
   const handleAddLeadNotes = async () => {
@@ -1916,6 +1786,7 @@ const Userleads = ({
                       placeholder="Search by name, email or phone"
                       value={searchLead}
                       onChange={(e) => {
+                        setNextCursorValue("");
                         const value = e.target.value;
                         setSearchLead(e.target.value);
                         handleSearchChange(value);
@@ -1968,6 +1839,7 @@ const Userleads = ({
                                 let pipeline = null;
                                 let fromDate = null;
                                 let toDate = null;
+                                setNextCursorValue("");
                                 filtersSelected.map((f, ind) => {
                                   if (index != ind) {
                                     filters.push(f);
@@ -2132,6 +2004,7 @@ const Userleads = ({
                             setSelectedLeadsList([]);
                             setSelectedAll(false);
                             setSelectedLeadsList([]);
+                            setNextCursorValue("");
                             //   getLeads(item, 0);
                           }}
                         >
@@ -2242,7 +2115,7 @@ const Userleads = ({
                     dataLength={FilterLeads.length}
                     next={() => {
                       let filterText = getFilterText();
-                      handleFilterLeads(FilterLeads.length, filterText);
+                      handleFilterLeads(filterText);
                     }}
                     hasMore={hasMore}
                     loader={
@@ -2616,6 +2489,7 @@ const Userleads = ({
                             // setFilterLeads([]);
                             setShowFilterModal(false);
                             setFiltersFromSelection();
+                            setNextCursorValue("");
                           }}
                         >
                           Apply Filter
