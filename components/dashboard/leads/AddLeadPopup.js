@@ -8,7 +8,6 @@ import {
     LeadDefaultColumnsArray,
 } from "@/constants/DefaultLeadColumns";
 import { useDropzone } from "react-dropzone";
-import UploadLeadModal from './UploadLeadModal';
 
 
 const AddLeadPopup = ({
