@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Box, CircularProgress, Modal, Switch, Tooltip } from '@mui/material';
+import React from 'react';
 import { styles } from '@/components/globalsstyles/Stles';
+import { Box, CircularProgress, Modal, Switch, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import TagsInput from './TagsInput';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 
-const UploadLeadModal = ({
+const UploadLeadsModal = ({
     ShowUploadLeadModal,
     setShowUploadLeadModal,
     isEnrichToggle,
@@ -21,14 +21,13 @@ const UploadLeadModal = ({
     setSelectedItem,
     setUpdateColumnValue,
     handleColumnPopoverClick,
-    selectedItem,
     setUpdateHeader,
+    selectedItem,
     setShowDelCol,
     Loader,
     validateColumns,
     handleAddLead,
 }) => {
-
     return (
         <Modal
             open={ShowUploadLeadModal}
@@ -310,4 +309,4 @@ const UploadLeadModal = ({
     )
 }
 
-export default UploadLeadModal
+export default UploadLeadsModal
