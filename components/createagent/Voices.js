@@ -122,7 +122,7 @@ const voicesList = [
     voice_id: "aTxZrSrp47xsP6Ot4Kgd", //"L0Dsvb3SLTyegXwtm47J", //"60zrBCQf8cjERkYgzSg8",
     langualge: "en",
     name: "Xen",
-    preview: "/voicesList/Xen.mp3",
+    preview: "/voicesList/Xen.MP3",
     // "preview": "https://storage.googleapis.com/eleven-public-prod/database/user/otG1PWzdgtadzhbBiXAkCXi2cFr1/voices/vjDLFGLODo1aXEe4wfjr/9ccd8c10-8dac-450c-8e81-b70ddd6b8972.mp3",
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/xen.png",
