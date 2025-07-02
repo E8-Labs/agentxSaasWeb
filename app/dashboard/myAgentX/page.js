@@ -80,12 +80,15 @@ import PipelineLoading from "@/components/dashboardPipeline/PipelineLoading";
 import MyAgentXLoader from "@/components/loaders/MyAgentXLoader";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
 
-const DuplicateButton = dynamic(() => import('@/components/animation/DuplicateButton'), {
-  ssr: false,
-});
+const DuplicateButton = dynamic(
+  () => import("@/components/animation/DuplicateButton"),
+  {
+    ssr: false,
+  }
+);
 function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
@@ -278,7 +281,8 @@ function Page() {
   //it saves previous list of agents before search
   const [allAgentsList, setAllAgentsList] = useState([]);
 
-  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false)
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =
+    useState(false);
 
   const playVoice = (url) => {
     if (audio) {
@@ -290,7 +294,6 @@ function Page() {
   };
 
   // const Languages  = AgentLanguagesList
-
 
   const voiceExpressivenessList = [
     {
@@ -454,7 +457,6 @@ function Page() {
   //   if (model === null) {
   //     return models[0]; // Default to the first model if not found
   //   }
-
 
   //   return model;
   // }
@@ -663,13 +665,16 @@ function Page() {
 
     // setSelectedVoice(item?.voiceId);
 
-    let v = item.agentLanguage === "English" || item.agentLanguage === "Multilingual" ? "en" : "es"
-    console.log('v', v)
-    let voices = []
+    let v =
+      item.agentLanguage === "English" || item.agentLanguage === "Multilingual"
+        ? "en"
+        : "es";
+    console.log("v", v);
+    let voices = [];
 
-    voices = voicesList.filter((voice) => voice.langualge === v)
+    voices = voicesList.filter((voice) => voice.langualge === v);
 
-    console.log('filtered voices are', voices)
+    console.log("filtered voices are", voices);
     setFilteredVoices(voices);
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
@@ -684,7 +689,6 @@ function Page() {
 
       console.log("Selected model 2:", model);
       setSelectedGptManu(model);
-
     }
 
     const comparedAgent = mainAgentsList.find((mainAgent) =>
@@ -847,7 +851,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1201,7 +1206,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`agnet key ${key} and value ${value}`)
+        console.log(`agnet key ${key} and value ${value}`);
       }
 
       // return
@@ -1235,7 +1240,8 @@ function Page() {
 
             const updateAgentData = response.data.data;
             console.log(
-              `Agent updated data ${updateAgentData.agents.length
+              `Agent updated data ${
+                updateAgentData.agents.length
               } ${!showScriptModal}`,
               updateAgentData
             );
@@ -1304,7 +1310,12 @@ function Page() {
   };
 
   const updateSubAgent = async (voiceData = null, model = null) => {
-    console.log("Updating sub agent with voiceData:", voiceData, "and model:", model);
+    console.log(
+      "Updating sub agent with voiceData:",
+      voiceData,
+      "and model:",
+      model
+    );
 
     // return
     try {
@@ -1339,10 +1350,16 @@ function Page() {
             );
           }
 
-          if (voiceData.liveTransferNumber || voiceData.liveTransferNumber !== undefined) {
+          if (
+            voiceData.liveTransferNumber ||
+            voiceData.liveTransferNumber !== undefined
+          ) {
             formData.append("liveTransferNumber", voiceData.liveTransferNumber);
           }
-          if (voiceData.callbackNumber || voiceData.callbackNumber !== undefined) {
+          if (
+            voiceData.callbackNumber ||
+            voiceData.callbackNumber !== undefined
+          ) {
             formData.append("callbackNumber", voiceData.callbackNumber);
           }
         }
@@ -1487,7 +1504,8 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${
+              showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1602,7 +1620,11 @@ function Page() {
       }
     });
     //// //console.log;
-    if (typeof agentData == undefined || agentData == null || agentData.length === 0) {
+    if (
+      typeof agentData == undefined ||
+      agentData == null ||
+      agentData.length === 0
+    ) {
       return;
     }
     console.log("Matching agent data:", agentData);
@@ -1803,7 +1825,10 @@ function Page() {
         extraColumns: newArray,
       };
 
-      localStorage.setItem(PersistanceKeys.TestAiCredentials, JSON.stringify(ApiData));
+      localStorage.setItem(
+        PersistanceKeys.TestAiCredentials,
+        JSON.stringify(ApiData)
+      );
 
       const ApiPath = Apis.testAI;
 
@@ -1888,7 +1913,7 @@ function Page() {
       setInitialLoader(true);
       if (userData) {
         const userLocalData = JSON.parse(userData);
-        getAgents();//userLocalData
+        getAgents(); //userLocalData
       }
     } catch (error) {
       //// console.error("Error occured is :", error);
@@ -1899,7 +1924,6 @@ function Page() {
     }
 
     getCalenders();
-
   }, []);
 
   const handleSelectProfileImg = (index) => {
@@ -1921,8 +1945,11 @@ function Page() {
   };
 
   //code to get agents
-  const getAgents = async (paginationStatus, search = null, searchLoader = false) => {
-
+  const getAgents = async (
+    paginationStatus,
+    search = null,
+    searchLoader = false
+  ) => {
     setPaginationLoader(true);
 
     //test code failed for saving search value
@@ -1932,8 +1959,6 @@ function Page() {
     //   setAgentsListSeparated(allAgentsList);
     //   return
     // }
-
-
 
     console.log("Pagination status passed is", paginationStatus);
     // console.log('search', search)
@@ -1986,8 +2011,6 @@ function Page() {
       //     return
       //   }
 
-
-
       //   let newList = [...mainAgentsList]; // makes a shallow copy
       //   if (Array.isArray(agents) && agents.length > 0) {
       //     newList.push(...agents); // append all agents at once
@@ -2008,7 +2031,7 @@ function Page() {
         setPaginationLoader(false);
         let agents = response.data.data || [];
         console.log("Agents from api", agents);
-        setOldAgentsList(agents)
+        setOldAgentsList(agents);
         if (agents.length >= 6) {
           setCanGetMore(true);
         } else {
@@ -2030,9 +2053,8 @@ function Page() {
           });
 
           setAgentsListSeparated(subAgents);
-          return
+          return;
         }
-
 
         let newList = [...mainAgentsList]; // makes a shallow copy
 
@@ -2053,7 +2075,6 @@ function Page() {
       //// console.error("Error occured in get Agents api is :", error);
     } finally {
       setInitialLoader(false);
-
     }
   };
 
@@ -2138,7 +2159,6 @@ function Page() {
     setSelectedVoice(selectedVoice.name); // ✅ store name now
     setShowVoiceLoader(false);
 
-
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
     } else {
@@ -2199,10 +2219,10 @@ function Page() {
 
   const handleDuplicate = async () => {
     console.log("Duplicate agent clicked");
-    setDuplicateLoader(true)
-    setShowDuplicateConfirmationPopup(false)
+    setDuplicateLoader(true);
+    setShowDuplicateConfirmationPopup(false);
     try {
-      const data = localStorage.getItem("User")
+      const data = localStorage.getItem("User");
 
       if (data) {
         const userData = JSON.parse(data);
@@ -2211,19 +2231,18 @@ function Page() {
 
         let apidata = {
           agentId: showDrawerSelectedAgent.id,
-        }
+        };
 
-        const response = await axios.post(ApiPath,
-          apidata, {
+        const response = await axios.post(ApiPath, apidata, {
           headers: {
-            "Authorization": "Bearer " + AuthToken,
-          }
-        })
+            Authorization: "Bearer " + AuthToken,
+          },
+        });
 
         if (response) {
-          setDuplicateLoader(false)
+          setDuplicateLoader(false);
           if (response.data.status === true) {
-            console.log('duplicate agent data ', response);
+            console.log("duplicate agent data ", response);
 
             setShowSuccessSnack("Agent duplicated successfully");
             setIsVisibleSnack(true);
@@ -2246,32 +2265,31 @@ function Page() {
         }
       }
     } catch (error) {
-      setDuplicateLoader(false)
+      setDuplicateLoader(false);
       // console.error("Error occured in duplicate agent api is", error);
       // setShowErrorSnack("Error occured while duplicating agent");
-      const errorMessage = error?.response?.data?.message || error?.message || error.toString();
+      const errorMessage =
+        error?.response?.data?.message || error?.message || error.toString();
 
       console.error("Error occurred in duplicate agent API:", errorMessage);
-      setShowErrorSnack(`Error occurred: ${errorMessage}`);
+      setShowErrorSnack(`Error: ${errorMessage}`);
       setIsVisibleSnack2(true);
     }
-  }
-
-
+  };
 
   const handleLanguageChange = async (event) => {
     setShowLanguageLoader(true);
     let value = event.target.value;
-    console.log("selected language is", value)
+    console.log("selected language is", value);
     // console.log("selected voice is",SelectedVoice)
 
-    let voice = voicesList.find((voice) => voice.name === SelectedVoice)
+    let voice = voicesList.find((voice) => voice.name === SelectedVoice);
 
-    let selectedLanguage = value === "English" || value === "Multilingual" ? "en" : "es"
+    let selectedLanguage =
+      value === "English" || value === "Multilingual" ? "en" : "es";
 
-    console.log('selected langualge', selectedLanguage)
-    let voiceData = {}
-
+    console.log("selected langualge", selectedLanguage);
+    let voiceData = {};
 
     voiceData = {
       agentLanguage: value,
@@ -2279,11 +2297,12 @@ function Page() {
 
     await updateSubAgent(voiceData);
 
-    // if selected language is different from friltered voices list 
+    // if selected language is different from friltered voices list
     if (selectedLanguage != voice.langualge) {
-
-      // update voice list as well 
-      setFilteredVoices(voicesList.filter((voice) => voice.langualge === selectedLanguage))
+      // update voice list as well
+      setFilteredVoices(
+        voicesList.filter((voice) => voice.langualge === selectedLanguage)
+      );
 
       const newVoiceName = selectedLanguage === "en" ? "Ava" : "Maria";
       await updateAgent(newVoiceName);
@@ -2293,7 +2312,7 @@ function Page() {
     setShowLanguageLoader(false);
     // setSelectedVoice(event.target.value);
     setLanguageValue(value);
-  }
+  };
   const styles = {
     claimPopup: {
       height: "auto",
@@ -2384,7 +2403,6 @@ function Page() {
               placeholder="Search an agent"
               value={search}
               onChange={(e) => {
-
                 //test code failed
                 // let a = e.target.value;
                 // if (a) {
@@ -2413,38 +2431,37 @@ function Page() {
                 searchTimeoutRef.current = setTimeout(() => {
                   // handleSearch(e);
                   let searchLoader = true;
-                  getAgents(false, e.target.value, searchLoader)
+                  getAgents(false, e.target.value, searchLoader);
                 }, 500);
               }}
-            //test code 2 failed
-            // onChange={(e) => {
-            //   const a = e.target.value;
-            //   setSearch(a);
+              //test code 2 failed
+              // onChange={(e) => {
+              //   const a = e.target.value;
+              //   setSearch(a);
 
-            //   if (a) {
-            //     console.log("There was some value");
+              //   if (a) {
+              //     console.log("There was some value");
 
-            //     // ✅ Only save original list once
-            //     if (agentsBeforeSearch.length === 0) {
-            //       setAgentsBeforeSearch(agentsListSeparated);
-            //     }
+              //     // ✅ Only save original list once
+              //     if (agentsBeforeSearch.length === 0) {
+              //       setAgentsBeforeSearch(agentsListSeparated);
+              //     }
 
-            //     clearTimeout(searchTimeoutRef.current);
-            //     searchTimeoutRef.current = setTimeout(() => {
-            //       const searchLoader = true;
-            //       getAgents(false, a, searchLoader);
-            //     }, 500);
-            //   } else {
-            //     console.log("There was no value");
+              //     clearTimeout(searchTimeoutRef.current);
+              //     searchTimeoutRef.current = setTimeout(() => {
+              //       const searchLoader = true;
+              //       getAgents(false, a, searchLoader);
+              //     }, 500);
+              //   } else {
+              //     console.log("There was no value");
 
-            //     // ✅ Restore the original list when search is cleared
-            //     setAgentsListSeparated(agentsBeforeSearch);
-            //   }
+              //     // ✅ Restore the original list when search is cleared
+              //     setAgentsListSeparated(agentsBeforeSearch);
+              //   }
 
-            //   // ✅ Optional: toggle loading based on canGetMore
-            //   setCanKeepLoading(canGetMore === true);
-            // }}
-
+              //   // ✅ Optional: toggle loading based on canGetMore
+              //   setCanKeepLoading(canGetMore === true);
+              // }}
             />
             <button className="outline-none border-none">
               <Image
@@ -2460,10 +2477,10 @@ function Page() {
             style={{
               position: "absolute",
               right: 0,
-              bottom: 0
-            }}>
-            <DashboardSlider
-              needHelp={false} />
+              bottom: 0,
+            }}
+          >
+            <DashboardSlider needHelp={false} />
           </div>
         </div>
       </div>
@@ -2483,8 +2500,8 @@ function Page() {
             handlePopoverClose={handlePopoverClose}
             user={user}
             getAgents={(p, s) => {
-              console.log('p', s)
-              getAgents(p, s,);//user
+              console.log("p", s);
+              getAgents(p, s); //user
             }}
             search={search}
             setObjective={setObjective}
@@ -2801,7 +2818,7 @@ function Page() {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                  // defaultMask={loading ? 'Loading...' : undefined}
+                    // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2832,8 +2849,9 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
+                          index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2916,7 +2934,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-        // style={{  }}
+          // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -3001,7 +3019,6 @@ function Page() {
                 <div className="flex flex-col gap-1 items-start">
                   <div className="flex flex-row justify-center items-center gap-2">
                     <button
-
                       onClick={() => {
                         setShowRenameAgentPopup(true);
                         setSelectedRenameAgent(showDrawerSelectedAgent);
@@ -3015,10 +3032,10 @@ function Page() {
                           width={24}
                           alt="*"
                         />
-                        <div
-                          style={{ fontSize: 22, fontWeight: "600" }}
-                        >
-                          {showDrawerSelectedAgent?.name?.slice(0, 1).toUpperCase()}
+                        <div style={{ fontSize: 22, fontWeight: "600" }}>
+                          {showDrawerSelectedAgent?.name
+                            ?.slice(0, 1)
+                            .toUpperCase()}
                           {showDrawerSelectedAgent?.name?.slice(1)}
                         </div>
                       </div>
@@ -3065,11 +3082,9 @@ function Page() {
               </div>
 
               <div className="flex flex-row items-center gap-2">
-
-
                 <DuplicateButton
                   handleDuplicate={() => {
-                    setShowDuplicateConfirmationPopup(true)
+                    setShowDuplicateConfirmationPopup(true);
                   }}
                   loading={duplicateLoader}
                 />
@@ -3170,7 +3185,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
+                  showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3184,7 +3199,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3224,16 +3239,16 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
+                  showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
-                          .utc(
-                            (showDrawerSelectedAgent?.totalDuration || 0) *
-                            1000
-                          )
-                          .format("HH:mm:ss")
+                            .utc(
+                              (showDrawerSelectedAgent?.totalDuration || 0) *
+                                1000
+                            )
+                            .format("HH:mm:ss")
                         : "-"}
                     </div>
                   ) : (
@@ -3251,14 +3266,15 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? "text-purple border-b-2 border-purple"
-                    : "text-black-500"
-                    }`}
+                  className={`${
+                    activeTab === tab
+                      ? "text-purple border-b-2 border-purple"
+                      : "text-black-500"
+                  }`}
                   style={{
                     fontSize: 15,
                     fontWeight: "500",
-                    whiteSpace: "nowrap"
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {tab}
@@ -3270,7 +3286,6 @@ function Page() {
             {activeTab === "Agent Info" ? (
               <div className="w-full">
                 <div className="flex flex-col">
-
                   <div className="flex flex-row items-center justify-between">
                     <div
                       style={{ fontSize: 16, fontWeight: "600", color: "#000" }}
@@ -3310,7 +3325,9 @@ function Page() {
                         <FormControl>
                           <Select
                             value={languageValue}
-                            onChange={async (event) => { handleLanguageChange(event) }}
+                            onChange={async (event) => {
+                              handleLanguageChange(event);
+                            }}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
                               if (!selected) {
@@ -3342,7 +3359,7 @@ function Page() {
                                   />
                                   <div>{selectedVoice?.title}</div>
                                 </div>
-                              )
+                              );
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3353,9 +3370,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3377,7 +3394,7 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                // disabled={index !== 0}//languageValue === item?.title ||
+                                  // disabled={index !== 0}//languageValue === item?.title ||
                                 >
                                   <Image
                                     src={item?.flag}
@@ -3386,7 +3403,11 @@ function Page() {
                                     width={22}
                                   />
                                   <div>{item?.title}</div>
-                                  <div style={{ color: "#00000060", fontSize: 13 }}>{item.subLang}</div>
+                                  <div
+                                    style={{ color: "#00000060", fontSize: 13 }}
+                                  >
+                                    {item.subLang}
+                                  </div>
                                 </MenuItem>
                               );
                             })}
@@ -3430,15 +3451,24 @@ function Page() {
                             onChange={handleChangeVoice}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
-                              console.log('selected', selected)
-                              if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
+                              console.log("selected", selected);
+                              if (!selected)
+                                return (
+                                  <div style={{ color: "#aaa" }}>Select</div>
+                                );
 
                               const selectedVoice = filteredVoices.find(
                                 (voice) => voice.name === selected
                               );
 
                               return selectedVoice ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                  }}
+                                >
                                   {selectedVoice.img && (
                                     <Image
                                       src={selectedVoice.img}
@@ -3451,7 +3481,6 @@ function Page() {
                                 </div>
                               ) : null;
                             }}
-
                             sx={{
                               border: "none", // Default border
                               "&:hover": { border: "none" }, // Same border on hover
@@ -3503,7 +3532,10 @@ function Page() {
                                   {item.preview ? (
                                     <div //style={{marginLeft:15}}
                                       onClick={(e) => {
-                                        console.log('audio preview ', item.preview)
+                                        console.log(
+                                          "audio preview ",
+                                          item.preview
+                                        );
                                         e.stopPropagation(); // Prevent dropdown from closing
                                         e.preventDefault(); // Prevent selection event
 
@@ -3610,7 +3642,9 @@ function Page() {
                                 voiceExpressivenessList.find(
                                   (voice) => voice.value === selected
                                 );
-                              return selectedVoice ? selectedVoice?.title : null;
+                              return selectedVoice
+                                ? selectedVoice?.title
+                                : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3621,9 +3655,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3709,7 +3743,9 @@ function Page() {
                               const selectedVoice = TalkingPaceList.find(
                                 (voice) => voice.value === selected
                               );
-                              return selectedVoice ? selectedVoice?.title : null;
+                              return selectedVoice
+                                ? selectedVoice?.title
+                                : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3720,9 +3756,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3813,7 +3849,9 @@ function Page() {
                                 .log
                                 // `Selected Patience Level for ${selected} is ${selectedVoice?.title}`
                                 ();
-                              return selectedVoice ? selectedVoice?.title : null;
+                              return selectedVoice
+                                ? selectedVoice?.title
+                                : null;
                             }}
                             sx={{
                               border: "none", // Default border
@@ -3824,9 +3862,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3858,8 +3896,6 @@ function Page() {
                       )}
                     </div>
                   </div>
-
-
                 </div>
                 <div className="flex flex-col gap-1 mt-4">
                   <div
@@ -3918,15 +3954,17 @@ function Page() {
                                 if (selected === "") {
                                   return <div>Select Number</div>;
                                 }
-                                return <div style={{
-                                  fontSize: 15,
-                                  fontWeight: "500",
-                                  color: "#000",
-                                }}>
-                                  <div>
-                                    {selected}
+                                return (
+                                  <div
+                                    style={{
+                                      fontSize: 15,
+                                      fontWeight: "500",
+                                      color: "#000",
+                                    }}
+                                  >
+                                    <div>{selected}</div>
                                   </div>
-                                </div>
+                                );
                               }}
                               sx={{
                                 ...styles.dropdownMenu,
@@ -3988,37 +4026,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
+                                        // onClick={(e) => {
+                                        //   console.log(
+                                        //     "Should open confirmation modal"
+                                        //   );
+                                        //   e.stopPropagation();
+                                        //   setShowConfirmationModal(item);
+                                        // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-purple underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowConfirmationModal(
-                                                          item
-                                                        );
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
+                                              <div>
+                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                {reassignLoader === item ? (
+                                                  <CircularProgress size={15} />
+                                                ) : (
+                                                  <button
+                                                    className="text-purple underline"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setShowConfirmationModal(
+                                                        item
+                                                      );
+                                                    }}
+                                                  >
+                                                    Reassign
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -4031,8 +4069,15 @@ function Page() {
                                 value={showGlobalBtn ? 16505403715 : ""}
                                 // disabled={!showGlobalBtn}
                                 disabled={
-                                  (assignNumber && assignNumber.replace("+", "") === Constants.GlobalPhoneNumber.replace("+", "")) ||
-                                  (showDrawerSelectedAgent && showDrawerSelectedAgent.agentType === "inbound")
+                                  (assignNumber &&
+                                    assignNumber.replace("+", "") ===
+                                      Constants.GlobalPhoneNumber.replace(
+                                        "+",
+                                        ""
+                                      )) ||
+                                  (showDrawerSelectedAgent &&
+                                    showDrawerSelectedAgent.agentType ===
+                                      "inbound")
                                 }
                                 onClick={() => {
                                   console.log(
@@ -4141,7 +4186,7 @@ function Page() {
                     <div className="flex flex-row items-center justify-between gap-2">
                       <div>
                         {showDrawerSelectedAgent?.liveTransferNumber ? (
-                          <div >
+                          <div>
                             {showDrawerSelectedAgent?.liveTransferNumber}
                           </div>
                         ) : (
@@ -4207,8 +4252,7 @@ function Page() {
                       // backgroundColor: "red"
                     }
                   }
-                >
-                </div>
+                ></div>
 
                 <UserCalender
                   calendarDetails={calendarDetails}
@@ -4218,7 +4262,6 @@ function Page() {
                   previousCalenders={previousCalenders}
                   updateVariableData={updateAfterAddCalendar}
                 />
-
               </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
@@ -4251,12 +4294,14 @@ function Page() {
               onClick={() => {
                 setDelAgentModal(true);
               }}
-              style={{
-                // // marginTop: 20,
-                // alignSelf: "end",
-                // position: "absolute",
-                // bottom: "7%",
-              }}
+              style={
+                {
+                  // // marginTop: 20,
+                  // alignSelf: "end",
+                  // position: "absolute",
+                  // bottom: "7%",
+                }
+              }
             >
               {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
@@ -4354,7 +4399,9 @@ function Page() {
             </div>
 
             <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">Cancel</button>
+              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">
+                Cancel
+              </button>
               <div className="w-1/2">
                 {DelLoader ? (
                   <div className="flex flex-row iems-center justify-center w-full mt-4">
