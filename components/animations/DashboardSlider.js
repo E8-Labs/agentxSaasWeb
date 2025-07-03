@@ -105,7 +105,7 @@ const DashboardSlider = ({
     {
       id: 4,
       label: "Give Feedback",
-      image: "/otherAssets/feedBackIcon.png",
+      image: "/otherAssets/feedBackIcon.jpg",
       image2: "/otherAssets/feedBackIconBlue.jpg",
       url: PersistanceKeys.FeedbackFormUrl,
     },
