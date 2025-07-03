@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
-import { VapiWidget } from "../askSky/vapi-widget";
+import { VapiWidget } from "../asksky/vapi-widget";
 import { Box, Modal } from "@mui/material";
 
 const DashboardSlider = ({
@@ -105,7 +105,7 @@ const DashboardSlider = ({
     {
       id: 4,
       label: "Give Feedback",
-      image: "/otherAssets/feedBackIcon.png",
+      image: "/otherAssets/feedBackIcon.jpg",
       image2: "/otherAssets/feedBackIconBlue.jpg",
       url: PersistanceKeys.FeedbackFormUrl,
     },
