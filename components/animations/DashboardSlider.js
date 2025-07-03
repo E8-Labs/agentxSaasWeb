@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
-// import { VapiWidget } from "../asksky/vapi-widget";
 import { VapiWidget } from "../asksky/vapi-widget";
 import { Box, Modal } from "@mui/material";
 
