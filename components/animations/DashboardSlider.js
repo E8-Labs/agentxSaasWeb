@@ -119,6 +119,7 @@ const DashboardSlider = ({
   ];
 
   const handleOnClick = (item, index) => {
+    handleClose()
     if (item.id === 3) {
       setShowAskSkyModal(true);
       setShouldStartCall(true);
@@ -157,20 +158,20 @@ const DashboardSlider = ({
               }}
             >
               <div style={{ flex: 1 }} className="w-full ">
-                <button
+                <button className="bg-purple"
                   style={{
                     position: "absolute",
                     top: 12,
                     right: 12,
-
-                    border: "none",
-                    padding: 0,
+                    borderRadius: "50%",
+                    padding: 10,
                     cursor: "pointer",
+
                   }}
                   onClick={handleClose}
                 >
                   <Image
-                    src={"/svgIcons/cross.svg"}
+                    src={"/svgIcons/crossWhite.svg"}
                     width={24}
                     height={24}
                     alt="*"
@@ -203,6 +204,13 @@ const DashboardSlider = ({
                           >
                             {item.label}
                           </div>
+                          {
+                            item.id === 3 && (
+
+                              <div className="px-4 py-1 rounded-lg bg-purple text-white font-[500] ml-5">
+                                Beta
+                              </div>
+                            )}
                         </button>
                       </div>
                     ))}

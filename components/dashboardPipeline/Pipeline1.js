@@ -332,27 +332,6 @@ const Pipeline1 = () => {
     // //console.log;
   };
 
-  // const getMyTeam = async () => {
-  //   try {
-  //     let response = await getTeamsList();
-  //     if (response) {
-  //      // //console.log;
-  //       let teams = [];
-  //       if (response.data && response.data.length > 0) {
-  //         for (const t of response.data) {
-  //           if (t.status == "Accepted") {
-  //             teams.push(t);
-  //           }
-  //         }
-  //       }
-  //       setMyTeamList(teams);
-  //       setMyTeamAdmin(response.admin);
-  //     }
-  //   } catch (error) {
-  //    // console.error("Error occured in api is", error);
-  //   }
-  // };
-
   const getMyTeam = async () => {
     try {
       let response = await getTeamsList();
@@ -953,7 +932,7 @@ const Pipeline1 = () => {
         tags: tagsValue,
         teams: assignLeadToMember,
       };
-      // //console.log;
+      console.log("add stgae api data is", ApiData);
 
       // return
 
@@ -965,7 +944,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of add stage api is", response.data);
+        console.log("Response of add stage api is", response.data);
         if (response.data.status === true) {
           setLeadsCountInStage(response.data.data.leadsCountInStage);
           setReservedLeadsCountInStage(response.data.data.leadsCountInStage);
@@ -994,7 +973,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      // console.error("Error occured inn adding new stage title api is", error);
+      console.error("Error occured inn adding new stage title api is", error);
     } finally {
       setAddStageLoader(false);
     }
