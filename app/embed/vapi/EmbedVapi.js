@@ -8,14 +8,15 @@ export default function EmbedVapi() {
 
   console.log("assistant id is ", assistantId);
   return (
-    
-    <VapiWidget
-      assistantId={assistantId}
-      shouldStart={true}
-      setShowAskSkyModal={() => {}}
-      setShouldStartCall={() => {}}
-      loadingChanged={() => {}}
-      isEmbeded={true}
-    />
+    <div style={{backgroundColor: "#ffffff01"}}>
+      <VapiWidget
+        assistantId={assistantId}
+        shouldStart={true}
+        setShowAskSkyModal={() => { }}
+        setShouldStartCall={() => { }}
+        loadingChanged={() => { }}
+        isEmbeded={true}
+      />
+    </div>
   );
 }

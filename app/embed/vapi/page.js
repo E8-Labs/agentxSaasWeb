@@ -5,9 +5,11 @@ import EmbedVapi from './EmbedVapi';
 
 function Page() {
   return (
-   <Suspense>
-    <EmbedVapi/>
-   </Suspense>
+    <div style={{ backgroundColor: "#ffffff01" }}>
+      <Suspense>
+        <EmbedVapi />
+      </Suspense>
+    </div>
   )
 }
 

@@ -179,15 +179,15 @@ export function VapiWidget({
   ];
 
   useEffect(() => {
-      const interval = setInterval(() => {
-       
-        setLoadingMsgIndex((prevIndex) =>
-          (prevIndex + 1) % loadingMessages.length
-        );
-      }, 2000);
+    const interval = setInterval(() => {
 
-      return () => clearInterval(interval);
-    
+      setLoadingMsgIndex((prevIndex) =>
+        (prevIndex + 1) % loadingMessages.length
+      );
+    }, 2000);
+
+    return () => clearInterval(interval);
+
   }, [shouldStart])
 
   useEffect(() => {
@@ -348,7 +348,8 @@ export function VapiWidget({
 
   return (
     <div
-      className={`${!isEmbeded ? "fixed bottom-10 right-6 z-modal flex flex-col items-end" : "mt-5"}`}
+      className={`${!isEmbeded ? "fixed right-6 z-modal flex flex-col items-end" : ""} overflow-none bg-transparent`}
+      // style={{ border: "4px solid green" }}
     >
       {
         isEmbeded && !open ? (
@@ -369,7 +370,7 @@ export function VapiWidget({
             </div>
           </button>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 overflow-none bg-transparent">
             <div
               // className={
               //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
@@ -378,7 +379,8 @@ export function VapiWidget({
               //     : "shadow-md border"
               // }
               style={{
-                backgroundColor: 'white', padding: 6,
+                // backgroundColor: 'green', 
+                padding: 6,
                 height: "320px", width: "288px",
                 border: !isEmbeded ? '2px solid #00000010' : "",
                 borderRadius: 12,
@@ -393,7 +395,7 @@ export function VapiWidget({
                     alt="AgentX Orb"
                     className="rounded-full bg-white shadow-lg size-36 object-cover"
                   />
-                  { !statusMessage&&(
+                  {!statusMessage && (
                     <p className="text-[15px] text-black text-center mt-5">
                       {loadingMessages[loadingMsgIndex]}
                     </p>
@@ -429,17 +431,20 @@ export function VapiWidget({
                 </div>
               </div>
             </div>
-            <button
-              onClick={handleClose}
-              className={
-                "self-end size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1 bg-white"
-                //open ? "opacity-100 z-10" : "opacity-0 -z-10"
-              }
-            >
-              <Image src="/otherAssets/crossBlue.jpg"
-                height={2} width={20} alt="cross"
-              />
-            </button>
+            <div className="flex flex-row items-center justify-end">
+              <button
+                onClick={handleClose}
+                // className={
+                //   "self-end size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1 bg-white"
+                //   //open ? "opacity-100 z-10" : "opacity-0 -z-10"
+                // }
+                className="w-12 h-12 flex flex-row items-center justify-center border-2 rounded-full bg-white"
+              >
+                <Image src="/otherAssets/crossBlue.jpg"
+                  height={2} width={20} alt="cross"
+                />
+              </button>
+            </div>
           </div>
 
         )
