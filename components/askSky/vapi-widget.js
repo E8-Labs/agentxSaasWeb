@@ -302,14 +302,12 @@ export function VapiWidget({
   };
 
   return (
-    <div
-      className={`fixed bottom-6 right-6 z-modal flex flex-col items-end bg-purple`}
-    >
+    <div className={`fixed bottom-6 right-6 z-modal flex flex-col items-end`}>
       <div
         className={classNames(
           "relative w-72 h-80 rounded-lg overflow-hidden p-6 bg-white border-black/10 mb-6 transition-all duration-300" +
             isEmbeded
-            ? "bg-red"
+            ? ""
             : "shadow-md border"
         )}
       >
