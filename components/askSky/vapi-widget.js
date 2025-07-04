@@ -227,10 +227,15 @@ export function VapiWidget({
   const startVapiCall = async () => {
     if (shouldStart && vapi) {
       let userProfile = await getProfileSupportDetails();
+
+      let pipelineData = userProfile.pipelines || []
+
+      delete userProfile.pipelines;
       const assistantOverrides = {
         recordingEnabled: false,
         variableValues: {
           customer_details: JSON.stringify(userProfile),
+          // pipeline_details: JSON.stringify(pipelineData)
         },
       };
 
@@ -286,8 +291,17 @@ export function VapiWidget({
         if (response.data) {
           if (response.data.status === true) {
             console.log("profile support details are", response.data);
+            let data = response.data.data;
+            let pipelineData = data.pipelines
 
-            return { profile: user.user, additionalData: response.data.data };
+            delete data.pipelines
+
+            return {
+              profile: user.user,
+              additionalData: response.data.data,
+              pipelines: pipelineData
+            };
+
           } else {
             console.log("profile support message is", response.data.message);
 
@@ -302,10 +316,10 @@ export function VapiWidget({
   };
 
   return (
-    <div className={`fixed bottom-6 right-6 z-modal flex flex-col items-end`}>
+    <div className={`fixed bottom-6 right-6 z-modal bg-red flex flex-col items-end`}>
       <div
         className={classNames(
-          "relative w-72 h-80 rounded-lg overflow-hidden p-6 bg-white border-black/10 mb-6 transition-all duration-300" +
+          "relative w-72 h-80 rounded-lg overflow-hidden p-6 bg-purple border-black/10 mb-6 transition-all duration-300" +
             isEmbeded
             ? ""
             : "shadow-md border"
