@@ -220,6 +220,7 @@ const Page = () => {
           getAgentDetails={getAgentDetails}
           AgentDetails={AgentDetails}
           user={user}
+          screenWidth={windowSize}
         />
       </div>
     </ErrorBoundary>

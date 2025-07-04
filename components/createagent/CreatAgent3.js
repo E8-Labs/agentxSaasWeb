@@ -22,7 +22,7 @@ let stripePublickKey =
 // //console.log;
 const stripePromise = loadStripe(stripePublickKey);
 
-const CreatAgent3 = ({ handleContinue, smallTerms, user ,handleBack}) => {
+const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth }) => {
   const router = useRouter();
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -51,7 +51,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user ,handleBack}) => {
     const handlePopState = () => {
       console.log("🔙 Back gesture or browser back triggered");
       // if(window.screenWidth < 640){
-        handleBack()
+      handleBack()
       // }
     };
 
@@ -751,7 +751,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user ,handleBack}) => {
             </div>*/}
           {selectedPlan && (
             <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[3%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
-              <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 sm:pl-0 pl-4">
+              <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
@@ -775,7 +775,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user ,handleBack}) => {
                 <TermsText />
               </div>
               <div className=" w-full flex-col items-center flex mt-2">
-                {selectedPlan && agreeTerms ? (
+                {selectedPlan && (screenWidth < 640 || agreeTerms) ? (
                   <div className="w-full flex-col items-center flex">
                     {selectedPlan?.id > 1 ? (
                       <button
