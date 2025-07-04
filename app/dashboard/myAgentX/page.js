@@ -2379,7 +2379,7 @@ function Page() {
   // ////console.log
 
 
-  const handleCopy = (assistantId,baseUrl) => {
+  const handleCopy = (assistantId, baseUrl) => {
     const iframeCode = `<iframe
   src="${baseUrl}embed/vapi?assistantId=${assistantId}"
   width="350"
@@ -2389,6 +2389,9 @@ function Page() {
     border-radius: 12px;
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    position: "absolute";
+          right: "2%";
+          bottom: "3%";
   "
   title="AgentX Widget"
   allow="microphone"
@@ -3105,8 +3108,8 @@ function Page() {
                       </span>
 
                     </div>
-                    <button onClick={()=>{
-                      handleCopy(showDrawerSelectedAgent?.modelIdVapi,baseUrl)
+                    <button onClick={() => {
+                      handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
                     }}>
                       <div
                         className="text-purple mb-3 mr-2"
