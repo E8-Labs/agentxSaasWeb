@@ -4,8 +4,8 @@ import { useState } from "react";
 export default function EmbedWidget({
   assistantId = "84ceab69-812d-4c6e-a8e1-0c8cb23f7a95",
   baseUrl = "https://ai.myagentx.com",
-  setShowSuccessSnack = {setShowSuccessSnack},
-  setIsVisible = {setIsVisible}
+  setShowSuccessSnack ,
+  setIsVisible
 }) {
   // const [assistantId] = useState("84ceab69-812d-4c6e-a8e1-0c8cb23f7a95");
 
