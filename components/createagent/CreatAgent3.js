@@ -62,6 +62,14 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
     };
   }, []);
 
+  //get the screen width
+  const windowWidth = () => {
+    if (typeof window !== "undefined") {
+      console.log("Window width is", window.innerWidth);
+      return window.innerWidth;
+    }
+  }
+
 
   //selects 1st plan popup
   const handleTogglePlanClick = (item) => {
@@ -717,6 +725,11 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     </div>
                   </div>
                 </div>
+                <div
+                  className="mt-2 text-start w-full md:w-10/12 lg:w-6/12"
+                  style={{ color: "#151515", fontSize: windowWidth() < 640 ? 13 : 16, fontWeight: "600" }}>
+                  Calls volume are projects based on current call volume.
+                </div>
               </div>
 
               <div
@@ -1312,7 +1325,7 @@ function TermsText() {
   return (
     <div
       className="flex flex-row w-full items-center gap-1"
-      style={{ color: "#151515", fontSize: windowWidth() < 640 ? 10 : 13, fontWeight: "600" }}
+      style={{ color: "#151515", fontSize: windowWidth() < 640 ? 13 : 16, fontWeight: "600" }}
     >
       <p style={{ color: "#15151580" }}>
         I agree to{" "}
