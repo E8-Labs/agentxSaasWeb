@@ -161,6 +161,7 @@ export function VapiWidget({
   setShowAskSkyModal,
   setShouldStartCall,
   loadingChanged,
+  isEmbeded = false,
 }) {
   const [vapi, setVapi] = useState(null);
   const [open, setOpen] = useState(false);
@@ -180,10 +181,7 @@ export function VapiWidget({
 
     const init = async () => {
       try {
-
-
-
-        console.log('initializing vapi sdk',)
+        console.log("initializing vapi sdk");
 
         const mod = await import("@vapi-ai/web");
         const VapiClient = mod.default ?? mod;
@@ -205,9 +203,9 @@ export function VapiWidget({
       } catch (err) {
         console.error("Failed to load Vapi SDK:", err);
       }
-    }
+    };
 
-    init()
+    init();
 
     return () => {
       mounted = false;
@@ -236,16 +234,15 @@ export function VapiWidget({
         },
       };
 
-      console.log('assistante overrides', assistantOverrides)
-      
+      console.log("assistante overrides", assistantOverrides);
+
       vapi.start(assistantId, assistantOverrides);
     }
-  }
+  };
 
   useEffect(() => {
     startVapiCall();
   }, [shouldStart, vapi, assistantId]);
-
 
   // Close handler
   const handleClose = useCallback(() => {
@@ -260,7 +257,8 @@ export function VapiWidget({
   }, [vapi, setShouldStartCall, setShowAskSkyModal]);
 
   // Loader while initializing SDK
-  if (false) {  //!open
+  if (false) {
+    //!open
     return (
       <div className="fixed bottom-6 right-6 z-[9999] flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md">
         <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
@@ -268,79 +266,76 @@ export function VapiWidget({
     );
   }
 
-
   const getProfileSupportDetails = async () => {
-    console.log('get profile support details api calling');
-    let user = null
+    console.log("get profile support details api calling");
+    let user = null;
     try {
-      const data = localStorage.getItem("User")
+      const data = localStorage.getItem("User");
 
       if (data) {
         user = JSON.parse(data);
 
-        let path = Apis.profileSupportDetails
+        let path = Apis.profileSupportDetails;
 
         const response = await axios.get(path, {
           headers: {
-            "Authorization": `Bearer ${user.token}`,
-          }
-        })
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
 
         if (response.data) {
           if (response.data.status === true) {
-            console.log('profile support details are', response.data)
-            
-            return {profile:user.user,additionalData : response.data.data}
-          } else {
-            console.log('profile support message is', response.data.message)
+            console.log("profile support details are", response.data);
 
-            return user.user
+            return { profile: user.user, additionalData: response.data.data };
+          } else {
+            console.log("profile support message is", response.data.message);
+
+            return user.user;
           }
         }
       }
     } catch (e) {
-
-      console.log('error in get profile suppport details api is', e)
-      return user.user
+      console.log("error in get profile suppport details api is", e);
+      return user.user;
     }
-  }
-
+  };
 
   return (
-    <div className="fixed bottom-6 right-6 z-modal flex flex-col items-end">
+    <div
+      className={`fixed bottom-6 right-6 z-modal flex flex-col items-end bg-purple`}
+    >
       <div
         className={classNames(
-          "relative w-72 h-80 rounded-lg overflow-hidden p-6 shadow-md border bg-white border-black/10 mb-6 transition-all duration-300"
-          // open
-          //   ? "translate-x-0 opacity-100 z-10"
-          //   : "translate-x-full opacity-0 -z-10"
+          "relative w-72 h-80 rounded-lg overflow-hidden p-6 bg-white border-black/10 mb-6 transition-all duration-300" +
+            isEmbeded
+            ? "bg-red"
+            : "shadow-md border"
         )}
       >
         <div className="h-full w-full flex flex-col items-center justify-between">
-          {
-            !open ? (
-              <div className="h-[150px] w-[200px] flex flex-col items-center justify-center">
-                <Loader2 className="animate-spin w-9 h-9 text-gray-500" />
-              </div>
-            ) : (
-              <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
-                <img
-                  src="/agentXOrb.gif"
-                  alt="AgentX Orb"
-                  className="rounded-full bg-white shadow-lg size-36 object-cover"
+          {!open ? (
+            <div className="h-[150px] w-[200px] flex flex-col items-center justify-center">
+              <Loader2 className="animate-spin w-9 h-9 text-gray-500" />
+            </div>
+          ) : (
+            <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
+              <img
+                src="/agentXOrb.gif"
+                alt="AgentX Orb"
+                className="rounded-full bg-white shadow-lg size-36 object-cover"
+              />
+              {isSpeaking && (
+                <VoiceWavesComponent
+                  width={150}
+                  height={80}
+                  speed={0.12}
+                  amplitude={0.4}
+                  autostart
                 />
-                {isSpeaking && (
-                  <VoiceWavesComponent
-                    width={150}
-                    height={80}
-                    speed={0.12}
-                    amplitude={0.4}
-                    autostart
-                  />
-                )}
-              </div>
-            )
-          }
+              )}
+            </div>
+          )}
           <div className="flex flex-col items-center gap-2">
             <p className="text-xs">Powered by</p>
             <a
@@ -361,7 +356,7 @@ export function VapiWidget({
           open ? "opacity-100 z-10" : "opacity-0 -z-10"
         )}
       >
-        <X />
+        {!isEmbeded && <X />}
       </button>
     </div>
   );
