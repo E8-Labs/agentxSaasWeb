@@ -8,6 +8,7 @@ export default function EmbedVapi() {
 
   console.log("assistant id is ", assistantId);
   return (
+    
     <VapiWidget
       assistantId={assistantId}
       shouldStart={true}

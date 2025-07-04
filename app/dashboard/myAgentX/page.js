@@ -95,7 +95,7 @@ const DuplicateButton = dynamic(
 function Page() {
 
   let baseUrl = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/" 
+    ? "https://apimyagentx.com/"
     : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/"
 
 
@@ -1762,6 +1762,9 @@ function Page() {
           )
         );
 
+        setIsVisibleSnack(true)
+        setShowSuccessSnack(response.data.message)
+
         setShowDrawerSelectedAgent(null);
         setActiveTab("Agent Info");
         setDelAgentModal(false);
@@ -2374,6 +2377,33 @@ function Page() {
   };
 
   // ////console.log
+
+
+  const handleCopy = (assistantId,baseUrl) => {
+    const iframeCode = `<iframe
+  src="${baseUrl}embed/vapi?assistantId=${assistantId}"
+  width="350"
+  height="400"
+  style="
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  "
+  title="AgentX Widget"
+  allow="microphone"
+></iframe>`;
+
+    navigator.clipboard.writeText(iframeCode).then(() => {
+      // alert("Embed code copied to clipboard!");
+      setShowSuccessSnack("Embed widget copied");
+      setIsVisibleSnack(true);
+    }).catch(err => {
+      console.error("Failed to copy text: ", err);
+    });
+  };
+
+
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -3075,12 +3105,22 @@ function Page() {
                       </span>
 
                     </div>
-                    <EmbedWidget
+                    <button onClick={()=>{
+                      handleCopy(showDrawerSelectedAgent?.modelIdVapi,baseUrl)
+                    }}>
+                      <div
+                        className="text-purple mb-3 mr-2"
+                        style={{ fontSize: 11, fontWeight: "600" }}
+                      >
+                        Embed
+                      </div>
+                    </button>
+                    {/* <EmbedWidget
                       assistantId={showDrawerSelectedAgent?.modelIdVapi}
                       setShowSuccessSnack={setShowSuccessSnack}
                       setIsVisible={setIsVisibleSnack}
                       baseUrl={baseUrl}
-                    />
+                    /> */}
 
                   </div>
 
