@@ -104,7 +104,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     }
   };
 
-    const AgentObjective = [
+  const AgentObjective = [
     {
       id: 1,
       icon: "",
@@ -461,21 +461,45 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                           item.id === toggleClick ? "#402FFF10 " : "",
                       }}
                     >
-                      {item.id === toggleClick ? (
-                        <Image
-                          src={item.focusIcn}
-                          height={30}
-                          width={30}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={item.unFocusIcon}
-                          height={30}
-                          width={30}
-                          alt="*"
-                        />
-                      )}
+                      <div className="flex flex-row items-center w-full justify-between">
+                        <div>
+                          {item.id === toggleClick ? (
+                            <Image
+                              src={item.focusIcn}
+                              height={30}
+                              width={30}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={item.unFocusIcon}
+                              height={30}
+                              width={30}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                        <div>
+                          {item.id === toggleClick ? (
+                            <div
+                              className="bg-purple flex flex-row items-center justify-center rounded"
+                              style={{ height: "24px", width: "24px" }}
+                            >
+                              <Image
+                                src={"/assets/whiteTick.png"}
+                                height={8}
+                                width={10}
+                                alt="*"
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                              style={{ height: "24px", width: "24px" }}
+                            ></div>
+                          )}
+                        </div>
+                      </div>
                       <div className="mt-8" style={styles.inputStyle}>
                         {item.title}
                       </div>
