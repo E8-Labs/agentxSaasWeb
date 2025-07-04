@@ -111,10 +111,17 @@ const DashboardSlider = ({
     },
     {
       id: 5,
-      label: "Hire the Team (Done For You)",
+      label: "Hire the Team",
       image: "/otherAssets/hireTeamBlack.jpg",
       image2: "/otherAssets/hireTeamBlue.jpg",
       url: PersistanceKeys.HireTeamUrl,
+    },
+    {
+      id: 6,
+      label: "Billing Support",
+      image: "/otherAssets/billingIcon.jpg",
+      image2: "/otherAssets/billingIconBlue.jpg",
+      url: "",
     },
   ];
 
@@ -142,7 +149,6 @@ const DashboardSlider = ({
               exit="exit"
               variants={snackbarVariants}
               transition={{ type: "tween", duration: 0.4 }}
-              className="bg-white shadow-lg text-black"
               drag="x"
               dragConstraints={{ left: 0, right: 100 }} // limit drag range
               onDragEnd={(event, info) => {
@@ -150,34 +156,22 @@ const DashboardSlider = ({
                   handleClose(); // close only if dragged right enough
                 }
               }}
+              className="flex"
               style={{
-                padding: "16px 24px",
-                borderRadius: "20px",
+              
                 width: "350px",
                 touchAction: "pan-y", // allow horizontal pan
               }}
             >
-              <div style={{ flex: 1 }} className="w-full ">
-                <button className="bg-purple"
+              <div
+                className="flex flex-col items-end justify-end w-full gap-3"
+                style={{ flex: 1 , }}>
+               
+                <div className="w-full mt-5 bg-white shadow-lg text-black w-full"
                   style={{
-                    position: "absolute",
-                    top: 12,
-                    right: 12,
-                    borderRadius: "50%",
-                    padding: 10,
-                    cursor: "pointer",
-
+                    borderRadius: "20px",padding: "16px 24px",
                   }}
-                  onClick={handleClose}
                 >
-                  <Image
-                    src={"/svgIcons/crossWhite.svg"}
-                    width={24}
-                    height={24}
-                    alt="*"
-                  />
-                </button>
-                <div className="w-full mt-5">
                   <div className="w-full flex flex-col items-start gap-4">
                     {buttons.map((item, index) => (
                       <div
@@ -207,7 +201,7 @@ const DashboardSlider = ({
                           {
                             item.id === 3 && (
 
-                              <div className="px-4 py-1 rounded-lg bg-purple text-white font-[500] ml-5">
+                              <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
                                 Beta
                               </div>
                             )}
@@ -216,7 +210,27 @@ const DashboardSlider = ({
                     ))}
                   </div>
                 </div>
+                 <button className="bg-purple"
+                  style={{
+                    // position: "absolute",
+                    // bottom: 0,
+                    // right: 12,
+                    borderRadius: "50%",
+                    padding: 10,
+                    cursor: "pointer",
+
+                  }}
+                  onClick={handleClose}
+                >
+                  <Image
+                    src={"/svgIcons/crossWhite.svg"}
+                    width={24}
+                    height={24}
+                    alt="*"
+                  />
+                </button>
               </div>
+              
               <button
                 onClick={handleClose}
                 style={{
@@ -327,3 +341,4 @@ const styles = {
     fontWeight: "700",
   },
 };
+

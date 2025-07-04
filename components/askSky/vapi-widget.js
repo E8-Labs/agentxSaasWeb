@@ -153,6 +153,7 @@ import { VoiceWavesComponent } from "./askskycomponents/voice-waves";
 import { API_KEY, DEFAULT_ASSISTANT_ID, MYAGENTX_URL } from "./constants";
 import Apis from "../apis/Apis";
 import axios from "axios";
+import Image from "next/image";
 
 //Update from salman
 export function VapiWidget({
@@ -167,10 +168,32 @@ export function VapiWidget({
   const [open, setOpen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
+  const [statusMessage, setStatusMessage] = useState(""); // dynamic message
+
+
+
+  const loadingMessages = [
+    "Sky is booting up...",
+    "getting coffee.. ",
+  ];
+
+  useEffect(() => {
+      const interval = setInterval(() => {
+       
+        setLoadingMsgIndex((prevIndex) =>
+          (prevIndex + 1) % loadingMessages.length
+        );
+      }, 2000);
+
+      return () => clearInterval(interval);
+    
+  }, [shouldStart])
 
   useEffect(() => {
     loadingChanged(loading);
   }, [loading]);
+
 
   // Initialize Vapi once on mount
   useEffect(() => {
@@ -191,15 +214,22 @@ export function VapiWidget({
         setVapi(instance);
         setLoading(false);
 
-        instance.on("call-start", () => setOpen(true));
+        instance.on("call-start", () => {
+          setOpen(true)
+          setStatusMessage("Call started with Sky")
+        });
         instance.on("call-end", () => {
           setOpen(false);
           setIsSpeaking(false);
+          setStatusMessage("Call ended")
         });
         instance.on("speech-start", () => setIsSpeaking(true));
         instance.on("speech-end", () => setIsSpeaking(false));
         instance.on("message", (msg) => console.log("Vapi msg:", msg));
-        instance.on("error", (err) => console.error("Vapi error:", err));
+        instance.on("error", (err) => {
+          console.error("Vapi error:", err)
+          handleClose()
+        });
       } catch (err) {
         console.error("Failed to load Vapi SDK:", err);
       }
@@ -246,7 +276,9 @@ export function VapiWidget({
   };
 
   useEffect(() => {
-    startVapiCall();
+    if (!isEmbeded) {
+      startVapiCall();
+    }
   }, [shouldStart, vapi, assistantId]);
 
   // Close handler
@@ -316,61 +348,103 @@ export function VapiWidget({
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-modal bg-red flex flex-col items-end`}
+      className={`${!isEmbeded ? "fixed bottom-10 right-6 z-modal flex flex-col items-end" : "mt-5"}`}
     >
-      <div
-        className={classNames(
-          "relative w-72 h-80 rounded-lg overflow-hidden p-6 bg-purple border-black/10 mb-6 transition-all duration-300" +
-            isEmbeded
-            ? ""
-            : "shadow-md border"
-        )}
-      >
-        <div className="h-full w-full flex flex-col items-center justify-between">
-          {!open ? (
-            <div className="h-[150px] w-[200px] flex flex-col items-center justify-center">
-              <Loader2 className="animate-spin w-9 h-9 text-gray-500" />
-            </div>
-          ) : (
-            <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
-              <img
-                src="/agentXOrb.gif"
-                alt="AgentX Orb"
-                className="rounded-full bg-white shadow-lg size-36 object-cover"
+      {
+        isEmbeded && !open ? (
+          <button className="fixed bottom-6 right-6 z-modal flex flex-col items-end"
+            onClick={() => {
+              setOpen(true)
+              startVapiCall()
+            }}
+          >
+            <div className="flex flex-row items-center pr-4 bg-white py-1 rounded-full shadow-md">
+              <Image src={'/otherAssets/embedGetHelp.jpg'}
+                height={57} width={57} alt="*"
               />
-              {isSpeaking && (
-                <VoiceWavesComponent
-                  width={150}
-                  height={80}
-                  speed={0.12}
-                  amplitude={0.4}
-                  autostart
-                />
-              )}
+
+              <p className=" text-[16px] font-bold text-purple cursor-pointer">
+                Get Help
+              </p>
             </div>
-          )}
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-xs">Powered by</p>
-            <a
-              href={MYAGENTX_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium"
+          </button>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <div
+              // className={
+              //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
+              //     isEmbeded
+              //     ? ""
+              //     : "shadow-md border"
+              // }
+              style={{
+                backgroundColor: 'white', padding: 6,
+                height: "320px", width: "288px",
+                border: !isEmbeded ? '2px solid #00000010' : "",
+                borderRadius: 12,
+                boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none"
+              }}
             >
-              <img src="/agentx-logo.png" alt="AgentX Logo" className="h-3.5" />
-            </a>
+              <div className="h-full w-full flex flex-col items-center">
+
+                <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
+                  <img
+                    src="/agentXOrb.gif"
+                    alt="AgentX Orb"
+                    className="rounded-full bg-white shadow-lg size-36 object-cover"
+                  />
+                  { !statusMessage&&(
+                    <p className="text-[15px] text-black text-center mt-5">
+                      {loadingMessages[loadingMsgIndex]}
+                    </p>
+                  )}
+
+                  {statusMessage && (
+                    <p className="text-[15px] text-black text-center mt-5">
+                      {statusMessage}
+                    </p>
+                  )}
+
+                  {isSpeaking && (
+                    <VoiceWavesComponent
+                      width={150}
+                      height={80}
+                      speed={0.12}
+                      amplitude={0.4}
+                      autostart
+                    />
+                  )}
+                </div>
+
+                <div className={`flex flex-col items-center gap-2 ${isEmbeded && "mt-6"}`}>
+                  <p className="text-xs">Powered by</p>
+                  <a
+                    href={MYAGENTX_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium"
+                  >
+                    <img src="/agentx-logo.png" alt="AgentX Logo" className="h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleClose}
+              className={
+                "self-end size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1 bg-white"
+                //open ? "opacity-100 z-10" : "opacity-0 -z-10"
+              }
+            >
+              <Image src="/otherAssets/crossBlue.jpg"
+                height={2} width={20} alt="cross"
+              />
+            </button>
           </div>
-        </div>
-      </div>
-      <button
-        onClick={handleClose}
-        className={classNames(
-          "absolute bottom-8 right-2 size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1",
-          open ? "opacity-100 z-10" : "opacity-0 -z-10"
-        )}
-      >
-        {!isEmbeded && <X />}
-      </button>
+
+        )
+      }
+
     </div>
   );
 }

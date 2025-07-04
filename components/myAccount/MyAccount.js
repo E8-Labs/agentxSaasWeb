@@ -123,8 +123,8 @@ function MyAccount() {
         return <InviteAgentX />;
       case 6:
         return <Support />;
-      case 7:
-        return <SendFeedback />;
+      // case 7:
+      //   return <SendFeedback />;
       // case 10:
       //   return <TwilioTrustHub />;
       default:
@@ -132,16 +132,15 @@ function MyAccount() {
     }
   };
 
-
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 8) {
+    if (item.id === 6) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 9) {
+    } else if (item.id === 7) {
       window.open(
         privacyPollicyUrl,
         "_blank"
@@ -156,8 +155,6 @@ function MyAccount() {
     }
     setTabSelected(index + 1);
     setParamsInSearchBar(index + 1);
-
-
 
   }
 
