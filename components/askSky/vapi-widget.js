@@ -228,9 +228,9 @@ export function VapiWidget({
     if (shouldStart && vapi) {
       let userProfile = await getProfileSupportDetails();
 
-      let pipelineData = userProfile.pipelines || []
+      let pipelineData = userProfile?.pipelines || [];
 
-      delete userProfile.pipelines;
+      delete userProfile?.pipelines;
       const assistantOverrides = {
         recordingEnabled: false,
         variableValues: {
@@ -292,16 +292,15 @@ export function VapiWidget({
           if (response.data.status === true) {
             console.log("profile support details are", response.data);
             let data = response.data.data;
-            let pipelineData = data.pipelines
+            let pipelineData = data.pipelines;
 
-            delete data.pipelines
+            delete data.pipelines;
 
             return {
               profile: user.user,
               additionalData: response.data.data,
-              pipelines: pipelineData
+              pipelines: pipelineData,
             };
-
           } else {
             console.log("profile support message is", response.data.message);
 
@@ -316,7 +315,9 @@ export function VapiWidget({
   };
 
   return (
-    <div className={`fixed bottom-6 right-6 z-modal bg-red flex flex-col items-end`}>
+    <div
+      className={`fixed bottom-6 right-6 z-modal bg-red flex flex-col items-end`}
+    >
       <div
         className={classNames(
           "relative w-72 h-80 rounded-lg overflow-hidden p-6 bg-purple border-black/10 mb-6 transition-all duration-300" +
