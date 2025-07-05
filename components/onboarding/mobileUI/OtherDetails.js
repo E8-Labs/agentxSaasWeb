@@ -364,24 +364,68 @@ const OtherDetails = ({
 
   //code for handling verify code changes
 
+  // const handleVerifyInputChange = (e, index) => {
+  //   const { value } = e.target;
+  //   if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+
+  //   const newValues = [...VerifyCode];
+  //   newValues[index] = value;
+  //   setVerifyCode(newValues);
+
+  //   // Move focus to the next field if a number is entered
+  //   if (value && index < length - 1) {
+  //     verifyInputRef.current[index + 1].focus();
+  //   }
+
+  //   // Trigger onComplete callback if all fields are filled
+  //   if (newValues.every((num) => num !== "") && onComplete) {
+  //     onComplete(newValues.join("")); // Convert array to a single string here
+  //   }
+  // };
+
   const handleVerifyInputChange = (e, index) => {
     const { value } = e.target;
-    if (!/[0-9]/.test(value) && value !== "") return; // Allow only numeric input
+
+    // If value is longer than 1, assume it's a paste/autofill
+    if (value.length > 1) {
+      const newValues = Array(length).fill('');
+      value.slice(0, length).split('').forEach((char, i) => {
+        if (/[0-9]/.test(char)) {
+          newValues[i] = char;
+        }
+      });
+
+      setVerifyCode(newValues);
+
+      // Focus last filled or next empty
+      const lastFilledIndex = newValues.findLastIndex(val => val !== '');
+      const focusIndex = Math.min(lastFilledIndex + 1, length - 1);
+      verifyInputRef.current[focusIndex]?.focus();
+
+      // Trigger onComplete if all fields filled
+      if (newValues.every((num) => num !== '') && onComplete) {
+        onComplete(newValues.join(''));
+      }
+
+      return;
+    }
+
+    // Normal single digit input
+    if (!/[0-9]/.test(value) && value !== '') return;
 
     const newValues = [...VerifyCode];
     newValues[index] = value;
     setVerifyCode(newValues);
 
-    // Move focus to the next field if a number is entered
     if (value && index < length - 1) {
-      verifyInputRef.current[index + 1].focus();
+      verifyInputRef.current[index + 1]?.focus();
     }
 
-    // Trigger onComplete callback if all fields are filled
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join("")); // Convert array to a single string here
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
     }
   };
+
 
   const handleBackspace = (e, index) => {
     if (e.key === "Backspace") {
