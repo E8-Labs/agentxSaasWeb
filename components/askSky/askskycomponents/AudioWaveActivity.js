@@ -42,7 +42,7 @@ export const AudioWaveActivity = ({
             transition: "transform 0.2s ease-in-out",
             backgroundColor: "#34D399", // green-400
             width: "6px",
-            height: "14px",
+            height: "10px",
             borderRadius: "4px",
           }}
         />

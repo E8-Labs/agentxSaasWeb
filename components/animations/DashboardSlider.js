@@ -4,6 +4,8 @@ import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
 import { VapiWidget } from "../askSky/vapi-widget";
 import { Box, Modal } from "@mui/material";
+import AskSkyConfirmation from "../askSky/askskycomponents/AskSkyConfirmation";
+import VapiChatWidget from "../askSky/VapiChatWidget";
 
 const DashboardSlider = ({
   onTop = false,
@@ -18,10 +20,10 @@ const DashboardSlider = ({
   const [hoverIndex, setHoverIndex] = useState(null);
 
   const [showAskSkyModal, setShowAskSkyModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(null);
-
   const [shouldStartCall, setShouldStartCall] = useState(false);
+
+  const [showAskSkyConfirmation, setShowAskSkyConfirmation] = useState(false);
+  const [showVapiChatWidget, setShowVapiChatWidget] = useState(false);
 
   //fetch local details
   useEffect(() => {
@@ -128,8 +130,9 @@ const DashboardSlider = ({
   const handleOnClick = (item, index) => {
     handleClose()
     if (item.id === 3) {
-      setShowAskSkyModal(true);
-      setShouldStartCall(true);
+      setShowAskSkyConfirmation(true);
+      // setShowAskSkyModal(true);
+      // setShouldStartCall(true);
     } else {
       if (typeof window !== "undefined") {
         window.open(item.url, "_blank");
@@ -291,6 +294,39 @@ const DashboardSlider = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AskSkyConfirmation
+        open={showAskSkyConfirmation}
+        onClose={() => {
+          setShowAskSkyConfirmation(false)
+        }}
+        handleCallClick={() => {
+          setShowAskSkyModal(true)
+          setShouldStartCall(true)
+          setShowAskSkyConfirmation(false)
+        }}
+
+        handleChatClick={() => {
+          setShowVapiChatWidget(true)
+          setShowAskSkyConfirmation(false)
+        }}
+
+      />
+
+      <Modal
+        open={showVapiChatWidget}
+        onClose={() => {
+          setShowVapiChatWidget(false);
+        }}
+        hideBackdrop
+      >
+        <VapiChatWidget
+         setShowVapiChatWidget = {setShowVapiChatWidget}
+        />
+
+      </Modal>
+
+
 
       <Modal
         open={showAskSkyModal}
