@@ -158,18 +158,18 @@ const DashboardSlider = ({
               }}
               className="flex"
               style={{
-              
+
                 width: "350px",
                 touchAction: "pan-y", // allow horizontal pan
               }}
             >
               <div
                 className="flex flex-col items-end justify-end w-full gap-3"
-                style={{ flex: 1 , }}>
-               
+                style={{ flex: 1, }}>
+
                 <div className="w-full mt-5 bg-white shadow-lg text-black w-full"
                   style={{
-                    borderRadius: "20px",padding: "16px 24px",
+                    borderRadius: "20px", padding: "16px 24px",
                   }}
                 >
                   <div className="w-full flex flex-col items-start gap-4">
@@ -210,7 +210,7 @@ const DashboardSlider = ({
                     ))}
                   </div>
                 </div>
-                 <button className="bg-purple"
+                <button className="bg-purple"
                   style={{
                     // position: "absolute",
                     // bottom: 0,
@@ -230,7 +230,7 @@ const DashboardSlider = ({
                   />
                 </button>
               </div>
-              
+
               <button
                 onClick={handleClose}
                 style={{
@@ -251,7 +251,7 @@ const DashboardSlider = ({
 
       {/* Icon Button (bottom-left) */}
       <AnimatePresence>
-        {showIcon && (
+        {showIcon && !showAskSkyModal && (
           <motion.div
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
@@ -299,9 +299,9 @@ const DashboardSlider = ({
           setShouldStartCall(false);
         }}
         hideBackdrop
-        sx={{ pointerEvents: "none" }} // allows VapiWidget to handle its own clicks
+        sx={{ pointerEvents: "none", backgroundColor: "transparent" }} // allows VapiWidget to handle its own clicks
       >
-        <div style={{ pointerEvents: "auto" }}>
+        <div style={{ pointerEvents: "auto", backgroundColor: "transparent", height: "100%", width: "100%" }}>
           <VapiWidget
             user={userDetails}
             shouldStart={shouldStartCall}
