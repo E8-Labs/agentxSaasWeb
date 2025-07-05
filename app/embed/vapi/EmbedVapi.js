@@ -8,13 +8,13 @@ export default function EmbedVapi() {
 
   console.log("assistant id is ", assistantId);
   return (
-    <div style={{backgroundColor: "#ffffff01"}}>
+    <div style={{ backgroundColor: "transparent" }}>
       <VapiWidget
         assistantId={assistantId}
         shouldStart={true}
-        setShowAskSkyModal={() => { }}
-        setShouldStartCall={() => { }}
-        loadingChanged={() => { }}
+        setShowAskSkyModal={() => {}}
+        setShouldStartCall={() => {}}
+        loadingChanged={() => {}}
         isEmbeded={true}
       />
     </div>
