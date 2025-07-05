@@ -394,31 +394,62 @@ const OtherDetails = ({
     }
   };
 
-  const handlePaste = (e) => {
-    const pastedText = e.clipboardData.getData("text").slice(0, length);
-    const newValues = pastedText
-      .split("")
-      .map((char) => (/[0-9]/.test(char) ? char : ""));
-    setVerifyCode(newValues);
+  // const handlePaste = (e) => {
+  //   console.log("Handle paste trigered");
+  //   const pastedText = e.clipboardData.getData("text").slice(0, length);
+  //   const newValues = pastedText
+  //     .split("")
+  //     .map((char) => (/[0-9]/.test(char) ? char : ""));
+  //   setVerifyCode(newValues);
 
-    // Set each input's value and move focus to the last filled input
-    newValues.forEach((char, index) => {
-      verifyInputRef.current[index].value = char;
-      if (index === newValues.length - 1) {
-        verifyInputRef.current[index].focus();
+  //   // Set each input's value and move focus to the last filled input
+  //   newValues.forEach((char, index) => {
+  //     verifyInputRef.current[index].value = char;
+  //     if (index === newValues.length - 1) {
+  //       verifyInputRef.current[index].focus();
+  //     }
+  //   });
+
+  //   if (newValues.every((num) => num !== "") && onComplete) {
+  //     onComplete(newValues.join(""));
+  //   }
+  // };
+
+  //code for number verification
+
+  const handlePaste = (e) => {
+    e.preventDefault(); // Prevent default paste behavior
+
+    const pastedText = e.clipboardData.getData('text').slice(0, length);
+    const newValues = Array(length).fill(''); // Start with empty array
+
+    // Fill the array with pasted digits
+    pastedText.split('').forEach((char, index) => {
+      if (index < length && /[0-9]/.test(char)) {
+        newValues[index] = char;
       }
     });
 
-    if (newValues.every((num) => num !== "") && onComplete) {
-      onComplete(newValues.join(""));
+    setVerifyCode(newValues);
+
+    // Focus on the last filled input or the next empty one
+    const lastFilledIndex = newValues.findLastIndex(val => val !== '');
+    const focusIndex = lastFilledIndex === -1 ? 0 : Math.min(lastFilledIndex + 1, length - 1);
+
+    setTimeout(() => {
+      verifyInputRef.current[focusIndex]?.focus();
+    }, 0);
+
+    // Trigger onComplete if all fields are filled
+    if (newValues.every((num) => num !== '') && onComplete) {
+      onComplete(newValues.join(''));
     }
   };
 
-  //code for number verification
   const handleVerifyCode = () => {
     // //console.log);
     setPhoneVerifiedSuccessSnack(true);
-   
+
     handleRegister();
   };
 
@@ -530,7 +561,7 @@ const OtherDetails = ({
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {
-             setShowVerifyPopup(false)
+            setShowVerifyPopup(false)
             setCongratsPopup(true);
             // //console.log;
           } else {
@@ -1072,7 +1103,7 @@ const OtherDetails = ({
                 </Box>
               </Modal>
 
-             
+
             </div>
           </div>
         </div>

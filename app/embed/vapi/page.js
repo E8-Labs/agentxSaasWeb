@@ -22,7 +22,7 @@ function Page() {
     };
   }, []);
   return (
-    <div style={{ backgroundColor: "white" }}>
+    <div style={{ backgroundColor: "transparent" }}>
       <Suspense>
         <EmbedVapi />
       </Suspense>

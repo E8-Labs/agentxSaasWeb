@@ -193,10 +193,9 @@ export function VapiWidget({
 
   return (
     <div
-      className={`${
-        !isEmbeded ? "fixed right-6 z-modal flex flex-col items-end" : ""
-      } overflow-none bg-transparent`}
-      // style={{ border: "4px solid green" }}
+      className={`${!isEmbeded ? "fixed right-6 z-modal flex flex-col items-end h-screen justify-end bottom-6" : ""
+        } overflow-none bg-transparent`}
+    // style={{ border: "4px solid green" }}
     >
       {isEmbeded && !open ? (
         <button
@@ -206,7 +205,7 @@ export function VapiWidget({
             startVapiCall();
           }}
         >
-          <div className="flex flex-row items-center pr-4 bg-white py-1 rounded-full shadow-md">
+          <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
             <Image
               src={"/otherAssets/embedGetHelp.jpg"}
               height={57}
@@ -229,7 +228,7 @@ export function VapiWidget({
             //     : "shadow-md border"
             // }
             style={{
-              // backgroundColor: 'green',
+              backgroundColor: !isEmbeded ? "white" : "",
               padding: 6,
               height: "320px",
               width: "288px",
@@ -240,11 +239,41 @@ export function VapiWidget({
           >
             <div className="h-full w-full flex flex-col items-center">
               <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
-                <img
-                  src="/agentXOrb.gif"
-                  alt="AgentX Orb"
-                  className="rounded-full bg-white shadow-lg size-36 object-cover"
-                />
+                {/* 
+            <div
+                  className="relative w-[150px] h-[150px] mx-auto"
+                  style={{
+                    backgroundImage: "url('/assets/shade.png')",
+                    backgroundPosition: "center",
+                    backgroundSize: "150%",
+                    backgroundRepeat: "no-repeat",
+                    borderRadius: "50%"
+                  }}
+                >
+                  <img
+                    src="/agentXOrb.gif"
+                    alt="AgentX Orb"
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] h-[120px] rounded-full bg-white object-cover"
+                  />
+                </div>
+            */}
+                <div className="relative w-[150px] h-[150px] mx-auto mt-4">
+                  {/* Gradient Glow Border */}
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div>
+
+                  {/* Image */}
+                  <img
+                    src="/agentXOrb.gif"
+                    alt="AgentX Orb"
+                    className="relative z-10 rounded-full bg-white shadow-lg object-cover"
+                    style={{
+                      height: "120px",
+                      width: "120px",
+                    }}
+                  />
+                </div>
+
+
                 {!statusMessage && (
                   <p className="text-[15px] text-black text-center mt-5">
                     {loadingMessages[loadingMsgIndex]}
@@ -266,15 +295,14 @@ export function VapiWidget({
                     autostart
                   />
                 )}
-                {/* {!isSpeaking &&  */}
-                <AudioWaveActivity isActive={!isSpeaking} />
-                {/* } */}
+                {!isSpeaking &&
+                  <AudioWaveActivity isActive={true} />
+                }
               </div>
 
               <div
-                className={`flex flex-col items-center gap-2 ${
-                  isEmbeded && "mt-6"
-                }`}
+                className={`flex flex-col items-center gap-2 ${isEmbeded && "mt-6"
+                  }`}
               >
                 <p className="text-xs">Powered by</p>
                 <a

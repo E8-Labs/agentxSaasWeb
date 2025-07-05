@@ -5,31 +5,13 @@ export const AudioWaveActivity = ({
   barCount = 11,
   className = "",
 }) => {
-  console.log("IS active ", isActive);
-  // Center scale (resting) index for non-active state
-  const restingIndex = Math.floor(barCount / 2);
-
-  const scaleClasses = [
-    "scale-y-75",
-    "scale-y-100",
-    "scale-y-125",
-    "scale-y-150",
-    "scale-y-200",
-    "scale-y-300",
-    "scale-y-200",
-    "scale-y-150",
-    "scale-y-125",
-    "scale-y-100",
-    "scale-y-75",
-  ];
-
   const [scalePattern, setScalePattern] = useState(
-    Array(barCount).fill(restingIndex)
+    Array(barCount).fill(1) // 1 = resting scale
   );
 
   useEffect(() => {
     if (!isActive) {
-      setScalePattern(Array(barCount).fill(restingIndex));
+      setScalePattern(Array(barCount).fill(1));
       return;
     }
 
@@ -37,21 +19,32 @@ export const AudioWaveActivity = ({
       setScalePattern(
         Array(barCount)
           .fill(0)
-          .map(() => Math.floor(Math.random() * scaleClasses.length))
+          .map(() => {
+            // Random scale between 0.5 and 3
+            const scale = (Math.random() * 2.5 + 0.5).toFixed(2);
+            return parseFloat(scale);
+          })
       );
     }, 160);
 
     return () => clearInterval(interval);
-  }, [isActive, barCount, scaleClasses.length]);
+  }, [isActive, barCount]);
 
   return (
     <div
-      className={`flex items-end justify-center gap-1 h-8 w-32 ${className}`}
+      className={`flex items-end justify-center gap-1 h-4 w-32 mt-4 ${className}`}
     >
-      {scalePattern.map((scaleIndex, index) => (
+      {scalePattern.map((scale, index) => (
         <div
           key={index}
-          className={`bg-green-400 transition-transform duration-200 ease-in-out w-1.5 h-8 rounded-md ${scaleClasses[scaleIndex]}`}
+          style={{
+            transform: `scaleY(${scale})`,
+            transition: "transform 0.2s ease-in-out",
+            backgroundColor: "#34D399", // green-400
+            width: "6px",
+            height: "14px",
+            borderRadius: "4px",
+          }}
         />
       ))}
     </div>
