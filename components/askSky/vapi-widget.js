@@ -1,151 +1,3 @@
-// // components/VapiWidget.jsx
-// import React, { useState, useEffect, useCallback } from "react";
-// import { X, Loader2 } from "lucide-react";
-// import classNames from "classnames";
-// import { API_KEY, DEFAULT_ASSISTANT_ID, MYAGENTX_URL } from "./constants";
-// import { VoiceWavesComponent } from "./askskycomponents/voice-waves";
-
-// export function VapiWidget({
-//   assistantId = DEFAULT_ASSISTANT_ID,
-//   shouldStart = false,
-//   setShowAskSkyModal,
-//   setShouldStartCall,
-//   loadingChanged,
-// }) {
-//   const [vapi, setVapi] = useState(null);
-//   const [open, setOpen] = useState(false);
-//   const [isSpeaking, setIsSpeaking] = useState(false);
-//   const [loading, setLoading] = useState(true);
-
-// //loading
-
-// useEffect(() => {
-//   loadingChanged(loading);
-// }, [loading]);
-//   // 1️⃣ Initialize Vapi once, on mount
-//   useEffect(() => {
-//     if (typeof window === "undefined") return;
-
-//     let instance;
-//     let mounted = true;
-
-//     (async () => {
-//       try {
-//         const mod = await import("@vapi-ai/web");
-//         const VapiClient = mod.default ?? mod;
-//         instance = new VapiClient(API_KEY);
-
-//         if (!mounted) return;
-//         setVapi(instance);
-//         setLoading(false);
-
-//         instance.on("call-start", () => setOpen(true));
-//         instance.on("call-end", () => {
-//           setOpen(false);
-//           setIsSpeaking(false);
-//         });
-//         instance.on("speech-start", () => setIsSpeaking(true));
-//         instance.on("speech-end", () => setIsSpeaking(false));
-//         instance.on("message", (msg) => console.log("Vapi msg:", msg));
-//         instance.on("error", (err) => console.error("Vapi error:", err));
-//       } catch (err) {
-//         console.error("Failed to load Vapi SDK:", err);
-//       }
-//     })();
-
-//     return () => {
-//       mounted = false;
-//       instance?.stop();
-//       instance?.removeAllListeners?.();
-//     };
-//   }, []);
-
-//   // 2️⃣ Only start the call once SDK is ready
-//   useEffect(() => {
-//     if (shouldStart && vapi) {
-//       vapi.start(assistantId);
-//     }
-//   }, [shouldStart, vapi, assistantId]);
-
-//   // 3️⃣ Close handler
-//   const handleClose = useCallback(() => {
-//     vapi?.stop();
-//     setOpen(false);
-//     setShouldStartCall(false);
-//     setShowAskSkyModal(false);
-//   }, [vapi, setShouldStartCall, setShowAskSkyModal]);
-
-//   // Loading indicator while SDK initializes
-//   if (loading) {
-//     console.log(`It is loading `);
-//     return (
-//       <div className="fixed bottom-6 right-6 z-[9999] flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md">
-//         <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="fixed bottom-6 right-6 z-modal flex flex-col items-end">
-//       {/* Widget panel */}
-//       <div
-//         className={classNames(
-//           "relative w-72 h-80 rounded-lg overflow-hidden p-6 shadow-md border bg-white border-black/10 mb-6 transition-all duration-300",
-//           open
-//             ? "translate-x-0 opacity-100 z-10"
-//             : "translate-x-full opacity-0 -z-10"
-//         )}
-//       >
-//         <div className="h-full w-full flex flex-col items-center justify-between">
-//           {/* Orb + Voice Waves */}
-//           <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
-//             <img
-//               src="/agentXOrb.gif"
-//               alt="AgentX Orb"
-//               className="rounded-full bg-white shadow-lg size-36 object-cover"
-//             />
-//             {isSpeaking && (
-//               <VoiceWavesComponent
-//                 width={150}
-//                 height={80}
-//                 speed={0.12}
-//                 amplitude={0.4}
-//                 autostart
-//               />
-//             )}
-//           </div>
-
-//           {/* Powered by AgentX */}
-//           <div className="flex flex-col items-center gap-2">
-//             <p className="text-xs">Powered by</p>
-//             <a
-//               href={MYAGENTX_URL}
-//               target="_blank"
-//               rel="noopener noreferrer"
-//               className="font-medium"
-//             >
-//               <img src="/agentx-logo.png" alt="AgentX Logo" className="h-3.5" />
-//             </a>
-//           </div>
-//         </div>
-//       </div>
-
-//       {/* Close Button */}
-//       <button
-//         onClick={handleClose}
-//         className={classNames(
-//           "absolute top-0 right-0 size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1",
-//           open ? "opacity-100 z-10" : "opacity-0 -z-10"
-//         )}
-//       >
-//         <X />
-//       </button>
-//     </div>
-//   );
-// }
-
-// components/VapiWidget.jsx
-// components/VapiWidget.jsx
 import React, { useState, useEffect, useCallback } from "react";
 import { X, Loader2 } from "lucide-react";
 import classNames from "classnames";
@@ -171,29 +23,21 @@ export function VapiWidget({
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [statusMessage, setStatusMessage] = useState(""); // dynamic message
 
-
-
-  const loadingMessages = [
-    "Sky is booting up...",
-    "getting coffee.. ",
-  ];
+  const loadingMessages = ["Sky is booting up...", "getting coffee.. "];
 
   useEffect(() => {
     const interval = setInterval(() => {
-
-      setLoadingMsgIndex((prevIndex) =>
-        (prevIndex + 1) % loadingMessages.length
+      setLoadingMsgIndex(
+        (prevIndex) => (prevIndex + 1) % loadingMessages.length
       );
     }, 2000);
 
     return () => clearInterval(interval);
-
-  }, [shouldStart])
+  }, [shouldStart]);
 
   useEffect(() => {
     loadingChanged(loading);
   }, [loading]);
-
 
   // Initialize Vapi once on mount
   useEffect(() => {
@@ -215,20 +59,20 @@ export function VapiWidget({
         setLoading(false);
 
         instance.on("call-start", () => {
-          setOpen(true)
-          setStatusMessage("Call started with Sky")
+          setOpen(true);
+          setStatusMessage("Call started with Sky");
         });
         instance.on("call-end", () => {
           setOpen(false);
           setIsSpeaking(false);
-          setStatusMessage("Call ended")
+          setStatusMessage("Call ended");
         });
         instance.on("speech-start", () => setIsSpeaking(true));
         instance.on("speech-end", () => setIsSpeaking(false));
         instance.on("message", (msg) => console.log("Vapi msg:", msg));
         instance.on("error", (err) => {
-          console.error("Vapi error:", err)
-          handleClose()
+          console.error("Vapi error:", err);
+          handleClose();
         });
       } catch (err) {
         console.error("Failed to load Vapi SDK:", err);
@@ -348,108 +192,121 @@ export function VapiWidget({
 
   return (
     <div
-      className={`${!isEmbeded ? "fixed right-6 z-modal flex flex-col items-end" : ""} overflow-none bg-transparent`}
+      className={`${
+        !isEmbeded ? "fixed right-6 z-modal flex flex-col items-end" : ""
+      } overflow-none bg-transparent`}
       // style={{ border: "4px solid green" }}
     >
-      {
-        isEmbeded && !open ? (
-          <button className="fixed bottom-6 right-6 z-modal flex flex-col items-end"
-            onClick={() => {
-              setOpen(true)
-              startVapiCall()
+      {isEmbeded && !open ? (
+        <button
+          className="fixed bottom-6 right-6 z-modal flex flex-col items-end"
+          onClick={() => {
+            setOpen(true);
+            startVapiCall();
+          }}
+        >
+          <div className="flex flex-row items-center pr-4 bg-white py-1 rounded-full shadow-md">
+            <Image
+              src={"/otherAssets/embedGetHelp.jpg"}
+              height={57}
+              width={57}
+              alt="*"
+            />
+
+            <p className=" text-[16px] font-bold text-purple cursor-pointer">
+              Get Help
+            </p>
+          </div>
+        </button>
+      ) : (
+        <div className="flex flex-col gap-3 overflow-none bg-transparent">
+          <div
+            // className={
+            //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
+            //     isEmbeded
+            //     ? ""
+            //     : "shadow-md border"
+            // }
+            style={{
+              // backgroundColor: 'green',
+              padding: 6,
+              height: "320px",
+              width: "288px",
+              border: !isEmbeded ? "2px solid #00000010" : "",
+              borderRadius: 12,
+              boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none",
             }}
           >
-            <div className="flex flex-row items-center pr-4 bg-white py-1 rounded-full shadow-md">
-              <Image src={'/otherAssets/embedGetHelp.jpg'}
-                height={57} width={57} alt="*"
-              />
+            <div className="h-full w-full flex flex-col items-center">
+              <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
+                <img
+                  src="/agentXOrb.gif"
+                  alt="AgentX Orb"
+                  className="rounded-full bg-white shadow-lg size-36 object-cover"
+                />
+                {!statusMessage && (
+                  <p className="text-[15px] text-black text-center mt-5">
+                    {loadingMessages[loadingMsgIndex]}
+                  </p>
+                )}
 
-              <p className=" text-[16px] font-bold text-purple cursor-pointer">
-                Get Help
-              </p>
-            </div>
-          </button>
-        ) : (
-          <div className="flex flex-col gap-3 overflow-none bg-transparent">
-            <div
-              // className={
-              //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
-              //     isEmbeded
-              //     ? ""
-              //     : "shadow-md border"
-              // }
-              style={{
-                // backgroundColor: 'green', 
-                padding: 6,
-                height: "320px", width: "288px",
-                border: !isEmbeded ? '2px solid #00000010' : "",
-                borderRadius: 12,
-                boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none"
-              }}
-            >
-              <div className="h-full w-full flex flex-col items-center">
+                {statusMessage && (
+                  <p className="text-[15px] text-black text-center mt-5">
+                    {statusMessage}
+                  </p>
+                )}
 
-                <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
-                  <img
-                    src="/agentXOrb.gif"
-                    alt="AgentX Orb"
-                    className="rounded-full bg-white shadow-lg size-36 object-cover"
+                {isSpeaking && (
+                  <VoiceWavesComponent
+                    width={150}
+                    height={80}
+                    speed={0.12}
+                    amplitude={0.4}
+                    autostart
                   />
-                  {!statusMessage && (
-                    <p className="text-[15px] text-black text-center mt-5">
-                      {loadingMessages[loadingMsgIndex]}
-                    </p>
-                  )}
+                )}
+              </div>
 
-                  {statusMessage && (
-                    <p className="text-[15px] text-black text-center mt-5">
-                      {statusMessage}
-                    </p>
-                  )}
-
-                  {isSpeaking && (
-                    <VoiceWavesComponent
-                      width={150}
-                      height={80}
-                      speed={0.12}
-                      amplitude={0.4}
-                      autostart
-                    />
-                  )}
-                </div>
-
-                <div className={`flex flex-col items-center gap-2 ${isEmbeded && "mt-6"}`}>
-                  <p className="text-xs">Powered by</p>
-                  <a
-                    href={MYAGENTX_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium"
-                  >
-                    <img src="/agentx-logo.png" alt="AgentX Logo" className="h-3.5" />
-                  </a>
-                </div>
+              <div
+                className={`flex flex-col items-center gap-2 ${
+                  isEmbeded && "mt-6"
+                }`}
+              >
+                <p className="text-xs">Powered by</p>
+                <a
+                  href={MYAGENTX_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium"
+                >
+                  <img
+                    src="/agentx-logo.png"
+                    alt="AgentX Logo"
+                    className="h-3.5"
+                  />
+                </a>
               </div>
             </div>
-            <div className="flex flex-row items-center justify-end">
-              <button
-                onClick={handleClose}
-                // className={
-                //   "self-end size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1 bg-white"
-                //   //open ? "opacity-100 z-10" : "opacity-0 -z-10"
-                // }
-                className="w-12 h-12 flex flex-row items-center justify-center border-2 rounded-full bg-white"
-              >
-                <Image src="/otherAssets/crossBlue.jpg"
-                  height={2} width={20} alt="cross"
-                />
-              </button>
-            </div>
           </div>
-
-        )
-      }
-
+          <div className="flex flex-row items-center justify-end">
+            <button
+              onClick={handleClose}
+              // className={
+              //   "self-end size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1 bg-white"
+              //   //open ? "opacity-100 z-10" : "opacity-0 -z-10"
+              // }
+              className="w-12 h-12 flex flex-row items-center justify-center border-2 rounded-full bg-white"
+            >
+              <Image
+                src="/otherAssets/crossBlue.jpg"
+                height={2}
+                width={20}
+                alt="cross"
+              />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
