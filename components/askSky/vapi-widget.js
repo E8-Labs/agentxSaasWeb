@@ -6,6 +6,7 @@ import { API_KEY, DEFAULT_ASSISTANT_ID, MYAGENTX_URL } from "./constants";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import Image from "next/image";
+import { AudioWaveActivity } from "./askskycomponents/AudioWaveActivity";
 
 //Update from salman
 export function VapiWidget({
@@ -265,6 +266,9 @@ export function VapiWidget({
                     autostart
                   />
                 )}
+                {/* {!isSpeaking &&  */}
+                <AudioWaveActivity isActive={!isSpeaking} />
+                {/* } */}
               </div>
 
               <div
