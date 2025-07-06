@@ -3108,16 +3108,7 @@ function Page() {
                       </span>
 
                     </div>
-                    <button onClick={() => {
-                      handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
-                    }}>
-                      <div
-                        className="text-purple mb-3 mr-2"
-                        style={{ fontSize: 11, fontWeight: "600" }}
-                      >
-                        Embed
-                      </div>
-                    </button>
+
                     {/* <EmbedWidget
                       assistantId={showDrawerSelectedAgent?.modelIdVapi}
                       setShowSuccessSnack={setShowSuccessSnack}
@@ -3152,100 +3143,110 @@ function Page() {
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2">
-                <DuplicateButton
-                  handleDuplicate={() => {
-                    setShowDuplicateConfirmationPopup(true);
-                  }}
-                  loading={duplicateLoader}
-                />
+              <div className="flex flex-col items-center gap-2">
+                <div>
+                  <DuplicateConfirmationPopup
+                    open={showDuplicateConfirmationPopup}
+                    handleClose={() => setShowDuplicateConfirmationPopup(false)}
+                    handleDuplicate={handleDuplicate}
+                  />
+                  <div className="flex flex-col gap-2  ">
+                    {/* GPT Button */}
 
-                <DuplicateConfirmationPopup
-                  open={showDuplicateConfirmationPopup}
-                  handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                  handleDuplicate={handleDuplicate}
-                />
-                <div className="flex flex-col gap-2  ">
-                  {/* GPT Button */}
+                    {showModelLoader ? (
+                      <CircularProgress size={25} />
+                    ) : (
+                      <div>
+                        <button
+                          id="gpt"
+                          onClick={(event) => setOpenGptManu(event.currentTarget)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            borderRadius: "20px",
+                            padding: "6px 12px",
+                            border: "1px solid #EEE",
+                            backgroundColor: "white",
+                            // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                            fontSize: "16px",
+                            fontWeight: "500",
+                            color: "#000",
+                            textTransform: "none",
+                            "&:hover": { backgroundColor: "#F5F5F5" },
+                          }}
+                        >
+                          <Avatar
+                            src={selectedGptManu?.icon}
+                            sx={{ width: 24, height: 24, marginRight: 1 }}
+                          />
+                          {selectedGptManu?.name}
+                          <Image
+                            src={"/svgIcons/downArrow.svg"}
+                            width={18}
+                            height={18}
+                            alt="*"
+                          />
+                        </button>
 
-                  {showModelLoader ? (
-                    <CircularProgress size={25} />
-                  ) : (
-                    <div>
-                      <button
-                        id="gpt"
-                        onClick={(event) => setOpenGptManu(event.currentTarget)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          borderRadius: "20px",
-                          padding: "6px 12px",
-                          border: "1px solid #EEE",
-                          backgroundColor: "white",
-                          // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                          fontSize: "16px",
-                          fontWeight: "500",
-                          color: "#000",
-                          textTransform: "none",
-                          "&:hover": { backgroundColor: "#F5F5F5" },
-                        }}
-                      >
-                        <Avatar
-                          src={selectedGptManu?.icon}
-                          sx={{ width: 24, height: 24, marginRight: 1 }}
-                        />
-                        {selectedGptManu?.name}
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          width={18}
-                          height={18}
-                          alt="*"
-                        />
-                      </button>
-
-                      <Menu
-                        id="gpt"
-                        anchorEl={openGptManu}
-                        open={openGptManu}
-                        onClose={() => setOpenGptManu(null)}
-                        sx={{
-                          "& .MuiPaper-root": {
-                            borderRadius: "12px",
-                            padding: "8px",
-                            minWidth: "180px",
-                          },
-                        }}
-                      >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: "8px",
-                              transition: "background 0.2s",
-                              "&:hover": {
-                                backgroundColor: model.disabled
-                                  ? "inherit"
-                                  : "#F5F5F5",
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {model.name}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </div>
-                  )}
+                        <Menu
+                          id="gpt"
+                          anchorEl={openGptManu}
+                          open={openGptManu}
+                          onClose={() => setOpenGptManu(null)}
+                          sx={{
+                            "& .MuiPaper-root": {
+                              borderRadius: "12px",
+                              padding: "8px",
+                              minWidth: "180px",
+                            },
+                          }}
+                        >
+                          {models.map((model, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => handleGptManuSelect(model)}
+                              disabled={model.disabled}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "8px 12px",
+                                borderRadius: "8px",
+                                transition: "background 0.2s",
+                                "&:hover": {
+                                  backgroundColor: model.disabled
+                                    ? "inherit"
+                                    : "#F5F5F5",
+                                },
+                                opacity: model.disabled ? 0.6 : 1,
+                              }}
+                            >
+                              <Avatar
+                                src={model.icon}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                              {model.name}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-row items-center gap-4">
+                  <DuplicateButton
+                    handleDuplicate={() => {
+                      setShowDuplicateConfirmationPopup(true);
+                    }}
+                    loading={duplicateLoader}
+                  />
+                  <button onClick={() => {
+                    handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                  }}>
+                    <Image src={'/svgIcons/embedIcon.svg'}
+                      height={24} width={24} alt="*"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
