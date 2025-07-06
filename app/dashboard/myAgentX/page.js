@@ -349,6 +349,25 @@ function Page() {
     },
   ];
 
+
+  // get selected agent from local if calendar added by google
+
+  useEffect(() => {
+    let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
+    if (d) {
+      let calendarAddedByGoogle = JSON.parse(d)
+      if (calendarAddedByGoogle) {
+        let ag = localStorage.getItem(PersistanceKeys.SelectedAgent)
+        if (ag) {
+          let agent = JSON.parse(ag)
+
+          console.log('selected agent from local is', agent)
+          setShowDrawerSelectedAgent(agent)
+        }
+      }
+    }
+  }, [])
+
   //storing agents in backup variable before
 
   useEffect(() => {

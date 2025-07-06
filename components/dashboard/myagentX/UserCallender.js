@@ -22,7 +22,7 @@ import AgentSelectSnackMessage, {
 import CircularLoader from "@/utilities/CircularLoader";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { SelectAll } from "@mui/icons-material";
 import AskSkyConfirmation from "@/components/askSky/askskycomponents/AskSkyConfirmation";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -553,6 +553,8 @@ const UserCalender = ({
 
               //add google calendar click
               handleCallClick={() => {
+                localStorage.setItem(PersistanceKeys.SelectedAgent,JSON.stringify(agent))
+                localStorage.setItem(PersistanceKeys.CalendarAddedByGoogle,true)
                 justLoggedIn.current = true;
                 signIn("google", { prompt: "consent", redirect: false });
               }}
