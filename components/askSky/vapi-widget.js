@@ -252,9 +252,6 @@ export function VapiWidget({
                       }}
                     />
                   </div>
-
-
-
                   {loadingMessage && (
                     <p className="text-[15px] text-black text-center mt-5">
                       {loadingMessage}
