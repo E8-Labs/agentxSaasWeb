@@ -2385,7 +2385,7 @@ function Page() {
   width="350"
   height="400"
   style={{
-          border: "1px solid red",
+          // border: "1px solid red",
           // borderRadius: 12,
           background: "transparent",
           // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
@@ -2650,7 +2650,7 @@ function Page() {
                     onClick={() => {
                       setShowRenameAgentPopup(null);
                     }}
-                    className="outline-none"
+                    className="outline-none absolute right-4"
                   >
                     <Image
                       src={"/assets/crossIcon.png"}
