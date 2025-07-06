@@ -20,21 +20,22 @@ export function VapiWidget({
   const [vapi, setVapi] = useState(null);
   const [open, setOpen] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
-  const [statusMessage, setStatusMessage] = useState(""); // dynamic message
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setloadingMessage] = useState("");
 
-  const loadingMessages = ["Sky is booting up...", "getting coffee.. "];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLoadingMsgIndex(
-        (prevIndex) => (prevIndex + 1) % loadingMessages.length
-      );
-    }, 2000);
+ useEffect(() => {
+  if (loading) {
+    setloadingMessage("Sky is booting up...");
 
-    return () => clearInterval(interval);
-  }, [shouldStart]);
+    const timer = setTimeout(() => {
+      setloadingMessage("...getting coffee...");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }
+}, [loading]);
+
 
   useEffect(() => {
     loadingChanged(loading);
@@ -57,16 +58,16 @@ export function VapiWidget({
 
         if (!mounted) return;
         setVapi(instance);
-        setLoading(false);
+        // setLoading(false);
 
         instance.on("call-start", () => {
           setOpen(true);
-          setStatusMessage("Call started with Sky");
+          setLoading(false)
+          setloadingMessage("")
         });
         instance.on("call-end", () => {
           setOpen(false);
           setIsSpeaking(false);
-          setStatusMessage("Call ended");
         });
         instance.on("speech-start", () => setIsSpeaking(true));
         instance.on("speech-end", () => setIsSpeaking(false));
@@ -100,6 +101,7 @@ export function VapiWidget({
   }, []);
 
   const startVapiCall = async () => {
+    setLoading(true)
     if (shouldStart && vapi) {
       let userProfile = await getProfileSupportDetails();
 
@@ -220,26 +222,27 @@ export function VapiWidget({
         </button>
       ) : (
         <div className="flex flex-col gap-3 overflow-none bg-transparent">
-          <div
-            // className={
-            //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
-            //     isEmbeded
-            //     ? ""
-            //     : "shadow-md border"
-            // }
-            style={{
-              backgroundColor: !isEmbeded ? "white" : "",
-              padding: 6,
-              height: "320px",
-              width: "288px",
-              border: !isEmbeded ? "2px solid #00000010" : "",
-              borderRadius: 12,
-              boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none",
-            }}
-          >
-            <div className="h-full w-full flex flex-col items-center">
-              <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
-                {/* 
+          <div className="w-full flex flex-row items-center justify-end">
+            <div
+              // className={
+              //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
+              //     isEmbeded
+              //     ? ""
+              //     : "shadow-md border"
+              // }
+              style={{
+                backgroundColor: "white",
+                padding: 6,
+                height: "320px",
+                width: "288px",
+                border: !isEmbeded ? "2px solid #00000010" : "",
+                borderRadius: 12,
+                boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none",
+              }}
+            >
+              <div className="h-full w-full flex flex-col items-center justify-center ">
+                <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
+                  {/* 
             <div
                   className="relative w-[150px] h-[150px] mx-auto"
                   style={{
@@ -257,66 +260,62 @@ export function VapiWidget({
                   />
                 </div>
             */}
-                <div className="relative w-[150px] h-[150px] mx-auto mt-4">
-                  {/* Gradient Glow Border */}
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div>
+                  <div className="relative w-[125px] h-[150px] mx-auto mt-4">
+                    {/* Gradient Glow Border */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div>
 
-                  {/* Image */}
-                  <img
-                    src="/agentXOrb.gif"
-                    alt="AgentX Orb"
-                    className="relative z-10 rounded-full bg-white shadow-lg object-cover"
-                    style={{
-                      height: "120px",
-                      width: "120px",
-                    }}
-                  />
+                    {/* Image */}
+                    <img
+                      src="/agentXOrb.gif"
+                      alt="AgentX Orb"
+                      className="relative z-10 rounded-full bg-white shadow-lg object-cover"
+                      style={{
+                        height: "120px",
+                        width: "120px",
+                      }}
+                    />
+                  </div>
+
+
+
+                  {loadingMessage && (
+                    <p className="text-[15px] text-black text-center mt-5">
+                      {loadingMessage}
+                    </p>
+                  )}
+
+                  {isSpeaking && (
+                    <VoiceWavesComponent
+                      width={150}
+                      height={80}
+                      speed={0.12}
+                      amplitude={0.4}
+                      autostart
+                    />
+                  )}
+                  {!isSpeaking && !loading &&
+                    <AudioWaveActivity isActive={true} />
+                  }
                 </div>
 
-
-                {!statusMessage && (
-                  <p className="text-[15px] text-black text-center mt-5">
-                    {loadingMessages[loadingMsgIndex]}
-                  </p>
-                )}
-
-                {statusMessage && (
-                  <p className="text-[15px] text-black text-center mt-5">
-                    {statusMessage}
-                  </p>
-                )}
-
-                {isSpeaking && (
-                  <VoiceWavesComponent
-                    width={150}
-                    height={80}
-                    speed={0.12}
-                    amplitude={0.4}
-                    autostart
-                  />
-                )}
-                {!isSpeaking &&
-                  <AudioWaveActivity isActive={true} />
-                }
-              </div>
-
-              <div
-                className={`flex flex-col items-center gap-2 ${isEmbeded && "mt-6"
-                  }`}
-              >
-                <p className="text-xs">Powered by</p>
-                <a
-                  href={MYAGENTX_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium"
+                <div
+                  className={`flex flex-row items-center gap-1 ${isEmbeded && "mt-6"
+                    }`}
                 >
-                  <img
-                    src="/agentx-logo.png"
-                    alt="AgentX Logo"
-                    className="h-3.5"
-                  />
-                </a>
+                  <p className="text-xs">Powered by</p>
+                  <a
+                    href={MYAGENTX_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium"
+                  >
+                    <img
+                      src="/agentx-logo.png"
+                      alt="AgentX Logo"
+                      className="h-3.5"
+                    />
+                  </a>
+                </div>
               </div>
             </div>
           </div>

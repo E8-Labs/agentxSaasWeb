@@ -158,7 +158,36 @@ export default function VapiChatWidget({
 
     useEffect(() => {
         startChat()
+        // muteAssistantAudio(true)
     }, [vapi])
+    // Function to mute/unmute assistant audio
+    const muteAssistantAudio = (mute) => {
+        // Find all audio elements (Vapi might create them)
+        const audioElements = document.querySelectorAll('audio');
+        console.log(`${ mute? 'Muting': 'Unmuting' } ${ audioElements.length } audio elements`);
+
+        audioElements.forEach(audio => {
+            audio.muted = mute;
+        });
+
+        // Also check for any audio elements in shadow DOM or iframes
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                if (iframeDoc) {
+                    const iframeAudioElements = iframeDoc.querySelectorAll('audio');
+                    iframeAudioElements.forEach(audio => {
+                        audio.muted = mute;
+                    });
+                }
+            } catch (e) {
+                console.error(e)
+                // Cross-origin iframe, can't access
+                console.log('Cannot access iframe audio elements (cross-origin)');
+            }
+        });
+    };
 
     const startChat = async () => {
         console.log('starting chat')

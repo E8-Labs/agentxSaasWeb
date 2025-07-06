@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 export const AudioWaveActivity = ({
   isActive = false,
-  barCount = 11,
+  barCount = 20,
   className = "",
 }) => {
   const [scalePattern, setScalePattern] = useState(
@@ -31,22 +31,39 @@ export const AudioWaveActivity = ({
   }, [isActive, barCount]);
 
   return (
+
     <div
-      className={`flex items-end justify-center gap-1 h-4 w-32 mt-4 ${className}`}
+      className={`flex items-center justify-center gap-1 h-4 w-32 mt-4 ${className}`}
     >
-      {scalePattern.map((scale, index) => (
+      {Array(barCount).fill(0).map((_, index) => (
         <div
           key={index}
           style={{
-            transform: `scaleY(${scale})`,
-            transition: "transform 0.2s ease-in-out",
-            backgroundColor: "#34D399", // green-400
-            width: "6px",
-            height: "10px",
-            borderRadius: "4px",
+            backgroundColor: "#7902DF", // green-40034D399
+            width: "4px",
+            height: "2px",
+            borderRadius: "50%",
           }}
         />
       ))}
     </div>
+
+    // <div
+    //   className={`flex items-end justify-center gap-1 w-32 mt-4 ${className}`}
+    // >
+    //   {scalePattern.map((scale, index) => (
+    //     <div
+    //       key={index}
+    //       style={{
+    //         transform: `scaleY(${scale})`,
+    //         transition: "transform 0.2s ease-in-out",
+    //         backgroundColor: "#34D399", // green-400
+    //         width: "6px",
+    //         height: "2px",
+    //         borderRadius: "50%",
+    //       }}
+    //     />
+    //   ))}
+    // </div>
   );
 };
