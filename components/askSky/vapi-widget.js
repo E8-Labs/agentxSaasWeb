@@ -225,13 +225,13 @@ export function VapiWidget({
           <div className="w-full flex flex-row items-center">
             <div
               style={{
-                backgroundColor: "white",
+                backgroundColor: "red",
                 padding: 6,
                 width: "350px",
                 height: "320px",
-                border: !isEmbeded ? "2px solid #00000010" : "",
+                border: "2px solid #00000010",
                 borderRadius: 12,
-                boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none",
+                boxShadow:"0 2px 8px rgba(0,0,0,0.1)",
               }}
             >
               <div className="h-full w-full flex flex-col items-center justify-center ">
