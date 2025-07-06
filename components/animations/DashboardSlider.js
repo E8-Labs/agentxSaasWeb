@@ -106,20 +106,27 @@ const DashboardSlider = ({
     },
     {
       id: 4,
+      label: "Chat Sky for Help",
+      image: "/otherAssets/askSkyBlack.jpg",
+      image2: "/otherAssets/askSkyBlue.jpg",
+      url: PersistanceKeys.SupportWebinarUrl,
+    },
+    {
+      id: 5,
       label: "Give Feedback",
       image: "/otherAssets/feedBackIcon.jpg",
       image2: "/otherAssets/feedBackIconBlue.jpg",
       url: PersistanceKeys.FeedbackFormUrl,
     },
     {
-      id: 5,
+      id: 6,
       label: "Hire the Team",
       image: "/otherAssets/hireTeamBlack.jpg",
       image2: "/otherAssets/hireTeamBlue.jpg",
       url: PersistanceKeys.HireTeamUrl,
     },
     {
-      id: 6,
+      id: 7,
       label: "Billing Support",
       image: "/otherAssets/billingIcon.jpg",
       image2: "/otherAssets/billingIconBlue.jpg",
@@ -128,19 +135,119 @@ const DashboardSlider = ({
   ];
 
   const handleOnClick = (item, index) => {
-    handleClose()
+    // handleClose()
     if (item.id === 3) {
-      setShowAskSkyConfirmation(true);
-      // setShowAskSkyModal(true);
-      // setShouldStartCall(true);
-    } else {
+      // setShowAskSkyConfirmation(true);
+      setShowAskSkyModal(true);
+      setShouldStartCall(true);
+    } else if (item.id === 4) {
+      setShowVapiChatWidget(true);
+    }
+
+    else {
       if (typeof window !== "undefined") {
         window.open(item.url, "_blank");
       }
     }
   };
 
+
+  const renderViews = () => {
+    if (showAskSkyModal) {
+      return (
+        <VapiWidget
+          user={userDetails}
+          shouldStart={shouldStartCall}
+          setShowAskSkyModal={setShowAskSkyModal}
+          setShouldStartCall={setShouldStartCall}
+          loadingChanged={(loading) => {
+            console.log(`Loading state changed`, loading);
+            if (loading) {
+              // TODO: Hamza show the loader here
+            } else {
+              // TODO: Hamza hide the loader here
+            }
+          }}
+        />
+      )
+    } else if (showVapiChatWidget) {
+      return (
+        <VapiChatWidget
+          setShowVapiChatWidget={setShowVapiChatWidget}
+        />
+      )
+    } else {
+      return (
+        <div className="flex flex-col items-end justify-end w-full gap-3">
+          <div className="w-full mt-5 bg-white shadow-lg text-black w-full"
+            style={{
+              borderRadius: "20px", padding: "16px 24px",
+            }}
+          >
+            <div className="w-full flex flex-col items-start gap-4">
+              {buttons.map((item, index) => (
+                <div
+                  key={index}
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={() => setHoverIndex(index)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                >
+                  <button
+                    className="w-full flex flex-row items-center gap-2"
+                    onClick={() => handleOnClick(item, index)}
+                  >
+                    <Image
+                      src={
+                        index === hoverIndex ? item.image2 : item.image
+                      }
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                    <div
+                      className="text-black hover:text-purple"
+                      style={{ fontSize: 15, fontWeight: "500" }}
+                    >
+                      {item.label}
+                    </div>
+                    {
+                      item.id === 3 && (
+
+                        <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
+                          Beta
+                        </div>
+                      )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <button className="bg-purple"
+            style={{
+              // position: "absolute",
+              // bottom: 0,
+              // right: 12,
+              borderRadius: "50%",
+              padding: 10,
+              cursor: "pointer",
+
+            }}
+            onClick={handleClose}
+          >
+            <Image
+              src={"/svgIcons/crossWhite.svg"}
+              width={24}
+              height={24}
+              alt="*"
+            />
+          </button>
+        </div>
+      )
+    }
+  }
+
   return (
+
     <div>
       {/* Snackbar */}
       <div style={getPosition()}>
@@ -169,69 +276,7 @@ const DashboardSlider = ({
               <div
                 className="flex flex-col items-end justify-end w-full gap-3"
                 style={{ flex: 1, }}>
-
-                <div className="w-full mt-5 bg-white shadow-lg text-black w-full"
-                  style={{
-                    borderRadius: "20px", padding: "16px 24px",
-                  }}
-                >
-                  <div className="w-full flex flex-col items-start gap-4">
-                    {buttons.map((item, index) => (
-                      <div
-                        key={index}
-                        style={{ cursor: "pointer" }}
-                        onMouseEnter={() => setHoverIndex(index)}
-                        onMouseLeave={() => setHoverIndex(null)}
-                      >
-                        <button
-                          className="w-full flex flex-row items-center gap-2"
-                          onClick={() => handleOnClick(item, index)}
-                        >
-                          <Image
-                            src={
-                              index === hoverIndex ? item.image2 : item.image
-                            }
-                            width={24}
-                            height={24}
-                            alt="*"
-                          />
-                          <div
-                            className="text-black hover:text-purple"
-                            style={{ fontSize: 15, fontWeight: "500" }}
-                          >
-                            {item.label}
-                          </div>
-                          {
-                            item.id === 3 && (
-
-                              <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
-                                Beta
-                              </div>
-                            )}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <button className="bg-purple"
-                  style={{
-                    // position: "absolute",
-                    // bottom: 0,
-                    // right: 12,
-                    borderRadius: "50%",
-                    padding: 10,
-                    cursor: "pointer",
-
-                  }}
-                  onClick={handleClose}
-                >
-                  <Image
-                    src={"/svgIcons/crossWhite.svg"}
-                    width={24}
-                    height={24}
-                    alt="*"
-                  />
-                </button>
+                {renderViews()}
               </div>
 
               <button
@@ -266,10 +311,9 @@ const DashboardSlider = ({
               bottom: 30,
               right: 10,
               zIndex: 999,
-              backgroundColor: "#7902DF",
+
               border: "none",
               borderRadius: "9999px",
-              padding: "12px 20px",
               fontSize: "16px",
               cursor: "pointer",
               boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
@@ -277,18 +321,20 @@ const DashboardSlider = ({
             }}
           >
             <button
-              className="outline-none border-none flex flex-row items-center gap-2"
+              className="outline-none border-none"
               onClick={handleReopen}
             >
-              <Image
-                src={"/svgIcons/getHelpIcon.svg"}
-                alt="*"
-                height={20}
-                width={20}
-                style={{ borderRadius: "50%", filter: "invert(1)" }}
-              />
-              <div style={{ fontWeight: "500", fontSize: 15, color: "white" }}>
-                Get Help
+              <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
+                <Image
+                  src={"/otherAssets/embedGetHelp.jpg"}
+                  height={57}
+                  width={57}
+                  alt="*"
+                />
+
+                <p className=" text-[16px] font-bold text-purple cursor-pointer">
+                  Get Help
+                </p>
               </div>
             </button>
           </motion.div>
@@ -314,14 +360,14 @@ const DashboardSlider = ({
       />
 
       <Modal
-        open={showVapiChatWidget}
+        open={false}
         onClose={() => {
           setShowVapiChatWidget(false);
         }}
         hideBackdrop
       >
         <VapiChatWidget
-         setShowVapiChatWidget = {setShowVapiChatWidget}
+          setShowVapiChatWidget={setShowVapiChatWidget}
         />
 
       </Modal>
@@ -329,7 +375,7 @@ const DashboardSlider = ({
 
 
       <Modal
-        open={showAskSkyModal}
+        open={false}
         onClose={() => {
           setShowAskSkyModal(false);
           setShouldStartCall(false);
@@ -355,6 +401,7 @@ const DashboardSlider = ({
         </div>
       </Modal>
     </div>
+
   );
 };
 
