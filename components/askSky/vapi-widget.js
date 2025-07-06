@@ -209,7 +209,7 @@ export function VapiWidget({
         >
           <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
             <Image
-              src={"/otherAssets/embedGetHelp.jpg"}
+              src={"/otherAssets/getHelp.png"}
               height={57}
               width={57}
               alt="*"
@@ -221,7 +221,7 @@ export function VapiWidget({
           </div>
         </button>
       ) : (
-        <div className="flex flex-col h-full gap-3 overflow-none bg-transparent">
+        <div className="flex flex-col gap-3 overflow-none bg-transparent">
           <div className="w-full flex flex-row items-center">
             <div
               style={{
