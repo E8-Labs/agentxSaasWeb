@@ -18,7 +18,7 @@ export default function TestEmbed() {
           // border: "1px solid red",
           borderRadius: 12,
           background: "transparent",
-          // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           position: "absolute",
           right: "2%",
           bottom: "3%",
