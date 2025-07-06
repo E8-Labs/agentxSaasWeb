@@ -129,8 +129,8 @@ const DashboardSlider = ({
       id: 7,
       label: "Billing Support",
       image: "/otherAssets/billingIcon.jpg",
-      image2: "/otherAssets/billingIconBlue.jpg",
-      url: "",
+      image2: "/otherAssets/billingIconBlue.png",
+      url: PersistanceKeys.BillingSupportUrl,
     },
   ];
 
@@ -333,12 +333,12 @@ const DashboardSlider = ({
 
               <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
                 <Image
-                  src={"/otherAssets/embedGetHelp.jpg"}
+                  src={"/otherAssets/getHelp.png"}
                   height={56}
                   width={57}
                   alt="*"
                   style={{
-                    borderWidth:1
+                    // borderWidth:1
                   }}
                 />
 
