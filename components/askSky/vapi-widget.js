@@ -195,8 +195,8 @@ export function VapiWidget({
 
   return (
     <div
-      className={`${!isEmbeded ? "fixed right-6 z-modal flex flex-col items-end h-screen justify-end bottom-6" : ""
-        } overflow-none bg-transparent`}
+      className={`fixed right-6 z-modal flex flex-col items-end h-screen justify-end bottom-0
+       `}
     // style={{ border: "4px solid green" }}
     >
       {isEmbeded && !open ? (
@@ -225,7 +225,7 @@ export function VapiWidget({
           <div className="w-full flex flex-row items-center">
             <div
               style={{
-                backgroundColor: "red",
+                backgroundColor: "white",
                 padding: 6,
                 width: "350px",
                 height: "320px",

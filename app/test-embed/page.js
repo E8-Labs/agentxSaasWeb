@@ -5,8 +5,6 @@ import { useEffect } from "react";
 
 export default function TestEmbed() {
 
-  
-
 
   return (
     <div style={{ minHeight: "100vh", background: "#f7f7fa" }}>
@@ -16,7 +14,7 @@ export default function TestEmbed() {
         height="385"
         style={{
           // border: "1px solid red",
-          // borderRadius: 12,
+          borderRadius: 12,
           background: "transparent",
           // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           position: "absolute",
