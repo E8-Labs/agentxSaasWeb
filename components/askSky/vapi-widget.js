@@ -24,17 +24,17 @@ export function VapiWidget({
   const [loadingMessage, setloadingMessage] = useState("");
 
 
- useEffect(() => {
-  if (loading) {
-    setloadingMessage("Sky is booting up...");
+  useEffect(() => {
+    if (loading) {
+      setloadingMessage("Sky is booting up...");
 
-    const timer = setTimeout(() => {
-      setloadingMessage("...getting coffee...");
-    }, 3000);
+      const timer = setTimeout(() => {
+        setloadingMessage("...getting coffee...");
+      }, 3000);
 
-    return () => clearTimeout(timer);
-  }
-}, [loading]);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
 
   useEffect(() => {
@@ -221,20 +221,14 @@ export function VapiWidget({
           </div>
         </button>
       ) : (
-        <div className="flex flex-col gap-3 overflow-none bg-transparent">
-          <div className="w-full flex flex-row items-center justify-end">
+        <div className="flex flex-col h-full gap-3 overflow-none bg-transparent">
+          <div className="w-full flex flex-row items-center">
             <div
-              // className={
-              //   "w-72 h-80 rounded-lg bg-white overflow-hidden p-6 border-black/10 mb-6 transition-all duration-300" +
-              //     isEmbeded
-              //     ? ""
-              //     : "shadow-md border"
-              // }
               style={{
                 backgroundColor: "white",
                 padding: 6,
+                width: "350px",
                 height: "320px",
-                width: "288px",
                 border: !isEmbeded ? "2px solid #00000010" : "",
                 borderRadius: 12,
                 boxShadow: !isEmbeded ? "0 2px 8px rgba(0,0,0,0.1)" : "none",
@@ -242,24 +236,7 @@ export function VapiWidget({
             >
               <div className="h-full w-full flex flex-col items-center justify-center ">
                 <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
-                  {/* 
-            <div
-                  className="relative w-[150px] h-[150px] mx-auto"
-                  style={{
-                    backgroundImage: "url('/assets/shade.png')",
-                    backgroundPosition: "center",
-                    backgroundSize: "150%",
-                    backgroundRepeat: "no-repeat",
-                    borderRadius: "50%"
-                  }}
-                >
-                  <img
-                    src="/agentXOrb.gif"
-                    alt="AgentX Orb"
-                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] h-[120px] rounded-full bg-white object-cover"
-                  />
-                </div>
-            */}
+                  
                   <div className="relative w-[125px] h-[150px] mx-auto mt-4">
                     {/* Gradient Glow Border */}
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div>
@@ -322,10 +299,7 @@ export function VapiWidget({
           <div className="flex flex-row items-center justify-end">
             <button
               onClick={handleClose}
-              // className={
-              //   "self-end size-11 flex items-center justify-center border border-black/5 shadow-sm rounded-full transition-transform hover:-translate-y-1 bg-white"
-              //   //open ? "opacity-100 z-10" : "opacity-0 -z-10"
-              // }
+             
               className="w-12 h-12 flex flex-row items-center justify-center border-2 rounded-full bg-white"
             >
               <Image
