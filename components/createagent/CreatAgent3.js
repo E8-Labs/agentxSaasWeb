@@ -22,7 +22,13 @@ let stripePublickKey =
 // //console.log;
 const stripePromise = loadStripe(stripePublickKey);
 
-const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth }) => {
+const CreatAgent3 = ({
+  handleContinue,
+  smallTerms,
+  user,
+  handleBack,
+  screenWidth,
+}) => {
   const router = useRouter();
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -46,12 +52,11 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
     }
   }, [togglePlan, agreeTerms]);
 
-
   useEffect(() => {
     const handlePopState = () => {
       console.log("🔙 Back gesture or browser back triggered");
       // if(window.screenWidth < 640){
-      handleBack()
+      handleBack();
       // }
     };
 
@@ -61,7 +66,6 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
-
 
   //selects 1st plan popup
   const handleTogglePlanClick = (item) => {
@@ -418,8 +422,9 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
 
               {/*  Plans array start here  */}
               <div
-                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${selectedPlan ? "pb-36" : ""
-                  }`}
+                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${
+                  selectedPlan ? "pb-36" : ""
+                }`}
                 style={{ scrollbarWidth: "none" }}
               >
                 {/* For mobile view */}
@@ -905,11 +910,12 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue={`${selectedPlan?.mints === 30
-                      ? "Trial is limited to 30 mins"
-                      : ""
-                      }`}
-                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    textBelowContinue={`${
+                      selectedPlan?.mints === 30
+                        ? "Trial is limited to 30 mins"
+                        : ""
+                    }`}
+                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
@@ -980,19 +986,19 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                     if (screenWidth <= SM_SCREEN_SIZE) {
-                      if (selectedPlan.id === 1) {
-                        setShowSubscribeplan2(true);
-                      } else {
-                        router.push("/createagent/desktop");
-                      }
+                      // if (selectedPlan.id === 1) {
+                      //   setShowSubscribeplan2(true);
+                      // } else {
+                      router.push("/createagent/desktop");
+                      // }
                       // //console.log;
                     } else {
                       // //console.log;
-                      if (selectedPlan.id === 1) {
-                        setShowSubscribeplan2(true);
-                      } else {
-                        handleContinue();
-                      }
+                      // if (selectedPlan.id === 1) {
+                      //   setShowSubscribeplan2(true);
+                      // } else {
+                      handleContinue();
+                      // }
                     }
                   }}
                 >
@@ -1292,18 +1298,21 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
 export default CreatAgent3;
 
 function TermsText() {
-
   const windowWidth = () => {
     if (typeof window !== "undefined") {
       console.log("Window width is", window.innerWidth);
       return window.innerWidth;
     }
-  }
+  };
 
   return (
     <div
       className="flex flex-row w-full items-center gap-1"
-      style={{ color: "#151515", fontSize: windowWidth() < 640 ? 10 : 13, fontWeight: "600" }}
+      style={{
+        color: "#151515",
+        fontSize: windowWidth() < 640 ? 10 : 13,
+        fontWeight: "600",
+      }}
     >
       <p style={{ color: "#15151580" }}>
         I agree to{" "}
