@@ -860,6 +860,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 Sign Up
               </Link>
             </div>
+
+            {/* Login with calendar */}
+            <div>
+            
+            </div>
+
           </div>
         </div>
 

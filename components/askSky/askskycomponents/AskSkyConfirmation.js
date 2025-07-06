@@ -5,7 +5,9 @@ function AskSkyConfirmation({
     open,
     onClose,
     handleChatClick,
-    handleCallClick
+    handleCallClick,
+    optionA = "Chat with Sky",
+    optionB = "Call Sky"
 
 }) {
     return (
@@ -43,13 +45,13 @@ function AskSkyConfirmation({
                                 onClick={handleChatClick}
                                 className='px-4 py-2 text-purple border w-5/12 rounded'
                             >
-                                Chat with Sky
+                                {optionA}
                             </button>
                             <button
                                 onClick={handleCallClick}
                                 className='px-4 py-2 bg-purple w-5/12 text-white rounded'
                             >
-                                Call Sky
+                                {optionB}
                             </button>
                         </div>
                     </div>

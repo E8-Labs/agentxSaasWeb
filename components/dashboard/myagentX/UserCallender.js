@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "@/components/onboarding/Header";
 import Footer from "@/components/onboarding/Footer";
 import ProgressBar from "@/components/onboarding/ProgressBar";
@@ -24,6 +24,8 @@ import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { HowtoVideos } from "@/constants/Constants";
 import { SelectAll } from "@mui/icons-material";
+import AskSkyConfirmation from "@/components/askSky/askskycomponents/AskSkyConfirmation";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 const UserCalender = ({
   calendarDetails,
@@ -33,6 +35,9 @@ const UserCalender = ({
   updateVariableData,
   selectedUser
 }) => {
+
+  const justLoggedIn = useRef(false);
+
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
@@ -58,6 +63,9 @@ const UserCalender = ({
   const [type, setType] = useState(null);
 
   const [calendarSelected, setCalendarSelected] = useState(null);
+  //confirmation for add new cal.com calendar or google calendar
+  const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
+  const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
 
   //code for the IANA time zone lists
 
@@ -69,6 +77,20 @@ const UserCalender = ({
 
   //video card
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
+
+  //get the calendar sessions
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      console.log("User sessions are", session);
+    }
+    if (status === "authenticated" && justLoggedIn.current && session) {
+      console.log("✅ Logged in, calling handleAfterLogin");
+      justLoggedIn.current = false;
+      handleAddGoogleCalendarApi(session);
+    }
+  }, [session, status]);
 
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
@@ -175,7 +197,7 @@ const UserCalender = ({
         formData.append("agentId", selectedAgent?.id);
       }
 
-      if(selectedUser){
+      if (selectedUser) {
         formData.append("userId", selectedUser?.id);
       }
 
@@ -323,6 +345,11 @@ const UserCalender = ({
       setCalenderDelLoader(null);
     }
   };
+
+  //after the google login call the custom api
+  const handleAddGoogleCalendarApi = async (session) => {
+    console.log("Trogered the login after google login");
+  }
 
   const styles = {
     inputStyles: {
@@ -497,13 +524,9 @@ const UserCalender = ({
                       <button
                         className="text-purple underline w-full text-start"
                         onClick={() => {
-                          // //console.log;
-                          setCalendarSelected(null);
-                          // setCalenderTitle("");
-                          // setCalenderApiKey("");
-                          // setEventId("");
-                          // setSelectTimeZone("");
-                          setShowAddNewCalender(true);
+                          // setCalendarSelected(null);
+                          // setShowAddNewCalender(true);
+                          setShowCalendarConfirmation(true);
                         }}
                       >
                         Add New Calender
@@ -513,16 +536,43 @@ const UserCalender = ({
                 </FormControl>
               )}
             </div>
+
+            {/* Confirmation to add google calendar or cal.com */}
+            <AskSkyConfirmation
+              open={showCalendarConfirmation}
+              onClose={() => {
+                setShowCalendarConfirmation(false);
+              }}
+
+              //add call.com calendar click
+              handleChatClick={() => {
+                setCalendarSelected(null);
+                setShowAddNewCalender(true);
+                setAddGoogleCalendar(false);
+              }}
+
+              //add google calendar click
+              handleCallClick={() => {
+                justLoggedIn.current = true;
+                signIn("google", { prompt: "consent", redirect: false });
+              }}
+
+              // title={"Which calendar do you want to add?"}
+              optionA={"Add Cal.com Calendar"}
+              optionB={"Add Google Calendar"}
+
+            />
+
             {/* video modal to add calendar */}
             <div className="mt-6">
-            <VideoCard
-              duration="2 min 42 sec"
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal2(true);
-              }}
-              title="Learn how to add a calendar"
-            />
+              <VideoCard
+                duration="2 min 42 sec"
+                horizontal={false}
+                playVideo={() => {
+                  setIntroVideoModal2(true);
+                }}
+                title="Learn how to add a calendar"
+              />
             </div>
 
             {/* Intro modal */}
