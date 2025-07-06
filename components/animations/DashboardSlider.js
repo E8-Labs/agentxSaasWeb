@@ -305,7 +305,7 @@ const DashboardSlider = ({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
             transition={{ duration: 0.4 }}
-            className="shadow-lg flex flex-row items-center gap-2"
+            // className="shadow-lg flex flex-row items-center gap-2"
             style={{
               position: "fixed",
               bottom: 30,
@@ -313,10 +313,10 @@ const DashboardSlider = ({
               zIndex: 999,
 
               border: "none",
-              borderRadius: "9999px",
+             
               fontSize: "16px",
               cursor: "pointer",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
+              
               outline: "none",
             }}
           >
@@ -324,12 +324,22 @@ const DashboardSlider = ({
               className="outline-none border-none"
               onClick={handleReopen}
             >
+              {/* <Image
+                src={"/otherAssets/getHelpBtn.jpg"}
+                height={58}
+                width={216}
+                alt="*"
+              /> */}
+
               <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
                 <Image
                   src={"/otherAssets/embedGetHelp.jpg"}
-                  height={57}
+                  height={56}
                   width={57}
                   alt="*"
+                  style={{
+                    borderWidth:1
+                  }}
                 />
 
                 <p className=" text-[16px] font-bold text-purple cursor-pointer">
