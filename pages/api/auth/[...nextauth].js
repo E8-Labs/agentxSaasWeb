@@ -11,7 +11,7 @@ async function refreshAccessToken(token) {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-                client_id: process.env.GOOGLE_CLIENT_ID,
+                client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
                 client_secret: process.env.GOOGLE_CLIENT_SECRET,
                 grant_type: "refresh_token",
                 refresh_token: token.refreshToken,
@@ -40,7 +40,7 @@ async function refreshAccessToken(token) {
 export default NextAuth({
     providers: [
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             authorization: {
                 params: {
