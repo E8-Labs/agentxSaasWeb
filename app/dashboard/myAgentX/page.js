@@ -2384,14 +2384,14 @@ function Page() {
   src="${baseUrl}embed/vapi?assistantId=${assistantId}"
   width="350"
   height="400"
-  style="
+ style="
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    position: "absolute";
-          right: "2%";
-          bottom: "3%";
+    position: absolute;
+    right: 2%;
+    bottom: 3%;
   "
   title="AgentX Widget"
   allow="microphone"
