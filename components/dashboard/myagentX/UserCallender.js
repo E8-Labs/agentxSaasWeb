@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "@/components/onboarding/Header";
 import Footer from "@/components/onboarding/Footer";
 import ProgressBar from "@/components/onboarding/ProgressBar";
@@ -22,8 +22,11 @@ import AgentSelectSnackMessage, {
 import CircularLoader from "@/utilities/CircularLoader";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { SelectAll } from "@mui/icons-material";
+import AskSkyConfirmation from "@/components/askSky/askskycomponents/AskSkyConfirmation";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 
 const UserCalender = ({
   calendarDetails,
@@ -33,6 +36,9 @@ const UserCalender = ({
   updateVariableData,
   selectedUser
 }) => {
+
+  const justLoggedIn = useRef(false);
+
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
@@ -58,6 +64,9 @@ const UserCalender = ({
   const [type, setType] = useState(null);
 
   const [calendarSelected, setCalendarSelected] = useState(null);
+  //confirmation for add new cal.com calendar or google calendar
+  const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
+  const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
 
   //code for the IANA time zone lists
 
@@ -69,6 +78,20 @@ const UserCalender = ({
 
   //video card
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
+
+  //get the calendar sessions
+  const { data: session, status } = useSession();
+
+  // useEffect(() => {
+  //   if (session) {
+  //     console.log("User sessions are", session);
+  //   }
+  //   if (status === "authenticated" && justLoggedIn.current && session) {
+  //     console.log("✅ Logged in, calling handleAfterLogin");
+  //     justLoggedIn.current = false;
+  //     handleAddGoogleCalendarApi(session);
+  //   }
+  // }, [session, status]);
 
   // const [timeZones, setTimeZones] = useState([]);
   useEffect(() => {
@@ -104,6 +127,25 @@ const UserCalender = ({
   //   }
   // }, [calenderTitle, calenderApiKey, eventId, selectTimeZone]);
 
+  const pollSessionAndTriggerCallback = async (retries = 10, interval = 500) => {
+    for (let i = 0; i < retries; i++) {
+      const session = await getSession();
+      if (session?.accessToken) {
+        console.log("🎯 Session is ready after login", session);
+        handleAfterLogin(session); // 🔥 call your custom logic
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+    console.warn("⚠️ Timed out waiting for session after login.");
+  };
+
+  const handleAfterLogin = (session) => {
+    console.log("👉 Session after login:", session);
+    // Add your custom logic here: open calendar modal, call API, etc.
+  };
+
+
   function isEnabled() {
     if (calendarSelected) {
       // //console.log;
@@ -128,6 +170,13 @@ const UserCalender = ({
 
   //code for add calender api
   const handleAddCalender = async (calendar) => {
+    console.log("Calendar details passed from addgoogle calednar", calendar);
+    if (calendar?.isFromAddGoogleCal) {
+      console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+    } else {
+      console.log("Is not from google cal");
+    }
+    // return
     try {
       setAddCalenderLoader(true);
 
@@ -153,31 +202,38 @@ const UserCalender = ({
 
       const formData = new FormData();
 
-      // formData.append("apiKey", calendar ? calendar.apiKey : calenderApiKey); //|| calenderApiKey
-      // formData.append("title", calendar ? calendar.title : calenderTitle); //|| calenderTitle
-      // formData.append("mainAgentId", calendarDetails.id);
-      // formData.append("timeZone", calendar ? calendar.timeZone : selectTimeZone) //|| selectTimeZone
-      // formData.append("eventId", calendar ? calendar.eventId : eventId); //|| eventId
-      // formData.append("agentId", selectedAgent.id);
-
       // console.log(`Apikey == ${calenderApiKey}; Title == ${calenderTitle}; TimeZone == ${selectTimeZone}`);
 
-      formData.append("apiKey", calendar?.apiKey || calenderApiKey);
-      formData.append("title", calendar?.title || calenderTitle);
-      formData.append("timeZone", calendar?.timeZone || selectTimeZone);
-      if (calendar?.id) {
-        // formData.append("mainAgentId", calendarDetails.id);
-        formData.append("calendarId", calendar?.id); //|| selected calendar id
-        console.log("Sending calendar id ", calendar?.id);
-      }
-      formData.append("eventId", calendar?.eventId || eventId); //|| eventId
-      if (selectedAgent) {
+      if (calendar?.isFromAddGoogleCal) {
+        formData.append("title", "Google Calendar");
+        formData.append("calendarType", "google");
+        // formData.append("mainAgentId", "");
         formData.append("agentId", selectedAgent?.id);
+        formData.append("accessToken", calendar.accessToken);
+        formData.append("refreshToken", calendar.refreshToken);
+        formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
+        formData.append("expiryDate", calendar.expiryDate);
+        formData.append("googleUserId", calendar.id);
+      } else {
+        formData.append("apiKey", calendar?.apiKey || calenderApiKey);
+        formData.append("title", calendar?.title || calenderTitle);
+        formData.append("timeZone", calendar?.timeZone || selectTimeZone);
+        if (calendar?.id) {
+          // formData.append("mainAgentId", calendarDetails.id);
+          formData.append("calendarId", calendar?.id); //|| selected calendar id
+          console.log("Sending calendar id ", calendar?.id);
+        }
+        formData.append("eventId", calendar?.eventId || eventId); //|| eventId
+
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
       }
 
-      if(selectedUser){
-        formData.append("userId", selectedUser?.id);
-      }
+
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key} ===== ${value}`);
@@ -198,6 +254,7 @@ const UserCalender = ({
           setIsVisible(true);
         }
         if (response.data.status === true) {
+          setShowCalendarConfirmation(false);
           setType(SnackbarTypes.Success);
           setMessage("Calender added");
 
@@ -323,6 +380,11 @@ const UserCalender = ({
       setCalenderDelLoader(null);
     }
   };
+
+  //after the google login call the custom api
+  const handleAddGoogleCalendarApi = async (session) => {
+    console.log("Trogered the login after google login");
+  }
 
   const styles = {
     inputStyles: {
@@ -497,13 +559,9 @@ const UserCalender = ({
                       <button
                         className="text-purple underline w-full text-start"
                         onClick={() => {
-                          // //console.log;
-                          setCalendarSelected(null);
-                          // setCalenderTitle("");
-                          // setCalenderApiKey("");
-                          // setEventId("");
-                          // setSelectTimeZone("");
-                          setShowAddNewCalender(true);
+                          // setCalendarSelected(null);
+                          // setShowAddNewCalender(true);
+                          setShowCalendarConfirmation(true);
                         }}
                       >
                         Add New Calender
@@ -513,16 +571,61 @@ const UserCalender = ({
                 </FormControl>
               )}
             </div>
+
+            {/* Confirmation to add google calendar or cal.com */}
+            <AskSkyConfirmation
+              open={showCalendarConfirmation}
+              selectedAgent={selectedAgent}
+              onClose={() => {
+                setShowCalendarConfirmation(false);
+              }}
+
+              //add call.com calendar click
+              handleChatClick={() => {
+                setCalendarSelected(null);
+                setShowAddNewCalender(true);
+                setAddGoogleCalendar(false);
+              }}
+
+              //add google calendar click
+              // handleCallClick={() => {
+              //   // localStorage.setItem(PersistanceKeys.SelectedAgent,JSON.stringify(agent))
+              //   // localStorage.setItem(PersistanceKeys.CalendarAddedByGoogle,true)
+              //   justLoggedIn.current = true;
+              //   // signIn("google", { prompt: "consent", redirect: false });
+              //   signIn("google", { prompt: "consent", redirect: false })
+              //     .then((res) => {
+              //       if (res?.ok) {
+              //         console.log("Login successful, polling session...");
+              //         pollSessionAndTriggerCallback();
+              //       } else {
+              //         console.error("Google login failed", res?.error);
+              //       }
+              //     });
+              // }}
+
+              //handle add calendar
+              handleAddCalendar={(d) => {
+                handleAddCalender(d);
+              }}
+              calenderLoader={calenderLoader}
+
+              // title={"Which calendar do you want to add?"}
+              optionA={"Add Cal.com Calendar"}
+              optionB={"Add Google Calendar"}
+
+            />
+
             {/* video modal to add calendar */}
             <div className="mt-6">
-            <VideoCard
-              duration="2 min 42 sec"
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal2(true);
-              }}
-              title="Learn how to add a calendar"
-            />
+              <VideoCard
+                duration="2 min 42 sec"
+                horizontal={false}
+                playVideo={() => {
+                  setIntroVideoModal2(true);
+                }}
+                title="Learn how to add a calendar"
+              />
             </div>
 
             {/* Intro modal */}

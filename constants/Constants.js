@@ -22,6 +22,8 @@ export const PersistanceKeys = {
   isFromAdminOrAgency: "isFromAdminOrAgency",
   leadUploadState: "leadUploadState",
   aadminDashboardData: 'aadminDashboardData',
+  SelectedAgent:'SelectedAgent',
+  CalendarAddedByGoogle:"CalendarAddedByGoogle",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",

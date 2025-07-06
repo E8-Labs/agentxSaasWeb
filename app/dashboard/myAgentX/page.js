@@ -85,6 +85,7 @@ import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/Duplicat
 import TestEmbed from "@/app/test-embed/page";
 import EmbedVapi from "@/app/embed/vapi/page";
 import EmbedWidget from "@/app/test-embed/page";
+import { SessionProvider } from "next-auth/react";
 
 const DuplicateButton = dynamic(
   () => import("@/components/animation/DuplicateButton"),
@@ -347,6 +348,25 @@ function Page() {
       value: "Natural Conversation Flow",
     },
   ];
+
+
+  // get selected agent from local if calendar added by google
+
+  useEffect(() => {
+    let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
+    if (d) {
+      let calendarAddedByGoogle = JSON.parse(d)
+      if (calendarAddedByGoogle) {
+        let ag = localStorage.getItem(PersistanceKeys.SelectedAgent)
+        if (ag) {
+          let agent = JSON.parse(ag)
+
+          console.log('selected agent from local is', agent)
+          setShowDrawerSelectedAgent(agent)
+        }
+      }
+    }
+  }, [])
 
   //storing agents in backup variable before
 
@@ -4325,14 +4345,17 @@ function Page() {
                   }
                 ></div>
 
-                <UserCalender
-                  calendarDetails={calendarDetails}
-                  setUserDetails={setMainAgentsList}
-                  selectedAgent={showDrawerSelectedAgent}
-                  mainAgentId={MainAgentId}
-                  previousCalenders={previousCalenders}
-                  updateVariableData={updateAfterAddCalendar}
-                />
+                <SessionProvider>
+                  <UserCalender
+                    calendarDetails={calendarDetails}
+                    setUserDetails={setMainAgentsList}
+                    selectedAgent={showDrawerSelectedAgent}
+                    mainAgentId={MainAgentId}
+                    previousCalenders={previousCalenders}
+                    updateVariableData={updateAfterAddCalendar}
+                  />
+                </SessionProvider>
+
               </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
