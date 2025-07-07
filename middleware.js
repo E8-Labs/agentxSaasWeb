@@ -39,11 +39,10 @@ export function middleware(request) {
 
   if (!userCookie) {
     // //console.log;
-
     // Check if the user is trying to access the createagent route
     if (pathname.startsWith("/createagent")) {
       const loginUrl = new URL("/", request.url);
-      loginUrl.searchParams.set("redirect", pathname); // Add redirect query param
+      // loginUrl.searchParams.set("redirect", request.nextUrl.pathname); // Add redirect query param
       // console.log(
       //   "Redirecting to login with redirect URL:",
       //   loginUrl.toString()
@@ -61,7 +60,7 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    // "/createagent/:path*",
+    "/createagent/:path*",
     "/pipeline/:path*",
     "/sellerkycquestions/:path*",
     "/buyerkycquestions/:path*",
