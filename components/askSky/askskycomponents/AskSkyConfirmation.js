@@ -86,7 +86,7 @@ function AskSkyConfirmation({
 
   const handleCallClick = () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
-      process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_APP_SECRET;
+      process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID;
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI;
 
     const oauthUrl =

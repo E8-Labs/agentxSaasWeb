@@ -11,8 +11,8 @@ async function refreshAccessToken(token) {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        client_id: process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_APP_SECRET,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        client_id: process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID,
+        client_secret: process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_APP_SECRET,
         grant_type: "refresh_token",
         refresh_token: token.refreshToken,
       }),
