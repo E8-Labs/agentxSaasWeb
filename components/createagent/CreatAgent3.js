@@ -22,13 +22,7 @@ let stripePublickKey =
 // //console.log;
 const stripePromise = loadStripe(stripePublickKey);
 
-const CreatAgent3 = ({
-  handleContinue,
-  smallTerms,
-  user,
-  handleBack,
-  screenWidth,
-}) => {
+const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth }) => {
   const router = useRouter();
   const [togglePlan, setTogglePlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -52,11 +46,12 @@ const CreatAgent3 = ({
     }
   }, [togglePlan, agreeTerms]);
 
+
   useEffect(() => {
     const handlePopState = () => {
       console.log("🔙 Back gesture or browser back triggered");
       // if(window.screenWidth < 640){
-      handleBack();
+      handleBack()
       // }
     };
 
@@ -390,6 +385,14 @@ const CreatAgent3 = ({
     },
   };
 
+  const windowWidth = () => {
+    if (typeof window !== "undefined") {
+      console.log("Window width is", window.innerWidth);
+      return window.innerWidth;
+    }
+  };
+
+
   return (
     <div
       style={{ width: "100%" }}
@@ -423,9 +426,8 @@ const CreatAgent3 = ({
 
               {/*  Plans array start here  */}
               <div
-                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${
-                  selectedPlan ? "pb-36" : ""
-                }`}
+                className={`sm:h-[75%] overflow-none sm:overflow-auto  w-full flex flex-col items-center ${selectedPlan ? "pb-36" : ""
+                  }`}
                 style={{ scrollbarWidth: "none" }}
               >
                 {/* For mobile view */}
@@ -715,11 +717,6 @@ const CreatAgent3 = ({
                     </div>
                   </div>
                 </div>
-                <div
-                  className="mt-2 text-start w-full md:w-10/12 lg:w-6/12"
-                  style={{ color: "#151515", fontSize: windowWidth() < 640 ? 13 : 16, fontWeight: "600" }}>
-                  Calls volume are projects based on current call volume.
-                </div>
               </div>
 
               <div
@@ -761,8 +758,8 @@ const CreatAgent3 = ({
             <TermsText />
             </div>*/}
           {selectedPlan && (
-            <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[3%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
-              <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
+            <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[8%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
+              {/* <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
@@ -784,8 +781,8 @@ const CreatAgent3 = ({
                   )}
                 </button>
                 <TermsText />
-              </div>
-              <div className=" w-full flex-col items-center flex">
+              </div> */}
+              <div className=" w-full flex-col items-center flex mt-2">
                 {selectedPlan ? (
                   <div className="w-full flex-col items-center flex">
                     {selectedPlan?.id > 1 ? (
@@ -897,14 +894,16 @@ const CreatAgent3 = ({
                     {selectedPlan?.mints} mins
                   </div>
                 ) : ( */}
-                  <div
-                    className="text-center mt-4 text-[14px] font-[500] md:text-[16px] md:font-[500]"
-                    style={{
-                      color: "#00000060",
-                    }}
-                  >
-                    Payment starts after 7 days or 30 min of Al usage
-                  </div>
+                <div
+                  className="text-center test-14 font-[500] mt-4 md:text-[17px] md:font-[500]"
+                  style={{
+                    // fontSize: 16,
+                    // fontWeight: "600",
+                    color: "#00000060",
+                  }}
+                >
+                  Payment starts after 7 days or 30 min of Al usage
+                </div>
                 {/* )} */}
 
                 <Elements stripe={stripePromise}>
@@ -990,19 +989,19 @@ const CreatAgent3 = ({
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                     if (screenWidth <= SM_SCREEN_SIZE) {
-                      // if (selectedPlan.id === 1) {
-                      //   setShowSubscribeplan2(true);
-                      // } else {
-                      router.push("/createagent/desktop");
-                      // }
+                      if (selectedPlan.id === 1) {
+                        setShowSubscribeplan2(true);
+                      } else {
+                        router.push("/createagent/desktop");
+                      }
                       // //console.log;
                     } else {
                       // //console.log;
-                      // if (selectedPlan.id === 1) {
-                      //   setShowSubscribeplan2(true);
-                      // } else {
-                      handleContinue();
-                      // }
+                      if (selectedPlan.id === 1) {
+                        setShowSubscribeplan2(true);
+                      } else {
+                        handleContinue();
+                      }
                     }
                   }}
                 >
@@ -1302,12 +1301,13 @@ const CreatAgent3 = ({
 export default CreatAgent3;
 
 function TermsText() {
+
   const windowWidth = () => {
     if (typeof window !== "undefined") {
       console.log("Window width is", window.innerWidth);
       return window.innerWidth;
     }
-  };
+  }
 
   return (
     <div
