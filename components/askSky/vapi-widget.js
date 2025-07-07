@@ -7,6 +7,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import Image from "next/image";
 import { AudioWaveActivity } from "./askskycomponents/AudioWaveActivity";
+import { PersistanceKeys } from "@/constants/Constants";
 
 //Update from salman
 export function VapiWidget({
@@ -50,6 +51,7 @@ export function VapiWidget({
 
     const init = async () => {
       try {
+
         console.log("initializing vapi sdk");
 
         const mod = await import("@vapi-ai/web");
@@ -62,12 +64,13 @@ export function VapiWidget({
 
         instance.on("call-start", () => {
           setOpen(true);
-          setLoading(false)
-          setloadingMessage("")
+          setLoading(false);
+          setloadingMessage("");
         });
         instance.on("call-end", () => {
           setOpen(false);
           setIsSpeaking(false);
+          localStorage.removeItem(PersistanceKeys.showVapiModal);
         });
         instance.on("speech-start", () => setIsSpeaking(true));
         instance.on("speech-end", () => setIsSpeaking(false));
@@ -103,6 +106,10 @@ export function VapiWidget({
   const startVapiCall = async () => {
     setLoading(true)
     if (shouldStart && vapi) {
+      //store the value on localstorage if the initial call trigered
+      let isCallIntiated = true;
+      localStorage.setItem(PersistanceKeys.showVapiModal, JSON.stringify(isCallIntiated));
+
       let userProfile = await getProfileSupportDetails();
 
       let pipelineData = userProfile?.pipelines || [];
@@ -231,12 +238,12 @@ export function VapiWidget({
                 height: "320px",
                 border: "2px solid #00000010",
                 borderRadius: 12,
-                boxShadow:"0 2px 8px rgba(0,0,0,0.1)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
               }}
             >
               <div className="h-full w-full flex flex-col items-center justify-center ">
                 <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
-                  
+
                   <div className="relative w-[125px] h-[150px] mx-auto mt-4">
                     {/* Gradient Glow Border */}
                     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div>
@@ -296,7 +303,7 @@ export function VapiWidget({
           <div className="flex flex-row items-center justify-end">
             <button
               onClick={handleClose}
-             
+
               className="w-12 h-12 flex flex-row items-center justify-center border-2 rounded-full bg-white"
             >
               <Image

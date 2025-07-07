@@ -24,6 +24,9 @@ export const PersistanceKeys = {
   aadminDashboardData: 'aadminDashboardData',
   SelectedAgent:'SelectedAgent',
   CalendarAddedByGoogle:"CalendarAddedByGoogle",
+  
+  //vapi-widget call popup
+  showVapiModal: "showVapiModal",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",

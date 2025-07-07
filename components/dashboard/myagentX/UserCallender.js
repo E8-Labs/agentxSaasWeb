@@ -42,6 +42,7 @@ const UserCalender = ({
 
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
+  const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
   const [calenderTitle, setCalenderTitle] = useState("");
@@ -218,14 +219,15 @@ const UserCalender = ({
   //code for add calender api
   const handleAddCalender = async (calendar) => {
     console.log("Calendar details passed from addgoogle calednar", calendar);
-    if (calendar?.isFromAddGoogleCal) {
-      console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-    } else {
-      console.log("Is not from google cal");
-    }
     // return
     try {
+    if (calendar?.isFromAddGoogleCal) {
+      console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+      setGoogleCalenderLoader(true);
+    } else {
+      console.log("Is not from google cal");
       setAddCalenderLoader(true);
+    }
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -369,6 +371,7 @@ const UserCalender = ({
       console.error("Error occured in api is:", error);
     } finally {
       setAddCalenderLoader(false);
+      setGoogleCalenderLoader(false);
     }
   };
 
@@ -560,26 +563,6 @@ const UserCalender = ({
               )}
             </div>
 
-            {/* Confirmation to add google calendar or cal.com */}
-            <CalendarModal
-              open={showCalendarConfirmation}
-              selectedAgent={selectedAgent}
-              onClose={() => {
-                setShowCalendarConfirmation(false);
-              }}
-              calenderLoader={calenderLoader}
-              calendarSelected={calendarSelected}
-              handleAddCalendar = {handleAddCalender}
-              calenderTitle = {calenderTitle}
-              setCalenderTitle = {setCalenderTitle}
-              calenderApiKey = {calenderApiKey}
-              setCalenderApiKey = {setCalenderApiKey}
-              setEventId = {setEventId}
-              eventId = {eventId}
-              selectTimeZone = {selectTimeZone}
-              setSelectTimeZone = {setSelectTimeZone}
-            />
-
             {/* video modal to add calendar */}
             <div className="mt-6">
               <VideoCard
@@ -605,11 +588,32 @@ const UserCalender = ({
           <NoCalendarView
             showVideo={true}
             addCalendarAction={() => {
-              // //console.log;
+              console.log("Clicked on add cal");
               setShowCalendarConfirmation(true);
             }}
           />
         )}
+
+        {/* Confirmation to add google calendar or cal.com */}
+        <CalendarModal
+          open={showCalendarConfirmation}
+          selectedAgent={selectedAgent}
+          onClose={() => {
+            setShowCalendarConfirmation(false);
+          }}
+          calenderLoader={calenderLoader}
+          googleCalenderLoader={googleCalenderLoader}
+          calendarSelected={calendarSelected}
+          handleAddCalendar={handleAddCalender}
+          calenderTitle={calenderTitle}
+          setCalenderTitle={setCalenderTitle}
+          calenderApiKey={calenderApiKey}
+          setCalenderApiKey={setCalenderApiKey}
+          setEventId={setEventId}
+          eventId={eventId}
+          selectTimeZone={selectTimeZone}
+          setSelectTimeZone={setSelectTimeZone}
+        />
 
         {/* Modal to add custom calender */}
         <Modal open={showAddNewCalender}>
