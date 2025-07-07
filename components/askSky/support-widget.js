@@ -230,16 +230,16 @@ export function SupportWidget({ assistantId = DEFAULT_ASSISTANT_ID }) {
             <div className="flex flex-col gap-1 w-full justify-start items-start">
               <button
                 onClick={() => handleStartCall(true)}
-                className="font-medium flex items-center text-sm justify-start w-full gap-2 rounded-md hover:bg-purple hover:text-white transition-colors py-1.5 px-2.5 duration-300"
+                className="font-medium flex items-center text-base justify-start w-full gap-2 rounded-md hover:bg-purple hover:text-white transition-colors py-1.5 px-2.5 duration-300"
               >
-                <Sparkles size={16} />
+                <Sparkles size={18} />
                 Talk to Sky
               </button>
               {/* <button
                 onClick={() => handleStartCall(false)}
-                className="font-medium flex items-center text-sm justify-start w-full gap-2 rounded-md hover:bg-purple hover:text-white transition-colors py-1.5 px-2.5 duration-300"
+                className="font-medium flex items-center text-base justify-start w-full gap-2 rounded-md hover:bg-purple hover:text-white transition-colors py-1.5 px-2.5 duration-300"
               >
-                <Headset size={16} />
+                <Headset size={18} />
                 Chat to Support
               </button> */}
             </div>
@@ -250,13 +250,19 @@ export function SupportWidget({ assistantId = DEFAULT_ASSISTANT_ID }) {
         <button
           onClick={() => setMenuOpen(true)}
           className={classNames(
-            "py-2.5 px-6 cursor-pointer rounded-full bg-purple text-white font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
+            "py-2.5 h-11 px-4 cursor-pointer rounded-full  text-purple shadow-md font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
             !menuOpen ? "opacity-100 z-10" : "opacity-0 -z-10",
           )}
         >
-          <>
-            <>Get Help</>
-          </>
+          <div className="flex items-center justify-center gap-2">
+            <Image
+              src="/otherAssets/getHelp.png"
+              alt="Help Orb"
+              height={24}
+              width={24}
+            />
+            Get Help
+          </div>
         </button>
         <button
           onClick={handleCloseMenu}
