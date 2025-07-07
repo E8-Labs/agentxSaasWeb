@@ -4,7 +4,7 @@ import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
 import { VapiWidget } from "../askSky/vapi-widget";
 import { Box, Modal } from "@mui/material";
-import AskSkyConfirmation from "../askSky/askskycomponents/AskSkyConfirmation";
+import AskSkyConfirmation from "../dashboard/myagentX/CalenderModal";
 import VapiChatWidget from "../askSky/VapiChatWidget";
 
 const DashboardSlider = ({
@@ -350,24 +350,6 @@ const DashboardSlider = ({
           </motion.div>
         )}
       </AnimatePresence>
-
-      <AskSkyConfirmation
-        open={showAskSkyConfirmation}
-        onClose={() => {
-          setShowAskSkyConfirmation(false)
-        }}
-        handleCallClick={() => {
-          setShowAskSkyModal(true)
-          setShouldStartCall(true)
-          setShowAskSkyConfirmation(false)
-        }}
-
-        handleChatClick={() => {
-          setShowVapiChatWidget(true)
-          setShowAskSkyConfirmation(false)
-        }}
-
-      />
 
       <Modal
         open={false}
