@@ -989,19 +989,19 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
                     if (screenWidth <= SM_SCREEN_SIZE) {
-                      if (selectedPlan.id === 1) {
-                        setShowSubscribeplan2(true);
-                      } else {
+                      // if (selectedPlan.id === 1) {
+                      //   setShowSubscribeplan2(true);
+                      // } else {
                         router.push("/createagent/desktop");
-                      }
+                      // }
                       // //console.log;
                     } else {
                       // //console.log;
-                      if (selectedPlan.id === 1) {
-                        setShowSubscribeplan2(true);
-                      } else {
+                      // if (selectedPlan.id === 1) {
+                      //   setShowSubscribeplan2(true);
+                      // } else {
                         handleContinue();
-                      }
+                      // }
                     }
                   }}
                 >
