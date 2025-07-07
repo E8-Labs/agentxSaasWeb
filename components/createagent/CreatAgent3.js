@@ -902,7 +902,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     color: "#00000060",
                   }}
                 >
-                  Payment starts after 7 days or 30 min of AI usage
+                  Payment starts after 7 days
                 </div>
                 )}
 
