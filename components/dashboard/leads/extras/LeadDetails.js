@@ -813,9 +813,9 @@ const LeadDetails = ({
   const showColor = (item) => {
     let color =
       callStatusColors[
-        Object.keys(callStatusColors).find(
-          (key) => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
-        )
+      Object.keys(callStatusColors).find(
+        (key) => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
+      )
       ] || "#000";
 
     return color;
@@ -952,7 +952,7 @@ const LeadDetails = ({
                           <div className="flex flex-row items-center gap-4">
                             <div
                               className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                              // onClick={() => handleToggleClick(item.id)}
+                            // onClick={() => handleToggleClick(item.id)}
                             >
                               {selectedLeadsDetails?.firstName.slice(0, 1)}
                             </div>
@@ -1010,10 +1010,9 @@ const LeadDetails = ({
                                           >
                                             {selectedLeadsDetails?.emails
                                               ?.length > 1
-                                              ? `+${
-                                                  selectedLeadsDetails?.emails
-                                                    ?.length - 1
-                                                }`
+                                              ? `+${selectedLeadsDetails?.emails
+                                                ?.length - 1
+                                              }`
                                               : ""}
                                           </button>
                                         </div>
@@ -1059,10 +1058,9 @@ const LeadDetails = ({
                                         >
                                           {selectedLeadsDetails?.emails
                                             ?.length > 1
-                                            ? `+${
-                                                selectedLeadsDetails?.emails
-                                                  ?.length - 1
-                                              }`
+                                            ? `+${selectedLeadsDetails?.emails
+                                              ?.length - 1
+                                            }`
                                             : ""}
                                         </button>
                                       </div>
@@ -1118,7 +1116,7 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.tags.length > 0 ? (
                                 <div
                                   className="text-end flex flex-row items-center gap-2 "
-                                  // style={styles.paragraph}
+                                // style={styles.paragraph}
                                 >
                                   {
                                     // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -1137,7 +1135,7 @@ const LeadDetails = ({
                                                 {tag}
                                               </div>
                                               {DelTagLoader &&
-                                              tag.includes(DelTagLoader) ? (
+                                                tag.includes(DelTagLoader) ? (
                                                 <div>
                                                   <CircularProgress size={15} />
                                                 </div>
@@ -1381,39 +1379,39 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails
                                           ) && (
-                                            <div className="flex items-end justify-end min-w-[120px]">
-                                              <button
-                                                style={{
-                                                  fontWeight: "600",
-                                                  fontSize: 15,
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedCustomFields(
-                                                    (prevFields) =>
-                                                      prevFields.includes(
-                                                        column?.title
-                                                      )
-                                                        ? prevFields.filter(
+                                              <div className="flex items-end justify-end min-w-[120px]">
+                                                <button
+                                                  style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 15,
+                                                  }}
+                                                  onClick={() => {
+                                                    setExpandedCustomFields(
+                                                      (prevFields) =>
+                                                        prevFields.includes(
+                                                          column?.title
+                                                        )
+                                                          ? prevFields.filter(
                                                             (field) =>
                                                               field !==
                                                               column?.title
                                                           )
-                                                        : [
+                                                          : [
                                                             ...prevFields,
                                                             column?.title,
                                                           ]
-                                                  );
-                                                }}
-                                                className="text-black underline w-[120px]"
-                                              >
-                                                {expandedCustomFields.includes(
-                                                  column?.title
-                                                )
-                                                  ? "Read Less"
-                                                  : "Read More"}
-                                              </button>
-                                            </div>
-                                          )}
+                                                    );
+                                                  }}
+                                                  className="text-black underline w-[120px]"
+                                                >
+                                                  {expandedCustomFields.includes(
+                                                    column?.title
+                                                  )
+                                                    ? "Read Less"
+                                                    : "Read More"}
+                                                </button>
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     );
@@ -1558,7 +1556,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                          tag.includes(DelTagLoader) ? (
+                                            tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -1847,7 +1845,7 @@ const LeadDetails = ({
                     <div style={{ paddingInline: 0 }}>
                       {showPerplexityDetails &&
                         (selectedLeadsDetails &&
-                        selectedLeadsDetails.enrichData ? (
+                          selectedLeadsDetails.enrichData ? (
                           <Perplexity
                             selectedLeadsDetails={selectedLeadsDetails}
                           />
@@ -2139,33 +2137,33 @@ const LeadDetails = ({
 
                                                   {item.callOutcome !==
                                                     "No Answer" && (
-                                                    <div>
-                                                      {isExpandedActivity.includes(
-                                                        item.id
-                                                      ) ? (
-                                                        <div>
-                                                          <CaretUp
-                                                            size={17}
-                                                            weight="bold"
-                                                          />
-                                                        </div>
-                                                      ) : (
-                                                        <div>
-                                                          <CaretDown
-                                                            size={17}
-                                                            weight="bold"
-                                                          />
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  )}
+                                                      <div>
+                                                        {isExpandedActivity.includes(
+                                                          item.id
+                                                        ) ? (
+                                                          <div>
+                                                            <CaretUp
+                                                              size={17}
+                                                              weight="bold"
+                                                            />
+                                                          </div>
+                                                        ) : (
+                                                          <div>
+                                                            <CaretDown
+                                                              size={17}
+                                                              weight="bold"
+                                                            />
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    )}
                                                 </button>
                                               </div>
                                               {isExpandedActivity.includes(
                                                 item.id
                                               ) &&
                                                 (item.status === "voicemail" ||
-                                                item.callOutcome ===
+                                                  item.callOutcome ===
                                                   "Voicemail" ? (
                                                   <div className="border rounded mt-2 w-full p-4">
                                                     <button
@@ -2262,7 +2260,7 @@ const LeadDetails = ({
                                                         >
                                                           {moment(
                                                             item?.duration *
-                                                              1000
+                                                            1000
                                                           ).format(
                                                             "mm:ss"
                                                           )}{" "}
@@ -2731,13 +2729,29 @@ const LeadDetails = ({
         <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
           <div className="flex flex-row justify-center">
             <div
-              className="w-full flex flex-col items-center"
+              className="w-full flex flex-col items-end"
               style={{
                 backgroundColor: "#ffffff",
                 padding: 20,
                 borderRadius: "13px",
               }}
             >
+              <button
+                className="mb-3"
+                style={{ fontWeight: "600", fontSize: 15 }}
+                onClick={() => {
+                  navigator.clipboard.writeText(showAudioPlay).then(() => {
+                    setShowAudioPlay(null);
+                    setShowSuccessSnack("Audio URL copied");
+                    setShowSuccessSnack2(true);
+                  });
+                }}
+              >
+                <Image src={'/otherAssets/share.png'}
+                  height={20} width={20} alt="*"
+                />
+              </button>
+
               <audio
                 id="custom-audio"
                 controls
@@ -2746,7 +2760,7 @@ const LeadDetails = ({
               />
 
               {/* Buttons */}
-              <div className="flex flex-row justify-between w-full mt-4 gap-4">
+              {/* <div className="flex flex-row justify-between w-full mt-4 gap-4">
                 <button
                   className="w-1/2 h-[50px] rounded-lg bg-purple text-white"
                   style={{ fontWeight: "600", fontSize: 15 }}
@@ -2770,7 +2784,7 @@ const LeadDetails = ({
                 >
                   Close
                 </button>
-              </div>
+              </div>*/}
             </div>
           </div>
         </Box>
