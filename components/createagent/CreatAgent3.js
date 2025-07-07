@@ -894,16 +894,16 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     {selectedPlan?.mints} mins
                   </div>
                 ) : (
-                <div
-                  className="text-center test-14 font-[500] mt-4 sm:text-[17px] sm:font-[500]"
-                  style={{
-                    // fontSize: 16,
-                    // fontWeight: "600",
-                    color: "#00000060",
-                  }}
-                >
-                  Payment starts after 7 days or 30 min of AI usage
-                </div>
+                  <div
+                    className="text-center test-14 font-[500] mt-4 sm:text-[17px] sm:font-[500]"
+                    style={{
+                      // fontSize: 16,
+                      // fontWeight: "600",
+                      color: "#00000060",
+                    }}
+                  >
+                    Payment starts after 7 days trial
+                  </div>
                 )}
 
                 <Elements stripe={stripePromise}>
@@ -992,7 +992,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                       // if (selectedPlan.id === 1) {
                       //   setShowSubscribeplan2(true);
                       // } else {
-                        router.push("/createagent/desktop");
+                      router.push("/createagent/desktop");
                       // }
                       // //console.log;
                     } else {
@@ -1000,7 +1000,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                       // if (selectedPlan.id === 1) {
                       //   setShowSubscribeplan2(true);
                       // } else {
-                        handleContinue();
+                      handleContinue();
                       // }
                     }
                   }}
@@ -1097,7 +1097,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                       className="w-full mt-4"
                       onClick={(e) => handleTogglePlanClick2(item)}
                     >
-                      
+
                       <div
                         className="px-4 py-1 pb-4"
                         style={{
