@@ -389,12 +389,6 @@ const CreatAgent3 = ({
       outline: "none",
     },
   };
-   const windowWidth = () => {
-    if (typeof window !== "undefined") {
-      console.log("Window width is", window.innerWidth);
-      return window.innerWidth;
-    }
-  };
 
   return (
     <div
@@ -767,8 +761,8 @@ const CreatAgent3 = ({
             <TermsText />
             </div>*/}
           {selectedPlan && (
-            <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[6%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
-              {/* <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
+            <div className="flex flex-col gap-2 absolute left-1/2 transform -translate-x-1/2 right-2 bottom-[3%] bg-white/30 backdrop-blur-lg w-full md:w-10/12 lg:w-5/12">
+              <div className="flex flex-row items-center gap-4 justify-start w-full  mt-6 pb-4 hidden sm:flex ">
                 <button onClick={handleToggleTermsClick}>
                   {agreeTerms ? (
                     <div
@@ -790,7 +784,7 @@ const CreatAgent3 = ({
                   )}
                 </button>
                 <TermsText />
-              </div> */}
+              </div>
               <div className=" w-full flex-col items-center flex">
                 {selectedPlan ? (
                   <div className="w-full flex-col items-center flex">
@@ -889,30 +883,29 @@ const CreatAgent3 = ({
                   </button>
                 </div>
                 <div className="text-center mt-2 text-[18px] font-[700] md:text-[24px] md:font-[700]">
-                  {selectedPlan?.id > 1
+                  {/* {selectedPlan?.id > 1
                     ? "Add your payment method" //"Select a plan that fits your needs"
-                    : "Start for free. Then pay as you go!"}
+                    : "Start for free. Then pay as you go!"} */}
+                  You will not be charged today
                 </div>
 
-                {selectedPlan?.id > 1 ? (
+                {/* {selectedPlan?.id > 1 ? (
                   <div
                     className="text-center mt-4 md:text-[17px] md:font-[600]" //style={styles.headingStyle}
                   >
                     Your minutes will renew monthly or after using{" "}
                     {selectedPlan?.mints} mins
                   </div>
-                ) : (
+                ) : ( */}
                   <div
-                    className="text-center mt-4 md:text-[17px] md:font-[700]"
+                    className="text-center mt-4 text-[14px] font-[500] md:text-[16px] md:font-[500]"
                     style={{
-                      fontSize: 16,
-                      fontWeight: "600",
-                      color: "#151515",
+                      color: "#00000060",
                     }}
                   >
-                    Payment starts after your 7 day free trial*
+                    Payment starts after 7 days or 30 min of Al usage
                   </div>
-                )}
+                {/* )} */}
 
                 <Elements stripe={stripePromise}>
                   <AddCardDetails
@@ -922,12 +915,11 @@ const CreatAgent3 = ({
                     setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp}
                     handleClose={handleClose}
                     togglePlan={togglePlan}
-                    textBelowContinue={`${
-                      selectedPlan?.mints === 30
-                        ? "Trial is limited to 30 mins"
-                        : ""
-                    }`}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                    textBelowContinue={`${selectedPlan?.mints === 30
+                      ? "Trial is limited to 30 mins"
+                      : ""
+                      }`}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>
@@ -1318,7 +1310,6 @@ function TermsText() {
   };
 
   return (
-    
     <div
       className="flex flex-row w-full items-center gap-1"
       style={{ color: "#151515", fontSize: windowWidth() < 640 ? 10 : 13, fontWeight: "600" }}
