@@ -46,6 +46,15 @@ const DashboardSlider = ({
     }
   }, [needHelp]);
 
+  //check if the call was initated then keep the slider and vapi-widget open
+  useEffect(() => {
+    const vapiValue = localStorage.getItem(PersistanceKeys.showVapiModal);
+    if (vapiValue) {
+      const d = JSON.parse(vapiValue);
+      console.log("Vapi-value is", d);
+    }
+  }, [])
+
   const handleClose = () => {
     setVisible(false);
     setTimeout(() => {
@@ -313,10 +322,10 @@ const DashboardSlider = ({
               zIndex: 999,
 
               border: "none",
-             
+
               fontSize: "16px",
               cursor: "pointer",
-              
+
               outline: "none",
             }}
           >

@@ -13,6 +13,7 @@ function CalendarModal({
   selectedAgent,
   calendarSelected,
   calenderLoader,
+  googleCalenderLoader,
   handleAddCalendar,
   calenderTitle,
   setCalenderTitle,
@@ -161,29 +162,33 @@ function CalendarModal({
         <h2 className="text-lg font-semibold mb-4">
           Select a Calendar
         </h2>
-        <div className="flex flex-row items-center justify-between w-full mt-5">
-          <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-row items-center gap-4 w-full mt-5">
+          <div className="flex flex-col items-center gap-4 w-1/2">
             <p style={{
               fontSize: 15,
               fontWeight: '600'
             }}>
               Google Calendar
             </p>
-            <button
-              onClick={handlGoogleClick}
-              className="
-                px-4 py-2 text-purple border w-5/12 rounded h-[175px] w-[233px] border rounded-lg
-                flex items-center justify-center"
-            >
-              <Image
-                src={'/otherAssets/googleCalIcon.jpg'}
-                height={106} width={106} alt="*"
-              />
-            </button>
+            {googleCalenderLoader ? (
+              <CircularProgress size={45} />
+            ) : (
+              <button
+                onClick={handlGoogleClick}
+                className="
+                text-purple border w-11/12 rounded border rounded-lg
+                flex items-center justify-center h-[31vh]"
+              >
+                <Image
+                  src={'/otherAssets/googleCalIcon.jpg'}
+                  height={106} width={106} alt="*"
+                />
+              </button>
+            )}
           </div>
 
 
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4 w-1/2">
             <p style={{
               fontSize: 15,
               fontWeight: '600'
@@ -192,15 +197,15 @@ function CalendarModal({
             </p>
 
             {calenderLoader ? (
-              <CircularProgress size={20} />
+              <CircularProgress size={45} />
             ) : (
               <button
                 onClick={() => {
                   setShowAddNewCalender(true)
                 }}
                 className="
-                px-4 py-2 text-purple border w-5/12 rounded h-[175px] w-[233px] border rounded-lg
-                flex items-center justify-center"
+                text-purple border w-11/12 rounded border rounded-lg
+                flex items-center justify-center h-[31vh]"
               >
                 <Image
                   src={'/otherAssets/calIcon.jpg'}
@@ -216,10 +221,16 @@ function CalendarModal({
 
   const calCalendarView = () => {
     return (
-      <div style={{ width: "100%" }}>
+      <div className="h-full" style={{ width: "100%" }}>
         <div className="" style={{ scrollbarWidth: "none" }}>
           <div className="w-full">
-            <div className="w-full flex flex-row justify-end">
+            <div className="w-full flex flex-row justify-between">
+              <div style={{
+                fontSize: 20,
+                fontWeight: "600"
+              }}>
+                Add Cal.com calendar
+              </div>
               <button
                 className="outline-none"
                 onClick={() => {
@@ -322,7 +333,7 @@ function CalendarModal({
                 <Select
                   value={selectTimeZone}
                   // label="Age"
-                  onChange={(event)=>{
+                  onChange={(event) => {
                     setSelectTimeZone(event.target.value);
                   }}
                   displayEmpty // Enables placeholder
@@ -446,7 +457,7 @@ function CalendarModal({
       }}
     >
       <Box
-        className="w-5/12 h-[60vh]"
+        className="w-5/12"// h-auto
         sx={{
           position: "absolute",
           top: "50%",
