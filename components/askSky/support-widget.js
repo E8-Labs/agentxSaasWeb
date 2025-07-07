@@ -1,0 +1,273 @@
+import React, { useState, useEffect } from "react";
+import { Headset, Sparkles, X } from "lucide-react";
+import { API_KEY, DEFAULT_ASSISTANT_ID } from "./constants";
+import Apis from "../apis/Apis";
+import axios from "axios";
+import Image from "next/image";
+import Vapi from "@vapi-ai/web";
+import { AudioWaveActivity } from "./components/audio-wave-activity";
+import classNames from "classnames";
+import { Input } from "../ui/input";
+import { VoiceInterface } from "./components/voice-interface";
+import { ChatInterface } from "./components/chat-interface";
+
+export function SupportWidget({ assistantId = DEFAULT_ASSISTANT_ID }) {
+  const [vapi, setVapi] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setloadingMessage] = useState("");
+  const [transcript, setTranscript] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false); // Opens the support menu
+  const [voiceOpen, setVoiceOpen] = useState(false); // Sets up the Voice AI interface
+  const [chatOpen, setChatOpen] = useState(false); // Sets up the chat interface
+
+  // User loading messages to fake feedback...
+  useEffect(() => {
+    if (loading) {
+      setloadingMessage("Sky is booting up...");
+
+      const timer = setTimeout(() => {
+        setloadingMessage("Getting coffee...");
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    const vapiInstance = new Vapi(API_KEY);
+    setVapi(vapiInstance);
+    vapiInstance.on("call-start", () => {
+      console.log("📞 CALL-START: Call started");
+      setLoading(false);
+    });
+    vapiInstance.on("call-end", () => {
+      console.log("📞 CALL-END: Call ended");
+      setIsSpeaking(false);
+    });
+    vapiInstance.on("speech-start", () => {
+      console.log("🎤 SPEECH-START: Assistant started speaking");
+      setIsSpeaking(true);
+    });
+    vapiInstance.on("speech-end", () => {
+      console.log("🔇 SPEECH-END: Assistant stopped speaking");
+      setIsSpeaking(false);
+    });
+    vapiInstance.on("message", (message) => {
+      const mag = message?.transcript?.length
+        ? message.transcript.length / 100
+        : 100;
+
+      setTranscript((prev) => [...prev, message]);
+      console.log("MESSAGE:", message);
+      console.log("MAGNITUDE:", mag);
+    });
+    vapiInstance.on("error", (error) => {
+      console.error("Vapi error:", error);
+    });
+
+    return () => {
+      vapiInstance?.stop();
+    };
+  }, []);
+
+  // // NOTE: Provides the context to the LLM about where they are in the page.
+  // useEffect(() => {
+  //   const pathname = window?.location.pathname;
+  //   if (pathname && vapi) {
+  //     vapi.send({
+  //       type: "add-message",
+  //       message: {
+  //         role: "system",
+  //         content: `The user is currently on the "${pathname}" page`,
+  //       },
+  //     });
+  //   }
+  // }, [vapi]);
+
+  function muteAssistantAudio(mute) {
+    const audioElements = document.querySelectorAll("audio");
+    audioElements.forEach((audio) => {
+      audio.muted = mute;
+    });
+  }
+
+  async function startCall() {
+    if (vapi) {
+      const { pipelines = [], ...userProfile } =
+        (await getProfileSupportDetails()) || {};
+
+      const assistantOverrides = {
+        recordingEnabled: false,
+        variableValues: {
+          customer_details: JSON.stringify(userProfile),
+          // pipeline_details: JSON.stringify(pipelines)
+        },
+      };
+
+      // TODO: If voice
+
+      vapi.start(assistantId, assistantOverrides);
+    } else {
+      console.error("Vapi instance not initialized");
+    }
+  }
+
+  async function handleCloseCall() {
+    await vapi?.stop();
+
+    if (voiceOpen) {
+      setVoiceOpen(false);
+    }
+
+    if (chatOpen) {
+      setChatOpen(false);
+      muteAssistantAudio(false);
+    }
+  }
+
+  async function handleStartCall(voice) {
+    setLoading(true);
+
+    if (voice) {
+      setVoiceOpen(true);
+    } else {
+      setChatOpen(true);
+    }
+
+    await startCall();
+
+    if (!voice) {
+      muteAssistantAudio(true);
+    }
+  }
+
+  async function getProfileSupportDetails() {
+    console.log("get profile support details api calling");
+    let user = null;
+    try {
+      const data = localStorage.getItem("User");
+
+      if (data) {
+        user = JSON.parse(data);
+
+        let path = Apis.profileSupportDetails;
+
+        const response = await axios.get(path, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        });
+
+        if (response.data) {
+          if (response.data.status === true) {
+            console.log("profile support details are", response.data);
+            let data = response.data.data;
+            let pipelineData = data.pipelines;
+
+            delete data.pipelines;
+
+            return {
+              profile: user.user,
+              additionalData: response.data.data,
+              pipelines: pipelineData,
+            };
+          } else {
+            console.log("profile support message is", response.data.message);
+
+            return user.user;
+          }
+        }
+      }
+    } catch (e) {
+      console.log("error in get profile suppport details api is", e);
+      return user.user;
+    }
+  }
+
+  function handleCloseMenu() {
+    handleCloseCall();
+
+    setMenuOpen(false);
+  }
+
+  async function handleMessage(message) {
+    if (!vapi) return;
+
+    await vapi.sendMessage({
+      role: "user",
+      message,
+    });
+  }
+
+  return (
+    <div className="fixed bottom-6 right-6 z-modal flex flex-col items-end justify-start">
+      <div
+        className={classNames(
+          "relative w-72 h-80 rounded-lg overflow-hidden object-center object-cover shadow-md border bg-white border-black/10 mb-6 translate-x-0 transition-all duration-300",
+          menuOpen
+            ? "translate-x-0 opacity-100 z-10"
+            : "translate-x-full opacity-0 -z-10",
+          voiceOpen ? "p-6" : "p-2",
+        )}
+      >
+        <div className="h-full w-full flex flex-col gap-0 items-center justify-between">
+          {voiceOpen ? (
+            <VoiceInterface
+              loading={loading}
+              loadingMessage={loadingMessage}
+              isSpeaking={isSpeaking}
+            />
+          ) : chatOpen ? (
+            <ChatInterface
+              loading={loading}
+              loadingMessage={loadingMessage}
+              isSpeaking={isSpeaking}
+              messages={transcript}
+              sendMessage={handleMessage}
+            />
+          ) : (
+            <div className="flex flex-col gap-1 w-full justify-start items-start">
+              <button
+                onClick={() => handleStartCall(true)}
+                className="font-medium flex items-center text-sm justify-start w-full gap-2 rounded-md hover:bg-purple hover:text-white transition-colors py-1.5 px-2.5 duration-300"
+              >
+                <Sparkles size={16} />
+                Talk to Sky
+              </button>
+              {/* <button
+                onClick={() => handleStartCall(false)}
+                className="font-medium flex items-center text-sm justify-start w-full gap-2 rounded-md hover:bg-purple hover:text-white transition-colors py-1.5 px-2.5 duration-300"
+              >
+                <Headset size={16} />
+                Chat to Support
+              </button> */}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="relative z-0 h-11 w-54">
+        <button
+          onClick={() => setMenuOpen(true)}
+          className={classNames(
+            "py-2.5 px-6 cursor-pointer rounded-full bg-purple text-white font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
+            !menuOpen ? "opacity-100 z-10" : "opacity-0 -z-10",
+          )}
+        >
+          <>
+            <>Get Help</>
+          </>
+        </button>
+        <button
+          onClick={handleCloseMenu}
+          className={classNames(
+            "size-11 absolute top-0 right-0 border-black/5 shadow-sm border flex items-center justify-center cursor-pointer rounded-full font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
+            menuOpen ? "opacity-100 z-10" : "opacity-0 -z-10",
+          )}
+        >
+          <X />
+        </button>
+      </div>
+    </div>
+  );
+}
