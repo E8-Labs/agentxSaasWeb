@@ -7,7 +7,7 @@ import Image from "next/image";
 import Vapi from "@vapi-ai/web";
 import { AudioWaveActivity } from "./components/audio-wave-activity";
 import classNames from "classnames";
-import { Input } from "../ui/input";
+import { Input } from "./components/input";
 import { VoiceInterface } from "./components/voice-interface";
 import { ChatInterface } from "./components/chat-interface";
 
@@ -201,15 +201,18 @@ export function SupportWidget({ assistantId = DEFAULT_ASSISTANT_ID }) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-modal flex flex-col items-end justify-start">
+    <div className="fixed bottom-0 right-0 z-modal flex flex-col items-end justify-end max-w-full max-h-full">
       <div
         className={classNames(
-          "relative w-72 h-80 rounded-lg overflow-hidden object-center object-cover shadow-md border bg-white border-black/10 mb-6 translate-x-0 transition-all duration-300",
+          "relative w-72 h-80 rounded-lg overflow-hidden object-center object-cover shadow-lg border bg-white border-black/10 mb-4 translate-x-0 transition-all duration-300 ease-in-out",
           menuOpen
             ? "translate-x-0 opacity-100 z-10"
             : "translate-x-full opacity-0 -z-10",
           voiceOpen ? "p-6" : "p-2",
         )}
+        style={{
+          marginRight: '16px'
+        }}
       >
         <div className="h-full w-full flex flex-col gap-0 items-center justify-between">
           {voiceOpen ? (
@@ -246,11 +249,11 @@ export function SupportWidget({ assistantId = DEFAULT_ASSISTANT_ID }) {
           )}
         </div>
       </div>
-      <div className="relative z-0 h-11 w-54">
+      <div className="relative z-0 h-11 mb-4 mr-4">
         <button
           onClick={() => setMenuOpen(true)}
           className={classNames(
-            "py-2.5 h-11 px-4 cursor-pointer rounded-full  text-purple shadow-md font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
+            "py-2.5 h-11 px-4 cursor-pointer rounded-full bg-white text-purple shadow-lg font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
             !menuOpen ? "opacity-100 z-10" : "opacity-0 -z-10",
           )}
         >
@@ -267,7 +270,7 @@ export function SupportWidget({ assistantId = DEFAULT_ASSISTANT_ID }) {
         <button
           onClick={handleCloseMenu}
           className={classNames(
-            "size-11 absolute top-0 right-0 border-black/5 shadow-sm border flex items-center justify-center cursor-pointer rounded-full font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
+            "size-11 absolute top-0 right-0 border-black/5 shadow-lg border bg-white flex items-center justify-center cursor-pointer rounded-full font-bold font-sans translate-y-0 hover:-translate-y-1 transition-all duration-300",
             menuOpen ? "opacity-100 z-10" : "opacity-0 -z-10",
           )}
         >

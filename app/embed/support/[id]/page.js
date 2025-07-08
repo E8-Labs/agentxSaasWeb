@@ -10,7 +10,14 @@ async function Page({ params }) {
   }
 
   return (
-    <div>
+    <div style={{ 
+      width: '100vw', 
+      height: '100vh', 
+      background: 'transparent',
+      margin: 0,
+      padding: 0,
+      overflow: 'hidden'
+    }}>
       <SupportEmbed assistantId={assistantId} />
     </div>
   );
