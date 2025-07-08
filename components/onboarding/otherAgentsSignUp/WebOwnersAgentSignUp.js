@@ -31,6 +31,7 @@ const WebOwnersAgentSignUp = ({
   length = 6,
   onComplete,
   handleWaitList,
+  
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);

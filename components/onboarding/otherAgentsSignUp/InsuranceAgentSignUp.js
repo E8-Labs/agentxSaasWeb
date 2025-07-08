@@ -33,6 +33,7 @@ const InsuranceAgentSignUp = ({
   length = 6,
   onComplete,
   setCongratsPopup,
+  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -325,8 +326,8 @@ const InsuranceAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
-
             // setCongratsPopup(true);
           }
         }
@@ -637,11 +638,11 @@ const InsuranceAgentSignUp = ({
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-                 country={"us"} // restrict to US only
-                    onlyCountries={["us"]}
-                    disableDropdown={true}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
@@ -697,7 +698,7 @@ const InsuranceAgentSignUp = ({
                 name="not-a-username"
                 autoComplete="off"
                 value={userBrokage}
-               
+
                 onChange={(e) => {
                   setUserBrokage(e.target.value);
                 }}

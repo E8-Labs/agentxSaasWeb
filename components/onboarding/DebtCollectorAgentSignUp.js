@@ -33,6 +33,7 @@ const DebtCollectorAgentSignUp = ({
   handleSolarAgentBack,
   length = 6,
   onComplete,
+  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -398,7 +399,7 @@ const DebtCollectorAgentSignUp = ({
             //console.log;
             // handleContinue();
             router.push("/createagent")
-
+            handleShowRedirectPopup()
             // setCongratsPopup(true);
           }
         }

@@ -32,6 +32,7 @@ const LoanOfficerSignUp = ({
   handleSolarAgentBack,
   length = 6,
   onComplete,
+  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -384,8 +385,8 @@ const LoanOfficerSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
-
             // setCongratsPopup(true);
           }
         }

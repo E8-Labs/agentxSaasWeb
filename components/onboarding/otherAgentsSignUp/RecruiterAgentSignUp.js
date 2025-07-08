@@ -32,6 +32,7 @@ const RecruiterAgentSignUp = ({
   length = 6,
   onComplete,
   handleWaitList,
+  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -320,8 +321,8 @@ const RecruiterAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent");
-
             // setCongratsPopup(true);
           }
         }
@@ -631,11 +632,11 @@ const RecruiterAgentSignUp = ({
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-country={"us"} // restrict to US only
-                    onlyCountries={["us"]}
-                    disableDropdown={true}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}                  value={userPhoneNumber}
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false} value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
                     locationLoader

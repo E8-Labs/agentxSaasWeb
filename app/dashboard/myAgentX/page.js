@@ -4338,11 +4338,7 @@ function Page() {
               <div>
                 <div
                   className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-                  style={
-                    {
-                      // backgroundColor: "red"
-                    }
-                  }
+                  
                 ></div>
 
                 <SessionProvider>

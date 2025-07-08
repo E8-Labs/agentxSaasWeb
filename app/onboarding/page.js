@@ -31,12 +31,14 @@ import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOffice
 import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
 import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 const Page = ({ params }) => {
   const router = useRouter();
   const [congratsPopup, setCongratsPopup] = useState(false);
   const [userType, setUserType] = useState(UserTypes.RealEstateAgent);
   const [index, setIndex] = useState(0);
+  const [showRedirectPopup, setShowRedirectPopup] = useState(false);
   let windowSize = 1000;
   if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
@@ -305,6 +307,10 @@ const Page = ({ params }) => {
     overflow: "none",
   };
 
+  const handleShowRedirectPopup = () => {
+    setShowRedirectPopup(true);
+  }
+
   return (
     <ErrorBoundary>
       <div
@@ -350,7 +356,16 @@ const Page = ({ params }) => {
           userDetails={userDetails}
           setCongratsPopup={setCongratsPopup}
           handleUserTypeChange={handleUserTypeChange}
+          handleShowRedirectPopup={handleShowRedirectPopup}
         />
+
+
+        <LoaderAnimation
+          isOpen={showRedirectPopup}
+          title={"Redirecting to dashboard..."}
+        />
+
+
         <Modal
           open={congratsPopup}
           // onClose={() => setAddKYCQuestion(false)}

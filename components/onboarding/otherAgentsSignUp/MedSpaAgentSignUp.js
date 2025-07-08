@@ -32,6 +32,7 @@ const MedSpaAgentSignUp = ({
   handleSolarAgentBack,
   length = 6,
   onComplete,
+  handleShowRedirectPopup
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -381,8 +382,8 @@ const MedSpaAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
-
             // setCongratsPopup(true);
           }
         }

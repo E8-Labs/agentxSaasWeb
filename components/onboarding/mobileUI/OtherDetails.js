@@ -38,6 +38,7 @@ import MedSpaAgentOtherDetails from "./MedSpaAgentOtherDetails";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import LawAgentOtherDetails from "./LawAgentOtherDetails";
 import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 const OtherDetails = ({
   handleContinue,
@@ -112,6 +113,8 @@ const OtherDetails = ({
 
   const [consultation, setConsultation] = useState("");
   const [caseVolume, setCaseVolume] = useState("");
+
+  const [ShowDashboardLoading, setShowDashboardLoading] = useState(false)
 
 
 
@@ -1136,6 +1139,7 @@ const OtherDetails = ({
                             fontWeight: "700",
                           }}
                           onClick={() => {
+                            setShowDashboardLoading(true)
                             router.push("/createagent");
                           }}
                         >
@@ -1146,6 +1150,12 @@ const OtherDetails = ({
                   </div>
                 </Box>
               </Modal>
+
+
+              <LoaderAnimation
+                isOpen={ShowDashboardLoading}
+                title={"Redirecting to dashboard..."}
+              />
 
 
             </div>

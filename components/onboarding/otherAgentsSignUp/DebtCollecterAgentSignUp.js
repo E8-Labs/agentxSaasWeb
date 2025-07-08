@@ -24,6 +24,7 @@ import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const DebtCollerterAgentSignUp = ({
@@ -32,6 +33,7 @@ const DebtCollerterAgentSignUp = ({
   handleSolarAgentBack,
   length = 6,
   onComplete,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -77,6 +79,8 @@ const DebtCollerterAgentSignUp = ({
   const [installationVolume, setInstallationVolume] = useState("");
   const [projectSize, setProjectSize] = useState("");
   const [ClientType, setClientType] = useState(null);
+  const [ShowDashboardLoading, setShowDashboardLoading] = useState(false)
+
 
   //array for the primary client types
   const primaryClientTypes = [
@@ -366,6 +370,7 @@ const DebtCollerterAgentSignUp = ({
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
 
           if (screenWidth <= SM_SCREEN_SIZE) {
+            handleShowRedirectPopup();
             setCongratsPopup(true);
             // //console.log;
           } else {
@@ -939,6 +944,12 @@ const DebtCollerterAgentSignUp = ({
             </div>
           </div>
         </div>
+
+
+        <LoaderAnimation
+          isOpen={ShowDashboardLoading}
+          title={"Redirecting to dashboard..."}
+        />
 
         <div className="h-[10%]">
           <div>
