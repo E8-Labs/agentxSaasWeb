@@ -82,6 +82,10 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 
 import dynamic from "next/dynamic";
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
+import TestEmbed from "@/app/test-embed/page";
+import EmbedVapi from "@/app/embed/vapi/page";
+import EmbedWidget from "@/app/test-embed/page";
+// import { SessionProvider } from "next-auth/react";
 
 const DuplicateButton = dynamic(
   () => import("@/components/animation/DuplicateButton"),
@@ -90,6 +94,12 @@ const DuplicateButton = dynamic(
   }
 );
 function Page() {
+
+  let baseUrl = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    ? "https://apimyagentx.com/"
+    : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/"
+
+
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
@@ -284,6 +294,8 @@ function Page() {
   const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =
     useState(false);
 
+  const [showEmbed, setShowEmbed] = useState(false)
+
   const playVoice = (url) => {
     if (audio) {
       audio.pause();
@@ -336,6 +348,25 @@ function Page() {
       value: "Natural Conversation Flow",
     },
   ];
+
+
+  // get selected agent from local if calendar added by google
+
+  useEffect(() => {
+    let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
+    if (d) {
+      let calendarAddedByGoogle = JSON.parse(d)
+      if (calendarAddedByGoogle) {
+        let ag = localStorage.getItem(PersistanceKeys.SelectedAgent)
+        if (ag) {
+          let agent = JSON.parse(ag)
+
+          console.log('selected agent from local is', agent)
+          setShowDrawerSelectedAgent(agent)
+        }
+      }
+    }
+  }, [])
 
   //storing agents in backup variable before
 
@@ -648,7 +679,7 @@ function Page() {
   const handleShowDrawer = (item) => {
     //console.log;
     // return
-    console.log("Agent  item", item?.agentLanguage);
+    console.log("Agent  item", item);
 
     if (item.Calendar) {
       console.log("Agent has calendaer in item");
@@ -851,8 +882,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
         } else if (response.data.status === false) {
@@ -1240,8 +1270,7 @@ function Page() {
 
             const updateAgentData = response.data.data;
             console.log(
-              `Agent updated data ${
-                updateAgentData.agents.length
+              `Agent updated data ${updateAgentData.agents.length
               } ${!showScriptModal}`,
               updateAgentData
             );
@@ -1504,8 +1533,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${
-              showDrawerSelectedAgent?.name || "Agent"
+            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
             }`
           );
 
@@ -1753,6 +1781,9 @@ function Page() {
             (item) => item.id !== showDrawerSelectedAgent.id
           )
         );
+
+        setIsVisibleSnack(true)
+        setShowSuccessSnack(response.data.message)
 
         setShowDrawerSelectedAgent(null);
         setActiveTab("Agent Info");
@@ -2367,6 +2398,36 @@ function Page() {
 
   // ////console.log
 
+
+  const handleCopy = (assistantId, baseUrl) => {
+    const iframeCode = `<iframe
+  src="${baseUrl}embed/vapi?assistantId=${assistantId}"
+  width="350"
+  height="400"
+  style={{
+          // border: "1px solid red",
+          // borderRadius: 12,
+          background: "transparent",
+          // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          position: "absolute",
+          right: "2%",
+          bottom: "3%",
+        }}
+  title="AgentX Widget"
+  allow="microphone"
+></iframe>`;
+
+    navigator.clipboard.writeText(iframeCode).then(() => {
+      // alert("Embed code copied to clipboard!");
+      setShowSuccessSnack("Embed widget copied");
+      setIsVisibleSnack(true);
+    }).catch(err => {
+      console.error("Failed to copy text: ", err);
+    });
+  };
+
+
+
   return (
     <div className="w-full flex flex-col items-center">
       {/* Success snack bar */}
@@ -2386,6 +2447,7 @@ function Page() {
           hide={() => setIsVisibleSnack2(false)}
           message={showErrorSnack}
           type={SnackbarTypes.Error}
+
         />
       </div>
 
@@ -2434,34 +2496,34 @@ function Page() {
                   getAgents(false, e.target.value, searchLoader);
                 }, 500);
               }}
-              //test code 2 failed
-              // onChange={(e) => {
-              //   const a = e.target.value;
-              //   setSearch(a);
+            //test code 2 failed
+            // onChange={(e) => {
+            //   const a = e.target.value;
+            //   setSearch(a);
 
-              //   if (a) {
-              //     console.log("There was some value");
+            //   if (a) {
+            //     console.log("There was some value");
 
-              //     // ✅ Only save original list once
-              //     if (agentsBeforeSearch.length === 0) {
-              //       setAgentsBeforeSearch(agentsListSeparated);
-              //     }
+            //     // ✅ Only save original list once
+            //     if (agentsBeforeSearch.length === 0) {
+            //       setAgentsBeforeSearch(agentsListSeparated);
+            //     }
 
-              //     clearTimeout(searchTimeoutRef.current);
-              //     searchTimeoutRef.current = setTimeout(() => {
-              //       const searchLoader = true;
-              //       getAgents(false, a, searchLoader);
-              //     }, 500);
-              //   } else {
-              //     console.log("There was no value");
+            //     clearTimeout(searchTimeoutRef.current);
+            //     searchTimeoutRef.current = setTimeout(() => {
+            //       const searchLoader = true;
+            //       getAgents(false, a, searchLoader);
+            //     }, 500);
+            //   } else {
+            //     console.log("There was no value");
 
-              //     // ✅ Restore the original list when search is cleared
-              //     setAgentsListSeparated(agentsBeforeSearch);
-              //   }
+            //     // ✅ Restore the original list when search is cleared
+            //     setAgentsListSeparated(agentsBeforeSearch);
+            //   }
 
-              //   // ✅ Optional: toggle loading based on canGetMore
-              //   setCanKeepLoading(canGetMore === true);
-              // }}
+            //   // ✅ Optional: toggle loading based on canGetMore
+            //   setCanKeepLoading(canGetMore === true);
+            // }}
             />
             <button className="outline-none border-none">
               <Image
@@ -2608,7 +2670,7 @@ function Page() {
                     onClick={() => {
                       setShowRenameAgentPopup(null);
                     }}
-                    className="outline-none"
+                    className="outline-none absolute right-4"
                   >
                     <Image
                       src={"/assets/crossIcon.png"}
@@ -2818,7 +2880,7 @@ function Page() {
                       maxHeight: "150px",
                       overflowY: "auto",
                     }}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -2849,9 +2911,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
@@ -2934,7 +2995,7 @@ function Page() {
       >
         <div
           className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-          // style={{  }}
+        // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -3016,7 +3077,7 @@ function Page() {
                     />
                   )}
                 </div>
-                <div className="flex flex-col gap-1 items-start">
+                <div className="flex flex-col gap-2 items-start ml-2">
                   <div className="flex flex-row justify-center items-center gap-2">
                     <button
                       onClick={() => {
@@ -3032,16 +3093,28 @@ function Page() {
                           width={24}
                           alt="*"
                         />
-                        <div style={{ fontSize: 22, fontWeight: "600" }}>
-                          {showDrawerSelectedAgent?.name
-                            ?.slice(0, 1)
-                            .toUpperCase()}
-                          {showDrawerSelectedAgent?.name?.slice(1)}
+                        <div className="relative group max-w-[150px]">
+                          <div
+                            className="truncate font-semibold text-[22px]"
+                          >
+                            {showDrawerSelectedAgent?.name
+                              ?.slice(0, 1)
+                              .toUpperCase()}
+                            {showDrawerSelectedAgent?.name?.slice(1)}
+                          </div>
+
+                          {/* Tooltip */}
+                          <div
+                            className="absolute left-0 top-full mt-1 w-max max-w-xs px-2 py-1 rounded-md bg-white
+                           shadow-md p-2 text-black text-md font-[500] opacity-0 group-hover:opacity-100 pointer-events-none
+                           transition-opacity duration-200 z-50">
+                            {showDrawerSelectedAgent?.name}
+                          </div>
                         </div>
                       </div>
                     </button>
                     <div
-                      className="text-purple"
+                      className="text-purple max-w-[140px]"
                       style={{ fontSize: 11, fontWeight: "600" }}
                     >
                       {showDrawerSelectedAgent?.agentObjective}{" "}
@@ -3051,9 +3124,18 @@ function Page() {
                         {showDrawerSelectedAgent?.agentType
                           ?.slice(0, 1)
                           .toUpperCase(0)}
-                        {showDrawerSelectedAgent?.agentType?.slice(1)}
+                        {showDrawerSelectedAgent?.agentType?.slice(1)} | {" "}
                       </span>
+
                     </div>
+
+                    {/* <EmbedWidget
+                      assistantId={showDrawerSelectedAgent?.modelIdVapi}
+                      setShowSuccessSnack={setShowSuccessSnack}
+                      setIsVisible={setIsVisibleSnack}
+                      baseUrl={baseUrl}
+                    /> */}
+
                   </div>
 
                   <div
@@ -3081,100 +3163,110 @@ function Page() {
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2">
-                <DuplicateButton
-                  handleDuplicate={() => {
-                    setShowDuplicateConfirmationPopup(true);
-                  }}
-                  loading={duplicateLoader}
-                />
+              <div className="flex flex-col items-center gap-2">
+                <div>
+                  <DuplicateConfirmationPopup
+                    open={showDuplicateConfirmationPopup}
+                    handleClose={() => setShowDuplicateConfirmationPopup(false)}
+                    handleDuplicate={handleDuplicate}
+                  />
+                  <div className="flex flex-col gap-2  ">
+                    {/* GPT Button */}
 
-                <DuplicateConfirmationPopup
-                  open={showDuplicateConfirmationPopup}
-                  handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                  handleDuplicate={handleDuplicate}
-                />
-                <div className="flex flex-col gap-2  ">
-                  {/* GPT Button */}
+                    {showModelLoader ? (
+                      <CircularProgress size={25} />
+                    ) : (
+                      <div>
+                        <button
+                          id="gpt"
+                          onClick={(event) => setOpenGptManu(event.currentTarget)}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            borderRadius: "20px",
+                            padding: "6px 12px",
+                            border: "1px solid #EEE",
+                            backgroundColor: "white",
+                            // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                            fontSize: "16px",
+                            fontWeight: "500",
+                            color: "#000",
+                            textTransform: "none",
+                            "&:hover": { backgroundColor: "#F5F5F5" },
+                          }}
+                        >
+                          <Avatar
+                            src={selectedGptManu?.icon}
+                            sx={{ width: 24, height: 24, marginRight: 1 }}
+                          />
+                          {selectedGptManu?.name}
+                          <Image
+                            src={"/svgIcons/downArrow.svg"}
+                            width={18}
+                            height={18}
+                            alt="*"
+                          />
+                        </button>
 
-                  {showModelLoader ? (
-                    <CircularProgress size={25} />
-                  ) : (
-                    <div>
-                      <button
-                        id="gpt"
-                        onClick={(event) => setOpenGptManu(event.currentTarget)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          borderRadius: "20px",
-                          padding: "6px 12px",
-                          border: "1px solid #EEE",
-                          backgroundColor: "white",
-                          // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                          fontSize: "16px",
-                          fontWeight: "500",
-                          color: "#000",
-                          textTransform: "none",
-                          "&:hover": { backgroundColor: "#F5F5F5" },
-                        }}
-                      >
-                        <Avatar
-                          src={selectedGptManu?.icon}
-                          sx={{ width: 24, height: 24, marginRight: 1 }}
-                        />
-                        {selectedGptManu?.name}
-                        <Image
-                          src={"/svgIcons/downArrow.svg"}
-                          width={18}
-                          height={18}
-                          alt="*"
-                        />
-                      </button>
-
-                      <Menu
-                        id="gpt"
-                        anchorEl={openGptManu}
-                        open={openGptManu}
-                        onClose={() => setOpenGptManu(null)}
-                        sx={{
-                          "& .MuiPaper-root": {
-                            borderRadius: "12px",
-                            padding: "8px",
-                            minWidth: "180px",
-                          },
-                        }}
-                      >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: "8px",
-                              transition: "background 0.2s",
-                              "&:hover": {
-                                backgroundColor: model.disabled
-                                  ? "inherit"
-                                  : "#F5F5F5",
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {model.name}
-                          </MenuItem>
-                        ))}
-                      </Menu>
-                    </div>
-                  )}
+                        <Menu
+                          id="gpt"
+                          anchorEl={openGptManu}
+                          open={openGptManu}
+                          onClose={() => setOpenGptManu(null)}
+                          sx={{
+                            "& .MuiPaper-root": {
+                              borderRadius: "12px",
+                              padding: "8px",
+                              minWidth: "180px",
+                            },
+                          }}
+                        >
+                          {models.map((model, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => handleGptManuSelect(model)}
+                              disabled={model.disabled}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "10px",
+                                padding: "8px 12px",
+                                borderRadius: "8px",
+                                transition: "background 0.2s",
+                                "&:hover": {
+                                  backgroundColor: model.disabled
+                                    ? "inherit"
+                                    : "#F5F5F5",
+                                },
+                                opacity: model.disabled ? 0.6 : 1,
+                              }}
+                            >
+                              <Avatar
+                                src={model.icon}
+                                sx={{ width: 24, height: 24 }}
+                              />
+                              {model.name}
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-row items-center gap-4">
+                  <DuplicateButton
+                    handleDuplicate={() => {
+                      setShowDuplicateConfirmationPopup(true);
+                    }}
+                    loading={duplicateLoader}
+                  />
+                  <button onClick={() => {
+                    handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                  }}>
+                    <Image src={'/svgIcons/embedIcon.svg'}
+                      height={24} width={24} alt="*"
+                    />
+                  </button>
                 </div>
               </div>
             </div>
@@ -3185,7 +3277,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     "-"
@@ -3199,7 +3291,7 @@ function Page() {
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     "-"
@@ -3239,16 +3331,16 @@ function Page() {
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                                1000
-                            )
-                            .format("HH:mm:ss")
+                          .utc(
+                            (showDrawerSelectedAgent?.totalDuration || 0) *
+                            1000
+                          )
+                          .format("HH:mm:ss")
                         : "-"}
                     </div>
                   ) : (
@@ -3266,11 +3358,10 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
-                  }`}
+                  className={`${activeTab === tab
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
+                    }`}
                   style={{
                     fontSize: 15,
                     fontWeight: "500",
@@ -3370,9 +3461,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3394,7 +3485,7 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                  // disabled={index !== 0}//languageValue === item?.title ||
+                                // disabled={index !== 0}//languageValue === item?.title ||
                                 >
                                   <Image
                                     src={item?.flag}
@@ -3655,9 +3746,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3756,9 +3847,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -3862,9 +3953,9 @@ function Page() {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -4026,37 +4117,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-purple underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setShowConfirmationModal(
-                                                        item
-                                                      );
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-purple underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowConfirmationModal(
+                                                          item
+                                                        );
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -4071,13 +4162,13 @@ function Page() {
                                 disabled={
                                   (assignNumber &&
                                     assignNumber.replace("+", "") ===
-                                      Constants.GlobalPhoneNumber.replace(
-                                        "+",
-                                        ""
-                                      )) ||
+                                    Constants.GlobalPhoneNumber.replace(
+                                      "+",
+                                      ""
+                                    )) ||
                                   (showDrawerSelectedAgent &&
                                     showDrawerSelectedAgent.agentType ===
-                                      "inbound")
+                                    "inbound")
                                 }
                                 onClick={() => {
                                   console.log(
@@ -4262,6 +4353,7 @@ function Page() {
                   previousCalenders={previousCalenders}
                   updateVariableData={updateAfterAddCalendar}
                 />
+
               </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">

@@ -22,6 +22,11 @@ export const PersistanceKeys = {
   isFromAdminOrAgency: "isFromAdminOrAgency",
   leadUploadState: "leadUploadState",
   aadminDashboardData: 'aadminDashboardData',
+  SelectedAgent:'SelectedAgent',
+  CalendarAddedByGoogle:"CalendarAddedByGoogle",
+  
+  //vapi-widget call popup
+  showVapiModal: "showVapiModal",
 
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
@@ -40,6 +45,7 @@ export const PersistanceKeys = {
     "https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK",
     HireTeamUrl:
     "https://api.leadconnectorhq.com/widget/bookings/agentx-done-with-you",
+    BillingSupportUrl:"https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D",
 
   // LocalStoredAgentsList
 };
