@@ -4003,16 +4003,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         title="Learn how to add a calendar"
                       />*/}
                   </div>
-
-                  <UserCalender
-                    selectedUser={selectedUser}
-                    calendarDetails={calendarDetails}
-                    setUserDetails={setMainAgentsList}
-                    selectedAgent={showDrawerSelectedAgent}
-                    mainAgentId={MainAgentId}
-                    previousCalenders={previousCalenders}
-                    updateVariableData={updateAfterAddCalendar}
-                  />
+                  <SessionProvider>
+                    <UserCalender
+                      selectedUser={selectedUser}
+                      calendarDetails={calendarDetails}
+                      setUserDetails={setMainAgentsList}
+                      selectedAgent={showDrawerSelectedAgent}
+                      mainAgentId={MainAgentId}
+                      previousCalenders={previousCalenders}
+                      updateVariableData={updateAfterAddCalendar}
+                    />
+                  </SessionProvider>
                 </div>
               ) : activeTab === "Pipeline" ? (
                 <div className="flex flex-col gap-4">
