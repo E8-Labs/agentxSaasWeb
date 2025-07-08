@@ -32,6 +32,7 @@ const RecruiterAgentSignUp = ({
   length = 6,
   onComplete,
   handleWaitList,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -320,6 +321,7 @@ const RecruiterAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent");
 
             // setCongratsPopup(true);

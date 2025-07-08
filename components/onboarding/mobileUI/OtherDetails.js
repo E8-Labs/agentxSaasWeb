@@ -45,6 +45,7 @@ const OtherDetails = ({
   length = 6,
   onComplete,
   userDetails,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -1136,6 +1137,7 @@ const OtherDetails = ({
                             fontWeight: "700",
                           }}
                           onClick={() => {
+                            handleShowRedirectPopup()
                             router.push("/createagent");
                           }}
                         >

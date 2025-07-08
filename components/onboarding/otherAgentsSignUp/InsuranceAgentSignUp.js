@@ -33,6 +33,7 @@ const InsuranceAgentSignUp = ({
   length = 6,
   onComplete,
   setCongratsPopup,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -325,6 +326,7 @@ const InsuranceAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
 
             // setCongratsPopup(true);
