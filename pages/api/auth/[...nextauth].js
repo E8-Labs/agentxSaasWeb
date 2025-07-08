@@ -1,3 +1,4 @@
+import { PersistanceKeys } from "@/constants/Constants";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -45,7 +46,7 @@ export default NextAuth({
       authorization: {
         params: {
           scope:
-            "openid email profile https://www.googleapis.com/auth/calendar",
+            PersistanceKeys.addCalendarScope,
           access_type: "offline", // ✅ Ensures refresh_token is returned
           prompt: "consent", // ✅ Forces Google to ask for permission each time
         },

@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
 import axios from "axios";
+import { PersistanceKeys } from "@/constants/Constants";
 
 function CalendarModal({
   open,
@@ -40,7 +41,7 @@ function CalendarModal({
         client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
         response_type: "code",
-        scope: "openid email profile https://www.googleapis.com/auth/calendar",
+        scope: PersistanceKeys.addCalendarScope,
         access_type: "offline",
         prompt: "consent",
       }).toString();
@@ -120,7 +121,7 @@ function CalendarModal({
       formData.append("refreshToken", data.refresh_token);
       formData.append(
         "scope",
-        "openid email profile https://www.googleapis.com/auth/calendar"
+        PersistanceKeys.addCalendarScope
       );
       formData.append("expiryDate", expiryDate);
       formData.append("googleUserId", data.id);
@@ -134,7 +135,7 @@ function CalendarModal({
         agentId: selectedAgent?.id,
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
-        scope: "openid email profile https://www.googleapis.com/auth/calendar",
+        scope: PersistanceKeys.addCalendarScope,
         expiryDate: expiryDate,
         googleUserId: data.id,
       };
