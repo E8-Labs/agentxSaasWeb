@@ -1007,14 +1007,14 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleS
                 </Box>
               </Modal>
 
-              {/* <SnackMessages
+              <SnackMessages
                 message={response.message}
                 isVisible={isVisible}
                 setIsVisible={(visible) => {
                   setIsVisible(visible);
                 }}
                 success={response.status}
-              /> */}
+              />
             </div>
           </div>
         </div>
