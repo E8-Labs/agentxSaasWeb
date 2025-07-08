@@ -38,6 +38,8 @@ import MedSpaAgentOtherDetails from "./MedSpaAgentOtherDetails";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import LawAgentOtherDetails from "./LawAgentOtherDetails";
 import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { SnackMessageTitles } from "@/components/constants/constants";
 
 const OtherDetails = ({
   handleContinue,
@@ -45,6 +47,7 @@ const OtherDetails = ({
   length = 6,
   onComplete,
   userDetails,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -105,7 +108,7 @@ const OtherDetails = ({
   const [urlErrorMessage, setUrlErrorMessage] = useState("");
 
 
-
+const [snackMessage,setSnackMessage] = useState(null)
   const [territory, setTerritory] = useState("");
   const [firmOrCompanyAffiliation, setFirmOrCompanyAffiliation] = useState("");
   const [averageMonthlyClients, setAverageMonthlyClients] = useState("");
@@ -612,6 +615,8 @@ const OtherDetails = ({
             // //console.log;
             handleContinue();
           }
+        }else{
+            setSnackMessage(response.data.message)
         }
       }
     } catch (error) {
@@ -886,6 +891,12 @@ const OtherDetails = ({
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
+      <AgentSelectSnackMessage
+        isVisible={snackMessage != null}
+        message={snackMessage}
+        type={SnackbarTypes.Error}
+        hide={()=>setSnackMessage(null)}
+      />
       <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[90svh] sm:h-[82svh]">
           {/* header 84svh */}
@@ -1136,6 +1147,7 @@ const OtherDetails = ({
                             fontWeight: "700",
                           }}
                           onClick={() => {
+                            handleShowRedirectPopup()
                             router.push("/createagent");
                           }}
                         >
