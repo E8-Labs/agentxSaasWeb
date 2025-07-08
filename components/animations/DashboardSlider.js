@@ -149,8 +149,6 @@ const DashboardSlider = ({
       // setShowAskSkyConfirmation(true);
       setShowAskSkyModal(true);
       setShouldStartCall(true);
-    } else if (item.id === 4) {
-      setShowVapiChatWidget(true);
     }
 
     else {

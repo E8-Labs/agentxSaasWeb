@@ -93,32 +93,7 @@ const Page = ({ params }) => {
       if (userType) {
         setComponents(comps.filter(Boolean));
 
-        // let oldComps = [
-        //   UserType,
-        //   UserService,
-        //   FocusArea,
-        //   userType === UserTypes.DebtCollectorAgent
-        //     ? DebtCollerterAgentSignUp
-        //     : userType === UserTypes.LawAgent
-        //     ? LawAgentSignUpMobile
-        //     : userType === UserTypes.MedSpaAgent
-        //     ? MedSpaAgentSignUpMobile
-        //     : userType === UserTypes.LoanOfficerAgent
-        //     ? LoanOfficerSignUpMobile
-        //     : BasicDetails, // Fallback
-
-        //   userType === UserTypes.DebtCollectorAgent
-        //     ? DebtCollerterAgentSignUp
-        //     : OtherDetails,
-        //   Congrats,
-        // ];
-        // setComponents(oldComps);
-
-        // console.log(
-        //   "🚀 Components from getComponentToRender:",
-        //   comps.map((c) => c?.name || "undefined")
-        // );
-      }
+}
     } else {
       let comps = getComponentToRender();
       // //console.log;
