@@ -73,6 +73,7 @@ import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPagin
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { SessionProvider } from "next-auth/react";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
 

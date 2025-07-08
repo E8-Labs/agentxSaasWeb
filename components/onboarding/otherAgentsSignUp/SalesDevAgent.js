@@ -33,6 +33,7 @@ const SalesDevAgent = ({
   onComplete,
   handleWaitList,
   setCongratsPopup,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -333,6 +334,7 @@ const SalesDevAgent = ({
           } else {
             //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
 
             // setCongratsPopup(true);

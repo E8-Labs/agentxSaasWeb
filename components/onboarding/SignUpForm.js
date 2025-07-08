@@ -26,7 +26,7 @@ import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "./services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 
-const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
+const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleShowRedirectPopup }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
@@ -336,6 +336,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete }) => {
           } else {
             //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
           }
         }

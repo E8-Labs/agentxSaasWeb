@@ -31,12 +31,16 @@ import LoanOfficerSignUpMobile from "@/components/onboarding/mobileUI/LoanOffice
 import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignUpMobile";
 import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import LoaderAnimation from "@/components/animations/LoaderAnimation";
 
 const Page = ({ params }) => {
   const router = useRouter();
   const [congratsPopup, setCongratsPopup] = useState(false);
   const [userType, setUserType] = useState(UserTypes.RealEstateAgent);
   const [index, setIndex] = useState(0);
+
+  const [showredirectPopup,setShowredirectPopup] = useState(false);
+
   let windowSize = 1000;
   if (typeof window !== "undefined") {
     windowSize = window.innerWidth;
@@ -350,6 +354,13 @@ const Page = ({ params }) => {
           userDetails={userDetails}
           setCongratsPopup={setCongratsPopup}
           handleUserTypeChange={handleUserTypeChange}
+          handleShowRedirectPopup={() => {
+            setShowredirectPopup(true);
+          }}
+        />
+        <LoaderAnimation 
+          isOpen={showredirectPopup}
+          title="Redirecting to dashboard..."
         />
         <Modal
           open={congratsPopup}

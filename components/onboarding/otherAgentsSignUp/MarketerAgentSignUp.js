@@ -32,6 +32,7 @@ const MarketerAgentSignUp = ({
   length = 6,
   onComplete,
   handleWaitList,
+  handleShowRedirectPopup,
 }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
@@ -327,6 +328,7 @@ const MarketerAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            handleShowRedirectPopup()
             router.push("/createagent")
 
             // setCongratsPopup(true);
