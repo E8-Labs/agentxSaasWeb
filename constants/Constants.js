@@ -28,6 +28,9 @@ export const PersistanceKeys = {
   //vapi-widget call popup
   showVapiModal: "showVapiModal",
 
+  //scope for add calendar
+  calendarScope: "openid email profile https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.settings.readonly",
+
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   GlobalConsultationUrl:

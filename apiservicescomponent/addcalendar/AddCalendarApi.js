@@ -1,5 +1,6 @@
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
+import { PersistanceKeys } from "@/constants/Constants";
 import axios from "axios";
 
 export const AddCalendarApi = async (calendarValues
@@ -23,7 +24,7 @@ export const AddCalendarApi = async (calendarValues
             // formData.append("mainAgentId", "");
             formData.append("accessToken", calendarValues?.accessToken);
             formData.append("refreshToken", calendarValues?.refreshToken);
-            formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
+            formData.append("scope", PersistanceKeys.calendarScope);
             formData.append("expiryDate", calendarValues?.expiryDate);
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);
@@ -33,6 +34,7 @@ export const AddCalendarApi = async (calendarValues
             formData.append("apiKey", calendarValues?.calenderApiKey);
             formData.append("eventId", calendarValues?.eventId);
             formData.append("calendarType", "cal_dot_com");
+            PersistanceKeys
         }
 
         for (let [key, value] of formData.entries()) {

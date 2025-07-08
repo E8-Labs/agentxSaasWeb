@@ -260,7 +260,7 @@ const UserCalender = ({
         formData.append("agentId", selectedAgent?.id);
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
-        formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
+        formData.append("scope", PersistanceKeys.calendarScope);
         formData.append("expiryDate", calendar.expiryDate);
         // formData.append("googleUserId", calendar.id); // here google id was undefined
         formData.append("googleUserId", calendar.googleUserId);
