@@ -27,6 +27,10 @@ const StirDetails = () => {
             fontWeight: "500",
             fontSize: 15,
         },
+        addBntStyles: {
+            fontSize: 14,
+            fontWeight: "500"
+        }
     }
 
     return (
@@ -41,19 +45,26 @@ const StirDetails = () => {
                             <TwilioProfileToolTip toolTip={"SHAKEN/STIR is a system that verifies your caller ID is real — not spoofed or fake. It helps your calls look more trustworthy and less like spam."} />
                         </div>
                     </div>
-                    <button
-                        className='border p-2 rounded-full'
-                        onClick={() => {
-                            setShowDetails(!showDetails);
-                        }}>
-                        {
-                            showDetails ? (
-                                <CaretUp size={12} />
-                            ) : (
-                                <CaretDown size={12} />
-                            )
-                        }
-                    </button>
+                    <div className='flex flex-row items-end gap-2'>
+                        <button
+                            className='border border-purple10 text-purple p-2 rounded-xl'
+                            style={styles.addBntStyles}>
+                            Add Shaken/Stir
+                        </button>
+                        <button
+                            className='border p-2 rounded-full'
+                            onClick={() => {
+                                setShowDetails(!showDetails);
+                            }}>
+                            {
+                                showDetails ? (
+                                    <CaretUp size={12} />
+                                ) : (
+                                    <CaretDown size={12} />
+                                )
+                            }
+                        </button>
+                    </div>
                 </div>
             </div>
             {

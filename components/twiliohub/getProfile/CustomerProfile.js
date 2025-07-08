@@ -2,10 +2,21 @@ import { ArrowDown, CaretDown, CaretUp } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useState } from 'react'
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
+import AddTwilio from '../addtwilio/AddTwilio';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 const CustomerProfile = () => {
 
     const [showDetails, setShowDetails] = useState(false);
+    //add twilio
+    const [showAddTwilio, setShowAddTwilio] = useState(false);
+    //show success snack
+    const [showSnack, setShowSnack] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false
+    });
+
 
     //styles
     const styles = {
@@ -23,10 +34,26 @@ const CustomerProfile = () => {
             fontSize: 15,
             color: "#151515"
         },
+        addBntStyles: {
+            fontSize: 14,
+            fontWeight: "500"
+        }
     }
 
     return (
         <div className='border rounded-lg w-full'>
+            <AgentSelectSnackMessage
+                type={showSnack.type}
+                message={showSnack.message}
+                isVisible={showSnack.isVisible}
+                hide={() => {
+                    setShowSnack({
+                        message: "",
+                        isVisible: false,
+                        type: SnackbarTypes.Success,
+                    });
+                }}
+            />
             <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[2px]"}`}>
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
                     <div className='flex flex-row items-end gap-2'>
@@ -37,19 +64,27 @@ const CustomerProfile = () => {
                             <TwilioProfileToolTip toolTip={"This is basic information about your business or how you use Twilio — it helps carriers understand who you are."} />
                         </div>
                     </div>
-                    <button
-                        className='border p-2 rounded-full'
-                        onClick={() => {
-                            setShowDetails(!showDetails);
-                        }}>
-                        {
-                            showDetails ? (
-                                <CaretUp size={12} />
-                            ) : (
-                                <CaretDown size={12} />
-                            )
-                        }
-                    </button>
+                    <div className='flex flex-row items-end gap-2'>
+                        <button
+                            className='border border-purple10 text-purple p-2 rounded-xl'
+                            style={styles.addBntStyles}
+                            onClick={() => { setShowAddTwilio(true) }}>
+                            Add Twilio
+                        </button>
+                        <button
+                            className='border p-2 rounded-full'
+                            onClick={() => {
+                                setShowDetails(!showDetails);
+                            }}>
+                            {
+                                showDetails ? (
+                                    <CaretUp size={12} />
+                                ) : (
+                                    <CaretDown size={12} />
+                                )
+                            }
+                        </button>
+                    </div>
                 </div>
             </div>
             {
@@ -242,6 +277,26 @@ const CustomerProfile = () => {
                     </div>
                 )
             }
+
+            {/* Modal to add the twilio */}
+            {
+                showAddTwilio && (
+                    <AddTwilio
+                        showAddTwilio={showAddTwilio}
+                        onClose={(d) => {
+                            setShowAddTwilio(false);
+                            if (d) {
+                                setShowSnack({
+                                    message: d?.message || "Twilio connected. Wait for approval!",
+                                    isVisible: true,
+                                    type: SnackbarTypes.Success,
+                                });
+                            }
+                        }}
+                    />
+                )
+            }
+
         </div>
     )
 }

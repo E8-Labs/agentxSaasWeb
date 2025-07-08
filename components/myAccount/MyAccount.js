@@ -81,6 +81,12 @@ function MyAccount() {
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
+    {
+      id: 11,
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/info.svg",
+    },
   ];
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
@@ -121,12 +127,12 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 5:
         return <InviteAgentX />;
-      case 6:
-        return <Support />;
+      // case 6:
+      //   return <Support />;
       // case 7:
       //   return <SendFeedback />;
-      // case 10:
-      //   return <TwilioTrustHub />;
+      case 9:
+        return <TwilioTrustHub />;
       default:
         return <div>Please select an option.</div>;
     }

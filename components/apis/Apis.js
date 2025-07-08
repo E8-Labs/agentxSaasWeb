@@ -194,6 +194,8 @@ const Apis = {
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
   deleteCallLog:`${BasePath}api/leads/deleteCallLog`,
+  addTwilio: `${BasePath}api/business-profile/twilio/create`,
+  createCname: `${BasePath}api/business-profile/cnam`,
   
   profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
   
