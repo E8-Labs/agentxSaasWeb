@@ -1,16 +1,21 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import CustomerProfile from '../twiliohub/getProfile/CustomerProfile'
 import CenamDetails from '../twiliohub/getProfile/CenamDetails'
 import StirDetails from '../twiliohub/getProfile/StirDetails'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import axios from 'axios'
+import VoiceIntegrityDetails from '../twiliohub/getProfile/VoiceIntegrityDetails'
+import BrandedCallsDetails from '../twiliohub/getProfile/BrandedCallsDetails'
 
 const TwilioTrustHub = () => {
 
     useEffect(() => {
         getBusinessProfile();
-    }, [])
+    }, []);
+
+    const [twilioHubData, setTwilioHubData] = useState(null);
+    const [profileStatus, setProfileStatus] = useState(true);
 
     const getBusinessProfile = async () => {
         try {
@@ -25,6 +30,13 @@ const TwilioTrustHub = () => {
 
             if (response) {
                 console.log("Response og get business profile is", response.data);
+                const ApiResponse = response.data
+                if (ApiResponse.status === true) {
+                    setTwilioHubData(ApiResponse.data);
+                    if (ApiResponse?.data?.profile?.status === "twilio-approved") {
+                        setProfileStatus(false);
+                    }
+                }
             }
         } catch (error) {
             console.log("Error occured in getBusinessProfile api is", error);
@@ -54,13 +66,34 @@ const TwilioTrustHub = () => {
             </div>
 
             <div className='w-full mt-2'>
-                <CustomerProfile />
+                <CustomerProfile
+                    twilioHubData={twilioHubData?.profile}
+                    getProfileData={getBusinessProfile}
+                />
             </div>
             <div className='w-full mt-4'>
-                <CenamDetails />
+                <CenamDetails
+                    twilioHubData={twilioHubData?.cnam}
+                    getProfileData={getBusinessProfile}
+                    profileStatus={profileStatus}
+                />
             </div>
             <div className='w-full mt-4'>
-                <StirDetails />
+                <StirDetails
+                    twilioHubData={twilioHubData?.shakenStir}
+                    getProfileData={getBusinessProfile}
+                    profileStatus={profileStatus}
+                />
+            </div>
+            <div className='w-full mt-4'>
+                <VoiceIntegrityDetails
+                    twilioHubData={twilioHubData?.voiceIntegrity}
+                    getProfileData={getBusinessProfile}
+                    profileStatus={profileStatus}
+                />
+            </div>
+            <div className='w-full mt-4'>
+                <BrandedCallsDetails />
             </div>
 
         </div>

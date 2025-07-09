@@ -6,7 +6,8 @@ import { businessTypesArray, bussinessRegionArea, callingRules, customerType, in
 
 
 const BrandedCallsBasicInfo = ({
-    handleContinue
+    handleContinue,
+    basicDetails
 }) => {
 
     const selectRef = useRef(null);
@@ -24,12 +25,28 @@ const BrandedCallsBasicInfo = ({
     const [phone, setPhone] = useState("");
 
     useEffect(() => {
-        if (!country) {
+        if (basicDetails) {
+            setOutBoundVoiceService(basicDetails.outboundVoiceService);
+            setComplaintCalling(basicDetails.complaintCalling);
+            setFirstName(basicDetails.firstName);
+            setLastName(basicDetails.lastName);
+            setEmail(basicDetails.email);
+            setPhone(basicDetails.phone);
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!outboundVoiceService ||
+            !complaintCalling ||
+            !firstName ||
+            !lastName ||
+            !email ||
+            !phone) {
             setCanContinue(true);
         } else {
             setCanContinue(false);
         }
-    }, [country]);
+    }, [outboundVoiceService, complaintCalling, firstName, lastName, email, phone]);
 
     //get selected and unselected radio img
     //radios check images
@@ -78,9 +95,9 @@ const BrandedCallsBasicInfo = ({
 
     return (
         <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-            <div className='w-11/12 h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
+            <div className='w-full h-[90%] pb-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                 <BrandedCallsHeader />
-                <div
+                {/*<div
                     className='mt-6'
                     style={styles.regularFont}>
                     Select country*
@@ -145,7 +162,7 @@ const BrandedCallsBasicInfo = ({
                             </Select>
                         </FormControl>
                     </Box>
-                </div>
+                            </div>*/}
                 <div style={styles.semiBold} className="mt-4 pt-2 border-t-[2px] border-[#00000010]">
                     Beta Program Qualifications
                 </div>
@@ -215,7 +232,7 @@ const BrandedCallsBasicInfo = ({
                         </div>
                         <div className='w-full mt-2'>
                             <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
+                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
                                 style={styles.regularFont}
                                 placeholder='First Name'
                                 value={firstName}
@@ -233,7 +250,7 @@ const BrandedCallsBasicInfo = ({
                         </div>
                         <div className='w-full mt-2'>
                             <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
+                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
                                 style={styles.regularFont}
                                 placeholder='Last Name'
                                 value={lastName}
@@ -251,7 +268,7 @@ const BrandedCallsBasicInfo = ({
                 </div>
                 <div className='w-full mt-2'>
                     <input
-                        className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
+                        className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
                         style={styles.regularFont}
                         placeholder='Email Address'
                         value={email}
@@ -268,7 +285,7 @@ const BrandedCallsBasicInfo = ({
                 </div>
                 <div className='w-full mt-2'>
                     <input
-                        className='border rounded-lg p-2 h-[50px] outline-none focus:outline-[purple] w-full focus:ring-0 focus:border-0'
+                        className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
                         style={styles.regularFont}
                         placeholder='Phone Number'
                         value={phone}
@@ -279,21 +296,29 @@ const BrandedCallsBasicInfo = ({
                     />
                 </div>
             </div>
-            <div className='w-full max-h-[10%] flex flex-row items-center justify-between'>
+            <div className='w-full max-h-[10%] flex flex-row items-center gap-2'>
                 <button
-                    className='outline-none border-none text-purple'
+                    className='outline-none border-none text-purple w-1/2'
                     style={styles.regularFont}
                 // onClick={() => {
                 //     handleBack()
                 // }}
                 >
-                    Back
+                    Exit
                 </button>
                 <button
-                    className={`h-[50px] w-[170px] text-center rounded-lg ${canContinue ? "bg-[#00000040] text-black" : "text-white bg-purple"}`}
-                    disabled={canContinue}
+                    className={`h-[50px] w-1/2 text-center rounded-lg ${canContinue ? "bg-[#00000040] text-black" : "text-white bg-purple"}`}
+                    // disabled={canContinue}
                     onClick={() => {
-                        handleContinue()
+                        const data = {
+                            outboundVoiceService: outboundVoiceService,
+                            complaintCalling: complaintCalling,
+                            firstName: firstName,
+                            lastName: lastName,
+                            email: email,
+                            phone: phone,
+                        }
+                        handleContinue(data);
                     }}
                 >
                     Continue

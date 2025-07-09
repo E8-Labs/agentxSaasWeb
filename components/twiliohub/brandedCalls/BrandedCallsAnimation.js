@@ -29,13 +29,23 @@ const boxVariants = {
 };
 
 const BrandedCallsAnimation = ({
-    showModal
+    showVoiceIntegration,
+    handleClose
 }) => {
 
     const [loader, setLoader] = useState(false);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
+    //store basic info
+    const [basicInfoData, setBasicInfoData] = useState({
+        outboundVoiceService: "",
+        complaintCalling: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+    });
 
 
     //snack messages
@@ -90,106 +100,127 @@ const BrandedCallsAnimation = ({
 
 
     return (
-        <div className="h-[100%] overflow-hidden">
-            <AgentSelectSnackMessage
-                type={snackMessage.type}
-                message={snackMessage.message}
-                isVisible={snackMessage.isVisible}
-                hide={() => {
-                    setSnackMessage({
-                        message: "",
-                        isVisible: false,
-                        type: SnackbarTypes.Success,
-                    });
-                }}
-            />
-            <AnimatePresence initial={false} custom={direction}>
-                {currentIndex === 0 && (
-                    <motion.div
-                        key="box1"
-                        custom={direction}
-                        variants={boxVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0 }}
-                        className="rounded-lg w-[100%] bg-white p-6 border-none outline-none h-[100%]"
-                    // style={styles.motionDiv}
-                    >
-                        <div className="h-[100%] w-full">
-                            <BrandedCallsBasicInfo
-                                handleContinue={(d) => {
-                                    handleContinue();
-                                }}
-                            />
-                        </div>
-                    </motion.div>
-                )}
+        <Modal
+            open={showVoiceIntegration}
+            onClose={() => {
+                handleClose();
+            }}
+            BackdropProps={{
+                timeout: 200,
+                sx: {
+                    backgroundColor: "#00000020",
+                    backdropFilter: "blur(20px)"
+                },
+            }}
+            sx={{
+                zIndex: 1300,
+                // backgroundColor: "red"
+            }}
+        >
+            <Box
+                className="rounded-xl max-w-2xl h-[70svh] w-full shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col p-6"
+            // className="w-full h-[100%]"
+            >
+                <AnimatePresence initial={false} custom={direction}>
+                    {currentIndex === 0 && (
+                        <motion.div
+                            key="box1"
+                            custom={direction}
+                            variants={boxVariants}
+                            initial="center"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0 }}
+                            className="rounded-lg w-[100%] bg-white border-none outline-none h-[100%]"
+                        // style={styles.motionDiv}
+                        >
+                            <div className="h-[100%] w-full">
+                                <BrandedCallsBasicInfo
+                                    basicDetails={basicInfoData}
+                                    handleContinue={(d) => {
+                                        if (d) {
+                                            setBasicInfoData({
+                                                outboundVoiceService: d.outboundVoiceService,
+                                                complaintCalling: d.complaintCalling,
+                                                firstName: d.firstName,
+                                                lastName: d.lastName,
+                                                email: d.email,
+                                                phone: d.phone,
+                                            });
+                                        }
+                                        handleContinue();
+                                    }}
+                                />
+                            </div>
+                        </motion.div>
+                    )}
 
-                {currentIndex === 1 && (
-                    <motion.div
-                        key="box2"
-                        custom={direction}
-                        variants={boxVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0 }}
-                        className="rounded-lg w-[100%] bg-white p-6 border-none outline-none h-[100%]"
-                    // style={styles.motionDiv}
-                    >
-                        <div className="h-[100%] w-full">
-                            <BrandedCallsVerifiction
-                                handleContinue={handleContinue}
-                                handleBack={handleBack}
-                            />
-                        </div>
-                    </motion.div>
-                )}
+                    {/*currentIndex === 2 && (
+                        <motion.div
+                            key="box3"
+                            custom={direction}
+                            variants={boxVariants}
+                            initial="center"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0 }}
+                            className="rounded-lg w-[100%] bg-white p-6 border-none outline-none h-[100%]"
+                        // style={styles.motionDiv}
+                        >
+                            <div className="h-[100%] w-full">
+                                <BrandedCallsVerifiction
+                                    handleContinue={handleContinue}
+                                    handleBack={handleBack}
+                                />
+                            </div>
+                        </motion.div>
+                    )*/}
 
-                {currentIndex === 2 && (
-                    <motion.div
-                        key="box3"
-                        custom={direction}
-                        variants={boxVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0 }}
-                        className="rounded-lg w-[100%] bg-white p-6 border-none outline-none h-[100%]"
-                    >
-                        <div className="h-[100%] w-full">
-                            <BrandInfo
-                                handleBack={(d) => {
-                                    handleBack();
-                                }}
-                                handleContinue={(d) => {
-                                    // setTimeout(() => {
-                                    // }, 100);
-                                    // handleCreateTrusthubProfile();
-                                    console.alert("Working in progress");
-                                }}
-                            />
-                        </div>
-                    </motion.div>
-                )}
+                    {currentIndex === 1 && (
+                        <motion.div
+                            key="box2"
+                            custom={direction}
+                            variants={boxVariants}
+                            initial="center"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0 }}
+                            className="rounded-lg w-[100%] bg-white border-none outline-none h-[100%]"
+                        >
+                            <div className="h-[100%] w-full">
+                                <BrandInfo
+                                    handleBack={(d) => {
+                                        handleBack();
+                                    }}
+                                    handleContinue={(d) => {
+                                        // setTimeout(() => {
+                                        // }, 100);
+                                        // handleCreateTrusthubProfile();
+                                        console.alert("Working in progress");
+                                    }}
+                                    basicInfoData={basicInfoData}
+                                />
+                            </div>
+                        </motion.div>
+                    )}
 
-                {currentIndex === 3 && (
-                    <motion.div
-                        key="box4"
-                        custom={direction}
-                        variants={boxVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0 }}
-                        className="p-6 rounded-lg w-[100%] shadow-lg bg-white border-none outline-none"
-                    >
-                        S_4
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+                    {currentIndex === 3 && (
+                        <motion.div
+                            key="box4"
+                            custom={direction}
+                            variants={boxVariants}
+                            initial="center"
+                            animate="center"
+                            exit="exit"
+                            transition={{ duration: 0 }}
+                            className="p-6 rounded-lg w-[100%] shadow-lg bg-white border-none outline-none"
+                        >
+                            S_4
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </Box>
+        </Modal>
     );
 }
 
@@ -264,3 +295,15 @@ const styles = {
 //             >
 //             </Box>
 //         </Modal>
+// <AgentSelectSnackMessage
+//                 type={snackMessage.type}
+//                 message={snackMessage.message}
+//                 isVisible={snackMessage.isVisible}
+//                 hide={() => {
+//                     setSnackMessage({
+//                         message: "",
+//                         isVisible: false,
+//                         type: SnackbarTypes.Success,
+//                     });
+//                 }}
+//             />

@@ -17,7 +17,7 @@ const BrandedCallsHeader = () => {
 
     return (
         <div className='w-full'>
-            <section className="py-6 max-w-2xl mx-auto">
+            <section className="py-4 max-w-2xl mx-auto">
                 <h2 className="mb-2" style={styles.boldFont}>Branded Calling</h2>
                 <p style={styles.regularFont}>
                     {`Branded calling increases your answer rates by allowing you to display

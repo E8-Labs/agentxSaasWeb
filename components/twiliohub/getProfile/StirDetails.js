@@ -1,11 +1,23 @@
 import { ArrowDown, CaretDown, CaretUp } from '@phosphor-icons/react';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
+import StirCalling from '../stirCalling/StirCalling';
 
-const StirDetails = () => {
+const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
     const [showDetails, setShowDetails] = useState(false);
+    const [showShakenStirModal, setShowShakenStirModal] = useState(false);
+    //allow add details btn
+    const [allowAddDetails, setAllowAddDetails] = useState(true);
+
+    useEffect(() => {
+        if (twilioHubData) {
+            setAllowAddDetails(false);
+        } else {
+            setAllowAddDetails(true);
+        }
+    }, [twilioHubData]);
 
     //styles
     const styles = {
@@ -48,11 +60,15 @@ const StirDetails = () => {
                     <div className='flex flex-row items-end gap-2'>
                         <button
                             className='border border-purple10 text-purple p-2 rounded-xl'
-                            style={styles.addBntStyles}>
+                            style={styles.addBntStyles}
+                            disabled={profileStatus}
+                            onClick={() => { setShowShakenStirModal(true) }}
+                        >
                             Add Shaken/Stir
                         </button>
                         <button
                             className='border p-2 rounded-full'
+                            disabled={!twilioHubData}
                             onClick={() => {
                                 setShowDetails(!showDetails);
                             }}>
@@ -88,7 +104,7 @@ const StirDetails = () => {
                                     Trust product name
                                 </div>
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    Trust product name
+                                    {twilioHubData.friendlyName}
                                 </div>
                             </div>
                             <div className='flex flex-row items-center mt-2'>
@@ -109,6 +125,17 @@ const StirDetails = () => {
                             </div>
                         </div>
                     </div>
+                )
+            }
+            {
+                showShakenStirModal && (
+                    <StirCalling
+                        showShakenStir={showShakenStirModal}
+                        handleClose={(d) => {
+                            getProfileData();
+                            setShowShakenStirModal(false);
+                        }}
+                    />
                 )
             }
         </div>

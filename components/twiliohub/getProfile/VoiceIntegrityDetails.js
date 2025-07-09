@@ -2,15 +2,15 @@ import { ArrowDown, CaretDown, CaretUp } from '@phosphor-icons/react';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
-import Cnammain from '../cnamtab/Cnammain';
+import TwilioIntegrations from '../twilioIntegrations/TwilioIntegrations';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
-import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 
-const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
+const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
+
 
     const [showDetails, setShowDetails] = useState(false);
-    const [showAddCNAM, setShowAddCNAM] = useState(false);
-    //show success snack
+    const [showAddVoice, setShowAddVoice] = useState(false);
+    //show snack
     const [showSnack, setShowSnack] = useState({
         type: SnackbarTypes.Success,
         message: "",
@@ -21,9 +21,11 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
     useEffect(() => {
         if (twilioHubData) {
+            console.log("Allow add");
             setAllowAddDetails(false);
         } else {
             setAllowAddDetails(true);
+            console.log("Donot allow add");
         }
     }, [twilioHubData]);
 
@@ -43,6 +45,10 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
             fontSize: 15,
             color: "#151515"
         },
+        regularTxt: {
+            fontWeight: "500",
+            fontSize: 15,
+        },
         addBntStyles: {
             fontSize: 14,
             fontWeight: "500"
@@ -58,7 +64,7 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                 hide={() => {
                     setShowSnack({
                         message: "",
-                        isVisible: true,
+                        isVisible: false,
                         type: SnackbarTypes.Success,
                     });
                 }}
@@ -67,10 +73,10 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
                     <div className='flex flex-row items-end gap-2'>
                         <div style={styles.fontSemiBold}>
-                            CNAM
+                            Voice Integrity Registration
                         </div>
                         <div>
-                            <TwilioProfileToolTip toolTip={"CNAM is the name that shows up on someone's phone when you call them — like “AgentX Real Estate” or “John from ABC Corp.”"} />
+                            <TwilioProfileToolTip toolTip={"Voice Integrity protects your phone number reputation. It ensures you're not accidentally doing things that might get your number blocked or flagged as spam."} />
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
@@ -78,8 +84,9 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                             className='border border-purple10 text-purple p-2 rounded-xl'
                             style={styles.addBntStyles}
                             disabled={profileStatus}
-                            onClick={() => setShowAddCNAM(!showAddCNAM)}>
-                            Add CNAM
+                            onClick={() => { setShowAddVoice(true) }}
+                        >
+                            Add Voice Integrity
                         </button>
                         <button
                             className='border p-2 rounded-full'
@@ -101,41 +108,67 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
             {
                 showDetails && (
                     <div className='w-full'>
-                        <ShowRequestStatus status={twilioHubData.status} />
-                        <div className='w-full px-4 mb-4'>
+                        <div className='bg-lightGreen px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
+                            <Image
+                                alt='*'
+                                src={"/twiliohubassets/checkGreen.jpg"}
+                                height={15}
+                                width={15}
+                                className='rounded-full'
+                            />
+                            <div style={styles.regularTxt}>
+                                Approved
+                            </div>
+                        </div>
+                        <div className='w-full px-4'>
                             <div className='flex flex-row items-center mt-2'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
-                                    CNAM display name
+                                    Voice integrity friendly name
                                 </div>
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData.friendlyName}
+                                    {twilioHubData?.friendlyName}
+                                </div>
+                            </div>
+                            <div className='flex flex-row items-center mt-2'>
+                                <div className='w-1/2' style={styles.mediumfontLightClr}>
+                                    Company size
+                                </div>
+                                <div className='w-1/2' style={styles.mediumfontDarkClr}>
+                                    {twilioHubData?.companySize}
+                                </div>
+                            </div>
+                            <div className='flex flex-row items-center mt-2 mb-4'>
+                                <div className='w-1/2' style={styles.mediumfontLightClr}>
+                                    Average calls per day
+                                </div>
+                                <div className='w-1/2' style={styles.mediumfontDarkClr}>
+                                    {twilioHubData?.averageCallsPerDay}
                                 </div>
                             </div>
                         </div>
                     </div>
                 )
             }
-
             {
-                showAddCNAM && (
-                    <Cnammain
-                        showAddCNAM={showAddCNAM}
+                showAddVoice && (
+                    <TwilioIntegrations
+                        showVoiceIntegration={showAddVoice}
                         handleClose={(d) => {
-                            setShowAddCNAM(false);
                             if (d) {
                                 getProfileData();
                                 setShowSnack({
-                                    type: SnackbarTypes.Success,
                                     message: d.message,
-                                    isVisible: false
+                                    type: SnackbarTypes.Success,
+                                    isVisible: true
                                 })
                             }
+                            setShowAddVoice(false);
                         }}
                     />
-                )}
-
+                )
+            }
         </div>
     )
 }
 
-export default CenamDetails
+export default VoiceIntegrityDetails
