@@ -155,3 +155,13 @@
   -moz-appearance: textfield;
 }
 
+input,
+textarea {
+  -webkit-user-modify: read-write-plaintext-only;
+  -webkit-appearance: none;
+  autocorrect: off;
+  autocomplete: off;
+  spellcheck: false;
+}
+
+

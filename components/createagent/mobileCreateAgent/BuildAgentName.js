@@ -441,10 +441,10 @@ const BuildAgentName = ({ handleContinue, getAgentDetails, AgentDetails }) => {
         }}
       />
       <div
-        className=" sm:rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center"
+        className=" sm:rounded-2xl w-full lg:w-10/12 h-[100vh] flex flex-col items-center"
         style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="w-full h-[77vh]">
+        <div className="w-full h-[90vh] border">
           {/* header */}
           <div className="h-[10%]">
             <Header />

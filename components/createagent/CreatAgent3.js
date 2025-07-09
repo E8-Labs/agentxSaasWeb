@@ -398,7 +398,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center  h-[100svh]"
     >
-      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[90vh] py-4 bg-red">
+      <div className="bg-white sm:rounded-2xl w-full lg:w-10/12 h-[100vh] sm:h-[90vh] py-4 bg-red">
         <div className="flex flex-col h-[100%]  ">
           {/*for small size screen i agreeto terms and conditions*/}
           <div className="overflow-auto sm:overflow-none">

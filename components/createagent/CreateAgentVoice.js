@@ -105,7 +105,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
         if (response.data.status === true) {
           // //console.log;
           // if (user.user.userType == UserTypes.RealEstateAgent) {
-            console.log("agent add voice response ",response.data.data)
+          console.log("agent add voice response ", response.data.data)
           //   router.push("/sellerskycquestions");
           // } else {
           //   // //console.log;
@@ -133,6 +133,11 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     const ad = new Audio(url); // Create a new Audio object with the preview URL
     ad.play();
     setAudio(ad); // Play the audio
+
+    // Handle when the audio ends
+    ad.addEventListener("ended", () => {
+      setPreview(null);
+    });
   };
 
   const avatarImages = [
@@ -376,6 +381,8 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                               onClick={() => {
                                 if (audio) {
                                   audio.pause();
+                                  audio.removeEventListener("ended", () => { });
+
                                 }
                                 setPreview(null);
                               }}

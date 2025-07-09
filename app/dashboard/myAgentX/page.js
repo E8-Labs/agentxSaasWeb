@@ -303,6 +303,12 @@ function Page() {
     const ad = new Audio(url); // Create a new Audio object with the preview URL
     ad.play();
     setAudio(ad); // Play the audio
+    setPreview(url);
+
+    // Handle when the audio ends
+    ad.addEventListener("ended", () => {
+      setPreview(null);
+    });
   };
 
   // const Languages  = AgentLanguagesList
@@ -3633,10 +3639,11 @@ function Page() {
                                         if (preview === item.preview) {
                                           if (audio) {
                                             audio.pause();
+                                            audio.removeEventListener("ended", () => { });
                                           }
                                           setPreview(null);
                                         } else {
-                                          setPreview(item.preview);
+
                                           playVoice(item.preview);
                                         }
                                       }}

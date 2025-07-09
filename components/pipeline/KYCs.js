@@ -12,7 +12,7 @@ import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
 import { HowtoVideos } from "@/constants/Constants";
 
-const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
+const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [BuyerAnchor, setBuyerAnchor] = useState(null);
   const [kycsData, setKycsData] = useState([]);
@@ -101,7 +101,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
 
       if (mainAgentId) {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${mainAgentId}`;
-      
+
       } else {
         ApiPath = `${Apis.getKYCs}?mainAgentId=${MainAgentData}`;
       }
@@ -405,6 +405,29 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
 
   return (
     <div style={{ height: "100%", backgroundColor: "" }}>
+ 
+      <div className="mt-5" style={styles.headingStyle}>
+        Call Summary
+      </div>
+
+      <textarea placeholder="Call Summary"
+        className="w-full rounded-lg p-2 outline-none focus:ring-0"
+        style={{
+          fontSize: 15,
+          fontWeight: "500",
+          marginTop: 10,
+          // height: "150px",
+          resize: "none",
+          border: "none",
+        }}
+        maxLength={200}
+        readOnly
+        value={"Learom ipsom dolor"}
+
+      />
+
+
+
       <div style={styles.headingStyle} className="mt-4">
         {GetTitleForKyc()}
       </div>
@@ -791,7 +814,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
                 SellerMotivationData={SellerMotivationData}
                 SellerUrgencyData={SellerUrgencyData}
                 allKYCs={kycsData}
-                selectedUser = {selectedUser}
+                selectedUser={selectedUser}
               />
 
               {/* Can be use full to add shadow */}
@@ -1134,23 +1157,23 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
       )}
 
       <div className="w-full flex flex-row items-center justify-center">
-      <IntroVideoModal
-        open={introVideoModal}
-        onClose={() => setIntroVideoModal(false)}
-        videoTitle="Learn about asking questions (KYC)"
-        videoUrl={HowtoVideos.KycQuestions}
-      />
-      <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
-        <VideoCard
-          duration="1 min 38 sec"
-          horizontal={false}
-          playVideo={() => {
-            setIntroVideoModal(true);
-          }}
-          title="Learn about asking questions (KYC)"
+        <IntroVideoModal
+          open={introVideoModal}
+          onClose={() => setIntroVideoModal(false)}
+          videoTitle="Learn about asking questions (KYC)"
+          videoUrl={HowtoVideos.KycQuestions}
         />
+        <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
+          <VideoCard
+            duration="1 min 38 sec"
+            horizontal={false}
+            playVideo={() => {
+              setIntroVideoModal(true);
+            }}
+            title="Learn about asking questions (KYC)"
+          />
+        </div>
       </div>
-    </div>
 
       {/* Add modals code */}
       <Modal
@@ -1206,7 +1229,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user,selectedUser = null }) => {
                 BuyerMotivationData={BuyerMotivationData}
                 BuyerUrgencyData={BuyerUrgencyData}
                 mainAgentId={mainAgentId}
-                selectedUser = {selectedUser}
+                selectedUser={selectedUser}
                 hideTitle={true}
               />
 
