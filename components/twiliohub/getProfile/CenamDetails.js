@@ -5,6 +5,7 @@ import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
 import Cnammain from '../cnamtab/Cnammain';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
+import LockDetailsView from './LockDetailsView';
 
 const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -65,7 +66,13 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
             />
             <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[1px]"}`}>
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
-                    <div className='flex flex-row items-end gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        <Image
+                            src={"/twiliohubassets/cnam.jpg"}
+                            alt='*'
+                            height={19}
+                            width={19}
+                        />
                         <div style={styles.fontSemiBold}>
                             CNAM
                         </div>
@@ -74,13 +81,6 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
-                        <button
-                            className='border border-purple10 text-purple p-2 rounded-xl'
-                            style={styles.addBntStyles}
-                            disabled={profileStatus}
-                            onClick={() => setShowAddCNAM(!showAddCNAM)}>
-                            Add CNAM
-                        </button>
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -98,10 +98,18 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                     </div>
                 </div>
             </div>
+            {twilioHubData?.status ? (
+                <ShowRequestStatus status={twilioHubData.status} />
+            ) : (
+                <LockDetailsView
+                    profileStatus={profileStatus}
+                    handleShowAddModal={() => { setShowAddCNAM(true) }}
+                />
+            )
+            }
             {
                 showDetails && (
                     <div className='w-full'>
-                        <ShowRequestStatus status={twilioHubData.status} />
                         <div className='w-full px-4 mb-4'>
                             <div className='flex flex-row items-center mt-2'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>

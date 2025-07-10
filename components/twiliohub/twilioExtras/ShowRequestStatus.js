@@ -10,7 +10,7 @@ const ShowRequestStatus = ({
         if (status === "twilio-approved") {
             return (
                 <div className='w-full'>
-                    <div className='bg-lightGreen px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
+                    <div className='bg-lightGreen px-4 py-2 w-full flex flex-row items-center gap-2'>
                         <Image
                             alt='*'
                             src={"/twiliohubassets/checkGreen.jpg"}
@@ -27,7 +27,7 @@ const ShowRequestStatus = ({
         } else if (status === "in-review") {
             return (
                 <div className='w-full'>
-                    <div className='bg-[#FF660026] px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
+                    <div className='bg-[#FF660026] px-4 py-2 w-full flex flex-row items-center gap-2'>
                         <Image
                             alt='*'
                             src={"/assets/pendingaproval.jpg"}
@@ -44,7 +44,7 @@ const ShowRequestStatus = ({
         } else if (status === "twilio-rejected") {
             return (
                 <div className='w-full'>
-                    <div className='bg-[#FFF6F6] px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
+                    <div className='bg-[#FFF6F6] px-4 py-2 w-full flex flex-row items-center gap-2'>
                         <Image
                             alt='*'
                             src={"/assets/rejected.jpg"}

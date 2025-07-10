@@ -2,7 +2,9 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { Box, CircularProgress, Modal } from '@mui/material'
+import { EyeSlash } from '@phosphor-icons/react';
 import axios from 'axios';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
 const AddTwilio = ({
@@ -100,9 +102,7 @@ const AddTwilio = ({
     return (
         <Modal
             open={showAddTwilio}
-            onClose={() => {
-                onClose();
-            }}
+            onClose={onClose}
             BackdropProps={{
                 timeout: 200,
                 sx: {
@@ -156,7 +156,16 @@ const AddTwilio = ({
                             }}
                         />
                         <button onClick={() => { setShowAccountSID(!showAccountSID) }}>
-                            {showAccountSID ? "Hide" : "Show"}
+                            {showAccountSID ? (
+                                <EyeSlash size={18} />
+                            ) : (
+                                <Image
+                                    src={"/twiliohubassets/showEye.jpg"}
+                                    alt='*'
+                                    height={12}
+                                    width={18}
+                                />
+                            )}
                         </button>
                     </div>
                     <div className='mt-2 ' style={{ fontWeight: "400", fontSize: 14 }}>
@@ -176,7 +185,16 @@ const AddTwilio = ({
                             }}
                         />
                         <button onClick={() => { setShowAccountToken(!showAccountToken) }}>
-                            {showAccountToken ? "Hide" : "Show"}
+                            {showAccountToken ? (
+                                <EyeSlash size={18} />
+                            ) : (
+                                <Image
+                                    src={"/twiliohubassets/showEye.jpg"}
+                                    alt='*'
+                                    height={12}
+                                    width={18}
+                                />
+                            )}
                         </button>
                     </div>
                     <div className='w-full flex flex-row items-center gap-4 mt-8'>

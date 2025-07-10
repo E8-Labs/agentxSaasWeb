@@ -8,6 +8,7 @@ import axios from 'axios'
 import VoiceIntegrityDetails from '../twiliohub/getProfile/VoiceIntegrityDetails'
 import BrandedCallsDetails from '../twiliohub/getProfile/BrandedCallsDetails'
 import Ap2MessagingDetails from '../twiliohub/getProfile/Ap2MessagingDetails'
+import { CircularProgress } from '@mui/material'
 
 const TwilioTrustHub = () => {
 
@@ -17,9 +18,11 @@ const TwilioTrustHub = () => {
 
     const [twilioHubData, setTwilioHubData] = useState(null);
     const [profileStatus, setProfileStatus] = useState(true);
+    const [loader, setLoader] = useState(false);
 
     const getBusinessProfile = async () => {
         try {
+            setLoader(true);
             const token = AuthToken();
             const ApiPath = Apis.getBusinessProfile;
             const response = await axios.get(ApiPath, {
@@ -30,6 +33,7 @@ const TwilioTrustHub = () => {
             });
 
             if (response) {
+                setLoader(false);
                 console.log("Response og get business profile is", response.data);
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
@@ -40,6 +44,7 @@ const TwilioTrustHub = () => {
                 }
             }
         } catch (error) {
+            setLoader(false);
             console.log("Error occured in getBusinessProfile api is", error);
         }
     }
@@ -66,39 +71,54 @@ const TwilioTrustHub = () => {
                 {"Account > Twilio"}
             </div>
 
-            <div className='w-full mt-2'>
-                <CustomerProfile
-                    twilioHubData={twilioHubData?.profile}
-                    getProfileData={getBusinessProfile}
-                />
-            </div>
-            <div className='w-full mt-4'>
-                <CenamDetails
-                    twilioHubData={twilioHubData?.cnam}
-                    getProfileData={getBusinessProfile}
-                    profileStatus={profileStatus}
-                />
-            </div>
-            <div className='w-full mt-4'>
-                <StirDetails
-                    twilioHubData={twilioHubData?.shakenStir}
-                    getProfileData={getBusinessProfile}
-                    profileStatus={profileStatus}
-                />
-            </div>
-            <div className='w-full mt-4'>
-                <VoiceIntegrityDetails
-                    twilioHubData={twilioHubData?.voiceIntegrity}
-                    getProfileData={getBusinessProfile}
-                    profileStatus={profileStatus}
-                />
-            </div>
-            <div className='w-full mt-4'>
+            {
+                loader ? (
+                    <div className='w-full flex flex-row items-center justify-center mt-6'>
+                        <CircularProgress size={35} />
+                    </div>
+                ) : (
+                    <div>
+                        <div className='w-full mt-2'>
+                            <CustomerProfile
+                                twilioHubData={twilioHubData?.profile}
+                                getProfileData={getBusinessProfile}
+                                profileStatus={profileStatus}
+                            />
+                        </div>
+                        <div className='w-full mt-4'>
+                            <CenamDetails
+                                twilioHubData={twilioHubData?.cnam}
+                                getProfileData={getBusinessProfile}
+                                profileStatus={profileStatus}
+                            />
+                        </div>
+                        <div className='w-full mt-4'>
+                            <StirDetails
+                                twilioHubData={twilioHubData?.shakenStir}
+                                getProfileData={getBusinessProfile}
+                                profileStatus={profileStatus}
+                            />
+                        </div>
+                        <div className='w-full mt-4'>
+                            <VoiceIntegrityDetails
+                                twilioHubData={twilioHubData?.voiceIntegrity}
+                                getProfileData={getBusinessProfile}
+                                profileStatus={profileStatus}
+                            />
+                        </div>
+                        {/*<div className='w-full mt-4'>
                 <BrandedCallsDetails />
-            </div>
-            <div className='w-full mt-4'>
-                <Ap2MessagingDetails />
-            </div>
+            </div>*/}
+                        <div className='w-full mt-4'>
+                            <Ap2MessagingDetails
+                                // twilioHubData={twilioHubData?.voiceIntegrity}
+                                profileStatus={profileStatus}
+                            />
+                        </div>
+                    </div>
+                )
+            }
+
 
         </div>
     )

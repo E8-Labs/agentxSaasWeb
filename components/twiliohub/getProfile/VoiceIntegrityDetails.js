@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
 import TwilioIntegrations from '../twilioIntegrations/TwilioIntegrations';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
+import LockDetailsView from './LockDetailsView';
 
 const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -71,7 +73,13 @@ const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData })
             />
             <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[1px]"}`}>
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
-                    <div className='flex flex-row items-end gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        <Image
+                            src={"/twiliohubassets/voice.jpg"}
+                            alt='*'
+                            height={18}
+                            width={18}
+                        />
                         <div style={styles.fontSemiBold}>
                             Voice Integrity Registration
                         </div>
@@ -80,14 +88,6 @@ const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData })
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
-                        <button
-                            className='border border-purple10 text-purple p-2 rounded-xl'
-                            style={styles.addBntStyles}
-                            disabled={profileStatus}
-                            onClick={() => { setShowAddVoice(true) }}
-                        >
-                            Add Voice Integrity
-                        </button>
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -105,21 +105,19 @@ const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData })
                     </div>
                 </div>
             </div>
+            {twilioHubData?.status ? (
+                <ShowRequestStatus status={twilioHubData.status} />
+            ) : (
+                <LockDetailsView
+                    profileStatus={profileStatus}
+                    handleShowAddModal={() => { setShowAddVoice(true) }}
+                    btnTitle='Complete Voice'
+                />
+            )
+            }
             {
                 showDetails && (
                     <div className='w-full'>
-                        <div className='bg-lightGreen px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
-                            <Image
-                                alt='*'
-                                src={"/twiliohubassets/checkGreen.jpg"}
-                                height={15}
-                                width={15}
-                                className='rounded-full'
-                            />
-                            <div style={styles.regularTxt}>
-                                Approved
-                            </div>
-                        </div>
                         <div className='w-full px-4'>
                             <div className='flex flex-row items-center mt-2'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>

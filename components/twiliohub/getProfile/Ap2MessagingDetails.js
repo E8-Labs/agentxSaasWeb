@@ -5,6 +5,7 @@ import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import AddAp2MessageAnimation from '../addap2message/AddAp2MessageAnimation';
+import LockDetailsView from './LockDetailsView';
 
 const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -56,7 +57,13 @@ const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) =
             />
             <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[1px]"}`}>
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
-                    <div className='flex flex-row items-end gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        <Image
+                            src={"/twiliohubassets/voice.jpg"}
+                            alt='*'
+                            height={18}
+                            width={18}
+                        />
                         <div style={styles.fontSemiBold}>
                             Ap2 Messages
                         </div>
@@ -65,13 +72,6 @@ const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) =
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
-                        <button
-                            className='border border-purple10 text-purple p-2 rounded-xl'
-                            style={styles.addBntStyles}
-                            // disabled={profileStatus}
-                            onClick={() => setShowAddMessage(!showAddMessage)}>
-                            Add Ap2 Messages
-                        </button>
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -89,10 +89,19 @@ const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) =
                     </div>
                 </div>
             </div>
+            {twilioHubData?.status ? (
+                <ShowRequestStatus status={twilioHubData.status} />
+            ) : (
+                <LockDetailsView
+                    profileStatus={profileStatus}
+                    handleShowAddModal={() => { setShowAddMessage(true) }}
+                    btnTitle='Complete Profile'
+                />
+            )
+            }
             {
                 showDetails && (
                     <div className='w-full'>
-                        <ShowRequestStatus status={twilioHubData.status} />
                         <div className='w-full px-4 mb-4'>
                             <div className='flex flex-row items-center mt-2'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
