@@ -77,7 +77,7 @@ const TwilioTrustHub = () => {
                         <CircularProgress size={35} />
                     </div>
                 ) : (
-                    <div>
+                    <div className='w-full'>
                         <div className='w-full mt-2'>
                             <CustomerProfile
                                 twilioHubData={twilioHubData?.profile}
