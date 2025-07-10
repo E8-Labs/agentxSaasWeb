@@ -100,13 +100,6 @@ function Page() {
     ? "https://apimyagentx.com/"
     : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/"
 
-
-
-  let baseUrl = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/"
-    : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/"
-
-
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
