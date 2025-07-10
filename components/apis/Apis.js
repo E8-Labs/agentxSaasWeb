@@ -189,11 +189,12 @@ const Apis = {
 
   duplicateAgent: `${BasePath}api/agent/duplicateAgent`,
   resetTrail: `${BasePath}api/admin/resetTrial`,
-
+profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
   //twilio trust hub
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
-  deleteCallLog:`${BasePath}api/leads/deleteCallLog`
+  deleteCallLog:`${BasePath}api/leads/deleteCallLog`,
+
 
   
 };
