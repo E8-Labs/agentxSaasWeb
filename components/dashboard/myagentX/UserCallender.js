@@ -35,7 +35,8 @@ const UserCalender = ({
   previousCalenders,
   selectedAgent,
   updateVariableData,
-  selectedUser
+  selectedUser,
+  loadingCalenders = false,
 }) => {
 
   const justLoggedIn = useRef(false);
@@ -221,13 +222,13 @@ const UserCalender = ({
     console.log("Calendar details passed from addgoogle calednar", calendar);
     // return
     try {
-    if (calendar?.isFromAddGoogleCal) {
-      console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-      setGoogleCalenderLoader(true);
-    } else {
-      console.log("Is not from google cal");
-      setAddCalenderLoader(true);
-    }
+      if (calendar?.isFromAddGoogleCal) {
+        console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+        setGoogleCalenderLoader(true);
+      } else {
+        console.log("Is not from google cal");
+        setAddCalenderLoader(true);
+      }
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -485,66 +486,71 @@ const UserCalender = ({
                       },
                     }}
                   >
-                    {allCalendars.map((item, index) => (
-                      <MenuItem
-                        key={index}
-                        value={item.title}
-                        className="hover:bg-purple10 hover:text-black"
-                        sx={{
-                          backgroundColor:
-                            selectCalender.id === item.id
-                              ? "#7902DF10"
-                              : "transparent",
-                          "&.Mui-selected": {
-                            backgroundColor: "#7902DF10",
-                          },
-                        }}
-                        onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
-                        onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
-                      >
-                        <div className="w-full flex flex-row items-center justify-between">
-                          {/* Calendar Name */}
-                          <button
-                            className="w-full text-start"
-                            onClick={() => {
-                              setCalendarSelected(item);
-                              setSelectCalender(item);
-                              handleAddCalender(item);
-                            }}
-                            style={{ flexGrow: 1, textAlign: "left" }}
-                          >
-                            {item.title}
-                          </button>
 
-                          {/* Delete Button (Only Show on Hover) */}
-                          {showDelBtn?.id === item.id && (
-                            // (calenderDelLoader &&
-                            // calendarToDelete?.id === item.id ? (
-                            //   <CircularProgress size={25} />
-                            // ) :
+                    {loadingCalenders ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      allCalendars.map((item, index) => (
+                        <MenuItem
+                          key={index}
+                          value={item.title}
+                          className="hover:bg-purple10 hover:text-black"
+                          sx={{
+                            backgroundColor:
+                              selectCalender.id === item.id
+                                ? "#7902DF10"
+                                : "transparent",
+                            "&.Mui-selected": {
+                              backgroundColor: "#7902DF10",
+                            },
+                          }}
+                          onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
+                          onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
+                        >
+                          <div className="w-full flex flex-row items-center justify-between">
+                            {/* Calendar Name */}
                             <button
-                              onClick={(e) => {
-                                // e.stopPropagation(); // Prevents dropdown from closing
-                                // setSelectCalender(item);
-                                setCalenderDelLoader(null);
-                                setCalendarToDelete(item);
-                                setShowDelPopup(true);
+                              className="w-full text-start"
+                              onClick={() => {
+                                setCalendarSelected(item);
+                                setSelectCalender(item);
+                                handleAddCalender(item);
                               }}
-                              className="transition-opacity px-2"
-                              style={{
-                                background: "transparent",
-                                border: "none",
-                                cursor: "pointer",
-                                color: "#7902df",
-                                fontWeight: "500",
-                              }}
+                              style={{ flexGrow: 1, textAlign: "left" }}
                             >
-                              Delete
+                              {item.title}
                             </button>
-                          )}
-                        </div>
-                      </MenuItem>
-                    ))}
+
+                            {/* Delete Button (Only Show on Hover) */}
+                            {showDelBtn?.id === item.id && (
+                              // (calenderDelLoader &&
+                              // calendarToDelete?.id === item.id ? (
+                              //   <CircularProgress size={25} />
+                              // ) :
+                              <button
+                                onClick={(e) => {
+                                  // e.stopPropagation(); // Prevents dropdown from closing
+                                  // setSelectCalender(item);
+                                  setCalenderDelLoader(null);
+                                  setCalendarToDelete(item);
+                                  setShowDelPopup(true);
+                                }}
+                                className="transition-opacity px-2"
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  color: "#7902df",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </MenuItem>
+                      ))
+                    )}
 
                     <MenuItem className="w-full" value="Custom Calender">
                       <button

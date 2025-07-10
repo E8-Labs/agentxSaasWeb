@@ -295,6 +295,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
 
+  const [loadingCalenders,setLoadingCalenders] = useState(false)
+
   const searchTimeoutRef = useRef(null);
 
   const playVoice = (url) => {
@@ -1663,10 +1665,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   useEffect(() => {
-    getCalenders();
+   
     setInitialLoader(true)
     getAgents()
   }, [selectedUser]);
+
+  useEffect(() => {
+    getCalenders();
+  }, [selectedUser,showDrawerSelectedAgent]);
 
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();
@@ -1922,6 +1928,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //function for getitng the calenders list
   const getCalenders = async () => {
     try {
+      setLoadingCalenders(true);
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -1954,6 +1961,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       //// console.error("Error occured in the api is ", error);
     } finally {
       //// //console.log;
+      setLoadingCalenders(false);
     }
   };
 
@@ -4013,6 +4021,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       mainAgentId={MainAgentId}
                       previousCalenders={previousCalenders}
                       updateVariableData={updateAfterAddCalendar}
+                      loadingCalenders={loadingCalenders}
                     />
                   </SessionProvider>
                 </div>
