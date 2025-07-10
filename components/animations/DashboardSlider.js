@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
-import { VapiWidget } from "../askSky/vapi-widget";
+import { SupportWidget } from "../askSky/support-widget";
 import { Box, Modal } from "@mui/material";
-import AskSkyConfirmation from "../dashboard/myagentX/CalenderModal";
 import VapiChatWidget from "../askSky/VapiChatWidget";
 
 const DashboardSlider = ({
@@ -36,7 +35,35 @@ const DashboardSlider = ({
       AuthToken = UserDetails.token;
     }
   }, []);
+  //fetch local details
+  useEffect(() => {
+    const localData = localStorage.getItem("User");
+    let AuthToken = null;
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      // //console.log;
+      setUserDetails(UserDetails.user);
+      AuthToken = UserDetails.token;
+    }
+  }, []);
 
+  useEffect(() => {
+    if (needHelp) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+      setShowIcon(true);
+    }
+  }, [needHelp]);
+
+  //check if the call was initated then keep the slider and vapi-widget open
+  useEffect(() => {
+    const vapiValue = localStorage.getItem(PersistanceKeys.showVapiModal);
+    if (vapiValue) {
+      const d = JSON.parse(vapiValue);
+      console.log("Vapi-value is", d);
+    }
+  }, [])
   useEffect(() => {
     if (needHelp) {
       setVisible(true);
@@ -69,10 +96,18 @@ const DashboardSlider = ({
     }, 1000); // show icon after 1 sec
   };
 
+    setTimeout(() => {
+      if (!onTop) {
+        setShowIcon(true);
+      }
+    }, 1000); // show icon after 1 sec
+
+
   const handleReopen = () => {
     setShowIcon(false);
     setVisible(true);
   };
+ 
 
   const snackbarVariants = {
     hidden: { x: "100%", opacity: 0 },
@@ -83,10 +118,10 @@ const DashboardSlider = ({
   //get position bassed on the components
   const getPosition = () => {
     if (onTop) {
-      const style = { position: "fixed", top: 50, right: 30, zIndex: 999 };
+      const style = { position: "fixed", top: 50, right: 8, zIndex: 999 };
       return style;
     } else {
-      const style = { position: "fixed", bottom: 30, right: 30, zIndex: 999 };
+      const style = { position: "fixed", bottom: 20, right: 8, zIndex: 999 };
       return style;
     }
   };
@@ -149,8 +184,7 @@ const DashboardSlider = ({
       // setShowAskSkyConfirmation(true);
       setShowAskSkyModal(true);
       setShouldStartCall(true);
-    }
-    else {
+    } else {
       if (typeof window !== "undefined") {
         window.open(item.url, "_blank");
       }
@@ -161,7 +195,7 @@ const DashboardSlider = ({
   const renderViews = () => {
     if (showAskSkyModal) {
       return (
-        <VapiWidget
+        <SupportWidget
           user={userDetails}
           shouldStart={shouldStartCall}
           setShowAskSkyModal={setShowAskSkyModal}
@@ -187,7 +221,7 @@ const DashboardSlider = ({
         <div className="flex flex-col items-end justify-end w-full gap-3">
           <div className="w-full mt-5 bg-white shadow-lg text-black w-full"
             style={{
-              borderRadius: "20px", padding: "16px 24px",
+              borderRadius: "8px", padding: "16px 24px",
             }}
           >
             <div className="w-full flex flex-col items-start gap-4">
@@ -274,7 +308,6 @@ const DashboardSlider = ({
               }}
               className="flex"
               style={{
-
                 width: "350px",
                 touchAction: "pan-y", // allow horizontal pan
               }}
@@ -330,18 +363,11 @@ const DashboardSlider = ({
               className="outline-none border-none"
               onClick={handleReopen}
             >
-              {/* <Image
-                src={"/otherAssets/getHelpBtn.jpg"}
-                height={58}
-                width={216}
-                alt="*"
-              /> */}
-
               <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
                 <Image
                   src={"/otherAssets/getHelp.png"}
-                  height={40}
-                  width={40}
+                  height={56}
+                  width={57}
                   alt="*"
                   style={{
                     // borderWidth:1
@@ -382,7 +408,8 @@ const DashboardSlider = ({
         sx={{ pointerEvents: "none", backgroundColor: "transparent" }} // allows VapiWidget to handle its own clicks
       >
         <div style={{ pointerEvents: "auto", backgroundColor: "transparent", height: "100%", width: "100%" }}>
-          <VapiWidget
+          <SupportWidget
+            isEmbed={false}
             user={userDetails}
             shouldStart={shouldStartCall}
             setShowAskSkyModal={setShowAskSkyModal}
@@ -401,9 +428,10 @@ const DashboardSlider = ({
     </div>
 
   );
-};
-
+}
 export default DashboardSlider;
+
+
 
 const styles = {
   modalsStyle: {

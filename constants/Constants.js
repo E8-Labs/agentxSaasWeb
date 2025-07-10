@@ -48,6 +48,7 @@ export const PersistanceKeys = {
     HireTeamUrl:
     "https://api.leadconnectorhq.com/widget/bookings/agentx-done-with-you",
     BillingSupportUrl:"https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D",
+    BillingSupportUrl:"https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D",
 
   // LocalStoredAgentsList
 };

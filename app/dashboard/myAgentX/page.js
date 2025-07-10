@@ -86,6 +86,7 @@ import TestEmbed from "@/app/test-embed/page";
 import EmbedVapi from "@/app/embed/vapi/page";
 import EmbedWidget from "@/app/test-embed/page";
 import { SessionProvider } from "next-auth/react";
+// import { SessionProvider } from "next-auth/react";
 
 const DuplicateButton = dynamic(
   () => import("@/components/animation/DuplicateButton"),
@@ -94,6 +95,12 @@ const DuplicateButton = dynamic(
   }
 );
 function Page() {
+
+  let baseUrl = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    ? "https://apimyagentx.com/"
+    : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/"
+
+
 
   let baseUrl = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/"
@@ -354,6 +361,25 @@ function Page() {
       value: "Natural Conversation Flow",
     },
   ];
+
+
+  // get selected agent from local if calendar added by google
+
+  useEffect(() => {
+    let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
+    if (d) {
+      let calendarAddedByGoogle = JSON.parse(d)
+      if (calendarAddedByGoogle) {
+        let ag = localStorage.getItem(PersistanceKeys.SelectedAgent)
+        if (ag) {
+          let agent = JSON.parse(ag)
+
+          console.log('selected agent from local is', agent)
+          setShowDrawerSelectedAgent(agent)
+        }
+      }
+    }
+  }, [])
 
 
   // get selected agent from local if calendar added by google
@@ -2406,23 +2432,28 @@ function Page() {
 
 
   const handleCopy = (assistantId, baseUrl) => {
-    const iframeCode = `<iframe
-  src="${baseUrl}embed/vapi?assistantId=${assistantId}"
-  width="350"
-  height="400"
-  style={{
-          // border: "1px solid red",
-          // borderRadius: 12,
-          background: "transparent",
-          // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          position: "absolute",
-          right: "2%",
-          bottom: "3%",
-        }}
-  title="AgentX Widget"
-  allow="microphone"
-></iframe>`;
+//     const iframeCode = `<iframe
+//   src="${baseUrl}embed/vapi?assistantId=${assistantId}"
+//   width="350"
+//   height="400"
+//   style={{
+//           // border: "1px solid red",
+//           // borderRadius: 12,
+//           background: "transparent",
+//           // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+//           position: "absolute",
+//           right: "2%",
+//           bottom: "3%",
+//         }}
+//   title="AgentX Widget"
+//   allow="microphone"
+// ></iframe>`;
 
+
+const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`
     navigator.clipboard.writeText(iframeCode).then(() => {
       // alert("Embed code copied to clipboard!");
       setShowSuccessSnack("Embed widget copied");
