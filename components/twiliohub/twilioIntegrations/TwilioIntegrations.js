@@ -194,17 +194,19 @@ const TwilioIntegrations = ({
                                     setCompanySize(e.target.value);
                                 }}
                             />
-                            <div className='flex flex-row items-center gap-2 mt-2'>
-                                <Image
-                                    alt='*'
-                                    src={"/twiliohubassets/errorInfo.jpg"}
-                                    height={15}
-                                    width={15}
-                                />
-                                <div className='text-red' style={styles.regular}>
-                                    Please enter a numerical value greate than 0
+                            { companySize <= 0 &&
+                                <div className='flex flex-row items-center gap-2 mt-2'>
+                                    <Image
+                                        alt='*'
+                                        src={"/twiliohubassets/errorInfo.jpg"}
+                                        height={15}
+                                        width={15}
+                                    />
+                                    <div className='text-red' style={styles.regular}>
+                                        Please enter a numerical value greate than 0
+                                    </div>
                                 </div>
-                            </div>
+                            }
                         </div>
                         <div
                             className='mt-4'
@@ -224,17 +226,21 @@ const TwilioIntegrations = ({
                                     setAverageCallsPerDay(e.target.value);
                                 }}
                             />
-                            <div className='flex flex-row items-center gap-2 mt-2'>
-                                <Image
-                                    alt='*'
-                                    src={"/twiliohubassets/errorInfo.jpg"}
-                                    height={15}
-                                    width={15}
-                                />
-                                <div className='text-red' style={styles.regular}>
-                                    Please enter a numerical value greate than 0
-                                </div>
-                            </div>
+                            {
+                                averageCallsPerDay <= 0 && (
+                                    <div className='flex flex-row items-center gap-2 mt-2'>
+                                        <Image
+                                            alt='*'
+                                            src={"/twiliohubassets/errorInfo.jpg"}
+                                            height={15}
+                                            width={15}
+                                        />
+                                        <div className='text-red' style={styles.regular}>
+                                            Please enter a numerical value greate than 0
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </div>
                         <div className='p-2 rounded-lg bg-[#00000005] mt-6'>
                             {`Twilio will approve your voice integrity registration based on the status of the associated business profile and submit these numbers to Verizon, AT&T, and T-Mobile. Carrier registration for active spam monitoring can take up to 48hrs. You’ll receive an email when the status is updated`}

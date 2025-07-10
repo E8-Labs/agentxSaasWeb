@@ -17,11 +17,21 @@ export default function TwilioProfileToolTip({ toolTip }) {
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
 
+    const handleMouseEnter = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMouseLeave = () => {
+        setAnchorEl(null);
+    };
+
     return (
         <div>
             <button
                 aria-describedby={id}
-                onClick={handleClick}
+                // onClick={handleClick}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
             >
                 <Image
                     alt='*'

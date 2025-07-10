@@ -302,8 +302,9 @@ const CustomerProfile = ({
                     <AddTwilio
                         showAddTwilio={showAddTwilio}
                         onClose={(d) => {
+                            console.log("Data from add twilio is", d);
                             setShowAddTwilio(false);
-                            if (d) {
+                            if (d.message) {
                                 getProfileData();
                                 setShowSnack({
                                     message: d?.message || "Twilio connected. Wait for approval!",
