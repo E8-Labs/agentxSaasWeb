@@ -35,35 +35,7 @@ const DashboardSlider = ({
       AuthToken = UserDetails.token;
     }
   }, []);
-  //fetch local details
-  useEffect(() => {
-    const localData = localStorage.getItem("User");
-    let AuthToken = null;
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      // //console.log;
-      setUserDetails(UserDetails.user);
-      AuthToken = UserDetails.token;
-    }
-  }, []);
 
-  useEffect(() => {
-    if (needHelp) {
-      setVisible(true);
-    } else {
-      setVisible(false);
-      setShowIcon(true);
-    }
-  }, [needHelp]);
-
-  //check if the call was initated then keep the slider and vapi-widget open
-  useEffect(() => {
-    const vapiValue = localStorage.getItem(PersistanceKeys.showVapiModal);
-    if (vapiValue) {
-      const d = JSON.parse(vapiValue);
-      console.log("Vapi-value is", d);
-    }
-  }, [])
   useEffect(() => {
     if (needHelp) {
       setVisible(true);
@@ -96,18 +68,10 @@ const DashboardSlider = ({
     }, 1000); // show icon after 1 sec
   };
 
-    setTimeout(() => {
-      if (!onTop) {
-        setShowIcon(true);
-      }
-    }, 1000); // show icon after 1 sec
-
-
   const handleReopen = () => {
     setShowIcon(false);
     setVisible(true);
   };
- 
 
   const snackbarVariants = {
     hidden: { x: "100%", opacity: 0 },
@@ -428,10 +392,9 @@ const DashboardSlider = ({
     </div>
 
   );
-}
+};
+
 export default DashboardSlider;
-
-
 
 const styles = {
   modalsStyle: {
