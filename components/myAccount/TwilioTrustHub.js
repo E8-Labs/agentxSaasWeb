@@ -7,6 +7,7 @@ import Apis from '../apis/Apis'
 import axios from 'axios'
 import VoiceIntegrityDetails from '../twiliohub/getProfile/VoiceIntegrityDetails'
 import BrandedCallsDetails from '../twiliohub/getProfile/BrandedCallsDetails'
+import Ap2MessagingDetails from '../twiliohub/getProfile/Ap2MessagingDetails'
 
 const TwilioTrustHub = () => {
 
@@ -94,6 +95,9 @@ const TwilioTrustHub = () => {
             </div>
             <div className='w-full mt-4'>
                 <BrandedCallsDetails />
+            </div>
+            <div className='w-full mt-4'>
+                <Ap2MessagingDetails />
             </div>
 
         </div>
