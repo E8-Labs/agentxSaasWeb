@@ -194,6 +194,11 @@ const Apis = {
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
   deleteCallLog:`${BasePath}api/leads/deleteCallLog`,
+  addTwilio: `${BasePath}api/business-profile/twilio/create`,
+  createCname: `${BasePath}api/business-profile/cnam`,
+  createShakenStir: `${BasePath}api/business-profile/shakenstir`,
+  createVoiceIntegrity: `${BasePath}api/business-profile/vocie-integrity`,
+  createBrandedCalling: `${BasePath}api/business-profile/branded-calling`,
   
   profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
   

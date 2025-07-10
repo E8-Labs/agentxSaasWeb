@@ -14,13 +14,17 @@ const BrandInfo = ({
 
     const [canContinue, setCanContinue] = useState(true);
 
-    // useEffect(() => {
-    //     if (!businessName) {
-    //         setCanContinue(true);
-    //     } else {
-    //         setCanContinue(false);
-    //     }
-    // }, [businessName]);
+    useEffect(() => {
+        if (!businessName ||
+            !integritySID ||
+            !brandDisplayName ||
+            !longBrandDisplayName ||
+            useCaseInfo) {
+            setCanContinue(true);
+        } else {
+            setCanContinue(false);
+        }
+    }, [businessName, integritySID, brandDisplayName, longBrandDisplayName, useCaseInfo]);
 
     const styles = {
         boldFont: {
@@ -44,7 +48,7 @@ const BrandInfo = ({
 
     return (
         <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-            <div className='w-11/12 h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
+            <div className='w-full h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2'>
                 <BrandedCallsHeader />
                 <div style={styles.semiBold} className="mt-3 pt-6 border-t-[2px] border-[#00000010]">
                     Brand Information
@@ -138,9 +142,9 @@ const BrandInfo = ({
                 <button
                     className='outline-none border-none text-purple'
                     style={styles.regularFont}
-                // onClick={() => {
-                //     handleBack()
-                // }}
+                    onClick={() => {
+                        handleBack()
+                    }}
                 >
                     Back
                 </button>
