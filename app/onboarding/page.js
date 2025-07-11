@@ -335,7 +335,7 @@ const Page = ({ params }) => {
         />
         <LoaderAnimation 
           isOpen={showredirectPopup}
-          title="Redirecting to dashboard..."
+          title="Redirecting to create agent..."
         />
         <Modal
           open={congratsPopup}
