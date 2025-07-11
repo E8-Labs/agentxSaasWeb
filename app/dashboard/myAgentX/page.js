@@ -2425,25 +2425,25 @@ function Page() {
 
 
   const handleCopy = (assistantId, baseUrl) => {
-//     const iframeCode = `<iframe
-//   src="${baseUrl}embed/vapi?assistantId=${assistantId}"
-//   width="350"
-//   height="400"
-//   style={{
-//           // border: "1px solid red",
-//           // borderRadius: 12,
-//           background: "transparent",
-//           // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-//           position: "absolute",
-//           right: "2%",
-//           bottom: "3%",
-//         }}
-//   title="AgentX Widget"
-//   allow="microphone"
-// ></iframe>`;
+    //     const iframeCode = `<iframe
+    //   src="${baseUrl}embed/vapi?assistantId=${assistantId}"
+    //   width="350"
+    //   height="400"
+    //   style={{
+    //           // border: "1px solid red",
+    //           // borderRadius: 12,
+    //           background: "transparent",
+    //           // boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+    //           position: "absolute",
+    //           right: "2%",
+    //           bottom: "3%",
+    //         }}
+    //   title="AgentX Widget"
+    //   allow="microphone"
+    // ></iframe>`;
 
 
-const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+    const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`
@@ -3290,6 +3290,11 @@ const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="
                     }}
                     loading={duplicateLoader}
                   />
+                  <button onClick={() => {
+                    window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}`, "_blank");
+                  }}>
+                    Voice Ai Call
+                  </button>
                   <button onClick={() => {
                     handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
                   }}>
