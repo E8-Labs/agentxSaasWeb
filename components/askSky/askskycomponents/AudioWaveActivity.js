@@ -33,7 +33,7 @@ export const AudioWaveActivity = ({
   return (
 
     <div
-      className={`flex items-center justify-center gap-1 h-4 w-32 mt-4 ${className}`}
+      className={`flex items-center justify-center gap-1 h-4 w-32 mt-15 ${className}`}
     >
       {Array(barCount).fill(0).map((_, index) => (
         <div

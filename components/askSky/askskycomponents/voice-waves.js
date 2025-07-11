@@ -153,7 +153,7 @@ class VoiceWaves {
 }
 
 export function VoiceWavesComponent({
-  width = 250,
+  width = 150,
   height = 40,
   speed = 0.2,
   amplitude = 1,
