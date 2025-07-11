@@ -76,7 +76,7 @@ function MyAccount() {
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 10,
+      id: 8,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -121,33 +121,32 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 5:
         return <InviteAgentX />;
-      case 6:
-        return <Support />;
-      case 7:
-        return <SendFeedback />;
-      // case 10:
+      // case 6:
       //   return <TwilioTrustHub />;
+      // case 6:
+      //   return <Support />;
+      // case 7:
+      //   return <SendFeedback />;
       default:
         return <div>Please select an option.</div>;
     }
   };
 
-
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 8) {
+    if (item.id === 6) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 9) {
+    } else if (item.id === 7) {
       window.open(
         privacyPollicyUrl,
         "_blank"
       );
       return
-    } else if (item.id === 10) {
+    } else if (item.id === 8) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"
@@ -156,8 +155,6 @@ function MyAccount() {
     }
     setTabSelected(index + 1);
     setParamsInSearchBar(index + 1);
-
-
 
   }
 

@@ -28,6 +28,7 @@ export const PersistanceKeys = {
   //vapi-widget call popup
   showVapiModal: "showVapiModal",
 
+<<<<<<< HEAD
   GlobalSupportUrl:
     "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
   GlobalConsultationUrl:
@@ -46,24 +47,29 @@ export const PersistanceKeys = {
     HireTeamUrl:
     "https://api.leadconnectorhq.com/widget/bookings/agentx-done-with-you",
     BillingSupportUrl:"https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D",
+=======
+ addCalendarScope: process.env.NEXT_PUBLIC_REACT_APP_addCalendarScope,
+>>>>>>> feature/add-vapi-to-main
 
+  GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,
+  GlobalConsultationUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,
+  GlobalWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalWebinarUrl,
+  ExternalCalendarLink: process.env.NEXT_PUBLIC_REACT_APP_ExternalCalendarLink,
+  SupportWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_SupportWebinarUrl,
+  ResourceHubUrl: process.env.NEXT_PUBLIC_REACT_APP_ResourceHubUrl,
+  FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl,
+  HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
+  BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
   // LocalStoredAgentsList
 };
 export const HowtoVideos = {
-  Calendar:
-    "https://apimyagentx.com/agentxtest/uploads/howtos/2025-01-20_e98d0d1c-37ec-4989-8933-64a8c5df607f_howtos_Calendar",
-  GettingStarted:
-    "https://apimyagentx.com/agentx/uploads/howtos/2025-01-20_3624c268-98ce-4a15-aeac-6f3bb7f67232_howtos_Getting_Started",
-  KycQuestions:
-    "https://apimyagentx.com/agentx/uploads/howtos/2025-01-20_172645a9-7efe-4046-93f4-a227b2f4b56a_howtos_Kyc",
-  Leads:
-    "https://apimyagentx.com/agentx/uploads/howtos/2025-01-20_64d906a8-b40a-421d-923b-cf1efb352d21_howtos_Leads",
-  LetsTalkDigits:
-    "https://apimyagentx.com/agentx/uploads/howtos/2025-01-20_ddcecf9b-f489-43d3-bd7f-b0d13cf98644_howtos_LetsTalkDigits",
-  Pipeline:
-    "https://apimyagentx.com/agentx/uploads/howtos/2025-01-20_497e2da3-8f32-44f2-b9ee-7231fa31e4cf_howtos_Pipeline",
-  script:
-    "https://apimyagentx.com/agentx/uploads/howtos/2025-01-26_3ba0f5f5-3e15-4c6e-a9ce-1470fc0539b7_howtos_Leads",
+  Calendar: process.env.NEXT_PUBLIC_REACT_APP_Calendar,
+  GettingStarted: process.env.NEXT_PUBLIC_REACT_APP_GettingStarted,
+  KycQuestions: process.env.NEXT_PUBLIC_REACT_APP_KycQuestions,
+  Leads: process.env.NEXT_PUBLIC_REACT_APP_Leads,
+  LetsTalkDigits: process.env.NEXT_PUBLIC_REACT_APP_LetsTalkDigits,
+  Pipeline: process.env.NEXT_PUBLIC_REACT_APP_Pipeline,
+  script: process.env.NEXT_PUBLIC_REACT_APP_script,
 };
 
 export const Constants = {
