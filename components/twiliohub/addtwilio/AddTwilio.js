@@ -132,15 +132,27 @@ const AddTwilio = ({
                             });
                         }}
                     />
-                    <div
-                        style={{
-                            fontWeight: "700",
-                            fontSize: 22
-                        }}>
-                        Account Configuration
+                    <div className='w-full flex flex-row items-center justify-between'>
+                        <div
+                            style={{
+                                fontWeight: "700",
+                                fontSize: 22
+                            }}>
+                            Account Configuration
+                        </div>
+                        <button
+                            className='border-none outline-none'
+                            onClick={() => { onClose() }}>
+                            <Image
+                                src={"/assets/cross.png"}
+                                alt='cross'
+                                height={18}
+                                width={18}
+                            />
+                        </button>
                     </div>
                     <div style={styles.regularFont}>
-                        Enter your Twilio master account credentials
+                        Enter your Twilio master account keys
                     </div>
                     <div className='mt-4' style={styles.regularFont}>
                         Master Account SID
@@ -198,14 +210,14 @@ const AddTwilio = ({
                         </button>
                     </div>
                     <div className='w-full flex flex-row items-center gap-4 mt-8'>
-                        <button
+                        {/*<button
                             className='text-purple w-1/2 bg-purple10 h-[50px] rounded-lg outline-none border-none'
                             style={styles.regularFont}
                             onClick={onClose}>
                             Exit
-                        </button>
+                        </button>*/}
                         <button
-                            className={`${isDisabled ? "bg-[#00000040]" : "bg-purple"} w-1/2 text-white h-[50px] rounded-lg px-6 outline-none border-none`}
+                            className={`${isDisabled ? "bg-btngray" : "bg-purple"} w-full text-white h-[50px] rounded-lg px-6 outline-none border-none`}
                             onClick={handleConnectTwilio}
                             disabled={addTwilioLoader || isDisabled}
                         >
