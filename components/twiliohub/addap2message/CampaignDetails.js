@@ -95,8 +95,7 @@ const CampaignDetails = ({
           </div>
         </div>
       </div>
-      <div className='w-full flex flex-row items-center gap-4'>
-        <button className='w-1/2 bg-purple10 h-[50px] rounded-lg'>Exit</button>
+      <div className='w-full flex flex-row items-center gap-4 justify-end'>
         <button onClick={handleContinue} className='w-1/2 bg-purple text-white h-[50px] rounded-lg'>handleContinue</button>
       </div>
     </div>

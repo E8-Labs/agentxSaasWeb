@@ -65,26 +65,26 @@ function MyAccount() {
     // },
     {
       id: 6,
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/twilioHub.svg",
+    },
+    {
+      id: 7,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 7,
+      id: 8,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 10,
+      id: 9,
       heading: "Cancellation & Refund",
       subHeading: "",
-      icon: "/svgIcons/info.svg",
-    },
-    {
-      id: 11,
-      heading: "Twilio Trust Hub",
-      subHeading: "Caller ID & compliance for trusted calls",
       icon: "/svgIcons/info.svg",
     },
   ];
@@ -127,12 +127,12 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 5:
         return <InviteAgentX />;
+      case 6:
+        return <TwilioTrustHub />;
       // case 6:
       //   return <Support />;
       // case 7:
       //   return <SendFeedback />;
-      case 9:
-        return <TwilioTrustHub />;
       default:
         return <div>Please select an option.</div>;
     }
@@ -140,19 +140,19 @@ function MyAccount() {
 
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 6) {
+    if (item.id === 7) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 7) {
+    } else if (item.id === 8) {
       window.open(
         privacyPollicyUrl,
         "_blank"
       );
       return
-    } else if (item.id === 10) {
+    } else if (item.id === 9) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"

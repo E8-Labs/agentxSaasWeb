@@ -9,6 +9,8 @@ const LockDetailsView = ({
     showBtn = false
 }) => {
 
+    console.log("profile status is", profileStatus);
+
     const styles = {
         normalFont: {
             fontSize: 15,
@@ -36,7 +38,7 @@ const LockDetailsView = ({
                 </div>
             </div>
             {
-                !profileStatus || showBtn && (
+                (!profileStatus || showBtn) && (
                     <button
                         className='border-none outline-none text-purple'
                         style={styles.normalFont}

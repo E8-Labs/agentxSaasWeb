@@ -143,8 +143,20 @@ const TwilioIntegrations = ({
                         }}
                     />
                     <div className='w-full max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
-                        <div className='mt-6' style={{ fontWeight: "700", fontSize: 22 }}>
-                            New Voice Integrity Registration
+                        <div className='mt-6 w-full flex flex-row items-center justify-between'>
+                            <div style={{ fontWeight: "700", fontSize: 22 }}>
+                                New Voice Integrity Registration
+                            </div>
+                            <button
+                                className='border-none outline-none'
+                                onClick={() => { handleClose() }}>
+                                <Image
+                                    src={"/assets/cross.png"}
+                                    alt='cross'
+                                    height={18}
+                                    width={18}
+                                />
+                            </button>
                         </div>
                         <div
                             className='mt-6'
@@ -194,7 +206,7 @@ const TwilioIntegrations = ({
                                     setCompanySize(e.target.value);
                                 }}
                             />
-                            { companySize <= 0 &&
+                            {companySize <= 0 &&
                                 <div className='flex flex-row items-center gap-2 mt-2'>
                                     <Image
                                         alt='*'
@@ -248,13 +260,7 @@ const TwilioIntegrations = ({
                     </div>
                     <div className='w-full flex flex-row items-center gap-4 mt-8 max-h-[20%]'>
                         <button
-                            className='text-purple w-1/2 bg-purple10 h-[50px] rounded-lg outline-none border-none'
-                            style={styles.normalTxt}
-                            onClick={handleClose}>
-                            Exit
-                        </button>
-                        <button
-                            className={`${isDisabled ? "bg-[#00000040]" : "bg-purple"} w-1/2 text-white h-[50px] rounded-lg px-6 outline-none border-none`}
+                            className={`${isDisabled ? "bg-gray" : "bg-purple"} w-full text-white h-[50px] rounded-lg px-6 outline-none border-none`}
                             onClick={handleAddVoiceIntegration}
                             disabled={loader || isDisabled}
                         >
