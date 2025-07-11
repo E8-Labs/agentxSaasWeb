@@ -260,7 +260,7 @@ const TwilioIntegrations = ({
                     </div>
                     <div className='w-full flex flex-row items-center gap-4 mt-8 max-h-[20%]'>
                         <button
-                            className={`${isDisabled ? "bg-gray" : "bg-purple"} w-full text-white h-[50px] rounded-lg px-6 outline-none border-none`}
+                            className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-full h-[50px] rounded-lg px-6 outline-none border-none`}
                             onClick={handleAddVoiceIntegration}
                             disabled={loader || isDisabled}
                         >

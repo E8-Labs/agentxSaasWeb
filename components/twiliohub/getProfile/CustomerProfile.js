@@ -148,7 +148,7 @@ const CustomerProfile = ({
                                 </div>
                             </div>
                         </div>
-                            
+
                     </div>
                 )
             }
@@ -158,10 +158,10 @@ const CustomerProfile = ({
                 showAddTwilio && (
                     <AddTwilio
                         showAddTwilio={showAddTwilio}
-                        onClose={(d) => {
+                        handleClose={(d) => {
                             console.log("Data from add twilio is", d);
                             setShowAddTwilio(false);
-                            if (d.message) {
+                            if (d) {
                                 getProfileData();
                                 setShowSnack({
                                     message: d?.message || "Twilio connected. Wait for approval!",

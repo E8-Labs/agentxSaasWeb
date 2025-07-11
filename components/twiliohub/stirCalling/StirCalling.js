@@ -1,5 +1,6 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
@@ -17,6 +18,38 @@ const StirCalling = ({
     const [getNumbersLoader, setGetNumbersLoader] = useState(false);
     const [phonesList, setPhonesList] = useState([]);
     const [phoneSelect, setPhoneSelect] = useState([]);
+    const [showSnack, setShowSnack] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false
+    });
+
+    // const phonesList = [
+    //     {
+    //         id: 1,
+    //         phoneNumber: "+14086799068"
+    //     },
+    //     {
+    //         id: 2,
+    //         phoneNumber: "+14086799069"
+    //     },
+    //     {
+    //         id: 3,
+    //         phoneNumber: "+14086799067"
+    //     },
+    //     {
+    //         id: 4,
+    //         phoneNumber: "+14086799066"
+    //     },
+    //     {
+    //         id: 5,
+    //         phoneNumber: "+14086799066"
+    //     },
+    //     {
+    //         id: 6,
+    //         phoneNumber: "+14086799066"
+    //     },
+    // ]
 
     useEffect(() => {
         getPhonesList();
@@ -28,12 +61,12 @@ const StirCalling = ({
     };
 
     useEffect(() => {
-        if (!productName) {
+        if (!productName || !agreeTerms) {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
         }
-    });
+    }, [productName, agreeTerms]);
 
     //select phones
     const handlephoneSelect = (phone) => {
@@ -65,6 +98,8 @@ const StirCalling = ({
                     friendlyName: productName,
                 }
             }
+            console.log("Api data is", ApiData);
+            // return
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -74,7 +109,16 @@ const StirCalling = ({
 
             if (response) {
                 setLoader(false);
-                handleClose();
+                const apiResponse = response.data;
+                if (apiResponse.status === true) {
+                    handleClose(apiResponse);
+                } else if (apiResponse.status === false) {
+                    setShowSnack({
+                        type: SnackbarTypes.Error,
+                        message: apiResponse.message,
+                        isVisible: true
+                    })
+                }
                 console.log("Response of api is", response);
             }
 
@@ -140,8 +184,20 @@ const StirCalling = ({
             // className="w-full h-[100%]"
             >
                 <div className='max-h-[80svh]  w-full flex flex-col items-center justify-between'>
+                    <AgentSelectSnackMessage
+                        type={showSnack.type}
+                        message={showSnack.message}
+                        isVisible={showSnack.isVisible}
+                        hide={() => {
+                            setShowSnack({
+                                message: "",
+                                isVisible: false,
+                                type: SnackbarTypes.Success,
+                            });
+                        }}
+                    />
                     <div
-                        className='w-full max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'
+                        className='w-full max-h-[80%] overflow-x-hidden overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'
                     >
                         <div className='mt-8 w-full flex flex-row items-center justify-between'>
                             <div style={{ fontWeight: "700", fontSize: 22 }}>
@@ -221,20 +277,40 @@ const StirCalling = ({
                             style={styles.normalTxt}>
                             Select phone numbers on your Twilio Approved Business Profile and assign them to this SHAKEN/STIR Trust Product.
                         </div>
-                        <div className='flex flex-row items-center gap-4 mt-6'>
+                        <div className='flex flex-col items-start gap-4 mt-6'>
                             {
                                 getNumbersLoader ? (
                                     <CircularProgress size={25} />
                                 ) : (
                                     <div>
                                         {phonesList.length > 0 ? (
-                                            <div>
+                                            <div className='flex flex-col items-center gap-4 w-full overflow-auto max-h-[30vh] scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple'>
                                                 {phonesList.map((item, index) => {
                                                     return (
                                                         <button key={index}
-                                                            className={`flex flex-row items-center gap-4 border-none outline-none rounded-lg h-[50px] ${phoneSelect.includes(item.phoneNumber) ? "bg-purple text-white" : "text-black bg-purple10"}`}
+                                                            className={`px-2 flex flex-row items-center gap-4 border-none outline-none rounded-lg h-[50px] w-[236px]`}
                                                             onClick={() => { handlephoneSelect(item.phoneNumber) }}
                                                         >
+                                                            {
+                                                                phoneSelect.includes(item.phoneNumber) ? (
+                                                                    <div
+                                                                        className="bg-purple flex flex-row items-center justify-center rounded"
+                                                                        style={{ height: "24px", width: "24px" }}
+                                                                    >
+                                                                        <Image
+                                                                            src={"/assets/whiteTick.png"}
+                                                                            height={8}
+                                                                            width={10}
+                                                                            alt="*"
+                                                                        />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div
+                                                                        className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                                                        style={{ height: "24px", width: "24px" }}
+                                                                    ></div>
+                                                                )
+                                                            }
                                                             {item.phoneNumber}
                                                         </button>
                                                     )
@@ -298,7 +374,7 @@ const StirCalling = ({
                     </div>
                     <div className='w-full flex flex-row items-center gap-4 mt-8 max-h-[20%]'>
                         <button
-                            className={`${isDisabled ? "bg-gray" : "bg-purple"} w-full text-white h-[50px] rounded-lg px-6 outline-none border-none`}
+                            className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-full h-[50px] rounded-lg px-6 outline-none border-none`}
                             onClick={handleAddShakenStir}
                             disabled={loader || isDisabled}
                         >
