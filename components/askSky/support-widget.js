@@ -27,6 +27,7 @@ export function SupportWidget({
   const [voiceOpen, setVoiceOpen] = useState(false); // Sets up the Voice AI interface
   const [chatOpen, setChatOpen] = useState(false); // Sets up the chat interface
   const [open, setOpen] = useState(false)
+  const [isCallRunning,setIsCallRunning] = useState(false)
 
 
   // User loading messages to fake feedback...
@@ -50,6 +51,7 @@ export function SupportWidget({
       console.log("📞 CALL-START: Call started");
       setLoading(false);
       setOpen(true);
+      setIsCallRunning(true)
 
     });
     vapiInstance.on("call-end", () => {
@@ -57,6 +59,7 @@ export function SupportWidget({
       setIsSpeaking(false);
       setOpen(false);
       setShowAskSkyModal(false)
+      setIsCallRunning(false)
     });
     vapiInstance.on("speech-start", () => {
       console.log("🎤 SPEECH-START: Assistant started speaking");
@@ -129,6 +132,8 @@ export function SupportWidget({
           // pipeline_details: JSON.stringify(pipelines)
         },
       };
+
+      console.log('assistantOverrides', assistantOverrides)
 
       // TODO: If voice
 
@@ -274,7 +279,7 @@ export function SupportWidget({
       <div className="relative z-0 h-11 mb-4 mr-4">
 
         {
-          open && voiceOpen && (
+          voiceOpen &&isCallRunning && (
 
             <button
               onClick={handleCloseMenu}
