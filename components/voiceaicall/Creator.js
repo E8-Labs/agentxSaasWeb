@@ -30,6 +30,8 @@ import {
 } from "@phosphor-icons/react";
 
 import Vapi from "@vapi-ai/web";
+import { VoiceWavesComponent } from "../askSky/askskycomponents/voice-waves";
+import { AudioWaveActivity } from "../askSky/askskycomponents/AudioWaveActivity";
 
 const backgroundImage = {
     backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
@@ -75,6 +77,19 @@ const Creator = ({ agentId }) => {
     const [open, setOpen] = useState(false);
 
     const API_KEY = process.env.NEXT_PUBLIC_REACT_APP_VITE_API_KEY;
+
+    // User loading messages to fake feedback...
+    useEffect(() => {
+        if (loading) {
+            setloadingMessage("Sky is booting up...");
+
+            const timer = setTimeout(() => {
+                setloadingMessage("Getting coffee...");
+            }, 3000);
+
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
 
 
     useEffect(() => {
@@ -131,6 +146,7 @@ const Creator = ({ agentId }) => {
             console.log("📞 CALL-END: Call ended");
             setIsSpeaking(false);
             setOpen(false);
+            setloadingMessage("")
         });
         vapiInstance.on("speech-start", () => {
             console.log("🎤 SPEECH-START: Assistant started speaking");
@@ -179,19 +195,6 @@ const Creator = ({ agentId }) => {
     async function startCall() {
         console.log("starting call")
         if (vapi) {
-            // const { pipelines = [], ...userProfile } =
-            //     (await getProfileSupportDetails()) || {};
-
-            // const assistantOverrides = {
-            //     recordingEnabled: false,
-            //     variableValues: {
-            //         customer_details: JSON.stringify(userProfile),
-            //         // pipeline_details: JSON.stringify(pipelines)
-            //     },
-            // };
-
-            // TODO: If voice
-
             vapi.start(agentId);
         } else {
             console.error("Vapi instance not initialized");
@@ -203,28 +206,12 @@ const Creator = ({ agentId }) => {
         setOpen(false);
         if (voiceOpen) {
             setVoiceOpen(false);
-            // if (setShowAskSkyModal) {
-            //     setShowAskSkyModal(false)
-            // }
         }
 
         if (chatOpen) {
             setChatOpen(false);
         }
     }
-
-    const styleLoginModal = {
-        height: "auto",
-        bgcolor: "transparent",
-        // p: 2,
-        mx: "auto",
-        my: "50vh",
-        transform: "translateY(-55%)",
-        borderRadius: 2,
-        border: "none",
-        outline: "none",
-        // border: "2px solid green"
-    };
 
     const handleMouseMove = (event) => {
         const centerX = window.innerWidth / 2;
@@ -363,7 +350,7 @@ const Creator = ({ agentId }) => {
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                     }}
-                    className="flex w-9/12 justify-center items-center md:flex hidden"
+                    className="flex flex-col w-9/12 justify-center items-center md:flex hidden"
                 >
                     <button
                         className="flex items-center justify-center flex-1"
@@ -399,7 +386,36 @@ const Creator = ({ agentId }) => {
                         </div>
 
                     </button>
+
+                    {loading || !open ? (
+                        <p className="mt-10 italic">{loadingMessage}</p>
+                    ) : (
+                        isSpeaking ? (
+                            <VoiceWavesComponent 
+                                className="mt-12"
+
+                            />
+                        ) :
+                            <AudioWaveActivity
+                                isActive={isSpeaking}
+                                barCount={15}
+                                className="mt-10"
+                            />
+                    )}
+
+                    {
+                        open && (
+                            <button 
+
+                            onClick={handleCloseCall}
+                                className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
+                            >
+                                End Call
+                            </button>
+                        )
+                    }
                 </div>
+
 
                 {/* visible on small screens only */}
                 <div
