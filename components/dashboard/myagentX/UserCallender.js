@@ -221,13 +221,13 @@ const UserCalender = ({
     console.log("Calendar details passed from addgoogle calednar", calendar);
     // return
     try {
-    if (calendar?.isFromAddGoogleCal) {
-      console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-      setGoogleCalenderLoader(true);
-    } else {
-      console.log("Is not from google cal");
-      setAddCalenderLoader(true);
-    }
+      if (calendar?.isFromAddGoogleCal) {
+        console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+        setGoogleCalenderLoader(true);
+      } else {
+        console.log("Is not from google cal");
+        setAddCalenderLoader(true);
+      }
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -254,7 +254,7 @@ const UserCalender = ({
       // console.log(`Apikey == ${calenderApiKey}; Title == ${calenderTitle}; TimeZone == ${selectTimeZone}`);
 
       if (calendar?.isFromAddGoogleCal) {
-        formData.append("title", calendar.title);
+        // formData.append("title", calendar.title);
         formData.append("calendarType", "google");
         // formData.append("mainAgentId", "");
         formData.append("agentId", selectedAgent?.id);
@@ -264,6 +264,9 @@ const UserCalender = ({
         formData.append("expiryDate", calendar.expiryDate);
         // formData.append("googleUserId", calendar.id); // here google id was undefined
         formData.append("googleUserId", calendar.googleUserId);
+        formData.append("email", calendar.email);
+        formData.append("title", calendar.calenderTitle);
+        formData.append("timeZone", calendar.selectTimeZone);
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -289,7 +292,6 @@ const UserCalender = ({
         console.log(`${key} ===== ${value}`);
       }
 
-      // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -315,13 +317,14 @@ const UserCalender = ({
             // agentsListDetails = agentsList;
 
             const newCalendarData = response.data.data;
-            let calendars = allCalendars.filter(
-              (item) => item.apiKey != newCalendarData.apiKey
-            );
+            // let calendars = allCalendars.filter(
+            //   (item) => item.apiKey != newCalendarData.apiKey
+            // );
             let selecAgent = { ...agent, calendar: newCalendarData };
 
             setAgent(selecAgent); // Now this triggers useEffect
-            setAllCalendars([...calendars, newCalendarData]);
+            // setAllCalendars([...allCalendars, newCalendarData]);
+            setAllCalendars([newCalendarData, ...allCalendars]);
             setSelectCalender(newCalendarData);
             setSelectedCalenderTitle(newCalendarData?.id);
 
@@ -366,7 +369,7 @@ const UserCalender = ({
       }
     } catch (error) {
       setIsVisible(true);
-      setMessage(error);
+      setMessage(error.message);
       setType(SnackbarTypes.Error);
       console.error("Error occured in api is:", error);
     } finally {
@@ -505,7 +508,7 @@ const UserCalender = ({
                         <div className="w-full flex flex-row items-center justify-between">
                           {/* Calendar Name */}
                           <button
-                            className="w-full text-start"
+                            className="w-full text-start flex flex-row items-center gap-2"
                             onClick={() => {
                               setCalendarSelected(item);
                               setSelectCalender(item);
@@ -513,7 +516,16 @@ const UserCalender = ({
                             }}
                             style={{ flexGrow: 1, textAlign: "left" }}
                           >
-                            {item.title}
+                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                              {item.title}
+                            </div>
+                            {
+                              item.email && (
+                                <div className="text-sm text-[#00000060]">
+                                  ({item.email})
+                                </div>
+                              )
+                            }
                           </button>
 
                           {/* Delete Button (Only Show on Hover) */}
