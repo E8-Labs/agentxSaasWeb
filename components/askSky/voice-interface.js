@@ -1,26 +1,41 @@
 import Image from "next/image";
-import { AudioWaveActivity } from "./askskycomponents/audio-wave-activity";
 import { MYAGENTX_URL } from "./constants";
+import { AudioWaveActivity } from "./askskycomponents/AudioWaveActivity";
+import { VoiceWavesComponent } from "./askskycomponents/voice-waves";
 
 export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
   return (
     <>
-      <div className="h-[150px] w-[200px] flex flex-col items-center justify-between mb-8">
-        <Image
-          className="rounded-full bg-white shadow-lg h-auto w-auto shrink-0 z-0 object-center object-cover"
-          src="/agentXOrb.gif"
-          alt="AgentX Orb"
-          height={144}
-          width={144}
-        />
+      <div className="h-[200px] w-[200px] flex flex-col items-center justify-between mb-8">
+        <div className="relative w-[125px] h-[150px] mx-auto mt-4">
+          {/* Gradient Glow Border */}
+          {/* <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-purple-400 to-blue-400 blur-2xl opacity-70"></div> */}
+
+          {/* Image */}
+          <img
+            src="/agentXOrb.gif"
+            alt="AgentX Orb"
+            className="relative z-10 rounded-full bg-white shadow-lg object-cover"
+            style={{
+              height: "120px",
+              width: "120px",
+            }}
+          />
+        </div>
         {loading ? (
           <p className="mt-10 italic">{loadingMessage}</p>
         ) : (
-          <AudioWaveActivity
-            isActive={isSpeaking}
-            barCount={15}
-            className="mt-12"
-          />
+          isSpeaking ? (
+            <VoiceWavesComponent
+              className="mt-12"
+
+            />
+          ) :
+            <AudioWaveActivity
+              isActive={isSpeaking}
+              barCount={15}
+              className="mt-10"
+            />
         )}
       </div>
       <div className="relative w-2/3 flex flex-col h-5 items-center justify-center gap-6 z-10">

@@ -272,7 +272,7 @@ const DashboardSlider = ({
               }}
               className="flex"
               style={{
-                width: "350px",
+                width: "300px",
                 touchAction: "pan-y", // allow horizontal pan
               }}
             >
@@ -323,26 +323,8 @@ const DashboardSlider = ({
               outline: "none",
             }}
           >
-            <button
-              className="outline-none border-none"
-              onClick={handleReopen}
-            >
-              <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
-                <Image
-                  src={"/otherAssets/getHelp.png"}
-                  height={56}
-                  width={57}
-                  alt="*"
-                  style={{
-                    // borderWidth:1
-                  }}
-                />
+           <GetHelpBtn handleReopen={handleReopen} />
 
-                <p className=" text-[16px] font-bold text-purple cursor-pointer">
-                  Get Help
-                </p>
-              </div>
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -413,4 +395,38 @@ const styles = {
     fontWeight: "700",
   },
 };
+
+
+export const GetHelpBtn = ({
+  handleReopen
+}) => {
+  return (
+    <button className="flex flex-row bg-white items-center pe-4 ps-4 py-2 rounded-full shadow-md relative overflow-hidden"
+      onClick={handleReopen}
+    >
+      {/* Stars */}
+      <Image
+        src="/otherAssets/getHelpStars.png"
+        height={20}
+        width={20}
+        alt="Stars"
+        className="absolute top-0 left-12 z-10 bg-transparent"
+      />
+
+      {/* Orb */}
+      <Image
+        src="/agentXOrb.gif"
+        height={46}
+        width={46}
+        alt="Orb"
+        className="relative z-0 bg-white shadow-lg rounded-full"
+      />
+
+      {/* Text */}
+      <p className="text-[16px] font-bold text-purple cursor-pointer ms-2">
+        Get Help
+      </p>
+    </button>
+  )
+}
 

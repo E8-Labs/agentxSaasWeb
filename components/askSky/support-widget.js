@@ -8,6 +8,7 @@ import Vapi from "@vapi-ai/web";
 import classNames from "classnames";
 import { VoiceInterface } from "./voice-interface";
 import { ChatInterface } from "./askskycomponents/chat-interface";
+import { GetHelpBtn } from "../animations/DashboardSlider";
 
 export function SupportWidget({
   assistantId = DEFAULT_ASSISTANT_ID,
@@ -55,6 +56,7 @@ export function SupportWidget({
       console.log("📞 CALL-END: Call ended");
       setIsSpeaking(false);
       setOpen(false);
+      setShowAskSkyModal(false)
     });
     vapiInstance.on("speech-start", () => {
       console.log("🎤 SPEECH-START: Assistant started speaking");
@@ -261,28 +263,12 @@ export function SupportWidget({
       </div>
       {
         isEmbed && !open && (
-          <button
-            className="outline-none border-none mr-3"
-            onClick={() => {
+          <GetHelpBtn
+            handleReopen={() => {
               isEmbed = false
               handleStartCall(true)
             }}
-          >
-            <div className="flex flex-row items-center pe-4 ps-4 bg-white py-1 rounded-full shadow-md">
-              <Image
-                src={"/otherAssets/getHelp.png"}
-                height={56}
-                width={57}
-                alt="*"
-                style={{
-                  // borderWidth:1
-                }}
-              />
-              <p className=" text-[16px] font-bold text-purple cursor-pointer">
-                Get Help
-              </p>
-            </div>
-          </button>
+          />
         )
       }
       <div className="relative z-0 h-11 mb-4 mr-4">
