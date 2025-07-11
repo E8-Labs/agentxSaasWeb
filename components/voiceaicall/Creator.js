@@ -178,6 +178,7 @@ const Creator = ({ agentId }) => {
         setOpen(true)
         console.log('trying to start call',)
         setLoading(true);
+        setloadingMessage("")
 
         if (voice) {
             setVoiceOpen(true);
@@ -203,6 +204,8 @@ const Creator = ({ agentId }) => {
 
     async function handleCloseCall() {
         await vapi?.stop();
+        setLoading(false);
+        setloadingMessage("");
         setOpen(false);
         if (voiceOpen) {
             setVoiceOpen(false);
@@ -228,18 +231,18 @@ const Creator = ({ agentId }) => {
         }
 
         // Check if the mouse is over buttonRef
-        // if (buttonRef.current) {
-        //     const rect = buttonRef.current.getBoundingClientRect();
-        //     if (
-        //         x >= rect.left &&
-        //         x <= rect.right &&
-        //         y >= rect.top &&
-        //         y <= rect.bottom
-        //     ) {
-        //         setBoxVisible(false); // Hide the animation when hovering over buttonRef
-        //         return;
-        //     }
-        // }
+        if (buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            if (
+                x >= rect.left &&
+                x <= rect.right &&
+                y >= rect.top &&
+                y <= rect.bottom
+            ) {
+                setBoxVisible(false); // Hide the animation when hovering over buttonRef
+                return;
+            }
+        }
 
         // // Check if the mouse is over buttonRef2
         // if (buttonRef2.current) {
@@ -391,7 +394,7 @@ const Creator = ({ agentId }) => {
                         <p className="mt-10 italic">{loadingMessage}</p>
                     ) : (
                         isSpeaking ? (
-                            <VoiceWavesComponent 
+                            <VoiceWavesComponent
                                 className="mt-12"
 
                             />
@@ -405,9 +408,9 @@ const Creator = ({ agentId }) => {
 
                     {
                         open && (
-                            <button 
-
-                            onClick={handleCloseCall}
+                            <button
+                                ref={buttonRef}
+                                onClick={handleCloseCall}
                                 className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
                             >
                                 End Call
