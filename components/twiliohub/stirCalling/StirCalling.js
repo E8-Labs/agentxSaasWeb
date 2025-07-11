@@ -74,7 +74,7 @@ const StirCalling = ({
 
             if (response) {
                 setLoader(false);
-                handleClose();
+                handleClose(response.data.data);
                 console.log("Response of api is", response);
             }
 

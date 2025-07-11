@@ -130,8 +130,10 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                     <StirCalling
                         showShakenStir={showShakenStirModal}
                         handleClose={(d) => {
-                            getProfileData();
                             setShowShakenStirModal(false);
+                            if (d) {
+                                getProfileData();
+                            }
                         }}
                     />
                 )
