@@ -6,6 +6,9 @@ import { Box, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 import { useRouter } from 'next/navigation';
 import ClaimNumber from '../myagentX/ClaimNumber';
+import CalendarModal from '../myagentX/CalenderModal';
+import { AddCalendarApi } from '@/apiservicescomponent/addcalendar/AddCalendarApi';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 
 const CheckList = ({ userDetails }) => {
 
@@ -21,6 +24,23 @@ const CheckList = ({ userDetails }) => {
 
     //calim popup
     const [showClaimPopup, setShowClaimPopup] = useState(false);
+
+    //variables for add calendar
+    const [calenderLoader, setCalenderLoader] = useState(false);
+    const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
+    const [calenderTitle, setCalenderTitle] = useState("");
+    const [calenderApiKey, setCalenderApiKey] = useState("");
+    const [eventId, setEventId] = useState("");
+    const [selectTimeZone, setSelectTimeZone] = useState("");
+    const [calendarType, setCalendarType] = useState("");
+    //add calendar variables object
+    const [addCalendarValues, setAddCalendarValues] = useState({});
+    //add calendar snack message
+    const [snackMessage, setSnackMessage] = useState({
+        type: SnackbarTypes.Success,
+        message: "Calendar added successfully!",
+        isVisible: false,
+    });
 
     const getChecklist = () => {
         const D = localStorage.getItem("User");
@@ -65,6 +85,21 @@ const CheckList = ({ userDetails }) => {
 
     }, []);
 
+    //update the add calendar object values
+    useEffect(() => {
+
+        const addCalendarValues = {
+            calenderTitle: calenderTitle,
+            calenderApiKey: calenderApiKey,
+            eventId: eventId,
+            selectTimeZone: selectTimeZone,
+            calendarType: calendarType
+        }
+
+        setAddCalendarValues(addCalendarValues);
+
+    }, [calenderLoader, calenderTitle, calenderApiKey, eventId, selectTimeZone])
+
     //close claim popup
     const handleCloseClaimPopup = () => {
         setShowClaimPopup(false);
@@ -79,6 +114,18 @@ const CheckList = ({ userDetails }) => {
 
     return (
         <div className='w-full'>
+            <AgentSelectSnackMessage
+                type={snackMessage.type}
+                message={snackMessage.message}
+                isVisible={snackMessage.isVisible}
+                hide={() => {
+                    setSnackMessage({
+                        message: "",
+                        isVisible: false,
+                        type: SnackbarTypes.Success,
+                    });
+                }}
+            />
             {
                 progressValue < 100 && (
                     <div className='bg-[#F7F7FD] w-full rounded-md mb-2 py-2'>
@@ -167,12 +214,59 @@ const CheckList = ({ userDetails }) => {
             {
                 showAddCalendar && (
                     <div>
-                        <AddNewCalendar
+                        {/*<AddNewCalendar
                             handleContinue={() => {
                                 getChecklist();
                                 setShowAddCalendar(false);
                             }}
                             showModal={showAddCalendar}
+                        />*/}
+                        <CalendarModal
+                            open={showAddCalendar}
+                            onClose={() => {
+                                // getChecklist();
+                                setShowAddCalendar(false);
+                            }}
+                            calenderLoader={calenderLoader}
+                            googleCalenderLoader={googleCalenderLoader}
+                            calenderTitle={calenderTitle}
+                            setCalenderTitle={setCalenderTitle}
+                            calenderApiKey={calenderApiKey}
+                            setCalenderApiKey={setCalenderApiKey}
+                            setEventId={setEventId}
+                            eventId={eventId}
+                            selectTimeZone={selectTimeZone}
+                            setSelectTimeZone={setSelectTimeZone}
+                            handleAddCalendar={async (calendar) => {
+                                let response = null;
+                                if (calendar?.isFromAddGoogleCal) {
+                                    console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+                                    response = await AddCalendarApi(calendar);
+                                    setGoogleCalenderLoader(true);
+                                } else {
+                                    console.log("Is not from google cal");
+                                    response = await AddCalendarApi(addCalendarValues);
+                                    setCalenderLoader(true);
+                                }
+                                setCalenderLoader(false);
+                                setGoogleCalenderLoader(false);
+                                if (response.status === true) {
+                                    getChecklist();
+                                    setShowAddCalendar(false);
+                                    setSnackMessage({
+                                        message: response.message,
+                                        type: SnackbarTypes.Success,
+                                        isVisible: true,
+                                    });
+                                } else {
+                                    console.log("error");
+                                    setSnackMessage({
+                                        message: response.message,
+                                        type: SnackbarTypes.Error,
+                                        isVisible: true,
+                                    });
+                                }
+                            }}
                         />
                     </div>
                 )

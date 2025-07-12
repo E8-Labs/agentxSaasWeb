@@ -28,28 +28,7 @@ export const PersistanceKeys = {
   //vapi-widget call popup
   showVapiModal: "showVapiModal",
 
-<<<<<<< HEAD
-  GlobalSupportUrl:
-    "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
-  GlobalConsultationUrl:
-    "https://api.leadconnectorhq.com/widget/booking/F1DtpvAR8fNf3RJM1akZ",
-  GlobalWebinarUrl:
-    "https://api.leadconnectorhq.com/widget/bookings/yk4um7vhmtrv4uaxmqpr",
-  ExternalCalendarLink:
-    "https://api.leadconnectorhq.com/widget/bookings/agentx/enterprise-plan",
-  SupportWebinarUrl:
-    "https://set.myagentx.com/widget/bookings/agentx-support",
-  ResourceHubUrl:
-    // "https://www.google.com/url?q=https://www.notion.so/AgentX-Support-Hub-21997b2f3bbe80799837ffd9494574fc?source%3Dcopy_link&sa=D&source=docs&ust=1751319070900437&usg=AOvVaw0kOnwWDKb5el_CB072MMDe",
-    "https://www.notion.so/AgentX-Support-Hub-21997b2f3bbe80799837ffd9494574fc?showMoveTo=true&pvs=32",
-    FeedbackFormUrl:
-    "https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK",
-    HireTeamUrl:
-    "https://api.leadconnectorhq.com/widget/bookings/agentx-done-with-you",
-    BillingSupportUrl:"https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D",
-=======
  addCalendarScope: process.env.NEXT_PUBLIC_REACT_APP_addCalendarScope,
->>>>>>> feature/add-vapi-to-main
 
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,
   GlobalConsultationUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,
