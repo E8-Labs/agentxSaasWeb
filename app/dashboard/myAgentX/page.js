@@ -2400,13 +2400,10 @@ function Page() {
   // ////console.log
 
   const handleCopy = (assistantId, baseUrl) => {
-    const iframeCode = `<iframe
-  src="${baseUrl}embed/support/${assistantId}"
-  style="position: fixed; bottom: 0; right: 0; width: 320px; 
+    const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
-  </iframe>
-`;
+  </iframe>`;
 
     navigator.clipboard
       .writeText(iframeCode)
