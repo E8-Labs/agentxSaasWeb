@@ -134,8 +134,8 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 5:
         return <InviteAgentX />;
-      // case 6:
-      //   return <TwilioTrustHub />;
+      case 6:
+        return <TwilioTrustHub />;
       // case 6:
       //   return <Support />;
       // case 7:
@@ -147,19 +147,19 @@ function MyAccount() {
 
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 6) {
+    if (item.id === 7) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 7) {
+    } else if (item.id === 8) {
       window.open(
         privacyPollicyUrl,
         "_blank"
       );
       return
-    } else if (item.id === 8) {
+    } else if (item.id === 9) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"
