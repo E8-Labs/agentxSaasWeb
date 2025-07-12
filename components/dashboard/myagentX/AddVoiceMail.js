@@ -246,7 +246,7 @@ function AddVoiceMail({
                                     onClick={() => {
                                         const data = {
                                             message,
-                                            voiceId: selectedVoice,
+                                            // voiceId: selectedVoice,
                                             agentType: selectedManu.type
                                         };
                                         addVoiceMail(data);

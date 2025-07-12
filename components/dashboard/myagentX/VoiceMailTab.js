@@ -65,11 +65,11 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
   ]
 
   const saveVoiceMail = async (data) => {
-    if (!data.voiceId) {
-      setShowMessage("Select a voice")
-      setMessageType(SnackbarTypes.Error)
-      return
-    }
+    // if (!data.voiceId) {
+    //   setShowMessage("Select a voice")
+    //   setMessageType(SnackbarTypes.Error)
+    //   return
+    // }
     if (!data.message) {
       setShowMessage("Enter voicemail")
       setMessageType(SnackbarTypes.Error)
@@ -163,11 +163,11 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
 
   const updateVoicemail = async (data) => {
 
-    if (!data.voiceId) {
-      setShowMessage("Select a voice")
-      setMessageType(SnackbarTypes.Error)
-      return
-    }
+    // if (!data.voiceId) {
+    //   setShowMessage("Select a voice")
+    //   setMessageType(SnackbarTypes.Error)
+    //   return
+    // }
     if (!data.message) {
       setShowMessage("Enter voicemail")
       setMessageType(SnackbarTypes.Error)

@@ -271,6 +271,7 @@ const ProfileNav = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
+
       console.log(
         "LocalData.user.profile_status",
         LocalData.user.profile_status
@@ -286,6 +287,8 @@ const ProfileNav = () => {
         // user haven't subscribed to any plan
         setPlans(plansWitTrial);
       }
+    }else{
+      console.log('no data',data)
     }
     await getProfile();
   };
