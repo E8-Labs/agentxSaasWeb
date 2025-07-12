@@ -96,7 +96,7 @@ const DuplicateButton = dynamic(
 function Page() {
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://apimyagentx.com/"
+      ? "https://ai.myagentx.com/"
       : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
 
   const timerRef = useRef();
