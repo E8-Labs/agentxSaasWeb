@@ -92,15 +92,21 @@ function MyAccount() {
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
+  //select the invite teams by default
   useEffect(() => {
-    const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 5;
-    // //console.log;
-    setTabSelected(number);
-    if (!tab) {
+    const tab = searchParams.get("tab");
+    const number = Number(tab);
+
+    const exists = manuBar.find((item) => item.id === number);
+    if (exists) {
+      setTabSelected(number);
+    } else {
+      setTabSelected(5); // Default to Invite Agents
       setParamsInSearchBar(5);
+      // console.log("Setting the tab value");
     }
   }, []);
+
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
@@ -159,8 +165,9 @@ function MyAccount() {
       );
       return
     }
-    setTabSelected(index + 1);
-    setParamsInSearchBar(index + 1);
+    console.log("Index is", index);
+    setTabSelected(item.id);
+    setParamsInSearchBar(item.id);
 
   }
 
