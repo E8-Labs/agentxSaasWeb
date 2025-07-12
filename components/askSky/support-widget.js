@@ -27,7 +27,7 @@ export function SupportWidget({
   const [voiceOpen, setVoiceOpen] = useState(false); // Sets up the Voice AI interface
   const [chatOpen, setChatOpen] = useState(false); // Sets up the chat interface
   const [open, setOpen] = useState(false)
-  const [isCallRunning,setIsCallRunning] = useState(false)
+  const [isCallRunning, setIsCallRunning] = useState(false)
 
 
   // User loading messages to fake feedback...
@@ -125,6 +125,8 @@ export function SupportWidget({
       const { pipelines = [], ...userProfile } =
         (await getProfileSupportDetails()) || {};
 
+      // console.log('userProfile', userProfile)
+
       const assistantOverrides = {
         recordingEnabled: false,
         variableValues: {
@@ -133,6 +135,8 @@ export function SupportWidget({
         },
       };
 
+      const payloadSize = new Blob([JSON.stringify(userProfile)]).size;
+      console.log(`Payload size: ${payloadSize} bytes`);
       console.log('assistantOverrides', assistantOverrides)
 
       // TODO: If voice
@@ -201,10 +205,14 @@ export function SupportWidget({
             let pipelineData = data.pipelines;
 
             delete data.pipelines;
+            delete data.sheets
+            delete data.activity
+
+
 
             return {
               profile: user.user,
-              additionalData: response.data.data,
+              additionalData: data,
               pipelines: pipelineData,
             };
           } else {
@@ -279,7 +287,7 @@ export function SupportWidget({
       <div className="relative z-0 h-11 mb-4 mr-4">
 
         {
-          voiceOpen &&isCallRunning && (
+          voiceOpen && isCallRunning && (
 
             <button
               onClick={handleCloseMenu}
