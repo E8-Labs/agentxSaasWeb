@@ -2,7 +2,8 @@ import Image from 'next/image'
 import React, { useEffect } from 'react'
 
 const ShowRequestStatus = ({
-    status
+    status,
+    twilioData
 }) => {
 
 
@@ -55,6 +56,9 @@ const ShowRequestStatus = ({
                         <div style={styles.regularTxt}>
                             Rejected
                         </div>
+                        {/*<div>
+                            Recjection reason
+            </div>*/}
                     </div>
                 </div>
             )

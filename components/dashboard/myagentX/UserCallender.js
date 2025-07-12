@@ -174,9 +174,9 @@ const UserCalender = ({
         //console.log;
         // return
         let apiData = {
-          apiKey: calendarToDelete.apiKey,
+          calendarId: calendarToDelete.id,
         };
-        //console.log;
+        console.log("Calender to delete is", apiData);
         // return;
 
         let path = Apis.deleteCalendar;

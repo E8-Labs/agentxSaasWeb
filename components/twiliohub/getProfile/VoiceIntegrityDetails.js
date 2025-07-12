@@ -6,6 +6,7 @@ import TwilioIntegrations from '../twilioIntegrations/TwilioIntegrations';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
+import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
 const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -87,7 +88,13 @@ const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData })
                             <TwilioProfileToolTip toolTip={"Voice Integrity protects your phone number reputation. It ensures you're not accidentally doing things that might get your number blocked or flagged as spam."} />
                         </div>
                     </div>
-                    <div className='flex flex-row items-end gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        {twilioHubData?.status && (
+                            <ShowResubmitBtn
+                                status={twilioHubData.status}
+                                handleOpenModal={() => { setShowAddVoice(true) }}
+                            />
+                        )}
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -106,12 +113,17 @@ const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData })
                 </div>
             </div>
             {twilioHubData?.status ? (
-                <ShowRequestStatus status={twilioHubData.status} />
+                <ShowRequestStatus
+                    status={twilioHubData.status}
+                    twilioData={twilioHubData}
+                />
             ) : (
                 <LockDetailsView
                     profileStatus={profileStatus}
                     handleShowAddModal={() => { setShowAddVoice(true) }}
                     btnTitle='Complete Voice'
+                    twilioData={twilioHubData}
+                    unLockDescription="Register Voice Integrity."
                 />
             )
             }

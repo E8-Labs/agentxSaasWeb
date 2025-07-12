@@ -6,6 +6,7 @@ import StirCalling from '../stirCalling/StirCalling';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
 const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -84,7 +85,13 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                             <TwilioProfileToolTip toolTip={"SHAKEN/STIR is a system that verifies your caller ID is real — not spoofed or fake. It helps your calls look more trustworthy and less like spam."} />
                         </div>
                     </div>
-                    <div className='flex flex-row items-end gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        {twilioHubData?.status && (
+                            <ShowResubmitBtn
+                                status={twilioHubData.status}
+                                handleOpenModal={() => { setShowShakenStirModal(true) }}
+                            />
+                        )}
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -103,12 +110,17 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                 </div>
             </div>
             {twilioHubData?.status ? (
-                <ShowRequestStatus status={twilioHubData.status} />
+                <ShowRequestStatus
+                    status={twilioHubData.status}
+                    twilioData={twilioHubData}
+                />
             ) : (
                 <LockDetailsView
                     profileStatus={profileStatus}
                     handleShowAddModal={() => { setShowShakenStirModal(true) }}
                     btnTitle='Complete SHAKEN/STIR'
+                    twilioData={twilioHubData}
+                    unLockDescription="Add Shaken/Stir calling."
                 />
             )
             }
@@ -116,7 +128,7 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                 showDetails && (
                     <div className='w-full'>
                         <div className='w-full px-4'>
-                            <div className='flex flex-row items-center mt-2'>
+                            <div className='flex flex-row items-center mt-2 mb-4'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
                                     Trust product name
                                 </div>
@@ -131,7 +143,7 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
                                     Selected business profile
                                 </div>
-                </div>*/}
+                </div>
                             <div className='flex flex-row items-center mt-2 mb-4'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
                                     Registered phone numbers
@@ -139,7 +151,7 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
                                     +1 3919329194
                                 </div>
-                            </div>
+                            </div>*/}
                         </div>
                     </div>
                 )
