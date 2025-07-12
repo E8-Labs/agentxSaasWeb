@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react'
 
 const AddTwilio = ({
     showAddTwilio,
-    onClose
+    handleClose
 }) => {
 
     const [accountSID, setAccountSID] = useState("");
@@ -55,7 +55,7 @@ const AddTwilio = ({
                 setAddTwilioLoader(false);
                 const ApiResponse = response.data;
                 if (ApiResponse.status === true) {
-                    onClose(ApiResponse);
+                    handleClose(ApiResponse);
                 } else if (ApiResponse.status === false) {
                     setShowSnack({
                         message: ApiResponse.message,
@@ -102,7 +102,7 @@ const AddTwilio = ({
     return (
         <Modal
             open={showAddTwilio}
-            onClose={onClose}
+            onClose={() => { handleClose() }}
             BackdropProps={{
                 timeout: 200,
                 sx: {
@@ -142,7 +142,7 @@ const AddTwilio = ({
                         </div>
                         <button
                             className='border-none outline-none'
-                            onClick={() => { onClose() }}>
+                            onClick={() => { handleClose() }}>
                             <Image
                                 src={"/assets/cross.png"}
                                 alt='cross'
@@ -213,11 +213,11 @@ const AddTwilio = ({
                         {/*<button
                             className='text-purple w-1/2 bg-purple10 h-[50px] rounded-lg outline-none border-none'
                             style={styles.regularFont}
-                            onClick={onClose}>
+                            onClick={}>
                             Exit
                         </button>*/}
                         <button
-                            className={`${isDisabled ? "bg-btngray" : "bg-purple"} w-full text-white h-[50px] rounded-lg px-6 outline-none border-none`}
+                            className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-full h-[50px] rounded-lg px-6 outline-none border-none`}
                             onClick={handleConnectTwilio}
                             disabled={addTwilioLoader || isDisabled}
                         >

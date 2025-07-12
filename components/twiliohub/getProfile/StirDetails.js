@@ -5,6 +5,7 @@ import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
 import StirCalling from '../stirCalling/StirCalling';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -12,6 +13,12 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
     const [showShakenStirModal, setShowShakenStirModal] = useState(false);
     //allow add details btn
     const [allowAddDetails, setAllowAddDetails] = useState(true);
+
+    const [showSnack, setShowSnack] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false
+    });
 
     useEffect(() => {
         if (twilioHubData) {
@@ -50,6 +57,18 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
     return (
         <div className='border rounded-lg w-full'>
             <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[1px]"}`}>
+                <AgentSelectSnackMessage
+                    type={showSnack.type}
+                    message={showSnack.message}
+                    isVisible={showSnack.isVisible}
+                    hide={() => {
+                        setShowSnack({
+                            message: "",
+                            isVisible: false,
+                            type: SnackbarTypes.Success,
+                        });
+                    }}
+                />
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
                     <div className='flex flex-row items-center gap-2'>
                         <Image
@@ -132,6 +151,11 @@ const StirDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                         handleClose={(d) => {
                             setShowShakenStirModal(false);
                             if (d) {
+                                setShowSnack({
+                                    message: d.message,
+                                    isVisible: true,
+                                    type: SnackbarTypes.Success,
+                                });
                                 getProfileData();
                             }
                         }}
