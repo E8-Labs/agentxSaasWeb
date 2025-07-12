@@ -1,7 +1,6 @@
 import { getToken } from "next-auth/jwt";
 
 export default async function handler(req, res) {
-    return;
     const token = await getToken({ req });
 
     if (!token || !token.accessToken) {

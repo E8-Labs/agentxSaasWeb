@@ -41,6 +41,8 @@ const UserCalender = ({
 
   const justLoggedIn = useRef(false);
 
+  // console.log("Selected agent passed is", selectedAgent);
+
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
@@ -312,6 +314,7 @@ const UserCalender = ({
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
+            console.log("This trigered");
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 

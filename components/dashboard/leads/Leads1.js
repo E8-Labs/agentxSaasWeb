@@ -311,30 +311,105 @@ const Leads1 = () => {
     //console.log;
   }, [NewColumnsObtained]);
 
+  // function ChangeColumnName(UpdatedColumnName) {
+  //   let ColumnToUpdate = UpdateHeader;
+  //   if (UpdatedColumnName == null) {
+  //     console.log("Log 1 running");
+  //     let updatedColumns = NewColumnsObtained.map((item) => {
+  //       if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
+  //         item.matchedColumn = null;
+  //         item.UserFacingName = null;
+  //         return item;
+  //       }
+  //       return item;
+  //     });
+  //     setNewColumnsObtained(updatedColumns);
+  //   } else {
+  //     console.log("Log 2 running");
+  //     let updatedColumns = NewColumnsObtained.map((item) => {
+  //       if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
+  //         //check if the new column Name matches a column
+  //         let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+  //           LeadDefaultColumns[key].mappings.includes(
+  //             UpdatedColumnName.toLowerCase()
+  //           )
+  //         );
+
+  //         if (matchedColumnKey) {
+  //           console.log(
+  //             `Matched with default column: ${matchedColumnKey} -`,
+  //             LeadDefaultColumns[matchedColumnKey]
+  //           );
+  //           let defaultColumn = { ...LeadDefaultColumns[matchedColumnKey] };
+  //           item.matchedColumn = defaultColumn;
+  //           item.UserFacingName = null;
+  //         } else {
+  //           item.matchedColumn = null;
+  //           item.UserFacingName = UpdatedColumnName;
+  //           console.log("Not match fpund", UpdatedColumnName);
+  //         }
+  //       }
+  //       return item;
+  //     });
+  //     setNewColumnsObtained(updatedColumns);
+  //   }
+
+  //   setShowPopUp(false);
+  //   setcolumnAnchorEl(null);
+  //   setSelectedItem(null);
+  // }
+
   function ChangeColumnName(UpdatedColumnName) {
     let ColumnToUpdate = UpdateHeader;
+
     if (UpdatedColumnName == null) {
+      console.log("Log 1 running");
       let updatedColumns = NewColumnsObtained.map((item) => {
-        if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
+        if (item.ColumnNameInSheet === ColumnToUpdate.ColumnNameInSheet) {
           item.matchedColumn = null;
           item.UserFacingName = null;
-          return item;
         }
         return item;
       });
       setNewColumnsObtained(updatedColumns);
     } else {
-      let updatedColumns = NewColumnsObtained.map((item) => {
-        if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
-          //check if the new column Name matches a column
-          let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-            LeadDefaultColumns[key].mappings.includes(
-              UpdatedColumnName.toLowerCase()
-            )
-          );
+      console.log("Log 2 running");
 
+      let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+        LeadDefaultColumns[key].mappings.includes(
+          UpdatedColumnName.toLowerCase()
+        )
+      );
+
+      let isAlreadyMapped = matchedColumnKey
+        ? NewColumnsObtained.some(
+          (item) =>
+            item.matchedColumn?.dbName === matchedColumnKey &&
+            item.ColumnNameInSheet !== ColumnToUpdate.ColumnNameInSheet // skip current row
+        )
+        : false;
+
+      if (isAlreadyMapped) {
+        console.warn(`Duplicate match attempt for: ${matchedColumnKey}`);
+        setWarningModal(true);
+        setShowPopUp(false);
+        setcolumnAnchorEl(null);
+        setSelectedItem(null);
+        return;
+      }
+
+
+      let updatedColumns = NewColumnsObtained.map((item) => {
+        if (item.ColumnNameInSheet === ColumnToUpdate.ColumnNameInSheet) {
           if (matchedColumnKey) {
-            let defaultColumn = { ...LeadDefaultColumns[matchedColumnKey] };
+            console.log(
+              `Matched with default column: ${matchedColumnKey} -`,
+              LeadDefaultColumns[matchedColumnKey]
+            );
+            let defaultColumn = {
+              ...LeadDefaultColumns[matchedColumnKey],
+              dbName: matchedColumnKey,
+            };
             item.matchedColumn = defaultColumn;
             item.UserFacingName = null;
           } else {
@@ -344,6 +419,7 @@ const Leads1 = () => {
         }
         return item;
       });
+
       setNewColumnsObtained(updatedColumns);
     }
 
@@ -351,6 +427,7 @@ const Leads1 = () => {
     setcolumnAnchorEl(null);
     setSelectedItem(null);
   }
+
 
   const validateColumns = () => {
     //console.log;
@@ -1605,7 +1682,7 @@ const Leads1 = () => {
                           updateColumnValue?.toLowerCase()
                       )
                     ) {
-                      // //console.log;
+                      console.log("Matching new column found???");
                       // return
                       setWarningModal(true);
                     } else {
