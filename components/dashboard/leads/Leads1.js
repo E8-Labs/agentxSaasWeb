@@ -462,9 +462,9 @@ const Leads1 = () => {
               usedKeys.add(matchedColumnKey); // Mark as used
             }
 
-            console.log(
-              `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
-            );
+            // console.log(
+            //   `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
+            // );
 
             return {
               ColumnNameInSheet: header, // Original header from the file
@@ -498,6 +498,7 @@ const Leads1 = () => {
           });
 
           // Update state
+          // console.log("Transformed data (first 10):", JSON.stringify(transformedData.slice(0, 10), null, 2));
           setProcessedData(transformedData);
           setNewColumnsObtained(mappedColumns); // Store the column mappings
         }

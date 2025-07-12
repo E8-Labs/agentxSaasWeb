@@ -1,6 +1,7 @@
 import { getToken } from "next-auth/jwt";
 
 export default async function handler(req, res) {
+    return;
     const token = await getToken({ req });
 
     if (!token || !token.accessToken) {
@@ -8,6 +9,7 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log("I'm trigered the google.com api");
         const response = await fetch(
             "https://www.googleapis.com/calendar/v3/calendars/primary/events",
             {

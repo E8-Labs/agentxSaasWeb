@@ -38,47 +38,48 @@ async function refreshAccessToken(token) {
   }
 }
 
-export default NextAuth({
-  providers: [
-    GoogleProvider({
-      clientId: process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_APP_SECRET,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      authorization: {
-        params: {
-          scope:
-            PersistanceKeys.addCalendarScope,
-          access_type: "offline", // ✅ Ensures refresh_token is returned
-          prompt: "consent", // ✅ Forces Google to ask for permission each time
-        },
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, account, profile }) {
-      if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-      }
-      if (profile) {
-        token.userId = profile.sub;
-        token.name = profile.name;
-        token.email = profile.email;
-        token.picture = profile.picture;
-      }
-      return token;
-    },
+// export default NextAuth({
+//   providers: [
+//     GoogleProvider({
+//       clientId: process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_APP_SECRET,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//       authorization: {
+//         params: {
+//           scope:
+//             PersistanceKeys.addCalendarScope,
+//           access_type: "offline", // ✅ Ensures refresh_token is returned
+//           prompt: "consent", // ✅ Forces Google to ask for permission each time
+//         },
+//       },
+//     }),
+//   ],
+//   callbacks: {
+//     async jwt({ token, account, profile }) {
+//       if (account) {
+//         token.accessToken = account.access_token;
+//         token.refreshToken = account.refresh_token;
+//       }
+//       if (profile) {
+//         token.userId = profile.sub;
+//         token.name = profile.name;
+//         token.email = profile.email;
+//         token.picture = profile.picture;
+//       }
+//       return token;
+//     },
 
-    async session({ session, token }) {
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
-      session.user.id = token.userId || token.sub;
+//     async session({ session, token }) {
+//       console.log("Sessions in nexxt auth");
+//       session.accessToken = token.accessToken;
+//       session.refreshToken = token.refreshToken;
+//       session.user.id = token.userId || token.sub;
 
-      // Add name, email, image if available in the token
-      session.user.name = token.name || null;
-      session.user.email = token.email || null;
-      session.user.image = token.picture || null;
+//       // Add name, email, image if available in the token
+//       session.user.name = token.name || null;
+//       session.user.email = token.email || null;
+//       session.user.image = token.picture || null;
 
-      return session;
-    },
-  },
-});
+//       return session;
+//     },
+//   },
+// });
