@@ -6,6 +6,7 @@ import Cnammain from '../cnamtab/Cnammain';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
+import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
 const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
 
@@ -80,7 +81,13 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                             <TwilioProfileToolTip toolTip={"CNAM is the name that shows up on someone's phone when you call them — like “AgentX Real Estate” or “John from ABC Corp.”"} />
                         </div>
                     </div>
-                    <div className='flex flex-row items-end gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        {twilioHubData?.status && (
+                            <ShowResubmitBtn
+                                status={twilioHubData.status}
+                                handleOpenModal={() => { setShowAddCNAM(true) }}
+                            />
+                        )}
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -99,11 +106,16 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                 </div>
             </div>
             {twilioHubData?.status ? (
-                <ShowRequestStatus status={twilioHubData.status} />
+                <ShowRequestStatus
+                    status={twilioHubData.status}
+                    twilioData={twilioHubData}
+                />
             ) : (
                 <LockDetailsView
                     profileStatus={profileStatus}
                     handleShowAddModal={() => { setShowAddCNAM(true) }}
+                    twilioData={twilioHubData}
+                    unLockDescription="Add CNAM."
                 />
             )
             }

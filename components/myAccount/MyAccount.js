@@ -251,7 +251,7 @@ function MyAccount() {
             overflow: "auto",
             height: "92vh",
             borderLeftWidth: 1,
-            borderBottomColor: "#00000010",
+            borderBottomColor: "#00000012",
           }}
         >
           {renderComponent()}

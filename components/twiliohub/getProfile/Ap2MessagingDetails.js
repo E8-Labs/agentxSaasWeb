@@ -7,7 +7,12 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import AddAp2MessageAnimation from '../addap2message/AddAp2MessageAnimation';
 import LockDetailsView from './LockDetailsView';
 
-const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
+const Ap2MessagingDetails = ({
+    twilioHubData,
+    profileStatus,
+    getProfileData,
+    block = true
+}) => {
 
     const [showDetails, setShowDetails] = useState(false);
     const [showAddMessage, setShowAddMessage] = useState(false);
@@ -65,27 +70,35 @@ const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) =
                             width={18}
                         />
                         <div style={styles.fontSemiBold}>
-                            Ap2 Messages
+                            A2P SMS Messaging
                         </div>
                         <div>
                             <TwilioProfileToolTip toolTip={"Ap2 Messages here"} />
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
-                        <button
-                            className='border p-2 rounded-full'
-                            disabled={!twilioHubData}
-                            onClick={() => {
-                                setShowDetails(!showDetails);
-                            }}>
-                            {
-                                showDetails ? (
-                                    <CaretUp size={12} />
-                                ) : (
-                                    <CaretDown size={12} />
-                                )
-                            }
-                        </button>
+                        {
+                            block ? (
+                                <div className='text-md font-semibold text-purple'>
+                                    Comming Soon
+                                </div>
+                            ) : (
+                                <button
+                                    className='border p-2 rounded-full'
+                                    disabled={!twilioHubData}
+                                    onClick={() => {
+                                        setShowDetails(!showDetails);
+                                    }}>
+                                    {
+                                        showDetails ? (
+                                            <CaretUp size={12} />
+                                        ) : (
+                                            <CaretDown size={12} />
+                                        )
+                                    }
+                                </button>
+                            )
+                        }
                     </div>
                 </div>
             </div>
@@ -95,7 +108,10 @@ const Ap2MessagingDetails = ({ twilioHubData, profileStatus, getProfileData }) =
                 <LockDetailsView
                     profileStatus={profileStatus}
                     handleShowAddModal={() => { setShowAddMessage(true) }}
-                    btnTitle='Complete Profile'
+                    btnTitle='Get Approved'
+                    description="Send text messages to your customers."
+                    showBtn={true}
+                    unLockDescription="Add A2P SMS Messaging."
                 />
             )
             }

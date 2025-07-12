@@ -6,6 +6,7 @@ import AddTwilio from '../addtwilio/AddTwilio';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
+import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
 const CustomerProfile = ({
     twilioHubData,
@@ -22,16 +23,6 @@ const CustomerProfile = ({
         message: "",
         isVisible: false
     });
-    //allow add details btn
-    const [allowAddDetails, setAllowAddDetails] = useState(true);
-
-    useEffect(() => {
-        if (twilioHubData) {
-            setAllowAddDetails(false);
-        } else {
-            setAllowAddDetails(true);
-        }
-    }, [twilioHubData]);
 
 
     //styles
@@ -57,65 +48,86 @@ const CustomerProfile = ({
     }
 
     return (
-        <div className='border rounded-lg w-full'>
-            <AgentSelectSnackMessage
-                type={showSnack.type}
-                message={showSnack.message}
-                isVisible={showSnack.isVisible}
-                hide={() => {
-                    setShowSnack({
-                        message: "",
-                        isVisible: false,
-                        type: SnackbarTypes.Success,
-                    });
-                }}
-            />
-            <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[2px]"}`}>
-                <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
-                    <div className='flex flex-row items-center gap-2'>
-                        <div style={styles.fontSemiBold}>
-                            Customer Profile
-                        </div>
-                        <div>
-                            <TwilioProfileToolTip toolTip={"This is basic information about your business or how you use Twilio — it helps carriers understand who you are."} />
-                        </div>
-                    </div>
-                    <div className='flex flex-row items-end gap-2'>
+        <div className='w-full'>
+            <div className='w-full flex flex-row items-center justify-end'>
+                {
+                    !twilioHubData && (
                         <button
-                            className='border p-2 rounded-full'
-                            disabled={!twilioHubData}
-                            onClick={() => {
-                                setShowDetails(!showDetails);
-                            }}>
-                            {
-                                showDetails ? (
-                                    <CaretUp size={12} />
-                                ) : (
-                                    <CaretDown size={12} />
-                                )
-                            }
+                            className='bg-purple text-white h-[49px] w-[180px] rounded-lg'
+                            style={{ fontSize: 15, fontWeight: "500" }}
+                            onClick={() => { setShowAddTwilio(true) }}>
+                            Connect
                         </button>
+                    )
+                }
+            </div>
+            <div className='border rounded-lg w-full mt-2'>
+                <AgentSelectSnackMessage
+                    type={showSnack.type}
+                    message={showSnack.message}
+                    isVisible={showSnack.isVisible}
+                    hide={() => {
+                        setShowSnack({
+                            message: "",
+                            isVisible: false,
+                            type: SnackbarTypes.Success,
+                        });
+                    }}
+                />
+                <div className={`flex flex-row items-center justify-between w-full ${showDetails && "border-b-[2px]"}`}>
+                    <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
+                        <div className='flex flex-row items-center gap-2'>
+                            <div style={styles.fontSemiBold}>
+                                Customer Profile
+                            </div>
+                            <div>
+                                <TwilioProfileToolTip toolTip={"This is basic information about your business or how you use Twilio — it helps carriers understand who you are."} />
+                            </div>
+                        </div>
+                        <div className='flex flex-row items-center gap-2'>
+                            {twilioHubData?.status && (
+                                <ShowResubmitBtn
+                                    status={twilioHubData.status}
+                                    handleOpenModal={() => { setShowAddTwilio(true) }}
+                                />
+                            )}
+                            <button
+                                className='border p-2 rounded-full'
+                                disabled={!twilioHubData}
+                                onClick={() => {
+                                    setShowDetails(!showDetails);
+                                }}>
+                                {
+                                    showDetails ? (
+                                        <CaretUp size={12} />
+                                    ) : (
+                                        <CaretDown size={12} />
+                                    )
+                                }
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {
-                twilioHubData?.status ? (
-                    <ShowRequestStatus
-                        status={twilioHubData.status}
-                    />
-                ) : (
-                    <LockDetailsView
-                        profileStatus={profileStatus}
-                        handleShowAddModal={() => { setShowAddTwilio(true) }}
-                        btnTitle='Connect Twilio'
-                        showBtn={true}
-                    />
-                )
-            }
-            {
-                showDetails && (
-                    <div className='w-full'>
-                        {/*<div className='bg-lightGreen px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
+                {
+                    twilioHubData?.status ? (
+                        <ShowRequestStatus
+                            status={twilioHubData.status}
+                            twilioData={twilioHubData}
+                        />
+                    ) : (
+                        <LockDetailsView
+                            profileStatus={profileStatus}
+                            handleShowAddModal={() => { setShowAddTwilio(true) }}
+                            btnTitle='Connect Twilio'
+                            description="Get started with your customer profile"
+                            showBtn={true}
+                        />
+                    )
+                }
+                {
+                    showDetails && (
+                        <div className='w-full'>
+                            {/*<div className='bg-lightGreen px-4 py-2 w-full mb-4 flex flex-row items-center gap-2'>
                             <Image
                                 alt='*'
                                 src={"/twiliohubassets/checkGreen.jpg"}
@@ -127,11 +139,11 @@ const CustomerProfile = ({
                                 Approved
                             </div>
                 </div>*/}
-                        <div className='w-full px-4'>
-                            <div className='mt-2' style={styles.fontSemiBold}>
-                                General Information
-                            </div>
-                            {/*<div className='flex flex-row items-center mt-2'>
+                            <div className='w-full px-4'>
+                                <div className='mt-2' style={styles.fontSemiBold}>
+                                    General Information
+                                </div>
+                                {/*<div className='flex flex-row items-center mt-2'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
                                     Legal business name
                                 </div>
@@ -139,41 +151,42 @@ const CustomerProfile = ({
                                     BUSINESS_NAME
                                 </div>
             </div>*/}
-                            <div className='flex flex-row items-center mt-2'>
-                                <div className='w-1/2' style={styles.mediumfontLightClr}>
-                                    Profile friendly name
-                                </div>
-                                <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData.friendlyName}
+                                <div className='flex flex-row items-center mt-2'>
+                                    <div className='w-1/2' style={styles.mediumfontLightClr}>
+                                        Profile friendly name
+                                    </div>
+                                    <div className='w-1/2' style={styles.mediumfontDarkClr}>
+                                        {twilioHubData.friendlyName}
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
+                    )
+                }
 
-                    </div>
-                )
-            }
+                {/* Modal to add the twilio */}
+                {
+                    showAddTwilio && (
+                        <AddTwilio
+                            showAddTwilio={showAddTwilio}
+                            handleClose={(d) => {
+                                console.log("Data from add twilio is", d);
+                                setShowAddTwilio(false);
+                                if (d) {
+                                    getProfileData();
+                                    setShowSnack({
+                                        message: d?.message || "Twilio connected. Wait for approval!",
+                                        isVisible: true,
+                                        type: SnackbarTypes.Success,
+                                    });
+                                }
+                            }}
+                        />
+                    )
+                }
 
-            {/* Modal to add the twilio */}
-            {
-                showAddTwilio && (
-                    <AddTwilio
-                        showAddTwilio={showAddTwilio}
-                        handleClose={(d) => {
-                            console.log("Data from add twilio is", d);
-                            setShowAddTwilio(false);
-                            if (d) {
-                                getProfileData();
-                                setShowSnack({
-                                    message: d?.message || "Twilio connected. Wait for approval!",
-                                    isVisible: true,
-                                    type: SnackbarTypes.Success,
-                                });
-                            }
-                        }}
-                    />
-                )
-            }
-
+            </div>
         </div>
     )
 }

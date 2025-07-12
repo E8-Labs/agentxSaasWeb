@@ -9,6 +9,7 @@ import VoiceIntegrityDetails from '../twiliohub/getProfile/VoiceIntegrityDetails
 import BrandedCallsDetails from '../twiliohub/getProfile/BrandedCallsDetails'
 import Ap2MessagingDetails from '../twiliohub/getProfile/Ap2MessagingDetails'
 import { CircularProgress } from '@mui/material'
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
 
 const TwilioTrustHub = () => {
 
@@ -19,7 +20,14 @@ const TwilioTrustHub = () => {
     const [twilioHubData, setTwilioHubData] = useState(null);
     const [profileStatus, setProfileStatus] = useState(true);
     const [loader, setLoader] = useState(false);
+    const [disconnectLoader, setDisConnectLoader] = useState(false);
+    const [showSnack, setShowSnack] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false
+    });
 
+    //get the twilio profile details
     const getBusinessProfile = async () => {
         try {
             setLoader(true);
@@ -49,6 +57,44 @@ const TwilioTrustHub = () => {
         }
     }
 
+    //disconnect the twilio profile
+    const handleDisconnectTwilio = async () => {
+        try {
+            setDisConnectLoader(true);
+            const token = AuthToken();
+            const ApiPath = Apis.disconnectTwilio;
+            const response = await axios.post(ApiPath, {}, {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    // "Content-Type": "application/json"
+                }
+            });
+            if (response) {
+                console.log("Response of disconnect twilio api is", response);
+                const ApiResponse = response.data
+                if (ApiResponse.status === true) {
+                    setShowSnack({
+                        message: ApiResponse.message,
+                        isVisible: true,
+                        type: SnackbarTypes.Success,
+                    });
+                    setTwilioHubData(null);
+                    setProfileStatus(true);
+                } else {
+                    setShowSnack({
+                        message: ApiResponse.message,
+                        isVisible: true,
+                        type: SnackbarTypes.Success,
+                    });
+                }
+                setDisConnectLoader(false);
+            }
+        } catch (error) {
+            setDisConnectLoader(false);
+            console.log("Error occured in disconnet twilio api is", error);
+        }
+    }
+
     return (
         <div
             className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
@@ -57,6 +103,18 @@ const TwilioTrustHub = () => {
                 scrollbarWidth: "none", // For Firefox
                 WebkitOverflowScrolling: "touch",
             }}>
+            <AgentSelectSnackMessage
+                type={showSnack.type}
+                message={showSnack.message}
+                isVisible={showSnack.isVisible}
+                hide={() => {
+                    setShowSnack({
+                        message: "",
+                        isVisible: false,
+                        type: SnackbarTypes.Success,
+                    });
+                }}
+            />
             <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
                 Twilio Trust Hub
             </div>
@@ -78,6 +136,23 @@ const TwilioTrustHub = () => {
                     </div>
                 ) : (
                     <div className='w-full'>
+                        {
+                            twilioHubData?.profile && (
+                                <div className='w-full flex flex-row items-center justify-end'>
+                                    {
+                                        disconnectLoader ? (
+                                            <CircularProgress size={25} />
+                                        ) : (
+                                            <button
+                                                className='border-none outline-none bg-red text-white h-[50px] px-4 rounded-lg'
+                                                onClick={() => { handleDisconnectTwilio() }}>
+                                                Disconnect Twilio
+                                            </button>
+                                        )
+                                    }
+                                </div>
+                            )
+                        }
                         <div className='w-full mt-2'>
                             <CustomerProfile
                                 twilioHubData={twilioHubData?.profile}

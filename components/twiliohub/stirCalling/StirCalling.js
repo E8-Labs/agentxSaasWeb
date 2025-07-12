@@ -262,8 +262,7 @@ const StirCalling = ({
                                 style={styles.normalTxt}
                                 placeholder='Trust product name'
                             />
-                        </div>*/}
-                        <div
+                        </div><div
                             className='pt-2 mt-6 w-full'
                             style={{
                                 fontWeight: "700",
@@ -327,7 +326,8 @@ const StirCalling = ({
                             <button className='border-none outline-none rounded-lg h-[50px] w-[236px] flex flex-row items-center justify-center text-purple bg-purple10'>
                                 Register Phone Numbers
                             </button>
-                        </div>
+                        </div>*/}
+                        
                         <div className='flex flex-row items-start gap-2 mt-4 bg-[#00000005] p-2 rounded-lg'>
                             <button onClick={handleToggleTermsClick}>
                                 {agreeTerms ? (
