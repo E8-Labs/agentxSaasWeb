@@ -35,36 +35,12 @@ function PlansView({
     const [isLoading, setIsLoading] = useState(false);
 
     const handleDontUpgrade = async () => {
-        try {
-            let data = localStorage.getItem('User');
-            if (data) {
-                setIsLoading(true);
-                let userData = JSON.parse(data);
-
-                let ApiPath = Apis.confirmContinueCharging;
-                console.log('ApiPath', ApiPath)
-
-                const response = await axios.post(ApiPath,{} ,{
-                    headers: {
-                        'Authorization': `Bearer ${userData.token}`
-                    }
-                });
-
-                console.log('response', response)
-
-                if (response.data.status) {
-                    handleClose();
-                }
-
-
-            }
-
-        } catch (error) {
-            console.log('error', error)
-        } finally {
-            setIsLoading(false);
-        }
+        setIsLoading(true);
+        await handleAutoCharge();
+        handleClose();
+        setIsLoading(false);
     }
+
 
     return (
         <div>
@@ -124,3 +100,36 @@ function PlansView({
 }
 
 export default PlansView
+
+
+export const handleAutoCharge = async () => {
+    try {
+        let data = localStorage.getItem('User');
+        if (data) {
+            // setIsLoading(true);
+            let userData = JSON.parse(data);
+
+            let ApiPath = Apis.confirmContinueCharging;
+            console.log('ApiPath', ApiPath)
+
+            const response = await axios.post(ApiPath, {}, {
+                headers: {
+                    'Authorization': `Bearer ${userData.token}`
+                }
+            });
+
+            console.log('response', response)
+
+            if (response.data.status) {
+                return true;
+            }
+
+
+        }
+
+    } catch (error) {
+        console.log('error', error)
+    } finally {
+        // setIsLoading(false);
+    }
+}

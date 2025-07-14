@@ -9,6 +9,7 @@ import { Box, CircularProgress, Modal } from "@mui/material";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "../createagent/addpayment/AddCardDetails";
+import { handleAutoCharge } from "./PlansView";
 
 const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
 
@@ -129,10 +130,7 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          localDetails.user.plan = response.data.data;
-          // //console.log;
-          // getProfile();
-          localStorage.setItem("User", JSON.stringify(localDetails));
+          await handleAutoCharge();
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           onClose();
