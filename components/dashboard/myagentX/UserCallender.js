@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import React, { useEffect, useRef, useState } from "react";
 import Header from "@/components/onboarding/Header";
-import Footer from "@/components/onboarding/Footer";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { borderColor, Box } from "@mui/system";
 import Apis from "@/components/apis/Apis";
@@ -24,7 +22,6 @@ import CircularLoader from "@/utilities/CircularLoader";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
-import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { SelectAll } from "@mui/icons-material";
 import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -46,11 +43,9 @@ const UserCalender = ({
   // console.log("Selected agent passed is", selectedAgent);
 
 
-  const justLoggedIn = useRef(false);
 
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
-  const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
   const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
@@ -77,12 +72,10 @@ const UserCalender = ({
   const [calendarSelected, setCalendarSelected] = useState(null);
   const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
   const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
-  const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
-  const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
 
   //code for the IANA time zone lists
 
-  const [selectTimeZone, setSelectTimeZone] = useState("");
+  const [selectTimeZone, setSelectTimeZone] = useState("");   
 
   const [showDelBtn, setShowDelBtn] = useState(false);
   const [showDelPopup, setShowDelPopup] = useState(false);
@@ -568,7 +561,7 @@ const UserCalender = ({
                           </div>
                         </MenuItem>
                       ))
-                    )}
+                    }
 
                     <MenuItem className="w-full" value="Custom Calender">
                       <button

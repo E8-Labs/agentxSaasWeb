@@ -274,7 +274,6 @@ const ProfileNav = () => {
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
-
       console.log(
         "LocalData.user.profile_status",
         LocalData.user.profile_status
@@ -290,21 +289,16 @@ const ProfileNav = () => {
         // user haven't subscribed to any plan
         setPlans(plansWitTrial);
       }
-      if(LocalData.user.needsChargeConfirmation){
+
+      if (LocalData.user.needsChargeConfirmation) {
         setShowCallPausedPopup(true);
-    }
+      }
 
-    }else{
-      console.log('no data',data)
+      console.log('LocalData', LocalData.user.needsChargeConfirmation)
 
 
-     
-
-    console.log('LocalData', LocalData.user.needsChargeConfirmation)
-
-   
-  };
-}
+    };
+  }
 
   useEffect(() => {
     getUserProfile();
@@ -957,9 +951,9 @@ const ProfileNav = () => {
         </div>
       </div>
 
-      <CallPausedPopup 
-      open={showCallPausedPopup} 
-      onClose={() => setShowCallPausedPopup(false)}
+      <CallPausedPopup
+        open={showCallPausedPopup}
+        onClose={() => setShowCallPausedPopup(false)}
       />
 
       {/* Subscribe Plan modal */}
