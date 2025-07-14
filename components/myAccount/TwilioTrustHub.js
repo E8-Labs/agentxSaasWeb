@@ -103,6 +103,7 @@ const TwilioTrustHub = () => {
                 scrollbarWidth: "none", // For Firefox
                 WebkitOverflowScrolling: "touch",
             }}>
+            
             <AgentSelectSnackMessage
                 type={showSnack.type}
                 message={showSnack.message}
@@ -115,19 +116,6 @@ const TwilioTrustHub = () => {
                     });
                 }}
             />
-            <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
-                Twilio Trust Hub
-            </div>
-
-            <div
-                style={{
-                    fontSize: 12,
-                    fontWeight: "500",
-                    color: "#00000090",
-                }}
-            >
-                {"Account > Twilio"}
-            </div>
 
             {
                 loader ? (
@@ -136,28 +124,13 @@ const TwilioTrustHub = () => {
                     </div>
                 ) : (
                     <div className='w-full'>
-                        {
-                            twilioHubData?.profile && (
-                                <div className='w-full flex flex-row items-center justify-end'>
-                                    {
-                                        disconnectLoader ? (
-                                            <CircularProgress size={25} />
-                                        ) : (
-                                            <button
-                                                className='border-none outline-none bg-red text-white h-[50px] px-4 rounded-lg'
-                                                onClick={() => { handleDisconnectTwilio() }}>
-                                                Disconnect Twilio
-                                            </button>
-                                        )
-                                    }
-                                </div>
-                            )
-                        }
                         <div className='w-full mt-2'>
                             <CustomerProfile
                                 twilioHubData={twilioHubData?.profile}
                                 getProfileData={getBusinessProfile}
                                 profileStatus={profileStatus}
+                                disconnectLoader={disconnectLoader}
+                                handleDisconnectTwilio={handleDisconnectTwilio}
                             />
                         </div>
                         <div className='w-full mt-4'>

@@ -7,12 +7,18 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
+import { CircularProgress } from '@mui/material';
+import AddTwilioAnimation from '../addtwilio/AddTwilioAnimation';
 
 const CustomerProfile = ({
     twilioHubData,
     getProfileData,
-    profileStatus
+    profileStatus,
+    disconnectLoader,
+    handleDisconnectTwilio
 }) => {
+
+    console.log("Trust hub data passed is", twilioHubData);
 
     const [showDetails, setShowDetails] = useState(false);
     //add twilio
@@ -49,18 +55,52 @@ const CustomerProfile = ({
 
     return (
         <div className='w-full'>
-            <div className='w-full flex flex-row items-center justify-end'>
-                {
-                    !twilioHubData && (
-                        <button
-                            className='bg-purple text-white h-[49px] w-[180px] rounded-lg'
-                            style={{ fontSize: 15, fontWeight: "500" }}
-                            onClick={() => { setShowAddTwilio(true) }}>
-                            Connect
-                        </button>
-                    )
-                }
+            {/* HEader */}
+            <div className='w-full flex flex-row items-center justify-between'>
+                <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
+                    Twilio Trust Hub
+                </div>
+                <div>
+                    {
+                        !twilioHubData && (
+                            <button
+                                className='bg-purple text-white h-[49px] w-[150px] rounded-lg'
+                                style={{ fontSize: 15, fontWeight: "500" }}
+                                onClick={() => { setShowAddTwilio(true) }}>
+                                Connect
+                            </button>
+                        )
+                    }
+                    {
+                        twilioHubData && (
+                            <div className='w-full flex flex-row items-center justify-end'>
+                                {
+                                    disconnectLoader ? (
+                                        <CircularProgress size={25} />
+                                    ) : (
+                                        <button
+                                            className='border-none outline-none bg-red text-white h-[50px] px-4 rounded-lg'
+                                            onClick={() => { handleDisconnectTwilio() }}>
+                                            Disconnect Twilio
+                                        </button>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
+                </div>
             </div>
+
+            <div
+                style={{
+                    fontSize: 12,
+                    fontWeight: "500",
+                    color: "#00000090",
+                }}
+            >
+                {"Account > Twilio"}
+            </div>
+
             <div className='border rounded-lg w-full mt-2'>
                 <AgentSelectSnackMessage
                     type={showSnack.type}
@@ -168,20 +208,10 @@ const CustomerProfile = ({
                 {/* Modal to add the twilio */}
                 {
                     showAddTwilio && (
-                        <AddTwilio
+                        <AddTwilioAnimation
                             showAddTwilio={showAddTwilio}
-                            handleClose={(d) => {
-                                console.log("Data from add twilio is", d);
-                                setShowAddTwilio(false);
-                                if (d) {
-                                    getProfileData();
-                                    setShowSnack({
-                                        message: d?.message || "Twilio connected. Wait for approval!",
-                                        isVisible: true,
-                                        type: SnackbarTypes.Success,
-                                    });
-                                }
-                            }}
+                            handleClose={() => { setShowAddTwilio(false) }}
+                            getProfileData={getProfileData}
                         />
                     )
                 }
@@ -194,6 +224,22 @@ const CustomerProfile = ({
 export default CustomerProfile;
 
 
+//add twilio
+// <AddTwilio
+//                             showAddTwilio={showAddTwilio}
+//                             handleClose={(d) => {
+//                                 console.log("Data from add twilio is", d);
+//                                 setShowAddTwilio(false);
+//                                 if (d) {
+//                                     getProfileData();
+//                                     setShowSnack({
+//                                         message: d?.message || "Twilio connected. Wait for approval!",
+//                                         isVisible: true,
+//                                         type: SnackbarTypes.Success,
+//                                     });
+//                                 }
+//                             }}
+//                         />
 
 // <div className='flex flex-row items-center mt-2'>
 //                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
