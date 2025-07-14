@@ -663,7 +663,7 @@ function NotficationsDrawer({ close }) {
           />
           {unread > 0 && (
             <div
-              className="flex bg-red rounded-full w-6 h-6 flex-row items-center justify-center text-red font-md text-white flex-shrink-0"
+              className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-red font-md text-white flex-shrink-0"
               style={{
                 fontSize: 13,
                 marginTop: -13,
@@ -708,7 +708,7 @@ function NotficationsDrawer({ close }) {
                 />
                 {unread > 0 && (
                   <div
-                    className="flex bg-red-500 rounded-full w-6 h-6 items-center justify-center text-white font-medium"
+                    className="flex bg-red-500 rounded-full min-w-[24px] px-[2px] h-8 items-center justify-center text-white font-medium"
                     style={{
                       fontSize: "12px", // Ensure font-size is smaller to fit within the circle
                       marginTop: "-13px", // Adjust position as needed
@@ -732,7 +732,7 @@ function NotficationsDrawer({ close }) {
             >
               <img
                 src="/svgIcons/cross.svg"
-                style={{ height: 24, width: 24 }}
+                style={{ height: 28, width: 28 }}
                 alt="Close"
               />
             </button>
