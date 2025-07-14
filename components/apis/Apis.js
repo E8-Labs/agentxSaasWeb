@@ -194,6 +194,7 @@ profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
   deleteCallLog:`${BasePath}api/leads/deleteCallLog`,
+  confirmContinueCharging:`${BasePath}api/user/confirm-continue-charging`,
 
 
   
