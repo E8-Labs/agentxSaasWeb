@@ -9,7 +9,10 @@ import React, { useEffect, useState } from 'react'
 
 const AddTwilio = ({
     showAddTwilio,
-    handleClose
+    handleClose,
+    handleContinue,
+    setTrustProducts,
+    profileLoader
 }) => {
 
     const [accountSID, setAccountSID] = useState("");
@@ -55,7 +58,9 @@ const AddTwilio = ({
                 setAddTwilioLoader(false);
                 const ApiResponse = response.data;
                 if (ApiResponse.status === true) {
-                    handleClose(ApiResponse);
+                    // handleClose(ApiResponse);
+                    // setTrustProducts(ApiResponse);
+                    handleContinue(ApiResponse);
                 } else if (ApiResponse.status === false) {
                     setShowSnack({
                         message: ApiResponse.message,
@@ -100,138 +105,139 @@ const AddTwilio = ({
     }
 
     return (
-        <Modal
-            open={showAddTwilio}
-            onClose={() => { handleClose() }}
-            BackdropProps={{
-                timeout: 200,
-                sx: {
-                    backgroundColor: "#00000020",
-                    backdropFilter: "blur(20px)"
-                },
-            }}
-            sx={{
-                zIndex: 1300,
-                // backgroundColor: "red"
-            }}
-        >
-            <Box
-                className="rounded-xl max-w-2xl w-full shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col p-6"
-            // className="w-full h-[100%]"
-            >
-                <div className='w-full h-[100%]'>
-                    <AgentSelectSnackMessage
-                        type={showSnack.type}
-                        message={showSnack.message}
-                        isVisible={showSnack.isVisible}
-                        hide={() => {
-                            setShowSnack({
-                                message: "",
-                                isVisible: false,
-                                type: SnackbarTypes.Success,
-                            });
-                        }}
+        <div className='w-full h-[100%]'>
+            <AgentSelectSnackMessage
+                type={showSnack.type}
+                message={showSnack.message}
+                isVisible={showSnack.isVisible}
+                hide={() => {
+                    setShowSnack({
+                        message: "",
+                        isVisible: false,
+                        type: SnackbarTypes.Success,
+                    });
+                }}
+            />
+            <div className='w-full flex flex-row items-center justify-between'>
+                <div
+                    style={{
+                        fontWeight: "700",
+                        fontSize: 22
+                    }}>
+                    Account Configuration
+                </div>
+                <button
+                    className='border-none outline-none'
+                    onClick={() => { handleClose() }}>
+                    <Image
+                        src={"/assets/cross.png"}
+                        alt='cross'
+                        height={18}
+                        width={18}
                     />
-                    <div className='w-full flex flex-row items-center justify-between'>
-                        <div
-                            style={{
-                                fontWeight: "700",
-                                fontSize: 22
-                            }}>
-                            Account Configuration
-                        </div>
-                        <button
-                            className='border-none outline-none'
-                            onClick={() => { handleClose() }}>
-                            <Image
-                                src={"/assets/cross.png"}
-                                alt='cross'
-                                height={18}
-                                width={18}
-                            />
-                        </button>
-                    </div>
-                    <div style={styles.regularFont}>
-                        Enter your Twilio master account keys
-                    </div>
-                    <div className='mt-4' style={styles.regularFont}>
-                        Master Account SID
-                    </div>
-                    <div className='mt-2 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
-                        <input
-                            className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
-                            placeholder='****************'
-                            type={showAccountSID ? 'text' : 'password'}
-                            value={accountSID}
-                            onChange={(e) => {
-                                setAccountSID(e.target.value);
-                            }}
+                </button>
+            </div>
+            <div style={styles.regularFont}>
+                Enter your Twilio master account keys
+            </div>
+            <div className='mt-4' style={styles.regularFont}>
+                Master Account SID
+            </div>
+            <div className='mt-2 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
+                <input
+                    className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
+                    placeholder='****************'
+                    type={showAccountSID ? 'text' : 'password'}
+                    value={accountSID}
+                    onChange={(e) => {
+                        setAccountSID(e.target.value);
+                    }}
+                />
+                <button onClick={() => { setShowAccountSID(!showAccountSID) }}>
+                    {showAccountSID ? (
+                        <EyeSlash size={18} />
+                    ) : (
+                        <Image
+                            src={"/twiliohubassets/showEye.jpg"}
+                            alt='*'
+                            height={12}
+                            width={18}
                         />
-                        <button onClick={() => { setShowAccountSID(!showAccountSID) }}>
-                            {showAccountSID ? (
-                                <EyeSlash size={18} />
-                            ) : (
-                                <Image
-                                    src={"/twiliohubassets/showEye.jpg"}
-                                    alt='*'
-                                    height={12}
-                                    width={18}
-                                />
-                            )}
-                        </button>
-                    </div>
-                    <div className='mt-2 ' style={{ fontWeight: "400", fontSize: 14 }}>
-                        {`Your main account SID (Starting with AC...)`}
-                    </div>
-                    <div className='mt-4' style={styles.regularFont}>
-                        Master Account Auth Token
-                    </div>
-                    <div className='mt-4 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
-                        <input
-                            className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
-                            placeholder='****************'
-                            type={showAccountToken ? 'text' : 'password'}
-                            value={accountToken}
-                            onChange={(e) => {
-                                setAccountToken(e.target.value);
-                            }}
+                    )}
+                </button>
+            </div>
+            <div className='mt-2 ' style={{ fontWeight: "400", fontSize: 14 }}>
+                {`Your main account SID (Starting with AC...)`}
+            </div>
+            <div className='mt-4' style={styles.regularFont}>
+                Master Account Auth Token
+            </div>
+            <div className='mt-4 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
+                <input
+                    className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
+                    placeholder='****************'
+                    type={showAccountToken ? 'text' : 'password'}
+                    value={accountToken}
+                    onChange={(e) => {
+                        setAccountToken(e.target.value);
+                    }}
+                />
+                <button onClick={() => { setShowAccountToken(!showAccountToken) }}>
+                    {showAccountToken ? (
+                        <EyeSlash size={18} />
+                    ) : (
+                        <Image
+                            src={"/twiliohubassets/showEye.jpg"}
+                            alt='*'
+                            height={12}
+                            width={18}
                         />
-                        <button onClick={() => { setShowAccountToken(!showAccountToken) }}>
-                            {showAccountToken ? (
-                                <EyeSlash size={18} />
-                            ) : (
-                                <Image
-                                    src={"/twiliohubassets/showEye.jpg"}
-                                    alt='*'
-                                    height={12}
-                                    width={18}
-                                />
-                            )}
-                        </button>
-                    </div>
-                    <div className='w-full flex flex-row items-center gap-4 mt-8'>
-                        {/*<button
+                    )}
+                </button>
+            </div>
+            <div className='w-full flex flex-row items-center gap-4 mt-8'>
+                {/*<button
                             className='text-purple w-1/2 bg-purple10 h-[50px] rounded-lg outline-none border-none'
                             style={styles.regularFont}
                             onClick={}>
                             Exit
                         </button>*/}
-                        <button
-                            className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-full h-[50px] rounded-lg px-6 outline-none border-none`}
-                            onClick={handleConnectTwilio}
-                            disabled={addTwilioLoader || isDisabled}
-                        >
-                            {
-                                addTwilioLoader ? (
-                                    <CircularProgress size={25} />
-                                ) : ("Continue")
-                            }
-                        </button>
-                    </div>
-                </div>
-            </Box>
-        </Modal>
+                <button
+                    className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-full h-[50px] rounded-lg px-6 outline-none border-none`}
+                    onClick={handleConnectTwilio}
+                    disabled={addTwilioLoader || profileLoader || isDisabled}
+                >
+                    {
+                        (addTwilioLoader || profileLoader) ? (
+                            <CircularProgress size={25} />
+                        ) : ("Continue")
+                    }
+                </button>
+            </div>
+        </div>
     )
 }
 
 export default AddTwilio
+
+// <Modal
+//     open={showAddTwilio}
+//     onClose={() => { handleClose() }}
+//     BackdropProps={{
+//         timeout: 200,
+//         sx: {
+//             backgroundColor: "#00000020",
+//             backdropFilter: "blur(20px)"
+//         },
+//     }}
+//     sx={{
+//         zIndex: 1300,
+//         // backgroundColor: "red"
+//     }}
+// >
+//     <Box
+//         className="rounded-xl max-w-2xl w-full shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col p-6"
+//     // className="w-full h-[100%]"
+// //     >
+//     </Box>
+// </Modal>

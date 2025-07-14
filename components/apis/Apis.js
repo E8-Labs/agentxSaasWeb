@@ -201,6 +201,7 @@ profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
   createVoiceIntegrity: `${BasePath}api/business-profile/vocie-integrity`,
   createBrandedCalling: `${BasePath}api/business-profile/branded-calling`,
   disconnectTwilio: `${BasePath}api/business-profile/twilio/disconnect`,
+  addTrustProduct: `${BasePath}api/business-profile/trust-products/select`,
   
   profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
   
