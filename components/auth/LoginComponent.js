@@ -488,7 +488,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   } else if (response.data.data.user.userRole == "Agency") {
                     router.push("/agency/dashboard");
                   } else {
-                    router.push("/dashboard/leads");
+                    router.push("/dashboard/myAgentX");
                   }
                   // if (data.data.user.userType == "admin") {
                   //   router.push("/admin");

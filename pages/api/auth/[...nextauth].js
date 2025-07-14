@@ -1,4 +1,5 @@
 import { PersistanceKeys } from "@/constants/Constants";
+
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -46,7 +47,7 @@ export default NextAuth({
       authorization: {
         params: {
           scope:
-            PersistanceKeys.addCalendarScope,
+            "openid email profile https://www.googleapis.com/auth/calendar",
           access_type: "offline", // ✅ Ensures refresh_token is returned
           prompt: "consent", // ✅ Forces Google to ask for permission each time
         },
@@ -69,7 +70,6 @@ export default NextAuth({
     },
 
     async session({ session, token }) {
-      console.log("Sessions in nexxt auth");
       session.accessToken = token.accessToken;
       session.refreshToken = token.refreshToken;
       session.user.id = token.userId || token.sub;

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "@/components/onboarding/Header";
 import Footer from "@/components/onboarding/Footer";
 import ProgressBar from "@/components/onboarding/ProgressBar";
@@ -23,10 +24,11 @@ import CircularLoader from "@/utilities/CircularLoader";
 import VideoCard from "@/components/createagent/VideoCard";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { SelectAll } from "@mui/icons-material";
 import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
-// import { signIn, signOut, useSession } from "next-auth/react";
-// import { getSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 
 const UserCalender = ({
@@ -43,8 +45,12 @@ const UserCalender = ({
 
   // console.log("Selected agent passed is", selectedAgent);
 
+
+  const justLoggedIn = useRef(false);
+
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
+  const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
   const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
@@ -71,6 +77,8 @@ const UserCalender = ({
   const [calendarSelected, setCalendarSelected] = useState(null);
   const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
   const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
+  const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
+  const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
 
   //code for the IANA time zone lists
 
@@ -84,7 +92,7 @@ const UserCalender = ({
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
   //get the calendar sessions
-  // const { data: session, status } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     setAllCalendars(previousCalenders);
@@ -119,23 +127,23 @@ const UserCalender = ({
   //   }
   // }, [calenderTitle, calenderApiKey, eventId, selectTimeZone]);
 
-  // const pollSessionAndTriggerCallback = async (retries = 10, interval = 500) => {
-  //   for (let i = 0; i < retries; i++) {
-  //     const session = await getSession();
-  //     if (session?.accessToken) {
-  //       console.log("🎯 Session is ready after login", session);
-  //       handleAfterLogin(session); // 🔥 call your custom logic
-  //       return;
-  //     }
-  //     await new Promise((resolve) => setTimeout(resolve, interval));
-  //   }
-  //   console.warn("⚠️ Timed out waiting for session after login.");
-  // };
+  const pollSessionAndTriggerCallback = async (retries = 10, interval = 500) => {
+    for (let i = 0; i < retries; i++) {
+      const session = await getSession();
+      if (session?.accessToken) {
+        console.log("🎯 Session is ready after login", session);
+        handleAfterLogin(session); // 🔥 call your custom logic
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+    console.warn("⚠️ Timed out waiting for session after login.");
+  };
 
-  // const handleAfterLogin = (session) => {
-  //   console.log("👉 Session after login:", session);
-  //   // Add your custom logic here: open calendar modal, call API, etc.
-  // };
+  const handleAfterLogin = (session) => {
+    console.log("👉 Session after login:", session);
+    // Add your custom logic here: open calendar modal, call API, etc.
+  };
 
 
   function isEnabled() {
@@ -177,9 +185,9 @@ const UserCalender = ({
         //console.log;
         // return
         let apiData = {
-          calendarId: calendarToDelete.id,
+          apiKey: calendarToDelete.apiKey,
         };
-        console.log("Calender to delete is", apiData);
+        //console.log;
         // return;
 
         let path = Apis.deleteCalendar;
@@ -257,16 +265,19 @@ const UserCalender = ({
       // console.log(`Apikey == ${calenderApiKey}; Title == ${calenderTitle}; TimeZone == ${selectTimeZone}`);
 
       if (calendar?.isFromAddGoogleCal) {
-        formData.append("title", calendar.title);
+        // formData.append("title", calendar.title);
         formData.append("calendarType", "google");
         // formData.append("mainAgentId", "");
         formData.append("agentId", selectedAgent?.id);
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
-        formData.append("scope", PersistanceKeys.addCalendarScope);
+        formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
         formData.append("expiryDate", calendar.expiryDate);
         // formData.append("googleUserId", calendar.id); // here google id was undefined
         formData.append("googleUserId", calendar.googleUserId);
+        formData.append("email", calendar.email);
+        formData.append("title", calendar.calenderTitle);
+        formData.append("timeZone", calendar.selectTimeZone);
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -292,7 +303,6 @@ const UserCalender = ({
         console.log(`${key} ===== ${value}`);
       }
 
-      // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -314,18 +324,18 @@ const UserCalender = ({
           const localAgentsList = localStorage.getItem("localAgentDetails");
 
           if (localAgentsList) {
-            console.log("This trigered");
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 
             const newCalendarData = response.data.data;
-            let calendars = allCalendars.filter(
-              (item) => item.apiKey != newCalendarData.apiKey
-            );
+            // let calendars = allCalendars.filter(
+            //   (item) => item.apiKey != newCalendarData.apiKey
+            // );
             let selecAgent = { ...agent, calendar: newCalendarData };
 
             setAgent(selecAgent); // Now this triggers useEffect
-            setAllCalendars([...calendars, newCalendarData]);
+            // setAllCalendars([...allCalendars, newCalendarData]);
+            setAllCalendars([newCalendarData, ...allCalendars]);
             setSelectCalender(newCalendarData);
             setSelectedCalenderTitle(newCalendarData?.id);
 
@@ -370,7 +380,7 @@ const UserCalender = ({
       }
     } catch (error) {
       setIsVisible(true);
-      setMessage(error);
+      setMessage(error.message);
       setType(SnackbarTypes.Error);
       console.error("Error occured in api is:", error);
     } finally {
@@ -489,40 +499,45 @@ const UserCalender = ({
                       },
                     }}
                   >
-
-                    {loadingCalenders ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      allCalendars.map((item, index) => (
-                        <MenuItem
-                          key={index}
-                          value={item.title}
-                          className="hover:bg-purple10 hover:text-black"
-                          sx={{
-                            backgroundColor:
-                              selectCalender.id === item.id
-                                ? "#7902DF10"
-                                : "transparent",
-                            "&.Mui-selected": {
-                              backgroundColor: "#7902DF10",
-                            },
-                          }}
-                          onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
-                          onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
-                        >
-                          <div className="w-full flex flex-row items-center justify-between">
-                            {/* Calendar Name */}
-                            <button
-                              className="w-full text-start"
-                              onClick={() => {
-                                setCalendarSelected(item);
-                                setSelectCalender(item);
-                                handleAddCalender(item);
-                              }}
-                              style={{ flexGrow: 1, textAlign: "left" }}
-                            >
+                    {allCalendars.map((item, index) => (
+                      <MenuItem
+                        key={index}
+                        value={item.title}
+                        className="hover:bg-purple10 hover:text-black"
+                        sx={{
+                          backgroundColor:
+                            selectCalender.id === item.id
+                              ? "#7902DF10"
+                              : "transparent",
+                          "&.Mui-selected": {
+                            backgroundColor: "#7902DF10",
+                          },
+                        }}
+                        onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
+                        onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
+                      >
+                        <div className="w-full flex flex-row items-center justify-between">
+                          {/* Calendar Name */}
+                          <button
+                            className="w-full text-start flex flex-row items-center gap-2"
+                            onClick={() => {
+                              setCalendarSelected(item);
+                              setSelectCalender(item);
+                              handleAddCalender(item);
+                            }}
+                            style={{ flexGrow: 1, textAlign: "left" }}
+                          >
+                            <div style={{ fontWeight: "500", fontSize: 15 }}>
                               {item.title}
-                            </button>
+                            </div>
+                            {
+                              item.email && (
+                                <div className="text-sm text-[#00000060]">
+                                  ({item.email})
+                                </div>
+                              )
+                            }
+                          </button>
 
                             {/* Delete Button (Only Show on Hover) */}
                             {showDelBtn?.id === item.id && (

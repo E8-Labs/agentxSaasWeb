@@ -35,6 +35,7 @@ import { PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import CheckList from "./CheckList";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
+import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -164,6 +165,7 @@ const ProfileNav = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [userLeads, setUserLeads] = useState("loading");
 
+  const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
 
 
 
@@ -268,6 +270,7 @@ const ProfileNav = () => {
   }, []);
 
   const getUserProfile = async () => {
+    await getProfile();
     const data = localStorage.getItem("User");
     if (data) {
       const LocalData = JSON.parse(data);
@@ -287,11 +290,21 @@ const ProfileNav = () => {
         // user haven't subscribed to any plan
         setPlans(plansWitTrial);
       }
+      if(LocalData.user.needsChargeConfirmation){
+        setShowCallPausedPopup(true);
+    }
+
     }else{
       console.log('no data',data)
-    }
-    await getProfile();
+
+
+     
+
+    console.log('LocalData', LocalData.user.needsChargeConfirmation)
+
+   
   };
+}
 
   useEffect(() => {
     getUserProfile();
@@ -943,6 +956,11 @@ const ProfileNav = () => {
           </div>
         </div>
       </div>
+
+      <CallPausedPopup 
+      open={showCallPausedPopup} 
+      onClose={() => setShowCallPausedPopup(false)}
+      />
 
       {/* Subscribe Plan modal */}
       <div>
