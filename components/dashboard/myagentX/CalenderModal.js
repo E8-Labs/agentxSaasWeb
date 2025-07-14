@@ -158,12 +158,13 @@ function CalendarModal({
               fontSize: 15,
               fontWeight: '600'
             }}>
-              Google Calendar
+              Google Calendar <span className="text-gray-500 text-sm">(coming soon)</span>
             </p>
             {googleCalenderLoader ? (
               <CircularProgress size={45} />
             ) : (
               <button
+                disabled={true}
                 onClick={() => {
                   // handlGoogleClick()
                   setShowAddNewGoogleCalender(true);
