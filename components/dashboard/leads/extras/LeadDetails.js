@@ -694,9 +694,11 @@ const LeadDetails = ({
       if (response) {
         // //console.log;
         if (response.data.status === true) {
+          
+          setShowSuccessSnack2(true);
+          setShowSuccessSnack(response.data.message);
+          setShowDetailsModal(false);
           handleDelLead(selectedLeadsDetails);
-          setShowSuccessSnack2(response.data.message);
-          setShowDelModal(false);
         }
       }
     } catch (error) {
@@ -2761,16 +2763,16 @@ const LeadDetails = ({
 
               {/* Buttons */}
 
-               <button
-                  className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
-                  style={{ fontWeight: "600", fontSize: 15 }}
-                  onClick={() => {
-                    setShowAudioPlay(null);
-                  }}
-                >
-                  Close
-                </button>
-             
+              <button
+                className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
+                style={{ fontWeight: "600", fontSize: 15 }}
+                onClick={() => {
+                  setShowAudioPlay(null);
+                }}
+              >
+                Close
+              </button>
+
             </div>
           </div>
         </Box>

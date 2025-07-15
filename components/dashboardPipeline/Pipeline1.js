@@ -1678,35 +1678,22 @@ const Pipeline1 = () => {
   const handleDelLead = async () => {
     try {
       const leadToDelete = selectedLeadsDetails;
-      // //console.log;
-      // //console.log;
-      // //console.log;
-      // return;
-      const filteredLeads = LeadsList?.filter((lead) => {
-        // //console.log;
-        return lead.leadId !== leadToDelete.id;
-      });
-
-      // //console.log;
-
-      const filteredPipelines = PipeLines.map((pipeline) => {
-        return {
-          ...pipeline,
-          leads: pipeline.leads.filter(
-            (lead) => lead.lead.id !== leadToDelete.id
-          ),
-        };
-      });
-
-      // //console.log;
-      //// //console.log
+      // Remove the lead from the list
+      const filteredLeads = LeadsList?.filter((lead) => lead.lead.id !== leadToDelete.id);
+  
+      // Remove the lead from all pipelines, safely handling undefined leads
+      const filteredPipelines = PipeLines.map((pipeline) => ({
+        ...pipeline,
+        leads: (pipeline.leads || []).filter((lead) => lead.lead.id !== leadToDelete.id),
+      }));
+  
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
-      setShowDetailsModal(false);
+      setSelectedLeadsDetails(null); // Clear selected lead
+      setShowDetailsModal(false);    // Hide modal
     } catch (error) {
-      // console.error("Error occuren in api is", error);
-    } finally {
-      // //console.log;
+      console.log('error in delete lead', error)
+      // Handle error
     }
   };
 
