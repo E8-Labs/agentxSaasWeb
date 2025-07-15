@@ -1011,7 +1011,7 @@ const AddBuyerKyc = ({
                         }}
                       />
                     </div>
-                    <div className="mt-4 mx-2" style={styles.headingStyle}>
+                    {/*<div className="mt-4 mx-2" style={styles.headingStyle}>
                       Sample Answers
                     </div>
 
@@ -1035,12 +1035,9 @@ const AddBuyerKyc = ({
                               handleInputChange(input.id, e.target.value)
                             }
                           />
-                          {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
-                                                        <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
-                                                    </button> */}
                         </div>
                       ))}
-                    </div>
+                    </div>*/}
 
                     {/* <div style={{ height: "50px" }}>
                                             {
@@ -1056,25 +1053,27 @@ const AddBuyerKyc = ({
                                         </div> */}
 
                     <div className="w-full h-[80px]">
-                      {inputs.filter((input) => input.value.trim()).length ===
-                        3 && newQuestion ? (
-                        <button
-                          className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
-                          style={{ ...styles.headingStyle, height: "50px" }}
-                          onClick={handleAddKycQuestion}
-                        >
-                          Add Question
-                        </button>
-                      ) : (
-                        <button
-                          disabled={true}
-                          className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2"
-                          style={{ ...styles.headingStyle, height: "50px" }}
-                          onClick={handleAddKycQuestion}
-                        >
-                          Add Question
-                        </button>
-                      )}
+                      {
+                        // inputs.filter((input) => input.value.trim()).length ===
+                        // 3 && 
+                        newQuestion ? (
+                          <button
+                            className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
+                            style={{ ...styles.headingStyle, height: "50px" }}
+                            onClick={handleAddKycQuestion}
+                          >
+                            Add Question
+                          </button>
+                        ) : (
+                          <button
+                            disabled={true}
+                            className="bg-[#00000020] text-black outline-none border-none rounded-lg w-full mt-4 mx-2"
+                            style={{ ...styles.headingStyle, height: "50px" }}
+                            onClick={handleAddKycQuestion}
+                          >
+                            Add Question
+                          </button>
+                        )}
                     </div>
 
                     {/* Can be use full to add shadow */}

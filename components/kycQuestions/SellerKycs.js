@@ -833,7 +833,7 @@ const SellerKycs = ({ handleContinue }) => {
                           }}
                         />
                       </div>
-                      <div className="mt-4 mx-2" style={styles.headingStyle}>
+                      {/*<div className="mt-4 mx-2" style={styles.headingStyle}>
                         Sample Answers
                       </div>
 
@@ -863,12 +863,9 @@ const SellerKycs = ({ handleContinue }) => {
                                 handleInputChange(input.id, e.target.value)
                               }
                             />
-                            {/* <button className='outline-none border-none' style={{ width: "5%" }} onClick={() => handleDelete(input.id)}>
-                                                        <Image src={"/assets/blackBgCross.png"} height={15} width={15} alt='*' />
-                                                    </button> */}
                           </div>
                         ))}
-                      </div>
+                      </div>*/}
 
                       {/* <div style={{ height: "50px" }}>
                                             {
@@ -884,8 +881,9 @@ const SellerKycs = ({ handleContinue }) => {
                                         </div> */}
 
                       <div className="w-full h-[]80px">
-                        {inputs.filter((input) => input.value.trim() !== "")
-                          .length === 3 &&
+                        {
+                          // inputs.filter((input) => input.value.trim() !== "")
+                          // .length === 3 &&
                           newQuestion && (
                             <button
                               className="bg-purple outline-none border-none rounded-lg text-white w-full mt-4 mx-2"
