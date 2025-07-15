@@ -365,7 +365,7 @@ function AllCalls({ user }) {
       let ApiPath = null;
       // //console.log;
       if (offset == null) {
-        offset = filteredCallDetails.length;
+        offset = callDetails.length;
       }
       let separator = "?";
       if (selectedFromDate && selectedToDate) {
