@@ -3995,7 +3995,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               ) : activeTab === "Calendar" ? (
                 <div>
 
-                  Removed Calenders for testing
+                  <UserCalender
+                    selectedUser={selectedUser}
+                    calendarDetails={calendarDetails}
+                    setUserDetails={setMainAgentsList}
+                    selectedAgent={showDrawerSelectedAgent}
+                    mainAgentId={MainAgentId}
+                    previousCalenders={previousCalenders}
+                    updateVariableData={updateAfterAddCalendar}
+                    loadingCalenders={loadingCalenders}
+                  />
 
                 </div>
               ) : activeTab === "Pipeline" ? (
