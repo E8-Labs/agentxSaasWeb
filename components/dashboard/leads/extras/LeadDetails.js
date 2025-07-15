@@ -2760,23 +2760,9 @@ const LeadDetails = ({
               />
 
               {/* Buttons */}
-              {/* <div className="flex flex-row justify-between w-full mt-4 gap-4">
-                <button
-                  className="w-1/2 h-[50px] rounded-lg bg-purple text-white"
-                  style={{ fontWeight: "600", fontSize: 15 }}
-                  onClick={() => {
-                    navigator.clipboard.writeText(showAudioPlay).then(() => {
-                      setShowAudioPlay(null);
-                      setShowSuccessSnack("Audio URL copied");
-                      setShowSuccessSnack2(true);
-                    });
-                  }}
-                >
-                  Share
-                </button>
 
-                <button
-                  className="w-1/2 h-[50px] rounded-lg bg-gray-300 text-black"
+               <button
+                  className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
                   style={{ fontWeight: "600", fontSize: 15 }}
                   onClick={() => {
                     setShowAudioPlay(null);
@@ -2784,7 +2770,7 @@ const LeadDetails = ({
                 >
                   Close
                 </button>
-              </div>*/}
+             
             </div>
           </div>
         </Box>
