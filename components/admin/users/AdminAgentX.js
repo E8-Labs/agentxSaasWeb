@@ -73,7 +73,6 @@ import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPagin
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
-import { SessionProvider } from "next-auth/react";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
 
@@ -295,7 +294,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
 
-  const [loadingCalenders,setLoadingCalenders] = useState(false)
+  const [loadingCalenders, setLoadingCalenders] = useState(false)
 
   const searchTimeoutRef = useRef(null);
 
@@ -1665,14 +1664,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   useEffect(() => {
-   
+
     setInitialLoader(true)
     getAgents()
   }, [selectedUser]);
 
   useEffect(() => {
     getCalenders();
-  }, [selectedUser,showDrawerSelectedAgent]);
+  }, [selectedUser, showDrawerSelectedAgent]);
 
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();
@@ -4012,18 +4011,18 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         title="Learn how to add a calendar"
                       />*/}
                   </div>
-                  <SessionProvider>
-                    <UserCalender
-                      selectedUser={selectedUser}
-                      calendarDetails={calendarDetails}
-                      setUserDetails={setMainAgentsList}
-                      selectedAgent={showDrawerSelectedAgent}
-                      mainAgentId={MainAgentId}
-                      previousCalenders={previousCalenders}
-                      updateVariableData={updateAfterAddCalendar}
-                      loadingCalenders={loadingCalenders}
-                    />
-                  </SessionProvider>
+
+                  <UserCalender
+                    selectedUser={selectedUser}
+                    calendarDetails={calendarDetails}
+                    setUserDetails={setMainAgentsList}
+                    selectedAgent={showDrawerSelectedAgent}
+                    mainAgentId={MainAgentId}
+                    previousCalenders={previousCalenders}
+                    updateVariableData={updateAfterAddCalendar}
+                    loadingCalenders={loadingCalenders}
+                  />
+
                 </div>
               ) : activeTab === "Pipeline" ? (
                 <div className="flex flex-col gap-4">

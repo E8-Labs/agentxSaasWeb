@@ -85,7 +85,7 @@ import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/Duplicat
 import TestEmbed from "@/app/test-embed/page";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
-import { SessionProvider } from "next-auth/react";
+
 
 const DuplicateButton = dynamic(
   () => import("@/components/animation/DuplicateButton"),
@@ -4366,7 +4366,6 @@ function Page() {
                   }
                 ></div>
 
-                <SessionProvider>
                   <UserCalender
                     calendarDetails={calendarDetails}
                     setUserDetails={setMainAgentsList}
@@ -4375,7 +4374,7 @@ function Page() {
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
                   />
-                </SessionProvider>
+
               </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
