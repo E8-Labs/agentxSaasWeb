@@ -4373,6 +4373,8 @@ function Page() {
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
+                    // setSelectedAgent={setSelectedAgent}
+                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
                   />
 
               </div>

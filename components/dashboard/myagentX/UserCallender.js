@@ -34,6 +34,7 @@ const UserCalender = ({
   updateVariableData,
   selectedUser,
   loadingCalenders = false,
+  setShowDrawerSelectedAgent
 }) => {
 
   const justLoggedIn = useRef(false);
@@ -73,7 +74,7 @@ const UserCalender = ({
 
   //code for the IANA time zone lists
 
-  const [selectTimeZone, setSelectTimeZone] = useState("");   
+  const [selectTimeZone, setSelectTimeZone] = useState("");
 
   const [showDelBtn, setShowDelBtn] = useState(false);
   const [showDelPopup, setShowDelPopup] = useState(false);
@@ -84,6 +85,13 @@ const UserCalender = ({
 
 
   useEffect(() => {
+    console.log("Selected agent calendar is =====", selectedAgent);
+
+    // let cal = previousCalenders.find(item => item.id === selectedAgent?.calendar?.id);
+    // console.log("Calender found is =====", cal);
+    console.log("previousCalenders are =====", previousCalenders);
+    
+
     setAllCalendars(previousCalenders);
     console.log("Selected agent ", selectedAgent);
     if (selectedAgent?.calendar) {
@@ -95,6 +103,13 @@ const UserCalender = ({
     }
     // getCalenders();
   }, []);
+
+  useEffect(() => {
+    console.log("selectedCalenderTitle changed:", selectedCalenderTitle);
+    if (selectedCalenderTitle) {
+      setCalendarSelected(selectedCalenderTitle);
+    }
+  }, [selectedCalenderTitle]);
 
   useEffect(() => {
     setAgent(selectedAgent);
@@ -157,7 +172,7 @@ const UserCalender = ({
         //console.log;
         // return
         let apiData = {
-          apiKey: calendarToDelete.apiKey,
+          calendarId: calendarToDelete.id,
         };
         console.log("Del calendar api data is", apiData);
         // return;
@@ -331,6 +346,8 @@ const UserCalender = ({
 
               updatedArray.push(ag);
             }
+
+            setShowDrawerSelectedAgent(prev => ({ ...prev, calendar: newCalendarData }));
 
             //console.log;
             localStorage.setItem(
@@ -511,35 +528,35 @@ const UserCalender = ({
                             }
                           </button>
 
-                            {/* Delete Button (Only Show on Hover) */}
-                            {showDelBtn?.id === item.id && (
-                              // (calenderDelLoader &&
-                              // calendarToDelete?.id === item.id ? (
-                              //   <CircularProgress size={25} />
-                              // ) :
-                              <button
-                                onClick={(e) => {
-                                  // e.stopPropagation(); // Prevents dropdown from closing
-                                  // setSelectCalender(item);
-                                  setCalenderDelLoader(null);
-                                  setCalendarToDelete(item);
-                                  setShowDelPopup(true);
-                                }}
-                                className="transition-opacity px-2"
-                                style={{
-                                  background: "transparent",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  color: "#7902df",
-                                  fontWeight: "500",
-                                }}
-                              >
-                                Delete
-                              </button>
-                            )}
-                          </div>
-                        </MenuItem>
-                      ))
+                          {/* Delete Button (Only Show on Hover) */}
+                          {showDelBtn?.id === item.id && (
+                            // (calenderDelLoader &&
+                            // calendarToDelete?.id === item.id ? (
+                            //   <CircularProgress size={25} />
+                            // ) :
+                            <button
+                              onClick={(e) => {
+                                // e.stopPropagation(); // Prevents dropdown from closing
+                                // setSelectCalender(item);
+                                setCalenderDelLoader(null);
+                                setCalendarToDelete(item);
+                                setShowDelPopup(true);
+                              }}
+                              className="transition-opacity px-2"
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "#7902df",
+                                fontWeight: "500",
+                              }}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
+                      </MenuItem>
+                    ))
                     }
 
                     <MenuItem className="w-full" value="Custom Calender">

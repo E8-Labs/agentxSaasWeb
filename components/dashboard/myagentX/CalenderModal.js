@@ -22,7 +22,7 @@ function CalendarModal({
   setEventId,
   eventId,
   selectTimeZone,
-  setSelectTimeZone
+  setSelectTimeZone,
 
 }) {
 
