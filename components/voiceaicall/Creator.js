@@ -243,77 +243,43 @@ const Creator = ({ agentId }) => {
                 return;
             }
         }
+    }
 
-        // // Check if the mouse is over buttonRef2
-        // if (buttonRef2.current) {
-        //     const rect = buttonRef2.current.getBoundingClientRect();
-        //     if (
-        //         x >= rect.left &&
-        //         x <= rect.right &&
-        //         y >= rect.top &&
-        //         y <= rect.bottom
-        //     ) {
-        //         setBoxVisible(false); // Hide the animation when hovering over buttonRef2
-        //         return;
-        //     }
-        // }
+    const showCallUI = () => {
+        return (
+            <div>
+                {
+                    loading || !open ? (
+                        <p className="mt-10 italic">{loadingMessage}</p>
+                    ) : (
+                        isSpeaking ? (
+                            <VoiceWavesComponent
+                                className="mt-12"
 
-        // if (buttonRef3.current) {
-        //     const rect = buttonRef3.current.getBoundingClientRect();
-        //     if (
-        //         x >= rect.left &&
-        //         x <= rect.right &&
-        //         y >= rect.top &&
-        //         y <= rect.bottom
-        //     ) {
-        //         setBoxVisible(false); // Hide the animation when hovering over buttonRef3
-        //         return;
-        //     }
-        // }
+                            />
+                        ) :
+                            <AudioWaveActivity
+                                isActive={isSpeaking}
+                                barCount={15}
+                                className="mt-10"
+                            />
+                    )
+                }
 
-        // if (buttonRef4) {
-        //     const rect = buttonRef4.current.getBoundingClientRect();
-        //     if (
-        //         x >= rect.left &&
-        //         x <= rect.right &&
-        //         y >= rect.top &&
-        //         y <= rect.bottom
-        //     ) {
-        //         setBoxVisible(false);
-        //         return;
-        //     }
-        // }
+                {open && (
+                    <button
+                        ref={buttonRef}
+                        onClick={handleCloseCall}
+                        className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
+                    >
+                        End Call
+                    </button>
+                )
+                }
 
-        // if (buttonRef5 && buttonRef5.current) {
-        //     const rect = buttonRef5.current.getBoundingClientRect();
-        //     if (
-        //         x >= rect.left &&
-        //         x <= rect.right &&
-        //         y >= rect.top &&
-        //         y <= rect.bottom
-        //     ) {
-        //         setBoxVisible(false);
-        //         return;
-        //     }
-        // }
-
-        // if (buttonRef6 && buttonRef6.current) {
-        //     const rect = buttonRef6.current.getBoundingClientRect();
-        //     if (
-        //         x >= rect.left &&
-        //         x <= rect.right &&
-        //         y >= rect.top &&
-        //         y <= rect.bottom
-        //     ) {
-        //         setBoxVisible(false);
-        //         return;
-        //     }
-        // }
-
-        // If none of the conditions are met, show the box
-        setBoxVisible(true);
-    };
-
+            </div>
+        )
+    }
 
     const gifBackgroundImageSmallScreen = {
         backgroundImage: 'url("/assets/applogo2.png")', // Ensure the correct path
@@ -390,32 +356,8 @@ const Creator = ({ agentId }) => {
 
                     </button>
 
-                    {loading || !open ? (
-                        <p className="mt-10 italic">{loadingMessage}</p>
-                    ) : (
-                        isSpeaking ? (
-                            <VoiceWavesComponent
-                                className="mt-12"
-
-                            />
-                        ) :
-                            <AudioWaveActivity
-                                isActive={isSpeaking}
-                                barCount={15}
-                                className="mt-10"
-                            />
-                    )}
-
                     {
-                        open && (
-                            <button
-                                ref={buttonRef}
-                                onClick={handleCloseCall}
-                                className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
-                            >
-                                End Call
-                            </button>
-                        )
+                        showCallUI()
                     }
                 </div>
 
@@ -428,10 +370,10 @@ const Creator = ({ agentId }) => {
                         left: "50%",
                         transform: "translate(-50%, -50%)",
                     }}
-                    className="w-full flex justify-center items-center md:hidden"
+                    className="w-full flex justify-center items-center md:hidden flex flex-col gap-4"
                 >
                     <button
-                        className="flex flex-col items-center justify-center flex-1"
+                        className="flex flex-col items-center justify-center flex-1 mr-6"
                         style={{
                             cursor: "pointer",
                             outline: "none",
@@ -480,11 +422,7 @@ const Creator = ({ agentId }) => {
 
                         <div
                             style={gifBackgroundImageSmallScreen}
-                            // style={{
-                            //     ...gifBackgroundImage,
-                            //     // width: isWideScreen && 1000,
-                            //     // height: isWideScreen && 1000
-                            // }}
+
                             className="flex flex-row justify-center items-center"
                         >
                             <Image
@@ -503,6 +441,9 @@ const Creator = ({ agentId }) => {
                         </div>
 
                     </button>
+                    {
+                        showCallUI()
+                    }
                 </div>
 
                 {/* Mouse Following Box Animation */}
