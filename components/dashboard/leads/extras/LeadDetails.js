@@ -164,14 +164,15 @@ const LeadDetails = ({
     if (!selectedLead) return;
     getLeadDetails(selectedLead);
 
-    console.log("pipelineId", pipelineId);
+    // Remove or comment out the console.log to avoid build errors
+    // console.log("pipelineId", pipelineId);
 
     if (pipelineId) {
       // //console.log;
       getStagesList(selectedLead);
     }
     getMyteam();
-  }, [selectedLead]);
+  }, [selectedLead, pipelineId]);
 
   //code for getting teammebers
   const getMyteam = async () => {
@@ -1923,8 +1924,9 @@ const LeadDetails = ({
                                             fontSize: 15,
                                           }}
                                         >
-                                        // ylz8ibb4uykg29mogltl
-                                          {item.question.split("ylz8ibb4uykg29mogltl").join("").trim()}
+                                          {item.question && typeof item.question === "string"
+                                            ? item.question.split("ylz8ibb4uykg29mogltl").join("").trim()
+                                            : ""}
                                         </div>
                                         <div
                                           className="mt-1"
