@@ -204,7 +204,12 @@ profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
   addTrustProduct: `${BasePath}api/business-profile/trust-products/select`,
   
   profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
-  
+
+  getMcpTools: `${BasePath}api/agent/getMcpTools`,
+  addMcpTool: `${BasePath}api/agent/addMcpTool`,
+  editMcpTool: `${BasePath}api/agent/updateMcpTool`,
+  deleteMcpTool: `${BasePath}api/agent/deleteMcpTool`,
+  selectMcpTool: `${BasePath}api/agent/selectMcpTool`,
 };
 
 export default Apis;

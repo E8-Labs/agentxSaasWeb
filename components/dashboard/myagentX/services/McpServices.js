@@ -1,0 +1,219 @@
+import Apis from "@/components/apis/Apis";
+import axios from "axios";
+
+export const getMcpTools = async () => {
+
+    try {
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+            const UserDetails = JSON.parse(localData);
+            AuthToken = UserDetails.token;
+        }
+
+        const response = await axios.get(Apis.getMcpTools, {
+            headers: {
+                Authorization: "Bearer " + AuthToken,
+            },
+        });
+        if (response) {
+            if (response.data.status === true) {
+                console.log("MCP tools response is", response.data);
+                return response.data.data;
+            } else {
+                console.log("MCP tools response is", response.data);
+                return null;
+            }
+        }
+    } catch (error) {
+        console.log("Error in getMcpTools", error);
+        return null;
+    }
+
+}
+
+
+export const addMcpTool = async (data) => {
+
+    try {
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+            const UserDetails = JSON.parse(localData);
+            AuthToken = UserDetails.token;
+        }
+
+        const response = await axios.post(Apis.addMcpTool, data, {
+            headers: {
+                Authorization: "Bearer " + AuthToken,
+            },
+        });
+        if (response) {
+            let returnData = {};
+            if (response.data.status === true) {
+                console.log("add MCP tools response is", response.data.data);
+                returnData = {
+                    status: true,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            } else {
+                console.log(" add MCP tools response is", response.data);
+                returnData = {
+                    status: false,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            }
+            return returnData;
+        }
+    } catch (error) {
+        console.log("Error in addMcpTool", error);
+        return {
+            status: false,
+            message: "Error in addMcpTool",
+            data: null
+        }
+    }
+}
+
+export const editMcpTool = async (data) => {
+
+    try {
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+            const UserDetails = JSON.parse(localData);
+            AuthToken = UserDetails.token;
+        }
+
+        let path = `${Apis.editMcpTool}/${data.id}`;
+
+        const response = await axios.put(path, data, {
+            headers: {
+                Authorization: "Bearer " + AuthToken,
+            },
+        });
+        if (response) {
+            let returnData = {};
+            if (response.data.status === true) {
+                console.log("edit MCP tools response is", response.data.data);
+                returnData = {
+                    status: true,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            } else {
+                console.log("edit MCP tools response is", response.data);
+                returnData = {
+                    status: false,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            }
+            return returnData;
+        }
+    } catch (error) {
+        console.log("Error in editMcpTool", error);
+        return {
+            status: false,
+            message: "Error in editMcpTool",
+            data: null
+        }
+    }
+}
+
+
+export const deleteMcpTool = async (data) => {
+
+    try {
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+            const UserDetails = JSON.parse(localData);
+            AuthToken = UserDetails.token;
+        }
+        let path = `${Apis.deleteMcpTool}/${data.id}`;
+        const response = await axios.delete(path, {
+            headers: {
+                Authorization: "Bearer " + AuthToken,
+            },
+        });
+        if (response) {
+            let returnData = {};
+            if (response.data.status === true) {
+                console.log("delete MCP tools response is", response.data.data);
+                returnData = {
+                    status: true,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            } else {
+                console.log("delete MCP tools response is", response.data);
+                returnData = {
+                    status: false,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            }
+            return returnData;
+        }
+    } catch (error) {
+        console.log("Error in deleteMcpTool", error);
+        return {
+            status: false,
+            message: "Error in deleteMcpTool",
+            data: null
+        }
+    }
+}
+
+export const selectMcpTool = async (data) => {
+
+    try {
+        const localData = localStorage.getItem("User");
+        let AuthToken = null;
+        if (localData) {
+            const UserDetails = JSON.parse(localData);
+            AuthToken = UserDetails.token;
+        }
+
+        const response = await axios.post(Apis.selectMcpTool, data, {
+            headers: {
+                Authorization: "Bearer " + AuthToken,
+            },
+        });
+
+        if (response) {
+            let returnData = {};
+            if (response.data.status === true) {
+                console.log("select MCP tools response is", response.data.data);
+                returnData = {
+                    status: true,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            } else {
+                console.log("select MCP tools response is", response.data);
+                returnData = {
+                    status: false,
+                    message: response.data.message,
+                    data: response.data.data
+                }
+            }
+            return returnData;
+        }
+        return {
+            status: false,
+            message: "Error in selectMcpTool",
+            data: null
+        }
+    } catch (error) {
+        console.log("Error in selectMcpTool", error);
+        return {
+            status: false,
+            message: "Error in selectMcpTool",
+            data: null
+        }
+    }
+}

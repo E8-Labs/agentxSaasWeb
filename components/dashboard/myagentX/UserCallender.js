@@ -27,6 +27,8 @@ import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
 import { signIn, signOut } from "next-auth/react";
 import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 
+import MCPView from "./mcp/MCPView";
+
 const UserCalender = ({
   calendarDetails,
   setUserDetails,
@@ -39,7 +41,7 @@ const UserCalender = ({
 
   const justLoggedIn = useRef(false);
 
-  console.log("calender passed is", previousCalenders);
+  console.log("calender passed is", selectedAgent);
 
 
 
@@ -82,6 +84,20 @@ const UserCalender = ({
 
   //video card
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
+
+
+  const [showAddMcpPopup, setShowAddMcpPopup] = useState(false);
+  const [showEditMcpPopup, setShowEditMcpPopup] = useState(false);
+  const [selectedMcpTool, setSelectedMcpTool] = useState(null);
+
+  const [mcpTools, setMcpTools] = useState([]);
+
+  const [addMcpLoader, setAddMcpLoader] = useState(false);
+  const [editMcpLoader, setEditMcpLoader] = useState(false);
+  const [deleteMcpLoader, setDeleteMcpLoader] = useState(false);
+  const [mcpName, setMcpName] = useState("");
+  const [mcpUrl, setMcpUrl] = useState("");
+  const [mcpDescription, setMcpDescription] = useState("");
 
 
   useEffect(() => {
@@ -362,6 +378,9 @@ const UserCalender = ({
     }
   };
 
+  useEffect(() => {
+    console.log("MCP tools are", mcpTools);
+  }, [mcpTools]);
 
 
   const styles = {
@@ -386,7 +405,7 @@ const UserCalender = ({
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-none flex flex-row justify-center items-center "
+      className="overflow-y-none flex flex-col justify-start items-center h-[90vh]  "
     >
       {isVisible && (
         <AgentSelectSnackMessage
@@ -410,127 +429,293 @@ const UserCalender = ({
         />
       )}
 
-      <div className="flex flex-col w-full gap-3">
-        <div className="text-[15px] font-[500] ">
-          Calendar
-        </div>
+      <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
+        {selectedAgent?.calendar || allCalendars.length > 0 ? (
+          <div className="w-full flex flex-col w-full items-center">
+            <div className="w-full">
+              {calenderLoader ? (
+                <div className="w-full flex flex-row justify-center">
+                  <CircularProgress size={30} />
+                </div>
+              ) : (
+                <FormControl sx={{ m: 1 }} className="w-[97%]">
+                  <Select
+                    labelId="demo-select-small-label"
+                    id="demo-select-small"
+                    value={selectedCalenderTitle}
+                    // label="Age"
+                    // onChange={handleChange}
+                    displayEmpty // Enables placeholder
+                    renderValue={(selected) => {
+                      console.log("Selected Render ", selected);
+                      if (!selected) {
+                        return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                      }
+                      let cals = allCalendars.filter((item) => {
+                        return (
+                          item.title == agent?.calendar?.title &&
+                          item.apiKey == agent?.calendar?.apiKey &&
+                          item.eventId == agent?.calendar?.eventId
+                        );
+                      });
+                      //console.log;
+                      let cal = null;
+                      if (cals && cals.length >= 1) {
+                        cal = cals[0];
+                      }
+                      return cal?.title || "";
+                    }}
+                    sx={{
+                      border: "1px solid #00000020", // Default border
+                      "&:hover": {
+                        border: "1px solid #00000020", // Same border on hover
+                      },
+                      "& .MuiOutlinedInput-notchedOutline": {
+                        border: "none", // Remove the default outline
+                      },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                        border: "none", // Remove outline on focus
+                      },
+                      "&.MuiSelect-select": {
+                        py: 0, // Optional padding adjustments
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: "30vh", // Limit dropdown height
+                          overflow: "auto", // Enable scrolling in dropdown
+                          scrollbarWidth: "none",
+                          // borderRadius: "10px"
+                        },
+                      },
+                    }}
+                  >
+                    {allCalendars.map((item, index) => (
+                      <MenuItem
+                        key={index}
+                        value={item.title}
+                        className="hover:bg-purple10 hover:text-black"
+                        sx={{
+                          backgroundColor:
+                            selectCalender.id === item.id
+                              ? "#7902DF10"
+                              : "transparent",
+                          "&.Mui-selected": {
+                            backgroundColor: "#7902DF10",
+                          },
+                        }}
+                        onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
+                        onMouseLeave={() => setShowDelBtn(null)} // Hide button when not hovering
+                      >
+                        <div className="w-full flex flex-row items-center justify-between">
+                          {/* Calendar Name */}
+                          <button
+                            className="w-full text-start flex flex-row items-center gap-2"
+                            onClick={() => {
+                              setCalendarSelected(item);
+                              setSelectCalender(item);
+                              handleAddCalender(item);
+                            }}
+                            style={{ flexGrow: 1, textAlign: "left" }}
+                          >
+                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                              {item.title}
+                            </div>
+                            {
+                              item.email && (
+                                <div className="text-sm text-[#00000060]">
+                                  ({item.email})
+                                </div>
+                              )
+                            }
+                          </button>
 
-        <div className="flex flex-col h-[15vh] overflow-y-auto gap-4">
-
-          {
-            allCalendars.map((item) => (
-              <button key={item.id} className="w-full" onClick={() => {
-                // setCalendarSelected(item);
-                // setSelectCalender(item);
-                // handleAddCalender(item);
-              }}>
-                <div className="flex flex-row items-center justify-between w-full">
-                  <div className="flex flex-col items-start ">
-                    <div className="text-[15px] font-[500] ">
-                      {item.title}
-                    </div>
-                    <div className="text-[15px] font-[400] text-gray-500">
-                      API Key: <span
-                        className="text-black font-[500]"
-                      >{item.apiKey ? "*****" + item.apiKey.slice(-10) : "-"}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end ">
-                    <div className="text-[15px] font-[400] text-gray-500">
-                      Event ID: <span
-                        className="text-black font-[500]"
-                      >{item.eventId ? item.eventId : "-"}</span>
-                    </div>
-
-                    {
-                      setCalenderDelLoader === item ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button className="text-[15px] font-[500] text-red" onClick={() => handleDeleteCalendar(item)}>
-                          Delete
-                        </button>
-                      )
+                          {/* Delete Button (Only Show on Hover) */}
+                          {showDelBtn?.id === item.id && (
+                            // (calenderDelLoader &&
+                            // calendarToDelete?.id === item.id ? (
+                            //   <CircularProgress size={25} />
+                            // ) :
+                            <button
+                              onClick={(e) => {
+                                // e.stopPropagation(); // Prevents dropdown from closing
+                                // setSelectCalender(item);
+                                setCalenderDelLoader(null);
+                                setCalendarToDelete(item);
+                                setShowDelPopup(true);
+                              }}
+                              className="transition-opacity px-2"
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                cursor: "pointer",
+                                color: "#7902df",
+                                fontWeight: "500",
+                              }}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
+                      </MenuItem>
+                    ))
                     }
 
-                  </div>
-                </div>
-              </button>
-            ))
-          }
-        </div>
+                    <MenuItem className="w-full" value="Custom Calender">
+                      <button
+                        className="text-purple underline w-full text-start"
+                        onClick={() => {
+                          // setCalendarSelected(null);
+                          // setShowAddNewCalender(true);
+                          setShowCalendarConfirmation(true);
+                        }}
+                      >
+                        Add New Calender
+                      </button>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+            </div>
 
-        <div className="flex flex-row items-center justify-between w-full">
-          <div className="text-[15px] font-[500] ">
-            MCP
           </div>
+        ) : (
+          <NoCalendarView
+            showVideo={true}
+            addCalendarAction={() => {
+              console.log("Clicked on add cal");
+              setShowCalendarConfirmation(true);
+            }}
+          />
+        )}
 
 
-          <button className="text-[15px] font-[500] text-purple" >
-            + Add MCP
-          </button>
+        <MCPView selectedAgent={selectedAgent}
+          setShowAddMcpPopup={setShowAddMcpPopup}
 
-          <FormControl sx={{ m: 1 }} className="w-full">
-            <Select
-              labelId="demo-select-small-label"
-              id="demo-select-small"
-              value={selectedCalenderTitle}
-              // label="Age"
-              // onChange={handleChange}
-              displayEmpty // Enables placeholder
-              renderValue={(selected) => {
-                console.log("Selected Render ", selected);
-                if (!selected) {
-                  return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
-                }
-                let cals = allCalendars.filter((item) => {
-                  return (
-                    item.title == agent?.calendar?.title &&
-                    item.apiKey == agent?.calendar?.apiKey &&
-                    item.eventId == agent?.calendar?.eventId
-                  );
-                });
-                //console.log;
-                let cal = null;
-                if (cals && cals.length >= 1) {
-                  cal = cals[0];
-                }
-                return cal?.title || "";
-              }}
-              sx={{
-                border: "1px solid #00000020", // Default border
-                "&:hover": {
-                  border: "1px solid #00000020", // Same border on hover
-                },
-                "& .MuiOutlinedInput-notchedOutline": {
-                  border: "none", // Remove the default outline
-                },
-                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                  border: "none", // Remove outline on focus
-                },
-                "&.MuiSelect-select": {
-                  py: 0, // Optional padding adjustments
-                },
-              }}
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: "30vh", // Limit dropdown height
-                    overflow: "auto", // Enable scrolling in dropdown
-                    scrollbarWidth: "none",
-                    // borderRadius: "10px"
-                  },
-                },
-              }}
-            >
+          setType={setType}
+          setMessage={setMessage}
+          setIsVisible={setIsVisible}
+        />
 
-            </Select>
-          </FormControl>
 
-        </div>
+
+        {/* Confirmation to add google calendar or cal.com */}
+        <CalendarModal
+          open={showCalendarConfirmation}
+          selectedAgent={selectedAgent}
+          onClose={() => {
+            setShowCalendarConfirmation(false);
+          }}
+          calenderLoader={calenderLoader}
+          googleCalenderLoader={googleCalenderLoader}
+          calendarSelected={calendarSelected}
+          handleAddCalendar={handleAddCalender}
+          calenderTitle={calenderTitle}
+          setCalenderTitle={setCalenderTitle}
+          calenderApiKey={calenderApiKey}
+          setCalenderApiKey={setCalenderApiKey}
+          setEventId={setEventId}
+          eventId={eventId}
+          selectTimeZone={selectTimeZone}
+          setSelectTimeZone={setSelectTimeZone}
+        />
+
+        {/* Modal to add custom calender */}
+        <Modal open={showAddNewCalender}>
+          <Box
+            className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+            sx={{
+              ...styles.modalsStyle,
+              backgroundColor: "white",
+              paddingInline: "25px",
+              paddingTop: "25px",
+              paddingBottom: "30px",
+            }}
+          >
+
+          </Box>
+        </Modal>
+
+        {/* Delete calendar popup */}
+
+        <Modal
+          open={showDelPopup}
+          onClose={() => setShowDelPopup(false)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(5px)",
+            },
+          }}
+        >
+          <Box className="lg:w-4/12 sm:w-4/12 w-6/12" sx={styles.modalsStyle}>
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="font-bold text-xl mt-6">
+                  Are you sure you want to delete this calendar
+                </div>
+                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                  <button
+                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={() => {
+                      setShowDelPopup(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  {calenderDelLoader ? (
+                    <div className="flex justify-center items-center w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]">
+                      <CircularProgress size={25} />
+                    </div>
+                  ) : (
+                    <button
+                      className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                      onClick={() => {
+                        handleDeleteCalendar();
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Box>
+        </Modal>
       </div>
 
 
+
+      {/* video modal to add calendar */}  {/* hidded for now */}
+      <div className="mt-2">
+        <VideoCard
+          duration="2 min 42 sec"
+          horizontal={false}
+          playVideo={() => {
+            setIntroVideoModal2(true);
+          }}
+          title="Learn how to add a calendar"
+        />
+      </div>
+
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={introVideoModal2}
+        onClose={() => setIntroVideoModal2(false)}
+        videoTitle="Learn how to add a calendar"
+        videoUrl={HowtoVideos.Calendar}
+      />
 
     </div>
   );
