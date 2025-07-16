@@ -26,6 +26,8 @@ import { SelectAll } from "@mui/icons-material";
 import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
 import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 
+import MCPView from "./mcp/MCPView";
+
 const UserCalender = ({
   calendarDetails,
   setUserDetails,
@@ -39,7 +41,7 @@ const UserCalender = ({
 
   const justLoggedIn = useRef(false);
 
-  // console.log("Selected agent passed is", selectedAgent);
+  console.log("calender passed is", selectedAgent);
 
 
 
@@ -82,6 +84,20 @@ const UserCalender = ({
 
   //video card
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
+
+
+  const [showAddMcpPopup, setShowAddMcpPopup] = useState(false);
+  const [showEditMcpPopup, setShowEditMcpPopup] = useState(false);
+  const [selectedMcpTool, setSelectedMcpTool] = useState(null);
+
+  const [mcpTools, setMcpTools] = useState([]);
+
+  const [addMcpLoader, setAddMcpLoader] = useState(false);
+  const [editMcpLoader, setEditMcpLoader] = useState(false);
+  const [deleteMcpLoader, setDeleteMcpLoader] = useState(false);
+  const [mcpName, setMcpName] = useState("");
+  const [mcpUrl, setMcpUrl] = useState("");
+  const [mcpDescription, setMcpDescription] = useState("");
 
 
   useEffect(() => {
@@ -378,6 +394,9 @@ const UserCalender = ({
     }
   };
 
+  useEffect(() => {
+    console.log("MCP tools are", mcpTools);
+  }, [mcpTools]);
 
 
   const styles = {
@@ -402,7 +421,7 @@ const UserCalender = ({
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-none flex flex-row justify-center items-center "
+      className="overflow-y-none flex flex-col justify-start items-center h-[90vh]  "
     >
       {isVisible && (
         <AgentSelectSnackMessage
@@ -426,7 +445,7 @@ const UserCalender = ({
         />
       )}
 
-      <div className="bg-white rounded-2xl w-full h-[90vh] py-4 flex flex-col">
+      <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
           <div className="w-full flex flex-col w-full items-center">
             <div className="w-full">
@@ -435,7 +454,7 @@ const UserCalender = ({
                   <CircularProgress size={30} />
                 </div>
               ) : (
-                <FormControl sx={{ m: 1 }} className="w-full">
+                <FormControl sx={{ m: 1 }} className="w-[97%]">
                   <Select
                     labelId="demo-select-small-label"
                     id="demo-select-small"
@@ -576,26 +595,6 @@ const UserCalender = ({
               )}
             </div>
 
-            {/* video modal to add calendar */}
-            <div className="mt-6">
-              <VideoCard
-                duration="2 min 42 sec"
-                horizontal={false}
-                playVideo={() => {
-                  setIntroVideoModal2(true);
-                }}
-                title="Learn how to add a calendar"
-              />
-            </div>
-
-            {/* Intro modal */}
-            <IntroVideoModal
-              open={introVideoModal2}
-              onClose={() => setIntroVideoModal2(false)}
-              videoTitle="Learn how to add a calendar"
-              videoUrl={HowtoVideos.Calendar}
-            />
-
           </div>
         ) : (
           <NoCalendarView
@@ -606,6 +605,17 @@ const UserCalender = ({
             }}
           />
         )}
+
+
+        <MCPView selectedAgent={selectedAgent}
+          setShowAddMcpPopup={setShowAddMcpPopup}
+
+          setType={setType}
+          setMessage={setMessage}
+          setIsVisible={setIsVisible}
+        />
+
+
 
         {/* Confirmation to add google calendar or cal.com */}
         <CalendarModal
@@ -700,6 +710,29 @@ const UserCalender = ({
           </Box>
         </Modal>
       </div>
+
+
+
+      {/* video modal to add calendar */}  {/* hidded for now */}
+      <div className="mt-2">
+        <VideoCard
+          duration="2 min 42 sec"
+          horizontal={false}
+          playVideo={() => {
+            setIntroVideoModal2(true);
+          }}
+          title="Learn how to add a calendar"
+        />
+      </div>
+
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={introVideoModal2}
+        onClose={() => setIntroVideoModal2(false)}
+        videoTitle="Learn how to add a calendar"
+        videoUrl={HowtoVideos.Calendar}
+      />
+
     </div>
   );
 };
