@@ -1923,7 +1923,8 @@ const LeadDetails = ({
                                             fontSize: 15,
                                           }}
                                         >
-                                          {item.question}
+                                        // ylz8ibb4uykg29mogltl
+                                          {item.question.split("ylz8ibb4uykg29mogltl").join("").trim()}
                                         </div>
                                         <div
                                           className="mt-1"
