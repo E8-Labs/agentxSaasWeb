@@ -1893,7 +1893,7 @@ const AdminLeadDetails = ({
                                                                                             fontSize: 15,
                                                                                         }}
                                                                                     >
-                                                                                        {item.question}
+                                                                                       {item.question.split("ylz8ibb4uykg29mogltl").join("").trim()}
                                                                                     </div>
                                                                                     <div
                                                                                         className="mt-1"
