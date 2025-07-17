@@ -20,7 +20,13 @@ const Page = () => {
 
     useEffect(() => {
         console.log("id is", id);
-        getRecordings();
+        const D = localStorage.getItem("User");
+        if (D) {
+            getRecordings();
+        } else {
+            setStatus("not-loggedin");
+            setRecordingLoader(false);
+        }
         setScreenWidth(window.innerWidth);
     }, [id]);
 
@@ -101,7 +107,18 @@ const Page = () => {
                 ) : (
                     <div>
                         {
-                            status === "not_found" ? (
+                            status === "not-loggedin" ? (
+                                <div className='flex flex-col items-center justify-center h-screen w-full'>
+                                    <div className='text-center' style={{ fontSize: screenWidth > 640 ? "22px" : "18px", fontWeight: "600", color: "#000000" }}>
+                                        You are not logged in.
+                                    </div>
+                                    <button className='bg-purple mt-4 text-white px-4 py-2 rounded-md' onClick={() => {
+                                        window.location.href = "/";
+                                    }}>
+                                        Login to continue
+                                    </button>
+                                </div>
+                            ) : status === "not_found" ? (
                                 <div className='flex flex-col items-center justify-center h-screen w-full'>
                                     {
                                         screenWidth > 640 ? (
