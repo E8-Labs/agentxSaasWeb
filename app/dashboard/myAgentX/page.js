@@ -3379,8 +3379,8 @@ function Page() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`${activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
                     }`}
                   style={{
                     fontSize: 15,
