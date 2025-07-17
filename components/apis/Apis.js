@@ -210,6 +210,11 @@ profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
   editMcpTool: `${BasePath}api/agent/updateMcpTool`,
   deleteMcpTool: `${BasePath}api/agent/deleteMcpTool`,
   selectMcpTool: `${BasePath}api/agent/selectMcpTool`,
+  attachMcpTool: `${BasePath}api/agent/addMcpToolToAgent`,
+  removeMcpTool: `${BasePath}api/agent/removeMcpToolFromAgent`,
+
+  //recordings
+  getCallRecordings: `${BasePath}api/leads/getCall`,
 };
 
 export default Apis;

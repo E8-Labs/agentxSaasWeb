@@ -85,7 +85,7 @@ import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/Duplicat
 import TestEmbed from "@/app/test-embed/page";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
-import { SessionProvider } from "next-auth/react";
+// import { SessionProvider } from "next-auth/react";
 
 const DuplicateButton = dynamic(
   () => import("@/components/animation/DuplicateButton"),
@@ -3379,8 +3379,8 @@ function Page() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`${activeTab === tab
-                      ? "text-purple border-b-2 border-purple"
-                      : "text-black-500"
+                    ? "text-purple border-b-2 border-purple"
+                    : "text-black-500"
                     }`}
                   style={{
                     fontSize: 15,
@@ -4366,16 +4366,15 @@ function Page() {
                   }
                 ></div>
 
-                <SessionProvider>
-                  <UserCalender
-                    calendarDetails={calendarDetails}
-                    setUserDetails={setMainAgentsList}
-                    selectedAgent={showDrawerSelectedAgent}
-                    mainAgentId={MainAgentId}
-                    previousCalenders={previousCalenders}
-                    updateVariableData={updateAfterAddCalendar}
-                  />
-                </SessionProvider>
+                <UserCalender
+                  calendarDetails={calendarDetails}
+                  setUserDetails={setMainAgentsList}
+                  selectedAgent={showDrawerSelectedAgent}
+                  mainAgentId={MainAgentId}
+                  previousCalenders={previousCalenders}
+                  updateVariableData={updateAfterAddCalendar}
+                />
+
               </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
