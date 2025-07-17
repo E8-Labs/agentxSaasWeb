@@ -35,9 +35,7 @@ function MCPView({
     const [selectedMcpIds, setSelectedMcpIds] = useState([]);
 
     //attach mcp loader
-    const [attachMcpLoader, setAttachMcpLoader] = useState(false);
-    //show the associated mcp's in the menu
-    const [isMcpAssciated, setIsMcpAssciated] = useState([]);
+    const [attachMcpLoader, setAttachMcpLoader] = useState("");
 
     //snackbar
     const [showSnack, setShowSnack] = useState({
@@ -223,7 +221,7 @@ function MCPView({
             }
         }
 
-        setOpen(false);
+
     };
 
     //remove the mcp from the selected list
@@ -242,7 +240,7 @@ function MCPView({
         }
         console.log("Data to be sent is", data);
         // return
-        setAttachMcpLoader(true);
+        setAttachMcpLoader(item.id);
         const mcpTool = await attachMcpTool(data);
         if (mcpTool) {
             if (mcpTool.status === true) {
@@ -251,15 +249,20 @@ function MCPView({
                     message: mcpTool.message,
                     isVisible: true,
                 });
+                getMcps();
+                setAttachMcpLoader("");
+                setOpen(false);
             } else {
+                setOpen(false);
                 setShowSnack({
                     type: SnackbarTypes.Error,
                     message: mcpTool.message,
                     isVisible: true,
                 });
+                setAttachMcpLoader("");
             }
         }
-        setAttachMcpLoader(false);
+        setAttachMcpLoader("");
     }
 
     //detach from the agnet
@@ -269,6 +272,7 @@ function MCPView({
                 agentId: selectedAgent.id,
                 toolId: item.id
             }
+            setAttachMcpLoader(item.id);
             console.log("Data to be sent is", data)
             const detachResponse = await removeMcpTool(data);
             console.log("Detach Response is", detachResponse);
@@ -280,16 +284,20 @@ function MCPView({
                         isVisible: true,
                     });
                     getMcps();
+                    setOpen(false);
+                    setAttachMcpLoader("");
                 } else {
                     setShowSnack({
                         type: SnackbarTypes.Error,
                         message: detachResponse.message,
                         isVisible: true,
                     });
+                    setAttachMcpLoader("");
                 }
             }
         } catch (error) {
             console.log("Error in detachMcp", error);
+            setAttachMcpLoader("");
         }
     }
 
@@ -349,16 +357,8 @@ function MCPView({
                                 <div style={{ color: "#aaa" }}>Select</div>
                             ) : (
                                 <span className="text-[15px] font-[500]">
-                                    {mcpTools[0].name}
-                                    {/*mcpTools
-                                    .filter((item) => selectedMcpIds.includes(item.id))
-                                    .map((item, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex items-center gap-2 bg-btngray rounded-lg px-2 py-1"
-                                        >
-                                            <span className="text-[15px] font-[500]">{mcpTools[0].name}</span>
-                                            <button
+                                    {/*mcpTools[0].name
+                                        <button
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     e.preventDefault();
@@ -371,9 +371,22 @@ function MCPView({
                                                     width={12}
                                                     height={12}
                                                 />
-                                            </button>
-                                        </div>
-                                    ))*/}
+                                            </button>*/}
+                                    <div className='flex flex-wrap gap-2'>
+                                        {mcpTools
+                                            .filter((item) => selectedMcpIds.includes(item.id))
+                                            .map((item, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="flex items-center gap-2 bg-btngray rounded-lg px-2 py-1" //bg-btngray
+                                                >
+                                                    <span className="text-[15px] font-[500]">{item.name}</span>
+
+                                                </div>
+                                            ))
+
+                                        }
+                                    </div>
                                 </span>
 
                             )}
@@ -411,36 +424,46 @@ function MCPView({
                         }}
                     >
                         {mcpTools.map((item) => (
-                            <MenuItem value={item.id} key={item.id}>
-                                <div className="flex flex-row items-center justify-between w-full">
-                                    <div className="flex flex-row items-center gap-2">
-                                        {selectedMcpIds.includes(item.id) ? (
-                                            <Image
-                                                src="/otherAssets/mcpCheckIcon.png"
-                                                alt="check"
-                                                width={24}
-                                                height={24}
-                                            />
-                                        ) : (
-                                            <div
-                                                className="bg-none border-2 rounded"
-                                                style={{ height: "24px", width: "24px" }}
-                                            ></div>
-                                        )}
-                                        <div className="text-[15px] font-[500]">{item.name}</div>
-                                    </div>
-                                    <button
-                                        className="text-[16px] font-[500] text-gray-500 underline"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            setShowEditMcpPopup(true);
-                                            setSelectedMcpTool(item);
-                                        }}
-                                    >
-                                        Edit
-                                    </button>
-                                </div>
+                            <MenuItem
+                                value={item.id}
+                                key={item.id}
+                                disabled={attachMcpLoader}
+                            >
+                                {
+                                    attachMcpLoader === item.id ? (
+                                        <CircularProgress size={24} />
+                                    ) : (
+                                        <div className="flex flex-row items-center justify-between w-full">
+                                            <div className="flex flex-row items-center gap-2">
+                                                {selectedMcpIds.includes(item.id) ? (
+                                                    <Image
+                                                        src="/otherAssets/mcpCheckIcon.png"
+                                                        alt="check"
+                                                        width={24}
+                                                        height={24}
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className="bg-none border-2 rounded"
+                                                        style={{ height: "24px", width: "24px" }}
+                                                    ></div>
+                                                )}
+                                                <div className="text-[15px] font-[500]">{item.name}</div>
+                                            </div>
+                                            <button
+                                                className="text-[16px] font-[500] text-gray-500 underline"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    e.preventDefault();
+                                                    setShowEditMcpPopup(true);
+                                                    setSelectedMcpTool(item);
+                                                }}
+                                            >
+                                                Edit
+                                            </button>
+                                        </div>
+                                    )
+                                }
                             </MenuItem>
                         ))}
                     </Select>

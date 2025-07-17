@@ -241,15 +241,25 @@ export const attachMcpTool = async (data) => {
 
 export const removeMcpTool = async (data) => {
     try {
+        console.log("Detach api is trigered");
+
         const token = AuthToken();
-        const ApiPath = Apis.removeMcpToolFromAgent;
-        const response = await axios.get(ApiPath, data, {
+        // const ApiPath = Apis.removeMcpToolFromAgent;
+        const ApiPath = Apis.removeMcpTool;
+        if (!ApiPath) {
+            console.error("🚨 API path for removeMcpToolFromAgent is undefined!");
+            return;
+        }
+        console.log("Api path is", ApiPath);
+        console.log("Detach Api Data is", data);
+        const response = await axios.post(ApiPath, data, {
             headers: {
                 Authorization: "Bearer " + token,
                 "Content-Type": "application/json",
             },
         });
         if (response) {
+            console.log("Response of api is", response);
             return response.data;
         }
     } catch (error) {
