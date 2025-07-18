@@ -96,13 +96,10 @@ function MCPView({
                 setMcpTools(prev => [mcpTool.data, ...prev]);
 
                 setShowAddMcpPopup(false);
-                setMcpName("");
-                setMcpUrl("");
-                setMcpDescription("");
                 setIsVisible(true);
                 setMessage(mcpTool.message);
                 setType(SnackbarTypes.Success);
-                getmcp();
+                getMcps();
             } else {
                 setIsVisible(true);
                 setMessage(mcpTool.message);
@@ -355,7 +352,12 @@ function MCPView({
 
                 {
                     showAddMcpPopup && (
-                        <AddMcpPopup open={showAddMcpPopup} handleClose={() => setShowAddMcpPopup(false)}
+                        <AddMcpPopup open={showAddMcpPopup} handleClose={() => {
+                            setShowAddMcpPopup(false)
+                            setMcpName("")
+                            setMcpUrl("")
+                            setMcpDescription("")
+                        }}
                             handleAddMcp={addMcp}
                             addMcpLoader={addMcpLoader}
                             setMcpName={setMcpName}
@@ -393,7 +395,7 @@ function MCPView({
                                                     .map((item, index) => (
                                                         <div
                                                             key={index}
-                                                            className="flex items-center gap-2 bg-purple text-white rounded-lg px-2 py-1" //bg-btngray
+                                                            className="flex items-center gap-2 bg-purple text-white rounded-[15px] px-2 py-1" //bg-btngray
                                                         >
                                                             <span className="text-[15px] font-[500]">{item.name}</span>
 
@@ -489,7 +491,12 @@ function MCPView({
                     )}
                 {
                     showEditMcpPopup && (
-                        <EditMcpPopup open={showEditMcpPopup} handleClose={() => setShowEditMcpPopup(false)}
+                        <EditMcpPopup open={showEditMcpPopup} handleClose={() => {
+                            setShowEditMcpPopup(false)
+                            setMcpName("")
+                            setMcpUrl("")
+                            setMcpDescription("")
+                        }}
                             selectedMcpTool={selectedMcpTool}
                             setSelectedMcpTool={setSelectedMcpTool}
                             mcpTools={mcpTools}
