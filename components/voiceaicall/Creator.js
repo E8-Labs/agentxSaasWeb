@@ -247,7 +247,7 @@ const Creator = ({ agentId }) => {
 
     const showCallUI = () => {
         return (
-            <div>
+            <div className="flex flex-col w-full items-center justify-center">
                 {
                     loading || !open ? (
                         <p className="mt-10 italic">{loadingMessage}</p>
@@ -260,7 +260,7 @@ const Creator = ({ agentId }) => {
                         ) :
                             <AudioWaveActivity
                                 isActive={isSpeaking}
-                                barCount={15}
+                                barCount={25}
                                 className="mt-10"
                             />
                     )
