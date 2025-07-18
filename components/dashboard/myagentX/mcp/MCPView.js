@@ -6,6 +6,7 @@ import { FormControl, Select, MenuItem, InputBase, CircularProgress } from '@mui
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../../leads/AgentSelectSnackMessage';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
+import { Plus } from 'lucide-react';
 
 function MCPView({
     selectedAgent,
@@ -17,7 +18,6 @@ function MCPView({
 
     const [mcpTools, setMcpTools] = useState([]);
     const [open, setOpen] = useState(false);
-
 
     const [showAddMcpPopup, setShowAddMcpPopup] = useState(false);
     const [showEditMcpPopup, setShowEditMcpPopup] = useState(false);
@@ -109,6 +109,9 @@ function MCPView({
                 setType(SnackbarTypes.Error);
             }
         }
+        setMcpName("");
+        setMcpUrl("");
+        setMcpDescription("");
         setAddMcpLoader(false);
     }
 
@@ -301,8 +304,8 @@ function MCPView({
         }
     }
 
-    return (
-        <div className='w-full flex'>
+    const mcpView = () => {
+        return (
             <div className="flex flex-col w-full gap-3">
                 <AgentSelectSnackMessage
                     type={showSnack.type}
@@ -317,13 +320,37 @@ function MCPView({
                     }}
                 />
                 <div className="flex flex-row items-center justify-between w-full">
-                    <div className="text-[15px] font-[500] ">
-                        MCP
-                    </div>
+                    <div className="flex flex-row items-center gap-2">
+                        <div className="text-[15px] font-[600] ">
+                            MCP
+                        </div>
 
-                    <button className="text-[15px] font-[500] text-purple" onClick={() => setShowAddMcpPopup(true)}>
-                        + Add MCP
-                    </button>
+                        {
+                            mcpTools.length > 0 && (
+                                <div className="flex flex-row items-center gap-2">
+                                    <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                                    // onClick={() => setIntroVideoModal2(true)}
+                                    >
+                                        Learn how to add MCP
+                                        <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                                        // onClick={() => setIntroVideoModal2(true)}
+                                        />
+                                    </div>
+
+
+
+                                </div>
+                            )
+                        }
+                    </div>
+                    {
+                        mcpTools.length > 0 && (
+                            <button className="text-[13px] font-[500] text-purple" onClick={() => setShowAddMcpPopup(true)}>
+                                + Add MCp
+                            </button>
+                        )
+                    }
+
                 </div>
 
                 {
@@ -342,227 +369,124 @@ function MCPView({
                     )
                 }
 
+                {
+                    mcpTools.length > 0 ? (
 
 
-                <FormControl sx={{ m: 1 }} className="w-[96%]">
-                    <div
-                        className="flex items-center justify-between border rounded px-2 py-1 cursor-default"
-                        style={{
-                            border: "1px solid #00000020",
-                            minHeight: "40px",
-                        }}
-                    >
-                        <div className="flex flex-wrap gap-2">
-                            {selectedMcpIds.length === 0 ? (
-                                <div style={{ color: "#aaa" }}>Select</div>
-                            ) : (
-                                <span className="text-[15px] font-[500]">
-                                    {/*mcpTools[0].name
-                                        <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    handleRemoveMcp(mcpTools[0].id);
-                                                }}
-                                            >
-                                                <Image
-                                                    src="/assets/cross.png"
-                                                    alt="cross"
-                                                    width={12}
-                                                    height={12}
-                                                />
-                                            </button>*/}
-                                    <div className='flex flex-wrap gap-2'>
-                                        {mcpTools
-                                            .filter((item) => selectedMcpIds.includes(item.id))
-                                            .map((item, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex items-center gap-2 bg-btngray rounded-lg px-2 py-1" //bg-btngray
-                                                >
-                                                    <span className="text-[15px] font-[500]">{item.name}</span>
-
-                                                </div>
-                                            ))
-
-                                        }
-                                    </div>
-                                </span>
-
-                            )}
-                        </div>
-
-                        <button
-                            onClick={() => setOpen((prev) => !prev)}
-                            className="ml-2"
-                        >
-                            {
-                                open ? <CaretUp size={16} /> : <CaretDown size={16} />
-                            }
-                        </button>
-                    </div>
-
-                    <Select
-                        multiple
-                        open={open}
-                        onClose={() => setOpen(false)}
-                        onOpen={() => setOpen(true)}
-                        value={selectedMcpIds}
-                        onChange={handleSelectChange}
-                        displayEmpty
-                        IconComponent={() => null}
-                        input={<InputBase sx={{ height: 0 }} />}
-                        renderValue={() => null}
-                        MenuProps={{
-                            PaperProps: {
-                                style: {
-                                    maxHeight: "30vh",
-                                    overflow: "auto",
-                                    scrollbarWidth: "none",
-                                },
-                            },
-                        }}
-                    >
-                        {mcpTools.map((item) => (
-                            <MenuItem
-                                value={item.id}
-                                key={item.id}
-                                disabled={attachMcpLoader}
+                        <FormControl sx={{ m: 1 }} className="w-[96%]">
+                            <div
+                                className="flex items-center justify-between border rounded px-2 py-1 cursor-default"
+                                style={{
+                                    border: "1px solid #00000020",
+                                    minHeight: "40px",
+                                }}
                             >
-                                {
-                                    attachMcpLoader === item.id ? (
-                                        <CircularProgress size={24} />
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedMcpIds.length === 0 ? (
+                                        <div style={{ color: "#aaa" }}>Select</div>
                                     ) : (
-                                        <div className="flex flex-row items-center justify-between w-full">
-                                            <div className="flex flex-row items-center gap-2">
-                                                {selectedMcpIds.includes(item.id) ? (
-                                                    <Image
-                                                        src="/otherAssets/mcpCheckIcon.png"
-                                                        alt="check"
-                                                        width={24}
-                                                        height={24}
-                                                    />
-                                                ) : (
-                                                    <div
-                                                        className="bg-none border-2 rounded"
-                                                        style={{ height: "24px", width: "24px" }}
-                                                    ></div>
-                                                )}
-                                                <div className="text-[15px] font-[500]">{item.name}</div>
+                                        <span className="text-[15px] font-[500]">
+
+                                            <div className='flex flex-wrap gap-2 py-2'>
+                                                {mcpTools
+                                                    .filter((item) => selectedMcpIds.includes(item.id))
+                                                    .map((item, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="flex items-center gap-2 bg-purple text-white rounded-lg px-2 py-1" //bg-btngray
+                                                        >
+                                                            <span className="text-[15px] font-[500]">{item.name}</span>
+
+                                                        </div>
+                                                    ))
+
+                                                }
                                             </div>
-                                            <button
-                                                className="text-[16px] font-[500] text-gray-500 underline"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    e.preventDefault();
-                                                    setShowEditMcpPopup(true);
-                                                    setSelectedMcpTool(item);
-                                                }}
-                                            >
-                                                Edit
-                                            </button>
-                                        </div>
-                                    )
-                                }
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                                        </span>
 
-                {/*<FormControl sx={{ m: 1 }} className="w-[96%]">
+                                    )}
+                                </div>
 
-                    <Select
-                        labelId="demo-select-small-label"
-                        id="demo-select-small"
-                        value={selectedMcpTool}
-                        // label="Age"
-                        // onChange={handleChange}
-                        renderValue={(selected) => {
-                            console.log("Selected Render ", selected);
-                            if (!selected) {
-                                return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
-                            }
-
-                            return selected.name || "";
-                        }}
-                        sx={{
-                            border: "1px solid #00000020", // Default border
-                            "&:hover": {
-                                border: "1px solid #00000020", // Same border on hover
-                            },
-                            "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                            },
-                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove outline on focus
-                            },
-                            "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                            },
-                        }}
-                        MenuProps={{
-                            PaperProps: {
-                                style: {
-                                    maxHeight: "30vh", // Limit dropdown height
-                                    overflow: "auto", // Enable scrolling in dropdown
-                                    scrollbarWidth: "none",
-                                    // borderRadius: "10px"
-                                },
-                            },
-                        }}
-                    >
-
-                        {
-                            mcpTools.map((item) => (
-                                <MenuItem value={item} key={item.id}
-                                    onClick={() => {
-                                        setSelectedMcpTool(item)
-                                        attachMcp(item)
-                                    }}
+                                <button
+                                    onClick={() => setOpen((prev) => !prev)}
+                                    className="ml-2"
                                 >
-                                    <div className="flex flex-row items-center justify-between w-full">
-                                        <div className="flex flex-row items-center gap-2">
-                                            {
-                                                selectedMcpTool.id === item.id ? (
-                                                    <Image
-                                                        src="/otherAssets/mcpCheckIcon.png"
-                                                        alt="check"
-                                                        width={24}
-                                                        height={24}
-                                                    />
-                                                ) : (
-                                                    <div
-                                                        className="bg-none border-2 rounded"
-                                                        style={{ height: "24px", width: "24px" }}
-                                                    ></div>
-                                                )
-                                            }
-                                            <div className="text-[15px] font-[500] ">
-                                                {item.name}
-                                            </div>
-                                        </div>
-                                        <button className="text-[16px] font-[500] text-gray-500 underline"
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // <-- Prevent the Select from closing
-                                                e.preventDefault();  // <-- Prevent default behavior
-                                                setShowEditMcpPopup(true)
-                                                setSelectedMcpTool(item)
-                                            }}
-                                        >
-                                            Edit
-                                        </button>
-                                    </div>
-                                </MenuItem>
+                                    {
+                                        open ? <CaretUp size={16} /> : <CaretDown size={16} />
+                                    }
+                                </button>
+                            </div>
 
-                            ))
-                        }
+                            <Select
+                                multiple
+                                open={open}
+                                onClose={() => setOpen(false)}
+                                onOpen={() => setOpen(true)}
+                                value={selectedMcpIds}
+                                onChange={handleSelectChange}
+                                displayEmpty
+                                IconComponent={() => null}
+                                input={<InputBase sx={{ height: 0 }} />}
+                                renderValue={() => null}
+                                MenuProps={{
+                                    PaperProps: {
+                                        style: {
+                                            maxHeight: "30vh",
+                                            overflow: "auto",
+                                            scrollbarWidth: "none",
+                                        },
+                                    },
+                                }}
+                            >
+                                {mcpTools.map((item) => (
+                                    <MenuItem
+                                        value={item.id}
+                                        key={item.id}
+                                        disabled={attachMcpLoader}
+                                    >
+                                        {
+                                            attachMcpLoader === item.id ? (
+                                                <CircularProgress size={24} />
+                                            ) : (
+                                                <div className="flex flex-row items-center justify-between w-full">
+                                                    <div className="flex flex-row items-center gap-2">
+                                                        {selectedMcpIds.includes(item.id) ? (
+                                                            <Image
+                                                                src="/otherAssets/mcpCheckIcon.png"
+                                                                alt="check"
+                                                                width={24}
+                                                                height={24}
+                                                            />
+                                                        ) : (
+                                                            <div
+                                                                className="bg-none border-2 rounded"
+                                                                style={{ height: "24px", width: "24px" }}
+                                                            ></div>
+                                                        )}
+                                                        <div className="text-[15px] font-[500]">{item.name}</div>
+                                                    </div>
+                                                    <button
+                                                        className="text-[16px] font-[500] text-black underline"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            e.preventDefault();
+                                                            setShowEditMcpPopup(true);
+                                                            setSelectedMcpTool(item);
+                                                        }}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            )
+                                        }
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-
-
-                    </Select>
-                </FormControl>*/}
-
-
+                    ) : (
+                        noMcpView()
+                    )}
                 {
                     showEditMcpPopup && (
                         <EditMcpPopup open={showEditMcpPopup} handleClose={() => setShowEditMcpPopup(false)}
@@ -586,6 +510,34 @@ function MCPView({
                     )
                 }
             </div>
+        )
+    }
+
+    const noMcpView = () => {
+        return (
+
+            <div className="flex flex-col w-full h-[170px] items-center justify-center bg-[#fafafa] mt-4">
+                <Image className='cursor-pointer'
+                 src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
+
+                <div className='text-[15px] font-[500] text-black mt-2 '>
+                    Learn more about MCP
+                </div>
+
+                <div className='text-[13px] font-[500] mt-2 text-purple flex flex-row items-center gap-1  cursor-pointer'>
+                    <Plus size={16} /> <span className='underline'>
+                        Add New MCP
+                    </span>
+                </div>
+            </div>
+        )
+    }
+
+
+
+    return (
+        <div className='w-full flex'>
+            {mcpView()}
         </div>
     )
 }

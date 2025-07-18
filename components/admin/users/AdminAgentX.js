@@ -265,7 +265,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const [user, setUser] = useState(null);
 
-  let tabs = ["Agent Info", "Calendar", "Pipeline", "Knowledge"];
+  let tabs = ["Agent Info", "Actions", "Pipeline", "Knowledge"];
   const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
 
   const [preview, setPreview] = useState(null);
@@ -3009,7 +3009,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 {AgentMenuOptions.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => setActiveTab(tab)}
+                    onClick={() => {
+                      setActiveTab(tab)
+                      console.log('tab', tab)
+                    }}
                     className={`${activeTab === tab
                       ? "text-purple border-b-2 border-purple"
                       : "text-black-500"
@@ -3993,7 +3996,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     />
                   </div>
                 </div>
-              ) : activeTab === "Calendar" ? (
+              ) : activeTab === "Actions" ? (
                 <div>
                   <div
                     className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
