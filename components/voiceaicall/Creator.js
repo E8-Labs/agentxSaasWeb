@@ -84,7 +84,7 @@ const Creator = ({ agentId }) => {
             setloadingMessage("Sky is booting up...");
 
             const timer = setTimeout(() => {
-                setloadingMessage("Getting coffee...");
+                setloadingMessage("...getting coffee...");
             }, 3000);
 
             return () => clearTimeout(timer);
