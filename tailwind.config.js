@@ -20,6 +20,7 @@ module.exports = {
         btngray: "#E0E0E0",
         purple10: "#7902DF10",
         purple60: "#7902DF60",
+        "violet-blue": "#5B0EFF",
         green: "#01CB76",
         lightGreen: "#01CB7610",
         red: "#FF4E4E",

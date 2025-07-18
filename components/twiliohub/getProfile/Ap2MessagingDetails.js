@@ -77,28 +77,20 @@ const Ap2MessagingDetails = ({
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>
-                        {
-                            block ? (
-                                <div className='text-md font-semibold text-purple'>
-                                    Comming Soon
-                                </div>
-                            ) : (
-                                <button
-                                    className='border p-2 rounded-full'
-                                    disabled={!twilioHubData}
-                                    onClick={() => {
-                                        setShowDetails(!showDetails);
-                                    }}>
-                                    {
-                                        showDetails ? (
-                                            <CaretUp size={12} />
-                                        ) : (
-                                            <CaretDown size={12} />
-                                        )
-                                    }
-                                </button>
-                            )
-                        }
+                        <button
+                            className='border p-2 rounded-full'
+                            disabled={!twilioHubData}
+                            onClick={() => {
+                                setShowDetails(!showDetails);
+                            }}>
+                            {
+                                showDetails ? (
+                                    <CaretUp size={12} />
+                                ) : (
+                                    <CaretDown size={12} />
+                                )
+                            }
+                        </button>
                     </div>
                 </div>
             </div>
@@ -110,7 +102,7 @@ const Ap2MessagingDetails = ({
                     handleShowAddModal={() => { setShowAddMessage(true) }}
                     btnTitle='Get Approved'
                     description="Send text messages to your customers."
-                    showBtn={true}
+                    // showBtn={true}
                     unLockDescription="Add A2P SMS Messaging."
                 />
             )

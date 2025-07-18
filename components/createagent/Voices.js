@@ -53,7 +53,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/mia.png",
     status: "Popular",
-    Dialect: "Expressive, Playful, Mid 20s | Californian",
+    Dialect: "Expressive, Playful, Mid 20s | New Yorker",
   },
   {
     voice_id: "uYXf8XasLslADfZ2MB4u", //"nl6oV3xkd5WQwnsbR0By", TODO: Arslan compare your vocieId
@@ -64,7 +64,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/kala.png",
     status: "Popular",
-    Dialect: "Calm, poise, Mid 30s | New Yorker",
+    Dialect: "Calm, poise, Mid 30s | Canadian",
   },
   {
     voice_id: "aqXKinCxkMOvW6f3qU8l", //"oz7FsqINAUL7e6EWZ0tH",
@@ -75,7 +75,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/axel.png",
     status: "Popular",
-    Dialect: "Straightforward, Persuasive, Late 20s | Californian",
+    Dialect: "Straightforward, Persuasive, Late 20s | Chicagoan",
   },
   // {//TODO: Arslan why is this here. This is not in the list i provided
   //   voice_id: "WXO1RZNBdwLjgHLljVv9",
@@ -127,7 +127,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/xen.png",
     status: "",
-    Dialect: "Thoughtful, Empathetic, Late 20s | Londoner ",
+    Dialect: "Thoughtful, Empathetic, Late 20s | Flordian",
   },
   {
     voice_id: "8sZxD42zKDvoEXNxBTdX", //"8sZxD42zKDv•EXNxBTdX",
@@ -188,7 +188,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/andres.png",
     status: "",
-    Dialect: "Strategic, Confident, Mid 30s | Texan",
+    Dialect: "Strategic, Confident, Mid 30s | Latino",
   },
 
 
