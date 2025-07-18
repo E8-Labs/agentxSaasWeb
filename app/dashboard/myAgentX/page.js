@@ -3263,7 +3263,7 @@ function Page() {
                     )}
                   </div>
                 </div>
-                <div className="flex flex-row items-center gap-4">
+                <div className="flex flex-row items-center gap-2">
                   <DuplicateButton
                     handleDuplicate={() => {
                       setShowDuplicateConfirmationPopup(true);
@@ -3276,15 +3276,15 @@ function Page() {
                     <Image
                       src={"/assets/openVoice.png"}
                       alt="*"
-                      height={24}
-                      width={24}
+                      height={18}
+                      width={18}
                     />
                   </button>
                   <button onClick={() => {
                     handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
                   }}>
                     <Image src={'/svgIcons/embedIcon.svg'}
-                      height={24} width={24} alt="*"
+                      height={22} width={22} alt="*"
                     />
                   </button>
                 </div>

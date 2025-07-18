@@ -8,6 +8,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import CampaignDetails from "./CampaignDetails";
 import PointOfContact from "./PointOfContact";
+import UserConset from "./UserConset";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -78,8 +79,7 @@ const AddAp2MessageAnimation = ({
             }}
         >
             <Box
-                className="rounded-xl max-w-2xl h-[70svh] w-full shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col p-6"
-            // className="w-full h-[100%]"
+                className="rounded-xl w-9/12 h-[85svh] shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col p-6"
             >
                 <div className="h-[100%]">
                     <AgentSelectSnackMessage
@@ -110,6 +110,10 @@ const AddAp2MessageAnimation = ({
                                 <div className="h-[100%] w-full">
                                     <CampaignDetails
                                         handleContinue={handleContinue}
+                                        handleClose={() => { 
+                                            console.log("Trigered close")
+                                            handleClose() 
+                                        }}
                                     />
                                 </div>
                             </motion.div>
@@ -128,8 +132,9 @@ const AddAp2MessageAnimation = ({
                             // style={styles.motionDiv}
                             >
                                 <div className="h-[100%] w-full">
-                                    <PointOfContact
+                                    <UserConset
                                         handleBack={handleBack}
+                                        handleClose={handleClose}
                                     />
                                 </div>
                             </motion.div>

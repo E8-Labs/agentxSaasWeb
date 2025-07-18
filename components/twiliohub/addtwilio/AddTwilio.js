@@ -12,7 +12,8 @@ const AddTwilio = ({
     handleClose,
     handleContinue,
     setTrustProducts,
-    profileLoader
+    profileLoader,
+    closeLoader
 }) => {
 
     const [accountSID, setAccountSID] = useState("");
@@ -21,6 +22,7 @@ const AddTwilio = ({
     const [showAccountToken, setShowAccountToken] = useState("");
     const [isDisabled, setIsDisabled] = useState(true);
     const [addTwilioLoader, setAddTwilioLoader] = useState(false);
+    const [isExitLoader, setIsExitLoader] = useState(false);
     //show success snack
     const [showSnack, setShowSnack] = useState({
         type: SnackbarTypes.Success,
@@ -38,9 +40,16 @@ const AddTwilio = ({
     }, [accountSID, accountToken])
 
     //function to add the twilio
-    const handleConnectTwilio = async () => {
+    const handleConnectTwilio = async (isExit = false) => {
+        console.log("Is Exit value is", isExit);
+
+        // return;
         try {
-            setAddTwilioLoader(true);
+            if (isExit) {
+                setIsExitLoader(true);
+            } else {
+                setAddTwilioLoader(true);
+            }
             const ApiPath = Apis.addTwilio;
             const token = AuthToken();
             const ApiData = {
@@ -56,11 +65,16 @@ const AddTwilio = ({
             if (response) {
                 console.log("Response of connect twilio", response);
                 setAddTwilioLoader(false);
+                setIsExitLoader(false);
                 const ApiResponse = response.data;
                 if (ApiResponse.status === true) {
                     // handleClose(ApiResponse);
                     // setTrustProducts(ApiResponse);
-                    handleContinue(ApiResponse);
+                    if (isExit) {
+                        handleClose(ApiResponse);
+                    } else {
+                        handleContinue(ApiResponse);
+                    }
                 } else if (ApiResponse.status === false) {
                     setShowSnack({
                         message: ApiResponse.message,
@@ -72,6 +86,7 @@ const AddTwilio = ({
         } catch (error) {
             setAddTwilioLoader(false);
             let errorMessage = "An unexpected error occurred";
+            setIsExitLoader(false);
 
             if (axios.isAxiosError(error)) {
                 if (error.response) {
@@ -105,7 +120,7 @@ const AddTwilio = ({
     }
 
     return (
-        <div className='w-full h-[100%]'>
+        <div className='w-full h-[100%] flex flex-col items-center justify-between'>
             <AgentSelectSnackMessage
                 type={showSnack.type}
                 message={showSnack.message}
@@ -118,94 +133,104 @@ const AddTwilio = ({
                     });
                 }}
             />
-            <div className='w-full flex flex-row items-center justify-between'>
-                <div
-                    style={{
-                        fontWeight: "700",
-                        fontSize: 22
-                    }}>
-                    Account Configuration
+            <div className='h-[80%] overflow-auto w-10/12'>
+                <div className='w-full flex flex-row items-center justify-between'>
+                    <div
+                        style={{
+                            fontWeight: "700",
+                            fontSize: 22
+                        }}>
+                        Account Configuration
+                    </div>
+                    {/*<button
+                        className='border-none outline-none'
+                        onClick={() => { handleClose() }}>
+                        <Image
+                            src={"/assets/cross.png"}
+                            alt='cross'
+                            height={18}
+                            width={18}
+                        />
+                    </button>*/}
                 </div>
-                <button
-                    className='border-none outline-none'
-                    onClick={() => { handleClose() }}>
-                    <Image
-                        src={"/assets/cross.png"}
-                        alt='cross'
-                        height={18}
-                        width={18}
+                <div style={styles.regularFont}>
+                    Enter your Twilio master account keys
+                </div>
+                <div className='mt-4' style={styles.regularFont}>
+                    Master Account SID
+                </div>
+                <div className='mt-2 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
+                    <input
+                        className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
+                        placeholder='****************'
+                        type={showAccountSID ? 'text' : 'password'}
+                        value={accountSID}
+                        onChange={(e) => {
+                            setAccountSID(e.target.value);
+                        }}
                     />
-                </button>
+                    <button onClick={() => { setShowAccountSID(!showAccountSID) }}>
+                        {showAccountSID ? (
+                            <EyeSlash size={18} />
+                        ) : (
+                            <Image
+                                src={"/twiliohubassets/showEye.jpg"}
+                                alt='*'
+                                height={12}
+                                width={18}
+                            />
+                        )}
+                    </button>
+                </div>
+                <div className='mt-2 ' style={{ fontWeight: "400", fontSize: 14 }}>
+                    {`Your main account SID (Starting with AC...)`}
+                </div>
+                <div className='mt-4' style={styles.regularFont}>
+                    Master Account Auth Token
+                </div>
+                <div className='mt-4 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
+                    <input
+                        className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
+                        placeholder='****************'
+                        type={showAccountToken ? 'text' : 'password'}
+                        value={accountToken}
+                        onChange={(e) => {
+                            setAccountToken(e.target.value);
+                        }}
+                    />
+                    <button onClick={() => { setShowAccountToken(!showAccountToken) }}>
+                        {showAccountToken ? (
+                            <EyeSlash size={18} />
+                        ) : (
+                            <Image
+                                src={"/twiliohubassets/showEye.jpg"}
+                                alt='*'
+                                height={12}
+                                width={18}
+                            />
+                        )}
+                    </button>
+                </div>
             </div>
-            <div style={styles.regularFont}>
-                Enter your Twilio master account keys
-            </div>
-            <div className='mt-4' style={styles.regularFont}>
-                Master Account SID
-            </div>
-            <div className='mt-2 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
-                <input
-                    className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
-                    placeholder='****************'
-                    type={showAccountSID ? 'text' : 'password'}
-                    value={accountSID}
-                    onChange={(e) => {
-                        setAccountSID(e.target.value);
-                    }}
-                />
-                <button onClick={() => { setShowAccountSID(!showAccountSID) }}>
-                    {showAccountSID ? (
-                        <EyeSlash size={18} />
-                    ) : (
-                        <Image
-                            src={"/twiliohubassets/showEye.jpg"}
-                            alt='*'
-                            height={12}
-                            width={18}
-                        />
-                    )}
-                </button>
-            </div>
-            <div className='mt-2 ' style={{ fontWeight: "400", fontSize: 14 }}>
-                {`Your main account SID (Starting with AC...)`}
-            </div>
-            <div className='mt-4' style={styles.regularFont}>
-                Master Account Auth Token
-            </div>
-            <div className='mt-4 flex flex-row items-center justify-between h-[50px] ps-2 pe-4 border rounded-lg'>
-                <input
-                    className='border-none outline-none focus:outline-transparent w-full focus:ring-0 focus:border-0'
-                    placeholder='****************'
-                    type={showAccountToken ? 'text' : 'password'}
-                    value={accountToken}
-                    onChange={(e) => {
-                        setAccountToken(e.target.value);
-                    }}
-                />
-                <button onClick={() => { setShowAccountToken(!showAccountToken) }}>
-                    {showAccountToken ? (
-                        <EyeSlash size={18} />
-                    ) : (
-                        <Image
-                            src={"/twiliohubassets/showEye.jpg"}
-                            alt='*'
-                            height={12}
-                            width={18}
-                        />
-                    )}
-                </button>
-            </div>
-            <div className='w-full flex flex-row items-center gap-4 mt-8'>
-                {/*<button
-                            className='text-purple w-1/2 bg-purple10 h-[50px] rounded-lg outline-none border-none'
-                            style={styles.regularFont}
-                            onClick={}>
-                            Exit
-                        </button>*/}
+            <div className='w-full flex flex-row items-center justify-between'>
                 <button
-                    className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-full h-[50px] rounded-lg px-6 outline-none border-none`}
-                    onClick={handleConnectTwilio}
-                    disabled={addTwilioLoader || profileLoader || isDisabled}
+                    className='text-violet-blue w-[165px] bg-transparent h-[50px] rounded-lg outline-none border-none'
+                    style={styles.regularFont}
+                    disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader}
+                    onClick={() => { handleConnectTwilio(true) }}
+                >
+                    {
+                        (isExitLoader || closeLoader) ? (
+                            <CircularProgress size={25} />
+                        ) : (
+                            "Save&Exit"
+                        )
+                    }
+                </button>
+                <button
+                    className={`${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
+                    onClick={() => { handleConnectTwilio(false) }}
+                    disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader || closeLoader}
                 >
                     {
                         (addTwilioLoader || profileLoader) ? (

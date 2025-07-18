@@ -6,12 +6,14 @@ import React, { useEffect, useState } from 'react'
 const SelectCnam = ({
     trustProducts,
     handleContinue,
-    profileLoader
+    profileLoader,
+    handleClose
 }) => {
 
     const [selectedProduct, setSelectedProduct] = useState("");
     const [isDisabled, setIsDisabled] = useState(true);
     const [addProductLoader, setAddProductLoader] = useState(false);
+    const [isExitLoader, setIsExitLoader] = useState(false);
 
     useEffect(() => {
         if (!selectedProduct) {
@@ -29,23 +31,34 @@ const SelectCnam = ({
         }
     }
 
-    const handleAddProduct = async () => {
+    const handleAddProduct = async (isExit) => {
         try {
-            setAddProductLoader(true);
+            if (isExit) {
+                setIsExitLoader(true);
+            } else {
+                setAddProductLoader(true);
+            }
             const response = await AddSelectedProduct(selectedProduct);
             setAddProductLoader(false);
+            setIsExitLoader(false);
             if (response.status === true) {
-                handleContinue(response);
+                // handleContinue(response);
+                if (isExit) {
+                    handleClose(response);
+                } else {
+                    handleContinue(response);
+                }
             }
         } catch (error) {
             setAddProductLoader(false);
+            setIsExitLoader(false);
 
         }
     }
 
     return (
-        <div className='h-[100%] w-full'>
-            <div className='w-full h-[80%]'>
+        <div className='h-[100%] w-full flex flex-col items-center justify-between'>
+            <div className='w-10/12 h-[80%]'>
                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                     Select CNAM
                 </div>
@@ -88,15 +101,29 @@ const SelectCnam = ({
                     }
                 </div>
             </div>
-            <div className='h-[20%] w-full flex flex-row items-center justify-center'>
+            <div className='h-[20%] w-full flex flex-row items-center justify-between'>
+                <button
+                    className='text-violet-blue w-[165px] bg-transparent h-[50px] rounded-lg outline-none border-none'
+                    style={{ fontWeight: "500", fontSize: 15 }}
+                    disabled={addProductLoader || profileLoader || isDisabled || isExitLoader}
+                    onClick={() => { handleAddProduct(true) }}
+                >
+                    {
+                        isExitLoader ? (
+                            <CircularProgress size={25} />
+                        ) : (
+                            "Save&Exit"
+                        )
+                    }
+                </button>
                 {
                     (addProductLoader || profileLoader) ? (
                         <CircularProgress size={25} />
                     ) : (
                         <button
-                            className={`h-[50px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} rounded-lg w-full`}
-                            disabled={isDisabled || addProductLoader || profileLoader}
-                            onClick={handleAddProduct}
+                            className={`h-[50px] ${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} rounded-lg w-[176px]`}
+                            disabled={isDisabled || addProductLoader || profileLoader || isExitLoader}
+                            onClick={() => { handleAddProduct(false) }}
                         >
                             Continue
                         </button>

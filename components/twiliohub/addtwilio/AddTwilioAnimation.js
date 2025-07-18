@@ -49,6 +49,7 @@ const AddTwilioAnimation = ({
     const [getProfileLoader, setGetProfileLoader] = useState(false);
 
     const [showAnimation, setShowAnimation] = useState(false);
+    const [closeLoader, setCloseLoader] = useState(false);
 
     // useEffect(() => {
     //     getProfile();
@@ -88,6 +89,22 @@ const AddTwilioAnimation = ({
         setGetProfileLoader(false);
     }
 
+    //clsoe when click on save
+    const handleSaveExit = async (d) => {
+        try {
+            setCloseLoader(true);
+            // const response = await getBusinessProfile();
+            // setTrustProducts(response.data.trustProducts);
+            getProfileData();
+            handleClose(d);
+            setCloseLoader(false);
+            setShowAnimation(false);            
+        } catch (error) {
+            setCloseLoader(false);
+            console.log("Error occured in api is", error)
+        }
+    }
+
 
     return (
         <Modal
@@ -105,10 +122,11 @@ const AddTwilioAnimation = ({
                 // backgroundColor: "red"
             }}
         >
+
             <Box
-                className="rounded-xl h-[70vh] max-w-2xl w-full shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
-            // className="w-full h-[100%]"
+                className="rounded-xl h-[85vh] w-9/12 shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
             >
+
                 <div className="h-[100%]">
                     <AgentSelectSnackMessage
                         type={snackMessage.type}
@@ -150,8 +168,9 @@ const AddTwilioAnimation = ({
                                             // }
                                             // setGetProfileLoader(false);
                                         }}
-                                        handleClose={handleClose}
+                                        handleClose={handleSaveExit}
                                         profileLoader={getProfileLoader}
+                                        closeLoader={closeLoader}
                                     />
                                 </div>
                             </motion.div>
@@ -175,7 +194,7 @@ const AddTwilioAnimation = ({
                                         handleContinue={async (d) => {
                                             handleContinueTrustProduct(d, "shakenStir");
                                         }}
-                                        handleClose={handleClose}
+                                        handleClose={handleSaveExit}
                                         profileLoader={getProfileLoader}
                                     />
                                 </div>
@@ -199,7 +218,7 @@ const AddTwilioAnimation = ({
                                         handleContinue={async (d) => {
                                             handleContinueTrustProduct(d, "voiceIntegrity");
                                         }}
-                                        handleClose={handleClose}
+                                        handleClose={handleSaveExit}
                                         profileLoader={getProfileLoader}
                                     />
                                 </div>
@@ -215,7 +234,7 @@ const AddTwilioAnimation = ({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="p-6 rounded-lg w-[100%] shadow-lg bg-white border-none outline-none"
+                                className="p-6 rounded-lg w-[100%] shadow-lg bg-white border-none outline-none h-[100%]"
                             >
                                 <SelectVoiceIntegrity
                                     trustProducts={trustProducts}
@@ -223,7 +242,7 @@ const AddTwilioAnimation = ({
                                         getProfileData();
                                         handleClose(d);
                                     }}
-                                    handleClose={handleClose}
+                                    handleClose={handleSaveExit}
                                     profileLoader={getProfileLoader}
                                 />
                             </motion.div>
@@ -231,7 +250,7 @@ const AddTwilioAnimation = ({
                     </AnimatePresence>
                 </div>
             </Box>
-        </Modal>
+        </Modal >
     );
 }
 
