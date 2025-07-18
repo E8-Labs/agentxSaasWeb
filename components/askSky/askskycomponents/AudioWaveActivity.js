@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 export const AudioWaveActivity = ({
   isActive = false,
-  barCount = 20,
+  barCount = 25,
   className = "",
 }) => {
   const [scalePattern, setScalePattern] = useState(
@@ -31,9 +31,10 @@ export const AudioWaveActivity = ({
   }, [isActive, barCount]);
 
   return (
+    
 
     <div
-      className={`flex items-center justify-center gap-1 h-4 w-32 mt-15 ${className}`}
+      className={`flex items-center justify-center gap-1 h-4 w-full mt-15 ${className}`}
     >
       {Array(barCount).fill(0).map((_, index) => (
         <div
