@@ -421,7 +421,7 @@ const UserCalender = ({
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-none flex flex-col justify-start items-center h-[90vh]  "
+      className="overflow-y-none flex flex-col justify-start items-center h-[60vh]  "
     >
       {isVisible && (
         <AgentSelectSnackMessage
@@ -446,6 +446,30 @@ const UserCalender = ({
       )}
 
       <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
+        <div className="flex flex-row items-center justify-between w-full">
+          <div className="flex flex-row items-center gap-2">
+            <div className="text-[15px] font-[600] ">
+              Calendar
+            </div>
+
+            <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+              onClick={() => setIntroVideoModal2(true)}>
+              Learn how to add calendar
+              <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                onClick={() => setIntroVideoModal2(true)}
+              />
+            </div>
+
+
+          </div>
+
+          <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
+            + Add Calendar
+          </button>
+        </div>
+
+        <div className="w-full h-[1px] bg-[#15151510] mt-4 mb-3"></div>
+
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
           <div className="w-full flex flex-col w-full items-center">
             <div className="w-full">
@@ -535,6 +559,19 @@ const UserCalender = ({
                             }}
                             style={{ flexGrow: 1, textAlign: "left" }}
                           >
+                            {selectCalender.id === item.id ? (
+                              <Image
+                                src="/otherAssets/mcpCheckIcon.png"
+                                alt="check"
+                                width={24}
+                                height={24}
+                              />
+                            ) : (
+                              <div
+                                className="bg-none border-2 rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              ></div>
+                            )}
                             <div style={{ fontWeight: "500", fontSize: 15 }}>
                               {item.title}
                             </div>
@@ -714,8 +751,8 @@ const UserCalender = ({
 
 
       {/* video modal to add calendar */}  {/* hidded for now */}
-      <div className="mt-2">
-        <VideoCard
+      {/* <div className="mt-2">
+         <VideoCard
           duration="2 min 42 sec"
           horizontal={false}
           playVideo={() => {
@@ -723,7 +760,7 @@ const UserCalender = ({
           }}
           title="Learn how to add a calendar"
         />
-      </div>
+      </div> 
 
       {/* Intro modal */}
       <IntroVideoModal

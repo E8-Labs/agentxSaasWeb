@@ -1,13 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import CircularProgress from '@mui/material/CircularProgress';
-
 import Image from 'next/image';
 
 export default function EditMcpPopup({ open, handleClose,
     selectedMcpTool,
-    setShowEditMcpPopup,
     setMcpName,
     setMcpUrl,
     setMcpDescription,
@@ -34,6 +32,29 @@ export default function EditMcpPopup({ open, handleClose,
         updateMcpTool();
     }, [selectedMcpTool]);
 
+    const [mcpUrlError, setMcpUrlError] = useState("");
+
+        const handleMcpUrlChange = (e) => {
+            const value = e.target.value;
+            setMcpUrl(value);
+          
+            // Basic check for https and valid URL structure
+            try {
+              const url = new URL(value);
+              if (url.protocol !== "https:") {
+                setMcpUrlError("URL must start with https://");
+              } else {
+                setMcpUrlError("");
+              }
+            } catch (err) {
+              if (value) {
+                setMcpUrlError("Invalid URL format");
+              } else {
+                setMcpUrlError("");
+              }
+            }
+          };
+
     return (
         <Modal
             open={open}
@@ -47,28 +68,27 @@ export default function EditMcpPopup({ open, handleClose,
                 },
             }}
         >
-            <Box className="w-5/12" sx={styles.modalsStyle}>
+            <Box className="w-4/12" sx={styles.modalsStyle}>
                 <div className="flex flex-row justify-center w-full">
                     <div
-                        className="w-full"
+                        className="w-full px-[30px] py-[20px]"
                         style={{
                             backgroundColor: "#ffffff",
-                            padding: 30,
                             borderRadius: "13px",
                         }}
                     >
                         <div className='w-full flex flex-row items-center justify-between'>
-                            <div className='text-[17px] font-[500] text-black'>
+                            <div className='text-[17px] font-[600] text-black'>
                                 Edit MCP
                             </div>
-                            <button onClick={() => setShowEditMcpPopup(false)}>
-                                <Image src="/assets/cross.png" alt="close" width={20} height={20} />
+                            <button onClick={handleClose} className='cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'>
+                                <Image src="/assets/cross.png" alt="close" width={15} height={15} />
                             </button>
                         </div>
 
-                        <div className='w-full flex flex-col gap-2'>
+                        <div className='w-full flex flex-col gap-2 mt-4'>
 
-                            <div className='text-[15px] font-[500] text-black'>
+                            <div className='text-[15px] font-[500] text-black mt-2'>
                                 Name
                             </div>
 
@@ -77,23 +97,26 @@ export default function EditMcpPopup({ open, handleClose,
                                 onChange={(e) => setMcpName(e.target.value)}
                                 className='w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2' />
 
-                            <div className='text-[15px] font-[500] text-black'>
+                            <div className='text-[15px] font-[500] text-black mt-3'>
                                 URL
                             </div>
-
                             <input
                                 type="text"
                                 placeholder='Paste your mcp url here'
                                 value={mcpUrl}
-                                onChange={(e) => setMcpUrl(e.target.value)}
+                                onChange={(e) => handleMcpUrlChange(e)}
                                 className='w-full border border-gray-300 rounded-md p-2' />
 
-                            <div className='text-[15px] font-[500] text-black'>
+                            {mcpUrlError && <div style={{ color: "red", fontSize: 12 }}>{mcpUrlError}</div>}
+
+                            <div className='text-[15px] font-[500] text-black mt-3'>
                                 Description
                             </div>
 
                             <textarea
-                                placeholder='Type here...'
+                                placeholder='Describe when the AI should use this'
+                                value={mcpDescription}
+                                onChange={(e) => setMcpDescription(e.target.value)}
                                 style={{
                                     fontSize: "15px",
                                     fontWeight: "500",
@@ -102,11 +125,10 @@ export default function EditMcpPopup({ open, handleClose,
                                     resize: "none",
                                     borderRadius: "13px",
                                 }}
-                                value={mcpDescription}
-                                onChange={(e) => setMcpDescription(e.target.value)}
                                 className="w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2" />
 
-                            <div className='w-full flex flex-row items-center justify-between gap-4 mt-4'>
+
+                            <div className='w-full flex text-[15px] font-[500] flex-row items-center justify-between gap-8 mt-3'>
                                 {
                                     deleteMcpLoader ? (
                                         <CircularProgress size={20} />

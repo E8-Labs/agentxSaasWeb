@@ -51,28 +51,27 @@ export default function AddMcpPopup({
                 },
             }}
         >
-            <Box className="w-5/12" sx={styles.modalsStyle}>
+            <Box className="w-4/12" sx={styles.modalsStyle}>
                 <div className="flex flex-row justify-center w-full">
                     <div
-                        className="w-full"
+                        className="w-full px-[30px] py-[20px]"
                         style={{
                             backgroundColor: "#ffffff",
-                            padding: 30,
                             borderRadius: "13px",
                         }}
                     >
                         <div className='w-full flex flex-row items-center justify-between'>
-                            <div className='text-[17px] font-[500] text-black'>
+                            <div className='text-[17px] font-[600] text-black'>
                                 Add MCP
                             </div>
-                            <button onClick={handleClose}>
-                                <Image src="/assets/cross.png" alt="close" width={20} height={20} />
+                            <button onClick={handleClose} className='cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'>
+                                <Image src="/assets/cross.png" alt="close" width={15} height={15} />    
                             </button>
-                        </div>
+                        </div>  
 
-                        <div className='w-full flex flex-col gap-2'>
+                        <div className='w-full flex flex-col gap-2 mt-4'>
 
-                            <div className='text-[15px] font-[500] text-black'>
+                            <div className='text-[15px] font-[500] text-black mt-2'>
                                 Name
                             </div>
 
@@ -81,7 +80,7 @@ export default function AddMcpPopup({
                                 onChange={(e) => setMcpName(e.target.value)}
                                 className='w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2' />
 
-                            <div className='text-[15px] font-[500] text-black'>
+                            <div className='text-[15px] font-[500] text-black mt-3'>
                                 URL
                             </div>
                             <input
@@ -93,12 +92,12 @@ export default function AddMcpPopup({
 
                                 {mcpUrlError && <div style={{ color: "red", fontSize: 12 }}>{mcpUrlError}</div>}
 
-                            <div className='text-[15px] font-[500] text-black'>
+                            <div className='text-[15px] font-[500] text-black mt-3'>
                                 Description
                             </div>
 
                             <textarea
-                                placeholder='Type here...'
+                                placeholder='Describe when the AI should use this'
                                 value={mcpDescription}
                                 onChange={(e) => setMcpDescription(e.target.value)}
                                 style={{
@@ -111,8 +110,8 @@ export default function AddMcpPopup({
                                 }}
                                 className="w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2" />
 
-                            <div className='w-full flex flex-row items-center justify-between gap-4 mt-4'>
-                                <button className='w-1/2 border text-black rounded-md p-2 h-[55px]'
+                            <div className='w-full flex flex-row items-center justify-between gap-8 mt-3'>
+                                <button className='w-1/2 border text-black rounded-md p-2 h-[55px] text-[15px] font-[500]'
                                     onClick={handleClose}
                                 >
                                     Cancel
@@ -121,7 +120,7 @@ export default function AddMcpPopup({
                                     addMcpLoader ? (
                                         <CircularProgress size={20} />
                                     ) : (
-                                        <button className='w-1/2 bg-purple text-white rounded-md p-2 h-[55px]'
+                                        <button className='w-1/2 bg-purple text-white rounded-md p-2 h-[55px] text-[15px] font-[500]'
                                             onClick={handleAddMcp}
                                         >
                                             Add
