@@ -106,7 +106,7 @@ const UserCalender = ({
     // let cal = previousCalenders.find(item => item.id === selectedAgent?.calendar?.id);
     // console.log("Calender found is =====", cal);
     console.log("previousCalenders are =====", previousCalenders);
-    
+
 
     setAllCalendars(previousCalenders);
     console.log("Selected agent ", selectedAgent);
@@ -334,6 +334,14 @@ const UserCalender = ({
             // let calendars = allCalendars.filter(
             //   (item) => item.apiKey != newCalendarData.apiKey
             // );
+            const sameCal = allCalendars.find(item => item.id == newCalendarData.id);
+            if (sameCal) {
+              console.log("Calendar already exists");
+              setIsVisible(true);
+              setMessage("Calendar already exists");
+              setType(SnackbarTypes.Warning);
+              return;
+            }
             let selecAgent = { ...agent, calendar: newCalendarData };
 
             setAgent(selecAgent); // Now this triggers useEffect
