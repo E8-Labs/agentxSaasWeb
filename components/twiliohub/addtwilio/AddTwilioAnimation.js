@@ -80,7 +80,8 @@ const AddTwilioAnimation = ({
         console.log("Api response is", d);
         setGetProfileLoader(true);
         const response = await getBusinessProfile();
-        if (response.data.trustProducts[from]) {
+        console.log("Response of get business profile is", response.data.trustProducts[from].all.length > 0);
+        if (response.data.trustProducts[from].all.length > 0) {
             setTrustProducts(response.data.trustProducts);
             handleContinue();
         } else {
@@ -98,7 +99,7 @@ const AddTwilioAnimation = ({
             getProfileData();
             handleClose(d);
             setCloseLoader(false);
-            setShowAnimation(false);            
+            setShowAnimation(false);
         } catch (error) {
             setCloseLoader(false);
             console.log("Error occured in api is", error)

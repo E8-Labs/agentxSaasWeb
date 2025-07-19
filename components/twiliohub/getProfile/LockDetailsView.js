@@ -3,7 +3,7 @@ import React from 'react'
 
 const LockDetailsView = ({
     description = "Customer Profile needs to be approved to continue.",
-    btnTitle = "Complete Cnam",
+    btnTitle = "Complete CNAM",
     profileStatus,
     handleShowAddModal,
     showBtn = false,

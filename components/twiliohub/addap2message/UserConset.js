@@ -20,7 +20,8 @@ const UserConset = ({
         } else {
             setIsDisabled(false);
         }
-    }, [optMsg, recievedMsg, agreeTerms])
+    }, [optMsg, recievedMsg, agreeTerms]);
+
 
     //styles
     const styles = {

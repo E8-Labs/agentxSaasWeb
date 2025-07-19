@@ -4,18 +4,9 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckIcon from "@mui/icons-material/Check";
 import { CaretDown, CaretUp } from "@phosphor-icons/react";
 
-const examples = [
-    {
-        id: 1,
-        text: "Hey Brian! This is Jane from company_name. I see that you weren't able to make it for your appointment. Would you like to reschedule? - https://www.mycompany.com/book. Reply STOP to unsubscribe.",
-    },
-    {
-        id: 2,
-        text: "Hello, this is Dr. Lea. We are confirming your appointment tomorrow at 9 am. Reply STOP to cancel.",
-    }
-];
-
-const ExamplesComponent = () => {
+const ExamplesComponent = ({
+    examples
+}) => {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [copiedIdx, setCopiedIdx] = useState(null);

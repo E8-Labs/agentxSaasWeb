@@ -210,7 +210,10 @@ const CustomerProfile = ({
                     showAddTwilio && (
                         <AddTwilioAnimation
                             showAddTwilio={showAddTwilio}
-                            handleClose={() => { setShowAddTwilio(false) }}
+                            handleClose={() => {
+                                getProfileData();
+                                setShowAddTwilio(false);
+                            }}
                             getProfileData={getProfileData}
                         />
                     )

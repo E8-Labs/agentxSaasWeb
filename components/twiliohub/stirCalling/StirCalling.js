@@ -352,7 +352,7 @@ const StirCalling = ({
                             <div style={styles.normalTxt} className="text-sm leading-snug text-black">
                                 {`I certify that the associated Business Profile is the originator of the phone calls and certify that I will participate in traceback efforts, including those initiated by the`}
                                 <a
-                                    href="https://www.atis.org/sti-pa/"
+                                    href="https://sti-ga.atis.org/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-purple underline"
@@ -361,7 +361,8 @@ const StirCalling = ({
                                 </a>
                                 {` and `}
                                 <a
-                                    href="https://www.ustelecom.org/"
+                                    // href="https://www.ustelecom.org/"
+                                    href="https://tracebacks.org/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-purple underline"

@@ -30,6 +30,9 @@ export const PersistanceKeys = {
 
   addCalendarScope: "openid email profile https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.settings.readonly",
 
+  //twilio hub
+  twilioHubData: "twilioHubData",
+
  addCalendarScope: process.env.NEXT_PUBLIC_REACT_APP_addCalendarScope,
 
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,

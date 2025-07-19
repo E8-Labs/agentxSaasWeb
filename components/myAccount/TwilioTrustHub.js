@@ -10,6 +10,7 @@ import BrandedCallsDetails from '../twiliohub/getProfile/BrandedCallsDetails'
 import Ap2MessagingDetails from '../twiliohub/getProfile/Ap2MessagingDetails'
 import { CircularProgress } from '@mui/material'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
+import { PersistanceKeys } from '@/constants/Constants'
 
 const TwilioTrustHub = () => {
 
@@ -46,6 +47,8 @@ const TwilioTrustHub = () => {
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
                     setTwilioHubData(ApiResponse.data);
+                    const twilioHubData = PersistanceKeys.twilioHubData;
+                    localStorage.setItem(twilioHubData, JSON.stringify(ApiResponse.data));
                     if (ApiResponse?.data?.profile?.status === "twilio-approved") {
                         setProfileStatus(false);
                     }
@@ -73,6 +76,7 @@ const TwilioTrustHub = () => {
                 console.log("Response of disconnect twilio api is", response);
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
+                    localStorage.removeItem(PersistanceKeys.twilioHubData);
                     setShowSnack({
                         message: ApiResponse.message,
                         isVisible: true,
@@ -103,7 +107,7 @@ const TwilioTrustHub = () => {
                 scrollbarWidth: "none", // For Firefox
                 WebkitOverflowScrolling: "touch",
             }}>
-            
+
             <AgentSelectSnackMessage
                 type={showSnack.type}
                 message={showSnack.message}

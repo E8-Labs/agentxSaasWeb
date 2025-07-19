@@ -26,12 +26,12 @@ const CampaignDetails = ({
 
   //check for disable btn state
   useEffect(() => {
-    if (sampleMessage1.length < 20 || sampleMessage2.length < 20) {
+    if (sampleMessage1.length < 20 || sampleMessage2.length < 20 || !campaignUserCase || !useCase) {
       setIsDisabled(true);
     } else {
       setIsDisabled(false);
     }
-  }, [sampleMessage1, sampleMessage2])
+  }, [sampleMessage1, sampleMessage2, campaignUserCase, useCase])
 
 
   const toggleOption = (value) => {
@@ -61,6 +61,47 @@ const CampaignDetails = ({
     },
   ];
 
+  //examples arrays
+
+  //use case examples
+  const userCaseExamples = [
+    {
+      id: 1,
+      text: "This campaign sends appointment information - confirmation & reminder messages to customers once they have booked an appointment with company_name on website and opted-in to receive promotional and notification SMS from company_name."
+    },
+    {
+      id: 2,
+      text: "The campaign will be used to reach out to customers who signed up for the updates via SMS."
+    },
+    {
+      id: 3,
+      text: "This campaign will be used by company_name to reach out to clients who have opted in to receive messages."
+    },
+  ]
+
+  // sample message 1 examples
+  const sampleMessage1Examples = [
+    {
+      id: 1,
+      text: "Hi John! This is Jane from company_name. Our appointment for July 20 11:00 AM is confirmed. Please reach out to +1(213) 725-2867 in case you need to reschedule. Reply STOP to unsubscribe."
+    },
+    {
+      id: 2,
+      text: "Hello, this is Adam from LC Phone. I am following up with you about our meeting yesterday, would you have time to discuss this today? Reply STOP to cancel."
+    }
+  ]
+
+  // sample message 2 examples
+  const sampleMessage2Examples = [
+    {
+      id: 1,
+      text: "Hey Brian! This is Jane from company_name. I see that you weren't able to make it for our appointment. Would you like to reschedule? - https://www.mycompany.com/book. Reply STOP to unsubscribe."
+    },
+    {
+      id: 2,
+      text: "Hello, this is Dr. Lea. We are confirming your appointment tomorrow at 9 am. Reply STOP to cancel."
+    }
+  ]
 
   //styles
   const styles = {
@@ -157,11 +198,13 @@ const CampaignDetails = ({
               title="Use case"
               subTitle="Please explain in detail"
               warning="Min length: 40 characters. Max length 4096 characters"
+              compulsory={true}
               //stores values
               value={useCase}
               setValue={setUseCase}
               minRequiredLength={40}
               maxRequiredLength={4096}
+              examples={userCaseExamples}
             />
           </div>
 
@@ -174,6 +217,7 @@ const CampaignDetails = ({
               //stores values
               value={sampleMessage1}
               setValue={setSampleMessage1}
+              examples={sampleMessage1Examples}
             />
           </div>
 
@@ -186,6 +230,7 @@ const CampaignDetails = ({
               //stores values
               value={sampleMessage2}
               setValue={setSampleMessage2}
+              examples={sampleMessage2Examples}
             />
           </div>
 

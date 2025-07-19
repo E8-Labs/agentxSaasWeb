@@ -2,6 +2,8 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import OldCnamVoiceStir from '@/components/twiliohub/twilioExtras/OldCnamVoiceStir';
+import { PersistanceKeys } from '@/constants/Constants';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
@@ -11,6 +13,8 @@ const Cnammain = ({
     showAddCNAM,
     handleClose
 }) => {
+
+    const [selectedCNAM, setSelectedCNAM] = useState("");
 
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [cnamName, setCnamName] = useState("");
@@ -22,14 +26,41 @@ const Cnammain = ({
         message: "",
         isVisible: false
     });
+    //get twilio hub local data
+    const [twilioLocalData, setTwilioLocalData] = useState(null);
+
+    //get local data
+    useEffect(() => {
+        const d = localStorage.getItem(PersistanceKeys.twilioHubData);
+        if (d) {
+            const Data = JSON.parse(d);
+            console.log("Data of twilio local data is", Data);
+            setTwilioLocalData(Data);
+        }
+    }, []);
+
+    //reset one field value to null when the other is filled
+    useEffect(() => {
+        // Only reset if one field has a value and the other is being set
+        if (cnamName && cnamName.trim() !== "") {
+            setSelectedCNAM("")
+        }
+    }, [cnamName])
 
     useEffect(() => {
-        if (!cnamName || !agreeTerms) {
+        // Only reset if one field has a value and the other is being set
+        if (selectedCNAM && selectedCNAM.trim() !== "") {
+            setCnamName("")
+        }
+    }, [selectedCNAM])
+
+    useEffect(() => {
+        if ((!cnamName || !selectedCNAM) || !agreeTerms) {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
         }
-    }, [cnamName, agreeTerms])
+    }, [cnamName, agreeTerms, selectedCNAM])
 
     //toggle agree terms click
     const handleToggleTermsClick = () => {
@@ -133,7 +164,7 @@ const Cnammain = ({
                         }}
                     />
                     <div className='w-full overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
-                        <div className='w-full mt-8 flex flex-row items-center justify-between'>
+                        <div className='w-full flex flex-row items-center justify-between'>
                             <div
                                 style={{
                                     fontWeight: "700",
@@ -142,7 +173,7 @@ const Cnammain = ({
                                 CNAM
                             </div>
                             <button
-                                className='border-none outline-none'
+                                className='border-none outline-none cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'
                                 onClick={() => { handleClose() }}>
                                 <Image
                                     src={"/assets/cross.png"}
@@ -160,6 +191,26 @@ const Cnammain = ({
                         <div className='mt-2' style={styles.normalTxt}>
                             This name will show on your customers phone when you call them. You can display uptill 15 characters. The display name will be vetted for appropriateness and relevance to your Business.
                         </div>
+                        {/* Select CNAM from list */}
+                        {
+                            twilioLocalData && twilioLocalData?.trustProducts?.cnam?.all?.length > 0 && (
+                                <div className='mt-4'>
+                                    <div
+                                        className='mb-2'
+                                        style={styles.normalTxt}
+                                    >
+                                        Select CNAM from list
+                                    </div>
+                                    <OldCnamVoiceStir
+                                        twilioLocalData={twilioLocalData?.trustProducts?.cnam?.all}
+                                        value={selectedCNAM}
+                                        setValue={setSelectedCNAM}
+                                    />
+                                </div>
+                            )
+                        }
+
+                        {/* cnma name input */}
                         <div className='mt-4 flex flex-row items-center w-full justify-between'>
                             <div
                                 style={styles.normalTxt}>
@@ -170,9 +221,9 @@ const Cnammain = ({
                                 {cnamName.length}/15
                             </div>
                         </div>
-                        <div className='w-full mt-2 border rounded-lg p-2'>
+                        <div className='w-full mt-2 border rounded-lg'>
                             <input
-                                className='border-none h-[50px] outline-none focus:outline-transparent w-full focus:ring-0 focus:border-none'
+                                className='border-none outline-none rounded-lg focus:outline-transparent w-full focus:ring-0 focus:border-none'//h-[40px] 
                                 style={styles.normalTxt}
                                 placeholder='Name'
                                 value={cnamName}

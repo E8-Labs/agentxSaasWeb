@@ -623,7 +623,7 @@ const UserCalender = ({
                     ))
                     }
 
-                    <MenuItem className="w-full" value="Custom Calender">
+                    {/*<MenuItem className="w-full" value="Custom Calender">
                       <button
                         className="text-purple underline w-full text-start"
                         onClick={() => {
@@ -634,7 +634,7 @@ const UserCalender = ({
                       >
                         Add New Calender
                       </button>
-                    </MenuItem>
+                    </MenuItem>*/}
                   </Select>
                 </FormControl>
               )}

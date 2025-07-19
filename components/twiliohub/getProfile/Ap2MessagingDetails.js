@@ -73,7 +73,7 @@ const Ap2MessagingDetails = ({
                             A2P SMS Messaging
                         </div>
                         <div>
-                            <TwilioProfileToolTip toolTip={"Ap2 Messages here"} />
+                            <TwilioProfileToolTip toolTip={"Send text messages to your customers"} />
                         </div>
                     </div>
                     <div className='flex flex-row items-end gap-2'>

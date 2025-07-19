@@ -9,7 +9,8 @@ const SampleMessageComponent = ({
     setValue,
     compulsory = false,
     minRequiredLength = 20,
-    maxRequiredLength = 1024
+    maxRequiredLength = 1024,
+    examples
 }) => {
 
 
@@ -32,7 +33,9 @@ const SampleMessageComponent = ({
                     {title}<span className="text-red">{compulsory && "*"}</span>
                 </div>
                 <div>
-                    <ExamplesComponent />
+                    <ExamplesComponent
+                        examples={examples}
+                    />
                 </div>
             </div>
             <div className="mt-2 w-full" style={styles.smallFont}>
