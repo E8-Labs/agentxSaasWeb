@@ -3272,7 +3272,9 @@ function Page() {
                   />
                   <button onClick={() => {
                     window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}`, "_blank");
-                  }}>
+                  }}
+                    style={{ paddingLeft: 2 }}
+                  >
                     <Image
                       src={"/assets/openVoice.png"}
                       alt="*"
@@ -4366,16 +4368,15 @@ function Page() {
                   }
                 ></div>
 
-                  <UserCalender
-                    calendarDetails={calendarDetails}
-                    setUserDetails={setMainAgentsList}
-                    selectedAgent={showDrawerSelectedAgent}
-                    mainAgentId={MainAgentId}
-                    previousCalenders={previousCalenders}
-                    updateVariableData={updateAfterAddCalendar}
-                    // setSelectedAgent={setSelectedAgent}
-                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                  />
+                <UserCalender
+                  calendarDetails={calendarDetails}
+                  setUserDetails={setMainAgentsList}
+                  selectedAgent={showDrawerSelectedAgent}
+                  setSelectedAgent={setShowDrawerSelectedAgent}
+                  mainAgentId={MainAgentId}
+                  previousCalenders={previousCalenders}
+                  updateVariableData={updateAfterAddCalendar}
+                />
 
               </div>
             ) : activeTab === "Pipeline" ? (
