@@ -28,6 +28,8 @@ import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
 import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 
 import MCPView from "./mcp/MCPView";
+import { MUICustomIcon } from "@/components/globalExtras/MUICustomIcon";
+import { MenuItemHoverStyles } from "@/components/globalExtras/MenuItemHoverStyles";
 
 const UserCalender = ({
   calendarDetails,
@@ -37,6 +39,7 @@ const UserCalender = ({
   updateVariableData,
   selectedUser,
   loadingCalenders = false,
+  setSelectedAgent
 }) => {
 
   const justLoggedIn = useRef(false);
@@ -104,7 +107,7 @@ const UserCalender = ({
     setAllCalendars(previousCalenders);
     console.log("Selected agent ", selectedAgent);
     if (selectedAgent?.calendar) {
-      //console.log;
+      console.log("Log trigered");
       setSelectCalender(selectedAgent.calendar);
       setSelectedCalenderTitle(selectedAgent.calendar?.id || "");
     } else {
@@ -217,8 +220,9 @@ const UserCalender = ({
   };
 
   //code for add calender api
-  const handleAddCalender = async (calendar) => {
+  const handleAddCalender = async (calendar, isNewCalendar = true) => {
     console.log("Calendar details passed from addgoogle calednar", calendar);
+    console.log("Is new calendar", isNewCalendar);
     // return
     try {
       if (calendar?.isFromAddGoogleCal) {
@@ -317,6 +321,21 @@ const UserCalender = ({
             // agentsListDetails = agentsList;
 
             const newCalendarData = response.data.data;
+
+            if (isNewCalendar) {
+              const calendarAlreadyExists = allCalendars.find(
+                (item) => item.id == newCalendarData.id
+              );
+              if (calendarAlreadyExists) {
+                setMessage("Calender already exists");
+                setType(SnackbarTypes.Warning);
+                return;
+              }
+              else {
+                setMessage("Calender added");
+              }
+            }
+
             // let calendars = allCalendars.filter(
             //   (item) => item.apiKey != newCalendarData.apiKey
             // );
@@ -324,9 +343,16 @@ const UserCalender = ({
 
             setAgent(selecAgent); // Now this triggers useEffect
             // setAllCalendars([...allCalendars, newCalendarData]);
-            setAllCalendars([newCalendarData, ...allCalendars]);
+            if (isNewCalendar) {
+              setAllCalendars([newCalendarData, ...allCalendars]);
+            }
             setSelectCalender(newCalendarData);
             setSelectedCalenderTitle(newCalendarData?.id);
+            // setSelectedAgent(selectedAgent.calendar);
+            setSelectedAgent({
+              ...selectedAgent,
+              calendar: newCalendarData,
+            });
 
             let updatedArray = [];
 
@@ -430,7 +456,7 @@ const UserCalender = ({
       )}
 
       <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
-        <div className="flex flex-row items-center justify-between w-full">
+        <div className="flex flex-row items-center justify-between w-[97%]">
           <div className="flex flex-row items-center gap-2">
             <div className="text-[15px] font-[600] ">
               Calendar
@@ -452,10 +478,8 @@ const UserCalender = ({
           </button>
         </div>
 
-        <div className="w-full h-[1px] bg-[#15151510] mt-4 mb-3"></div>
-
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
-          <div className="w-full flex flex-col w-full items-center">
+          <div className="w-full flex flex-col w-full items-center mt-4">
             <div className="w-full">
               {calenderLoader ? (
                 <div className="w-full flex flex-row justify-center">
@@ -470,6 +494,7 @@ const UserCalender = ({
                     // label="Age"
                     // onChange={handleChange}
                     displayEmpty // Enables placeholder
+                    // IconComponent={MUICustomIcon}
                     renderValue={(selected) => {
                       console.log("Selected Render ", selected);
                       if (!selected) {
@@ -519,7 +544,7 @@ const UserCalender = ({
                       <MenuItem
                         key={index}
                         value={item.title}
-                        className="hover:bg-purple10 hover:text-black"
+                        // className="hover:bg-purple10 hover:text-black"
                         sx={{
                           backgroundColor:
                             selectCalender.id === item.id
@@ -527,6 +552,19 @@ const UserCalender = ({
                               : "transparent",
                           "&.Mui-selected": {
                             backgroundColor: "#7902DF10",
+                          },
+                          '&:hover': {
+                            backgroundColor: '#7902DF10', // light purple
+                            color: '#000000',
+                          },
+
+                          // Selected + Hover
+                          '&.Mui-selected:hover': {
+                            backgroundColor: '#7902DF15', // even more intense purple
+                            color: '#000000',
+                          },
+                          "&.Mui-focusVisible": {
+                            backgroundColor: "inherit",
                           },
                         }}
                         onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
@@ -539,17 +577,22 @@ const UserCalender = ({
                             onClick={() => {
                               setCalendarSelected(item);
                               setSelectCalender(item);
-                              handleAddCalender(item);
+                              handleAddCalender(item, false);
                             }}
                             style={{ flexGrow: 1, textAlign: "left" }}
                           >
                             {selectCalender.id === item.id ? (
-                              <Image
-                                src="/otherAssets/mcpCheckIcon.png"
-                                alt="check"
-                                width={24}
-                                height={24}
-                              />
+                              <div
+                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              >
+                                <Image
+                                  src={"/assets/whiteTick.png"}
+                                  height={8}
+                                  width={10}
+                                  alt="*"
+                                />
+                              </div>
                             ) : (
                               <div
                                 className="bg-none border-2 rounded"
@@ -599,18 +642,6 @@ const UserCalender = ({
                     ))
                     }
 
-                    <MenuItem className="w-full" value="Custom Calender">
-                      <button
-                        className="text-purple underline w-full text-start"
-                        onClick={() => {
-                          // setCalendarSelected(null);
-                          // setShowAddNewCalender(true);
-                          setShowCalendarConfirmation(true);
-                        }}
-                      >
-                        Add New Calender
-                      </button>
-                    </MenuItem>
                   </Select>
                 </FormControl>
               )}

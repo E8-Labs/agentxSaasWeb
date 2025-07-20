@@ -7,6 +7,11 @@ import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../../leads/AgentSelectSnackMessage';
 import { CaretDown, CaretUp } from '@phosphor-icons/react';
 import { Plus } from 'lucide-react';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles';
+
+
 
 function MCPView({
     selectedAgent,
@@ -97,7 +102,7 @@ function MCPView({
 
                 setShowAddMcpPopup(false);
                 setIsVisible(true);
-                setMessage(mcpTool.message);
+                setMessage("Tool added.");
                 setType(SnackbarTypes.Success);
                 getMcps();
             } else {
@@ -128,7 +133,7 @@ function MCPView({
                 setMcpTools(prev => prev.map(item => item.id === selectedMcpTool.id ? mcpTool.data : item));
                 setShowEditMcpPopup(false);
                 setIsVisible(true);
-                setMessage(mcpTool.message);
+                setMessage("Tool updated.");
                 setType(SnackbarTypes.Success);
             } else {
                 setIsVisible(true);
@@ -151,7 +156,7 @@ function MCPView({
                 setMcpTools(prev => prev.filter(item => item.id !== selectedMcpTool.id));
                 setShowEditMcpPopup(false);
                 setIsVisible(true);
-                setMessage(mcpTool.message);
+                setMessage("Tool deleted.");
                 setType(SnackbarTypes.Success);
             } else {
                 setIsVisible(true);
@@ -316,10 +321,10 @@ function MCPView({
                         });
                     }}
                 />
-                <div className="flex flex-row items-center justify-between w-full">
+                <div className="flex mt-6 flex-row items-center justify-between w-[97%]">
                     <div className="flex flex-row items-center gap-2">
                         <div className="text-[15px] font-[600] ">
-                            MCP
+                            Tools
                         </div>
 
                         {
@@ -328,7 +333,7 @@ function MCPView({
                                     <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
                                     // onClick={() => setIntroVideoModal2(true)}
                                     >
-                                        Learn how to add MCP
+                                        Learn how to add Tools
                                         <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
                                         // onClick={() => setIntroVideoModal2(true)}
                                         />
@@ -343,7 +348,7 @@ function MCPView({
                     {
                         mcpTools.length > 0 && (
                             <button className="text-[13px] font-[500] text-purple" onClick={() => setShowAddMcpPopup(true)}>
-                                + Add MCp
+                                + Add Tool
                             </button>
                         )
                     }
@@ -375,17 +380,23 @@ function MCPView({
                     mcpTools.length > 0 ? (
 
 
-                        <FormControl sx={{ m: 1 }} className="w-[96%]">
+                        <FormControl sx={{ m: 1 }} className="w-[97%]">
                             <div
                                 className="flex items-center justify-between border rounded px-2 py-1 cursor-default"
                                 style={{
                                     border: "1px solid #00000020",
-                                    minHeight: "40px",
+                                    minHeight: "57px",
                                 }}
                             >
                                 <div className="flex flex-wrap gap-2">
                                     {selectedMcpIds.length === 0 ? (
-                                        <div style={{ color: "#aaa" }}>Select</div>
+                                        <button
+                                            className="border-none outline-none bg-transparent w-full"
+                                            style={{ color: "#aaa" }}
+                                            onClick={() => setOpen((prev) => !prev)}
+                                        >
+                                            Select
+                                        </button>
                                     ) : (
                                         <span className="text-[15px] font-[500]">
 
@@ -414,7 +425,7 @@ function MCPView({
                                     className="ml-2"
                                 >
                                     {
-                                        open ? <CaretUp size={16} /> : <CaretDown size={16} />
+                                        open ? <ArrowDropUpIcon size={16} sx={{ color: '#00000080' }} /> : <ArrowDropDownIcon size={16} sx={{ color: '#00000080' }} />
                                     }
                                 </button>
                             </div>
@@ -445,6 +456,7 @@ function MCPView({
                                         value={item.id}
                                         key={item.id}
                                         disabled={attachMcpLoader}
+                                        sx={MenuItemHoverStyles}
                                     >
                                         {
                                             attachMcpLoader === item.id ? (
@@ -453,12 +465,17 @@ function MCPView({
                                                 <div className="flex flex-row items-center justify-between w-full">
                                                     <div className="flex flex-row items-center gap-2">
                                                         {selectedMcpIds.includes(item.id) ? (
-                                                            <Image
-                                                                src="/otherAssets/mcpCheckIcon.png"
-                                                                alt="check"
-                                                                width={24}
-                                                                height={24}
-                                                            />
+                                                            <div
+                                                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                                                style={{ height: "24px", width: "24px" }}
+                                                            >
+                                                                <Image
+                                                                    src={"/assets/whiteTick.png"}
+                                                                    height={8}
+                                                                    width={10}
+                                                                    alt="*"
+                                                                />
+                                                            </div>
                                                         ) : (
                                                             <div
                                                                 className="bg-none border-2 rounded"
@@ -487,7 +504,9 @@ function MCPView({
                         </FormControl>
 
                     ) : (
-                        noMcpView()
+                        noMcpView({
+                            setShowAddMcpPopup
+                        })
                     )}
                 {
                     showEditMcpPopup && (
@@ -520,22 +539,27 @@ function MCPView({
         )
     }
 
-    const noMcpView = () => {
+    const noMcpView = ({
+        setShowAddMcpPopup
+    }) => {
         return (
 
             <div className="flex flex-col w-full h-[170px] items-center justify-center bg-[#fafafa] mt-4">
                 <Image className='cursor-pointer'
-                 src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
+                    src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
 
                 <div className='text-[15px] font-[500] text-black mt-2 '>
-                    Learn more about MCP
+                    Learn more about Tools
                 </div>
 
-                <div className='text-[13px] font-[500] mt-2 text-purple flex flex-row items-center gap-1  cursor-pointer'>
+                <button
+                    className='text-[13px] font-[500] mt-2 text-purple flex flex-row items-center gap-1  cursor-pointer'
+                    onClick={() => setShowAddMcpPopup(true)}
+                >
                     <Plus size={16} /> <span className='underline'>
-                        Add New MCP
+                        Add New Tool
                     </span>
-                </div>
+                </button>
             </div>
         )
     }
