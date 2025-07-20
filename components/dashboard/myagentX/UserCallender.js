@@ -397,7 +397,7 @@ const UserCalender = ({
               updatedArray.push(ag);
             }
 
-            setShowDrawerSelectedAgent(prev => ({ ...prev, calendar: newCalendarData }));
+            // setShowDrawerSelectedAgent(prev => ({ ...prev, calendar: newCalendarData }));
 
             //console.log;
             localStorage.setItem(
