@@ -38,7 +38,8 @@ const UserCalender = ({
   updateVariableData,
   selectedUser,
   loadingCalenders = false,
-  setSelectedAgent
+  setSelectedAgent,
+  setShowDrawerSelectedAgent
 }) => {
 
   const justLoggedIn = useRef(false);
