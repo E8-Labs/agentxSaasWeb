@@ -158,6 +158,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 fontSize: 15,
               }}
               onClick={() => {
+                console.log("mainAgent details passed are", mainAgent);
+                // return;
                 localStorage.setItem(
                   PersistanceKeys.LocalSavedAgentDetails,
                   JSON.stringify(mainAgent)

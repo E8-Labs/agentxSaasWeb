@@ -746,10 +746,12 @@ function Page() {
       setSelectedGptManu(model);
     }
 
-    const comparedAgent = mainAgentsList.find((mainAgent) =>
-      mainAgent.agents.some((subAgent) => subAgent.id === item.id)
-    );
-    ////console.log;
+    const comparedAgent = mainAgentsList.find((mainAgent) => {
+      console.log("Main agent list is", mainAgent);
+      return mainAgent.agents.some((subAgent) => subAgent.id === item.id);
+    });
+    
+    console.log("comparedAgent is", comparedAgent);
 
     setCalendarDetails(comparedAgent);
 

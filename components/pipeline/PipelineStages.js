@@ -217,9 +217,9 @@ const PipelineStages = ({
 
   //gets recent agent details
   useEffect(() => {
-    const agentDetails = localStorage.getItem("agentDetails");
-    if (agentDetails) {
-      const agentData = JSON.parse(agentDetails);
+    const agentLocalDetails = localStorage.getItem("agentDetails");
+    if (agentLocalDetails !== undefined) {
+      const agentData = JSON.parse(agentLocalDetails);
       // //console.log;
       if (agentData.agents?.length > 1) {
         // //console.log;
