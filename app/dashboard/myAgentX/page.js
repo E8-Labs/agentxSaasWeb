@@ -746,11 +746,22 @@ function Page() {
       setSelectedGptManu(model);
     }
 
-    const comparedAgent = mainAgentsList.find((mainAgent) => {
+    let comparedAgent = []
+
+    console.log('search before', search)
+   if(!search){
+    comparedAgent = mainAgentsList.find((mainAgent) => {
       console.log("Main agent list is", mainAgent);
       return mainAgent.agents.some((subAgent) => subAgent.id === item.id);
     });
-    
+  } else{
+    console.log('agentsListSeparated', agentsListSeparated)
+    comparedAgent = agentsListSeparated.find((mainAgent) => {
+      console.log("seperated agent list is", mainAgent);
+      return mainAgent.id === item.id;
+    });
+  }
+
     console.log("comparedAgent is", comparedAgent);
 
     setCalendarDetails(comparedAgent);
@@ -2478,22 +2489,6 @@ function Page() {
               placeholder="Search an agent"
               value={search}
               onChange={(e) => {
-                //test code failed
-                // let a = e.target.value;
-                // if (a) {
-                //   console.log("There was some value");
-                //   setAgentsBeforeSearch(agentsListSeparated);
-                //   clearTimeout(searchTimeoutRef.current);
-                //   searchTimeoutRef.current = setTimeout(() => {
-                //     // handleSearch(e);
-                //     let searchLoader = true;
-                //     getAgents(false, e.target.value, searchLoader)
-                //   }, 500);
-                // } else if (!a) {
-                //   console.log("There was no value");
-                //   setAgentsListSeparated(agentsBeforeSearch);
-
-                // }
 
                 setSearch(e.target.value);
                 if (canGetMore === true) {
