@@ -31,7 +31,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
 
   useEffect(() => {
     if (selectedAgent.agentType !== "inbound") {
-      // //console.log;
+      console.log('mainAgent', mainAgent)
       handleGetCadence();
     }
   }, []);
@@ -94,10 +94,10 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
       });
 
       if (response) {
-        // console.log(
-        //   "Response of get agent cadence api is:",
-        //   JSON.stringify(response.data)
-        // );
+        console.log(
+          "Response of get agent cadence api is:",
+          response.data
+        );
         setAgentCadence(response.data.data);
       }
     } catch (error) {

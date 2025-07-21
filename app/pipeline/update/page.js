@@ -91,6 +91,7 @@ const Page = () => {
       if (response) {
         //console.log;
         if (response.data.status === true) {
+          console.log('response of update cadence api is ', response)
           localStorage.removeItem("AddCadenceDetails");
           router.push("/dashboard/myAgentX");
         } else {

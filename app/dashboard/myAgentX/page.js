@@ -749,18 +749,18 @@ function Page() {
     let comparedAgent = []
 
     console.log('search before', search)
-   if(!search){
-    comparedAgent = mainAgentsList.find((mainAgent) => {
-      console.log("Main agent list is", mainAgent);
-      return mainAgent.agents.some((subAgent) => subAgent.id === item.id);
-    });
-  } else{
-    console.log('agentsListSeparated', agentsListSeparated)
-    comparedAgent = agentsListSeparated.find((mainAgent) => {
-      console.log("seperated agent list is", mainAgent);
-      return mainAgent.id === item.id;
-    });
-  }
+    if (!search) {
+      comparedAgent = mainAgentsList.find((mainAgent) => {
+        console.log("Main agent list is", mainAgent);
+        return mainAgent.agents.some((subAgent) => subAgent.id === item.id);
+      });
+    } else {
+      console.log('agentsListSeparated', agentsListSeparated)
+      comparedAgent = agentsListSeparated.find((mainAgent) => {
+        console.log("seperated agent list is", mainAgent);
+        return mainAgent.id === item.id;
+      });
+    }
 
     console.log("comparedAgent is", comparedAgent);
 
@@ -2109,18 +2109,20 @@ function Page() {
 
         if (search) {
           let subAgents = [];
-          agents.forEach((item) => {
-            if (item.agents && item.agents.length > 0) {
-              for (let i = 0; i < item.agents.length; i++) {
-                const agent = item.agents[i];
-                if (agent) {
-                  subAgents.push(agent);
-                }
-              }
-            }
-          });
+          // agents.forEach((item) => {
+          //   if (item.agents && item.agents.length > 0) {
+          //     for (let i = 0; i < item.agents.length; i++) {
+          //       const agent = item.agents[i];
+          //       if (agent) {
+          //         subAgents.push(agent);
+          //       }
+          //     }
+          //   }
+          // });
 
-          setAgentsListSeparated(subAgents);
+          setAgentsListSeparated(agents);
+
+
           return;
         }
 
@@ -2131,11 +2133,12 @@ function Page() {
         }
 
         console.log("Agents after pushing", newList);
-
-        localStorage.setItem(
-          PersistanceKeys.LocalStoredAgentsListMain,
-          JSON.stringify(newList)
-        );
+        if (!search) {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(newList)
+          );
+        }
         setMainAgentsList(newList);
       }
     } catch (error) {
