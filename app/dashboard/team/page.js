@@ -121,7 +121,20 @@ function Page() {
       const data = localStorage.getItem("User");
 
       if (data) {
-        let u = JSON.parse(data);
+        let u;
+        try {
+          u = JSON.parse(data);
+        } catch (parseError) {
+          console.error("Error parsing user data:", parseError);
+          setGetTeamLoader(false);
+          return;
+        }
+        
+        if (!u || !u.token) {
+          console.error("No valid user token found");
+          setGetTeamLoader(false);
+          return;
+        }
 
         let path = Apis.getTeam;
         // //console.log
@@ -158,9 +171,10 @@ function Page() {
         }
       }
     } catch (e) {
+      console.error("Error getting team data:", e);
       setGetTeamLoader(false);
-
-      // //console.log;
+      setSnackTitle("Error loading team data");
+      setShowSnak(true);
     }
   };
 
@@ -176,7 +190,20 @@ function Page() {
       const data = localStorage.getItem("User");
       setInviteTeamLoader(true);
       if (data) {
-        let u = JSON.parse(data);
+        let u;
+        try {
+          u = JSON.parse(data);
+        } catch (parseError) {
+          console.error("Error parsing user data:", parseError);
+          setInviteTeamLoader(false);
+          return;
+        }
+        
+        if (!u || !u.token) {
+          console.error("No valid user token found");
+          setInviteTeamLoader(false);
+          return;
+        }
 
         let path = Apis.inviteTeamMember;
 
@@ -227,9 +254,10 @@ function Page() {
         }
       }
     } catch (e) {
+      console.error("Error inviting team member:", e);
       setInviteTeamLoader(false);
       setReInviteTeamLoader(false);
-      // //console.log;
+      setShowError(true);
     }
   };
 
@@ -348,7 +376,20 @@ function Page() {
       const data = localStorage.getItem("User");
       setInviteTeamLoader(true);
       if (data) {
-        let u = JSON.parse(data);
+        let u;
+        try {
+          u = JSON.parse(data);
+        } catch (parseError) {
+          console.error("Error parsing user data:", parseError);
+          setInviteTeamLoader(false);
+          return;
+        }
+        
+        if (!u || !u.token) {
+          console.error("No valid user token found");
+          setInviteTeamLoader(false);
+          return;
+        }
 
         let path = Apis.deleteTeamMember;
         // //console.log;
@@ -379,9 +420,10 @@ function Page() {
         }
       }
     } catch (e) {
+      console.error("Error deleting team member:", e);
       setInviteTeamLoader(false);
-      //// //console.log
-      // //console.log;
+      setSnackTitle("Error removing team member");
+      setShowSnak(true);
     }
   }
 
@@ -403,8 +445,13 @@ function Page() {
     //console.log;
     let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
     if (user) {
-      user = JSON.parse(user);
-      user = user.user;
+      try {
+        user = JSON.parse(user);
+        user = user.user;
+      } catch (parseError) {
+        console.error("Error parsing user data:", parseError);
+        return false;
+      }
     }
     // //console.log;
     // //console.log;
@@ -430,8 +477,13 @@ function Page() {
     // return
     let user = localStorage.getItem("User");
     if (user) {
-      user = JSON.parse(user);
-      user = user.user;
+      try {
+        user = JSON.parse(user);
+        user = user.user;
+      } catch (parseError) {
+        console.error("Error parsing user data:", parseError);
+        return false;
+      }
     }
     if (user.userRole == "Invitee") {
       if (team.invitedUser?.id == user.id) {
@@ -470,8 +522,13 @@ function Page() {
     if (typeof localStorage != "undefined") {
       let user = localStorage.getItem(PersistanceKeys.LocalStorageUser);
       if (user) {
-        user = JSON.parse(user);
-        user = user.user;
+        try {
+          user = JSON.parse(user);
+          user = user.user;
+        } catch (parseError) {
+          console.error("Error parsing user data:", parseError);
+          return false;
+        }
       }
       //console.log;
       if (user?.userRole == "AgentX") {
@@ -575,7 +632,7 @@ function Page() {
                               textTransform: "capitalize",
                             }}
                           >
-                            {item.name[0]}
+                            {item.name?.[0] || 'U'}
                           </div>
                         )}
 
@@ -584,7 +641,7 @@ function Page() {
                             {item.name}
                           </div>
                           <div className="text-sm font-medium text-gray-500">
-                            {formatPhoneNumber(item?.phone)}
+                            {item?.phone ? formatPhoneNumber(item.phone) : 'No phone'}
                           </div>
                           <div className="text-sm font-medium text-gray-500 underline">
                             {item.email}
