@@ -13,7 +13,7 @@ import AgentSelectSnackMessage, {
 import { color } from "framer-motion";
 import { UpdateCadenceConfirmationPopup } from "./UpdateCadenceConfirmationPopup";
 
-const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
+const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser }) => {
   const [message, setMessage] = useState(null);
   const router = useRouter();
   const [expandedStages, setExpandedStages] = useState([]);
@@ -164,8 +164,13 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                   PersistanceKeys.LocalSavedAgentDetails,
                   JSON.stringify(mainAgent)
                 );
+                localStorage.setItem(
+                  PersistanceKeys.selectedUser,
+                  JSON.stringify(selectedUser)
+                );
                 if (agentCadence.length === 0) {
-                  router.push("/pipeline/update");
+                  // router.push("/pipeline/update");
+                  window.location.href = "/pipeline/update";
                   return;
                 }
                 setShowConfirmationPopup(true);
@@ -196,7 +201,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent }) => {
                 "selectedAgent.mainAgentId",
                 selectedAgent.mainAgentId
               );
-              router.push("/pipeline/update");
+              // router.push("/pipeline/update");
+              window.location.href = "/pipeline/update";
             }}
           />
           {initialLoader ? (

@@ -102,7 +102,7 @@ function MCPView({
 
                 setShowAddMcpPopup(false);
                 setIsVisible(true);
-                setMessage("Tool added.");
+                setMessage(mcpTool.message);
                 setType(SnackbarTypes.Success);
                 getMcps();
             } else {
@@ -133,7 +133,7 @@ function MCPView({
                 setMcpTools(prev => prev.map(item => item.id === selectedMcpTool.id ? mcpTool.data : item));
                 setShowEditMcpPopup(false);
                 setIsVisible(true);
-                setMessage("Tool updated.");
+                setMessage(mcpTool.message);
                 setType(SnackbarTypes.Success);
             } else {
                 setIsVisible(true);
@@ -156,7 +156,7 @@ function MCPView({
                 setMcpTools(prev => prev.filter(item => item.id !== selectedMcpTool.id));
                 setShowEditMcpPopup(false);
                 setIsVisible(true);
-                setMessage("Tool deleted.");
+                setMessage(mcpTool.message);
                 setType(SnackbarTypes.Success);
             } else {
                 setIsVisible(true);

@@ -66,6 +66,7 @@ export const config = {
     "/buyerkycquestions/:path*",
     "/dashboard/:path*",
     "/onboarding/:path*",
+    "/admin/:path*",
     // "/recordings/:path*",
   ],
 };

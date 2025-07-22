@@ -33,6 +33,9 @@ export const PersistanceKeys = {
   //twilio hub
   twilioHubData: "twilioHubData",
 
+  //selected user for admin side
+  selectedUser: "selectedUser",
+
  addCalendarScope: process.env.NEXT_PUBLIC_REACT_APP_addCalendarScope,
 
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,

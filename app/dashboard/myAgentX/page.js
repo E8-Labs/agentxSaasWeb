@@ -4920,7 +4920,7 @@ function Page() {
                         <PromptTagInput
                           promptTag={scriptTagInput}
                           kycsList={kycsData}
-                          from={"Promt"}
+                          from={"Prompt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={(text) => {
                             console.log("Text updated ", text);
@@ -5024,6 +5024,7 @@ function Page() {
                         <GuarduanSetting
                           showTitle={true}
                           selectedAgentId={showScriptModal}
+                          kycsData={kycsData}
                         />
                       </div>
                     </div>

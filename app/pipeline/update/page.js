@@ -93,6 +93,15 @@ const Page = () => {
         if (response.data.status === true) {
           console.log('response of update cadence api is ', response)
           localStorage.removeItem("AddCadenceDetails");
+          localStorage.removeItem(PersistanceKeys.selectedUser);
+          const LocalData = localStorage.getItem("User");
+          if(LocalData){
+            const userData = JSON.parse(LocalData);
+            if(userData.userRole === "AgentX"){
+              router.push("/dashboard/admin");
+              return;
+            }
+          }
           router.push("/dashboard/myAgentX");
         } else {
           // setLoader(false);

@@ -4016,6 +4016,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     selectedAgent={showDrawerSelectedAgent}
                     UserPipeline={UserPipeline}
                     mainAgent={calendarDetails}
+                    selectedUser={selectedUser}
                   />
                 </div>
               ) : activeTab === "Knowledge" ? (

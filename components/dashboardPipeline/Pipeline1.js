@@ -57,6 +57,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import PipelineLoading from "./PipelineLoading";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import DashboardSlider from "../animations/DashboardSlider";
+import ConfigurePopup from "./ConfigurePopup";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -237,6 +238,9 @@ const Pipeline1 = () => {
   //update the stage color
   const [updateStageColor, setUpdateStageColor] = useState("");
   const [stageColorUpdate, setStageColorUpdate] = useState(null);
+  //configure popup
+  const [showConfigurePopup, setShowConfigurePopup] = useState(false);
+  const [configureLoader, setConfigureLoader] = useState(false);
 
   //code for rename pipeline
   const [showRenamePipelinePopup, setShowRenamePipelinePopup] = useState(false);
@@ -1680,13 +1684,13 @@ const Pipeline1 = () => {
       const leadToDelete = selectedLeadsDetails;
       // Remove the lead from the list
       const filteredLeads = LeadsList?.filter((lead) => lead.lead.id !== leadToDelete.id);
-  
+
       // Remove the lead from all pipelines, safely handling undefined leads
       const filteredPipelines = PipeLines.map((pipeline) => ({
         ...pipeline,
         leads: (pipeline.leads || []).filter((lead) => lead.lead.id !== leadToDelete.id),
       }));
-  
+
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
       setSelectedLeadsDetails(null); // Clear selected lead
@@ -2127,7 +2131,7 @@ const Pipeline1 = () => {
                                     width={15}
                                     alt="*"
                                   />
-                                  Change Color
+                                  Color
                                 </button>
                                 <div
                                   style={{
@@ -2159,6 +2163,17 @@ const Pipeline1 = () => {
                               </div>
                             </div>
                             <div ref={bottomRef}></div>
+
+                            {/* Code for configure */}
+                            <button
+                              className="border-none outline-none cursor-pointer mt-4"
+                              onClick={() => {
+                                console.log("Configure button clicked");
+                                setShowConfigurePopup(true);
+                              }}
+                            >
+                              Configure
+                            </button>
 
                             {!showDelBtn && (
                               <div className="w-full flex flex-row mt-4">
@@ -2523,6 +2538,23 @@ const Pipeline1 = () => {
               </div>
             </div>
           )}
+
+          {/* Code for Configure Popup */}
+          {
+            showConfigurePopup && (
+              <ConfigurePopup
+                showConfigurePopup={showConfigurePopup}
+                setShowConfigurePopup={setShowConfigurePopup}
+                configureLoader={configureLoader}
+                setConfigureLoader={setConfigureLoader}
+                selectedStage={selectedStage}
+                setStagesList={setStagesList}
+                setSnackMessage={setSnackMessage}
+                handleCloseStagePopover={handleCloseStagePopover}
+              />
+            )
+          }
+
           {/* code for delete pipeline modal */}
 
           <Modal

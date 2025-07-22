@@ -18,8 +18,9 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import EditModal from "./EditModal";
 import { PersistanceKeys } from "@/constants/Constants";
+import { GreetingTagInput } from "../tagInputs/GreetingTagInput";
 
-const GuardianSetting = ({ showTitle, selectedAgentId }) => {
+const GuardianSetting = ({ showTitle, selectedAgentId, kycsData }) => {
   const [guardrailsList, setGuardrailsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
@@ -47,6 +48,13 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
   const [showErrorSnack, setShowErrorSnack] = useState(null);
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
+  //uniques columns
+  const [uniqueColumns, setUniqueColumns] = useState([]);
+  const [scrollOffset, setScrollOffset] = useState({
+    scrollTop: 0,
+    scrollLeft: 0,
+  });
+
   useEffect(() => {
     const guadrailsList = localStorage.getItem(PersistanceKeys.GuadrailsList);
     if (guadrailsList) {
@@ -59,6 +67,42 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
       getGuadrails();
     }
   }, []);
+
+  //get uniques columns
+  const getUniquesColumn = async () => {
+    try {
+      // setColumnloader(true);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      ////////console.log;
+
+      const ApiPath = Apis.uniqueColumns;
+      ////////console.log;
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        ////console.log;
+        if (response.data.status === true) {
+          setUniqueColumns(response.data.data);
+        }
+      }
+    } catch (error) {
+      //// console.error("Error occured in getColumn is :", error);
+    } finally {
+      // setColumnloader(false)
+    }
+  };
 
   //code for popover
   // const open = Boolean(actionInfoEl);
@@ -530,6 +574,9 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
                 setShowErrorSnack(data.message);
               }
             }}
+            kycsData={kycsData}
+            uniqueColumns={uniqueColumns}
+            scrollOffset={scrollOffset}
           />
         )
       }
@@ -588,7 +635,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
               }}
             />
             <div style={{ ...styles.title, marginTop: 10 }}>Description</div>
-            <TextareaAutosize
+            {/*<TextareaAutosize
               maxRows={5}
               className="outline-none focus:outline-none focus:ring-0"
               style={styles.inputStyle}
@@ -597,7 +644,18 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
               onChange={(event) => {
                 setAddObjDescription(event.target.value);
               }}
+            />*/}
+
+            <GreetingTagInput
+              greetTag={addObjDescription}
+              kycsList={kycsData}
+              uniqueColumns={uniqueColumns}
+              tagValue={(text) => {
+                setAddObjDescription(text);
+              }}
+              scrollOffset={scrollOffset}
             />
+
             <div className="w-full">
               {addObjectionLoader ? (
                 <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">

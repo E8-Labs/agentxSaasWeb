@@ -175,7 +175,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/maria.png",
     status: "",
-    Dialect: "Strategic, Confident, Mid 30s | Texan",
+    Dialect: "Strategic, Confident, Mid 30s | Latina",
   },
   {
     voice_id: "iDEmt5MnqUotdwCIVplo", //"1SM7GgM6lMuvQIz2BwM3",

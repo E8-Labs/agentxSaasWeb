@@ -5,13 +5,17 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { PersistanceKeys } from '@/constants/Constants';
+import { GreetingTagInput } from '../tagInputs/GreetingTagInput';
 
 const EditModal = ({
     isOpen,
     onClose,
     handleUpdateArray,
     selectedItem,
-    editName
+    editName,
+    kycsData,
+    uniqueColumns,
+    scrollOffset,
 }) => {
 
     const [updateTitle, setUpdatedTitle] = useState("");
@@ -160,16 +164,32 @@ const EditModal = ({
                     <div className='mt-4 mb-2' style={styles.heading}>
                         Description
                     </div>
-                    <TextareaAutosize
-                        maxRows={5}
-                        className="outline-none focus:outline-none focus:ring-0 p-2 w-full"
-                        style={styles.inputStyle}
-                        placeholder={`Edit ${editName} description`}
-                        value={updatedDescription}
-                        onChange={(e) => {
-                            setUpdatedDescription(e.target.value);
-                        }}
-                    />
+                    {
+                        editName === "Guardrails" ? (
+                            <GreetingTagInput
+                                greetTag={updatedDescription}
+                                kycsList={kycsData}
+                                uniqueColumns={uniqueColumns}
+                                tagValue={(text) => {
+                                    setUpdatedDescription(text);
+                                }}
+                                scrollOffset={scrollOffset}
+                            />
+                        ) : (
+
+                            <TextareaAutosize
+                                maxRows={5}
+                                className="outline-none focus:outline-none focus:ring-0 p-2 w-full"
+                                style={styles.inputStyle}
+                                placeholder={`Edit ${editName} description`}
+                                value={updatedDescription}
+                                onChange={(e) => {
+                                    setUpdatedDescription(e.target.value);
+                                }}
+                            />
+                        )
+                    }
+
                 </div>
 
                 <div className='w-full flex flex-row items-center justify-between mt-4 gap-2'>
