@@ -4888,7 +4888,7 @@ function Page() {
                         <PromptTagInput
                           promptTag={scriptTagInput}
                           kycsList={kycsData}
-                          from={"Promt"}
+                          from={"Prompt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={(text) => {
                             console.log("Text updated ", text);
