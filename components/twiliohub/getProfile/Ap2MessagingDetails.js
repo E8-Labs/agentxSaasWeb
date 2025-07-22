@@ -72,6 +72,9 @@ const Ap2MessagingDetails = ({
                         <div style={styles.fontSemiBold}>
                             A2P SMS Messaging
                         </div>
+                        <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                            Coming Soon
+                        </div>
                         <div>
                             <TwilioProfileToolTip toolTip={"Send text messages to your customers"} />
                         </div>
@@ -102,7 +105,7 @@ const Ap2MessagingDetails = ({
                     handleShowAddModal={() => { setShowAddMessage(true) }}
                     btnTitle='Get Approved'
                     description="Send text messages to your customers."
-                    // showBtn={true}
+                    showBtn={true}
                     unLockDescription="Add A2P SMS Messaging."
                 />
             )
