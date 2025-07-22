@@ -8,11 +8,8 @@ import Footer from "@/components/onboarding/Footer";
 import Apis from "../apis/Apis";
 import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
-import AddressPicker from "../test/AddressPicker";
 import LoaderAnimation from "../animations/LoaderAnimation";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import GoogleAdddressPicker from "../test/GoogleAdddressPicker";
-import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
+// Removed Google Maps imports for simple string input
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import AgentSelectSnackMessage, {
@@ -22,8 +19,7 @@ import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { UserTypes } from "@/constants/UserTypes";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
-  const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
-  // //console.log;
+  // Removed Google Maps API key - no longer needed
   const router = useRouter();
   const bottomRef = useRef();
   const [loaderModal, setLoaderModal] = useState(false);
@@ -57,15 +53,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const bottomToAddress = useRef(null); // Ref for scrolling
   const [addressSelected, setAddressSelected] = useState(null);
 
-  //code for address picker
+  //code for address input (simple string)
   const [addressValue, setAddressValue] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   const [user, setUser] = useState(null);
 
-  //shows the modal for small screens only
-  const [showAddressPickerModal, setShowAddressPickerModal] = useState(false);
+  // Removed address picker modal - no longer needed
 
   useEffect(() => {
     setAddress(address?.label);
@@ -444,62 +437,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     setSelectedStatus((prevId) => (prevId === item ? null : item));
   };
 
-  //code for address picker
-  const {
-    placesService,
-    placePredictions,
-    getPlacePredictions,
-    isPlacePredictionsLoading,
-  } = usePlacesService({
-    apiKey: process.env.NEXT_PUBLIC_AddressPickerApiKey,
-  });
+  // Removed Google Places service - using simple string input
 
-  //function for address picker
-
-  // Function for address picker with restrictions
-  const handleSelectAddress = (placeId, description) => {
-    setAddressValue(description);
-    setShowDropdown(false); // Hide dropdown on selection
-
-    // Fetch place details if required
-    if (placesService) {
-      placesService.getDetails({ placeId }, (details) => {
-        setSelectedPlace(details);
-        // //console.log;
-      });
-    }
+  // Simple address input handler
+  const handleAddressChange = (evt) => {
+    setAddressValue(evt.target.value);
   };
-
-  // Function to fetch predictions with restrictions
-  const handleInputChange = (evt) => {
-    const input = evt.target.value;
-    setAddressValue(input);
-
-    // Fetch predictions only for US and Canada
-    getPlacePredictions({
-      input,
-      componentRestrictions: { country: ["us", "ca"] },
-    });
-  };
-
-  // Render predictions
-  const renderItem = (item) => (
-    <div
-      key={item.place_id}
-      className="prediction-item"
-      onClick={() => {
-        handleSelectAddress(item.place_id, item.description);
-        setShowAddressPickerModal(false);
-      }}
-      style={{
-        cursor: "pointer",
-        padding: "8px",
-        borderBottom: "1px solid #ddd",
-      }}
-    >
-      {item.description}
-    </div>
-  );
 
   const status = [
     {
@@ -991,63 +934,17 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <div style={styles.headingStyle} className="mt-4">
                   {`What's the address`}
                 </div>
-                {/* Visible for large screen */}
-                <div
-                  className="hidden sm:flex mt-1 pb-4"
-                  style={{ zIndex: 15 }}
-                >
-                  <div className="w-full">
-                    <input
-                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                      style={{ border: "1px solid #00000020" }}
-                      placeholder="Type here ..."
-                      value={addressValue}
-                      onChange={(evt) => {
-                        let input = evt.target.value;
-                        setAddressValue(input); // Update input field value
-                        getPlacePredictions({
-                          input,
-                          componentRestrictions: { country: ["us", "ca"] },
-                        });
-                        // getPlacePredictions({ input: evt.target.value });
-                        setShowDropdown(true); // Show dropdown on input
-                      }}
-                    />
-                    {isPlacePredictionsLoading && <p>Loading...</p>}
-                    {showDropdown &&
-                      placePredictions.map((item) => renderItem(item))}
-                  </div>
+                {/* Simple address input */}
+                <div className="mt-1 pb-4">
+                  <input
+                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
+                    style={{ border: "1px solid #00000020" }}
+                    placeholder="Enter property address..."
+                    value={addressValue}
+                    onChange={handleAddressChange}
+                  />
                 </div>
 
-                {/* Visible for small screens */}
-                <div
-                  className="sm:hidden mt-1 pb-4 mb-12"
-                  style={{ zIndex: 15 }}
-                >
-                  <div
-                    className="w-full"
-                    onClick={() => {
-                      setShowAddressPickerModal(true);
-                    }}
-                  >
-                    <input
-                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                      style={{
-                        border: "1px solid #00000020",
-                        cursor: "pointer",
-                      }}
-                      placeholder="Type here ..."
-                      value={addressValue}
-                      readOnly={true}
-                    // disabled={true}
-                    // onChange={(evt) => {
-                    //   setAddressValue(evt.target.value); // Update input field value
-                    //   // getPlacePredictions({ input: evt.target.value });
-                    //   // setShowDropdown(true); // Show dropdown on input
-                    // }}
-                    />
-                  </div>
-                </div>
               </div>
 
               <div
@@ -1073,72 +970,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
       <LoaderAnimation loaderModal={loaderModal} />
 
-      {/* Modal for address picker */}
-      <Modal
-        open={showAddressPickerModal}
-        onClose={() => setShowAddressPickerModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(5px)",
-          },
-        }}
-      >
-        <Box className="w-full" sx={styles.modalsStyle}>
-          <div
-            className="w-full h-[70vh] bg-white p-6 overflow-auto"
-            style={{
-              scrollbarWidth: "none",
-            }}
-          >
-            <div className="flex flex-row items-center justify-between">
-              <div>Address</div>
-              <div>
-                <button
-                  className="outline-none"
-                  onClose={() => setShowAddressPickerModal(false)}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
-                </button>
-              </div>
-            </div>
-            <div className="sm:hidden mt-1 pb-4 mb-12" style={{ zIndex: 15 }}>
-              <div>
-                <input
-                  className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                  style={{
-                    border: "1px solid #00000020",
-                    cursor: "pointer",
-                  }}
-                  placeholder="Type here ..."
-                  value={addressValue}
-                  // readOnly={true}
-                  // disabled={true}
-                  // onFocus={() => {
-                  //   setShowAddressPickerModal(true);
-                  // }}
-                  onChange={(evt) => {
-                    setAddressValue(evt.target.value); // Update input field value
-                    getPlacePredictions({ input: evt.target.value });
-                    setShowDropdown(true); // Show dropdown on input
-                  }}
-                />
-                {isPlacePredictionsLoading && <p>Loading...</p>}
-                {showDropdown &&
-                  placePredictions.map((item) => renderItem(item))}
-              </div>
-            </div>
-
-            <button></button>
-          </div>
-        </Box>
-      </Modal>
 
       {/* <Modal
                 open={loaderModal}

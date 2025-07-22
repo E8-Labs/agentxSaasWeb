@@ -9,7 +9,7 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
-import usePlacesService from "react-google-autocomplete/lib/usePlacesAutocompleteService";
+// Removed Google Maps imports for simple string input
 
 const BuildAgentTask = ({
   handleContinue,
@@ -17,7 +17,7 @@ const BuildAgentTask = ({
   getAgentDetails,
   handleBack,
 }) => {
-  const addressKey = process.env.NEXT_PUBLIC_AddressPickerApiKey;
+  // Removed Google Maps API key - no longer needed
 
   const router = useRouter();
   const bottomRef = useRef();
@@ -45,11 +45,8 @@ const BuildAgentTask = ({
 
   //code for address picker
   const [addressValue, setAddressValue] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
 
-  //shows the modal for small screens only
-  const [showAddressPickerModal, setShowAddressPickerModal] = useState(false);
+  // Removed address picker modal - no longer needed
 
   useEffect(() => {
     setAddress(address?.label);
@@ -314,50 +311,9 @@ const BuildAgentTask = ({
     setSelectedStatus((prevId) => (prevId === item ? null : item));
   };
 
-  //code for address picker
-  const {
-    placesService,
-    placePredictions,
-    getPlacePredictions,
-    isPlacePredictionsLoading,
-  } = usePlacesService({
-    apiKey: process.env.NEXT_PUBLIC_AddressPickerApiKey,
-  });
-
-  //function for address picker
-
-  const handleSelectAddress = (placeId, description) => {
-    // Set the input field to the selected place's description
-    setAddressValue(description);
-    setShowDropdown(false); // Hide dropdown on selection
-
-    // Fetch place details if required
-    if (placesService) {
-      placesService.getDetails({ placeId }, (details) => {
-        setSelectedPlace(details);
-       // //console.log;
-      });
-    }
-  };
-
-  const renderItem = (item) => {
-    return (
-      <div
-        key={item.place_id}
-        className="prediction-item"
-        onClick={() => {
-          handleSelectAddress(item.place_id, item.description);
-          setShowAddressPickerModal(false);
-        }}
-        style={{
-          cursor: "pointer",
-          padding: "8px",
-          borderBottom: "1px solid #ddd",
-        }}
-      >
-        {item.description}
-      </div>
-    );
+  // Simple address input handler
+  const handleAddressChange = (evt) => {
+    setAddressValue(evt.target.value);
   };
 
   const status = [
@@ -624,60 +580,17 @@ const BuildAgentTask = ({
                 <div style={styles.headingStyle} className="mt-4">
                   {`What's the address`}
                 </div>
-                {/* Visible for large screen */}
-                <div
-                  className="hidden sm:flex mt-1 pb-4"
-                  style={{ zIndex: 15 }}
-                >
-                  <div>
-                    <input
-                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                      style={{ border: "1px solid #00000020" }}
-                      placeholder="Type here ..."
-                      value={addressValue}
-                      autoFocus
-                      onChange={(evt) => {
-                        setAddressValue(evt.target.value); // Update input field value
-                        getPlacePredictions({ input: evt.target.value });
-                        setShowDropdown(true); // Show dropdown on input
-                      }}
-                    />
-                    {isPlacePredictionsLoading && <p>Loading...</p>}
-                    {showDropdown &&
-                      placePredictions.map((item) => renderItem(item))}
-                  </div>
+                {/* Simple address input */}
+                <div className="mt-1 pb-4">
+                  <input
+                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
+                    style={{ border: "1px solid #00000020" }}
+                    placeholder="Enter property address..."
+                    value={addressValue}
+                    onChange={handleAddressChange}
+                  />
                 </div>
 
-                {/* Visible for small screens */}
-                <div
-                  className="sm:hidden mt-1 pb-4 mb-12"
-                  style={{ zIndex: 15 }}
-                >
-                  <div
-                    className="w-full"
-                    onClick={() => {
-                      setShowAddressPickerModal(true);
-                    }}
-                  >
-                    <input
-                      className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                      style={{
-                        border: "1px solid #00000020",
-                        cursor: "pointer",
-                      }}
-                      placeholder="Type here ..."
-                      value={addressValue}
-                      readOnly={true}
-                      autoFocus
-                      // disabled={true}
-                      // onChange={(evt) => {
-                      //   setAddressValue(evt.target.value); // Update input field value
-                      //   // getPlacePredictions({ input: evt.target.value });
-                      //   // setShowDropdown(true); // Show dropdown on input
-                      // }}
-                    />
-                  </div>
-                </div>
               </div>
 
               <div
@@ -703,73 +616,6 @@ const BuildAgentTask = ({
 
       <LoaderAnimation loaderModal={loaderModal} />
 
-      {/* Modal for address picker */}
-      <Modal
-        open={showAddressPickerModal}
-        onClose={() => setShowAddressPickerModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(5px)",
-          },
-        }}
-      >
-        <Box className="w-full" sx={styles.modalsStyle}>
-          <div
-            className="w-full h-[70vh] bg-white p-6 overflow-auto"
-            style={{
-              scrollbarWidth: "none",
-            }}
-          >
-            <div className="flex flex-row items-center justify-between">
-              <div>Address</div>
-              <div>
-                <button
-                  className="outline-none"
-                  onClose={() => setShowAddressPickerModal(false)}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
-                </button>
-              </div>
-            </div>
-            <div className="sm:hidden mt-1 pb-4 mb-12" style={{ zIndex: 15 }}>
-              <div>
-                <input
-                  className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
-                  style={{
-                    border: "1px solid #00000020",
-                    cursor: "pointer",
-                  }}
-                  placeholder="Type here ..."
-                  value={addressValue}
-                  //   autoFocus={true}
-                  // readOnly={true}
-                  // disabled={true}
-                  // onFocus={() => {
-                  //   setShowAddressPickerModal(true);
-                  // }}
-                  onChange={(evt) => {
-                    setAddressValue(evt.target.value); // Update input field value
-                    getPlacePredictions({ input: evt.target.value });
-                    setShowDropdown(true); // Show dropdown on input
-                  }}
-                />
-                {isPlacePredictionsLoading && <p>Loading...</p>}
-                {showDropdown &&
-                  placePredictions.map((item) => renderItem(item))}
-              </div>
-            </div>
-
-            <button></button>
-          </div>
-        </Box>
-      </Modal>
     </div>
   );
 };
