@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react'
 
 const Cnammain = ({
     showAddCNAM,
+    trustProducts,
     handleClose
 }) => {
 
@@ -49,13 +50,13 @@ const Cnammain = ({
 
     useEffect(() => {
         // Only reset if one field has a value and the other is being set
-        if (selectedCNAM && selectedCNAM.trim() !== "") {
+        if (selectedCNAM && String(selectedCNAM).trim() !== "") {
             setCnamName("")
         }
     }, [selectedCNAM])
 
     useEffect(() => {
-        if ((!cnamName || !selectedCNAM) || !agreeTerms) {
+        if ((!cnamName && !selectedCNAM) || !agreeTerms) {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
@@ -71,30 +72,50 @@ const Cnammain = ({
         try {
             setLoader(true);
             const token = AuthToken();
-            const ApiPath = Apis.createCname;
-            const ApiData = {
-                displayName: cnamName
-            }
-
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
+            
+            // If user selected an existing CNAM product, use select API
+            if (selectedCNAM && String(selectedCNAM).trim() !== "") {
+                // Import AddSelectedProduct API
+                const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
+                const response = await AddSelectedProduct(selectedCNAM);
+                
                 setLoader(false);
-                const apiResponse = response.data;
-                console.log("Response of add cnam is", response.data);
-                if (apiResponse.status === true) {
-                    handleClose(apiResponse);
-                } else if (apiResponse.status === false) {
+                if (response.status === true) {
+                    handleClose(response);
+                } else {
                     setShowSnack({
                         type: SnackbarTypes.Error,
-                        message: "",
+                        message: response.message || "Failed to select CNAM product",
                         isVisible: true
                     })
+                }
+            } else {
+                // If user entered a new CNAM name, use create API
+                const ApiPath = Apis.createCname;
+                const ApiData = {
+                    displayName: cnamName
+                }
+
+                const response = await axios.post(ApiPath, ApiData, {
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response) {
+                    setLoader(false);
+                    const apiResponse = response.data;
+                    console.log("Response of add cnam is", response.data);
+                    if (apiResponse.status === true) {
+                        handleClose(apiResponse);
+                    } else if (apiResponse.status === false) {
+                        setShowSnack({
+                            type: SnackbarTypes.Error,
+                            message: apiResponse.message || "Failed to create CNAM",
+                            isVisible: true
+                        })
+                    }
                 }
             }
 
@@ -117,6 +138,11 @@ const Cnammain = ({
                 errorMessage = error.message || String(error);
             }
             console.log("Error occured in api", errorMessage);
+            setShowSnack({
+                type: SnackbarTypes.Error,
+                message: errorMessage,
+                isVisible: true
+            })
         }
     }
 
@@ -193,7 +219,7 @@ const Cnammain = ({
                         </div>
                         {/* Select CNAM from list */}
                         {
-                            twilioLocalData && twilioLocalData?.trustProducts?.cnam?.all?.length > 0 && (
+                            trustProducts?.cnam?.all?.length > 1 && (
                                 <div className='mt-4'>
                                     <div
                                         className='mb-2'
@@ -202,7 +228,7 @@ const Cnammain = ({
                                         Select CNAM from list
                                     </div>
                                     <OldCnamVoiceStir
-                                        twilioLocalData={twilioLocalData?.trustProducts?.cnam?.all}
+                                        twilioLocalData={trustProducts.cnam.all}
                                         value={selectedCNAM}
                                         setValue={setSelectedCNAM}
                                     />
@@ -221,9 +247,9 @@ const Cnammain = ({
                                 {cnamName.length}/15
                             </div>
                         </div>
-                        <div className='w-full mt-2 border rounded-lg'>
+                        <div className='w-full mt-2'>
                             <input
-                                className='border-none outline-none rounded-lg focus:outline-transparent w-full focus:ring-0 focus:border-none'//h-[40px] 
+                                className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-200'
                                 style={styles.normalTxt}
                                 placeholder='Name'
                                 value={cnamName}

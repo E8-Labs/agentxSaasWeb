@@ -140,6 +140,7 @@ const TwilioTrustHub = () => {
                         <div className='w-full mt-4'>
                             <CenamDetails
                                 twilioHubData={twilioHubData?.cnam}
+                                trustProducts={twilioHubData?.trustProducts}
                                 getProfileData={getBusinessProfile}
                                 profileStatus={profileStatus}
                             />
@@ -147,6 +148,7 @@ const TwilioTrustHub = () => {
                         <div className='w-full mt-4'>
                             <StirDetails
                                 twilioHubData={twilioHubData?.shakenStir}
+                                trustProducts={twilioHubData?.trustProducts}
                                 getProfileData={getBusinessProfile}
                                 profileStatus={profileStatus}
                             />
@@ -154,6 +156,7 @@ const TwilioTrustHub = () => {
                         <div className='w-full mt-4'>
                             <VoiceIntegrityDetails
                                 twilioHubData={twilioHubData?.voiceIntegrity}
+                                trustProducts={twilioHubData?.trustProducts}
                                 getProfileData={getBusinessProfile}
                                 profileStatus={profileStatus}
                             />

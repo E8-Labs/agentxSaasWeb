@@ -8,7 +8,7 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
-const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
+const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData }) => {
 
 
     const [showDetails, setShowDetails] = useState(false);
@@ -163,6 +163,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, profileStatus, getProfileData })
                 showAddVoice && (
                     <TwilioIntegrations
                         showVoiceIntegration={showAddVoice}
+                        trustProducts={trustProducts}
                         handleClose={(d) => {
                             if (d) {
                                 getProfileData();

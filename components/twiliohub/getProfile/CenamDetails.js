@@ -8,7 +8,7 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
-const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
+const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData }) => {
 
     const [showDetails, setShowDetails] = useState(false);
     const [showAddCNAM, setShowAddCNAM] = useState(false);
@@ -140,6 +140,7 @@ const CenamDetails = ({ twilioHubData, profileStatus, getProfileData }) => {
                 showAddCNAM && (
                     <Cnammain
                         showAddCNAM={showAddCNAM}
+                        trustProducts={trustProducts}
                         handleClose={(d) => {
                             setShowAddCNAM(false);
                             if (d) {

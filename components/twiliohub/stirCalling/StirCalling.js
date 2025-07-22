@@ -1,6 +1,7 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import OldCnamVoiceStir from '@/components/twiliohub/twilioExtras/OldCnamVoiceStir';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
@@ -8,9 +9,11 @@ import React, { useEffect, useState } from 'react'
 
 const StirCalling = ({
     showShakenStir,
+    trustProducts,
     handleClose
 }) => {
 
+    const [selectedSTIR, setSelectedSTIR] = useState("");
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [isDisabled, setIsDisabled] = useState(true);
     const [loader, setLoader] = useState(false);
@@ -55,18 +58,33 @@ const StirCalling = ({
         getPhonesList();
     }, [])
 
+    //reset one field value to null when the other is filled
+    useEffect(() => {
+        // Only reset if one field has a value and the other is being set
+        if (productName && productName.trim() !== "") {
+            setSelectedSTIR("")
+        }
+    }, [productName])
+
+    useEffect(() => {
+        // Only reset if one field has a value and the other is being set
+        if (selectedSTIR && String(selectedSTIR).trim() !== "") {
+            setProductName("")
+        }
+    }, [selectedSTIR])
+
     //toggle agree terms click
     const handleToggleTermsClick = () => {
         setAgreeTerms(!agreeTerms);
     };
 
     useEffect(() => {
-        if (!productName || !agreeTerms) {
+        if ((!productName && !selectedSTIR) || !agreeTerms) {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
         }
-    }, [productName, agreeTerms]);
+    }, [productName, selectedSTIR, agreeTerms]);
 
     //select phones
     const handlephoneSelect = (phone) => {
@@ -85,46 +103,71 @@ const StirCalling = ({
     const handleAddShakenStir = async () => {
         try {
             setLoader(true);
-            const token = AuthToken();
-            const ApiPath = Apis.createShakenStir;
-            let ApiData = null;
-            if (phoneSelect.length > 0) {
-                ApiData = {
-                    friendlyName: productName,
-                    phone_numbers: phoneSelect
-                }
-            } else {
-                ApiData = {
-                    friendlyName: productName,
-                }
-            }
-            console.log("Api data is", ApiData);
-            // return
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
+            
+            // If user selected an existing STIR/SHAKEN product, use select API
+            if (selectedSTIR && String(selectedSTIR).trim() !== "") {
+                // Import AddSelectedProduct API
+                const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
+                const response = await AddSelectedProduct(selectedSTIR);
+                
                 setLoader(false);
-                const apiResponse = response.data;
-                if (apiResponse.status === true) {
-                    handleClose(apiResponse);
-                } else if (apiResponse.status === false) {
+                if (response.status === true) {
+                    handleClose(response);
+                } else {
                     setShowSnack({
                         type: SnackbarTypes.Error,
-                        message: apiResponse.message,
+                        message: response.message || "Failed to select STIR/SHAKEN product",
                         isVisible: true
                     })
                 }
-                console.log("Response of api is", response);
+            } else {
+                // If user entered a new product name, use create API
+                const token = AuthToken();
+                const ApiPath = Apis.createShakenStir;
+                let ApiData = null;
+                if (phoneSelect.length > 0) {
+                    ApiData = {
+                        friendlyName: productName,
+                        phone_numbers: phoneSelect
+                    }
+                } else {
+                    ApiData = {
+                        friendlyName: productName,
+                    }
+                }
+                console.log("Api data is", ApiData);
+                
+                const response = await axios.post(ApiPath, ApiData, {
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response) {
+                    setLoader(false);
+                    const apiResponse = response.data;
+                    if (apiResponse.status === true) {
+                        handleClose(apiResponse);
+                    } else if (apiResponse.status === false) {
+                        setShowSnack({
+                            type: SnackbarTypes.Error,
+                            message: apiResponse.message || "Failed to create STIR/SHAKEN product",
+                            isVisible: true
+                        })
+                    }
+                    console.log("Response of api is", response);
+                }
             }
 
         } catch (error) {
             setLoader(false);
             console.log("Error occured in api is", error);
+            setShowSnack({
+                type: SnackbarTypes.Error,
+                message: "An unexpected error occurred",
+                isVisible: true
+            })
         }
     }
 
@@ -217,21 +260,39 @@ const StirCalling = ({
                         <div
                             className='mt-2'
                             style={{ fontWeight: "700", fontSize: 17 }}>
-                            {`Enter a display name for CNAM`}
+                            {`Enter a display name for SHAKEN/STIR`}
                         </div>
                         <div className='mt-2' style={styles.normalTxt}>
-                            This name will show on your customers phone when you call them. You can display uptill 15 characters. The display name will be vetted for appropriateness and relevance to your Business.
+                        We will enable SHAKEN/STIR for outbound calls on all united States numbers assigned to this Twilio Approved Business Profile. No additional configuration is required. Enabling SHAKEN/STIR Trusted calling will not interupt your existing services
                         </div>
+                        {/* Select STIR/SHAKEN from list */}
+                        {
+                            trustProducts?.shakenStir?.all?.length > 1 && (
+                                <div className='mt-4'>
+                                    <div
+                                        className='mb-2'
+                                        style={styles.normalTxt}
+                                    >
+                                        Select SHAKEN/STIR*
+                                    </div>
+                                    <OldCnamVoiceStir
+                                        twilioLocalData={trustProducts.shakenStir.all}
+                                        value={selectedSTIR}
+                                        setValue={setSelectedSTIR}
+                                    />
+                                </div>
+                            )
+                        }
                         <div
                             className='mt-6'
                             style={styles.normalTxt}>
-                            Trust product name*
+                            Create SHAKEN/STIR Name*
                         </div>
                         <div className='w-full mt-2'>
                             <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
+                                className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-200'
                                 style={styles.normalTxt}
-                                placeholder='Trust product name'
+                                placeholder='Type here'
                                 value={productName}
                                 onChange={(e) => {
                                     setProductName(e.target.value)

@@ -1,6 +1,7 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import OldCnamVoiceStir from '@/components/twiliohub/twilioExtras/OldCnamVoiceStir';
 import { Box, CircularProgress, Modal } from '@mui/material'
 import axios from 'axios';
 import Image from 'next/image'
@@ -8,9 +9,11 @@ import React, { useEffect, useState } from 'react'
 
 const TwilioIntegrations = ({
     showVoiceIntegration,
+    trustProducts,
     handleClose
 }) => {
 
+    const [selectedVoiceIntegrity, setSelectedVoiceIntegrity] = useState("");
     const [isDisabled, setIsDisabled] = useState(true);
     const [loader, setLoader] = useState(false);
 
@@ -24,47 +27,86 @@ const TwilioIntegrations = ({
         isVisible: false
     });
 
+    //reset one field value to null when the other is filled
+    useEffect(() => {
+        // Only reset if one field has a value and the other is being set
+        if (friendlyName && friendlyName.trim() !== "") {
+            setSelectedVoiceIntegrity("")
+        }
+    }, [friendlyName])
+
+    useEffect(() => {
+        // Only reset if one field has a value and the other is being set
+        if (selectedVoiceIntegrity && String(selectedVoiceIntegrity).trim() !== "") {
+            setFriendlyName("")
+            setCompanySize("")
+            setAverageCallsPerDay("")
+        }
+    }, [selectedVoiceIntegrity])
+
     //disable continue
     useEffect(() => {
-        if (!friendlyName || !companySize) {
+        if (selectedVoiceIntegrity && String(selectedVoiceIntegrity).trim() !== "") {
+            setIsDisabled(false);
+        } else if (!friendlyName || !companySize) {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
         }
-    }, [friendlyName, companySize]);
+    }, [friendlyName, companySize, selectedVoiceIntegrity]);
 
     //add integration
     const handleAddVoiceIntegration = async () => {
         try {
             setLoader(true);
-            const token = AuthToken();
-            const ApiPath = Apis.createVoiceIntegrity;
-            const ApiData = {
-                "friendlyName": friendlyName,
-                // "country": "US",
-                "companySize": companySize,
-                "averageCallsPerDay": averageCallsPerDay
-            }
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (response) {
+            
+            // If user selected an existing Voice Integrity product, use select API
+            if (selectedVoiceIntegrity && String(selectedVoiceIntegrity).trim() !== "") {
+                // Import AddSelectedProduct API
+                const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
+                const response = await AddSelectedProduct(selectedVoiceIntegrity);
+                
                 setLoader(false);
-                console.log("response of add voice api is");
-                const ApiResponse = response.data;
-                if (ApiResponse.status === true) {
-                    handleClose(ApiResponse)
+                if (response.status === true) {
+                    handleClose(response);
                 } else {
-                    console.log("got err");
                     setShowSnack({
-                        message: ApiResponse.message,
                         type: SnackbarTypes.Error,
+                        message: response.message || "Failed to select Voice Integrity product",
                         isVisible: true
                     })
+                }
+            } else {
+                // If user entered new product details, use create API
+                const token = AuthToken();
+                const ApiPath = Apis.createVoiceIntegrity;
+                const ApiData = {
+                    "friendlyName": friendlyName,
+                    // "country": "US",
+                    "companySize": companySize,
+                    "averageCallsPerDay": averageCallsPerDay
+                }
+                const response = await axios.post(ApiPath, ApiData, {
+                    headers: {
+                        "Authorization": "Bearer " + token,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (response) {
+                    setLoader(false);
+                    console.log("response of add voice api is");
+                    const ApiResponse = response.data;
+                    if (ApiResponse.status === true) {
+                        handleClose(ApiResponse)
+                    } else {
+                        console.log("got err");
+                        setShowSnack({
+                            message: ApiResponse.message || "Failed to create Voice Integrity product",
+                            type: SnackbarTypes.Error,
+                            isVisible: true
+                        })
+                    }
                 }
             }
 
@@ -158,6 +200,24 @@ const TwilioIntegrations = ({
                                 />
                             </button>
                         </div>
+                        {/* Select Voice Integrity from list */}
+                        {
+                            trustProducts?.voiceIntegrity?.all?.length > 1 && (
+                                <div className='mt-4'>
+                                    <div
+                                        className='mb-2'
+                                        style={styles.normalTxt}
+                                    >
+                                        Select Voice Integrity from list
+                                    </div>
+                                    <OldCnamVoiceStir
+                                        twilioLocalData={trustProducts.voiceIntegrity.all}
+                                        value={selectedVoiceIntegrity}
+                                        setValue={setSelectedVoiceIntegrity}
+                                    />
+                                </div>
+                            )
+                        }
                         <div
                             className='mt-6'
                             style={styles.normalTxt}>
@@ -165,7 +225,7 @@ const TwilioIntegrations = ({
                         </div>
                         <div className='w-full mt-2'>
                             <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
+                                className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-200'
                                 style={styles.normalTxt}
                                 placeholder='Voice integrity friendly name*'
                                 value={friendlyName}
@@ -195,7 +255,7 @@ const TwilioIntegrations = ({
                         </div>
                         <div className='w-full mt-2'>
                             <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
+                                className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-200'
                                 inputMode="numeric"
                                 type='number'
                                 pattern="[0-9]*"
@@ -227,7 +287,7 @@ const TwilioIntegrations = ({
                         </div>
                         <div className='w-full mt-2'>
                             <input
-                                className='border rounded-lg p-2 h-[50px] outline-none focus:outline-none w-full focus:ring-0 focus:border'
+                                className='w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-0 focus:border-gray-200'
                                 inputMode="numeric"
                                 type='number'
                                 pattern="[0-9]*"
