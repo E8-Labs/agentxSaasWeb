@@ -21,7 +21,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal";
-import { PersistanceKeys } from "@/constants/Constants";
+import { PersistanceKeys, XBarPlans } from "@/constants/Constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
@@ -84,45 +84,46 @@ function AdminXbarServices({selectedUser}) {
   }, []);
 
   //array of plans
-  const defaultPlan = [
-    {
-      id: 1,
-      PlanTitle: "Starter | 250 mins",
-      details: [
-        `1 AgentX AI | 1hrs of Support`,
-        `1 External Integration | 1 Calendar Integration`,
-      ],
-      originalPrice: "2,450",
-      discountPrice: "997",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 2,
-      PlanTitle: "Professional | 750 mins",
-      details: [
-        `4 AgentX AI | 4hrs of Support`,
-        `2 External Integration | 2 Calendar Integration`,
-      ],
-      originalPrice: "5,900",
-      discountPrice: "2,997",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 3,
-      PlanTitle: "Scale | 1500 mins",
-      details: [
-        "Dedicated Success Manager",
-        `6 AgentX AI | 6hrs of Support`,
-        `Unlimited External Integration | Calendar Integration`,
-      ],
-      originalPrice: "8,742",
-      discountPrice: "3,497",
-      planStatus: "60%",
-      status: "Best Value",
-    },
-  ];
+  const defaultPlan = XBarPlans
+  // [
+  //   {
+  //     id: 1,
+  //     PlanTitle: "Starter | 250 mins",
+  //     details: [
+  //       `1 AgentX AI | 1hrs of Support`,
+  //       `1 External Integration | 1 Calendar Integration`,
+  //     ],
+  //     originalPrice: "2,450",
+  //     discountPrice: "997",
+  //     planStatus: "40%",
+  //     status: "",
+  //   },
+  //   {
+  //     id: 2,
+  //     PlanTitle: "Professional | 750 mins",
+  //     details: [
+  //       `4 AgentX AI | 4hrs of Support`,
+  //       `2 External Integration | 2 Calendar Integration`,
+  //     ],
+  //     originalPrice: "5,900",
+  //     discountPrice: "2,997",
+  //     planStatus: "50%",
+  //     status: "Popular",
+  //   },
+  //   {
+  //     id: 3,
+  //     PlanTitle: "Scale | 1500 mins",
+  //     details: [
+  //       "Dedicated Success Manager",
+  //       `6 AgentX AI | 6hrs of Support`,
+  //       `Unlimited External Integration | Calendar Integration`,
+  //     ],
+  //     originalPrice: "8,742",
+  //     discountPrice: "3,497",
+  //     planStatus: "60%",
+  //     status: "Best Value",
+  //   },
+  // ];
 
   const [plans, setPlans] = useState(defaultPlan);
 
