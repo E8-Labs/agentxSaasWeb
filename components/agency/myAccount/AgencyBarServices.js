@@ -84,7 +84,7 @@ function AgencyBarServices() {
       id: 1,
       PlanTitle: "Starter | 250 mins",
       details: [
-        `1 AgentX AI | 2hrs of Support`,
+        `1 AgentX AI | 1hrs of Support`,
         `1 External Integration | 1 Calendar Integration`,
       ],
       originalPrice: "2,450",
@@ -96,7 +96,7 @@ function AgencyBarServices() {
       id: 2,
       PlanTitle: "Professional | 750 mins",
       details: [
-        `4 AgentX AI | 5hrs of Support`,
+        `4 AgentX AI | 4hrs of Support`,
         `2 External Integration | 2 Calendar Integration`,
       ],
       originalPrice: "5,900",
@@ -106,14 +106,14 @@ function AgencyBarServices() {
     },
     {
       id: 3,
-      PlanTitle: "Enterprise | 1500 mins",
+      PlanTitle: "Scale | 1500 mins",
       details: [
         "Dedicated Success Manager",
-        `10 AgentX AI | 10hrs of Support`,
-        `External Integration | Calendar Integration`,
+        `6 AgentX AI | 6hrs of Support`,
+        `Unlimited External Integration | Calendar Integration`,
       ],
-      originalPrice: "8,200",
-      discountPrice: "4,997",
+      originalPrice: "8,742",
+      discountPrice: "3,497",
       planStatus: "60%",
       status: "Best Value",
     },
