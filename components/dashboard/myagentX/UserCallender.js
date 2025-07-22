@@ -25,8 +25,6 @@ import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { SelectAll } from "@mui/icons-material";
 import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { getSession } from "next-auth/react";
 import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 
 const UserCalender = ({
@@ -80,8 +78,6 @@ const UserCalender = ({
   //video card
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
-  //get the calendar sessions
-  const { data: session, status } = useSession();
 
   useEffect(() => {
     setAllCalendars(previousCalenders);
@@ -116,23 +112,6 @@ const UserCalender = ({
   //   }
   // }, [calenderTitle, calenderApiKey, eventId, selectTimeZone]);
 
-  const pollSessionAndTriggerCallback = async (retries = 10, interval = 500) => {
-    for (let i = 0; i < retries; i++) {
-      const session = await getSession();
-      if (session?.accessToken) {
-        console.log("🎯 Session is ready after login", session);
-        handleAfterLogin(session); // 🔥 call your custom logic
-        return;
-      }
-      await new Promise((resolve) => setTimeout(resolve, interval));
-    }
-    console.warn("⚠️ Timed out waiting for session after login.");
-  };
-
-  const handleAfterLogin = (session) => {
-    console.log("👉 Session after login:", session);
-    // Add your custom logic here: open calendar modal, call API, etc.
-  };
 
 
   function isEnabled() {

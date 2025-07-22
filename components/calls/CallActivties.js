@@ -640,7 +640,7 @@ function SheduledCalls({ user }) {
           <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
 
           <div className="w-full flex flex-row justify-between mt-10 px-10">
-            <div className="w-3/12">
+            <div className="w-2/12">
               <div style={styles.text}>Agent</div>
             </div>
             <div className="w-2/12 ">
@@ -649,6 +649,10 @@ function SheduledCalls({ user }) {
             <div className="w-1/12">
               <div style={styles.text}>Leads</div>
             </div>
+            <div className="w-1/12">
+              <div style={styles.text}>List Name</div>
+            </div>
+
             <div className="w-2/12">
               <div style={styles.text}>Date created</div>
             </div>
@@ -677,7 +681,7 @@ function SheduledCalls({ user }) {
                                 className="w-full flex flex-row items-center justify-between mt-10 px-10"
                                 key={index}
                               >
-                                <div className="w-3/12 flex flex-row gap-4 items-center">
+                                <div className="w-2/12 flex flex-row gap-4 items-center">
                                   {agent?.agents[0]?.thumb_profile_image ? (
                                     <Image
                                       className="rounded-full"
@@ -703,13 +707,12 @@ function SheduledCalls({ user }) {
                                 </div>
                                 <div className="w-2/12 ">
                                   {user.user.userType ==
-                                  UserTypes.RealEstateAgent
+                                    UserTypes.RealEstateAgent
                                     ? `${ToUppercase(
-                                        agent?.agents[0]?.agentObjective
-                                      )}`
-                                    : `${
-                                        agent?.agents[0]?.agentRole || "Other"
-                                      }`}
+                                      agent?.agents[0]?.agentObjective
+                                    )}`
+                                    : `${agent?.agents[0]?.agentRole || "Other"
+                                    }`}
                                 </div>
                                 <div className="w-1/12">
                                   <button
@@ -727,6 +730,9 @@ function SheduledCalls({ user }) {
                                   >
                                     {item?.totalLeads}
                                   </button>
+                                </div>
+                                <div className="w-1/12">
+                                  {item.Sheet?.sheetName || "-"}
                                 </div>
                                 <div className="w-2/12">
                                   {item?.createdAt ? (
@@ -831,7 +837,7 @@ function SheduledCalls({ user }) {
                           <div>
                             {SelectedAgent?.name
                               ? SelectedAgent.name.charAt(0).toUpperCase() +
-                                SelectedAgent.name.slice(1)
+                              SelectedAgent.name.slice(1)
                               : ""}{" "}
                             call activity
                           </div>

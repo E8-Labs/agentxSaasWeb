@@ -393,30 +393,62 @@ const LastStep = ({
           </div>
 
           <div className="flex flex-row items-center gap-8 mt-4">
-            <input
-              className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
+            {/*
+              <input
+                className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
+                style={{
+                  border: `${isFocustedCustomLeads
+                    ? "2px solid #7902Df"
+                    : "1px solid #00000040"
+                    }`,
+                  height: "50px",
+                }}
+                value={customLeadsToSend}
+                onFocus={() => {
+                  setNoOfLeadsToSend("");
+                  setisFocustedCustomLeads(true);
+                }}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  if (!/[0-9]/.test(value) && value !== "") return;
+                  setCustomLeadsToSend(e.target.value);
+                  if(NoOfLeadsToSend){
+                    setNoOfLeadsToSend("");
+                  }
+                }}
+                placeholder="Ex: 100"
+              />
+            */}
+
+            <div
+              className='w-1/2 h-[50px] rounded-2xl p-4 flex flex-row items-center'
               style={{
                 border: `${isFocustedCustomLeads
                   ? "2px solid #7902Df"
                   : "1px solid #00000040"
                   }`,
                 height: "50px",
-              }}
-              value={customLeadsToSend}
-              onFocus={() => {
-                setNoOfLeadsToSend("");
-                setisFocustedCustomLeads(true);
-              }}
-              onChange={(e) => {
-                let value = e.target.value;
-                if (!/[0-9]/.test(value) && value !== "") return;
-                setCustomLeadsToSend(e.target.value);
-                if(NoOfLeadsToSend){
+              }}>
+              <input
+                className="w-full rounded-2xl outline-none focus:ring-0 border-none"
+                value={customLeadsToSend}
+                onFocus={() => {
                   setNoOfLeadsToSend("");
-                }
-              }}
-              placeholder="Ex: 100"
-            />
+                  setisFocustedCustomLeads(true);
+                }}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  if (!/[0-9]/.test(value) && value !== "") return;
+                  setCustomLeadsToSend(e.target.value);
+                  if (NoOfLeadsToSend) {
+                    setNoOfLeadsToSend("");
+                  }
+                }}
+                placeholder="Ex: 100"
+                style={{ fontSize: 15, fontWeight: "500" }}
+              />
+            </div>
+
             <button
               className="w-1/2 flex flex-row items-center p-4 rounded-2xl"
               style={{

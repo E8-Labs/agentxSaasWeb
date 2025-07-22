@@ -562,7 +562,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId }) => {
               }}
             >
               <div style={{ fontWeight: "600", fontSize: 16.8 }}>
-                Add New Guardrai
+                Add New Guardrail
               </div>
               <button
                 onClick={() => {

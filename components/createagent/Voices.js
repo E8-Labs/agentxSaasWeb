@@ -53,7 +53,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/mia.png",
     status: "Popular",
-    Dialect: "Expressive, Playful, Mid 20s | Californian",
+    Dialect: "Expressive, Playful, Mid 20s | New Yorker",
   },
   {
     voice_id: "uYXf8XasLslADfZ2MB4u", //"nl6oV3xkd5WQwnsbR0By", TODO: Arslan compare your vocieId
@@ -64,7 +64,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/kala.png",
     status: "Popular",
-    Dialect: "Calm, poise, Mid 30s | New Yorker",
+    Dialect: "Calm, poise, Mid 30s | Canadian",
   },
   {
     voice_id: "aqXKinCxkMOvW6f3qU8l", //"oz7FsqINAUL7e6EWZ0tH",
@@ -75,7 +75,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/axel.png",
     status: "Popular",
-    Dialect: "Straightforward, Persuasive, Late 20s | Californian",
+    Dialect: "Straightforward, Persuasive, Late 20s | Chicagoan",
   },
   // {//TODO: Arslan why is this here. This is not in the list i provided
   //   voice_id: "WXO1RZNBdwLjgHLljVv9",
@@ -119,7 +119,7 @@ const voicesList = [
     Dialect: "Energetic, Assertive, Late 20s | Arizonan",
   },
   {
-    voice_id: "L0Dsvb3SLTyegXwtm47J", //"60zrBCQf8cjERkYgzSg8",
+    voice_id: "aTxZrSrp47xsP6Ot4Kgd", //"L0Dsvb3SLTyegXwtm47J", //"60zrBCQf8cjERkYgzSg8",
     langualge: "en",
     name: "Xen",
     preview: "/voicesList/Xen.MP3",
@@ -127,7 +127,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/xen.png",
     status: "",
-    Dialect: "Thoughtful, Empathetic, Late 20s | Londoner ",
+    Dialect: "Thoughtful, Empathetic, Late 20s | Flordian",
   },
   {
     voice_id: "8sZxD42zKDvoEXNxBTdX", //"8sZxD42zKDv•EXNxBTdX",
@@ -175,7 +175,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/maria.png",
     status: "",
-    Dialect: "Strategic, Confident, Mid 30s | Texan",
+    Dialect: "Strategic, Confident, Mid 30s | Latina",
   },
   {
     voice_id: "iDEmt5MnqUotdwCIVplo", //"1SM7GgM6lMuvQIz2BwM3",
@@ -188,8 +188,21 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/andres.png",
     status: "",
+    Dialect: "Strategic, Confident, Mid 30s | Latino",
+  },
+
+
+  {
+    voice_id: "RPEIZnKMqlQiZyZd1Dae",
+    langualge: "en",
+    name: "Chris",
+    preview: "/voicesList/Chris.mp3",
+    workspace: "1711297163700x954223200313016300",
+    img: "/otherAssets/chris.jpg",
+    status: "",
     Dialect: "Strategic, Confident, Mid 30s | Texan",
   },
+
 
   // {
   //   voice_id: "yUeKuNxGTYAYe6vcplkT", //"5aOHxVGviCbvOnsHsrWn",
