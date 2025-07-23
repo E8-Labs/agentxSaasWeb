@@ -15,6 +15,7 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
         setOptions((prev) => {
             return [...prev, ...uniqueColumns]
         })
+
     }, [uniqueColumns])
 
     useEffect(() => {
@@ -142,8 +143,8 @@ export const GreetingTagInput = ({ scrollOffset, greetTag, kycsList, tagValue, u
             questions = kycsList?.map((item) => item.question);
         }
         mergedArray = [...uniqueColumns, ...questions];
-
-       // //console.log;
+        console.log("merged array is:", mergedArray);
+        console.log("Kycs list recieved is:", kycsList);
     }, [])
 
     const handleKeyUp = (e) => {

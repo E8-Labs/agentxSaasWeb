@@ -2121,18 +2121,6 @@ const Pipeline1 = () => {
                                 style={styles.paragraph}
                               // onClick={handleDeleteStage}
                               >
-                                <button
-                                  className="flex flex-row gap-2 outline-none"
-                                  onClick={() => colorPickerRef.current.click()}
-                                >
-                                  <Image
-                                    src={"/assets/colorDrop.png"}
-                                    height={18}
-                                    width={15}
-                                    alt="*"
-                                  />
-                                  Color
-                                </button>
                                 <div
                                   style={{
                                     height: "15px",
@@ -2143,6 +2131,12 @@ const Pipeline1 = () => {
                                   }}
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
+                                <button
+                                  className="flex flex-row gap-2 outline-none"
+                                  onClick={() => colorPickerRef.current.click()}
+                                >
+                                  Color
+                                </button>
                                 <div
                                   style={{
                                     opacity: 0,
@@ -2166,13 +2160,21 @@ const Pipeline1 = () => {
 
                             {/* Code for configure */}
                             <button
-                              className="border-none outline-none cursor-pointer mt-4"
+                              className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
                               onClick={() => {
                                 console.log("Configure button clicked");
                                 setShowConfigurePopup(true);
                               }}
                             >
-                              Configure
+                              <Image
+                                src={"/assets/colorDrop.png"}
+                                height={18}
+                                width={15}
+                                alt="*"
+                              />
+                              <div>
+                                Configure
+                              </div>
                             </button>
 
                             {!showDelBtn && (

@@ -20,7 +20,10 @@ import EditModal from "./EditModal";
 import { PersistanceKeys } from "@/constants/Constants";
 import { GreetingTagInput } from "../tagInputs/GreetingTagInput";
 
-const GuardianSetting = ({ showTitle, selectedAgentId, kycsData }) => {
+const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
+
+  console.log("Kycs data passed too guardrails screen is:", kycsData);
+
   const [guardrailsList, setGuardrailsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
@@ -49,7 +52,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData }) => {
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
   //uniques columns
-  const [uniqueColumns, setUniqueColumns] = useState([]);
+  // const [uniqueColumns, setUniqueColumns] = useState([]);
   const [scrollOffset, setScrollOffset] = useState({
     scrollTop: 0,
     scrollLeft: 0,
@@ -67,42 +70,6 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData }) => {
       getGuadrails();
     }
   }, []);
-
-  //get uniques columns
-  const getUniquesColumn = async () => {
-    try {
-      // setColumnloader(true);
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
-      }
-
-      ////////console.log;
-
-      const ApiPath = Apis.uniqueColumns;
-      ////////console.log;
-
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response) {
-        ////console.log;
-        if (response.data.status === true) {
-          setUniqueColumns(response.data.data);
-        }
-      }
-    } catch (error) {
-      //// console.error("Error occured in getColumn is :", error);
-    } finally {
-      // setColumnloader(false)
-    }
-  };
 
   //code for popover
   // const open = Boolean(actionInfoEl);

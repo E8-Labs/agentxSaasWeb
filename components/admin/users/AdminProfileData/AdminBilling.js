@@ -228,6 +228,7 @@ function AdminBilling({ selectedUser, from }) {
 
   //functiion to get cards list
   const getCardsList = async () => {
+    console.log("Get cards api trigered");
     try {
       setGetCardLoader(true);
 
@@ -256,7 +257,7 @@ function AdminBilling({ selectedUser, from }) {
       });
 
       if (response) {
-        //console.log;
+        console.log("Response of get cars api is", response.data);
         if (response.data.status === true) {
           setCards(response.data.data);
         }
@@ -853,7 +854,7 @@ function AdminBilling({ selectedUser, from }) {
           <button
             key={item.id}
             className="w-9/12 mt-4 outline-none"
-          // onClick={(e) => handleTogglePlanClick(item)}
+            onClick={(e) => handleTogglePlanClick(item)}
           >
             <div
               className="px-4 py-1 pb-4"
@@ -1004,7 +1005,7 @@ function AdminBilling({ selectedUser, from }) {
         </div>
       </div>
 
-      {/* {userLocalData?.plan && (
+      {userLocalData?.plan && (
         <div className="w-full">
           <div className="w-full">
             {subscribePlanLoader ? (
@@ -1031,7 +1032,7 @@ function AdminBilling({ selectedUser, from }) {
             )}
           </div>
 
-         
+
 
           <div className="w-9/12 flex flex-row items-center justify-center">
             {userLocalData.plan && (
@@ -1065,7 +1066,7 @@ function AdminBilling({ selectedUser, from }) {
             )}
           </div>
         </div>
-      )} */}
+      )}
 
       <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
         My Billing History
@@ -1193,6 +1194,8 @@ function AdminBilling({ selectedUser, from }) {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={""}
+                  fromAdmin={true}
+                  selectedUser={selectedUser}
                 // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>

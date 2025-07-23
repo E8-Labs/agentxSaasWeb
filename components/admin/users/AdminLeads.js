@@ -266,6 +266,15 @@ const AdminLeads = ({
     // //console.log;
   };
 
+  //leads count
+  function getLeadSelectedCount() {
+    if (toggleClick.length !== totalLeads) {
+      return totalLeads - toggleClick.length;
+    } else {
+      return totalLeads;
+    }
+  }
+
   function SetSheetsToLocalStorage(data) {
     localStorage.setItem("sheets", JSON.stringify(data));
   }
@@ -1811,7 +1820,7 @@ const AdminLeads = ({
               </div>
 
               <div className="flex flex-row items-center gap-2 w-[10%]">
-                {toggleClick.length > 0 && (
+                {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
                       <div>
@@ -1832,6 +1841,9 @@ const AdminLeads = ({
                             </button>
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
                               Select All
+                            </div>
+                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                              {getLeadSelectedCount()}
                             </div>
                           </div>
                         )}

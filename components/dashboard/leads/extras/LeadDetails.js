@@ -736,14 +736,22 @@ const LeadDetails = ({
   function getExtraColumsCount(columns) {
     // //console.log
     let count = 0;
+    // let ExcludedColumns = [
+    //   "name",
+    //   "phone",
+    //   "email",
+    //   "status",
+    //   "stage",
+    //   // "address",
+    // ];
     let ExcludedColumns = [
       "name",
       "phone",
       "email",
       "status",
       "stage",
-      // "address",
-    ];
+      "address",
+  ];
     for (const c of columns) {
       if (!c.isDefault) {
         if (!ExcludedColumns.includes(c?.title?.toLowerCase() || "")) {

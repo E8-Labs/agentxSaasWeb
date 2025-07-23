@@ -3271,9 +3271,17 @@ function Page() {
                     loading={duplicateLoader}
                   />
                   <button onClick={() => {
-                    window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}`, "_blank");
+                    console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
+                    // return;
+                    // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
+                    // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
+                    // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
+                    const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
+                    const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
+
+                    window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+
                   }}
-                    style={{ paddingLeft: 2 }}
                   >
                     <Image
                       src={"/assets/openVoice.png"}
@@ -3282,9 +3290,12 @@ function Page() {
                       width={18}
                     />
                   </button>
-                  <button onClick={() => {
-                    handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
-                  }}>
+                  <button
+                    style={{ paddingLeft: "3px" }}
+                    onClick={() => {
+                      handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                    }}
+                  >
                     <Image src={'/svgIcons/embedIcon.svg'}
                       height={22} width={22} alt="*"
                     />
@@ -5013,6 +5024,8 @@ function Page() {
                         <Objection
                           showTitle={true}
                           selectedAgentId={showScriptModal}
+                          kycsData={kycsData}
+                          uniqueColumns={uniqueColumns}
                         />
                       </div>
                     </div>
@@ -5025,6 +5038,7 @@ function Page() {
                           showTitle={true}
                           selectedAgentId={showScriptModal}
                           kycsData={kycsData}
+                          uniqueColumns={uniqueColumns}
                         />
                       </div>
                     </div>
