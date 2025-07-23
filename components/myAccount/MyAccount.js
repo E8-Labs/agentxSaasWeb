@@ -65,18 +65,25 @@ function MyAccount() {
     // },
     {
       id: 6,
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/twilioHub.svg",
+    },
+    {
+      id: 7,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 7,
+      id: 8,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
       id: 8,
+      id: 9,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -86,15 +93,21 @@ function MyAccount() {
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
 
+  //select the invite teams by default
   useEffect(() => {
-    const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 5;
-    // //console.log;
-    setTabSelected(number);
-    if (!tab) {
+    const tab = searchParams.get("tab");
+    const number = Number(tab);
+
+    const exists = manuBar.find((item) => item.id === number);
+    if (exists) {
+      setTabSelected(number);
+    } else {
+      setTabSelected(5); // Default to Invite Agents
       setParamsInSearchBar(5);
+      // console.log("Setting the tab value");
     }
   }, []);
+
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
@@ -121,8 +134,8 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 5:
         return <InviteAgentX />;
-      // case 6:
-      //   return <TwilioTrustHub />;
+      case 6:
+        return <TwilioTrustHub />;
       // case 6:
       //   return <Support />;
       // case 7:
@@ -134,27 +147,28 @@ function MyAccount() {
 
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 6) {
+    if (item.id === 7) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 7) {
+    } else if (item.id === 8) {
       window.open(
-        privacyPollicyUrl,
+        "/privacy-policy",
         "_blank"
       );
       return
-    } else if (item.id === 8) {
+    } else if (item.id === 9) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"
       );
       return
     }
-    setTabSelected(index + 1);
-    setParamsInSearchBar(index + 1);
+    console.log("Index is", index);
+    setTabSelected(item.id);
+    setParamsInSearchBar(item.id);
 
   }
 
@@ -237,7 +251,7 @@ function MyAccount() {
             overflow: "auto",
             height: "92vh",
             borderLeftWidth: 1,
-            borderBottomColor: "#00000010",
+            borderBottomColor: "#00000012",
           }}
         >
           {renderComponent()}
