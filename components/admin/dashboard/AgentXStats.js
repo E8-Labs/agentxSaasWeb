@@ -88,7 +88,7 @@ function AgentXStats({ user }) {
       if (response.ok) {
         //console.log;
         setStats(data.stats.data);
-        localStorage.setItem(PersistanceKeys.adminDashboardData)
+        localStorage.setItem(PersistanceKeys.aadminDashboardData, JSON.stringify(data.stats.data));
       } else {
         console.error("Failed to fetch admin stats:", data.error);
       }

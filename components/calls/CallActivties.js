@@ -707,13 +707,12 @@ function SheduledCalls({ user }) {
                                 </div>
                                 <div className="w-2/12 ">
                                   {user.user.userType ==
-                                  UserTypes.RealEstateAgent
+                                    UserTypes.RealEstateAgent
                                     ? `${ToUppercase(
-                                        agent?.agents[0]?.agentObjective
-                                      )}`
-                                    : `${
-                                        agent?.agents[0]?.agentRole || "Other"
-                                      }`}
+                                      agent?.agents[0]?.agentObjective
+                                    )}`
+                                    : `${agent?.agents[0]?.agentRole || "Other"
+                                    }`}
                                 </div>
                                 <div className="w-1/12">
                                   <button
@@ -838,7 +837,7 @@ function SheduledCalls({ user }) {
                           <div>
                             {SelectedAgent?.name
                               ? SelectedAgent.name.charAt(0).toUpperCase() +
-                                SelectedAgent.name.slice(1)
+                              SelectedAgent.name.slice(1)
                               : ""}{" "}
                             call activity
                           </div>

@@ -65,7 +65,7 @@ const Apis = {
   addObjectionGuardrial: `${BasePath}api/agent/addObjectionGuardRail`,
   getObjectionGuardrial: `${BasePath}api/agent/getObjectionsAndGuardrails`,
   DelObjectGuard: `${BasePath}api/agent/deleteObjectionGuardRail`,
-  UpdateAdvanceSetting:`${BasePath}api/agent/updateObjectionGuardRail`,
+  UpdateAdvanceSetting: `${BasePath}api/agent/updateObjectionGuardRail`,
   reorderStages: `${BasePath}api/pipeline/reorderStages`,
   createPipeLine: `${BasePath}api/pipeline/createPipeline`,
   testAI: `${BasePath}api/agent/testAi`,
@@ -183,13 +183,13 @@ const Apis = {
   //setup twillio
   setUpAgencyTwilioKey: `${BasePath}api/agency/addSynthflowTwilio`,
   //upsell phone
-  addUpSellPhone:`${BasePath}api/user/setPhoneNumberPrice`,
+  addUpSellPhone: `${BasePath}api/user/setPhoneNumberPrice`,
 
   getCallTranscript: `${BasePath}api/leads/getCallTranscript`,
 
   duplicateAgent: `${BasePath}api/agent/duplicateAgent`,
   resetTrail: `${BasePath}api/admin/resetTrial`,
-profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
+  profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
   //twilio trust hub
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,

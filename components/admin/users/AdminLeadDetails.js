@@ -1903,7 +1903,7 @@ const AdminLeadDetails = ({
                                                                                             fontSize: 15,
                                                                                         }}
                                                                                     >
-                                                                                        {item.question}
+                                                                                        {item.question.split("ylz8ibb4uykg29mogltl").join("").trim()}
                                                                                     </div>
                                                                                     <div
                                                                                         className="mt-1"
@@ -2195,34 +2195,15 @@ const AdminLeadDetails = ({
                                                                                                                     paddingInline: 15,
                                                                                                                 }}
                                                                                                             >
-                                                                                                                <div className="flex mt-4 flex-row items-center gap-4">
-                                                                                                                    <div
-                                                                                                                        className=""
-                                                                                                                        style={{
-                                                                                                                            fontWeight: "500",
-                                                                                                                            fontSize: 12,
-                                                                                                                            color: "#00000070",
-                                                                                                                        }}
-                                                                                                                    >
-                                                                                                                        Transcript
-                                                                                                                    </div>
-
-                                                                                                                    <button
-                                                                                                                        onClick={() =>
-                                                                                                                            handleCopy(
-                                                                                                                                item.callId
-                                                                                                                            )
-                                                                                                                        }
-                                                                                                                    >
-                                                                                                                        <Image
-                                                                                                                            src={
-                                                                                                                                "/svgIcons/copy.svg"
-                                                                                                                            }
-                                                                                                                            height={15}
-                                                                                                                            width={15}
-                                                                                                                            alt="*"
-                                                                                                                        />
-                                                                                                                    </button>
+                                                                                                                <div
+                                                                                                                    className="mt-4"
+                                                                                                                    style={{
+                                                                                                                        fontWeight: "500",
+                                                                                                                        fontSize: 12,
+                                                                                                                        color: "#00000070",
+                                                                                                                    }}
+                                                                                                                >
+                                                                                                                    Transcript
                                                                                                                 </div>
                                                                                                                 <div className="flex flex-row items-center justify-between mt-4">
                                                                                                                     <div

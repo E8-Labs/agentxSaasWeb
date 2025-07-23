@@ -164,14 +164,15 @@ const LeadDetails = ({
     if (!selectedLead) return;
     getLeadDetails(selectedLead);
 
-    console.log("pipelineId", pipelineId);
+    // Remove or comment out the console.log to avoid build errors
+    // console.log("pipelineId", pipelineId);
 
     if (pipelineId) {
       // //console.log;
       getStagesList(selectedLead);
     }
     getMyteam();
-  }, [selectedLead]);
+  }, [selectedLead, pipelineId]);
 
   //code for getting teammebers
   const getMyteam = async () => {
@@ -1925,7 +1926,9 @@ const LeadDetails = ({
                                             fontSize: 15,
                                           }}
                                         >
-                                          {item.question}
+                                          {item.question && typeof item.question === "string"
+                                            ? item.question.split("ylz8ibb4uykg29mogltl").join("").trim()
+                                            : ""}
                                         </div>
                                         <div
                                           className="mt-1"
@@ -2182,35 +2185,29 @@ const LeadDetails = ({
                                                         alt="*"
                                                       />
                                                     </button>
-                                                    {item.agent.hasVoicemail ? (
-                                                      <div>
-                                                        {item.voicemailsent ? (
-                                                          <NoVoicemailView
-                                                            showAddBtn={false}
-                                                            title={
-                                                              "Voicemail Delivered"
-                                                            }
-                                                            subTitle={
-                                                              "Delivered during the first missed call"
-                                                            }
-                                                          />
-                                                        ) : (
-                                                          <NoVoicemailView
-                                                            showAddBtn={false}
-                                                            title={
-                                                              "Not able to Leave a Voicemail"
-                                                            }
-                                                            subTitle={
-                                                              "The phone was either a landline or has a full voicemail"
-                                                            }
-                                                          />
-                                                        )}
-                                                      </div>
+                                                     {item.agent.hasVoicemail ? (
+
+                                                      <NoVoicemailView
+                                                        showAddBtn={false}
+                                                        title={
+                                                          "Voicemail Delivered"
+                                                        }
+                                                        subTitle={
+                                                          "Delivered during the first missed call"
+                                                        }
+                                                      />
                                                     ) : (
                                                       <NoVoicemailView
                                                         showAddBtn={false}
+                                                        title={
+                                                          "Not able to Leave a Voicemail"
+                                                        }
+                                                        subTitle={
+                                                          "The phone was either a landline or has a full voicemail"
+                                                        }
                                                       />
                                                     )}
+
                                                   </div>
                                                 ) : (
                                                   <>

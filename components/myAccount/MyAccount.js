@@ -155,7 +155,7 @@ function MyAccount() {
       return
     } else if (item.id === 8) {
       window.open(
-        privacyPollicyUrl,
+        "/privacy-policy",
         "_blank"
       );
       return
