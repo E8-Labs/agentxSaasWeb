@@ -90,7 +90,7 @@ const Pipeline1 = ({ handleContinue }) => {
       );
 
       if (selectedPipeline) {
-        // //console.log;
+        
         setSelectedPipelineItem(selectedPipeline);
         setSelectedPipelineStages(selectedPipeline.stages);
 
@@ -182,11 +182,17 @@ const Pipeline1 = ({ handleContinue }) => {
       console.log("Trigered getpipelines")
       const selectedUserLocalData = localStorage.getItem(PersistanceKeys.selectedUser);
       let selectedUser = null;
-      if (selectedUserLocalData) {
+      console.log("Selected user local data is", selectedUserLocalData);
+      if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
         selectedUser = JSON.parse(selectedUserLocalData);
         console.log("Selected user details are", selectedUser);
       }
-      const ApiPath = Apis.getPipelines + "?liteResource=true" + "&userId=" + selectedUser?.id;
+      let ApiPath = Apis.getPipelines + "?liteResource=true"
+
+      if(selectedUser){
+        ApiPath = ApiPath + "&userId=" + selectedUser?.id;
+      }
+
       console.log("ApiPath is", ApiPath);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
@@ -205,7 +211,7 @@ const Pipeline1 = ({ handleContinue }) => {
       });
 
       if (response) {
-        // //console.log;
+        console.log("Response is of get pipelines", response.data.data);
         setPipelinesDetails(response.data.data);
         setSelectPipleLine(response.data.data[0].title);
         setSelectedPipelineItem(response.data.data[0]);
@@ -217,7 +223,7 @@ const Pipeline1 = ({ handleContinue }) => {
         );
       }
     } catch (error) {
-      // console.error("Error occured in get pipelies api is :", error);
+      console.log("Error occured in get pipelies api is :", error);
     } finally {
       // //console.log;
     }
