@@ -194,7 +194,24 @@ const Apis = {
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
   deleteCallLog: `${BasePath}api/leads/deleteCallLog`,
+  confirmContinueCharging: `${BasePath}api/user/confirm-continue-charging`,
+  addTwilio: `${BasePath}api/business-profile/twilio/create`,
+  createCname: `${BasePath}api/business-profile/cnam`,
+  createShakenStir: `${BasePath}api/business-profile/shakenstir`,
+  createVoiceIntegrity: `${BasePath}api/business-profile/vocie-integrity`,
+  createBrandedCalling: `${BasePath}api/business-profile/branded-calling`,
+  disconnectTwilio: `${BasePath}api/business-profile/twilio/disconnect`,
+  addTrustProduct: `${BasePath}api/business-profile/trust-products/select`,
 
+  profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
+
+  getMcpTools: `${BasePath}api/agent/getMcpTools`,
+  addMcpTool: `${BasePath}api/agent/addMcpTool`,
+  editMcpTool: `${BasePath}api/agent/updateMcpTool`,
+  deleteMcpTool: `${BasePath}api/agent/deleteMcpTool`,
+  selectMcpTool: `${BasePath}api/agent/selectMcpTool`,
+  attachMcpTool: `${BasePath}api/agent/addMcpToolToAgent`,
+  removeMcpTool: `${BasePath}api/agent/removeMcpToolFromAgent`,
 
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,

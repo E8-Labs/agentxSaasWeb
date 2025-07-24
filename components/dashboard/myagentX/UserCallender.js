@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import Header from "@/components/onboarding/Header";
-import Footer from "@/components/onboarding/Footer";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { borderColor, Box } from "@mui/system";
 import Apis from "@/components/apis/Apis";
@@ -27,16 +26,27 @@ import { SelectAll } from "@mui/icons-material";
 import AskSkyConfirmation from "@/components/dashboard/myagentX/CalenderModal";
 import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 
+import MCPView from "./mcp/MCPView";
+import { MUICustomIcon } from "@/components/globalExtras/MUICustomIcon";
+import { MenuItemHoverStyles } from "@/components/globalExtras/MenuItemHoverStyles";
+
 const UserCalender = ({
   calendarDetails,
   setUserDetails,
   previousCalenders,
   selectedAgent,
   updateVariableData,
-  selectedUser
+  selectedUser,
+  loadingCalenders = false,
+  setSelectedAgent,
+  setShowDrawerSelectedAgent
 }) => {
 
   const justLoggedIn = useRef(false);
+
+  console.log("calender passed is", selectedAgent);
+
+
 
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
@@ -79,11 +89,32 @@ const UserCalender = ({
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
 
+  const [showAddMcpPopup, setShowAddMcpPopup] = useState(false);
+  const [showEditMcpPopup, setShowEditMcpPopup] = useState(false);
+  const [selectedMcpTool, setSelectedMcpTool] = useState(null);
+
+  const [mcpTools, setMcpTools] = useState([]);
+
+  const [addMcpLoader, setAddMcpLoader] = useState(false);
+  const [editMcpLoader, setEditMcpLoader] = useState(false);
+  const [deleteMcpLoader, setDeleteMcpLoader] = useState(false);
+  const [mcpName, setMcpName] = useState("");
+  const [mcpUrl, setMcpUrl] = useState("");
+  const [mcpDescription, setMcpDescription] = useState("");
+
+
   useEffect(() => {
+    console.log("Selected agent calendar is =====", selectedAgent);
+
+    // let cal = previousCalenders.find(item => item.id === selectedAgent?.calendar?.id);
+    // console.log("Calender found is =====", cal);
+    console.log("previousCalenders are =====", previousCalenders);
+
+
     setAllCalendars(previousCalenders);
     console.log("Selected agent ", selectedAgent);
     if (selectedAgent?.calendar) {
-      //console.log;
+      console.log("Log trigered");
       setSelectCalender(selectedAgent.calendar);
       setSelectedCalenderTitle(selectedAgent.calendar?.id || "");
     } else {
@@ -91,6 +122,13 @@ const UserCalender = ({
     }
     // getCalenders();
   }, []);
+
+  useEffect(() => {
+    console.log("selectedCalenderTitle changed:", selectedCalenderTitle);
+    if (selectedCalenderTitle) {
+      setCalendarSelected(selectedCalenderTitle);
+    }
+  }, [selectedCalenderTitle]);
 
   useEffect(() => {
     setAgent(selectedAgent);
@@ -153,9 +191,9 @@ const UserCalender = ({
         //console.log;
         // return
         let apiData = {
-          apiKey: calendarToDelete.apiKey,
+          calendarId: calendarToDelete.id,
         };
-        //console.log;
+        console.log("Del calendar api data is", apiData);
         // return;
 
         let path = Apis.deleteCalendar;
@@ -196,8 +234,9 @@ const UserCalender = ({
   };
 
   //code for add calender api
-  const handleAddCalender = async (calendar) => {
+  const handleAddCalender = async (calendar, isNewCalendar = true) => {
     console.log("Calendar details passed from addgoogle calednar", calendar);
+    console.log("Is new calendar", isNewCalendar);
     // return
     try {
       if (calendar?.isFromAddGoogleCal) {
@@ -296,16 +335,46 @@ const UserCalender = ({
             // agentsListDetails = agentsList;
 
             const newCalendarData = response.data.data;
+
+            if (isNewCalendar) {
+              const calendarAlreadyExists = allCalendars.find(
+                (item) => item.id == newCalendarData.id
+              );
+              if (calendarAlreadyExists) {
+                setMessage("Calender already exists");
+                setType(SnackbarTypes.Warning);
+                return;
+              }
+              else {
+                setMessage("Calender added");
+              }
+            }
+
             // let calendars = allCalendars.filter(
             //   (item) => item.apiKey != newCalendarData.apiKey
             // );
+            // const sameCal = allCalendars.find(item => item.id == newCalendarData.id);
+            // if (sameCal) {
+            //   console.log("Calendar already exists");
+            //   setIsVisible(true);
+            //   setMessage("Calendar already exists");
+            //   setType(SnackbarTypes.Warning);
+            //   return;
+            // }
             let selecAgent = { ...agent, calendar: newCalendarData };
 
             setAgent(selecAgent); // Now this triggers useEffect
             // setAllCalendars([...allCalendars, newCalendarData]);
-            setAllCalendars([newCalendarData, ...allCalendars]);
+            if (isNewCalendar) {
+              setAllCalendars([newCalendarData, ...allCalendars]);
+            }
             setSelectCalender(newCalendarData);
             setSelectedCalenderTitle(newCalendarData?.id);
+            // setSelectedAgent(selectedAgent.calendar);
+            setSelectedAgent({
+              ...selectedAgent,
+              calendar: newCalendarData,
+            });
 
             let updatedArray = [];
 
@@ -327,6 +396,8 @@ const UserCalender = ({
 
               updatedArray.push(ag);
             }
+
+            // setShowDrawerSelectedAgent(prev => ({ ...prev, calendar: newCalendarData }));
 
             //console.log;
             localStorage.setItem(
@@ -357,6 +428,9 @@ const UserCalender = ({
     }
   };
 
+  useEffect(() => {
+    console.log("MCP tools are", mcpTools);
+  }, [mcpTools]);
 
 
   const styles = {
@@ -381,7 +455,7 @@ const UserCalender = ({
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-none flex flex-row justify-center items-center "
+      className="overflow-y-none flex flex-col justify-start items-center h-[60vh]  "
     >
       {isVisible && (
         <AgentSelectSnackMessage
@@ -405,16 +479,38 @@ const UserCalender = ({
         />
       )}
 
-      <div className="bg-white rounded-2xl w-full h-[90vh] py-4 flex flex-col">
+      <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
+        <div className="flex flex-row items-center justify-between w-[97%]">
+          <div className="flex flex-row items-center gap-2">
+            <div className="text-[15px] font-[600] ">
+              Calendar
+            </div>
+
+            <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+              onClick={() => setIntroVideoModal2(true)}>
+              Learn how to add calendar
+              <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                onClick={() => setIntroVideoModal2(true)}
+              />
+            </div>
+
+
+          </div>
+
+          <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
+            + Add Calendar
+          </button>
+        </div>
+
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
-          <div className="w-full flex flex-col w-full items-center">
+          <div className="w-full flex flex-col w-full items-center mt-4">
             <div className="w-full">
               {calenderLoader ? (
                 <div className="w-full flex flex-row justify-center">
                   <CircularProgress size={30} />
                 </div>
               ) : (
-                <FormControl sx={{ m: 1 }} className="w-full">
+                <FormControl sx={{ m: 1 }} className="w-[97%]">
                   <Select
                     labelId="demo-select-small-label"
                     id="demo-select-small"
@@ -422,6 +518,7 @@ const UserCalender = ({
                     // label="Age"
                     // onChange={handleChange}
                     displayEmpty // Enables placeholder
+                    // IconComponent={MUICustomIcon}
                     renderValue={(selected) => {
                       console.log("Selected Render ", selected);
                       if (!selected) {
@@ -471,7 +568,7 @@ const UserCalender = ({
                       <MenuItem
                         key={index}
                         value={item.title}
-                        className="hover:bg-purple10 hover:text-black"
+                        // className="hover:bg-purple10 hover:text-black"
                         sx={{
                           backgroundColor:
                             selectCalender.id === item.id
@@ -479,6 +576,19 @@ const UserCalender = ({
                               : "transparent",
                           "&.Mui-selected": {
                             backgroundColor: "#7902DF10",
+                          },
+                          '&:hover': {
+                            backgroundColor: '#7902DF10', // light purple
+                            color: '#000000',
+                          },
+
+                          // Selected + Hover
+                          '&.Mui-selected:hover': {
+                            backgroundColor: '#7902DF15', // even more intense purple
+                            color: '#000000',
+                          },
+                          "&.Mui-focusVisible": {
+                            backgroundColor: "inherit",
                           },
                         }}
                         onMouseEnter={() => setShowDelBtn(item)} // Track hovered item
@@ -491,10 +601,28 @@ const UserCalender = ({
                             onClick={() => {
                               setCalendarSelected(item);
                               setSelectCalender(item);
-                              handleAddCalender(item);
+                              handleAddCalender(item, false);
                             }}
                             style={{ flexGrow: 1, textAlign: "left" }}
                           >
+                            {selectCalender.id === item.id ? (
+                              <div
+                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              >
+                                <Image
+                                  src={"/assets/whiteTick.png"}
+                                  height={8}
+                                  width={10}
+                                  alt="*"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="bg-none border-2 rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              ></div>
+                            )}
                             <div style={{ fontWeight: "500", fontSize: 15 }}>
                               {item.title}
                             </div>
@@ -535,9 +663,10 @@ const UserCalender = ({
                           )}
                         </div>
                       </MenuItem>
-                    ))}
+                    ))
+                    }
 
-                    <MenuItem className="w-full" value="Custom Calender">
+                    {/*<MenuItem className="w-full" value="Custom Calender">
                       <button
                         className="text-purple underline w-full text-start"
                         onClick={() => {
@@ -548,31 +677,11 @@ const UserCalender = ({
                       >
                         Add New Calender
                       </button>
-                    </MenuItem>
+                    </MenuItem>*/}
                   </Select>
                 </FormControl>
               )}
             </div>
-
-            {/* video modal to add calendar */}
-            <div className="mt-6">
-              <VideoCard
-                duration="2 min 42 sec"
-                horizontal={false}
-                playVideo={() => {
-                  setIntroVideoModal2(true);
-                }}
-                title="Learn how to add a calendar"
-              />
-            </div>
-
-            {/* Intro modal */}
-            <IntroVideoModal
-              open={introVideoModal2}
-              onClose={() => setIntroVideoModal2(false)}
-              videoTitle="Learn how to add a calendar"
-              videoUrl={HowtoVideos.Calendar}
-            />
 
           </div>
         ) : (
@@ -584,6 +693,17 @@ const UserCalender = ({
             }}
           />
         )}
+
+
+        <MCPView selectedAgent={selectedAgent}
+          setShowAddMcpPopup={setShowAddMcpPopup}
+
+          setType={setType}
+          setMessage={setMessage}
+          setIsVisible={setIsVisible}
+        />
+
+
 
         {/* Confirmation to add google calendar or cal.com */}
         <CalendarModal
@@ -678,6 +798,29 @@ const UserCalender = ({
           </Box>
         </Modal>
       </div>
+
+
+
+      {/* video modal to add calendar */}  {/* hidded for now */}
+      {/* <div className="mt-2">
+         <VideoCard
+          duration="2 min 42 sec"
+          horizontal={false}
+          playVideo={() => {
+            setIntroVideoModal2(true);
+          }}
+          title="Learn how to add a calendar"
+        />
+      </div> 
+
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={introVideoModal2}
+        onClose={() => setIntroVideoModal2(false)}
+        videoTitle="Learn how to add a calendar"
+        videoUrl={HowtoVideos.Calendar}
+      />
+
     </div>
   );
 };

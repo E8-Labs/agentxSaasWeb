@@ -18,8 +18,9 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import EditModal from "./EditModal";
 import { PersistanceKeys } from "@/constants/Constants";
+import { GreetingTagInput } from "../tagInputs/GreetingTagInput";
 
-const Objection = ({ showTitle, selectedAgentId }) => {
+const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
   const [ObjectionsList, setObjectionsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
@@ -524,6 +525,8 @@ const Objection = ({ showTitle, selectedAgentId }) => {
                 setShowErrorSnack(data.message);
               }
             }}
+            kycsData={kycsData}
+            uniqueColumns={uniqueColumns}
           />
         )
       }
@@ -582,15 +585,26 @@ const Objection = ({ showTitle, selectedAgentId }) => {
               }}
             />
             <div style={{ ...styles.title, marginTop: 10 }}>Response</div>
-            <TextareaAutosize
-              maxRows={5}
-              className="outline-none focus:outline-none focus:ring-0"
-              style={styles.inputStyle}
-              placeholder="Add description"
-              value={addObjDescription}
-              onChange={(event) => {
-                setAddObjDescription(event.target.value);
+            {/*
+              <TextareaAutosize
+                maxRows={5}
+                className="outline-none focus:outline-none focus:ring-0"
+                style={styles.inputStyle}
+                placeholder="Add description"
+                value={addObjDescription}
+                onChange={(event) => {
+                  setAddObjDescription(event.target.value);
+                }}
+              />
+            */}
+            <GreetingTagInput
+              greetTag={addObjDescription}
+              kycsList={kycsData}
+              uniqueColumns={uniqueColumns}
+              tagValue={(text) => {
+                setAddObjDescription(text);
               }}
+            // scrollOffset={scrollOffset}
             />
             <div className="w-full">
               {addObjectionLoader ? (

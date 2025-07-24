@@ -57,6 +57,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import PipelineLoading from "./PipelineLoading";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import DashboardSlider from "../animations/DashboardSlider";
+import ConfigurePopup from "./ConfigurePopup";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -237,6 +238,9 @@ const Pipeline1 = () => {
   //update the stage color
   const [updateStageColor, setUpdateStageColor] = useState("");
   const [stageColorUpdate, setStageColorUpdate] = useState(null);
+  //configure popup
+  const [showConfigurePopup, setShowConfigurePopup] = useState(false);
+  const [configureLoader, setConfigureLoader] = useState(false);
 
   //code for rename pipeline
   const [showRenamePipelinePopup, setShowRenamePipelinePopup] = useState(false);
@@ -331,27 +335,6 @@ const Pipeline1 = () => {
 
     // //console.log;
   };
-
-  // const getMyTeam = async () => {
-  //   try {
-  //     let response = await getTeamsList();
-  //     if (response) {
-  //      // //console.log;
-  //       let teams = [];
-  //       if (response.data && response.data.length > 0) {
-  //         for (const t of response.data) {
-  //           if (t.status == "Accepted") {
-  //             teams.push(t);
-  //           }
-  //         }
-  //       }
-  //       setMyTeamList(teams);
-  //       setMyTeamAdmin(response.admin);
-  //     }
-  //   } catch (error) {
-  //    // console.error("Error occured in api is", error);
-  //   }
-  // };
 
   const getMyTeam = async () => {
     try {
@@ -953,7 +936,7 @@ const Pipeline1 = () => {
         tags: tagsValue,
         teams: assignLeadToMember,
       };
-      // //console.log;
+      console.log("add stgae api data is", ApiData);
 
       // return
 
@@ -965,7 +948,7 @@ const Pipeline1 = () => {
       });
 
       if (response) {
-        // console.log("Response of add stage api is", response.data);
+        console.log("Response of add stage api is", response.data);
         if (response.data.status === true) {
           setLeadsCountInStage(response.data.data.leadsCountInStage);
           setReservedLeadsCountInStage(response.data.data.leadsCountInStage);
@@ -994,7 +977,7 @@ const Pipeline1 = () => {
         }
       }
     } catch (error) {
-      // console.error("Error occured inn adding new stage title api is", error);
+      console.error("Error occured inn adding new stage title api is", error);
     } finally {
       setAddStageLoader(false);
     }
@@ -1699,35 +1682,22 @@ const Pipeline1 = () => {
   const handleDelLead = async () => {
     try {
       const leadToDelete = selectedLeadsDetails;
-      // //console.log;
-      // //console.log;
-      // //console.log;
-      // return;
-      const filteredLeads = LeadsList?.filter((lead) => {
-        // //console.log;
-        return lead.leadId !== leadToDelete.id;
-      });
+      // Remove the lead from the list
+      const filteredLeads = LeadsList?.filter((lead) => lead.lead.id !== leadToDelete.id);
 
-      // //console.log;
+      // Remove the lead from all pipelines, safely handling undefined leads
+      const filteredPipelines = PipeLines.map((pipeline) => ({
+        ...pipeline,
+        leads: (pipeline.leads || []).filter((lead) => lead.lead.id !== leadToDelete.id),
+      }));
 
-      const filteredPipelines = PipeLines.map((pipeline) => {
-        return {
-          ...pipeline,
-          leads: pipeline.leads.filter(
-            (lead) => lead.lead.id !== leadToDelete.id
-          ),
-        };
-      });
-
-      // //console.log;
-      //// //console.log
       setPipeLines(filteredPipelines);
       setLeadsList(filteredLeads);
-      setShowDetailsModal(false);
+      setSelectedLeadsDetails(null); // Clear selected lead
+      setShowDetailsModal(false);    // Hide modal
     } catch (error) {
-      // console.error("Error occuren in api is", error);
-    } finally {
-      // //console.log;
+      console.log('error in delete lead', error)
+      // Handle error
     }
   };
 
@@ -2151,18 +2121,6 @@ const Pipeline1 = () => {
                                 style={styles.paragraph}
                               // onClick={handleDeleteStage}
                               >
-                                <button
-                                  className="flex flex-row gap-2 outline-none"
-                                  onClick={() => colorPickerRef.current.click()}
-                                >
-                                  <Image
-                                    src={"/assets/colorDrop.png"}
-                                    height={18}
-                                    width={15}
-                                    alt="*"
-                                  />
-                                  Change Color
-                                </button>
                                 <div
                                   style={{
                                     height: "15px",
@@ -2173,6 +2131,12 @@ const Pipeline1 = () => {
                                   }}
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
+                                <button
+                                  className="flex flex-row gap-2 outline-none"
+                                  onClick={() => colorPickerRef.current.click()}
+                                >
+                                  Color
+                                </button>
                                 <div
                                   style={{
                                     opacity: 0,
@@ -2193,6 +2157,27 @@ const Pipeline1 = () => {
                               </div>
                             </div>
                             <div ref={bottomRef}></div>
+
+                            {/* Code for configure */}
+                            {/*
+                              <button
+                                className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
+                                onClick={() => {
+                                  console.log("Configure button clicked");
+                                  setShowConfigurePopup(true);
+                                }}
+                              >
+                                <Image
+                                  src={"/assets/colorDrop.png"}
+                                  height={18}
+                                  width={15}
+                                  alt="*"
+                                />
+                                <div>
+                                  Configure
+                                </div>
+                              </button>
+                            */}
 
                             {!showDelBtn && (
                               <div className="w-full flex flex-row mt-4">
@@ -2557,6 +2542,23 @@ const Pipeline1 = () => {
               </div>
             </div>
           )}
+
+          {/* Code for Configure Popup */}
+          {
+            showConfigurePopup && (
+              <ConfigurePopup
+                showConfigurePopup={showConfigurePopup}
+                setShowConfigurePopup={setShowConfigurePopup}
+                configureLoader={configureLoader}
+                setConfigureLoader={setConfigureLoader}
+                selectedStage={selectedStage}
+                setStagesList={setStagesList}
+                setSnackMessage={setSnackMessage}
+                handleCloseStagePopover={handleCloseStagePopover}
+              />
+            )
+          }
+
           {/* code for delete pipeline modal */}
 
           <Modal

@@ -103,7 +103,7 @@ function Page() {
   const searchTimeoutRef = useRef(null);
   // const fileInputRef = useRef(null);
   const router = useRouter();
-  let tabs = ["Agent Info", "Calendar", "Pipeline", "Knowledge"];
+  let tabs = ["Agent Info", "Actions", "Pipeline", "Knowledge"];
   const [AgentMenuOptions, setAgentMenuOptions] = useState(tabs);
   const [openTestAiModal, setOpenTestAiModal] = useState(false);
   const [name, setName] = useState("");
@@ -4327,7 +4327,7 @@ function Page() {
                   />
                 </div>
               </div>
-            ) : activeTab === "Calendar" ? (
+            ) : activeTab === "Actions" ? (
               <div>
                 <div
                   className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
@@ -4981,6 +4981,8 @@ function Page() {
                         <Objection
                           showTitle={true}
                           selectedAgentId={showScriptModal}
+                          kycsData={kycsData}
+                          uniqueColumns={uniqueColumns}
                         />
                       </div>
                     </div>
@@ -4992,6 +4994,8 @@ function Page() {
                         <GuarduanSetting
                           showTitle={true}
                           selectedAgentId={showScriptModal}
+                          kycsData={kycsData}
+                          uniqueColumns={uniqueColumns}
                         />
                       </div>
                     </div>

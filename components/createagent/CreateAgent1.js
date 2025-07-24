@@ -996,7 +996,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   className="hidden sm:flex mt-1 pb-4"
                   style={{ zIndex: 15 }}
                 >
-                  <div className="w-full">
+                  <div className="w-full pb-4">
                     <input
                       className="w-full h-[50px] rounded-lg outline-none focus:ring-0"
                       style={{ border: "1px solid #00000020" }}
@@ -1005,12 +1005,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       onChange={(evt) => {
                         let input = evt.target.value;
                         setAddressValue(input); // Update input field value
-                        getPlacePredictions({
-                          input,
-                          componentRestrictions: { country: ["us", "ca"] },
-                        });
+                        // getPlacePredictions({
+                        //   input,
+                        //   componentRestrictions: { country: ["us", "ca"] },
+                        // });
                         // getPlacePredictions({ input: evt.target.value });
-                        setShowDropdown(true); // Show dropdown on input
+                        // setShowDropdown(true); // Show dropdown on input
                       }}
                     />
                     {isPlacePredictionsLoading && <p>Loading...</p>}
