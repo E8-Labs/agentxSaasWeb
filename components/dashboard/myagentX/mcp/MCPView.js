@@ -10,6 +10,9 @@ import { Plus } from 'lucide-react';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles';
+// import IntroVideoModal from '@/components/globalExtras/IntroVideoModal';
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { HowtoVideos } from '@/constants/Constants';
 
 
 
@@ -42,6 +45,9 @@ function MCPView({
 
     //attach mcp loader
     const [attachMcpLoader, setAttachMcpLoader] = useState("");
+
+    //how to video
+    const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
     //snackbar
     const [showSnack, setShowSnack] = useState({
@@ -341,11 +347,11 @@ function MCPView({
                             mcpTools.length > 0 && (
                                 <div className="flex flex-row items-center gap-2">
                                     <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
-                                    // onClick={() => setIntroVideoModal2(true)}
+                                        onClick={() => setIntroVideoModal2(true)}
                                     >
                                         Learn how to add Tools
                                         <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                                        // onClick={() => setIntroVideoModal2(true)}
+                                            onClick={() => setIntroVideoModal2(true)}
                                         />
                                     </div>
 
@@ -558,6 +564,14 @@ function MCPView({
                         />
                     )
                 }
+
+                {/* Intro modal */}
+                <IntroVideoModal
+                    open={introVideoModal2}
+                    onClose={() => setIntroVideoModal2(false)}
+                    videoTitle="Learn how to add tools"
+                    videoUrl={HowtoVideos.MCPTool}
+                />
             </div>
         )
     }

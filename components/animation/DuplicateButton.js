@@ -14,13 +14,13 @@ export default function DuplicateButton({
         <Lottie
           animationData={require("../../public/assets/animation/duplicateAnimation.json")}
           loop
-          style={{ width: 24, height: 24 }}
+          style={{ width: 18, height: 18 }}
         />
       ) : (
         <Image
           src="/assets/duplicateIcon.jpg"
-          height={24}
-          width={24}
+          height={18}
+          width={18}
           alt="Duplicate"
         />
       )}

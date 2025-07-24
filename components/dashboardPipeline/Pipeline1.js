@@ -239,6 +239,7 @@ const Pipeline1 = () => {
   const [updateStageColor, setUpdateStageColor] = useState("");
   const [stageColorUpdate, setStageColorUpdate] = useState(null);
   //configure popup
+  const [showConfigureBtn, setShowConfigureBtn] = useState(false);
   const [showConfigurePopup, setShowConfigurePopup] = useState(false);
   const [configureLoader, setConfigureLoader] = useState(false);
 
@@ -2058,6 +2059,11 @@ const Pipeline1 = () => {
                               } else {
                                 setShowDelBtn(false);
                               }
+                              if (stage.identifier.startsWith("custom_stage")) {
+                                setShowConfigureBtn(true);
+                              } else {
+                                setShowConfigureBtn(false);
+                              }
                               // //console.log;
                               handleShowStagePopover(evetn, stage);
                             }}
@@ -2159,7 +2165,7 @@ const Pipeline1 = () => {
                             <div ref={bottomRef}></div>
 
                             {/* Code for configure */}
-                            {/*
+                            {showConfigureBtn && (
                               <button
                                 className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
                                 onClick={() => {
@@ -2177,7 +2183,7 @@ const Pipeline1 = () => {
                                   Configure
                                 </div>
                               </button>
-                            */}
+                            )}
 
                             {!showDelBtn && (
                               <div className="w-full flex flex-row mt-4">

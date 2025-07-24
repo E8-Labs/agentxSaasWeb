@@ -39,7 +39,7 @@ export const UpdateCadenceConfirmationPopup = ({
                                     fontWeight: "600",
                                 }}
                             >
-                                {`Delete Call`}
+                                {`Update Pipeline and Stages`}
                             </p>
 
                             <p
@@ -50,7 +50,7 @@ export const UpdateCadenceConfirmationPopup = ({
 
                                 }}
                             >
-                                {`Are you sure you want to delete this call activity?`}
+                                {`By updating this, you'll pause all calls assigned to this agent.`}
                             </p>
                         </div>
                         <div className="flex flex-row items-center justify-between gap-4 mt-6">
