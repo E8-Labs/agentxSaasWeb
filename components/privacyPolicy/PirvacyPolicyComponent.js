@@ -32,7 +32,7 @@ function PirvacyPolicyComponent() {
                         We collect the following types of information:<br />
                         <ul className='list-disc list-inside ml-4 text-[17px]' >
                             <li>Agent Personality Data: To create a unique, personalized experience for real estate agents.</li>
-                            <li>Customer Data: Information provided by or about our users' clients.</li>
+                            <li>{`Customer Data: Information provided by or about our user's clients`}.</li>
                             <li>Agent Data: Information about our users, the real estate agents.</li>
                         </ul>
 

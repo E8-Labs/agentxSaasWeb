@@ -36,6 +36,8 @@ const AddCardDetails = ({
   togglePlan,
   setAddPaymentSuccessPopUp,
   textBelowContinue = "",
+  selectedUser,
+  fromAdmin = false
 }) => {
   const stripeReact = useStripe();
   const elements = useElements();
@@ -209,10 +211,20 @@ const AddCardDetails = ({
 
       // Save paymentMethod ID to your server (for later cron charging)
       // Step 3: Send payment method ID to backend to attach to customer
-      const requestBody = {
-        source: id,
-        inviteCode: inviteCode,
-      };
+
+      let requestBody = null;
+      if (fromAdmin) {
+        requestBody = {
+          source: id,
+          inviteCode: inviteCode,
+          userId: selectedUser.id
+        };
+      } else {
+        requestBody = {
+          source: id,
+          inviteCode: inviteCode,
+        };
+      }
       console.log("Request data sending in api is", requestBody);
       const addCardRes = await fetch(Apis.addCard, {
         method: "POST",

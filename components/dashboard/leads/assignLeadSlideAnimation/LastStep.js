@@ -30,6 +30,7 @@ const LastStep = ({
 }) => {
 
   const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   //snack messages
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
@@ -138,8 +139,20 @@ const LastStep = ({
     if (!date || !dayjs(date).isValid()) return;
     console.log("Date value is", date);
     console.log("Date value after daysjs is", dayjs(date));
-    setSelectedDateTime(dayjs(date));
-    setHasUserSelectedDate(true);
+    let timer = null;
+    if (dayjs(date).isBefore(dayjs())) {
+      // timer = setTimeout(() => {
+      // }, 300);
+      setInvalidTimeMessage("Can't schedule a call in the past");
+      setIsDisabled(true);
+      return;
+    } else {
+      // if (timer) clearTimeout(timer);
+      setInvalidTimeMessage(null);
+      setIsDisabled(false);
+      setSelectedDateTime(dayjs(date));
+      setHasUserSelectedDate(true);
+    }
   };
 
 
@@ -472,6 +485,7 @@ const LastStep = ({
                 // );
                 setSelectedDateTime(null);
                 setHasUserSelectedDate(false);
+                setIsDisabled(false);
                 // handleDateTimerDifference();
               }}
             >
@@ -498,6 +512,7 @@ const LastStep = ({
                   setCallLater(true);
                   setSelectedDateTime(dayjs());
                   setHasUserSelectedDate(true);
+                  setIsDisabled(false);
                 }}
               >
                 <CalendarDots size={32} weight="bold" />
@@ -673,13 +688,15 @@ const LastStep = ({
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DateTimePicker
                     // label="Select date and time"
-                    // minDateTime={dayjs()}
+                    minDateTime={dayjs()}
+                    // minDateTime={dayjs().tz(userProfile.timeZone)}
                     value={selectedDateTime}
                     minDate={dayjs()}
                     onChange={handleDateChange}
                     slotProps={{
                       textField: {
                         variant: "outlined",
+                        error: isDisabled,
                         sx: {
                           "& .MuiOutlinedInput-root": {
                             borderRadius: "10px",
@@ -733,7 +750,7 @@ const LastStep = ({
                       <input
                         {...params.inputProps}
                         style={{
-                          border: "red", // Disable border
+                          border: "none", // Disable border
                           outline: "none",
                           padding: "8px",
                           backgroundColor: "#f9f9f9", // Optional: subtle background for better visibility
@@ -816,7 +833,7 @@ const LastStep = ({
             <div className="w-full">
               {(NoOfLeadsToSend || customLeadsToSend) &&
                 (CallNow ||
-                  (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                  (CallLater && selectedDateTime && hasUserSelectedDate && !isDisabled)) ? (
                 <button
                   className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                   onClick={() => {

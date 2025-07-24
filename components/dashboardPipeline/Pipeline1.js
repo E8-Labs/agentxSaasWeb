@@ -2121,18 +2121,6 @@ const Pipeline1 = () => {
                                 style={styles.paragraph}
                               // onClick={handleDeleteStage}
                               >
-                                <button
-                                  className="flex flex-row gap-2 outline-none"
-                                  onClick={() => colorPickerRef.current.click()}
-                                >
-                                  <Image
-                                    src={"/assets/colorDrop.png"}
-                                    height={18}
-                                    width={15}
-                                    alt="*"
-                                  />
-                                  Color
-                                </button>
                                 <div
                                   style={{
                                     height: "15px",
@@ -2143,6 +2131,12 @@ const Pipeline1 = () => {
                                   }}
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
+                                <button
+                                  className="flex flex-row gap-2 outline-none"
+                                  onClick={() => colorPickerRef.current.click()}
+                                >
+                                  Color
+                                </button>
                                 <div
                                   style={{
                                     opacity: 0,
@@ -2165,15 +2159,27 @@ const Pipeline1 = () => {
                             <div ref={bottomRef}></div>
 
                             {/* Code for configure */}
-                            <button
-                              className="border-none outline-none cursor-pointer mt-4"
-                              onClick={() => {
-                                console.log("Configure button clicked");
-                                setShowConfigurePopup(true);
-                              }}
-                            >
-                              Configure
-                            </button>
+                            {
+                              stage.identifier && (
+                                <button
+                                  className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
+                                  onClick={() => {
+                                    console.log("Configure button clicked");
+                                    setShowConfigurePopup(true);
+                                  }}
+                                >
+                                  <Image
+                                    src={"/assets/colorDrop.png"}
+                                    height={18}
+                                    width={15}
+                                    alt="*"
+                                  />
+                                  <div>
+                                    Configure
+                                  </div>
+                                </button>
+                              )
+                            }
 
                             {!showDelBtn && (
                               <div className="w-full flex flex-row mt-4">
@@ -2819,7 +2825,23 @@ const Pipeline1 = () => {
                           </div>
                         </Popover>
                       </div>
-                      <input
+                      {/*
+                        <input
+                          className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                          placeholder="Ex: Does the human express interest getting a CMA "
+                          style={{
+                            border: "1px solid #00000020",
+                            fontWeight: "500",
+                            fontSize: 15,
+                          }}
+                          value={action}
+                          onChange={(e) => {
+                            setAction(e.target.value);
+                          }}
+                        />
+                      */}
+
+                      <textarea
                         className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                         placeholder="Ex: Does the human express interest getting a CMA "
                         style={{
@@ -2831,6 +2853,7 @@ const Pipeline1 = () => {
                         onChange={(e) => {
                           setAction(e.target.value);
                         }}
+                        rows={2}
                       />
 
                       <div className="flex flex-row items-center gap-2 mt-4">

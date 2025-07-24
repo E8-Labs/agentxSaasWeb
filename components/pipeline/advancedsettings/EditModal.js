@@ -164,31 +164,28 @@ const EditModal = ({
                     <div className='mt-4 mb-2' style={styles.heading}>
                         Description
                     </div>
-                    {
-                        editName === "Guardrails" ? (
-                            <GreetingTagInput
-                                greetTag={updatedDescription}
-                                kycsList={kycsData}
-                                uniqueColumns={uniqueColumns}
-                                tagValue={(text) => {
-                                    setUpdatedDescription(text);
-                                }}
-                                scrollOffset={scrollOffset}
-                            />
-                        ) : (
+                    <GreetingTagInput
+                        greetTag={updatedDescription}
+                        kycsList={kycsData}
+                        uniqueColumns={uniqueColumns}
+                        tagValue={(text) => {
+                            setUpdatedDescription(text);
+                        }}
+                        scrollOffset={scrollOffset}
+                    />
 
-                            <TextareaAutosize
-                                maxRows={5}
-                                className="outline-none focus:outline-none focus:ring-0 p-2 w-full"
-                                style={styles.inputStyle}
-                                placeholder={`Edit ${editName} description`}
-                                value={updatedDescription}
-                                onChange={(e) => {
-                                    setUpdatedDescription(e.target.value);
-                                }}
-                            />
-                        )
-                    }
+                    {/*
+                        <TextareaAutosize
+                            maxRows={5}
+                            className="outline-none focus:outline-none focus:ring-0 p-2 w-full"
+                            style={styles.inputStyle}
+                            placeholder={`Edit ${editName} description`}
+                            value={updatedDescription}
+                            onChange={(e) => {
+                                setUpdatedDescription(e.target.value);
+                            }}
+                        />
+                    */}
 
                 </div>
 

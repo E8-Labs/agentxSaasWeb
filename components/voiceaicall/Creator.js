@@ -44,7 +44,7 @@ const backgroundImage = {
 };
 
 
-const Creator = ({ agentId }) => {
+const Creator = ({ agentId, name }) => {
     const router = useRouter();
     const buttonRef = useRef(null);
     const buttonRef2 = useRef(null);
@@ -81,7 +81,7 @@ const Creator = ({ agentId }) => {
     // User loading messages to fake feedback...
     useEffect(() => {
         if (loading) {
-            setloadingMessage("Sky is booting up...");
+            setloadingMessage(`${name} is booting up...`);
 
             const timer = setTimeout(() => {
                 setloadingMessage("...getting coffee...");

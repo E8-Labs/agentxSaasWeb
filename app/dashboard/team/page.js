@@ -129,7 +129,7 @@ function Page() {
           setGetTeamLoader(false);
           return;
         }
-        
+
         if (!u || !u.token) {
           console.error("No valid user token found");
           setGetTeamLoader(false);
@@ -198,7 +198,7 @@ function Page() {
           setInviteTeamLoader(false);
           return;
         }
-        
+
         if (!u || !u.token) {
           console.error("No valid user token found");
           setInviteTeamLoader(false);
@@ -384,7 +384,7 @@ function Page() {
           setInviteTeamLoader(false);
           return;
         }
-        
+
         if (!u || !u.token) {
           console.error("No valid user token found");
           setInviteTeamLoader(false);
@@ -603,56 +603,62 @@ function Page() {
                 {myTeam.map((item, index) => {
                   // //console.log;
                   return (
-                    <div key={item.id} className="relative w-6/12 p-3">
-                      <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
-                        {item.invitedUser?.thumb_profile_image ? (
-                          <div
-                            style={{
-                              width: "37px",
-                              height: "37px",
-                              borderRadius: "50%", // Ensures circular shape
-                              overflow: "hidden", // Clips any overflow from the image
-                              display: "flex", // Centers the image if needed
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <img
-                              src={item.invitedUser?.thumb_profile_image}
-                              alt="*"
-                              style={{ height: "100%", width: "100%" }}
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                            style={{
-                              height: 37,
-                              width: 37,
-                              textTransform: "capitalize",
-                            }}
-                          >
-                            {item.name?.[0] || 'U'}
-                          </div>
-                        )}
+                    <div key={item.id} className="relative w-4/12 p-3">
+                      <div className="p-4 flex flex-row justify-between items-start border rounded-lg">
 
-                        <div className="flex flex-wrap flex-col items-start gap-2 w-60">
-                          <div className="text-lg font-medium text-black">
-                            {item.name}
+                        {/* Img code here */}
+                        <div className="flex flex-row items-start gap-4">
+                          <div>
+                            {item.invitedUser?.thumb_profile_image ? (
+                              <div
+                                style={{
+                                  width: "37px",
+                                  height: "37px",
+                                  borderRadius: "50%", // Ensures circular shape
+                                  overflow: "hidden", // Clips any overflow from the image
+                                  display: "flex", // Centers the image if needed
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
+                              >
+                                <img
+                                  src={item.invitedUser?.thumb_profile_image}
+                                  alt="*"
+                                  style={{ height: "100%", width: "100%" }}
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                                style={{
+                                  height: 37,
+                                  width: 37,
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {item.name?.[0] || 'U'}
+                              </div>
+                            )}
                           </div>
-                          <div className="text-sm font-medium text-gray-500">
-                            {item?.phone ? formatPhoneNumber(item.phone) : 'No phone'}
-                          </div>
-                          <div className="text-sm font-medium text-gray-500 underline">
-                            {item.email}
-                          </div>
-                          <div
-                            className={`text-sm font-medium ${item.status === "Pending"
-                              ? "text-red-500"
-                              : "text-green-500"
-                              }`}
-                          >
-                            {item.status}
+
+                          <div className="flex flex-wrap flex-col items-start gap-2">
+                            <div className="text-lg font-medium text-black">
+                              {item.name}
+                            </div>
+                            <div className="text-sm font-medium text-gray-500">
+                              {item?.phone ? formatPhoneNumber(item.phone) : 'No phone'}
+                            </div>
+                            <div className="text-sm font-medium text-gray-500 underline">
+                              {item.email.length > 25 ? item.email.slice(0, 25) + "..." : item.email}
+                            </div>
+                            <div
+                              className={`text-sm font-medium ${item.status === "Pending"
+                                ? "text-red-500"
+                                : "text-green-500"
+                                }`}
+                            >
+                              {item.status}
+                            </div>
                           </div>
                         </div>
 
