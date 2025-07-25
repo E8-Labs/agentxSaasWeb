@@ -267,13 +267,15 @@ const AdminLeads = ({
   };
 
   //leads count
-  function getLeadSelectedCount() {
-    if (toggleClick.length !== totalLeads) {
-      return totalLeads - toggleClick.length;
-    } else {
-      return totalLeads;
-    }
-  }
+  // function getLeadSelectedCount() {
+  //   console.log("toggleClick length", toggleClick.length);
+  //   console.log("totalLeads length", totalLeads.length);
+  //   if (toggleClick.length !== totalLeads) {
+  //     return totalLeads - toggleClick.length;
+  //   } else {
+  //     return totalLeads;
+  //   }
+  // }
 
   function SetSheetsToLocalStorage(data) {
     localStorage.setItem("sheets", JSON.stringify(data));
@@ -1843,7 +1845,8 @@ const AdminLeads = ({
                               Select All
                             </div>
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
-                              {getLeadSelectedCount()}
+                              {/*getLeadSelectedCount()*/}
+                              {totalLeads}
                             </div>
                           </div>
                         )}

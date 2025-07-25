@@ -184,7 +184,7 @@ function AdminTeam({ selectedUser }) {
           phone: item.phone,
         };
 
-        // //console.log;
+        console.log("api data is", apidata);
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -193,7 +193,9 @@ function AdminTeam({ selectedUser }) {
         });
 
         if (response) {
+          console.log("response of invite team api is", response);
           setInviteTeamLoader(false);
+          // return
           if (response.data.status === true) {
             // //console.log;
             let newMember = response.data.data;
@@ -571,7 +573,8 @@ function AdminTeam({ selectedUser }) {
                               textTransform: "capitalize",
                             }}
                           >
-                            {item.name[0]}
+                            {/*item.name[0]*/}
+                            {item?.name?.[0] || "-"}
                           </div>
                         )}
 

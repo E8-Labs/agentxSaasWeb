@@ -2217,7 +2217,7 @@ function Page() {
 
   const handleChangeVoice = async (event) => {
     setShowVoiceLoader(true);
-    const selectedVoice = filteredVoices.find(
+    const selectedVoice = voicesList.find(
       (voice) => voice.name === event.target.value
     );
 
@@ -2372,7 +2372,8 @@ function Page() {
     if (selectedLanguage != voice.langualge) {
       // update voice list as well
       setFilteredVoices(
-        voicesList.filter((voice) => voice.langualge === selectedLanguage)
+        // voicesList.filter((voice) => voice.langualge === selectedLanguage)
+        voicesList
       );
 
       const newVoiceName = selectedLanguage === "en" ? "Ava" : "Maria";
@@ -3581,7 +3582,7 @@ function Page() {
                                   <div style={{ color: "#aaa" }}>Select</div>
                                 );
 
-                              const selectedVoice = filteredVoices.find(
+                              const selectedVoice = voicesList.find(
                                 (voice) => voice.name === selected
                               );
 
@@ -3624,9 +3625,9 @@ function Page() {
                               },
                             }}
                           >
-                            {filteredVoices.map((item, index) => {
+                            {voicesList.map((item, index) => {
                               const selectedVoiceName = (id) => {
-                                const voiceName = filteredVoices.find(
+                                const voiceName = voicesList.find(
                                   (voice) => voice.voice_id === id
                                 );
                                 return voiceName?.name || "Unknown";
