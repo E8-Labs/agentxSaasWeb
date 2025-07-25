@@ -844,7 +844,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             onClick={() => {
               if (typeof window !== "undefined") {
                 window.open(
-                  "https://www.myagentx.com/terms-and-condition",
+                  "/privacy-policy",
                   "_blank"
                 );
               }
@@ -877,7 +877,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               onClick={() => {
                 if (typeof window !== "undefined") {
                   window.open(
-                    "https://www.myagentx.com/terms-and-condition",
+                    "/privacy-policy",
                     "_blank"
                   );
                 }
