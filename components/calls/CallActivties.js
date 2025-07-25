@@ -534,18 +534,39 @@ function SheduledCalls({ user }) {
     return status;
   }
 
+  // function getAgentNameForActiviti(agent) {
+  //   const agents = agent.agents || [];
+  //   if (agents.length > 0) {
+  //     if (agents[0].agentType == "outbound") {
+  //       return agents[0]?.name || "-";
+  //     } else {
+  //       if (agents.length > 1) {
+  //         return agents[0]?.name || "-";
+  //       }
+  //     }
+  //   }
+  //   return "-";
+  // }
+
   function getAgentNameForActiviti(agent) {
     const agents = agent.agents || [];
     if (agents.length > 0) {
-      if (agents[0].agentType == "outbound") {
-        return agents[0]?.name || "-";
+      let name = agents[0]?.name || "-";
+
+      if (agents[0].agentType === "outbound") {
+        return formatName(name);
       } else {
         if (agents.length > 1) {
-          return agents[0]?.name || "-";
+          return formatName(name);
         }
       }
     }
     return "-";
+  }
+
+  function formatName(name) {
+    if (typeof name !== "string" || name.length === 0) return "-";
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   }
 
   function getFirstAlphabetFromName(agent) {
