@@ -2959,18 +2959,21 @@ const Pipeline1 = () => {
                           </div>
                         </Popover>
                       </div>
-                      <input
-                        className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                      <textarea
+                        className="min-h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                         placeholder="Ex: Does the human express interest getting a CMA "
                         style={{
                           border: "1px solid #00000020",
                           fontWeight: "500",
                           fontSize: 15,
+                          resize: "vertical",
+                          maxHeight: "200px"
                         }}
                         value={action}
                         onChange={(e) => {
                           setAction(e.target.value);
                         }}
+                        rows={2}
                       />
 
                       <div className="flex flex-row items-center gap-2 mt-4">
