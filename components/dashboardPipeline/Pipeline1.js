@@ -2272,10 +2272,18 @@ const Pipeline1 = () => {
                                     console.log("Found examples:", stageExamples);
                                     
                                     if (stageExamples && stageExamples.length > 0) {
-                                      const updatedInputs = inputs.map((input, index) => ({
-                                        ...input,
-                                        value: String(stageExamples[index] || "")
-                                      }));
+                                      const updatedInputs = inputs.map((input, index) => {
+                                        const exampleValue = stageExamples[index];
+                                        // Handle both object format {id, value} and string format
+                                        const value = typeof exampleValue === 'object' && exampleValue?.value 
+                                          ? String(exampleValue.value) 
+                                          : String(exampleValue || "");
+                                        
+                                        return {
+                                          ...input,
+                                          value: value
+                                        };
+                                      });
                                       setInputs(updatedInputs);
                                     } else {
                                       // Clear inputs if no examples
