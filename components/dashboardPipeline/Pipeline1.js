@@ -114,6 +114,7 @@ const Pipeline1 = () => {
   const [newStageTitle, setNewStageTitle] = useState("");
   const [stageColor, setStageColor] = useState("#000000");
   const [addStageLoader, setAddStageLoader] = useState(false);
+  const [isEditingStage, setIsEditingStage] = useState(false);
   //code for advance setting modal inside new stages
   const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
   //code for input arrays
@@ -983,6 +984,78 @@ const Pipeline1 = () => {
     }
   };
 
+  //code for updating existing custom stage
+  const handleUpdateCustomStage = async () => {
+    try {
+      setAddStageLoader(true);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      const ApiPath = Apis.UpdateStage;
+      const formData = new FormData();
+      
+      formData.append("stageId", selectedStage.id);
+      formData.append("stageTitle", newStageTitle);
+      formData.append("color", stageColor);
+      formData.append("action", action);
+      
+      // Add examples array
+      inputs.forEach((input, index) => {
+        if (input.value.trim() !== "") {
+          formData.append(`examples[${index}]`, input.value);
+        }
+      });
+
+      console.log("Update stage API data:");
+      for (let [key, value] of formData) {
+        console.log(`${key} = ${value}`);
+      }
+
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response) {
+        console.log("Response of update stage api is", response.data);
+        if (response.data.status === true) {
+          setStagesList(response.data.data.stages);
+          handleCloseAddStage();
+          setSnackMessage({ message: response.data.message || "Stage updated successfully", type: SnackbarTypes.Success });
+          
+          // Update selected pipeline stages
+          setSelectedPipeline((prevData) => ({
+            ...prevData,
+            stages: response.data.data.stages,
+          }));
+
+          // Update pipelines list
+          setPipeLines((prevData) =>
+            prevData.map((item) =>
+              item.id === SelectedPipeline.id
+                ? { ...item, stages: response.data.data.stages }
+                : item
+            )
+          );
+        } else if (response.data.status == false) {
+          let message = response.data.message;
+          setSnackMessage({ message: message, type: SnackbarTypes.Error });
+        }
+      }
+    } catch (error) {
+      console.error("Error occurred in updating stage api:", error);
+      setSnackMessage({ message: "Failed to update stage", type: SnackbarTypes.Error });
+    } finally {
+      setAddStageLoader(false);
+    }
+  };
+
   useEffect(() => {
     let data = localStorage.getItem("pipelinesList");
 
@@ -1473,6 +1546,12 @@ const Pipeline1 = () => {
         placeholder: "Yeah, how much is my home worth today?",
       },
     ]);
+    setAction("");
+    setStageColor("#000000");
+    setShowAdvanceSettings(false);
+    setAssignToMember("");
+    setTagsValue([]);
+    setIsEditingStage(false); // Reset editing state
   };
 
   //fucntion to read more transcript text
@@ -2164,8 +2243,49 @@ const Pipeline1 = () => {
                                 <button
                                   className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
                                   onClick={() => {
-                                    console.log("Configure button clicked");
-                                    setShowConfigurePopup(true);
+                                    console.log("Configure button clicked for stage:", selectedStage);
+                                    
+                                    // Parse advancedConfig JSON string to get action and examples
+                                    let parsedConfig = {};
+                                    if (selectedStage.advancedConfig) {
+                                      try {
+                                        parsedConfig = JSON.parse(selectedStage.advancedConfig);
+                                        console.log("Parsed advanced config:", parsedConfig);
+                                      } catch (error) {
+                                        console.error("Error parsing advancedConfig:", error);
+                                      }
+                                    }
+                                    
+                                    // Pre-populate the modal with selected stage data
+                                    setNewStageTitle(selectedStage.stageTitle);
+                                    setStageColor(selectedStage.defaultColor || "#000000");
+                                    setAction(parsedConfig.action || "");
+                                    
+                                    // Pre-populate sample answers if they exist
+                                    const stageExamples = parsedConfig.examples || [];
+                                    console.log("Found examples:", stageExamples);
+                                    
+                                    if (stageExamples && stageExamples.length > 0) {
+                                      const updatedInputs = inputs.map((input, index) => ({
+                                        ...input,
+                                        value: stageExamples[index] || ""
+                                      }));
+                                      setInputs(updatedInputs);
+                                    } else {
+                                      // Clear inputs if no examples
+                                      const clearedInputs = inputs.map((input) => ({
+                                        ...input,
+                                        value: ""
+                                      }));
+                                      setInputs(clearedInputs);
+                                    }
+                                    
+                                    // Automatically show advanced settings when configuring
+                                    setShowAdvanceSettings(true);
+                                    setIsEditingStage(true);
+                                    setAddNewStageModal(true);
+                                    // Close the stage popover
+                                    handleCloseStagePopover();
                                   }}
                                 >
                                   <Image
@@ -2688,7 +2808,7 @@ const Pipeline1 = () => {
                   >
                     {/* <div style={{ width: "20%" }} /> */}
                     <div style={{ fontWeight: "700", fontSize: 22 }}>
-                      Add New Stage
+                      {isEditingStage ? "Configure Stage" : "Add New Stage"}
                     </div>
                     <div
                       style={{
@@ -2925,10 +3045,12 @@ const Pipeline1 = () => {
                                             }
                                         </div> */}
 
-                      <div className="flex flex-row items-center gap-2 mt-4">
-                        <p style={{ fontWeight: "600", fontSize: 15 }}>
-                          Assign to
-                        </p>
+                      {!isEditingStage && (
+                        <>
+                        <div className="flex flex-row items-center gap-2 mt-4">
+                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                            Assign to
+                          </p>
                         {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
                         <Image
                           src="/svgIcons/infoIcon.svg"
@@ -3093,6 +3215,8 @@ const Pipeline1 = () => {
                       >
                         <TagsInput setTags={setTagsValue} />
                       </div>
+                      </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -3118,9 +3242,9 @@ const Pipeline1 = () => {
                               fontWeight: 600,
                               fontSize: "20",
                             }}
-                            onClick={handleAddCustomStage}
+                            onClick={isEditingStage ? handleUpdateCustomStage : handleAddCustomStage}
                           >
-                            Add Stage
+                            {isEditingStage ? "Update Stage" : "Add Stage"}
                           </button>
                         )}
                       </div>
