@@ -438,7 +438,7 @@ const Pipeline1 = () => {
       action.length > 0 &&
       newStageTitle &&
       newStageTitle.length > 0 &&
-      inputs.filter((input) => input.value.trim() !== "").length === 3
+      inputs.filter((input) => input.value && input.value.trim() !== "").length === 3
     ) {
       return true;
     }
@@ -1005,7 +1005,7 @@ const Pipeline1 = () => {
       
       // Add examples array
       inputs.forEach((input, index) => {
-        if (input.value.trim() !== "") {
+        if (input.value && input.value.trim() !== "") {
           formData.append(`examples[${index}]`, input.value);
         }
       });
@@ -2268,7 +2268,7 @@ const Pipeline1 = () => {
                                     if (stageExamples && stageExamples.length > 0) {
                                       const updatedInputs = inputs.map((input, index) => ({
                                         ...input,
-                                        value: stageExamples[index] || ""
+                                        value: String(stageExamples[index] || "")
                                       }));
                                       setInputs(updatedInputs);
                                     } else {
