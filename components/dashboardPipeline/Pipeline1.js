@@ -2970,12 +2970,14 @@ const Pipeline1 = () => {
                       */}
 
                       <textarea
-                        className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                        className="min-h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                         placeholder="Ex: Does the human express interest getting a CMA "
                         style={{
                           border: "1px solid #00000020",
                           fontWeight: "500",
                           fontSize: 15,
+                          resize: "vertical",
+                          maxHeight: "200px"
                         }}
                         value={action}
                         onChange={(e) => {
