@@ -85,6 +85,10 @@ const AllowSmartRefillPopup = ({
             <button
               className="w-1/2 outline-none border rounded-lg h-[50px]"
               onClick={() => {
+                if(smartRefillLoader){
+                  console.log("smartRefillLoader is true")
+                  return
+                }
                 handleSmartRefillLater();
               }}
             >
@@ -100,6 +104,10 @@ const AllowSmartRefillPopup = ({
             <button
               className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
               onClick={() => {
+                if(smartRefillLoaderLater){
+                  console.log("smartRefillLoaderLater is true")
+                  return
+                }
                 handleSmartRefill();
               }}
             >
