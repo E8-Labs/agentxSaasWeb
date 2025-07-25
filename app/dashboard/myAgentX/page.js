@@ -4361,6 +4361,7 @@ function Page() {
                   mainAgentId={MainAgentId}
                   previousCalenders={previousCalenders}
                   updateVariableData={updateAfterAddCalendar}
+                  setSelectedAgent={setShowDrawerSelectedAgent}
                 />
               </div>
             ) : activeTab === "Pipeline" ? (

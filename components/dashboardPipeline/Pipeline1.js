@@ -998,12 +998,12 @@ const Pipeline1 = () => {
 
       const ApiPath = Apis.UpdateStage;
       const formData = new FormData();
-      
+
       formData.append("stageId", selectedStage.id);
       formData.append("stageTitle", newStageTitle);
       formData.append("color", stageColor);
       formData.append("action", action);
-      
+
       // Add examples array
       inputs.forEach((input, index) => {
         if (input.value && input.value.trim() !== "") {
@@ -1029,7 +1029,7 @@ const Pipeline1 = () => {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
           setSnackMessage({ message: response.data.message || "Stage updated successfully", type: SnackbarTypes.Success });
-          
+
           // Update selected pipeline stages
           setSelectedPipeline((prevData) => ({
             ...prevData,
@@ -2132,7 +2132,7 @@ const Pipeline1 = () => {
                             aria-describedby={stageId}
                             variant="contained"
                             onClick={(evetn) => {
-                              if (stage.identifier === "new_lead") {
+                              if (stage.identifier === "new_lead" || stage.identifier === "booked") {
                                 // //console.log;
                                 setShowDelBtn(true);
                               } else {
@@ -2245,12 +2245,12 @@ const Pipeline1 = () => {
 
                             {/* Code for configure */}
                             {
-                              stage.identifier && (
+                              showConfigureBtn && (
                                 <button
                                   className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
                                   onClick={() => {
                                     console.log("Configure button clicked for stage:", selectedStage);
-                                    
+
                                     // Parse advancedConfig JSON string to get action and examples
                                     let parsedConfig = {};
                                     if (selectedStage.advancedConfig) {
@@ -2261,24 +2261,24 @@ const Pipeline1 = () => {
                                         console.error("Error parsing advancedConfig:", error);
                                       }
                                     }
-                                    
+
                                     // Pre-populate the modal with selected stage data
                                     setNewStageTitle(selectedStage.stageTitle);
                                     setStageColor(selectedStage.defaultColor || "#000000");
                                     setAction(parsedConfig.action || "");
-                                    
+
                                     // Pre-populate sample answers if they exist
                                     const stageExamples = parsedConfig.examples || [];
                                     console.log("Found examples:", stageExamples);
-                                    
+
                                     if (stageExamples && stageExamples.length > 0) {
                                       const updatedInputs = inputs.map((input, index) => {
                                         const exampleValue = stageExamples[index];
                                         // Handle both object format {id, value} and string format
-                                        const value = typeof exampleValue === 'object' && exampleValue?.value 
-                                          ? String(exampleValue.value) 
+                                        const value = typeof exampleValue === 'object' && exampleValue?.value
+                                          ? String(exampleValue.value)
                                           : String(exampleValue || "");
-                                        
+
                                         return {
                                           ...input,
                                           value: value
@@ -2293,7 +2293,7 @@ const Pipeline1 = () => {
                                       }));
                                       setInputs(clearedInputs);
                                     }
-                                    
+
                                     // Automatically show advanced settings when configuring
                                     setShowAdvanceSettings(true);
                                     setIsEditingStage(true);
@@ -3047,67 +3047,67 @@ const Pipeline1 = () => {
 
                       {!isEditingStage && (
                         <>
-                        <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={{ fontWeight: "600", fontSize: 15 }}>
-                            Assign to
-                          </p>
-                        {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                        <Image
-                          src="/svgIcons/infoIcon.svg"
-                          height={20}
-                          width={20}
-                          alt="*"
-                          aria-owns={open ? "mouse-over-popover2" : undefined}
-                          aria-haspopup="true"
-                          onMouseEnter={(event) => {
-                            setAssigntoActionInfoEl(event.currentTarget);
-                          }}
-                          onMouseLeave={handlePopoverClose}
-                        />
-                      </div>
-
-                      <Popover
-                        id="mouse-over-popover2"
-                        sx={{
-                          pointerEvents: "none",
-                        }}
-                        open={openAssigneAction}
-                        anchorEl={assigntoActionInfoEl}
-                        anchorOrigin={{
-                          vertical: "top",
-                          horizontal: "center",
-                        }}
-                        transformOrigin={{
-                          vertical: "bottom",
-                          horizontal: "left",
-                        }}
-                        PaperProps={{
-                          elevation: 1, // This will remove the shadow
-                          style: {
-                            boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
-                          },
-                        }}
-                        onClose={handlePopoverClose}
-                        disableRestoreFocus
-                      >
-                        <div className="p-2">
-                          <div className="flex flex-row items-center gap-1">
-                            <Image
-                              src={"/svgIcons/infoIcon.svg"}
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                            <p style={{ fontWeight: "500", fontSize: 12 }}>
-                              {showSampleTip
-                                ? "What are possible answers leads will give to this question?"
-                                : "Notify a team member when leads move here."}
+                          <div className="flex flex-row items-center gap-2 mt-4">
+                            <p style={{ fontWeight: "600", fontSize: 15 }}>
+                              Assign to
                             </p>
+                            {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                            <Image
+                              src="/svgIcons/infoIcon.svg"
+                              height={20}
+                              width={20}
+                              alt="*"
+                              aria-owns={open ? "mouse-over-popover2" : undefined}
+                              aria-haspopup="true"
+                              onMouseEnter={(event) => {
+                                setAssigntoActionInfoEl(event.currentTarget);
+                              }}
+                              onMouseLeave={handlePopoverClose}
+                            />
                           </div>
-                        </div>
-                      </Popover>
 
-                      {/* <button
+                          <Popover
+                            id="mouse-over-popover2"
+                            sx={{
+                              pointerEvents: "none",
+                            }}
+                            open={openAssigneAction}
+                            anchorEl={assigntoActionInfoEl}
+                            anchorOrigin={{
+                              vertical: "top",
+                              horizontal: "center",
+                            }}
+                            transformOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                            PaperProps={{
+                              elevation: 1, // This will remove the shadow
+                              style: {
+                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                              },
+                            }}
+                            onClose={handlePopoverClose}
+                            disableRestoreFocus
+                          >
+                            <div className="p-2">
+                              <div className="flex flex-row items-center gap-1">
+                                <Image
+                                  src={"/svgIcons/infoIcon.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                                <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                  {showSampleTip
+                                    ? "What are possible answers leads will give to this question?"
+                                    : "Notify a team member when leads move here."}
+                                </p>
+                              </div>
+                            </div>
+                          </Popover>
+
+                          {/* <button
                     className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
                     style={{ border: "1px solid #00000020" }}
                   >
@@ -3117,50 +3117,50 @@ const Pipeline1 = () => {
                     </div>
                   </button> */}
 
-                      <div className="mt-2">
-                        <FormControl fullWidth>
-                          <Select
-                            id="demo-simple-select"
-                            value={assignToMember || ""} // Default to empty string when no value is selected
-                            onChange={handleAssignTeamMember}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: "#aaa" }}>
-                                    Select team member
-                                  </div>
-                                ); // Placeholder style
-                              }
-                              return selected;
-                            }}
-                            sx={{
-                              border: "1px solid #00000020", // Default border
-                              "&:hover": {
-                                border: "1px solid #00000020", // Same border on hover
-                              },
-                              "& .MuiOutlinedInput-notchedOutline": {
-                                border: "none", // Remove the default outline
-                              },
-                              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                              {
-                                border: "none", // Remove outline on focus
-                              },
-                              "&.MuiSelect-select": {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: "30vh", // Limit dropdown height
-                                  overflow: "auto", // Enable scrolling in dropdown
-                                  scrollbarWidth: "none",
-                                },
-                              },
-                            }}
-                          >
-                            {/* <MenuItem value={myTeamAdmin?.name}>
+                          <div className="mt-2">
+                            <FormControl fullWidth>
+                              <Select
+                                id="demo-simple-select"
+                                value={assignToMember || ""} // Default to empty string when no value is selected
+                                onChange={handleAssignTeamMember}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: "#aaa" }}>
+                                        Select team member
+                                      </div>
+                                    ); // Placeholder style
+                                  }
+                                  return selected;
+                                }}
+                                sx={{
+                                  border: "1px solid #00000020", // Default border
+                                  "&:hover": {
+                                    border: "1px solid #00000020", // Same border on hover
+                                  },
+                                  "& .MuiOutlinedInput-notchedOutline": {
+                                    border: "none", // Remove the default outline
+                                  },
+                                  "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                  {
+                                    border: "none", // Remove outline on focus
+                                  },
+                                  "&.MuiSelect-select": {
+                                    py: 0, // Optional padding adjustments
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: "30vh", // Limit dropdown height
+                                      overflow: "auto", // Enable scrolling in dropdown
+                                      scrollbarWidth: "none",
+                                    },
+                                  },
+                                }}
+                              >
+                                {/* <MenuItem value={myTeamAdmin?.name}>
                           <div className="w-full flex flex-row items-center gap-2">
                             <div>{myTeamAdmin.name}</div>
                             <div className="bg-purple text-white text-sm px-2 rounded-full">
@@ -3168,54 +3168,54 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </MenuItem> */}
-                            <MenuItem value="">
-                              <em>Delete</em>
-                            </MenuItem>
-                            {myTeamList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  className="flex flex-row items-center gap-2"
-                                  key={index}
-                                  value={item?.invitedUser?.name}
-                                >
-                                  {/* <Image
+                                <MenuItem value="">
+                                  <em>Delete</em>
+                                </MenuItem>
+                                {myTeamList.map((item, index) => {
+                                  return (
+                                    <MenuItem
+                                      className="flex flex-row items-center gap-2"
+                                      key={index}
+                                      value={item?.invitedUser?.name}
+                                    >
+                                      {/* <Image
                                                               src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
                                                               width={35}
                                                               height={35}
                                                               alt="*"
                                                             /> */}
-                                  {getAgentsListImage(
-                                    item?.invitedUser,
-                                    42,
-                                    42
-                                  )}
-                                  {item.invitedUser?.name}
-                                  {item.id === -1 && (
-                                    <div className="bg-purple text-white text-sm px-2 rounded-full">
-                                      Admin
-                                    </div>
-                                  )}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      </div>
+                                      {getAgentsListImage(
+                                        item?.invitedUser,
+                                        42,
+                                        42
+                                      )}
+                                      {item.invitedUser?.name}
+                                      {item.id === -1 && (
+                                        <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                          Admin
+                                        </div>
+                                      )}
+                                    </MenuItem>
+                                  );
+                                })}
+                              </Select>
+                            </FormControl>
+                          </div>
 
-                      <p
-                        className="mt-2"
-                        style={{ fontWeight: "500", fontSize: 15 }}
-                      >
-                        Tags
-                      </p>
+                          <p
+                            className="mt-2"
+                            style={{ fontWeight: "500", fontSize: 15 }}
+                          >
+                            Tags
+                          </p>
 
-                      <div
-                        className="h-[45px] p-2 rounded-lg  items-center gap-2"
-                        style={{ border: "0px solid #00000030" }}
-                      >
-                        <TagsInput setTags={setTagsValue} />
-                      </div>
-                      </>
+                          <div
+                            className="h-[45px] p-2 rounded-lg  items-center gap-2"
+                            style={{ border: "0px solid #00000030" }}
+                          >
+                            <TagsInput setTags={setTagsValue} />
+                          </div>
+                        </>
                       )}
                     </div>
                   )}
