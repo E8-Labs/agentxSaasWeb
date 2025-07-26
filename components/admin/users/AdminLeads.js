@@ -1707,6 +1707,7 @@ const AdminLeads = ({
                             userProfile={userLocalDetails}
                             selectedUser={selectedUser}
                             totalLeads={totalLeads}
+                            selectedAll={selectedAll}
                           />
                         </div>
 
@@ -1866,8 +1867,8 @@ const AdminLeads = ({
                         <button
                           className="h-[20px] w-[20px] border-2 rounded outline-none"
                           onClick={() => {
-                            setToggleClick(FilterLeads.map((item) => item.id));
                             setSelectedAll(true);
+                            setToggleClick(FilterLeads.map((item) => item.id));
                           }}
                         ></button>
                         <div style={{ fontSize: "15", fontWeight: "600" }}>
