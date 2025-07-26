@@ -2219,6 +2219,7 @@ const Pipeline1 = () => {
                                 <button
                                   className="flex flex-row gap-2 outline-none"
                                   onClick={() => colorPickerRef.current.click()}
+                                  style={styles.paragraph}
                                 >
                                   Color
                                 </button>
@@ -2303,12 +2304,12 @@ const Pipeline1 = () => {
                                   }}
                                 >
                                   <Image
-                                    src={"/assets/colorDrop.png"}
+                                    src={"/otherAssets/colorDrop.jpg"}
                                     height={18}
-                                    width={15}
+                                    width={18}
                                     alt="*"
                                   />
-                                  <div>
+                                  <div style={styles.paragraph}>
                                     Configure
                                   </div>
                                 </button>

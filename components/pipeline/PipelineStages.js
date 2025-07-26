@@ -1344,32 +1344,37 @@ const PipelineStages = ({
                                     </FormControl>
                                   </div>
 
-                                  {delStageLoader2 ? (
-                                    <div className="flex flex-row iems-center justify-center w-full mt-10">
-                                      <CircularProgress size={25} />
-                                    </div>
-                                  ) : (
-                                    <button
-                                      className="mt-10 outline-none bg-purple"
-                                      disabled={!assignNextStage}
-                                      style={{
-                                        color: "white",
-                                        height: "50px",
-                                        borderRadius: "10px",
-                                        width: "100%",
-                                        backgroundColor:
-                                          !assignNextStage && "#00000020",
-                                        color: !assignNextStage && "#000000",
-                                        fontWeight: 600,
-                                        fontSize: "20",
-                                      }}
-                                      onClick={(e) => {
-                                        handleDeleteStage("del2");
-                                      }}
-                                    >
-                                      Delete
-                                    </button>
-                                  )}
+                                  {
+                                    !assignNextStage &&
+                                    (
+                                      delStageLoader2 ? (
+                                        <div className="flex flex-row iems-center justify-center w-full mt-10">
+                                          <CircularProgress size={25} />
+                                        </div>
+                                      ) : (
+                                        <button
+                                          className="mt-10 outline-none bg-purple"
+                                          disabled={!assignNextStage}
+                                          style={{
+                                            color: "white",
+                                            height: "50px",
+                                            borderRadius: "10px",
+                                            width: "100%",
+                                            backgroundColor:
+                                              !assignNextStage && "#00000020",
+                                            color: !assignNextStage && "#000000",
+                                            fontWeight: 600,
+                                            fontSize: "20",
+                                          }}
+                                          onClick={(e) => {
+                                            handleDeleteStage("del2");
+                                          }}
+                                        >
+                                          Delete
+                                        </button>
+                                      )
+                                    )
+                                  }
 
                                   {delStageLoader ? (
                                     <div className="flex flex-row iems-center justify-center w-full mt-4">
@@ -1636,13 +1641,15 @@ const PipelineStages = ({
                             </div>
                           </Popover>
                         </div>
-                        <input
-                          className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
+                        <textarea
+                          className="min-h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
                           placeholder="Ex: Does the human express interest getting a CMA "
                           style={{
                             border: "1px solid #00000020",
                             fontWeight: "500",
                             fontSize: 15,
+                            resize: "vertical",
+                            maxHeight: "200px"
                           }}
                           value={action}
                           onChange={(e) => {
