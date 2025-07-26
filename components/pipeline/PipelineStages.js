@@ -653,7 +653,7 @@ const PipelineStages = ({
 
                         {isInboundAgent ? (
                           <div>
-                            {index > 0 && (
+                            {index > 0 && item.stageTitle !== "Booked" && (
                               <div className="w-full flex flex-row items-center justify-end mt-2">
                                 <button
                                   className="flex flex-row items-center gap-1"
@@ -988,7 +988,7 @@ const PipelineStages = ({
                         )}
                       </div>
 
-                      {index > 0 && !isInboundAgent && (
+                      {index > 0 && !isInboundAgent && item.stageTitle !== "Booked" && (
                         <div className="w-full flex flex-row items-center justify-end mt-2">
                           <button
                             className="flex flex-row items-center gap-1"

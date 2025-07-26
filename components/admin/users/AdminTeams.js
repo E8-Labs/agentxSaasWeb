@@ -134,7 +134,7 @@ function AdminTeam({ selectedUser }) {
           setGetTeamLoader(false);
 
           if (response.data.status === true) {
-            //console.log;
+            console.log("Response is of get team", response.data.data);
             let admin = response.data.admin;
             let adminMember = {
               invitingUser: admin,
@@ -161,6 +161,10 @@ function AdminTeam({ selectedUser }) {
       //console.log;
     }
   };
+
+  useEffect(() => {
+    console.log("My team is", myTeam);
+  }, [myTeam]);
 
   //funcion to invitem tem member
   const inviteTeamMember = async (item) => {
@@ -195,8 +199,8 @@ function AdminTeam({ selectedUser }) {
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            // //console.log;
-            let newMember = response.data.data;
+            console.log("Response is of invite team member", response.data.data);
+            let newMember = response.data.data[0];
             // //console.log;
             // //console.log;
             setMyTeam((prev) => {
@@ -204,13 +208,14 @@ function AdminTeam({ selectedUser }) {
               // //console.log;
               const isAlreadyPresent = prev.some(
                 (member) => member.id === newMember.id
-              ); // Check by unique ID
+              );
               // //console.log;
               if (isAlreadyPresent) {
-                // //console.log;
+                // //console.log;∫
                 return prev;
               }
-              return [...prev, newMember];
+              // Add the new object, not as an array
+              return [...prev, newMember]
             });
             setSnackTitle("Team invite sent successfully");
             setShowSnak(true);
@@ -534,12 +539,12 @@ function AdminTeam({ selectedUser }) {
               </div>
             )}
 
-            {myTeam.length > 0 ? (
+            {myTeam?.length > 0 ? (
               <div
                 className="pt-3 flex flex-row justify-between w-full flex-wrap"
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
-                {myTeam.map((item, index) => {
+                {myTeam?.map((item, index) => {
                   // //console.log;
                   return (
                     <div key={item.id} className="relative w-6/12 p-6">
