@@ -6,6 +6,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { PersistanceKeys } from '@/constants/Constants';
 import { GreetingTagInput } from '../tagInputs/GreetingTagInput';
+import { PromptTagInput } from '../tagInputs/PromptTagInput';
 
 const EditModal = ({
     isOpen,
@@ -164,14 +165,32 @@ const EditModal = ({
                     <div className='mt-4 mb-2' style={styles.heading}>
                         Description
                     </div>
-                    <GreetingTagInput
-                        greetTag={updatedDescription}
+                    {/*
+                        <GreetingTagInput
+                            greetTag={updatedDescription}
+                            kycsList={kycsData}
+                            uniqueColumns={uniqueColumns}
+                            tagValue={(text) => {
+                                setUpdatedDescription(text);
+                            }}
+                            scrollOffset={scrollOffset}
+                        />
+                    */}
+
+                    <PromptTagInput
+                        promptTag={updatedDescription}
                         kycsList={kycsData}
                         uniqueColumns={uniqueColumns}
-                        tagValue={(text) => {
-                            setUpdatedDescription(text);
-                        }}
+                        tagValue={setUpdatedDescription}
                         scrollOffset={scrollOffset}
+                        showSaveChangesBtn={updatedDescription}
+                        from={editName}
+                        isEdit={true}
+                        saveUpdates={async () => {
+                            // await updateAgent();
+                            // setShowObjectionsSaveBtn(false);
+                            // setOldObjective(objective);
+                        }}
                     />
 
                     {/*

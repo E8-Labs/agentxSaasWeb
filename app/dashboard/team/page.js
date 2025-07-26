@@ -50,7 +50,7 @@ function Page() {
   const [validEmail, setValidEmail] = useState("");
 
   const [showSnak, setShowSnak] = useState(false);
-  const [snackTitle, setSnackTitle] = useState("Team invite sent successfully");
+  const [snackTitle, setSnackTitle] = useState("Team invite sent.");
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);

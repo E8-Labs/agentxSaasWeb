@@ -13,6 +13,7 @@ export const PromptTagInput = ({
   showSaveChangesBtn,
   saveUpdates,
   from,
+  isEdit = true
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -542,7 +543,7 @@ export const PromptTagInput = ({
                   className="text-start sm:font-24 font-16"
                   style={{ fontWeight: "700" }}
                 >
-                  Edit {from}
+                  {isEdit ? "Edit" : "Add"} {from}
                 </div>
               </div>
 

@@ -19,6 +19,7 @@ import React, { useEffect, useState } from "react";
 import EditModal from "./EditModal";
 import { PersistanceKeys } from "@/constants/Constants";
 import { GreetingTagInput } from "../tagInputs/GreetingTagInput";
+import { PromptTagInput } from "../tagInputs/PromptTagInput";
 
 const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
 
@@ -613,15 +614,37 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
               }}
             />*/}
 
-            <GreetingTagInput
-              greetTag={addObjDescription}
-              kycsList={kycsData}
-              uniqueColumns={uniqueColumns}
-              tagValue={(text) => {
-                setAddObjDescription(text);
-              }}
-              scrollOffset={scrollOffset}
-            />
+            {/*
+              <GreetingTagInput
+                greetTag={addObjDescription}
+                kycsList={kycsData}
+                uniqueColumns={uniqueColumns}
+                tagValue={(text) => {
+                  setAddObjDescription(text);
+                }}
+                scrollOffset={scrollOffset}
+              />
+            */}
+
+            <div className="mt-4 w-full">
+              <PromptTagInput
+                promptTag={addObjDescription}
+                kycsList={kycsData}
+                uniqueColumns={uniqueColumns}
+                tagValue={setAddObjDescription}
+                scrollOffset={scrollOffset}
+                showSaveChangesBtn={addObjDescription}
+                from={"Guardrail"}
+                isEdit={false}
+                saveUpdates={async () => {
+                  // await updateAgent();
+                  // setShowObjectionsSaveBtn(false);
+                  // setOldObjective(objective);
+                }}
+              />
+
+              {/* <DynamicDropdown /> */}
+            </div>
 
             <div className="w-full">
               {addObjectionLoader ? (
