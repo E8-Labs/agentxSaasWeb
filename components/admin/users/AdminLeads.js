@@ -84,6 +84,7 @@ const AdminLeads = ({
   const [leadColumns, setLeadColumns] = useState([]);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
   const [toggleClick, setToggleClick] = useState([]);
+  const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedFromDate, setSelectedFromDate] = useState(null);
@@ -580,6 +581,7 @@ const AdminLeads = ({
             prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id)
           );
           setToggleClick([]);
+          setSelectedAll(false);
           setFilterLeads([]);
           setLeadsList([]);
           setShowNoLeadsLabel(true);
@@ -1318,6 +1320,9 @@ const AdminLeads = ({
 
   //code for toggle click
   const handleToggleClick = (id) => {
+    if (selectedAll) {
+      setSelectedAll(false);
+    }
     setToggleClick((prevSelectedItems) => {
       if (prevSelectedItems.includes(id)) {
         // Remove the ID if it's already selected
@@ -1691,6 +1696,7 @@ const AdminLeads = ({
                         <div className="w-full">
                           <AdminAssignLead
                             selectedLead={toggleClick}
+                            selectedAll={selectedAll}
                             handleCloseAssignLeadModal={
                               handleCloseAssignLeadModal //(false, showSnack, disSelectLeads)
                             }
@@ -1832,6 +1838,7 @@ const AdminLeads = ({
                               className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
                               onClick={() => {
                                 setToggleClick([]);
+                                setSelectedAll(false);
                               }}
                             >
                               <Image
@@ -1857,6 +1864,7 @@ const AdminLeads = ({
                           className="h-[20px] w-[20px] border-2 rounded outline-none"
                           onClick={() => {
                             setToggleClick(FilterLeads.map((item) => item.id));
+                            setSelectedAll(true);
                           }}
                         ></button>
                         <div style={{ fontSize: "15", fontWeight: "600" }}>

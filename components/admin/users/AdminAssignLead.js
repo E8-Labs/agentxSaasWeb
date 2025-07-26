@@ -419,10 +419,10 @@ const AdminAssignLead = ({
 
   function getLeadSelectedCount() {
     if (selectedAll) {
-      return totalLeads - leadIs.length;
-    } else {
-      // return leadIs.length;
       return totalLeads;
+    } else {
+      // return totalLeads - leadIs.length;
+      return leadIs.length;
     }
   }
 
