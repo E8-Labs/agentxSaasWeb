@@ -421,7 +421,7 @@ const AdminAssignLead = ({
     if (selectedAll) {
       return totalLeads - leadIs.length;
     } else {
-      return leadIs.length;
+      return totalLeads;
     }
   }
 

@@ -1131,7 +1131,7 @@ function SheduledCalls({ user }) {
                           <div className="w-2/12">Phone Number</div>
                           <div className="w-3/12">Address</div>
                           <div className="w-2/12">Tag</div>
-                          <div className="w-2/12">Status</div>
+                          <div className="w-2/12">Stage</div>
                         </div>
 
                         <div
@@ -1244,7 +1244,7 @@ function SheduledCalls({ user }) {
                                           )}
                                         </div>
                                         <div className="w-2/12 truncate">
-                                          {item?.status || "-"}
+                                          {item?.PipelineStages?.stageTitle || "-"}
                                         </div>
                                       </div>
                                     </div>

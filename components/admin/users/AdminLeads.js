@@ -84,6 +84,8 @@ const AdminLeads = ({
   const [leadColumns, setLeadColumns] = useState([]);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
   const [toggleClick, setToggleClick] = useState([]);
+  //select all
+  const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedFromDate, setSelectedFromDate] = useState(null);
@@ -96,9 +98,13 @@ const AdminLeads = ({
   const [isInbound, setIsInbound] = useState(false);
 
 
-  useEffect(() => {
-    ////console.log;
-  }, [FilterLeads]);
+  // useEffect(() => {
+  //   if (toggleClick.length === FilterLeads.length) {
+  //     setSelectedAll(true);
+  //   } else {
+  //     setSelectedAll(false);
+  //   }
+  // }, [toggleClick]);
 
   const [LeadsInSheet, setLeadsInSheet] = useState({});
 
@@ -265,6 +271,17 @@ const AdminLeads = ({
 
     // //console.log;
   };
+
+  //leads count
+  // function getLeadSelectedCount() {
+  //   console.log("toggleClick length", toggleClick.length);
+  //   console.log("totalLeads length", totalLeads.length);
+  //   if (toggleClick.length !== totalLeads) {
+  //     return totalLeads - toggleClick.length;
+  //   } else {
+  //     return totalLeads;
+  //   }
+  // }
 
   function SetSheetsToLocalStorage(data) {
     localStorage.setItem("sheets", JSON.stringify(data));
@@ -1307,6 +1324,9 @@ const AdminLeads = ({
 
   //code for toggle click
   const handleToggleClick = (id) => {
+    if(selectedAll){
+      setSelectedAll(false);
+    }
     setToggleClick((prevSelectedItems) => {
       if (prevSelectedItems.includes(id)) {
         // Remove the ID if it's already selected
@@ -1811,7 +1831,7 @@ const AdminLeads = ({
               </div>
 
               <div className="flex flex-row items-center gap-2 w-[10%]">
-                {toggleClick.length > 0 && (
+                {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
                       <div>
@@ -1821,6 +1841,7 @@ const AdminLeads = ({
                               className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
                               onClick={() => {
                                 setToggleClick([]);
+                                setSelectedAll(false);
                               }}
                             >
                               <Image
@@ -1833,6 +1854,10 @@ const AdminLeads = ({
                             <div style={{ fontSize: "15", fontWeight: "600" }}>
                               Select All
                             </div>
+                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                              {/*getLeadSelectedCount()*/}
+                              {totalLeads}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1842,6 +1867,7 @@ const AdminLeads = ({
                           className="h-[20px] w-[20px] border-2 rounded outline-none"
                           onClick={() => {
                             setToggleClick(FilterLeads.map((item) => item.id));
+                            setSelectedAll(true);
                           }}
                         ></button>
                         <div style={{ fontSize: "15", fontWeight: "600" }}>
@@ -1906,6 +1932,7 @@ const AdminLeads = ({
                           setSearchLead("");
                           setSelectedSheetId(item.id);
                           setToggleClick([]);
+                          setSelectedAll(false);
                           //   getLeads(item, 0);
                         }}
                       >
@@ -2671,6 +2698,7 @@ const AdminLeads = ({
         >
           <AdminLeadDetails
             selectedLead={selectedLeadsDetails?.id}
+            selectedAll={selectedAll}
             pipelineId={selectedLeadsDetails?.pipeline?.id}
             showDetailsModal={showDetailsModal}
             setShowDetailsModal={setShowDetailsModal}
