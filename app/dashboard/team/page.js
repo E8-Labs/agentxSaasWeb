@@ -225,7 +225,7 @@ function Page() {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
             // //console.log;
-            let newMember = response.data.data;
+            let newMember = response.data.data[0];
             // //console.log;
             // //console.log;
             setMyTeam((prev) => {
@@ -402,14 +402,27 @@ function Page() {
         if (response) {
           setInviteTeamLoader(false);
           if (response.data.status === true) {
-            // //console.log;
-            // let tea
-            let teams = myTeam.filter((item) => item.id != team.id);
+            // Defensive: filter out team member by id, but handle possible null/undefined
+            let teams = myTeam.filter((item) => {
+              // If either item or team is null/undefined, skip comparison
+              if (!item || !team) return true;
+              // If either id is null/undefined, skip comparison
+              if (item.id == null || team.id == null) return true;
+              return item.id !== team.id;
+            });
             setMyTeam(teams);
-            // getMyteam()
             setSnackTitle("Team member removed");
             setShowSnak(true);
-            if (u.user.id == team.invitedUser.id) {
+            // Defensive: check nested properties before accessing
+            if (
+              u &&
+              u.user &&
+              team &&
+              team.invitedUser &&
+              typeof u.user.id !== "undefined" &&
+              typeof team.invitedUser.id !== "undefined" &&
+              u.user.id === team.invitedUser.id
+            ) {
               //if current user deleted himself from the team then logout
               logout();
               router.push("/");

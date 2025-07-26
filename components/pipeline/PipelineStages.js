@@ -653,34 +653,35 @@ const PipelineStages = ({
 
                         {isInboundAgent ? (
                           <div>
-                            {index > 0 && (
-                              <div className="w-full flex flex-row items-center justify-end mt-2">
-                                <button
-                                  className="flex flex-row items-center gap-1"
-                                  onClick={() => {
-                                    setShowDelStagePopup(item);
-                                  }}
-                                >
-                                  <Image
-                                    src={"/assets/delIcon.png"}
-                                    height={20}
-                                    width={18}
-                                    alt="*"
-                                    style={{
-                                      filter:
-                                        "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
-                                      opacity: 0.5,
+                            {index > 0  && item.stageTitle !== "Booked" &&  (
+                                <div className="w-full flex flex-row items-center justify-end mt-2">
+                                  <button
+                                    className="flex flex-row items-center gap-1"
+                                    onClick={() => {
+                                      setShowDelStagePopup(item);
                                     }}
-                                  />
-                                  <p
-                                    className="text-[#15151580]"
-                                    style={{ fontWeight: "500", fontSize: 14 }}
                                   >
-                                    Delete
-                                  </p>
-                                </button>
-                              </div>
-                            )}
+                                    <Image
+                                      src={"/assets/delIcon.png"}
+                                      height={20}
+                                      width={18}
+                                      alt="*"
+                                      style={{
+                                        filter:
+                                          "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
+                                        opacity: 0.5,
+                                      }}
+                                    />
+                                    <p
+                                      className="text-[#15151580]"
+                                      style={{ fontWeight: "500", fontSize: 14 }}
+                                    >
+                                      Delete
+                                    </p>
+                                  </button>
+                                </div>
+                              )
+                            }
                           </div>
                         ) : (
                           <div>
@@ -988,7 +989,7 @@ const PipelineStages = ({
                         )}
                       </div>
 
-                      {index > 0 && !isInboundAgent && (
+                      {index > 0 && !isInboundAgent && item.stageTitle !== "Booked" && (
                         <div className="w-full flex flex-row items-center justify-end mt-2">
                           <button
                             className="flex flex-row items-center gap-1"
