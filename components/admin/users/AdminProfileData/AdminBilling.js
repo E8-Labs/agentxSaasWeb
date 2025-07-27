@@ -377,6 +377,7 @@ function AdminBilling({ selectedUser, from }) {
       const ApiData = {
         plan: planType,
         payNow: true,
+        userId: selectedUser.id,
       };
 
       // //console.log;

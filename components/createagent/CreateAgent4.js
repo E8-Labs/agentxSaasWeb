@@ -336,6 +336,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
     try {
+      console.log("Trigered the get numbers api");
       let AuthToken = null;
 
       let userId = null;
@@ -357,7 +358,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // //console.log;
       let ApiPath = null;
       if (userId) {
-        ApiPath = `Apis.userAvailablePhoneNumber?${userId}`;
+        ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`;
       } else {
         ApiPath = Apis.userAvailablePhoneNumber;
       }
@@ -372,7 +373,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       });
 
       if (response) {
-        // //console.log;
         console.log("Numbers list iis", response.data.data);
         setPreviousNumber(response.data.data);
       }
