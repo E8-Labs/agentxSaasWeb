@@ -15,6 +15,7 @@ import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import dynamic from "next/dynamic.js";
 import React, { useState } from "react";
 import { PersistanceKeys } from "@/constants/Constants.js";
+import getProfileDetails from "@/components/apis/GetProfile.js";
 
 const Page = () => {
   const router = useRouter();
@@ -95,6 +96,7 @@ const Page = () => {
           console.log('response of update cadence api is ', response)
           localStorage.removeItem("AddCadenceDetails");
           localStorage.removeItem(PersistanceKeys.selectedUser);
+          await getProfileDetails();
           const LocalData = localStorage.getItem("User");
           if(LocalData){
             const userData = JSON.parse(LocalData);
