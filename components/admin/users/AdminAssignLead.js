@@ -47,6 +47,7 @@ const AdminAssignLead = ({
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
   // console.log('selectedAll', selectedAll)
+
   const [showDncConfirmationPopup, setShowDncConfirmationPopup] =
     useState(false);
   const [showSuccessSnack, setShowSuccessSnack] = useState(null)
@@ -73,6 +74,7 @@ const AdminAssignLead = ({
   const [smartRefillLoaderLater, setSmartRefillLoaderLater] = useState(false);
 
   const [invalidTimeMessage, setInvalidTimeMessage] = useState(null);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   //new code by salman
   const [errorMessage, setErrorMessage] = useState(null);
@@ -123,7 +125,7 @@ const AdminAssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id+"&agentType=outbound";
+      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id + "&agentType=outbound";
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -402,14 +404,34 @@ const AdminAssignLead = ({
 
   //code for date picker
 
-  const handleDateChange = (date) => {
-    if (!date) {
-      // //console.log;
-      return;
-    }
+  // const handleDateChange = (date) => {
+  //   if (!date) {
+  //     // //console.log;
+  //     return;
+  //   }
 
-    setSelectedDateTime(date);
-    setHasUserSelectedDate(true);
+  //   setSelectedDateTime(date);
+  //   setHasUserSelectedDate(true);
+  // };
+
+  const handleDateChange = (date) => {
+    if (!date || !dayjs(date).isValid()) return;
+    console.log("Date value is", date);
+    console.log("Date value after daysjs is", dayjs(date));
+    let timer = null;
+    if (dayjs(date).isBefore(dayjs())) {
+      // timer = setTimeout(() => {
+      // }, 300);
+      setInvalidTimeMessage("Can't schedule a call in the past");
+      setIsDisabled(true);
+      return;
+    } else {
+      // if (timer) clearTimeout(timer);
+      setInvalidTimeMessage(null);
+      setIsDisabled(false);
+      setSelectedDateTime(dayjs(date));
+      setHasUserSelectedDate(true);
+    }
   };
 
   const handleFromDateChange = (date) => {
@@ -1230,19 +1252,20 @@ const AdminAssignLead = ({
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
                     (CallNow ||
-                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                      (CallLater && selectedDateTime && hasUserSelectedDate && !isDisabled)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
                       onClick={() => {
                         const localData = localStorage.getItem("User");
-                        if (localData) {
-                          const UserDetails = JSON.parse(localData);
-                          console.log(UserDetails.user.smartRefill);
-                          if (UserDetails.user.smartRefill === false) {
-                            setShowSmartRefillPopUp(true);
-                            return;
-                          }
-                        }
+                        // if (localData) {
+                        //   const UserDetails = JSON.parse(localData);
+                        //   console.log("Selected user is", selectedUser)
+                        //   console.log(selectedUser.smartRefill);
+                        //   if (selectedUser.smartRefill === false) {
+                        //     setShowSmartRefillPopUp(true);
+                        //     return;
+                        //   }
+                        // }
                         handleAssignLead();
                         // handleAssigLead()
                       }}
