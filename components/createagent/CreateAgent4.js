@@ -23,7 +23,7 @@ import { getLocalLocation } from "../onboarding/services/apisServices/ApiService
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -338,6 +338,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     try {
       let AuthToken = null;
 
+      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      let userId = null;
+
+      if (U) {
+        const d = JSON.parse(U);
+        // console.log("Subaccount data recieved on createagent_1 screen is", d);
+        userId = d.subAccountData.id;
+      }
+
       // const agentDetails = localStorage.getItem("agentDetails");
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -345,8 +354,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         AuthToken = UserDetails.token;
       }
       // //console.log;
-      const ApiPath = Apis.userAvailablePhoneNumber;
-      // //console.log;
+      let ApiPath = null;
+      
+      if (U) {
+        ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`;
+      } else {
+        ApiPath = Apis.userAvailablePhoneNumber;
+      }
+      console.log("ApiPath on create agent is", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
