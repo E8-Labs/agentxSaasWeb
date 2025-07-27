@@ -98,8 +98,8 @@ const Page = () => {
           const LocalData = localStorage.getItem("User");
           if(LocalData){
             const userData = JSON.parse(LocalData);
-            if(userData.userRole === "AgentX"){
-              router.push("/dashboard/admin");
+            if(userData.user.userType === "admin"){
+              router.push("/admin");
               return;
             }
           }
