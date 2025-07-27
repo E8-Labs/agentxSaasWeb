@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation.js";
 import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import dynamic from "next/dynamic.js";
 import React, { useState } from "react";
+import getProfileDetails from "@/components/apis/GetProfile.js";
 
 const Page = () => {
   const router = useRouter();
@@ -92,6 +93,15 @@ const Page = () => {
         //console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
+          await getProfileDetails();
+          const LocalData = localStorage.getItem("User");
+          if(LocalData){
+            const userData = JSON.parse(LocalData);
+            if(userData.user.userType === "admin"){
+              router.push("/admin");
+              return;
+            }
+          }
           router.push("/dashboard/myAgentX");
         } else {
           // setLoader(false);
