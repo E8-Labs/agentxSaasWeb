@@ -23,7 +23,8 @@ import { getLocalLocation } from "../onboarding/services/apisServices/ApiService
 import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
+import { AuthToken } from "../agency/plan/AuthDetails";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -337,29 +338,31 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const getAvailabePhoneNumbers = async () => {
     try {
       console.log("Trigered the get numbers api");
-      let AuthToken = null;
-
+      const token = AuthToken();
+      
       let userId = null;
-
       const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-
+      console.log("check 343")
       if (U) {
-        const d = JSON.parse(U);
-        console.log("Subaccount data recieved on createagent_1 screen is", d);
-        userId = d.subAccountData.id;
+        // const d = JSON.parse(U);
+        // console.log("Subaccount data recieved on createagent_1 screen is", d);
+        // userId = d.subAccountData.id;
+        try {
+          const d = JSON.parse(U);
+          console.log("Subaccount data recieved");
+          userId = d.subAccountData.id;
+        } catch (e) {
+          console.error("Failed to parse isFromAdminOrAgency", e);
+        }
       }
 
-      // const agentDetails = localStorage.getItem("agentDetails");
-      const LocalData = localStorage.getItem("User");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
       // //console.log;
       let ApiPath = null;
-      if (userId) {
+      if (U) {
+        console.log("UserId is", userId);
         ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`;
       } else {
+        console.log("UserId is not found");
         ApiPath = Apis.userAvailablePhoneNumber;
       }
       console.log("ApiPath on create agent is", ApiPath);
@@ -368,7 +371,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // return
       const response = await axios.get(ApiPath, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + token,
         },
       });
 
