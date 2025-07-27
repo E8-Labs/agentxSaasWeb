@@ -338,6 +338,16 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     try {
       let AuthToken = null;
 
+      let userId = null;
+
+      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+
+      if (U) {
+        const d = JSON.parse(U);
+        console.log("Subaccount data recieved on createagent_1 screen is", d);
+        userId = d.subAccountData.id;
+      }
+
       // const agentDetails = localStorage.getItem("agentDetails");
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -345,7 +355,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         AuthToken = UserDetails.token;
       }
       // //console.log;
-      const ApiPath = Apis.userAvailablePhoneNumber;
+      let ApiPath = null;
+      if (userId) {
+        ApiPath = `Apis.userAvailablePhoneNumber?${userId}`;
+      } else {
+        ApiPath = Apis.userAvailablePhoneNumber;
+      }
+      console.log("ApiPath on create agent is", ApiPath);
       // //console.log;
 
       // return
