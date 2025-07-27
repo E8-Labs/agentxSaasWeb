@@ -45,7 +45,7 @@ function PlansView({
     return (
         <div>
             <div className="flex flex-col items-center gap-4 w-full z-10 relative mt-5">
-                <h1 className="text-[20px] font-semibold text-center">
+                <h1 className="text-[20px] font-semibold text-center mt-4">
                     {`We've Paused Your Calls to Save You Money`}
                 </h1>
                 <Image src={'/otherAssets/callPausedIcon.jpg'}
@@ -86,14 +86,19 @@ function PlansView({
                         </button>
                     ))}
                 </div>
-                <div className="w-full flex justify-center mt-2">
+                <div className="w-full flex flex-col justify-center mt-4">
                     {
                         isLoading ? <CircularProgress /> :
                             <button className="text-purple text-base font-medium bg-transparent" onClick={handleDontUpgrade}>
                                 {`Don't Upgrade and Continue on $45/mo plan`}
                             </button>
                     }
+
+                    <button className="text-gray-500 text-base font-medium mt-2">
+                        {`Pause Calls Until Next Subscription`}
+                    </button>
                 </div>
+
             </div>
         </div >
     )
