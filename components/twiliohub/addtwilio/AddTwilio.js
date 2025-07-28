@@ -229,7 +229,7 @@ const AddTwilio = ({
                 </button>
                 <button
                     className={`${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
-                    onClick={() => { handleConnectTwilio(false) }}
+                    onClick={() => { handleConnectTwilio(true) }}
                     disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader || closeLoader}
                 >
                     {
