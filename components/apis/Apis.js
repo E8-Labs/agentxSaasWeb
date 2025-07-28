@@ -195,6 +195,7 @@ profileSupportDetails :`${BasePath}api/user/myProfileSupportDetails`,
   getBusinessProfile: `${BasePath}api/business-profile`,
   deleteCallLog:`${BasePath}api/leads/deleteCallLog`,
   confirmContinueCharging:`${BasePath}api/user/confirm-continue-charging`,
+  handleMultipleCharge : `${BasePath}api/user/handle-multiple-charge-action`
 
 
   
