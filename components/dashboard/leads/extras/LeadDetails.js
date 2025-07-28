@@ -216,10 +216,20 @@ const LeadDetails = ({
       //console.log;
       handleClosePopup();
       setGlobalLoader(true);
-      let response = await AssignTeamMember(
-        selectedLeadsDetails.id,
-        item.invitingUserId
-      );
+      let ApiData = null;
+      if (item.invitedUserId) {
+        ApiData = {
+          leadId: selectedLeadsDetails.id,
+          teamMemberUserId: item.invitedUserId,
+        };
+      } else {
+        ApiData = {
+          leadId: selectedLeadsDetails.id,
+          teamMemberUserId: item.id,
+        };
+      }
+      console.log("Api data to send in api is", ApiData)
+      let response = await AssignTeamMember(ApiData);
       if (response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
           return {
@@ -1670,9 +1680,9 @@ const LeadDetails = ({
                                     ) : (
                                       <div
                                         className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                        onClick={() =>
-                                          handleToggleClick(item.id)
-                                        }
+                                        // onClick={() =>
+                                        //   handleToggleClick(item.id)
+                                        // }
                                       >
                                         {item?.name.slice(0, 1)}
                                       </div>
@@ -2183,7 +2193,7 @@ const LeadDetails = ({
                                                         alt="*"
                                                       />
                                                     </button>
-                                                     {item.agent.hasVoicemail ? (
+                                                    {item.agent.hasVoicemail ? (
 
                                                       <NoVoicemailView
                                                         showAddBtn={false}

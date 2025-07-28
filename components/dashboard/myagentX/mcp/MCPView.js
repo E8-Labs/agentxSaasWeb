@@ -582,12 +582,28 @@ function MCPView({
         return (
 
             <div className="flex flex-col w-full h-[170px] items-center justify-center bg-[#fafafa] mt-4">
-                <Image className='cursor-pointer'
-                    src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
+                {/*
+                    <Image className='cursor-pointer'
+                        src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
+                */}
 
-                <div className='text-[15px] font-[500] text-black mt-2 '>
+                <button className="border-none outline-none" onClick={() => { setIntroVideoModal2(true) }}>
+                    <div className="relative flex-shrink-0">
+                        <Image
+                            src="/assets/youtubeplay.png"
+                            alt="Video thumbnail"
+                            width={parseInt(80, 10)}
+                            height={parseInt(150, 10)}
+                            priority
+                            className="rounded-lg object-cover"
+                        />
+                    </div>
+                </button>
+
+                <button className='text-[15px] font-[500] text-black mt-2 outline-none border-none'
+                    onClick={() => { setIntroVideoModal2(true) }}>
                     Learn more about Tools
-                </div>
+                </button>
 
                 <button
                     className='text-[13px] font-[500] mt-2 text-purple flex flex-row items-center gap-1  cursor-pointer'
