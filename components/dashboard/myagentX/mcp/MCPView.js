@@ -10,6 +10,8 @@ import { Plus } from 'lucide-react';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles';
+import IntroVideoModal from '@/components/createagent/IntroVideoModal';
+import { HowtoVideos } from '@/constants/Constants';
 
 
 
@@ -42,6 +44,9 @@ function MCPView({
 
     //attach mcp loader
     const [attachMcpLoader, setAttachMcpLoader] = useState("");
+
+    //how to video
+    const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
     //snackbar
     const [showSnack, setShowSnack] = useState({
@@ -339,14 +344,14 @@ function MCPView({
                         {
                             mcpTools.length > 0 && (
                                 <div className="flex flex-row items-center gap-2">
-                                    <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
-                                    // onClick={() => setIntroVideoModal2(true)}
+                                    <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                                        onClick={() => setIntroVideoModal2(true)}
                                     >
                                         Learn how to add Tools
                                         <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
                                         // onClick={() => setIntroVideoModal2(true)}
                                         />
-                                    </div>
+                                    </button>
 
 
 
@@ -384,6 +389,14 @@ function MCPView({
                         />
                     )
                 }
+
+                {/* Intro modal */}
+                <IntroVideoModal
+                    open={introVideoModal2}
+                    onClose={() => setIntroVideoModal2(false)}
+                    videoTitle="Learn how to add Tools"
+                    videoUrl={HowtoVideos.Tools}
+                />
 
                 {
                     showMcpLoader ? (
@@ -567,12 +580,26 @@ function MCPView({
         return (
 
             <div className="flex flex-col w-full h-[170px] items-center justify-center bg-[#fafafa] mt-4">
-                <Image className='cursor-pointer'
-                    src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
 
-                <div className='text-[15px] font-[500] text-black mt-2 '>
+                <button className="border-none outline-none" onClick={() => { setIntroVideoModal2(true) }}>
+                    <div className="relative flex-shrink-0">
+                        <Image  
+                            src="/assets/youtubeplay.png"
+                            alt="Video thumbnail"
+                            width={parseInt(80, 10)}
+                            height={parseInt(150, 10)}
+                            priority
+                            className="rounded-lg object-cover"
+                        />
+                    </div>
+                </button>
+
+                <button
+                    className='text-[15px] font-[500] text-black mt-2 outline-none border-none cursor-pointer'
+                    onClick={() => { setIntroVideoModal2(true) }}
+                >
                     Learn more about Tools
-                </div>
+                </button>
 
                 <button
                     className='text-[13px] font-[500] mt-2 text-purple flex flex-row items-center gap-1  cursor-pointer'

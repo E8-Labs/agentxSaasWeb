@@ -558,7 +558,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
             >
               Get started with your AI agent
             </button>
-            <div className="w-full flex flex-col  items-center max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
               <div
                 className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
                 style={{ scrollbarWidth: "none" }}

@@ -371,8 +371,8 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleS
 
       if (response) {
         // //console.log;
+        console.log("Data of check email api is", response);
         if (response.data.status === true) {
-          // //console.log;
           setEmailCheckResponse(response.data);
         } else {
           setEmailCheckResponse(response.data);

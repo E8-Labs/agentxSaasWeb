@@ -157,7 +157,7 @@ function AdminBilling({ selectedUser, from }) {
   useEffect(() => {
     getProfile();
     getPaymentHistory();
-    getCardsList();
+    // getCardsList();
   }, []);
 
   //function to get subaccount plans
@@ -227,6 +227,7 @@ function AdminBilling({ selectedUser, from }) {
   };
 
   //functiion to get cards list
+  //this function is commented temporarily
   const getCardsList = async () => {
     console.log("Get cards api trigered");
     try {
@@ -705,23 +706,25 @@ function AdminBilling({ selectedUser, from }) {
           </div>
         </div>
 
-        <button
-          className=""
-          onClick={() => {
-            setAddPaymentPopup(true);
-          }}
-        >
-          <div
-            style={{
-              fontSize: 15,
-              fontWeight: "500",
-              color: "#7902DF",
-              textDecorationLine: "underline",
+        {/*
+          <button
+            className=""
+            onClick={() => {
+              setAddPaymentPopup(true);
             }}
           >
-            Add New Card
-          </div>
-        </button>
+            <div
+              style={{
+                fontSize: 15,
+                fontWeight: "500",
+                color: "#7902DF",
+                textDecorationLine: "underline",
+              }}
+            >
+              Add New Card
+            </div>
+          </button>
+        */}
       </div>
 
       <div className="w-full">

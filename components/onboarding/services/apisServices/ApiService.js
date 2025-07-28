@@ -3,7 +3,7 @@ import CircularLoader from "@/utilities/CircularLoader";
 import axios from "axios";
 
 //api call to assign lead to teamm members
-export const AssignTeamMember = async (leadId, teamMemberUserId) => {
+export const AssignTeamMember = async (ApiData) => {
   try {
     // //console.log
     let AuthToken = null;
@@ -16,13 +16,14 @@ export const AssignTeamMember = async (leadId, teamMemberUserId) => {
       // return Data.token
     }
     // //console.log
-    const ApiData = {
-      // leadId: selectedLeadsDetails.id,
-      // teamMemberUserId: item?.id
-      leadId: leadId,
-      teamMemberUserId: teamMemberUserId,
-    };
-    // //console.log;
+    // const ApiData = {
+    //   // leadId: selectedLeadsDetails.id,
+    //   // teamMemberUserId: item?.id
+    //   leadId: leadId,
+    //   teamMemberUserId: teamMemberUserId,
+    // };
+    console.log("Api data sending in assign lead to team api is", ApiData);
+    // return;
 
     const ApiPath = Apis.AssignLeadToTeam;
     // //console.log
@@ -35,6 +36,7 @@ export const AssignTeamMember = async (leadId, teamMemberUserId) => {
     });
 
     if (response) {
+      console.log("Respose of assign lead to team is", response);
       return response;
     }
   } catch (error) {

@@ -216,10 +216,24 @@ const LeadDetails = ({
       //console.log;
       handleClosePopup();
       setGlobalLoader(true);
-      let response = await AssignTeamMember(
-        selectedLeadsDetails.id,
-        item.invitingUserId
-      );
+      console.log("Item passed is", item);
+      let ApiData = null;
+      if (item.invitedUserId) {
+        ApiData = {
+          leadId: selectedLeadsDetails.id,
+          teamMemberUserId: item.invitedUserId,
+        };
+      } else {
+        ApiData = {
+          leadId: selectedLeadsDetails.id,
+          teamMemberUserId: item.id,
+        };
+      }
+      console.log("Api data to send in api is", ApiData)
+      // selectedLeadsDetails.id,
+      //   item.invitingUserId
+      // return;
+      let response = await AssignTeamMember(ApiData);
       if (response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
           return {
@@ -695,7 +709,7 @@ const LeadDetails = ({
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          
+
           setShowSuccessSnack2(true);
           setShowSuccessSnack(response.data.message);
           setShowDetailsModal(false);
@@ -751,7 +765,7 @@ const LeadDetails = ({
       "status",
       "stage",
       "address",
-  ];
+    ];
     for (const c of columns) {
       if (!c.isDefault) {
         if (!ExcludedColumns.includes(c?.title?.toLowerCase() || "")) {
@@ -969,7 +983,7 @@ const LeadDetails = ({
                             </div>
                             <div
                               className="truncate"
-                              onClick={() => handleToggleClick(item.id)}
+                            // onClick={() => handleToggleClick(item.id)}
                             >
                               {selectedLeadsDetails?.firstName}{" "}
                               {selectedLeadsDetails?.lastName}
@@ -1639,7 +1653,7 @@ const LeadDetails = ({
                               ) : (
                                 <div
                                   className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                  onClick={() => handleToggleClick(item.id)}
+                                // onClick={() => handleToggleClick(item.id)}
                                 >
                                   {myTeamAdmin?.name.slice(0, 1)}
                                 </div>
@@ -1680,9 +1694,9 @@ const LeadDetails = ({
                                     ) : (
                                       <div
                                         className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                        onClick={() =>
-                                          handleToggleClick(item.id)
-                                        }
+                                      // onClick={() =>
+                                      //   handleToggleClick(item.id)
+                                      // }
                                       >
                                         {item?.name.slice(0, 1)}
                                       </div>
@@ -2193,7 +2207,7 @@ const LeadDetails = ({
                                                         alt="*"
                                                       />
                                                     </button>
-                                                     {item.agent.hasVoicemail ? (
+                                                    {item.agent.hasVoicemail ? (
 
                                                       <NoVoicemailView
                                                         showAddBtn={false}
