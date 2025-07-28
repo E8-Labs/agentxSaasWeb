@@ -25,7 +25,7 @@ const AddSellerKyc = ({
   SellerUrgencyData,
   mainAgentId,
   allKYCs,
-  selectedUser
+  selectedUser = null
 }) => {
   //console.log;
   //console.log
@@ -662,12 +662,15 @@ const AddSellerKyc = ({
         mainAgentId: AgentId,
 
       };
-      if (UserDetails.user.userType === "admin") {
+      if (selectedUser) {
         data.userId = selectedUser.id
       }
       //console.log;
       // return;
       ApiData = data;
+
+      console.log("APi data is :",ApiData)
+      // console.log("Auth thoken is",AuthToken)
 
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -677,7 +680,7 @@ const AddSellerKyc = ({
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of add kyc api is",response.data)
         if (response.data.status === true) {
           handleCloseSellerKyc();
           handleAddSellerKycData(response.data.data);
