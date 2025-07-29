@@ -1148,7 +1148,8 @@ const [snackMessage,setSnackMessage] = useState(null)
                           }}
                           onClick={() => {
                             handleShowRedirectPopup()
-                            router.push("/createagent");
+                            // router.push("/createagent");
+                            window.location.href = "/embedCalendar";
                           }}
                         >
                           Get Started
