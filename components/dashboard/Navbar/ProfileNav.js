@@ -167,8 +167,6 @@ const ProfileNav = () => {
 
   const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
 
-
-
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
     let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
