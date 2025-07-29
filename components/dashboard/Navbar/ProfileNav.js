@@ -170,8 +170,6 @@ const ProfileNav = () => {
   const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
   const [walkthroughWatched, setWalkthroughWatched] = useState(false);
 
-
-
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
 
   //walkthroughWatched popup
