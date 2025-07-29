@@ -758,11 +758,13 @@ const UserCalender = ({
           open={showDelPopup}
           onClose={() => setShowDelPopup(false)}
           closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(5px)",
+          slotProps={{
+            backdrop: {
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(5px)",
+              },
             },
           }}
         >
