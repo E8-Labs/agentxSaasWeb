@@ -715,11 +715,6 @@ const UserCalender = ({
         {/* Confirmation to add google calendar or cal.com */}
         <CalendarModal
           open={showCalendarConfirmation}
-          setSelectedTimeDurationLocal={(value) => {
-            console.log("Check 2334")
-            setSelectedTimeDurationLocal(value)
-          }}
-          selectedTimeDurationLocal={selectedTimeDurationLocal}
           selectedAgent={selectedAgent}
           onClose={() => {
             setShowCalendarConfirmation(false);
@@ -737,11 +732,8 @@ const UserCalender = ({
           eventId={eventId}
           selectTimeZone={selectTimeZone}
           setSelectTimeZone={setSelectTimeZone}
-        // selectedTimeDuration={selectedTimeDuration}
-        // setSelectedTimeDuration={(e) => {
-        //   console.log("Check 23");
-        //   setSelectedTimeDuration(e);
-        // }}
+          selectedTimeDurationLocal={selectedTimeDurationLocal}
+          setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}
         />
 
         {/* Modal to add custom calender */}
