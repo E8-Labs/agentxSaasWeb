@@ -26,11 +26,11 @@ const Page = () => {
                     Limited to 10 people per slot.
                 </div>
                 <div
-                    className="w-full h-[50svh] bg-zinc-100 rounded-xl mt-10 flex flex-col items-center pt-6"
+                    className="w-full h-[50svh] mt-10 flex flex-col items-center pt-6" //bg-zinc-100
                 >
                     <iframe 
                         src="https://set.myagentx.com/widget/booking/xrSWkBaX7ATaR7bGnyPb" 
-                        style={{ width: "90%", border: "none", overflow: "hidden" }} 
+                        style={{ width: "100%", border: "none", overflow: "hidden" }} 
                         id="xrSWkBaX7ATaR7bGnyPb_1753725547631"
                     />
                     <Script 
