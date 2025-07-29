@@ -2167,12 +2167,15 @@ const Pipeline1 = () => {
                           PaperProps={{
                             elevation: 0, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
+                              boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
                               borderRadius: "12px",
                             },
                           }}
                         >
-                          <div className="w-64 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-2">
+                          <div
+                            className="w-36 px-4 py-3 bg-white rounded-[10px] inline-flex flex-col justify-start items-start gap-2"
+                            // style={{ border: "4px solid black" }}
+                          >
                             <div className="w-full flex flex-row">
                               <button
                                 className=" text-black text-base font-medium flex flex-row items-center gap-4 outline-none"
