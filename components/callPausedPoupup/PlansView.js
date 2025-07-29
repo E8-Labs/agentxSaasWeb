@@ -3,6 +3,7 @@ import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image';
 import Apis from '../apis/Apis';
 import axios from 'axios';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 
 function PlansView({
     handleClose,
@@ -33,6 +34,10 @@ function PlansView({
     ]
 
     const [isLoading, setIsLoading] = useState(false);
+    const [mutlipleChargeLoading, setMulitpleChargeLoading] = useState(false)
+    const [showMessage,setShowMessage] = useState({
+        message:null,type:null
+    })
 
     const handleDontUpgrade = async () => {
         setIsLoading(true);
@@ -41,11 +46,71 @@ function PlansView({
         setIsLoading(false);
     }
 
+    const handlePauseCall = async () => {
+        try {
+            setMulitpleChargeLoading(true)
+            const data = localStorage.getItem("User")
+
+            if (data) {
+                let u = JSON.parse(data)
+
+
+                let apidata = {
+                    action: "pause_until_subscription"
+                }
+
+
+                const response = await axios.post(Apis.handleMultipleCharge,apidata , {
+                    headers: {
+                        'Authorization': 'Bearer ' + u.token
+                    }
+                })
+
+                if (response) {
+                    console.log('multiple charge api reponse is', response.data)
+                    if (response.data.status === true) {
+                        setShowMessage({
+                            message:response.data.message,
+                            type:SnackbarTypes.Success
+                        })
+                        handleClose()
+                    } else {
+                        setShowMessage({
+                            message:response.data.message,
+                            type:SnackbarTypes.Error
+                        })
+                        console.log('multiple charge api message is', response.data.message)
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('error in multiple charge api', e)
+            // setShowMessage({
+            //     message:e,
+            //     type:SnackbarTypes.Error
+            // })
+        }
+        finally {
+            setMulitpleChargeLoading(false)
+        }
+    }
+
 
     return (
         <div>
+            <AgentSelectSnackMessage
+                isVisible={showMessage.message != null}
+                hide={()=>{
+                    setShowMessage({
+                        message:null,type:null
+                    })
+                }}
+                message={showMessage.message} 
+
+                type={showMessage.type}
+            />
             <div className="flex flex-col items-center gap-4 w-full z-10 relative mt-5">
-                <h1 className="text-[20px] font-semibold text-center">
+                <h1 className="text-[20px] font-semibold text-center mt-4">
                     {`We've Paused Your Calls to Save You Money`}
                 </h1>
                 <Image src={'/otherAssets/callPausedIcon.jpg'}
@@ -86,14 +151,25 @@ function PlansView({
                         </button>
                     ))}
                 </div>
-                <div className="w-full flex justify-center mt-2">
+                <div className="w-full flex flex-col justify-center items-center mt-4">
                     {
-                        isLoading ? <CircularProgress /> :
+                       isLoading ? <CircularProgress size = {20} /> :
                             <button className="text-purple text-base font-medium bg-transparent" onClick={handleDontUpgrade}>
                                 {`Don't Upgrade and Continue on $45/mo plan`}
                             </button>
                     }
+                    {
+                        mutlipleChargeLoading ? <CircularProgress size = {20} /> :
+                            <button className="text-gray-500 text-base font-medium mt-2"
+                                onClick={() => {
+                                    handlePauseCall()
+                                }}
+                            >
+                                {`Pause Calls Until Next Subscription`}
+                            </button>
+                    }
                 </div>
+
             </div>
         </div >
     )

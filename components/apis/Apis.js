@@ -215,6 +215,10 @@ const Apis = {
 
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
+  handleMultipleCharge : `${BasePath}api/user/handle-multiple-charge-action`
+
+
+  
 };
 
 export default Apis;
