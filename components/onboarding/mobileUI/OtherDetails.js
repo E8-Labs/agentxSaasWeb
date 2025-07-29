@@ -108,7 +108,7 @@ const OtherDetails = ({
   const [urlErrorMessage, setUrlErrorMessage] = useState("");
 
 
-const [snackMessage,setSnackMessage] = useState(null)
+  const [snackMessage, setSnackMessage] = useState(null)
   const [territory, setTerritory] = useState("");
   const [firmOrCompanyAffiliation, setFirmOrCompanyAffiliation] = useState("");
   const [averageMonthlyClients, setAverageMonthlyClients] = useState("");
@@ -615,8 +615,8 @@ const [snackMessage,setSnackMessage] = useState(null)
             // //console.log;
             handleContinue();
           }
-        }else{
-            setSnackMessage(response.data.message)
+        } else {
+          setSnackMessage(response.data.message)
         }
       }
     } catch (error) {
@@ -895,7 +895,7 @@ const [snackMessage,setSnackMessage] = useState(null)
         isVisible={snackMessage != null}
         message={snackMessage}
         type={SnackbarTypes.Error}
-        hide={()=>setSnackMessage(null)}
+        hide={() => setSnackMessage(null)}
       />
       <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[90svh] sm:h-[82svh]">
@@ -1149,8 +1149,21 @@ const [snackMessage,setSnackMessage] = useState(null)
                           onClick={() => {
                             handleShowRedirectPopup()
                             // router.push("/createagent");
-                            window.location.href = "/embedCalendar";
+                            window.open("/embedCalendar", "_blank");
+                            // window.close();
                           }}
+                          // onClick={() => {
+                          //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
+                          //   handleShowRedirectPopup();
+                          //   if (newTab && typeof newTab.document !== 'undefined') {
+                          //     newTab.document.write(`
+                          //     <script>
+                          //       window.opener && window.opener.close();  // Step 2: close current tab
+                          //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
+                          //     </script>
+                          //   `);
+                          //   }
+                          // }}
                         >
                           Get Started
                         </button>

@@ -28,7 +28,6 @@ function CalendarModal(props) {
     // setSelectedTimeDuration
     selectedTimeDurationLocal,
     setSelectedTimeDurationLocal,
-    test
   } = props;
 
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
@@ -122,7 +121,8 @@ function CalendarModal(props) {
         googleUserId: data.id,
         email: data.email,
         calenderTitle: calenderTitle,
-        selectTimeZone: selectTimeZone
+        selectTimeZone: selectTimeZone,
+        eventId: selectedTimeDurationLocal
       };
 
       // for (let [key, value] of formData.entries()) {
@@ -230,7 +230,7 @@ function CalendarModal(props) {
                   setCalenderApiKey("");
                   setEventId("");
                   setSelectTimeZone("");
-                  setSelectedTimeDurationLocal(null);
+                  setSelectedTimeDurationLocal("");
                 }}
               >
                 <Image
@@ -429,6 +429,7 @@ function CalendarModal(props) {
                   setShowAddNewGoogleCalender(false);
                   setCalenderTitle("");
                   setSelectTimeZone("");
+                  setSelectedTimeDurationLocal("");
                 }}
               >
                 <Image
@@ -657,7 +658,7 @@ function CalendarModal(props) {
       return true;
     }
     if (google) {
-      if (calenderTitle && selectTimeZone) {
+      if (calenderTitle && selectTimeZone && selectedTimeDurationLocal) {
         // //console.log;
         return true;
       } else {
@@ -665,7 +666,7 @@ function CalendarModal(props) {
         return false;
       }
     } else
-      if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
+      if (calenderTitle && calenderApiKey && eventId && selectTimeZone && selectedTimeDurationLocal) {
         // //console.log;
         return true;
       } else {

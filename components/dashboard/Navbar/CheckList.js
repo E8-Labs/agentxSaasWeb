@@ -41,6 +41,7 @@ const CheckList = ({ userDetails }) => {
         message: "Calendar added successfully!",
         isVisible: false,
     });
+    const [selectedTimeDurationLocal, setSelectedTimeDurationLocal] = useState("");
 
     const getChecklist = () => {
         const D = localStorage.getItem("User");
@@ -239,15 +240,15 @@ const CheckList = ({ userDetails }) => {
                             setSelectTimeZone={setSelectTimeZone}
                             handleAddCalendar={async (calendar) => {
                                 let response = null;
-                                if (calendar?.isFromAddGoogleCal) {
-                                    console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-                                    response = await AddCalendarApi(calendar);
-                                    setGoogleCalenderLoader(true);
-                                } else {
-                                    console.log("Is not from google cal");
-                                    response = await AddCalendarApi(addCalendarValues);
-                                    setCalenderLoader(true);
-                                }
+                                // if (calendar?.isFromAddGoogleCal) {
+                                //     console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+                                //     response = await AddCalendarApi(calendar);  
+                                //     setGoogleCalenderLoader(true);
+                                // } else {
+                                //     console.log("Is not from google cal");
+                                //     response = await AddCalendarApi(addCalendarValues);
+                                //     setCalenderLoader(true);
+                                // }
                                 setCalenderLoader(false);
                                 setGoogleCalenderLoader(false);
                                 if (response.status === true) {
@@ -267,6 +268,8 @@ const CheckList = ({ userDetails }) => {
                                     });
                                 }
                             }}
+                            selectedTimeDurationLocal={selectedTimeDurationLocal}
+                            setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}
                         />
                     </div>
                 )

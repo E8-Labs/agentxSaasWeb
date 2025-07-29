@@ -174,16 +174,7 @@ const ProfileNav = () => {
 
   //walkthroughWatched popup
   useEffect(() => {
-    const localData = localStorage.getItem("User");
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      // console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails);
-      if (UserDetails.user.walkthroughWatched === false) {
-        setWalkthroughWatched(true);
-      } else {
-        setWalkthroughWatched(false);
-      }
-    }
+    getShowWalkThrough();
   }, []);
 
   //update profile if walkthrough is true
@@ -293,6 +284,23 @@ const ProfileNav = () => {
       return;
     }
   }, []);
+
+  //intro video
+  const getShowWalkThrough = () => {
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      console.log("check 111")
+      console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
+      if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
+        console.log("checko 09124")
+        setWalkthroughWatched(true);
+      } else {
+        console.log("`sjdkfhsj")
+        setWalkthroughWatched(false);
+      }
+    }
+  }
 
   const updateWalkthroughWatched = async () => {
     try {
@@ -749,6 +757,7 @@ const ProfileNav = () => {
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
           getProfile();
+          getShowWalkThrough();
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
           setShowErrorSnack(true);

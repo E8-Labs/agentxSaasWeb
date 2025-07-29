@@ -85,7 +85,7 @@ const UserCalender = ({
   const [showDelPopup, setShowDelPopup] = useState(false);
   const [calenderDelLoader, setCalenderDelLoader] = useState(null);
   // const [selectedTimeDuration, setSelectedTimeDuration] = useState(null);
-  const [selectedTimeDurationLocal, setSelectedTimeDurationLocal] = useState(null);
+  const [selectedTimeDurationLocal, setSelectedTimeDurationLocal] = useState("");
 
 
   //video card
@@ -242,13 +242,13 @@ const UserCalender = ({
     console.log("Is new calendar", isNewCalendar);
     // return
     try {
-      // if (calendar?.isFromAddGoogleCal) {
-      //   console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-      //   setGoogleCalenderLoader(true);
-      // } else {
-      //   console.log("Is not from google cal");
-      //   setAddCalenderLoader(true);
-      // }
+      if (calendar?.isFromAddGoogleCal) {
+        console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+        setGoogleCalenderLoader(true);
+      } else {
+        console.log("Is not from google cal");
+        setAddCalenderLoader(true);
+      }
 
       const localData = localStorage.getItem("User");
       let AuthToken = null;
@@ -288,7 +288,7 @@ const UserCalender = ({
         formData.append("email", calendar.email);
         formData.append("title", calendar.calenderTitle);
         formData.append("timeZone", calendar.selectTimeZone);
-        formData.append("eventId", calendar?.selectedTimeDuration || selectedTimeDuration); //|| eventId
+        formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -315,7 +315,7 @@ const UserCalender = ({
         console.log(`${key} ===== ${value}`);
       }
 
-      return;
+      // return;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {

@@ -28,6 +28,7 @@ export const AddCalendarApi = async (calendarValues
             formData.append("expiryDate", calendarValues?.expiryDate);
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);
+            formData.append("eventId", calendarValues?.eventId);
         } else {
             formData.append("title", calendarValues?.calenderTitle);
             formData.append("timeZone", calendarValues?.selectTimeZone);
@@ -41,7 +42,7 @@ export const AddCalendarApi = async (calendarValues
         }
         console.log("Key updated");
 
-        // return
+        return
         const response = await axios.post(ApiPath, formData, {
             headers: {
                 Authorization: "Bearer " + userAuthToken,

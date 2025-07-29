@@ -39,15 +39,17 @@ const Page = () => {
                     />
                 </div>
             </div>
-            <div className='w-full mb-4'>
-                <button className='w-full h-12 bg-purple text-white rounded-xl'
-                    onClick={() => {
-                        // router.push('/createagent');
-                        window.location.href = "/createagent";
-                    }}>
-                    Continue
-                </button>
-            </div>
+            {/*
+                <div className='w-full mb-4'>
+                    <button className='w-full h-12 bg-purple text-white rounded-xl'
+                        onClick={() => {
+                            // router.push('/createagent');
+                            window.location.href = "/createagent";
+                        }}>
+                        Continue
+                    </button>
+                </div>
+            */}
         </div>
     )
 }
