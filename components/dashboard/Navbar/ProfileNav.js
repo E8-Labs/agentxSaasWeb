@@ -31,11 +31,13 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { PersistanceKeys, userType } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import CheckList from "./CheckList";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -166,16 +168,41 @@ const ProfileNav = () => {
   const [userLeads, setUserLeads] = useState("loading");
 
   const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
+  const [walkthroughWatched, setWalkthroughWatched] = useState(false);
 
 
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
+
+  //walkthroughWatched popup
   useEffect(() => {
-    let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
-    // requestNotificationPermission();
-    UpdateProfile({});
-    // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      // console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails);
+      if (UserDetails.user.walkthroughWatched === false) {
+        setWalkthroughWatched(true);
+      } else {
+        setWalkthroughWatched(false);
+      }
+    }
   }, []);
+
+  //update profile if walkthrough is true
+  useEffect(() => {
+    if (walkthroughWatched) {
+      // UpdateProfile({});
+      updateWalkthroughWatched();
+    }
+  }, [walkthroughWatched]);
+
+  // useEffect(() => {
+  //   let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+  //   // requestNotificationPermission();
+  //   UpdateProfile({});
+  //   // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
+  // }, []);
+
   useEffect(() => {
     const testNot = async () => {
       try {
@@ -268,6 +295,21 @@ const ProfileNav = () => {
       return;
     }
   }, []);
+
+  const updateWalkthroughWatched = async () => {
+    try {
+      const apidata = {
+        walkthroughWatched: true
+      }
+      const response = await UpdateProfile(apidata);
+      if (response) {
+        console.log("Update api resopnse after walkthrough true", response)
+      }
+      // console.log("Response of update profile api is", response)
+    } catch (error) {
+      console.log("Error occured in update catch api is", error)
+    }
+  }
 
   const getUserProfile = async () => {
     await getProfile();
@@ -816,6 +858,16 @@ const ProfileNav = () => {
         hide={() => setShowErrorSnack(false)}
         message={errorSnack}
         type={SnackbarTypes.Error}
+      />
+
+      {/* For Walkthrough Watched Popup */}
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={walkthroughWatched}
+        onClose={() => setWalkthroughWatched(false)}
+        videoTitle="Welcome to AgentX"
+        videoDescription="This short video will show you where everything is. Enjoy!"
+        videoUrl={HowtoVideos.script}//WalkthroughWatched
       />
 
       <div className="w-full flex flex-col items-center justify-between h-screen">

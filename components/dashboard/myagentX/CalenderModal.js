@@ -1,33 +1,41 @@
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
-import timeZones from "@/utilities/Timezones";
+import timeZones, { timeDuration } from "@/utilities/Timezones";
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from "@mui/material";
 import Image from "next/image";
 import React, { useState } from "react";
 import { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
 import axios from "axios";
 
-function CalendarModal({
-  open,
-  onClose,
-  selectedAgent,
-  calendarSelected,
-  calenderLoader,
-  googleCalenderLoader,
-  handleAddCalendar,
-  calenderTitle,
-  setCalenderTitle,
-  calenderApiKey,
-  setCalenderApiKey,
-  setEventId,
-  eventId,
-  selectTimeZone,
-  setSelectTimeZone,
-
-}) {
+function CalendarModal(props) {
+  const {
+    open,
+    onClose,
+    selectedAgent,
+    calendarSelected,
+    calenderLoader,
+    googleCalenderLoader,
+    handleAddCalendar,
+    calenderTitle,
+    setCalenderTitle,
+    calenderApiKey,
+    setCalenderApiKey,
+    setEventId,
+    eventId,
+    selectTimeZone,
+    setSelectTimeZone,
+    // selectedTimeDuration,
+    // setSelectedTimeDuration
+    selectedTimeDurationLocal,
+    setSelectedTimeDurationLocal,
+    test
+  } = props;
 
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
+
+  console.log("Props passed in calendar modal are", props)
+
 
   const handlGoogleClick = () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
@@ -222,6 +230,7 @@ function CalendarModal({
                   setCalenderApiKey("");
                   setEventId("");
                   setSelectTimeZone("");
+                  setSelectedTimeDurationLocal(null);
                 }}
               >
                 <Image
@@ -516,6 +525,78 @@ function CalendarModal({
                         key={index}
                       >
                         <button onClick={() => { }}>{item}</button>
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: "600",
+                fontSize: 16.8,
+                textAlign: "start",
+              }}
+            >
+              Time Duration
+            </div>
+
+            <div className="w-full mt-2">
+              <FormControl sx={{}} className="w-full h-[50px]">
+                <Select
+                  value={selectedTimeDurationLocal}
+                  // label="Age"
+                  onChange={(event) => {
+                    // setSelectedTimeDuration(event.target.value);
+                    console.log("Check 1", event.target.value);
+                    console.log(`Is function `, typeof setSelectedTimeDurationLocal)
+                    setSelectedTimeDurationLocal(event.target.value); // ✅ correct
+                  }}
+                  displayEmpty // Enables placeholder
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                    }
+                    return selected;
+                  }}
+                  sx={{
+                    height: "48px",
+                    borderRadius: "13px",
+                    border: "1px solid #00000020", // Default border
+                    "&:hover": {
+                      border: "1px solid #00000020", // Same border on hover
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none", // Remove the default outline
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      border: "none", // Remove outline on focus
+                    },
+                    "&.MuiSelect-select": {
+                      py: 0, // Optional padding adjustments
+                    },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: "30vh", // Limit dropdown height
+                        overflow: "auto", // Enable scrolling in dropdown
+                        scrollbarWidth: "none",
+                        // borderRadius: "10px"
+                      },
+                    },
+                  }}
+                >
+                  {timeDuration.map((item, index) => {
+                    return (
+                      <MenuItem
+                        className="w-full"
+                        value={item}
+                        key={index}
+                      >
+                        <div className="w-full">{item}</div>
                       </MenuItem>
                     );
                   })}

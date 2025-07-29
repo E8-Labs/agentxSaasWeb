@@ -58,6 +58,7 @@ export const HowtoVideos = {
   Pipeline: process.env.NEXT_PUBLIC_REACT_APP_Pipeline,
   script: process.env.NEXT_PUBLIC_REACT_APP_script,
   Tools: process.env.NEXT_PUBLIC_REACT_APP_Tools,
+  WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched,
 };
 
 export const Constants = {

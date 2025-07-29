@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Modal, Box } from "@mui/material";
 
-const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl,}) => {
+const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, videoDescription }) => {
   const modalStyles = {
     position: "fixed",
     top: "50%",
@@ -50,9 +50,16 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl,}) => {
           {/* Title */}
           <div
             className="text-center"
-            style={{ fontWeight: "700",fontSize:25 }}
+            style={{ fontWeight: "700", fontSize: 25 }}
           >
             {videoTitle || "Learn more about assigning leads"}
+          </div>
+
+          <div
+            className="text-center"
+            style={{ fontWeight: "600", fontSize: 18 }}
+          >
+            {videoDescription || ""}
           </div>
 
           {/* Video Section */}
