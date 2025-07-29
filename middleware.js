@@ -26,7 +26,7 @@ export function middleware(request) {
     return res;
   }
   // Allow unauthenticated access to specific paths
-  const allowedPaths = ["/", "/onboarding/WaitList", "/recordings/:path*"];// "/onboarding",
+  const allowedPaths = ["/","/onboarding", "/onboarding/WaitList", "/recordings/:path*"];// 
   if (allowedPaths.includes(pathname)) {
     // //console.log;
     return NextResponse.next();
