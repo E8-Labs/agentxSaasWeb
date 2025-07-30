@@ -78,7 +78,7 @@ const TwilioTrustHub = () => {
                 if (ApiResponse.status === true) {
                     localStorage.removeItem(PersistanceKeys.twilioHubData);
                     setShowSnack({
-                        message: ApiResponse.message,
+                        message: "Twilio disconnected.",//ApiResponse.message
                         isVisible: true,
                         type: SnackbarTypes.Success,
                     });
