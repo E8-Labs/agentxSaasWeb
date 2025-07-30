@@ -11,7 +11,8 @@ import React, { useEffect, useState } from 'react'
 const StirCalling = ({
     showShakenStir,
     trustProducts,
-    handleClose
+    handleClose,
+    friendlyName
 }) => {
 
     const [selectedSTIR, setSelectedSTIR] = useState("");

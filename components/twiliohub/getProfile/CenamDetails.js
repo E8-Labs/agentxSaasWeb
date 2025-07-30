@@ -8,7 +8,9 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
-const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData }) => {
+const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData, businessProfileData }) => {
+
+    console.log("Friendly name papssed is", businessProfileData);
 
     const [showDetails, setShowDetails] = useState(false);
     const [showAddCNAM, setShowAddCNAM] = useState(false);
@@ -139,6 +141,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
             {
                 showAddCNAM && (
                     <Cnammain
+                        friendlyName={businessProfileData}
                         showAddCNAM={showAddCNAM}
                         trustProducts={trustProducts}
                         handleClose={(d) => {

@@ -20,7 +20,7 @@ function MCPView({
     setType,
     setMessage,
     setIsVisible,
-
+    selectedUser
 }) {
 
     const [mcpTools, setMcpTools] = useState([]);
@@ -65,7 +65,7 @@ function MCPView({
             if (loader) {
                 setShowMcpLoader(true);
             }
-            const mcpTools = await getMcpTools(selectedAgent.id);
+            const mcpTools = await getMcpTools(selectedAgent.id, selectedUser);
             if (mcpTools) {
                 setMcpTools(mcpTools);
                 setShowMcpLoader(false);
@@ -101,11 +101,23 @@ function MCPView({
     // Add MCP
     const addMcp = async () => {
         setAddMcpLoader(true);
-        let data = {
-            name: mcpName,
-            url: mcpUrl,
-            description: mcpDescription,
-            agentId: selectedAgent.id
+        let data = null;
+
+        if (selectedUser) {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                agentId: selectedAgent.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                agentId: selectedAgent.id,
+            }
         }
 
         console.log("Data to be sent is", data);
@@ -134,11 +146,22 @@ function MCPView({
     // Edit MCP
     const editMcp = async () => {
         setEditMcpLoader(true);
-        let data = {
-            name: mcpName,
-            url: mcpUrl,
-            description: mcpDescription,
-            id: selectedMcpTool.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                id: selectedMcpTool.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                id: selectedMcpTool.id
+            }
         }
         console.log("Data to be sent is", data);
         const mcpTool = await editMcpTool(data);
@@ -161,9 +184,18 @@ function MCPView({
     // Delete MCP
     const deleteMcp = async () => {
         setDeleteMcpLoader(true);
-        let data = {
-            id: selectedMcpTool.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                id: selectedMcpTool.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                id: selectedMcpTool.id
+            }
         }
+        console.log("data to del mcp tool is", data);
         const mcpTool = await deleteMcpTool(data);
         if (mcpTool) {
             if (mcpTool.status === true) {
@@ -183,9 +215,18 @@ function MCPView({
 
     // Select MCP
     const selectMcp = async (item) => {
-        let data = {
-            toolId: item.id,
-            agentId: selectedAgent.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                toolId: item.id,
+                agentId: selectedAgent.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                toolId: item.id,
+                agentId: selectedAgent.id
+            }
         }
         const mcpTool = await selectMcpTool(data);
         if (mcpTool) {
@@ -253,9 +294,18 @@ function MCPView({
 
     //attach the mcp to the agent
     const attachMcp = async (item) => {
-        const data = {
-            agentId: selectedAgent.id,
-            toolId: item.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                agentId: selectedAgent.id,
+                toolId: item.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                agentId: selectedAgent.id,
+                toolId: item.id
+            }
         }
         console.log("Data to be sent is", data);
         // return
@@ -583,7 +633,7 @@ function MCPView({
 
                 <button className="border-none outline-none" onClick={() => { setIntroVideoModal2(true) }}>
                     <div className="relative flex-shrink-0">
-                        <Image  
+                        <Image
                             src="/assets/youtubeplay.png"
                             alt="Video thumbnail"
                             width={parseInt(80, 10)}

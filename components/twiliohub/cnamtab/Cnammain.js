@@ -12,7 +12,8 @@ import React, { useEffect, useState } from 'react'
 const Cnammain = ({
     showAddCNAM,
     trustProducts,
-    handleClose
+    handleClose,
+    friendlyName
 }) => {
 
     const [selectedCNAM, setSelectedCNAM] = useState("");
@@ -221,7 +222,7 @@ const Cnammain = ({
                         <div className='mt-4' style={{
                             fontSize:10,fontWeight:500
                         }}>
-                            {`Your CNAM should contain what you have in your Profile Friendly Name: {Profile_name}`}
+                            {`Your CNAM should contain what you have in your Profile Friendly Name: ${ `${friendlyName.friendlyName}` || "Profile_name"}`}
                         </div>
                         {/* Select CNAM from list */}
                         {

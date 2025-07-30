@@ -708,6 +708,7 @@ const UserCalender = ({
           setType={setType}
           setMessage={setMessage}
           setIsVisible={setIsVisible}
+          selectedUser={selectedUser}
         />
 
 

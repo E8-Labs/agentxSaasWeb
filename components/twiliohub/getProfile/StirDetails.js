@@ -8,7 +8,7 @@ import LockDetailsView from './LockDetailsView';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
-const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData }) => {
+const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData, businessProfileData }) => {
 
     const [showDetails, setShowDetails] = useState(false);
     const [showShakenStirModal, setShowShakenStirModal] = useState(false);
@@ -171,6 +171,7 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
             {
                 showShakenStirModal && (
                     <StirCalling
+                        friendlyName={businessProfileData?.friendlyName}
                         showShakenStir={showShakenStirModal}
                         trustProducts={trustProducts}
                         handleClose={(d) => {
