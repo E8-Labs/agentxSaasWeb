@@ -215,7 +215,7 @@ const Cnammain = ({
                             {`Enter a display name for CNAM`}
                         </div>
                         <div className='mt-2' style={styles.normalTxt}>
-                            This name will show on your customers phone when you call them. You can display upto 15 characters. For example, if your business is called "AgentX", your CNAM name should also be something like “AgentX” or “AgentX AI” — not something completely different.
+                            {`This name will show on your customers phone when you call them. You can display upto 15 characters. For example, if your business is called "AgentX", your CNAM name should also be something like “AgentX” or “AgentX AI” — not something completely different.`}
                         </div>
 
                         <div className='mt-4' style={{
