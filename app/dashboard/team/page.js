@@ -610,7 +610,7 @@ function Page() {
 
             {myTeam.length > 0 ? (
               <div
-                className="pt-3 flex flex-row w-full justify-between flex-wrap"
+                className="pt-3 flex flex-row w-full flex-wrap"
                 style={{ overflow: "auto", scrollbarWidth: "none" }}
               >
                 {myTeam.map((item, index) => {

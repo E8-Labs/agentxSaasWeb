@@ -54,7 +54,7 @@ const ShowRequestStatus = ({
                             className='rounded-full'
                         />
                         <div style={styles.regularTxt}>
-                            Rejected - check you twilio email
+                            Rejected - Check your email. Twilio has sent the rejection reasons.
                         </div>
                         {/*<div>
                             Recjection reason

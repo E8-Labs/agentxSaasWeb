@@ -72,13 +72,13 @@ const Cnammain = ({
         try {
             setLoader(true);
             const token = AuthToken();
-            
+
             // If user selected an existing CNAM product, use select API
             if (selectedCNAM && String(selectedCNAM).trim() !== "") {
                 // Import AddSelectedProduct API
                 const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
                 const response = await AddSelectedProduct(selectedCNAM);
-                
+
                 setLoader(false);
                 if (response.status === true) {
                     handleClose(response);
@@ -215,7 +215,13 @@ const Cnammain = ({
                             {`Enter a display name for CNAM`}
                         </div>
                         <div className='mt-2' style={styles.normalTxt}>
-                            This name will show on your customers phone when you call them. You can display uptill 15 characters. The display name will be vetted for appropriateness and relevance to your Business.
+                            This name will show on your customers phone when you call them. You can display upto 15 characters. For example, if your business is called "AgentX", your CNAM name should also be something like “AgentX” or “AgentX AI” — not something completely different.
+                        </div>
+
+                        <div className='mt-4' style={{
+                            fontSize:10,fontWeight:500
+                        }}>
+                            {`Your CNAM should contain what you have in your Profile Friendly Name: {Profile_name}`}
                         </div>
                         {/* Select CNAM from list */}
                         {

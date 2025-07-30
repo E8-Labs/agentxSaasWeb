@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SampleMessageComponent from './SampleMessageComponent';
 import Image from 'next/image';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const UserConset = ({
     handleBack,
@@ -37,9 +38,12 @@ const UserConset = ({
 
     return (
         <div className='h-[100%] flex flex-col items-center justify-between'>
-            <div className='w-10/12 h-[85%] overflow-auto'>
-                <div style={styles.semiBold}>
-                    User Consent
+            <div className='w-full h-[85%] overflow-auto'>
+                <div className='flex flex-row items-center justify-between w-full'>
+                    <div style={styles.semiBold}>
+                        User Consent
+                    </div>
+                    <CloseBtn onClick={handleClose} />
                 </div>
                 <div className='mt-4'>
                     <SampleMessageComponent
@@ -96,16 +100,10 @@ const UserConset = ({
                     </div>
                 </div>
             </div>
-            <div className='w-full flex flex-row items-center justify-between'>
+            <div className='w-full flex flex-row items-center justify-end'>
+
                 <button
-                    className='w-[165px] text-violet-blue h-[50px] rounded-lg'
-                    onClick={() => { handleClose() }}
-                    disabled={isDisabled}
-                >
-                    Save & Exit
-                </button>
-                <button
-                    className={`w-[176px] ${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} h-[50px] rounded-lg`}
+                    className={`w-[176px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} h-[50px] rounded-lg`}
                     disabled={isDisabled}
                 >
                     Continue

@@ -1,6 +1,7 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import OldCnamVoiceStir from '@/components/twiliohub/twilioExtras/OldCnamVoiceStir';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
@@ -257,16 +258,7 @@ const StirCalling = ({
                             <div style={{ fontWeight: "700", fontSize: 22 }}>
                                 SHAKEN/STIR Calling
                             </div>
-                            <button
-                                className='border-none outline-none'
-                                onClick={() => { handleClose() }}>
-                                <Image
-                                    src={"/assets/cross.png"}
-                                    alt='cross'
-                                    height={18}
-                                    width={18}
-                                />
-                            </button>
+                            <CloseBtn onClick={handleClose} />
                         </div>
                         <div
                             className='mt-2'
@@ -274,7 +266,7 @@ const StirCalling = ({
                             {`Enter a display name for SHAKEN/STIR`}
                         </div>
                         <div className='mt-2' style={styles.normalTxt}>
-                        We will enable SHAKEN/STIR for outbound calls on all united States numbers assigned to this Twilio Approved Business Profile. No additional configuration is required. Enabling SHAKEN/STIR Trusted calling will not interupt your existing services
+                        We will enable SHAKEN/STIR for outbound calls on all United States numbers assigned to this Twilio Approved Business Profile. No additional configuration is required. Enabling SHAKEN/STIR Trusted calling will not interupt your existing services
                         </div>
                         {/* Select STIR/SHAKEN from list */}
                         {
@@ -284,7 +276,7 @@ const StirCalling = ({
                                         className='mb-2'
                                         style={styles.normalTxt}
                                     >
-                                        Select SHAKEN/STIR*
+                                        Select SHAKEN/STIR
                                     </div>
                                     <OldCnamVoiceStir
                                         twilioLocalData={trustProducts.shakenStir.all}
@@ -297,7 +289,7 @@ const StirCalling = ({
                         <div
                             className='mt-6'
                             style={styles.normalTxt}>
-                            Create SHAKEN/STIR Name*
+                            Create SHAKEN/STIR Name
                         </div>
                         <div className='w-full mt-2'>
                             <input
@@ -427,11 +419,11 @@ const StirCalling = ({
                                     href="https://sti-ga.atis.org/"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-purple underline"
+                                    className="text-purple underline ml-1"
                                 >
                                     Secure Telephony Identity Policy Administrator (STI-PA)
                                 </a>
-                                {` and `}
+                                {`  and `}
                                 <a
                                     // href="https://www.ustelecom.org/"
                                     href="https://tracebacks.org/"

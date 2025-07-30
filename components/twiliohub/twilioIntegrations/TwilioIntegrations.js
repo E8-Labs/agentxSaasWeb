@@ -1,6 +1,7 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import OldCnamVoiceStir from '@/components/twiliohub/twilioExtras/OldCnamVoiceStir';
 import { Box, CircularProgress, Modal } from '@mui/material'
 import axios from 'axios';
@@ -189,16 +190,7 @@ const TwilioIntegrations = ({
                             <div style={{ fontWeight: "700", fontSize: 22 }}>
                                 New Voice Integrity Registration
                             </div>
-                            <button
-                                className='border-none outline-none'
-                                onClick={() => { handleClose() }}>
-                                <Image
-                                    src={"/assets/cross.png"}
-                                    alt='cross'
-                                    height={18}
-                                    width={18}
-                                />
-                            </button>
+                            <CloseBtn onClick={handleClose} />
                         </div>
                         {/* Select Voice Integrity from list */}
                         {

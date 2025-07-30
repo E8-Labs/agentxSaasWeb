@@ -1,6 +1,7 @@
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { Box, CircularProgress, Modal } from '@mui/material'
 import { EyeSlash } from '@phosphor-icons/react';
 import axios from 'axios';
@@ -133,7 +134,7 @@ const AddTwilio = ({
                     });
                 }}
             />
-            <div className='h-[80%] overflow-auto w-10/12'>
+            <div className='h-[100%] overflow-auto w-full'>
                 <div className='w-full flex flex-row items-center justify-between'>
                     <div
                         style={{
@@ -142,17 +143,12 @@ const AddTwilio = ({
                         }}>
                         Account Configuration
                     </div>
-                    {/*<button
-                        className='border-none outline-none'
-                        onClick={() => { handleClose() }}>
-                        <Image
-                            src={"/assets/cross.png"}
-                            alt='cross'
-                            height={18}
-                            width={18}
-                        />
-                    </button>*/}
+                    <CloseBtn
+                        onClick={()=>handleClose()}
+                    />
                 </div>
+
+
                 <div style={styles.regularFont}>
                     Enter your Twilio master account keys
                 </div>
@@ -212,24 +208,11 @@ const AddTwilio = ({
                     </button>
                 </div>
             </div>
-            <div className='w-full flex flex-row items-center justify-between'>
+            <div className='w-full flex flex-row items-center justify-end'>
+
                 <button
-                    className='text-violet-blue w-[165px] bg-transparent h-[50px] rounded-lg outline-none border-none'
-                    style={styles.regularFont}
-                    disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader}
-                    onClick={() => { handleConnectTwilio(true) }}
-                >
-                    {
-                        (isExitLoader || closeLoader) ? (
-                            <CircularProgress size={25} />
-                        ) : (
-                            "Save&Exit"
-                        )
-                    }
-                </button>
-                <button
-                    className={`${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
-                    onClick={() => { handleConnectTwilio(true) }}
+                    className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
+                    onClick={() => { handleConnectTwilio(false) }}
                     disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader || closeLoader}
                 >
                     {

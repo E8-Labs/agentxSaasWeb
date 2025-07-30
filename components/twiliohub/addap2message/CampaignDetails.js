@@ -272,17 +272,10 @@ const CampaignDetails = ({
 
         </div>
       </div>
-      <div className='w-full flex flex-row items-center gap-4 justify-between'>
-        <button
-          className="text-violet-blue w-[165px]"
-          disabled={isDisabled}
-          onClick={() => { handleClose() }}
-        >
-          Save & Exit
-        </button>
+      <div className='w-full flex flex-row items-center gap-4 justify-end'>
         <button
           onClick={handleContinue}
-          className={`w-[176px] ${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} h-[50px] rounded-lg`}
+          className={`w-[176px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} h-[50px] rounded-lg`}
           disabled={isDisabled}>
           Continue
         </button>

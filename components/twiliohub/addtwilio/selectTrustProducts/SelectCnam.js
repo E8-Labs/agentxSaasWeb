@@ -1,4 +1,5 @@
 import { AddSelectedProduct } from '@/apiservicescomponent/twilioapis/AddSelectedProduct';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
@@ -58,10 +59,14 @@ const SelectCnam = ({
 
     return (
         <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-            <div className='w-10/12 h-[80%]'>
-                <div style={{ fontWeight: "600", fontSize: 22 }}>
-                    Select CNAM
+            <div className='w-full h-[80%]'>
+                <div className='w-full flex flex-row items-center justify-between'>
+                    <div style={{ fontWeight: "600", fontSize: 22 }}>
+                        Select CNAM
+                    </div>
+                    <CloseBtn onClick={handleClose} />
                 </div>
+
                 <div className='mt-4 h-[90%] overflow-auto'>
                     {
                         trustProducts.cnam.all.map((item) => {
@@ -101,27 +106,14 @@ const SelectCnam = ({
                     }
                 </div>
             </div>
-            <div className='h-[20%] w-full flex flex-row items-center justify-between'>
-                <button
-                    className='text-violet-blue w-[165px] bg-transparent h-[50px] rounded-lg outline-none border-none'
-                    style={{ fontWeight: "500", fontSize: 15 }}
-                    disabled={addProductLoader || profileLoader || isDisabled || isExitLoader}
-                    onClick={() => { handleAddProduct(true) }}
-                >
-                    {
-                        isExitLoader ? (
-                            <CircularProgress size={25} />
-                        ) : (
-                            "Save&Exit"
-                        )
-                    }
-                </button>
+            <div className='h-[20%] w-full flex flex-row items-center justify-end'>
+
                 {
                     (addProductLoader || profileLoader) ? (
                         <CircularProgress size={25} />
                     ) : (
                         <button
-                            className={`h-[50px] ${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} rounded-lg w-[176px]`}
+                            className={`h-[50px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} rounded-lg w-[176px]`}
                             disabled={isDisabled || addProductLoader || profileLoader || isExitLoader}
                             onClick={() => { handleAddProduct(false) }}
                         >

@@ -1,4 +1,5 @@
 import { AddSelectedProduct } from '@/apiservicescomponent/twilioapis/AddSelectedProduct';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
@@ -6,7 +7,8 @@ import React, { useEffect, useState } from 'react'
 const SelectStir = ({
     trustProducts,
     handleContinue,
-    profileLoader
+    profileLoader,
+    handleClose
 }) => {
 
     const [selectedProduct, setSelectedProduct] = useState("");
@@ -56,9 +58,12 @@ const SelectStir = ({
 
     return (
         <div className='h-[100%] w-full flex flex-col items-center justify-between'>
-            <div className='w-10/12 h-[80%]'>
-                <div style={{ fontWeight: "600", fontSize: 22 }}>
-                    Select Shaken Stir
+            <div className='w-full h-[80%]'>
+                <div className='flex flex-row items-center justify between w-full'>
+                    <div style={{ fontWeight: "600", fontSize: 22 }}>
+                        Select Shaken Stir
+                    </div>
+                    <CloseBtn onClick={ handleAddProduct(true)} />
                 </div>
                 <div className='mt-4 h-[90%] overflow-auto'>
                     {
@@ -96,27 +101,14 @@ const SelectStir = ({
                     }
                 </div>
             </div>
-            <div className='h-[20%] w-full flex flex-row items-center justify-between'>
-                <button
-                    className='text-violet-blue w-[165px] bg-transparent h-[50px] rounded-lg outline-none border-none'
-                    style={{ fontWeight: "500", fontSize: 15 }}
-                    disabled={addProductLoader || profileLoader || isDisabled || isExitLoader}
-                    onClick={() => { handleAddProduct(true) }}
-                >
-                    {
-                        isExitLoader ? (
-                            <CircularProgress size={25} />
-                        ) : (
-                            "Save&Exit"
-                        )
-                    }
-                </button>
+            <div className='h-[20%] w-full flex flex-row items-center justify-end'>
+
                 {
                     (addProductLoader || profileLoader) ? (
                         <CircularProgress size={25} />
                     ) : (
                         <button
-                            className={`h-[50px] ${isDisabled ? "bg-btngray text-black" : "bg-violet-blue text-white"} rounded-lg w-[176px]`}
+                            className={`h-[50px] ${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} rounded-lg w-[176px]`}
                             disabled={isDisabled || addProductLoader || profileLoader || isExitLoader}
                             onClick={() => { handleAddProduct(false) }}
                         >

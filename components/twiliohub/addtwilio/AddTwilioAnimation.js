@@ -125,7 +125,7 @@ const AddTwilioAnimation = ({
         >
 
             <Box
-                className="rounded-xl h-[85vh] w-9/12 shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
+                className="rounded-xl h-[70vh] w-6/12 shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
             >
 
                 <div className="h-[100%]">

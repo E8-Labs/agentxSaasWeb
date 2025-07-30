@@ -4811,6 +4811,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         <GuarduanSetting
                           showTitle={true}
                           selectedAgentId={showScriptModal}
+                          kycsData={kycsData}
+                          uniqueColumns={uniqueColumns}
                         />
                       </div>
                     </div>
