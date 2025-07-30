@@ -163,9 +163,20 @@ const StirCalling = ({
         } catch (error) {
             setLoader(false);
             console.log("Error occured in api is", error);
+            
+            // Extract error message from server response
+            let errorMessage = "An unexpected error occurred";
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            
             setShowSnack({
                 type: SnackbarTypes.Error,
-                message: "An unexpected error occurred",
+                message: errorMessage,
                 isVisible: true
             })
         }
