@@ -186,11 +186,11 @@ const TwilioIntegrations = ({
                         }}
                     />
                     <div className='w-full max-h-[80%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'>
-                        <div className='mt-6 w-full flex flex-row items-center justify-between'>
+                        <div className='w-full flex flex-row items-center justify-between'>
                             <div style={{ fontWeight: "700", fontSize: 22 }}>
                                 New Voice Integrity Registration
                             </div>
-                            <CloseBtn onClick={handleClose} />
+                            <CloseBtn onClick={() => { handleClose() }} />
                         </div>
                         {/* Select Voice Integrity from list */}
                         {

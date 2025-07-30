@@ -104,13 +104,13 @@ const StirCalling = ({
     const handleAddShakenStir = async () => {
         try {
             setLoader(true);
-            
+
             // If user selected an existing STIR/SHAKEN product, use select API
             if (selectedSTIR && String(selectedSTIR).trim() !== "") {
                 // Import AddSelectedProduct API
                 const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
                 const response = await AddSelectedProduct(selectedSTIR);
-                
+
                 setLoader(false);
                 if (response.status === true) {
                     handleClose(response);
@@ -137,7 +137,7 @@ const StirCalling = ({
                     }
                 }
                 console.log("Api data is", ApiData);
-                
+
                 const response = await axios.post(ApiPath, ApiData, {
                     headers: {
                         "Authorization": "Bearer " + token,
@@ -164,7 +164,7 @@ const StirCalling = ({
         } catch (error) {
             setLoader(false);
             console.log("Error occured in api is", error);
-            
+
             // Extract error message from server response
             let errorMessage = "An unexpected error occurred";
             if (error.response?.data?.message) {
@@ -174,7 +174,7 @@ const StirCalling = ({
             } else if (error.message) {
                 errorMessage = error.message;
             }
-            
+
             setShowSnack({
                 type: SnackbarTypes.Error,
                 message: errorMessage,
@@ -254,11 +254,11 @@ const StirCalling = ({
                     <div
                         className='w-full max-h-[80%] overflow-x-hidden overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-2 px-2'
                     >
-                        <div className='mt-8 w-full flex flex-row items-center justify-between'>
+                        <div className='w-full flex flex-row items-center justify-between'>
                             <div style={{ fontWeight: "700", fontSize: 22 }}>
                                 SHAKEN/STIR Calling
                             </div>
-                            <CloseBtn onClick={handleClose} />
+                            <CloseBtn onClick={() => { handleClose() }} />
                         </div>
                         <div
                             className='mt-2'
@@ -266,7 +266,7 @@ const StirCalling = ({
                             {`Enter a display name for SHAKEN/STIR`}
                         </div>
                         <div className='mt-2' style={styles.normalTxt}>
-                        We will enable SHAKEN/STIR for outbound calls on all United States numbers assigned to this Twilio Approved Business Profile. No additional configuration is required. Enabling SHAKEN/STIR Trusted calling will not interupt your existing services
+                            We will enable SHAKEN/STIR for outbound calls on all United States numbers assigned to this Twilio Approved Business Profile. No additional configuration is required. Enabling SHAKEN/STIR Trusted calling will not interupt your existing services
                         </div>
                         {/* Select STIR/SHAKEN from list */}
                         {
@@ -391,7 +391,7 @@ const StirCalling = ({
                                 Register Phone Numbers
                             </button>
                         </div>*/}
-                        
+
                         <div className='flex flex-row items-start gap-2 mt-4 bg-[#00000005] p-2 rounded-lg'>
                             <button onClick={handleToggleTermsClick}>
                                 {agreeTerms ? (

@@ -176,6 +176,7 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                         handleClose={(d) => {
                             setShowShakenStirModal(false);
                             if (d) {
+                                console.log("Value of d is", d)
                                 setShowSnack({
                                     message: d.message,
                                     isVisible: true,

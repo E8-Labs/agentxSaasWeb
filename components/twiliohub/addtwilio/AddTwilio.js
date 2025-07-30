@@ -121,7 +121,7 @@ const AddTwilio = ({
     }
 
     return (
-        <div className='w-full h-[100%] flex flex-col items-center justify-between'>
+        <div className='w-full h-[100%] flex flex-col items-center'>
             <AgentSelectSnackMessage
                 type={showSnack.type}
                 message={showSnack.message}
@@ -134,7 +134,7 @@ const AddTwilio = ({
                     });
                 }}
             />
-            <div className='h-[100%] overflow-auto w-full'>
+            <div className='overflow-auto w-full'>
                 <div className='w-full flex flex-row items-center justify-between'>
                     <div
                         style={{
@@ -208,7 +208,7 @@ const AddTwilio = ({
                     </button>
                 </div>
             </div>
-            <div className='w-full flex flex-row items-center justify-end'>
+            <div className='w-full flex flex-row items-center justify-end mt-4'>
 
                 <button
                     className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}

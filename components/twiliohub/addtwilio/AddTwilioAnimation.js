@@ -109,7 +109,7 @@ const AddTwilioAnimation = ({
 
     return (
         <Modal
-            open={showAddTwilio}//showAddTwilio
+            open={true}//showAddTwilio
             // onClose={() => { handleClose() }}
             BackdropProps={{
                 timeout: 200,
@@ -125,7 +125,7 @@ const AddTwilioAnimation = ({
         >
 
             <Box
-                className="rounded-xl h-[70vh] w-6/12 shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col"
+                className="rounded-xl  w-6/12 shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col" //h-[70vh]
             >
 
                 <div className="h-[100%]">
@@ -157,19 +157,12 @@ const AddTwilioAnimation = ({
                                 <div className="h-[100%] w-full">
                                     <AddTwilio
                                         handleContinue={async (d) => {
-                                            handleContinueTrustProduct(d, "cnam");
-                                            // console.log("Api response is", d);
-                                            // setGetProfileLoader(true);
-                                            // const response = await getBusinessProfile();
-                                            // if (response.data.trustProducts.cnam) {
-                                            //     setTrustProducts(response.data.trustProducts);
-                                            //     handleContinue();
-                                            // } else {
-                                            //     handleClose(d);
-                                            // }
-                                            // setGetProfileLoader(false);
+                                            // handleContinueTrustProduct(d, "cnam");
+                                            if (d) {
+                                                handleClose(d);
+                                            }
                                         }}
-                                        handleClose={handleSaveExit}
+                                        handleClose={handleClose}
                                         profileLoader={getProfileLoader}
                                         closeLoader={closeLoader}
                                     />
