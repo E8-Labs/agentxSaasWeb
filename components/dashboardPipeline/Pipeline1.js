@@ -2138,7 +2138,7 @@ const Pipeline1 = () => {
                               } else {
                                 setShowDelBtn(false);
                               }
-                              if (stage.identifier.startsWith("custom_stage")) {
+                              if (stage.identifier.startsWith("custom_stage") || stage.identifier.startsWith("hot_lead")) {
                                 setShowConfigureBtn(true);
                               } else {
                                 setShowConfigureBtn(false);
@@ -2174,7 +2174,7 @@ const Pipeline1 = () => {
                         >
                           <div
                             className="w-36 px-4 py-3 bg-white rounded-[10px] inline-flex flex-col justify-start items-start gap-2"
-                            // style={{ border: "4px solid black" }}
+                          // style={{ border: "4px solid black" }}
                           >
                             <div className="w-full flex flex-row">
                               <button
@@ -2198,7 +2198,7 @@ const Pipeline1 = () => {
                                 Rename
                               </button>
                             </div>
-                            <div className="w-full flex flex-row mt-4">
+                            <div className="w-full flex flex-row mt-2">
                               {/* {
                                                         delStageLoader ?
                                                             <CircularProgress size={20} /> :
@@ -2319,8 +2319,8 @@ const Pipeline1 = () => {
                               )
                             }
 
-                            {!showDelBtn && (
-                              <div className="w-full flex flex-row mt-4">
+                            {!showDelBtn && (//
+                              <div className="w-full flex flex-row mt-2">
                                 <button
                                   className="text-red text-base font-medium flex flex-row items-center gap-4 outline-none"
                                   // style={styles.paragraph}
