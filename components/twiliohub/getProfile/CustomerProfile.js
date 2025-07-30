@@ -191,12 +191,14 @@ const CustomerProfile = ({
                                     BUSINESS_NAME
                                 </div>
             </div>*/}
-                                <div className='flex flex-row items-center mt-2'>
+                                <div className='flex flex-row items-center mt-2 mb-4'>
                                     <div className='w-1/2' style={styles.mediumfontLightClr}>
-                                        Profile friendly name
+                                        Profile Friendly Name | {twilioHubData?.profileType && (
+                                            twilioHubData.profileType.charAt(0).toUpperCase() + twilioHubData.profileType.slice(1).toLowerCase()
+                                        )}
                                     </div>
                                     <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                        {twilioHubData.friendlyName}
+                                        {twilioHubData?.friendlyName || "Profile Friendly Name"}
                                     </div>
                                 </div>
                             </div>
