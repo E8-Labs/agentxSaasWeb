@@ -50,7 +50,7 @@ function Page() {
   const [validEmail, setValidEmail] = useState("");
 
   const [showSnak, setShowSnak] = useState(false);
-  const [snackTitle, setSnackTitle] = useState("Team invite sent.");
+  const [snackTitle, setSnackTitle] = useState("Team Invite Sent.");
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);
@@ -241,7 +241,7 @@ function Page() {
               }
               return [...prev, newMember];
             });
-            setSnackTitle("Team invite sent successfully");
+            setSnackTitle(response.data.message);
             setShowSnak(true);
             setOpenInvitePopup(false);
             setName("");

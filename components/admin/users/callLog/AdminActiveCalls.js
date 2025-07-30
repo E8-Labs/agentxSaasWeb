@@ -930,7 +930,7 @@ function AdminActiveCalls({ selectedUser }) {
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.status || "-"}
+                                    {item?.PipelineStages?.stageTitle || "-"}
                                   </div>
                                 </div>
                               </div>
