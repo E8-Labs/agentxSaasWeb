@@ -41,6 +41,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Phone } from "lucide-react";
 import NoVoicemailView from "@/components/dashboard/myagentX/NoVoicemailView";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
+import DeleteCallLogConfimation from "@/components/dashboard/leads/extras/DeleteCallLogConfimation";
 
 const AdminLeadDetails = ({
     showDetailsModal,
@@ -649,7 +650,19 @@ const AdminLeadDetails = ({
         } finally {
             setDelLeadLoader(false);
         }
+
+
     };
+
+    const handleCopy = async (id) => {
+        try {
+          await navigator.clipboard.writeText(id);
+          setShowSuccessSnack("Call ID copied to the clipboard.");
+          setShowSuccessSnack2(true);
+        } catch (err) {
+          console.error("Failed to copy: ", err);
+        }
+      };
 
     const styles = {
         modalsStyle: {
@@ -1893,7 +1906,7 @@ const AdminLeadDetails = ({
                                                                                             fontSize: 15,
                                                                                         }}
                                                                                     >
-                                                                                       {item.question.split("ylz8ibb4uykg29mogltl").join("").trim()}
+                                                                                        {item.question.split("ylz8ibb4uykg29mogltl").join("").trim()}
                                                                                     </div>
                                                                                     <div
                                                                                         className="mt-1"
@@ -2174,115 +2187,179 @@ const AdminLeadDetails = ({
                                                                                                     </div>
                                                                                                     {isExpandedActivity.includes(
                                                                                                         item.id
-                                                                                                    ) && (
-                                                                                                            <div
-                                                                                                                className="mt-6"
-                                                                                                                style={{
-                                                                                                                    border:
-                                                                                                                        "1px solid #00000020",
-                                                                                                                    borderRadius: "10px",
-                                                                                                                    padding: 10,
-                                                                                                                    paddingInline: 15,
-                                                                                                                }}
-                                                                                                            >
+                                                                                                    ) &&
+                                                                                                        (item.status === "voicemail" ||
+                                                                                                            item.callOutcome ===
+                                                                                                            "Voicemail" ? (
+                                                                                                            <div className="border rounded mt-2 w-full p-4">
+                                                                                                                <button
+                                                                                                                    onClick={() =>
+                                                                                                                        handleCopy(item.callId)
+                                                                                                                    }
+                                                                                                                >
+                                                                                                                    <Image
+                                                                                                                        src={
+                                                                                                                            "/svgIcons/copy.svg"
+                                                                                                                        }
+                                                                                                                        height={15}
+                                                                                                                        width={15}
+                                                                                                                        alt="*"
+                                                                                                                    />
+                                                                                                                </button>
+                                                                                                                {item.agent.hasVoicemail ? (
+
+                                                                                                                    <NoVoicemailView
+                                                                                                                        showAddBtn={false}
+                                                                                                                        title={
+                                                                                                                            "Voicemail Delivered"
+                                                                                                                        }
+                                                                                                                        subTitle={
+                                                                                                                            "Delivered during the first missed call"
+                                                                                                                        }
+                                                                                                                    />
+                                                                                                                ) : (
+                                                                                                                    <NoVoicemailView
+                                                                                                                        showAddBtn={false}
+                                                                                                                        title={
+                                                                                                                            "Not able to Leave a Voicemail"
+                                                                                                                        }
+                                                                                                                        subTitle={
+                                                                                                                            "The phone was either a landline or has a full voicemail"
+                                                                                                                        }
+                                                                                                                    />
+                                                                                                                )}
+
+                                                                                                            </div>
+                                                                                                        ) : (
+                                                                                                            <>
                                                                                                                 <div
-                                                                                                                    className="mt-4"
+                                                                                                                    className="mt-6"
                                                                                                                     style={{
-                                                                                                                        fontWeight: "500",
-                                                                                                                        fontSize: 12,
-                                                                                                                        color: "#00000070",
+                                                                                                                        border:
+                                                                                                                            "1px solid #00000020",
+                                                                                                                        borderRadius: "10px",
+                                                                                                                        padding: 10,
+                                                                                                                        paddingInline: 15,
                                                                                                                     }}
                                                                                                                 >
-                                                                                                                    Transcript
-                                                                                                                </div>
-                                                                                                                <div className="flex flex-row items-center justify-between mt-4">
-                                                                                                                    <div
-                                                                                                                        style={{
-                                                                                                                            fontWeight: "500",
-                                                                                                                            fontSize: 15,
-                                                                                                                        }}
-                                                                                                                    >
-                                                                                                                        {moment(
-                                                                                                                            item?.duration * 1000
-                                                                                                                        ).format("mm:ss")}{" "}
-                                                                                                                    </div>
-                                                                                                                    <button
-                                                                                                                        onClick={() => {
-                                                                                                                            if (
-                                                                                                                                item?.recordingUrl
-                                                                                                                            ) {
-                                                                                                                                setShowAudioPlay(
-                                                                                                                                    item?.recordingUrl
-                                                                                                                                );
-                                                                                                                            } else {
-                                                                                                                                setShowNoAudioPlay(
-                                                                                                                                    true
-                                                                                                                                );
-                                                                                                                            }
-                                                                                                                            // window.open(item.recordingUrl, "_blank")
-                                                                                                                        }}
-                                                                                                                    >
-                                                                                                                        <Image
-                                                                                                                            src={
-                                                                                                                                "/assets/play.png"
-                                                                                                                            }
-                                                                                                                            height={35}
-                                                                                                                            width={35}
-                                                                                                                            alt="*"
-                                                                                                                        />
-                                                                                                                    </button>
-                                                                                                                </div>
-                                                                                                                {item.transcript ? (
-                                                                                                                    <div className="w-full">
+                                                                                                                    <div className="flex mt-4 flex-row items-center gap-4">
                                                                                                                         <div
-                                                                                                                            className="mt-4"
+                                                                                                                            className=""
                                                                                                                             style={{
-                                                                                                                                fontWeight: "600",
-                                                                                                                                fontSize: 15,
+                                                                                                                                fontWeight: "500",
+                                                                                                                                fontSize: 12,
+                                                                                                                                color: "#00000070",
                                                                                                                             }}
                                                                                                                         >
-                                                                                                                            {/* {item.transcript} */}
-                                                                                                                            {`${initialText}...`}
-                                                                                                                            {/* {isExpanded.includes(
-                                                                                                                                   item.id
-                                                                                                                                 )
-                                                                                                                                   ? `${item.transcript}`
-                                                                                                                                   : `${initialText}...`} */}
+                                                                                                                            Transcript
                                                                                                                         </div>
+
                                                                                                                         <button
-                                                                                                                            style={{
-                                                                                                                                fontWeight: "600",
-                                                                                                                                fontSize: 15,
-                                                                                                                            }}
-                                                                                                                            onClick={() => {
-                                                                                                                                handleReadMoreToggle(
-                                                                                                                                    item
-                                                                                                                                );
-                                                                                                                            }}
-                                                                                                                            className="mt-2 text-black underline"
-                                                                                                                        >
-                                                                                                                            {
-                                                                                                                                // isExpanded.includes(
-                                                                                                                                //   item.id
-                                                                                                                                // )
-                                                                                                                                //   ? "Read Less"
-                                                                                                                                // :
-                                                                                                                                "Read more"
+                                                                                                                            onClick={() =>
+                                                                                                                                handleCopy(
+                                                                                                                                    item.callId
+                                                                                                                                )
                                                                                                                             }
+                                                                                                                        >
+                                                                                                                            <Image
+                                                                                                                                src={
+                                                                                                                                    "/svgIcons/copy.svg"
+                                                                                                                                }
+                                                                                                                                height={15}
+                                                                                                                                width={15}
+                                                                                                                                alt="*"
+                                                                                                                            />
                                                                                                                         </button>
                                                                                                                     </div>
-                                                                                                                ) : (
-                                                                                                                    <div
-                                                                                                                        style={{
-                                                                                                                            fontWeight: "600",
-                                                                                                                            fontSize: 15,
-                                                                                                                        }}
-                                                                                                                    >
-                                                                                                                        No transcript
+                                                                                                                    <div className="flex flex-row items-center justify-between mt-4">
+                                                                                                                        <div
+                                                                                                                            style={{
+                                                                                                                                fontWeight: "500",
+                                                                                                                                fontSize: 15,
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            {moment(
+                                                                                                                                item?.duration *
+                                                                                                                                1000
+                                                                                                                            ).format(
+                                                                                                                                "mm:ss"
+                                                                                                                            )}{" "}
+                                                                                                                        </div>
+                                                                                                                        <button
+                                                                                                                            onClick={() => {
+                                                                                                                                if (
+                                                                                                                                    item?.recordingUrl
+                                                                                                                                ) {
+                                                                                                                                    setShowAudioPlay(
+                                                                                                                                        item?.recordingUrl
+                                                                                                                                    );
+                                                                                                                                } else {
+                                                                                                                                    setShowNoAudioPlay(
+                                                                                                                                        true
+                                                                                                                                    );
+                                                                                                                                }
+                                                                                                                                // window.open(item.recordingUrl, "_blank")
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            <Image
+                                                                                                                                src={
+                                                                                                                                    "/assets/play.png"
+                                                                                                                                }
+                                                                                                                                height={35}
+                                                                                                                                width={35}
+                                                                                                                                alt="*"
+                                                                                                                            />
+                                                                                                                        </button>
                                                                                                                     </div>
-                                                                                                                )}
-                                                                                                            </div>
-                                                                                                        )}
+                                                                                                                    {item.transcript ? (
+                                                                                                                        <div className="w-full">
+                                                                                                                            <div
+                                                                                                                                className="mt-4"
+                                                                                                                                style={{
+                                                                                                                                    fontWeight: "600",
+                                                                                                                                    fontSize: 15,
+                                                                                                                                }}
+                                                                                                                            >
+                                                                                                                                {/* {item.transcript} */}
+                                                                                                                                {`${initialText}...`}
+                                                                                                                                {/* {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`} */}
+                                                                                                                            </div>
+                                                                                                                            <div className="w-full flex flex-row items-center justify-between">
+                                                                                                                                <button
+                                                                                                                                    style={{
+                                                                                                                                        fontWeight:
+                                                                                                                                            "600",
+                                                                                                                                        fontSize: 15,
+                                                                                                                                    }}
+                                                                                                                                    onClick={() => {
+                                                                                                                                        handleReadMoreToggle(
+                                                                                                                                            item
+                                                                                                                                        );
+                                                                                                                                    }}
+                                                                                                                                    className="mt-2 text-black underline"
+                                                                                                                                >
+                                                                                                                                    {"Read more"}
+                                                                                                                                </button>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                    ) : (
+                                                                                                                        <div
+                                                                                                                            style={{
+                                                                                                                                fontWeight: "600",
+                                                                                                                                fontSize: 15,
+                                                                                                                            }}
+                                                                                                                        >
+                                                                                                                            No transcript
+                                                                                                                        </div>
+                                                                                                                    )}
+                                                                                                                   
+                                                                                                                </div>
+                                                                                                            </>
+                                                                                                        ))}
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
