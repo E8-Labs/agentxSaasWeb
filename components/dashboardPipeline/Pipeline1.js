@@ -2167,16 +2167,19 @@ const Pipeline1 = () => {
                           PaperProps={{
                             elevation: 0, // This will remove the shadow
                             style: {
-                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
+                              boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
                               borderRadius: "12px",
                             },
                           }}
                         >
-                          <div className="p-3">
+                          <div
+                            className="w-36 px-4 py-3 bg-white rounded-[10px] inline-flex flex-col justify-start items-start gap-2"
+                          // style={{ border: "4px solid black" }}
+                          >
                             <div className="w-full flex flex-row">
                               <button
-                                className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                                style={styles.paragraph}
+                                className=" text-black text-base font-medium flex flex-row items-center gap-4 outline-none"
+                                // style={styles.paragraph}
                                 onClick={() => {
                                   setShowRenamePopup(true);
                                   // //console.log;
@@ -2202,7 +2205,7 @@ const Pipeline1 = () => {
                                                            
                                                     } */}
                               <div
-                                className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                                className="text-black flex flex-row items-center gap-4 outline-none"
                                 style={styles.paragraph}
                               // onClick={handleDeleteStage}
                               >
@@ -2219,6 +2222,7 @@ const Pipeline1 = () => {
                                 <button
                                   className="flex flex-row gap-2 outline-none"
                                   onClick={() => colorPickerRef.current.click()}
+                                  style={styles.paragraph}
                                 >
                                   Color
                                 </button>
@@ -2247,7 +2251,7 @@ const Pipeline1 = () => {
                             {
                               showConfigureBtn && (
                                 <button
-                                  className="border-none outline-none cursor-pointer mt-4 flex flex-row items-center gap-4"
+                                  className="border-none outline-none cursor-pointer flex flex-row items-center gap-4"
                                   onClick={() => {
                                     console.log("Configure button clicked for stage:", selectedStage);
 
@@ -2303,12 +2307,12 @@ const Pipeline1 = () => {
                                   }}
                                 >
                                   <Image
-                                    src={"/assets/colorDrop.png"}
+                                    src={"/otherAssets/colorDrop.jpg"}
                                     height={18}
-                                    width={15}
+                                    width={18}
                                     alt="*"
                                   />
-                                  <div>
+                                  <div className="text-base font-medium text-black">
                                     Configure
                                   </div>
                                 </button>
@@ -2318,8 +2322,8 @@ const Pipeline1 = () => {
                             {!showDelBtn && (
                               <div className="w-full flex flex-row mt-4">
                                 <button
-                                  className="text-red flex flex-row items-center gap-4 me-2 outline-none"
-                                  style={styles.paragraph}
+                                  className="text-red text-base font-medium flex flex-row items-center gap-4 outline-none"
+                                  // style={styles.paragraph}
                                   onClick={() => {
                                     // console.log(
                                     //   "Selected stage is:",
