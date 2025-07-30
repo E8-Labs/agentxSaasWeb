@@ -8,7 +8,7 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 
-const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData }) => {
+const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData, businessProfileData }) => {
 
 
     const [showDetails, setShowDetails] = useState(false);
@@ -124,6 +124,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                     btnTitle='Complete Voice'
                     twilioData={twilioHubData}
                     unLockDescription="Register Voice Integrity."
+                    businessProfileData={businessProfileData}
                 />
             )
             }

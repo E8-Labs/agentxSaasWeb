@@ -116,6 +116,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                 <LockDetailsView
                     profileStatus={profileStatus}
                     handleShowAddModal={() => { setShowAddCNAM(true) }}
+                    businessProfileData={businessProfileData}
                     twilioData={twilioHubData}
                     unLockDescription="Add CNAM."
                 />

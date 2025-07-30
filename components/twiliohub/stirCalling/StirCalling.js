@@ -12,7 +12,7 @@ const StirCalling = ({
     showShakenStir,
     trustProducts,
     handleClose,
-    friendlyName
+    // friendlyName
 }) => {
 
     const [selectedSTIR, setSelectedSTIR] = useState("");

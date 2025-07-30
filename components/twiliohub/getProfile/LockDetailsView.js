@@ -7,7 +7,8 @@ const LockDetailsView = ({
     profileStatus,
     handleShowAddModal,
     showBtn = false,
-    unLockDescription
+    unLockDescription,
+    businessProfileData,
 }) => {
 
     console.log("profile status is", profileStatus);
@@ -47,12 +48,22 @@ const LockDetailsView = ({
                 }
             </div>
             {
-                (!showBtn && !profileStatus) && (
+                // (!showBtn && !profileStatus && businessProfileData && businessProfileData.profileType !== "individual") && (
+                    (!showBtn && !profileStatus && (!businessProfileData || businessProfileData.profileType !== "individual")) && (
                     <button
                         className='border-none outline-none text-purple'
                         style={styles.normalFont}
                         onClick={handleShowAddModal}>
                         {btnTitle}
+                    </button>
+                )
+            }
+            {
+                (businessProfileData && businessProfileData.profileType == "individual") && (
+                    <button
+                        className='border-none outline-none text-purple'
+                        style={styles.normalFont}>
+                        You need a Business Primary Profile
                     </button>
                 )
             }
