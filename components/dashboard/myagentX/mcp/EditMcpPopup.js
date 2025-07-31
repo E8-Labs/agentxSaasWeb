@@ -34,26 +34,26 @@ export default function EditMcpPopup({ open, handleClose,
 
     const [mcpUrlError, setMcpUrlError] = useState("");
 
-        const handleMcpUrlChange = (e) => {
-            const value = e.target.value;
-            setMcpUrl(value);
-          
-            // Basic check for https and valid URL structure
-            try {
-              const url = new URL(value);
-              if (url.protocol !== "https:") {
+    const handleMcpUrlChange = (e) => {
+        const value = e.target.value;
+        setMcpUrl(value);
+
+        // Basic check for https and valid URL structure
+        try {
+            const url = new URL(value);
+            if (url.protocol !== "https:") {
                 setMcpUrlError("URL must start with https://");
-              } else {
+            } else {
                 setMcpUrlError("");
-              }
-            } catch (err) {
-              if (value) {
-                setMcpUrlError("Invalid URL format");
-              } else {
-                setMcpUrlError("");
-              }
             }
-          };
+        } catch (err) {
+            if (value) {
+                setMcpUrlError("Invalid URL format");
+            } else {
+                setMcpUrlError("");
+            }
+        }
+    };
 
     return (
         <Modal
@@ -109,14 +109,21 @@ export default function EditMcpPopup({ open, handleClose,
 
                             {mcpUrlError && <div style={{ color: "red", fontSize: 12 }}>{mcpUrlError}</div>}
 
-                            <div className='text-[15px] font-[500] text-black mt-3'>
-                                Description
+                            <div className='flex flex-row items-center w-full justify-between mt-3'>
+                                <div className='text-[15px] font-[500] text-black'>
+                                    Description
+                                </div>
+
+                                <div className='text-[14px] font-[400] text-black'>
+                                    {mcpDescription?.length}/1000
+                                </div>
                             </div>
 
                             <textarea
                                 placeholder='Describe when the AI should use this'
                                 value={mcpDescription}
                                 onChange={(e) => setMcpDescription(e.target.value)}
+                                maxLength={1000}
                                 style={{
                                     fontSize: "15px",
                                     fontWeight: "500",
