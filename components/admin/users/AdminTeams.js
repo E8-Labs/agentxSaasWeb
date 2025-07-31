@@ -186,6 +186,7 @@ function AdminTeam({ selectedUser }) {
           name: item.name,
           email: item.email,
           phone: item.phone,
+          userId:selectedUser.id
         };
 
         // //console.log;
