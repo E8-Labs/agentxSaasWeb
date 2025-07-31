@@ -170,9 +170,10 @@ function AdminDashboardActiveCall({ }) {
           setCallDetails(agents);
           setAgentsList(agents);
         } else {
-          setFilteredAgentsList(prev => [...prev, ...agents]); // append
-          setCallDetails(prev => [...prev, ...agents]);
-          setAgentsList(prev => [...prev, ...agents]);
+          // Show API response data instead of appending to existing array
+          setFilteredAgentsList(agents);
+          setCallDetails(agents);
+          setAgentsList(agents);
         }
 
         console.log("Data is set in variables");
@@ -512,11 +513,9 @@ function AdminDashboardActiveCall({ }) {
             JSON.stringify(data.data.pastCalls)
           );
         } else {
-          setSheduledCalllogs((prev) => [...prev, ...data.data.pastCalls]);
-          setFilteredSheduledCalllogs((prev) => [
-            ...prev,
-            ...data.data.pastCalls,
-          ]);
+          // Show API response data instead of appending to existing array
+          setSheduledCalllogs(data.data.pastCalls);
+          setFilteredSheduledCalllogs(data.data.pastCalls);
         }
 
         // setShowDetailsModal(true);

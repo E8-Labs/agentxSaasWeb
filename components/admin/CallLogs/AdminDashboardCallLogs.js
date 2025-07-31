@@ -146,8 +146,11 @@ function AdminDashboardCallLogs({ }) {
         if (C.length < LimitPerPage) {
           setHasMore(false);
         }
+      getCallLogs(0)
+
       }
       else {
+        console.log("calls are not available in local storage")
         setIsLocalCallsAvailable(false)
         getCallLogs(0)
       }
@@ -290,7 +293,14 @@ function AdminDashboardCallLogs({ }) {
         const data = response.data.data;
         localStorage.setItem("callDetails", response.data.data);
 
-        let calls = [...callDetails, ...data]
+        // If offset is 0, replace the calls completely, otherwise append
+        let calls;
+        if (offset === 0) {
+          calls = data;
+        } else {
+          calls = [...callDetails, ...data];
+        }
+        
         console.log('calls', calls)
         setCallDetails(calls);
         setFilteredCallDetails(calls);
@@ -412,6 +422,7 @@ function AdminDashboardCallLogs({ }) {
                     // Refresh Call Logs after filter removal
                     setCallDetails([]);
                     setFilteredCallDetails([]);
+                    setHasMore(true);
                     setTimeout(() => {
                       getCallLogs(0);
                     }, 500);
@@ -427,7 +438,7 @@ function AdminDashboardCallLogs({ }) {
               </div>
             </div>
           ))}
-        </div>
+        </div>here
       </div>
 
 
@@ -869,6 +880,7 @@ function AdminDashboardCallLogs({ }) {
                               setInitialLoader(true);
                               setCallDetails([]);
                               setFilteredCallDetails([]);
+                              setHasMore(true);
                               setShowFilterModal(false);
                               getCallLogs(0);
                             } else {
