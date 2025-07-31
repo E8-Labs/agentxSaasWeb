@@ -337,9 +337,18 @@ function MCPView({
     //detach from the agnet
     const detachMcp = async (item) => {
         try {
-            const data = {
-                agentId: selectedAgent.id,
-                toolId: item.id
+            let data = null;
+            if (selectedUser) {
+                data = {
+                    agentId: selectedAgent.id,
+                    toolId: item.id,
+                    userId: selectedUser?.id
+                }
+            } else {
+                data = {
+                    agentId: selectedAgent.id,
+                    toolId: item.id
+                }
             }
             setAttachMcpLoader(item.id);
             console.log("Data to be sent is", data)
