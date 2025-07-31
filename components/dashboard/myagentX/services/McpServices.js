@@ -140,17 +140,26 @@ export const deleteMcpTool = async (data) => {
             AuthToken = UserDetails.token;
         }
         let path = `${Apis.deleteMcpTool}/${data.id}`;
-        let body  = {}
+        let body = {}
 
-        
+
         if (data?.userId) {
-           body.userId = data.userId
+            body.userId = data.userId
         }
-        const response = await axios.delete(path,body ,{
+
+        // const response = await axios.delete(path, body, {
+        //     headers: {
+        //         Authorization: "Bearer " + AuthToken,
+        //     },
+        // });
+        const response = await axios.delete(path, {
+            data: body,
             headers: {
-                Authorization: "Bearer " + AuthToken,
-            },
+                Authorization: "Bearer " + AuthToken
+            }
         });
+
+
         if (response) {
             let returnData = {};
             if (response.data.status === true) {

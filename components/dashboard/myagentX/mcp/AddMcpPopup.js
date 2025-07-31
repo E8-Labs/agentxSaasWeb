@@ -105,7 +105,7 @@ export default function AddMcpPopup({
                                 </div>
 
                                 <div className='text-[14px] font-[400] text-black'>
-                                    {descriptionChars?.length}/1000
+                                    {mcpDescription?.length}/1000
                                 </div>
                             </div>
 
