@@ -10,8 +10,7 @@ import { Plus } from 'lucide-react';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles';
-// import IntroVideoModal from '@/components/globalExtras/IntroVideoModal';
-import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import IntroVideoModal from '@/components/createagent/IntroVideoModal';
 import { HowtoVideos } from '@/constants/Constants';
 
 
@@ -21,7 +20,7 @@ function MCPView({
     setType,
     setMessage,
     setIsVisible,
-
+    selectedUser
 }) {
 
     const [mcpTools, setMcpTools] = useState([]);
@@ -66,7 +65,7 @@ function MCPView({
             if (loader) {
                 setShowMcpLoader(true);
             }
-            const mcpTools = await getMcpTools(selectedAgent.id);
+            const mcpTools = await getMcpTools(selectedAgent.id, selectedUser);
             if (mcpTools) {
                 setMcpTools(mcpTools);
                 setShowMcpLoader(false);
@@ -102,11 +101,23 @@ function MCPView({
     // Add MCP
     const addMcp = async () => {
         setAddMcpLoader(true);
-        let data = {
-            name: mcpName,
-            url: mcpUrl,
-            description: mcpDescription,
-            agentId: selectedAgent.id
+        let data = null;
+
+        if (selectedUser) {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                agentId: selectedAgent.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                agentId: selectedAgent.id,
+            }
         }
 
         console.log("Data to be sent is", data);
@@ -117,8 +128,7 @@ function MCPView({
 
                 setShowAddMcpPopup(false);
                 setIsVisible(true);
-                // setMessage(mcpTool.message);
-                setMessage("Tool Added");
+                setMessage(mcpTool.message);
                 setType(SnackbarTypes.Success);
                 getMcps(false);
             } else {
@@ -136,11 +146,22 @@ function MCPView({
     // Edit MCP
     const editMcp = async () => {
         setEditMcpLoader(true);
-        let data = {
-            name: mcpName,
-            url: mcpUrl,
-            description: mcpDescription,
-            id: selectedMcpTool.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                id: selectedMcpTool.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                name: mcpName,
+                url: mcpUrl,
+                description: mcpDescription,
+                id: selectedMcpTool.id
+            }
         }
         console.log("Data to be sent is", data);
         const mcpTool = await editMcpTool(data);
@@ -163,9 +184,18 @@ function MCPView({
     // Delete MCP
     const deleteMcp = async () => {
         setDeleteMcpLoader(true);
-        let data = {
-            id: selectedMcpTool.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                id: selectedMcpTool.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                id: selectedMcpTool.id
+            }
         }
+        console.log("data to del mcp tool is", data);
         const mcpTool = await deleteMcpTool(data);
         if (mcpTool) {
             if (mcpTool.status === true) {
@@ -185,9 +215,18 @@ function MCPView({
 
     // Select MCP
     const selectMcp = async (item) => {
-        let data = {
-            toolId: item.id,
-            agentId: selectedAgent.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                toolId: item.id,
+                agentId: selectedAgent.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                toolId: item.id,
+                agentId: selectedAgent.id
+            }
         }
         const mcpTool = await selectMcpTool(data);
         if (mcpTool) {
@@ -255,9 +294,18 @@ function MCPView({
 
     //attach the mcp to the agent
     const attachMcp = async (item) => {
-        const data = {
-            agentId: selectedAgent.id,
-            toolId: item.id
+        let data = null;
+        if (selectedUser) {
+            data = {
+                agentId: selectedAgent.id,
+                toolId: item.id,
+                userId: selectedUser?.id
+            }
+        } else {
+            data = {
+                agentId: selectedAgent.id,
+                toolId: item.id
+            }
         }
         console.log("Data to be sent is", data);
         // return
@@ -289,9 +337,18 @@ function MCPView({
     //detach from the agnet
     const detachMcp = async (item) => {
         try {
-            const data = {
-                agentId: selectedAgent.id,
-                toolId: item.id
+            let data = null;
+            if (selectedUser) {
+                data = {
+                    agentId: selectedAgent.id,
+                    toolId: item.id,
+                    userId: selectedUser?.id
+                }
+            } else {
+                data = {
+                    agentId: selectedAgent.id,
+                    toolId: item.id
+                }
             }
             setAttachMcpLoader(item.id);
             console.log("Data to be sent is", data)
@@ -346,14 +403,14 @@ function MCPView({
                         {
                             mcpTools.length > 0 && (
                                 <div className="flex flex-row items-center gap-2">
-                                    <div className="text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                                    <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
                                         onClick={() => setIntroVideoModal2(true)}
                                     >
                                         Learn how to add Tools
                                         <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                                            onClick={() => setIntroVideoModal2(true)}
+                                        // onClick={() => setIntroVideoModal2(true)}
                                         />
-                                    </div>
+                                    </button>
 
 
 
@@ -391,6 +448,14 @@ function MCPView({
                         />
                     )
                 }
+
+                {/* Intro modal */}
+                <IntroVideoModal
+                    open={introVideoModal2}
+                    onClose={() => setIntroVideoModal2(false)}
+                    videoTitle="Learn how to add Tools"
+                    videoUrl={HowtoVideos.Tools}
+                />
 
                 {
                     showMcpLoader ? (
@@ -564,14 +629,6 @@ function MCPView({
                         />
                     )
                 }
-
-                {/* Intro modal */}
-                <IntroVideoModal
-                    open={introVideoModal2}
-                    onClose={() => setIntroVideoModal2(false)}
-                    videoTitle="Learn how to add tools"
-                    videoUrl={HowtoVideos.MCPTool}
-                />
             </div>
         )
     }
@@ -582,10 +639,6 @@ function MCPView({
         return (
 
             <div className="flex flex-col w-full h-[170px] items-center justify-center bg-[#fafafa] mt-4">
-                {/*
-                    <Image className='cursor-pointer'
-                        src="/otherAssets/McpHowToIcon.jpg" alt="noMcp" width={60} height={50} />
-                */}
 
                 <button className="border-none outline-none" onClick={() => { setIntroVideoModal2(true) }}>
                     <div className="relative flex-shrink-0">
@@ -600,8 +653,10 @@ function MCPView({
                     </div>
                 </button>
 
-                <button className='text-[15px] font-[500] text-black mt-2 outline-none border-none'
-                    onClick={() => { setIntroVideoModal2(true) }}>
+                <button
+                    className='text-[15px] font-[500] text-black mt-2 outline-none border-none cursor-pointer'
+                    onClick={() => { setIntroVideoModal2(true) }}
+                >
                     Learn more about Tools
                 </button>
 

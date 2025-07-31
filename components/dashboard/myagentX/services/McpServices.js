@@ -2,7 +2,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 
-export const getMcpTools = async (agentId) => {
+export const getMcpTools = async (agentId, selectedUser) => {
 
     try {
         const localData = localStorage.getItem("User");
@@ -11,7 +11,10 @@ export const getMcpTools = async (agentId) => {
             const UserDetails = JSON.parse(localData);
             AuthToken = UserDetails.token;
         }
-        const ApiPath = `${Apis.getMcpTools}?agentId=${agentId}`;
+        let ApiPath = `${Apis.getMcpTools}?agentId=${agentId}`;
+        if (selectedUser) {
+            ApiPath = `${Apis.getMcpTools}?agentId=${agentId}&userId=${selectedUser.id}`;
+        }
         console.log(`Api path is ${ApiPath}`);
 
         const response = await axios.get(ApiPath, {
@@ -74,7 +77,7 @@ export const addMcpTool = async (data) => {
         console.log("Error in addMcpTool", error);
         return {
             status: false,
-            message: "Error in addMcpTool",
+            message: error.response.data.message,
             data: null
         }
     }
@@ -137,11 +140,26 @@ export const deleteMcpTool = async (data) => {
             AuthToken = UserDetails.token;
         }
         let path = `${Apis.deleteMcpTool}/${data.id}`;
+        let body = {}
+
+
+        if (data?.userId) {
+            body.userId = data.userId
+        }
+
+        // const response = await axios.delete(path, body, {
+        //     headers: {
+        //         Authorization: "Bearer " + AuthToken,
+        //     },
+        // });
         const response = await axios.delete(path, {
+            data: body,
             headers: {
-                Authorization: "Bearer " + AuthToken,
-            },
+                Authorization: "Bearer " + AuthToken
+            }
         });
+
+
         if (response) {
             let returnData = {};
             if (response.data.status === true) {
