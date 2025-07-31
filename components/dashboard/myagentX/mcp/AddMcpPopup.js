@@ -5,6 +5,7 @@ import Modal from '@mui/material/Modal';
 import Image from 'next/image';
 import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 export default function AddMcpPopup({
     open,
@@ -16,28 +17,34 @@ export default function AddMcpPopup({
     setMcpDescription,
     mcpName, mcpUrl, mcpDescription }) {
 
-        const [mcpUrlError, setMcpUrlError] = useState("");
+    const [mcpUrlError, setMcpUrlError] = useState("");
+    const [descriptionChars, setDescriptionChars] = useState("");
 
-        const handleMcpUrlChange = (e) => {
-            const value = e.target.value;
-            setMcpUrl(value);
-          
-            // Basic check for https and valid URL structure
-            try {
-              const url = new URL(value);
-              if (url.protocol !== "https:") {
+    //check the limit of description chars
+    useEffect(() => {
+        setDescriptionChars(mcpDescription?.length)
+    }, [mcpDescription]);
+
+    const handleMcpUrlChange = (e) => {
+        const value = e.target.value;
+        setMcpUrl(value);
+
+        // Basic check for https and valid URL structure
+        try {
+            const url = new URL(value);
+            if (url.protocol !== "https:") {
                 setMcpUrlError("URL must start with https://");
-              } else {
+            } else {
                 setMcpUrlError("");
-              }
-            } catch (err) {
-              if (value) {
-                setMcpUrlError("Invalid URL format");
-              } else {
-                setMcpUrlError("");
-              }
             }
-          };
+        } catch (err) {
+            if (value) {
+                setMcpUrlError("Invalid URL format");
+            } else {
+                setMcpUrlError("");
+            }
+        }
+    };
     return (
         <Modal
             open={open}
@@ -65,9 +72,9 @@ export default function AddMcpPopup({
                                 Add MCP
                             </div>
                             <button onClick={handleClose} className='cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'>
-                                <Image src="/assets/cross.png" alt="close" width={15} height={15} />    
+                                <Image src="/assets/cross.png" alt="close" width={15} height={15} />
                             </button>
-                        </div>  
+                        </div>
 
                         <div className='w-full flex flex-col gap-2 mt-4'>
 
@@ -87,19 +94,26 @@ export default function AddMcpPopup({
                                 type="text"
                                 placeholder='Paste your mcp url here'
                                 value={mcpUrl}
-                                onChange={(e) =>handleMcpUrlChange(e)}
+                                onChange={(e) => handleMcpUrlChange(e)}
                                 className='w-full border border-gray-300 rounded-md p-2' />
 
-                                {mcpUrlError && <div style={{ color: "red", fontSize: 12 }}>{mcpUrlError}</div>}
+                            {mcpUrlError && <div style={{ color: "red", fontSize: 12 }}>{mcpUrlError}</div>}
 
-                            <div className='text-[15px] font-[500] text-black mt-3'>
-                                Description
+                            <div className='flex flex-row items-center w-full justify-between mt-3'>
+                                <div className='text-[15px] font-[500] text-black'>
+                                    Description
+                                </div>
+
+                                <div className='text-[14px] font-[400] text-black'>
+                                    {descriptionChars?.length}/1000
+                                </div>
                             </div>
 
                             <textarea
                                 placeholder='Describe when the AI should use this'
                                 value={mcpDescription}
                                 onChange={(e) => setMcpDescription(e.target.value)}
+                                maxLength={1000}
                                 style={{
                                     fontSize: "15px",
                                     fontWeight: "500",

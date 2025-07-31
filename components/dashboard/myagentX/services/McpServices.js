@@ -140,6 +140,9 @@ export const deleteMcpTool = async (data) => {
             AuthToken = UserDetails.token;
         }
         let path = `${Apis.deleteMcpTool}/${data.id}`;
+        if (data?.userId) {
+            path = `${Apis.deleteMcpTool}/${data.id}/userId=${data.userId}`;
+        }
         const response = await axios.delete(path, {
             headers: {
                 Authorization: "Bearer " + AuthToken,

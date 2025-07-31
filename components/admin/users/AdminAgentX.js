@@ -4800,6 +4800,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         <Objection
                           showTitle={true}
                           selectedAgentId={showScriptModal}
+                          kycsData={kycsData}
+                          uniqueColumns={uniqueColumns}
                         />
                       </div>
                     </div>
