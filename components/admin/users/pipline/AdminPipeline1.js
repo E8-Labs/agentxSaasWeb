@@ -602,7 +602,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
       if (response) {
 
         //updated logic same like users side
-        console.log("Initial response", JSON.stringify(response.data.data));
+        console.log("Initial response", response.data.data);
         setInitialLoader(false);
         const pipelineDetails = response.data.data;
         console.log("Leads count in stages are", pipelineDetails[0].leadsCountInStage);
@@ -652,7 +652,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setStagesList(response.data.data[index].stages);
           setOldStages(response.data.data[index].stages);
           setLeadsList(response.data.data[index].leads);
-          // //console.log;
+          // const LeadsList = response.data.data[index].leads;
+          // console.log("Leads list is", LeadsList);
         }
       }
     } catch (error) {
@@ -757,6 +758,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
     setStagesList(item.stages);
     setLeadsCountInStage(item.leadsCountInStage);
     setLeadsList(item.leads);
+    // console.log("Leads found are c_2", item.leads)
     setReservedLeads(item.leads);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
@@ -2211,7 +2213,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                         className="text-purple underline"
                                         style={styles.agentName}
                                       >
-                                        {lead.agent.name}
+                                        {lead.agent?.agents[0]?.agentType ===
+                                          "outbound"
+                                          ? lead.agent?.agents[0]?.name
+                                          : lead.agent?.agents[1]?.name}
                                       </div>
                                     </div>
                                   </div>

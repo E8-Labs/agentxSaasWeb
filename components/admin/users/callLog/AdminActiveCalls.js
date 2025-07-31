@@ -650,7 +650,13 @@ function AdminActiveCalls({ selectedUser }) {
                                   {getAgentsListImage(agent?.agents[0])}
                                 </div> */}
 
-                              <div style={styles.text2}>{agent.name}</div>
+                              <div style={styles.text2}>
+                                {/*agent.name*/}
+                                {agent.name && (
+                                  agent.name.charAt(0).toUpperCase() + agent.name.slice(1).toLowerCase()
+                                )}
+
+                              </div>
                             </div>
                             <div className="w-2/12 ">
                               {agent?.agents[0]?.agentObjective ? (

@@ -411,12 +411,15 @@ function AdminTeam({ selectedUser }) {
     // //console.log;
     // //console.log;
     if (user?.userRole == "Invitee") {
-      if (team.invitedUser.id == user.id) {
+      console.log("Check simple user Id", user?.id);
+      console.log("Check team userId data", team?.invitedUser?.id);
+      if (team?.invitedUser?.id == user?.id) {
         return true; // show menu at own profile
+      } else {
+        return false;
       }
-      return false;
     } else if (user?.userRole == "AgentX") {
-      if (team.invitedUser?.id == user.id) {
+      if (team?.invitedUser?.id == user?.id) {
         return false; // don't show menu at own profile for admin
       }
       return true;
