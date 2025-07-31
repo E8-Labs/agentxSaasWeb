@@ -874,7 +874,7 @@ const ProfileNav = () => {
         onClose={() => setWalkthroughWatched(false)}
         videoTitle="Welcome to AgentX"
         videoDescription="This short video will show you where everything is. Enjoy!"
-        videoUrl={HowtoVideos.script}//WalkthroughWatched
+        videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
       />
 
       <div className="w-full flex flex-col items-center justify-between h-screen">
