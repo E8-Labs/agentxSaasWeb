@@ -535,6 +535,16 @@ function AdminDashboardActiveCall({ }) {
     }
   };
 
+  const handleCopy = async (id) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setShowSuccessSnack("Call ID copied to the clipboard.");
+      setShowSuccessSnack2(true);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
+
   function GetLoadingOrNoCallsView() {
     if (callsLoading) {
       return <div className="text-center mt-6 text-3xl">Loading...</div>;
@@ -818,7 +828,7 @@ function AdminDashboardActiveCall({ }) {
                                 </button>
 
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  
+
 
                                   <div>
                                     {getAgentsListImage(agent?.agents[0])}
@@ -1033,7 +1043,7 @@ function AdminDashboardActiveCall({ }) {
                         </div>
                         {filteredSheduledCalllogs.length > 0 ? (
                           <div
-                            className="w-full "
+                            className="w-full"
                             style={{ scrollbarWidth: "none" }}
                           >
                             {filteredSheduledCalllogs.map((item, index) => (

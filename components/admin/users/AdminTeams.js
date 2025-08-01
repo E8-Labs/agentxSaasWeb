@@ -189,7 +189,7 @@ function AdminTeam({ selectedUser }) {
           userId: selectedUser.id
         };
 
-        // //console.log;
+        console.log("apidata of invite team member", apidata)
 
         const response = await axios.post(path, apidata, {
           headers: {

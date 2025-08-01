@@ -104,7 +104,7 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
     }
   };
 
-    const AgentObjective = [
+  const AgentObjective = [
     {
       id: 1,
       icon: "",
@@ -409,10 +409,10 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
       <div
-        className=" sm:rounded-2xl w-full lg:w-10/12 h-[90vh] flex flex-col items-center"
+        className=" sm:rounded-2xl w-full lg:w-10/12 h-[100vh] flex flex-col items-center"
         style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="w-full h-[77vh]">
+        <div className="w-full h-[90vh]">
           {/* header */}
           <div className="h-[10%]">
             <Header />
@@ -461,21 +461,45 @@ const BuildAgentObjective = ({ handleContinue, handleBack, AgentDetails }) => {
                           item.id === toggleClick ? "#402FFF10 " : "",
                       }}
                     >
-                      {item.id === toggleClick ? (
-                        <Image
-                          src={item.focusIcn}
-                          height={30}
-                          width={30}
-                          alt="*"
-                        />
-                      ) : (
-                        <Image
-                          src={item.unFocusIcon}
-                          height={30}
-                          width={30}
-                          alt="*"
-                        />
-                      )}
+                      <div className="flex flex-row items-center w-full justify-between">
+                        <div>
+                          {item.id === toggleClick ? (
+                            <Image
+                              src={item.focusIcn}
+                              height={30}
+                              width={30}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={item.unFocusIcon}
+                              height={30}
+                              width={30}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                        <div>
+                          {item.id === toggleClick ? (
+                            <div
+                              className="bg-purple flex flex-row items-center justify-center rounded"
+                              style={{ height: "24px", width: "24px" }}
+                            >
+                              <Image
+                                src={"/assets/whiteTick.png"}
+                                height={8}
+                                width={10}
+                                alt="*"
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                              style={{ height: "24px", width: "24px" }}
+                            ></div>
+                          )}
+                        </div>
+                      </div>
                       <div className="mt-8" style={styles.inputStyle}>
                         {item.title}
                       </div>

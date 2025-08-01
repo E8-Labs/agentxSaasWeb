@@ -86,7 +86,7 @@ function AdminActiveCalls({ selectedUser }) {
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === "") {
-      //// //console.log;
+      console.log("List of ____", selectedLeadsList);
       // Reset to original list when input is empty
       setFilteredSelectedLeadsList(selectedLeadsList);
       return;
@@ -102,7 +102,7 @@ function AdminActiveCalls({ selectedUser }) {
         // (item.LeadModel?.phone && agentsList.includes(term))
       );
     });
-
+    console.log("List of ____", filtered);
     setFilteredSelectedLeadsList(filtered);
   };
 
@@ -347,7 +347,7 @@ function AdminActiveCalls({ selectedUser }) {
   };
 
   const fetchLeadsInBatch = async (batch) => {
-    //console.log;
+    console.log("Trigerred api to get leads in batch");
     try {
       let firstCall = false;
       setLeadsLoading(true);
@@ -359,7 +359,7 @@ function AdminActiveCalls({ selectedUser }) {
         if (leadsInBatchLocalData) {
           //console.log;
           let leads = JSON.parse(leadsInBatchLocalData);
-          //console.log;
+          console.log("List of ____", leads);
           setSelectedLeadsList(leads);
           setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
@@ -396,6 +396,7 @@ function AdminActiveCalls({ selectedUser }) {
 
         if (firstCall) {
           setSelectedLeadsList(data.data);
+          console.log("List of ____", data.data);
           setFilteredSelectedLeadsList(data.data);
           localStorage.setItem(
             PersistanceKeys.LeadsInBatch + `${batch.id}`,
@@ -403,6 +404,7 @@ function AdminActiveCalls({ selectedUser }) {
           );
         } else {
           setSelectedLeadsList((prev) => [...prev, ...data.data]);
+          console.log("List of ____", data.data);
           setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
         }
 
@@ -650,13 +652,7 @@ function AdminActiveCalls({ selectedUser }) {
                                   {getAgentsListImage(agent?.agents[0])}
                                 </div> */}
 
-                              <div style={styles.text2}>
-                                {/*agent.name*/}
-                                {agent.name && (
-                                  agent.name.charAt(0).toUpperCase() + agent.name.slice(1).toLowerCase()
-                                )}
-
-                              </div>
+                              <div style={styles.text2}>{agent.name}</div>
                             </div>
                             <div className="w-2/12 ">
                               {agent?.agents[0]?.agentObjective ? (
@@ -672,6 +668,7 @@ function AdminActiveCalls({ selectedUser }) {
                                 style={styles.text2}
                                 className="text-purple underline outline-none"
                                 onClick={() => {
+                                  console.log("Item selected is", item)
                                   fetchLeadsInBatch(item);
                                   handleShowLeads(agent, item);
                                 }}
@@ -933,7 +930,7 @@ function AdminActiveCalls({ selectedUser }) {
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.status || "-"}
+                                    {item?.PipelineStages?.stageTitle || "-"}
                                   </div>
                                 </div>
                               </div>
@@ -1150,7 +1147,7 @@ function AdminActiveCalls({ selectedUser }) {
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {/*item?.status || "-"*/}
+                                    {/*item?.stage || "-"*/}
                                     {item?.PipelineStages?.stageTitle || "-"}
                                   </div>
                                 </div>

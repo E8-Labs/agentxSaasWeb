@@ -376,6 +376,7 @@ function AdminBilling({ selectedUser, from }) {
       const ApiData = {
         plan: planType,
         payNow: true,
+        userId: selectedUser.id,
       };
 
       // //console.log;
@@ -483,7 +484,7 @@ function AdminBilling({ selectedUser, from }) {
       // //console.log;
 
       const ApiData = {
-        patanai: "Sari dunya",
+        userId: selectedUser.id,
       };
 
       // return
@@ -497,14 +498,14 @@ function AdminBilling({ selectedUser, from }) {
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          // //console.log;
+          console.log("response.data.data of cancel plan", response.data)
           await getProfileDetails();
           setShowConfirmCancelPlanPopup(false);
           setGiftPopup(false);
           setTogglePlan(null);
           setCurrentPlan(null);
           setShowConfirmCancelPlanPopup2(true);
-          setSuccessSnack("Your plan was successfully cancelled");
+          setSuccessSnack(response.data.message);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -853,7 +854,7 @@ function AdminBilling({ selectedUser, from }) {
           <button
             key={item.id}
             className="w-9/12 mt-4 outline-none"
-          // onClick={(e) => handleTogglePlanClick(item)}
+          onClick={(e) => handleTogglePlanClick(item)}
           >
             <div
               className="px-4 py-1 pb-4"
@@ -1004,7 +1005,7 @@ function AdminBilling({ selectedUser, from }) {
         </div>
       </div>
 
-      {/* {userLocalData?.plan && (
+{userLocalData?.plan && (
         <div className="w-full">
           <div className="w-full">
             {subscribePlanLoader ? (
@@ -1065,7 +1066,7 @@ function AdminBilling({ selectedUser, from }) {
             )}
           </div>
         </div>
-      )} */}
+      )}
 
       <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
         My Billing History
