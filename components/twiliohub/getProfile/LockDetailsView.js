@@ -64,7 +64,7 @@ const LockDetailsView = ({
                         // className='border-none outline-none text-purple'
                         className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium"
                         // style={styles.normalFont}
-                        onClick={handleShowAddModal}
+                        // onClick={handleShowAddModal}
                     >
                         You need a Business Primary Profile
                     </button>
