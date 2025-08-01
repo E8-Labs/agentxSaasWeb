@@ -26,7 +26,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import IntroVideoModal from "../createagent/IntroVideoModal";
 import VideoCard from "../createagent/VideoCard";
-import { HowtoVideos } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 
 const Pipeline1 = ({ handleContinue }) => {
   const router = useRouter();
@@ -179,7 +179,21 @@ const Pipeline1 = ({ handleContinue }) => {
   //code to get pipelines
   const getPipelines = async () => {
     try {
-      const ApiPath = Apis.getPipelines + "?liteResource=true";
+      console.log("Trigered getpipelines")
+      const selectedUserLocalData = localStorage.getItem(PersistanceKeys.selectedUser);
+      let selectedUser = null;
+      console.log("Selected user local data is", selectedUserLocalData);
+      if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
+        selectedUser = JSON.parse(selectedUserLocalData);
+        console.log("Selected user details are", selectedUser);
+      }
+      let ApiPath = Apis.getPipelines + "?liteResource=true"
+
+      if(selectedUser){
+        ApiPath = ApiPath + "&userId=" + selectedUser?.id;
+      }
+
+      console.log("ApiPath is", ApiPath);
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
       if (LocalData) {
@@ -197,7 +211,7 @@ const Pipeline1 = ({ handleContinue }) => {
       });
 
       if (response) {
-        // //console.log;
+        console.log("Response is of get pipelines", response.data.data);
         setPipelinesDetails(response.data.data);
         setSelectPipleLine(response.data.data[0].title);
         setSelectedPipelineItem(response.data.data[0]);
@@ -209,7 +223,7 @@ const Pipeline1 = ({ handleContinue }) => {
         );
       }
     } catch (error) {
-      // console.error("Error occured in get pipelies api is :", error);
+      console.log("Error occured in get pipelies api is :", error);
     } finally {
       // //console.log;
     }

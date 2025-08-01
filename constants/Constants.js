@@ -39,6 +39,7 @@ export const PersistanceKeys = {
   FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl,
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
+  selectedUser: "selectedUser",
   // LocalStoredAgentsList
 };
 export const HowtoVideos = {

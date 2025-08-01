@@ -15,6 +15,7 @@ import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import dynamic from "next/dynamic.js";
 import React, { useState } from "react";
 import getProfileDetails from "@/components/apis/GetProfile.js";
+import { PersistanceKeys } from "@/constants/Constants.js";
 
 const Page = () => {
   const router = useRouter();
@@ -93,6 +94,8 @@ const Page = () => {
         //console.log;
         if (response.data.status === true) {
           localStorage.removeItem("AddCadenceDetails");
+          localStorage.removeItem(PersistanceKeys.selectedUser);
+
           await getProfileDetails();
           const LocalData = localStorage.getItem("User");
           if(LocalData){
