@@ -750,7 +750,7 @@ const LeadDetails = ({
       "email",
       "status",
       "stage",
-      // "address",
+      "address",
     ];
     for (const c of columns) {
       if (!c.isDefault) {

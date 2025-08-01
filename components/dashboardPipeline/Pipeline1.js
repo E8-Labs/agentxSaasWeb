@@ -2178,7 +2178,7 @@ const Pipeline1 = () => {
                           >
                             <div className="w-full flex flex-row">
                               <button
-                                className=" text-black text-base font-medium flex flex-row items-center gap-4 outline-none"
+                                className=" text-black text-base font-[400] flex flex-row items-center gap-4 outline-none"
                                 // style={styles.paragraph}
                                 onClick={() => {
                                   setShowRenamePopup(true);
@@ -2195,7 +2195,7 @@ const Pipeline1 = () => {
                                   width={15}
                                   alt="*"
                                 />
-                                Rename
+                                <div>Rename</div>
                               </button>
                             </div>
                             <div className="w-full flex flex-row mt-4">
@@ -2220,7 +2220,7 @@ const Pipeline1 = () => {
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
                                 <button
-                                  className="flex flex-row gap-2 outline-none"
+                                  className="flex flex-row gap-2 outline-none font-[400]"
                                   onClick={() => colorPickerRef.current.click()}
                                   style={styles.paragraph}
                                 >
@@ -2251,7 +2251,7 @@ const Pipeline1 = () => {
                             {
                               showConfigureBtn && (
                                 <button
-                                  className="border-none outline-none cursor-pointer flex flex-row items-center gap-4"
+                                  className="border-none outline-none cursor-pointer flex flex-row items-center gap-3 mt-2"
                                   onClick={() => {
                                     console.log("Configure button clicked for stage:", selectedStage);
 
@@ -2312,7 +2312,7 @@ const Pipeline1 = () => {
                                     width={18}
                                     alt="*"
                                   />
-                                  <div className="text-base font-medium text-black">
+                                  <div className="text-base font-[400] text-black ps-[1px]">
                                     Configure
                                   </div>
                                 </button>
@@ -2322,7 +2322,7 @@ const Pipeline1 = () => {
                             {!showDelBtn && (
                               <div className="w-full flex flex-row mt-4">
                                 <button
-                                  className="text-red text-base font-medium flex flex-row items-center gap-4 outline-none"
+                                  className="text-red text-base font-[400] flex flex-row items-center gap-4 outline-none"
                                   // style={styles.paragraph}
                                   onClick={() => {
                                     // console.log(
@@ -2339,7 +2339,7 @@ const Pipeline1 = () => {
                                     width={18}
                                     alt="*"
                                   />
-                                  Delete
+                                  <div>Delete</div>
                                 </button>
                               </div>
                             )}

@@ -6,6 +6,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { PersistanceKeys } from '@/constants/Constants';
 import { GreetingTagInput } from '../tagInputs/GreetingTagInput';
+import { PromptTagInput } from '../tagInputs/PromptTagInput';
 
 const EditModal = ({
     isOpen,
@@ -175,15 +176,38 @@ const EditModal = ({
                             }}
                         />
                     */}
-                    <GreetingTagInput
-                        greetTag={updatedDescription}
-                        kycsList={kycsData}
-                        uniqueColumns={uniqueColumns}
-                        tagValue={(text) => {
-                            setUpdatedDescription(text);
-                        }}
-                    // scrollOffset={scrollOffset}
-                    />
+                    {/*
+                        <GreetingTagInput
+                            greetTag={updatedDescription}
+                            kycsList={kycsData}
+                            uniqueColumns={uniqueColumns}
+                            tagValue={(text) => {
+                                setUpdatedDescription(text);
+                            }}
+                        // scrollOffset={scrollOffset}
+                        />
+                    */}
+
+                    <div className="mt-4 w-full">
+                        <PromptTagInput
+                            promptTag={updatedDescription}
+                            kycsList={kycsData}
+                            uniqueColumns={uniqueColumns}
+                            tagValue={setUpdatedDescription}
+                            // scrollOffset={scrollOffset}
+                            showSaveChangesBtn={updatedDescription}
+                            from={editName}
+                            isEdit={true}
+                            saveUpdates={async () => {
+                                // await updateAgent();
+                                // setShowObjectionsSaveBtn(false);
+                                // setOldObjective(objective);
+                            }}
+                        />
+
+                        {/* <DynamicDropdown /> */}
+                    </div>
+
                 </div>
 
                 <div className='w-full flex flex-row items-center justify-between mt-4 gap-2'>

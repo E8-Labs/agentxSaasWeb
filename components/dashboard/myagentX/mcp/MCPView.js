@@ -128,7 +128,7 @@ function MCPView({
 
                 setShowAddMcpPopup(false);
                 setIsVisible(true);
-                setMessage(mcpTool.message);
+                setMessage("Tool Added");
                 setType(SnackbarTypes.Success);
                 getMcps(false);
             } else {
@@ -315,7 +315,7 @@ function MCPView({
             if (mcpTool.status === true) {
                 setShowSnack({
                     type: SnackbarTypes.Success,
-                    message: mcpTool.message,
+                    message: "Tool Added",
                     isVisible: true,
                 });
                 getMcps(false);
