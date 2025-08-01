@@ -42,6 +42,7 @@ import { Phone } from "lucide-react";
 import NoVoicemailView from "@/components/dashboard/myagentX/NoVoicemailView";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import DeleteCallLogConfimation from "@/components/dashboard/leads/extras/DeleteCallLogConfimation";
+import { callStatusColors } from "@/constants/Constants";
 
 const AdminLeadDetails = ({
     showDetailsModal,
@@ -656,13 +657,13 @@ const AdminLeadDetails = ({
 
     const handleCopy = async (id) => {
         try {
-          await navigator.clipboard.writeText(id);
-          setShowSuccessSnack("Call ID copied to the clipboard.");
-          setShowSuccessSnack2(true);
+            await navigator.clipboard.writeText(id);
+            setShowSuccessSnack("Call ID copied to the clipboard.");
+            setShowSuccessSnack2(true);
         } catch (err) {
-          console.error("Failed to copy: ", err);
+            console.error("Failed to copy: ", err);
         }
-      };
+    };
 
     const styles = {
         modalsStyle: {
@@ -687,6 +688,17 @@ const AdminLeadDetails = ({
             color: "#15151560",
         },
     };
+
+    const showColor = (item) => {
+        let color =
+          callStatusColors[
+          Object.keys(callStatusColors).find(
+            (key) => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
+          )
+          ] || "#000";
+    
+        return color;
+      };
 
     function getExtraColumsCount(columns) {
         // //console.log
@@ -2057,314 +2069,270 @@ const AdminLeadDetails = ({
                                                                         );
                                                                         return (
                                                                             <div key={index}>
-                                                                                {item.status === "voicemail" ||
-                                                                                    item.callOutcome === "Voicemail" ? (
-                                                                                    <div className="flex border items-center justify-center rounded mt-2">
-                                                                                        <div>
-                                                                                            <div
-                                                                                                className="-ms-4"
-                                                                                                style={{
-                                                                                                    fontsize: 15,
-                                                                                                    fontWeight: "500",
-                                                                                                    color: "#15151560",
-                                                                                                }}
-                                                                                            >
-                                                                                                {GetFormattedDateString(
-                                                                                                    item?.createdAt,
-                                                                                                    true
-                                                                                                )}
-                                                                                            </div>
-                                                                                            {item.agent.hasVoicemail ? (
-                                                                                                <div>
-                                                                                                    {item.voicemailsent ? (
-
-                                                                                                        <NoVoicemailView
-                                                                                                            showAddBtn={false}
-                                                                                                            title={"Voicemail Delivered"}
-                                                                                                            subTitle={
-                                                                                                                "Delivered during the first missed call"
-                                                                                                            }
-                                                                                                        />
-                                                                                                    ) : (
-                                                                                                        <NoVoicemailView
-                                                                                                            showAddBtn={false}
-                                                                                                            title={
-                                                                                                                "Not able to Leave a Voicemail"
-                                                                                                            }
-                                                                                                            subTitle={
-                                                                                                                "The phone was either a landline or has a full voicemail"
-                                                                                                            }
-                                                                                                        />
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            ) : (
-                                                                                                <NoVoicemailView
-                                                                                                    showAddBtn={false}
-                                                                                                />
-                                                                                            )}
-                                                                                        </div>
+                                                                                <div className="mt-4">
+                                                                                    <div
+                                                                                        className="-ms-4"
+                                                                                        style={{
+                                                                                            fontsize: 15,
+                                                                                            fontWeight: "500",
+                                                                                            color: "#15151560",
+                                                                                        }}
+                                                                                    >
+                                                                                        {GetFormattedDateString(
+                                                                                            item?.createdAt,
+                                                                                            true
+                                                                                        )}
                                                                                     </div>
-                                                                                ) : (
-                                                                                    <div className="mt-4">
+                                                                                    <div className="w-full flex flex-row items-center gap-2 h-full">
                                                                                         <div
-                                                                                            className="-ms-4"
+                                                                                            className="pb-4 pt-6 ps-4 w-full"
                                                                                             style={{
-                                                                                                fontsize: 15,
-                                                                                                fontWeight: "500",
-                                                                                                color: "#15151560",
+                                                                                                borderLeft: "1px solid #00000020",
                                                                                             }}
                                                                                         >
-                                                                                            {GetFormattedDateString(
-                                                                                                item?.createdAt,
-                                                                                                true
-                                                                                            )}
-                                                                                        </div>
-                                                                                        <div className="w-full flex flex-row items-center gap-2 h-full">
-                                                                                            <div
-                                                                                                className="pb-4 pt-6 ps-4 w-full"
-                                                                                                style={{
-                                                                                                    borderLeft:
-                                                                                                        "1px solid #00000020",
-                                                                                                }}
-                                                                                            >
-                                                                                                <div className="h-full w-full">
-                                                                                                    <div className="flex flex-row items-center justify-between">
-                                                                                                        <div className="flex flex-row items-center gap-1">
-                                                                                                            <div
-                                                                                                                style={{
-                                                                                                                    fontWeight: "600",
-                                                                                                                    fontsize: 15,
-                                                                                                                }}
-                                                                                                            >
-                                                                                                                Outcome
-                                                                                                            </div>
-                                                                                                            {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                                                                                                   {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                                                                                               </div> */}
-                                                                                                        </div>
-                                                                                                        <button
-                                                                                                            className="text-end flex flex-row items-center gap-1"
-                                                                                                            style={styles.paragraph}
-                                                                                                            onClick={() => {
-                                                                                                                handleShowMoreActivityData(
-                                                                                                                    item
-                                                                                                                );
+                                                                                            <div className="h-full w-full">
+                                                                                                <div className="flex flex-row items-center justify-between">
+                                                                                                    <div className="flex flex-row items-center gap-1">
+                                                                                                        <div
+                                                                                                            style={{
+                                                                                                                fontWeight: "600",
+                                                                                                                fontsize: 15,
                                                                                                             }}
                                                                                                         >
-                                                                                                            <div
-                                                                                                                className="h-[10px] w-[10px] rounded-full"
-                                                                                                                style={{
-                                                                                                                    backgroundColor:
-                                                                                                                        selectedLeadsDetails
-                                                                                                                            ?.stage
-                                                                                                                            ?.defaultColor,
-                                                                                                                }}
-                                                                                                            ></div>
-                                                                                                            {item?.callOutcome
-                                                                                                                ? item?.callOutcome
-                                                                                                                : "Ongoing"}
-                                                                                                            {/* {checkCallStatus(item)} */}
-                                                                                                            <div>
-                                                                                                                {isExpandedActivity.includes(
-                                                                                                                    item.id
-                                                                                                                ) ? (
-                                                                                                                    <div>
-                                                                                                                        <CaretUp
-                                                                                                                            size={17}
-                                                                                                                            weight="bold"
-                                                                                                                        />
-                                                                                                                    </div>
-                                                                                                                ) : (
-                                                                                                                    <div>
-                                                                                                                        <CaretDown
-                                                                                                                            size={17}
-                                                                                                                            weight="bold"
-                                                                                                                        />
-                                                                                                                    </div>
-                                                                                                                )}
-                                                                                                            </div>
-                                                                                                        </button>
+                                                                                                            Outcome
+                                                                                                        </div>
+                                                                                                        {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
+                                                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                                                                    </div> */}
                                                                                                     </div>
-                                                                                                    {isExpandedActivity.includes(
-                                                                                                        item.id
-                                                                                                    ) &&
-                                                                                                        (item.status === "voicemail" ||
-                                                                                                            item.callOutcome ===
-                                                                                                            "Voicemail" ? (
-                                                                                                            <div className="border rounded mt-2 w-full p-4">
-                                                                                                                <button
-                                                                                                                    onClick={() =>
-                                                                                                                        handleCopy(item.callId)
-                                                                                                                    }
-                                                                                                                >
-                                                                                                                    <Image
-                                                                                                                        src={
-                                                                                                                            "/svgIcons/copy.svg"
-                                                                                                                        }
-                                                                                                                        height={15}
-                                                                                                                        width={15}
-                                                                                                                        alt="*"
-                                                                                                                    />
-                                                                                                                </button>
-                                                                                                                {item.agent.hasVoicemail ? (
+                                                                                                    <button
+                                                                                                        className="
+                                                  text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
+                                                  "
+                                                                                                        style={{
+                                                                                                            backgroundColor: "#ececec",
+                                                                                                        }}
+                                                                                                        onClick={() => {
+                                                                                                            handleShowMoreActivityData(
+                                                                                                                item
+                                                                                                            );
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        <div
+                                                                                                            className="h-[10px] w-[10px] rounded-full"
+                                                                                                            style={{
+                                                                                                                backgroundColor:
+                                                                                                                    showColor(item),
+                                                                                                            }}
+                                                                                                        ></div>
+                                                                                                        {item?.callOutcome
+                                                                                                            ? item?.callOutcome
+                                                                                                            : "Ongoing"}
+                                                                                                        {/* {checkCallStatus(item)} */}
 
-                                                                                                                    <NoVoicemailView
-                                                                                                                        showAddBtn={false}
-                                                                                                                        title={
-                                                                                                                            "Voicemail Delivered"
-                                                                                                                        }
-                                                                                                                        subTitle={
-                                                                                                                            "Delivered during the first missed call"
-                                                                                                                        }
-                                                                                                                    />
-                                                                                                                ) : (
-                                                                                                                    <NoVoicemailView
-                                                                                                                        showAddBtn={false}
-                                                                                                                        title={
-                                                                                                                            "Not able to Leave a Voicemail"
-                                                                                                                        }
-                                                                                                                        subTitle={
-                                                                                                                            "The phone was either a landline or has a full voicemail"
-                                                                                                                        }
-                                                                                                                    />
-                                                                                                                )}
-
-                                                                                                            </div>
-                                                                                                        ) : (
-                                                                                                            <>
-                                                                                                                <div
-                                                                                                                    className="mt-6"
-                                                                                                                    style={{
-                                                                                                                        border:
-                                                                                                                            "1px solid #00000020",
-                                                                                                                        borderRadius: "10px",
-                                                                                                                        padding: 10,
-                                                                                                                        paddingInline: 15,
-                                                                                                                    }}
-                                                                                                                >
-                                                                                                                    <div className="flex mt-4 flex-row items-center gap-4">
-                                                                                                                        <div
-                                                                                                                            className=""
-                                                                                                                            style={{
-                                                                                                                                fontWeight: "500",
-                                                                                                                                fontSize: 12,
-                                                                                                                                color: "#00000070",
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            Transcript
-                                                                                                                        </div>
-
-                                                                                                                        <button
-                                                                                                                            onClick={() =>
-                                                                                                                                handleCopy(
-                                                                                                                                    item.callId
-                                                                                                                                )
-                                                                                                                            }
-                                                                                                                        >
-                                                                                                                            <Image
-                                                                                                                                src={
-                                                                                                                                    "/svgIcons/copy.svg"
-                                                                                                                                }
-                                                                                                                                height={15}
-                                                                                                                                width={15}
-                                                                                                                                alt="*"
+                                                                                                        {item.callOutcome !==
+                                                                                                            "No Answer" && (
+                                                                                                                <div>
+                                                                                                                    {isExpandedActivity.includes(
+                                                                                                                        item.id
+                                                                                                                    ) ? (
+                                                                                                                        <div>
+                                                                                                                            <CaretUp
+                                                                                                                                size={17}
+                                                                                                                                weight="bold"
                                                                                                                             />
-                                                                                                                        </button>
-                                                                                                                    </div>
-                                                                                                                    <div className="flex flex-row items-center justify-between mt-4">
-                                                                                                                        <div
-                                                                                                                            style={{
-                                                                                                                                fontWeight: "500",
-                                                                                                                                fontSize: 15,
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            {moment(
-                                                                                                                                item?.duration *
-                                                                                                                                1000
-                                                                                                                            ).format(
-                                                                                                                                "mm:ss"
-                                                                                                                            )}{" "}
-                                                                                                                        </div>
-                                                                                                                        <button
-                                                                                                                            onClick={() => {
-                                                                                                                                if (
-                                                                                                                                    item?.recordingUrl
-                                                                                                                                ) {
-                                                                                                                                    setShowAudioPlay(
-                                                                                                                                        item?.recordingUrl
-                                                                                                                                    );
-                                                                                                                                } else {
-                                                                                                                                    setShowNoAudioPlay(
-                                                                                                                                        true
-                                                                                                                                    );
-                                                                                                                                }
-                                                                                                                                // window.open(item.recordingUrl, "_blank")
-                                                                                                                            }}
-                                                                                                                        >
-                                                                                                                            <Image
-                                                                                                                                src={
-                                                                                                                                    "/assets/play.png"
-                                                                                                                                }
-                                                                                                                                height={35}
-                                                                                                                                width={35}
-                                                                                                                                alt="*"
-                                                                                                                            />
-                                                                                                                        </button>
-                                                                                                                    </div>
-                                                                                                                    {item.transcript ? (
-                                                                                                                        <div className="w-full">
-                                                                                                                            <div
-                                                                                                                                className="mt-4"
-                                                                                                                                style={{
-                                                                                                                                    fontWeight: "600",
-                                                                                                                                    fontSize: 15,
-                                                                                                                                }}
-                                                                                                                            >
-                                                                                                                                {/* {item.transcript} */}
-                                                                                                                                {`${initialText}...`}
-                                                                                                                                {/* {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`} */}
-                                                                                                                            </div>
-                                                                                                                            <div className="w-full flex flex-row items-center justify-between">
-                                                                                                                                <button
-                                                                                                                                    style={{
-                                                                                                                                        fontWeight:
-                                                                                                                                            "600",
-                                                                                                                                        fontSize: 15,
-                                                                                                                                    }}
-                                                                                                                                    onClick={() => {
-                                                                                                                                        handleReadMoreToggle(
-                                                                                                                                            item
-                                                                                                                                        );
-                                                                                                                                    }}
-                                                                                                                                    className="mt-2 text-black underline"
-                                                                                                                                >
-                                                                                                                                    {"Read more"}
-                                                                                                                                </button>
-                                                                                                                            </div>
                                                                                                                         </div>
                                                                                                                     ) : (
+                                                                                                                        <div>
+                                                                                                                            <CaretDown
+                                                                                                                                size={17}
+                                                                                                                                weight="bold"
+                                                                                                                            />
+                                                                                                                        </div>
+                                                                                                                    )}
+                                                                                                                </div>
+                                                                                                            )}
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                {isExpandedActivity.includes(
+                                                                                                    item.id
+                                                                                                ) &&
+                                                                                                    (item.status === "voicemail" ||
+                                                                                                        item.callOutcome ===
+                                                                                                        "Voicemail" ? (
+                                                                                                        <div className="border rounded mt-2 w-full p-4">
+                                                                                                            <button
+                                                                                                                onClick={() =>
+                                                                                                                    handleCopy(item.callId)
+                                                                                                                }
+                                                                                                            >
+                                                                                                                <Image
+                                                                                                                    src={
+                                                                                                                        "/svgIcons/copy.svg"
+                                                                                                                    }
+                                                                                                                    height={15}
+                                                                                                                    width={15}
+                                                                                                                    alt="*"
+                                                                                                                />
+                                                                                                            </button>
+                                                                                                            {item.agent.hasVoicemail ? (
+
+                                                                                                                <NoVoicemailView
+                                                                                                                    showAddBtn={false}
+                                                                                                                    title={
+                                                                                                                        "Voicemail Delivered"
+                                                                                                                    }
+                                                                                                                    subTitle={
+                                                                                                                        "Delivered during the first missed call"
+                                                                                                                    }
+                                                                                                                />
+                                                                                                            ) : (
+                                                                                                                <NoVoicemailView
+                                                                                                                    showAddBtn={false}
+                                                                                                                    title={
+                                                                                                                        "Not able to Leave a Voicemail"
+                                                                                                                    }
+                                                                                                                    subTitle={
+                                                                                                                        "The phone was either a landline or has a full voicemail"
+                                                                                                                    }
+                                                                                                                />
+                                                                                                            )}
+
+                                                                                                        </div>
+                                                                                                    ) : (
+                                                                                                        <>
+                                                                                                            <div
+                                                                                                                className="mt-6"
+                                                                                                                style={{
+                                                                                                                    border:
+                                                                                                                        "1px solid #00000020",
+                                                                                                                    borderRadius: "10px",
+                                                                                                                    padding: 10,
+                                                                                                                    paddingInline: 15,
+                                                                                                                }}
+                                                                                                            >
+                                                                                                                <div className="flex mt-4 flex-row items-center gap-4">
+                                                                                                                    <div
+                                                                                                                        className=""
+                                                                                                                        style={{
+                                                                                                                            fontWeight: "500",
+                                                                                                                            fontSize: 12,
+                                                                                                                            color: "#00000070",
+                                                                                                                        }}
+                                                                                                                    >
+                                                                                                                        Transcript
+                                                                                                                    </div>
+
+                                                                                                                    <button
+                                                                                                                        onClick={() =>
+                                                                                                                            handleCopy(
+                                                                                                                                item.callId
+                                                                                                                            )
+                                                                                                                        }
+                                                                                                                    >
+                                                                                                                        <Image
+                                                                                                                            src={
+                                                                                                                                "/svgIcons/copy.svg"
+                                                                                                                            }
+                                                                                                                            height={15}
+                                                                                                                            width={15}
+                                                                                                                            alt="*"
+                                                                                                                        />
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                                <div className="flex flex-row items-center justify-between mt-4">
+                                                                                                                    <div
+                                                                                                                        style={{
+                                                                                                                            fontWeight: "500",
+                                                                                                                            fontSize: 15,
+                                                                                                                        }}
+                                                                                                                    >
+                                                                                                                        {moment(
+                                                                                                                            item?.duration *
+                                                                                                                            1000
+                                                                                                                        ).format(
+                                                                                                                            "mm:ss"
+                                                                                                                        )}{" "}
+                                                                                                                    </div>
+                                                                                                                    <button
+                                                                                                                        onClick={() => {
+                                                                                                                            if (
+                                                                                                                                item?.recordingUrl
+                                                                                                                            ) {
+                                                                                                                                setShowAudioPlay(
+                                                                                                                                    item?.recordingUrl
+                                                                                                                                );
+                                                                                                                            } else {
+                                                                                                                                setShowNoAudioPlay(
+                                                                                                                                    true
+                                                                                                                                );
+                                                                                                                            }
+                                                                                                                            // window.open(item.recordingUrl, "_blank")
+                                                                                                                        }}
+                                                                                                                    >
+                                                                                                                        <Image
+                                                                                                                            src={
+                                                                                                                                "/assets/play.png"
+                                                                                                                            }
+                                                                                                                            height={35}
+                                                                                                                            width={35}
+                                                                                                                            alt="*"
+                                                                                                                        />
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                                {item.transcript ? (
+                                                                                                                    <div className="w-full">
                                                                                                                         <div
+                                                                                                                            className="mt-4"
                                                                                                                             style={{
                                                                                                                                 fontWeight: "600",
                                                                                                                                 fontSize: 15,
                                                                                                                             }}
                                                                                                                         >
-                                                                                                                            No transcript
+                                                                                                                            {/* {item.transcript} */}
+                                                                                                                            {`${initialText}...`}
+                                                                                                                            {/* {isExpanded.includes(
+                                                        item.id
+                                                      )
+                                                        ? `${item.transcript}`
+                                                        : `${initialText}...`} */}
                                                                                                                         </div>
-                                                                                                                    )}
-                                                                                                                   
-                                                                                                                </div>
-                                                                                                            </>
-                                                                                                        ))}
-                                                                                                </div>
+                                                                                                                        <div className="w-full flex flex-row items-center justify-between">
+                                                                                                                            <button
+                                                                                                                                style={{
+                                                                                                                                    fontWeight:
+                                                                                                                                        "600",
+                                                                                                                                    fontSize: 15,
+                                                                                                                                }}
+                                                                                                                                onClick={() => {
+                                                                                                                                    handleReadMoreToggle(
+                                                                                                                                        item
+                                                                                                                                    );
+                                                                                                                                }}
+                                                                                                                                className="mt-2 text-black underline"
+                                                                                                                            >
+                                                                                                                                {"Read more"}
+                                                                                                                            </button>
+                                                                                                                        </div>
+                                                                                                                    </div>
+                                                                                                                ) : (
+                                                                                                                    <div
+                                                                                                                        style={{
+                                                                                                                            fontWeight: "600",
+                                                                                                                            fontSize: 15,
+                                                                                                                        }}
+                                                                                                                    >
+                                                                                                                        No transcript
+                                                                                                                    </div>
+                                                                                                                )}
+                                                                                                                
+                                                                                                            </div>
+                                                                                                        </>
+                                                                                                    ))}
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
-                                                                                )}
+                                                                                </div>
                                                                             </div>
                                                                         );
                                                                     }

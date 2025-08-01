@@ -50,7 +50,7 @@ function AdminTeam({ selectedUser }) {
   const [validEmail, setValidEmail] = useState("");
 
   const [showSnak, setShowSnak] = useState(false);
-  const [snackTitle, setSnackTitle] = useState("Team invite sent successfully");
+  const [snackTitle, setSnackTitle] = useState("Team Invite Sent")
 
   //variables for phone number err messages and checking
   const [errorMessage, setErrorMessage] = useState(null);
@@ -186,7 +186,7 @@ function AdminTeam({ selectedUser }) {
           name: item.name,
           email: item.email,
           phone: item.phone,
-          userId:selectedUser.id
+          userId: selectedUser.id
         };
 
         // //console.log;
@@ -218,7 +218,7 @@ function AdminTeam({ selectedUser }) {
               // Add the new object, not as an array
               return [...prev, newMember]
             });
-            setSnackTitle("Team invite sent successfully");
+            setSnackTitle(response.data.message);
             setShowSnak(true);
             setOpenInvitePopup(false);
             setName("");
@@ -552,7 +552,7 @@ function AdminTeam({ selectedUser }) {
                   // //console.log;
                   return (
                     <div key={item.id} className="relative w-6/12 p-6">
-                      <div className="p-4 flex flex-row gap-4 items-start border rounded-lg">
+                      <div className="p-4 flex flex-row items-start border rounded-lg">
                         {item.invitedUser?.thumb_profile_image ? (
                           <div
                             style={{
