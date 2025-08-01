@@ -20,3 +20,28 @@ export const BatchStatus = {
   PausedForUpdateCadence: "PausedForUpdateCadence",
   Completed: "Completed", // the rest of the cadence for that
 };
+
+
+export const stagesDropdown = [
+  {
+    id: 1,
+    title: "Rename",
+    img: "/assets/editPen.png",
+  },
+  {
+    id: 2,
+    title: "Color",
+    img: "",
+  },
+  {
+    id: 1,
+    title: "Configure",
+    img: "",
+  },
+  {
+    id: 3,
+    title: "Delete",
+    img: ""
+  }
+]
+

@@ -2172,14 +2172,10 @@ const Pipeline1 = () => {
                             },
                           }}
                         >
-                          <div
-                            className="w-36 px-4 py-3 bg-white rounded-[10px] inline-flex flex-col justify-start items-start gap-2"
-                          // style={{ border: "4px solid black" }}
-                          >
-                            <div className="w-full flex flex-row">
+                          <div className="w-64 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
+                            <div className="self-stretch flex flex-col justify-start items-start gap-2">
                               <button
-                                className=" text-black text-base font-[400] flex flex-row items-center gap-4 outline-none"
-                                // style={styles.paragraph}
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                 onClick={() => {
                                   setShowRenamePopup(true);
                                   // //console.log;
@@ -2187,45 +2183,31 @@ const Pipeline1 = () => {
                                   setUpdateStageColor(
                                     selectedStage.defaultColor
                                   );
-                                }} //handleRenameStage
+                                }}
                               >
                                 <Image
                                   src={"/assets/editPen.png"}
-                                  height={15}
-                                  width={15}
+                                  height={18}
+                                  width={18}
                                   alt="*"
                                 />
-                                <div className="font-[400]">Rename</div>
+                                <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">Rename</div>
                               </button>
-                            </div>
-                            <div className="w-full flex flex-row mt-4">
-                              {/* {
-                                                        delStageLoader ?
-                                                            <CircularProgress size={20} /> :
-                                                           
-                                                    } */}
-                              <div
-                                className="text-black flex flex-row items-center gap-4 outline-none"
-                                style={styles.paragraph}
-                              // onClick={handleDeleteStage}
+                              <button
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                onClick={() => colorPickerRef.current.click()}
                               >
                                 <div
                                   style={{
-                                    height: "15px",
-                                    width: "15px",
+                                    height: 18,
+                                    width: 18,
                                     borderRadius: "50%",
                                     backgroundColor: stageColorUpdate,
                                     cursor: "pointer", // Pointer to indicate clickable
                                   }}
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
-                                <button
-                                  className="flex flex-row gap-2 outline-none"
-                                  onClick={() => colorPickerRef.current.click()}
-                                  style={styles.paragraph}
-                                >
-                                  Color
-                                </button>
+                                <div class="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">Color</div>
                                 <div
                                   style={{
                                     opacity: 0,
@@ -2243,87 +2225,77 @@ const Pipeline1 = () => {
                                     stageColor={stageColorUpdate}
                                   />
                                 </div>
-                              </div>
-                            </div>
-                            <div ref={bottomRef}></div>
+                              </button>
+                              {
+                                showConfigureBtn && (
+                                  <button
+                                    className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                    onClick={() => {
+                                      console.log("Configure button clicked for stage:", selectedStage);
 
-                            {/* Code for configure */}
-                            {
-                              showConfigureBtn && (
-                                <button
-                                  className="border-none outline-none cursor-pointer flex flex-row items-center gap-3 mt-2"
-                                  onClick={() => {
-                                    console.log("Configure button clicked for stage:", selectedStage);
-
-                                    // Parse advancedConfig JSON string to get action and examples
-                                    let parsedConfig = {};
-                                    if (selectedStage.advancedConfig) {
-                                      try {
-                                        parsedConfig = JSON.parse(selectedStage.advancedConfig);
-                                        console.log("Parsed advanced config:", parsedConfig);
-                                      } catch (error) {
-                                        console.error("Error parsing advancedConfig:", error);
+                                      // Parse advancedConfig JSON string to get action and examples
+                                      let parsedConfig = {};
+                                      if (selectedStage.advancedConfig) {
+                                        try {
+                                          parsedConfig = JSON.parse(selectedStage.advancedConfig);
+                                          console.log("Parsed advanced config:", parsedConfig);
+                                        } catch (error) {
+                                          console.error("Error parsing advancedConfig:", error);
+                                        }
                                       }
-                                    }
 
-                                    // Pre-populate the modal with selected stage data
-                                    setNewStageTitle(selectedStage.stageTitle);
-                                    setStageColor(selectedStage.defaultColor || "#000000");
-                                    setAction(parsedConfig.action || "");
+                                      // Pre-populate the modal with selected stage data
+                                      setNewStageTitle(selectedStage.stageTitle);
+                                      setStageColor(selectedStage.defaultColor || "#000000");
+                                      setAction(parsedConfig.action || "");
 
-                                    // Pre-populate sample answers if they exist
-                                    const stageExamples = parsedConfig.examples || [];
-                                    console.log("Found examples:", stageExamples);
+                                      // Pre-populate sample answers if they exist
+                                      const stageExamples = parsedConfig.examples || [];
+                                      console.log("Found examples:", stageExamples);
 
-                                    if (stageExamples && stageExamples.length > 0) {
-                                      const updatedInputs = inputs.map((input, index) => {
-                                        const exampleValue = stageExamples[index];
-                                        // Handle both object format {id, value} and string format
-                                        const value = typeof exampleValue === 'object' && exampleValue?.value
-                                          ? String(exampleValue.value)
-                                          : String(exampleValue || "");
+                                      if (stageExamples && stageExamples.length > 0) {
+                                        const updatedInputs = inputs.map((input, index) => {
+                                          const exampleValue = stageExamples[index];
+                                          // Handle both object format {id, value} and string format
+                                          const value = typeof exampleValue === 'object' && exampleValue?.value
+                                            ? String(exampleValue.value)
+                                            : String(exampleValue || "");
 
-                                        return {
+                                          return {
+                                            ...input,
+                                            value: value
+                                          };
+                                        });
+                                        setInputs(updatedInputs);
+                                      } else {
+                                        // Clear inputs if no examples
+                                        const clearedInputs = inputs.map((input) => ({
                                           ...input,
-                                          value: value
-                                        };
-                                      });
-                                      setInputs(updatedInputs);
-                                    } else {
-                                      // Clear inputs if no examples
-                                      const clearedInputs = inputs.map((input) => ({
-                                        ...input,
-                                        value: ""
-                                      }));
-                                      setInputs(clearedInputs);
-                                    }
+                                          value: ""
+                                        }));
+                                        setInputs(clearedInputs);
+                                      }
 
-                                    // Automatically show advanced settings when configuring
-                                    setShowAdvanceSettings(true);
-                                    setIsEditingStage(true);
-                                    setAddNewStageModal(true);
-                                    // Close the stage popover
-                                    handleCloseStagePopover();
-                                  }}
-                                >
-                                  <Image
-                                    src={"/otherAssets/colorDrop.jpg"}
-                                    height={18}
-                                    width={18}
-                                    alt="*"
-                                  />
-                                  <div className="text-base font-[400] text-black ps-[1px]">
-                                    Configure
-                                  </div>
-                                </button>
-                              )
-                            }
-
-                            {!showDelBtn && (//
-                              <div className="w-full flex flex-row mt-4">
+                                      // Automatically show advanced settings when configuring
+                                      setShowAdvanceSettings(true);
+                                      setIsEditingStage(true);
+                                      setAddNewStageModal(true);
+                                      // Close the stage popover
+                                      handleCloseStagePopover();
+                                    }}
+                                  >
+                                    <Image
+                                      src={"/otherAssets/colorDrop.jpg"}
+                                      height={18}
+                                      width={18}
+                                      alt="*"
+                                    />
+                                    <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">Configure</div>
+                                  </button>
+                                )}
+                              {!showDelBtn && (
                                 <button
-                                  className="text-red text-base font-[400] flex flex-row items-center gap-3 outline-none"
-                                  // style={styles.paragraph}
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                   onClick={() => {
                                     // console.log(
                                     //   "Selected stage is:",
@@ -2339,10 +2311,10 @@ const Pipeline1 = () => {
                                     width={18}
                                     alt="*"
                                   />
-                                  <div className="font-[400 ps-[1px]">Delete</div>
+                                  <div className="w-36 justify-start text-start text-red text-base font-normal font-['Inter'] leading-normal">Delete</div>
                                 </button>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </Popover>
 
