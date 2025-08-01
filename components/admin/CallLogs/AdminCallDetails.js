@@ -52,7 +52,10 @@ const AdminCallDetails = ({
 
 
 
-
+  const [showSuccessSnack, setShowSuccessSnack] = useState(null);
+  const [showSuccessSnack2, setShowSuccessSnack2] = useState(false);
+  const [showErrorSnack, setShowErrorSnack] = useState(null);
+  const [showErrorSnack2, setShowErrorSnack2] = useState(false);
 
   //console.log
 
@@ -120,6 +123,16 @@ const AdminCallDetails = ({
     }
   };
 
+  const handleCopy = async (id) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      setShowSuccessSnack("Call ID copied to the clipboard.");
+      setShowSuccessSnack2(true);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
+
   const handleShowMoreActivityData = (item) => {
     // setIsExpanded(!isExpanded);
 
@@ -173,6 +186,19 @@ const AdminCallDetails = ({
           }}
         >
           <div className="w-full flex flex-col items-center h-full">
+            <AgentSelectSnackMessage
+            isVisible={showSuccessSnack2}
+            hide={() => setShowSuccessSnack2(false)}
+            message={showSuccessSnack}
+            type={SnackbarTypes.Success}
+                            />
+            <AgentSelectSnackMessage
+              isVisible={showErrorSnack2}
+              hide={() => setShowErrorSnack2(false)}
+              message={showErrorSnack2}
+              type={SnackbarTypes.Error}
+            />
+
 
             <div className="w-full">
 
@@ -421,15 +447,32 @@ const AdminCallDetails = ({
                                               paddingInline: 15,
                                             }}
                                           >
-                                            <div
-                                              className="mt-4"
-                                              style={{
-                                                fontWeight: "500",
-                                                fontSize: 12,
-                                                color: "#00000070",
-                                              }}
-                                            >
-                                              Transcript
+                                            <div className="flex flex-row items-center gap-2 mt-4">
+                                              <div
+                                                className=""
+                                                style={{
+                                                  fontWeight: "500",
+                                                  fontSize: 12,
+                                                  color: "#00000070",
+                                                }}
+                                              >
+                                                Transcript
+                                              </div>
+
+                                              <button
+                                                onClick={() =>
+                                                  handleCopy(item.callId)
+                                                }
+                                              >
+                                                <Image
+                                                  src={
+                                                    "/svgIcons/copy.svg"
+                                                  }
+                                                  height={15}
+                                                  width={15}
+                                                  alt="*"
+                                                />
+                                              </button>
                                             </div>
                                             <div className="flex flex-row items-center justify-between mt-4">
                                               <div
