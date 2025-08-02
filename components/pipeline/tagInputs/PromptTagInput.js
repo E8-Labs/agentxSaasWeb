@@ -12,6 +12,7 @@ export const PromptTagInput = ({
   uniqueColumns,
   showSaveChangesBtn,
   saveUpdates,
+  setError = null,
   from,
 }) => {
   //// //console.log
@@ -396,6 +397,7 @@ export const PromptTagInput = ({
   const handleChange = (e) => {
     setText(e.target.value);
     tagValue(e.target.value);
+    setError(null)
   };
 
   const styles = {

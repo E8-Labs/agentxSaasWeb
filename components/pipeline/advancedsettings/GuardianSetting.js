@@ -49,6 +49,8 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
   const [showErrorSnack, setShowErrorSnack] = useState(null);
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const guadrailsList = localStorage.getItem(PersistanceKeys.GuadrailsList);
     if (guadrailsList) {
@@ -126,6 +128,10 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
 
   //code for add objection guardrial api
   const addGuadrial = async () => {
+    if(!addObjTitle || !addObjDescription ){
+      setError("Enter all credentials");
+      return;
+    }
     try {
       setAddObjectionLoader(true);
 
@@ -589,6 +595,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
               value={addObjTitle}
               onChange={(event) => {
                 setAddObjTitle(event.target.value);
+                setError(null)
               }}
             />
             <div style={{ ...styles.title, marginTop: 10 }}>Description</div>
@@ -627,6 +634,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
                 showSaveChangesBtn={addObjDescription}
                 from={"guardrails"}
                 isEdit={false}
+                setError = {setError}
                 saveUpdates={async () => {
                   // await updateAgent();
                   // setShowObjectionsSaveBtn(false);
@@ -636,6 +644,11 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
 
               {/* <DynamicDropdown /> */}
             </div>
+            {error && (
+              <div className="text-red text-start mt-2" style={{ fontsize: 15, fontWeight: "500", padding: 2 }}>
+                {error}
+              </div>
+            )}
 
             <div className="w-full">
               {addObjectionLoader ? (
