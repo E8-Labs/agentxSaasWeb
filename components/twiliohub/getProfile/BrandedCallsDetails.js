@@ -87,7 +87,7 @@ const BrandedCallsDetails = () => {
                 </div>
             </div>
             {/*twilioHubData?.status ? (
-                <ShowRequestStatus status={twilioHubData.status} />
+                <ShowRequestStatus status={twilioHubData?.status} />
             ) : (
             )
         */}

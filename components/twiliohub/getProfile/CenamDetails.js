@@ -86,7 +86,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                     <div className='flex flex-row items-center gap-2'>
                         {twilioHubData?.status && (
                             <ShowResubmitBtn
-                                status={twilioHubData.status}
+                                status={twilioHubData?.status}
                                 handleOpenModal={() => { setShowAddCNAM(true) }}
                             />
                         )}
@@ -109,7 +109,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
             </div>
             {twilioHubData?.status ? (
                 <ShowRequestStatus
-                    status={twilioHubData.status}
+                    status={twilioHubData?.status}
                     twilioData={twilioHubData}
                 />
             ) : (
@@ -131,7 +131,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                                     CNAM display name
                                 </div>
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData.friendlyName}
+                                    {twilioHubData?.friendlyName || "N/A"}
                                 </div>
                             </div>
                         </div>

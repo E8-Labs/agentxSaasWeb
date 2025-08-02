@@ -127,7 +127,7 @@ const CustomerProfile = ({
                         <div className='flex flex-row items-center gap-2'>
                             {twilioHubData?.status && (
                                 <ShowResubmitBtn
-                                    status={twilioHubData.status}
+                                    status={twilioHubData?.status}
                                     handleOpenModal={() => { setShowAddTwilio(true) }}
                                 />
                             )}
@@ -151,7 +151,7 @@ const CustomerProfile = ({
                 {
                     twilioHubData?.status ? (
                         <ShowRequestStatus
-                            status={twilioHubData.status}
+                            status={twilioHubData?.status}
                             twilioData={twilioHubData}
                         />
                     ) : (
@@ -194,7 +194,7 @@ const CustomerProfile = ({
                                 <div className='flex flex-row items-center mt-2 mb-4'>
                                     <div className='w-1/2' style={styles.mediumfontLightClr}>
                                         Profile Friendly Name | {twilioHubData?.profileType && (
-                                            twilioHubData.profileType.charAt(0).toUpperCase() + twilioHubData.profileType.slice(1).toLowerCase()
+                                            twilioHubData?.profileType.charAt(0).toUpperCase() + twilioHubData?.profileType.slice(1).toLowerCase()
                                         )}
                                     </div>
                                     <div className='w-1/2' style={styles.mediumfontDarkClr}>

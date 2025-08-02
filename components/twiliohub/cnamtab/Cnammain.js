@@ -222,7 +222,7 @@ const Cnammain = ({
                         <div className='mt-4' style={{
                             fontSize:10,fontWeight:500
                         }}>
-                            {`Your CNAM should contain what you have in your Profile Friendly Name: ${ `${friendlyName.friendlyName}` || "Profile_name"}`}
+                            {`Your CNAM should contain what you have in your Profile Friendly Name: ${ `${friendlyName?.friendlyName}` || "Profile_name"}`}
                         </div>
                         {/* Select CNAM from list */}
                         {

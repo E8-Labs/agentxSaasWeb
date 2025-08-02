@@ -33,7 +33,7 @@ const OldCnamVoiceStir = ({
             }
             // Find the selected option to display the friendly name
             const selectedOption = options.find(option => option.id === selected)
-            return selectedOption ? selectedOption.friendlyName : selected
+            return selectedOption ? selectedOption?.friendlyName : selected
           }}
           sx={{
             border: "1px solid #e5e7eb",
@@ -82,9 +82,9 @@ const OldCnamVoiceStir = ({
               }}
             >
               <div className="flex flex-col">
-                <div>{option.friendlyName}</div>
+                <div>{option?.friendlyName}</div>
                 <div style={{ fontSize: '12px', color: '#666' }}>
-                  Status: {option.status}
+                  Status: {option?.status}
                 </div>
               </div>
             </MenuItem>

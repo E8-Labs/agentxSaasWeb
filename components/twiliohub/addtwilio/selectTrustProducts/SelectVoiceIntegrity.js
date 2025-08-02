@@ -88,7 +88,7 @@ const SelectVoiceIntegrity = ({
                                         )}
                                     </button>
                                     <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                        {item.friendlyName}
+                                        {item?.friendlyName || "N/A"}
                                     </div>
                                 </div>
                             )

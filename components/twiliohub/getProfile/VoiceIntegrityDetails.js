@@ -91,7 +91,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                     <div className='flex flex-row items-center gap-2'>
                         {twilioHubData?.status && (
                             <ShowResubmitBtn
-                                status={twilioHubData.status}
+                                status={twilioHubData?.status}
                                 handleOpenModal={() => { setShowAddVoice(true) }}
                             />
                         )}
@@ -114,7 +114,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
             </div>
             {twilioHubData?.status ? (
                 <ShowRequestStatus
-                    status={twilioHubData.status}
+                    status={twilioHubData?.status}
                     twilioData={twilioHubData}
                 />
             ) : (
@@ -137,7 +137,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                                     Voice integrity friendly name
                                 </div>
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData?.friendlyName}
+                                    {twilioHubData?.friendlyName || "N/A"}
                                 </div>
                             </div>
                             <div className='flex flex-row items-center mt-2'>

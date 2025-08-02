@@ -98,7 +98,7 @@ const Ap2MessagingDetails = ({
                 </div>
             </div>
             {twilioHubData?.status ? (
-                <ShowRequestStatus status={twilioHubData.status} />
+                <ShowRequestStatus status={twilioHubData?.status} />
             ) : (
                 <LockDetailsView
                     profileStatus={profileStatus}

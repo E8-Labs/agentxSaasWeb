@@ -100,7 +100,7 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                     <div className='flex flex-row items-center gap-2'>
                         {twilioHubData?.status && (
                             <ShowResubmitBtn
-                                status={twilioHubData.status}
+                                status={twilioHubData?.status}
                                 handleOpenModal={() => { setShowShakenStirModal(true) }}
                             />
                         )}
@@ -123,7 +123,7 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
             </div>
             {twilioHubData?.status ? (
                 <ShowRequestStatus
-                    status={twilioHubData.status}
+                    status={twilioHubData?.status}
                     twilioData={twilioHubData}
                 />
             ) : (
@@ -145,7 +145,7 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                                     Trust product name
                                 </div>
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData.friendlyName}
+                                    {twilioHubData?.friendlyName || "N/A"}
                                 </div>
                             </div>
                             {/*<div className='flex flex-row items-center mt-2'>
