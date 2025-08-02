@@ -16,12 +16,27 @@ const TwilioTrustHub = () => {
 
     useEffect(() => {
         getBusinessProfile();
+        
+        // Start polling every 6 seconds (silent polling)
+        const interval = setInterval(() => {
+            getBusinessProfile(true);
+        }, 3000);
+        
+        setPollingInterval(interval);
+        
+        // Cleanup on unmount
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
     }, []);
 
     const [twilioHubData, setTwilioHubData] = useState(null);
     const [profileStatus, setProfileStatus] = useState(true);
     const [loader, setLoader] = useState(false);
     const [disconnectLoader, setDisConnectLoader] = useState(false);
+    const [pollingInterval, setPollingInterval] = useState(null);
     const [showSnack, setShowSnack] = useState({
         type: SnackbarTypes.Success,
         message: "",
@@ -29,9 +44,12 @@ const TwilioTrustHub = () => {
     });
 
     //get the twilio profile details
-    const getBusinessProfile = async () => {
+    const getBusinessProfile = async (isPolling = false) => {
         try {
-            setLoader(true);
+            // Only show loader on initial load, not during polling
+            if (!twilioHubData && !isPolling) {
+                setLoader(true);
+            }
             const token = AuthToken();
             const ApiPath = Apis.getBusinessProfile;
             const response = await axios.get(ApiPath, {
@@ -42,7 +60,10 @@ const TwilioTrustHub = () => {
             });
 
             if (response) {
-                setLoader(false);
+                // Only hide loader if it was shown (not during polling)
+                if (!isPolling) {
+                    setLoader(false);
+                }
                 console.log("Response og get business profile is", response.data);
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
@@ -55,7 +76,10 @@ const TwilioTrustHub = () => {
                 }
             }
         } catch (error) {
-            setLoader(false);
+            // Only hide loader if it was shown (not during polling)
+            if (!twilioHubData && !isPolling) {
+                setLoader(false);
+            }
             console.log("Error occured in getBusinessProfile api is", error);
         }
     }
@@ -84,6 +108,12 @@ const TwilioTrustHub = () => {
                     });
                     setTwilioHubData(null);
                     setProfileStatus(true);
+                    
+                    // Clear polling when disconnected
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        setPollingInterval(null);
+                    }
                 } else {
                     setShowSnack({
                         message: ApiResponse.message,
