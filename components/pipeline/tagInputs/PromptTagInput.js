@@ -459,7 +459,7 @@ export const PromptTagInput = ({
         </div>
       </div>
 
-      {popupVisible && filteredOptions.length > 0 && (
+      {/*popupVisible && filteredOptions.length > 0 && (
         <div
           style={{
             position: "absolute",
@@ -493,7 +493,7 @@ export const PromptTagInput = ({
             </div>
           ))}
         </div>
-      )}
+      )*/}
 
       <Modal
         open={showScriptModal}

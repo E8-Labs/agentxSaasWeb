@@ -919,8 +919,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(item.phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
-            }`
+            `Phone number assigned`
           );
         } else if (response.data.status === false) {
           setShowSuccessSnack(response.data.message);
@@ -1570,8 +1569,7 @@ function Page() {
         if (response.data.status === true) {
           setAssignNumber(phoneNumber);
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
-            }`
+            `Phone number assigned`
           );
 
           setShowDrawerSelectedAgent((prev) => {
