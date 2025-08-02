@@ -25,6 +25,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -159,11 +160,13 @@ function AdminXbarServices({selectedUser}) {
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
-      //console.log;
+      let response = await AdminGetProfileDetails(selectedUser.id);
+      console.log("resopnse of admin get profile api is",response)
+
       if (response) {
-        setRole(response?.data?.data?.userRole)
-        let togglePlan = response?.data?.data?.supportPlan;
+        setRole(response?.userRole)
+        let togglePlan = response.supportPlan;
+        console.log('togglePlan', response)
         // let togglePlan = plan?.type;
         let planType = null;
         // if (plan.status == "active") {
