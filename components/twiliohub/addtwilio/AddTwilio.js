@@ -144,7 +144,7 @@ const AddTwilio = ({
                         Account Configuration
                     </div>
                     <CloseBtn
-                        onClick={()=>handleClose()}
+                        onClick={() => handleClose()}
                     />
                 </div>
 
@@ -209,18 +209,18 @@ const AddTwilio = ({
                 </div>
             </div>
             <div className='w-full flex flex-row items-center justify-end mt-4'>
-
-                <button
-                    className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
-                    onClick={() => { handleConnectTwilio(false) }}
-                    disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader || closeLoader}
-                >
-                    {
-                        (addTwilioLoader || profileLoader) ? (
-                            <CircularProgress size={25} />
-                        ) : ("Continue")
-                    }
-                </button>
+                {
+                    (addTwilioLoader || profileLoader) ? (
+                        <CircularProgress size={25} />
+                    ) :
+                        <button
+                            className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
+                            onClick={() => { handleConnectTwilio(false) }}
+                            disabled={addTwilioLoader || profileLoader || isDisabled || isExitLoader || closeLoader}
+                        >
+                            Continue
+                        </button>
+                }
             </div>
         </div>
     )

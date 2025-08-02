@@ -193,6 +193,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
         // //console.log;
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
+          setShowSuccessSnack("Guardrail added")
           localStorage.setItem(
             PersistanceKeys.GuadrailsList,
             JSON.stringify(response.data.data.guardrails)
@@ -647,19 +648,23 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
             </div>
 
             <div className="w-full">
-              {addObjectionLoader ? (
-                <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">
-                  <CircularProgress size={25} />
-                </div>
-              ) : (
-                <button
-                  className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
-                  onClick={addGuadrial}
-                  style={styles.title}
-                >
-                  Save
-                </button>
-              )}
+
+              {
+                addObjTitle && addObjDescription &&
+                (
+                  addObjectionLoader ? (
+                    <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">
+                      <CircularProgress size={25} />
+                    </div>
+                  ) : (
+                    <button
+                      className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
+                      onClick={addGuadrial}
+                      style={styles.title}
+                    >
+                      Save
+                    </button>
+                  ))}
             </div>
           </div>
         </Box>
