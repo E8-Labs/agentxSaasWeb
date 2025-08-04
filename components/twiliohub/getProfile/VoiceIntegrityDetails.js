@@ -132,7 +132,7 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                 showDetails && (
                     <div className='w-full'>
                         <div className='w-full px-4'>
-                            <div className='flex flex-row items-center mt-2'>
+                            <div className='flex flex-row items-center mt-2 mb-4'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
                                     Voice integrity friendly name
                                 </div>
@@ -140,22 +140,24 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                                     {twilioHubData?.friendlyName || "N/A"}
                                 </div>
                             </div>
-                            <div className='flex flex-row items-center mt-2'>
-                                <div className='w-1/2' style={styles.mediumfontLightClr}>
-                                    Company size
+                            {/*
+                                <div className='flex flex-row items-center mt-2'>
+                                    <div className='w-1/2' style={styles.mediumfontLightClr}>
+                                        Company size
+                                    </div>
+                                    <div className='w-1/2' style={styles.mediumfontDarkClr}>
+                                        {twilioHubData?.companySize}
+                                    </div>
                                 </div>
-                                <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData?.companySize}
+                                <div className='flex flex-row items-center mt-2 mb-4'>
+                                    <div className='w-1/2' style={styles.mediumfontLightClr}>
+                                        Average calls per day
+                                    </div>
+                                    <div className='w-1/2' style={styles.mediumfontDarkClr}>
+                                        {twilioHubData?.averageCallsPerDay}
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='flex flex-row items-center mt-2 mb-4'>
-                                <div className='w-1/2' style={styles.mediumfontLightClr}>
-                                    Average calls per day
-                                </div>
-                                <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData?.averageCallsPerDay}
-                                </div>
-                            </div>
+                            */}
                         </div>
                     </div>
                 )
@@ -166,15 +168,15 @@ const VoiceIntegrityDetails = ({ twilioHubData, trustProducts, profileStatus, ge
                         showVoiceIntegration={showAddVoice}
                         trustProducts={trustProducts}
                         handleClose={(d) => {
+                            setShowAddVoice(false);
                             if (d) {
-                                getProfileData();
+                                getProfileData(d);
                                 setShowSnack({
                                     message: d.message,
                                     type: SnackbarTypes.Success,
                                     isVisible: true
                                 })
                             }
-                            setShowAddVoice(false);
                         }}
                     />
                 )

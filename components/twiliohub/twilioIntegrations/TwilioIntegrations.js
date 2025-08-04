@@ -70,7 +70,15 @@ const TwilioIntegrations = ({
                 
                 setLoader(false);
                 if (response.status === true) {
-                    handleClose(response);
+                    setShowSnack({
+                        type: SnackbarTypes.Success,
+                        message: response.message,
+                        isVisible: true
+                    })
+                    // handleClose(response);
+                    setTimeout(() => {
+                        handleClose(response);
+                    }, 300);
                 } else {
                     setShowSnack({
                         type: SnackbarTypes.Error,
@@ -101,7 +109,15 @@ const TwilioIntegrations = ({
                     console.log("response of add voice api is");
                     const ApiResponse = response.data;
                     if (ApiResponse.status === true) {
-                        handleClose(ApiResponse)
+                        setShowSnack({
+                            type: SnackbarTypes.Success,
+                            message: ApiResponse.message,
+                            isVisible: true
+                        })
+                        // handleClose(response);
+                        setTimeout(() => {
+                            handleClose(ApiResponse);
+                        }, 300);
                     } else {
                         console.log("got err");
                         setShowSnack({

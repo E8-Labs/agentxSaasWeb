@@ -183,7 +183,7 @@ const StirDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileDa
                                     isVisible: true,
                                     type: SnackbarTypes.Success,
                                 });
-                                getProfileData();
+                                getProfileData(d);
                             }
                         }}
                     />

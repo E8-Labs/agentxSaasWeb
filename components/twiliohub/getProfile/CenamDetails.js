@@ -7,6 +7,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
 import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
+import TestTwilioBtn from '../twilioExtras/TestTwilioBtn';
 
 const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData, businessProfileData }) => {
 
@@ -90,6 +91,14 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                                 handleOpenModal={() => { setShowAddCNAM(true) }}
                             />
                         )}
+                        {/*
+                            <TestTwilioBtn
+                                handleClick={() => {
+                                    setShowAddCNAM(true);
+                                    console.log("test twilio btn clicked");
+                                }}
+                            />
+                        */}
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -148,7 +157,7 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                         handleClose={(d) => {
                             setShowAddCNAM(false);
                             if (d) {
-                                getProfileData();
+                                getProfileData(d);
                                 setShowSnack({
                                     type: SnackbarTypes.Success,
                                     message: d.message,

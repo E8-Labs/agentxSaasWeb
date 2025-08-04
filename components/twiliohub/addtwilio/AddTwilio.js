@@ -71,6 +71,11 @@ const AddTwilio = ({
                 if (ApiResponse.status === true) {
                     // handleClose(ApiResponse);
                     // setTrustProducts(ApiResponse);
+                    setShowSnack({
+                        message: ApiResponse.message,
+                        type: SnackbarTypes.Success,
+                        isVisible: true
+                    })
                     if (isExit) {
                         handleClose(ApiResponse);
                     } else {

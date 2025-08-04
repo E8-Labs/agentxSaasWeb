@@ -59,6 +59,7 @@ export const HowtoVideos = {
   script: process.env.NEXT_PUBLIC_REACT_APP_script,
   Tools: process.env.NEXT_PUBLIC_REACT_APP_Tools,
   WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched,
+  TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub,
 };
 
 export const Constants = {

@@ -10,20 +10,25 @@ import BrandedCallsDetails from '../twiliohub/getProfile/BrandedCallsDetails'
 import Ap2MessagingDetails from '../twiliohub/getProfile/Ap2MessagingDetails'
 import { CircularProgress } from '@mui/material'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
-import { PersistanceKeys } from '@/constants/Constants'
+import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
+import IntroVideoModal from '../createagent/IntroVideoModal'
+import Image from 'next/image'
 
 const TwilioTrustHub = () => {
 
+    //how to video
+    const [introVideoModal2, setIntroVideoModal2] = useState(false);
+
     useEffect(() => {
         getBusinessProfile();
-        
+
         // Start polling every 6 seconds (silent polling)
         const interval = setInterval(() => {
             getBusinessProfile(true);
         }, 3000);
-        
+
         setPollingInterval(interval);
-        
+
         // Cleanup on unmount
         return () => {
             if (interval) {
@@ -44,7 +49,7 @@ const TwilioTrustHub = () => {
     });
 
     //get the twilio profile details
-    const getBusinessProfile = async (isPolling = false) => {
+    const getBusinessProfile = async (isPolling = false, d = null) => {
         try {
             // Only show loader on initial load, not during polling
             if (!twilioHubData && !isPolling) {
@@ -73,6 +78,14 @@ const TwilioTrustHub = () => {
                     if (ApiResponse?.data?.profile?.status === "twilio-approved") {
                         setProfileStatus(false);
                     }
+                }
+                if (d) {
+                    console.log("show snack in get profile", d)
+                    setShowSnack({
+                        message: d.message,
+                        isVisible: true,
+                        type: SnackbarTypes.Success,
+                    });
                 }
             }
         } catch (error) {
@@ -108,7 +121,7 @@ const TwilioTrustHub = () => {
                     });
                     setTwilioHubData(null);
                     setProfileStatus(true);
-                    
+
                     // Clear polling when disconnected
                     if (pollingInterval) {
                         clearInterval(pollingInterval);
@@ -161,7 +174,7 @@ const TwilioTrustHub = () => {
                         <div className='w-full mt-2'>
                             <CustomerProfile
                                 twilioHubData={twilioHubData?.profile}
-                                getProfileData={getBusinessProfile}
+                                getProfileData={(d) => { getBusinessProfile(d) }}
                                 profileStatus={profileStatus}
                                 disconnectLoader={disconnectLoader}
                                 handleDisconnectTwilio={handleDisconnectTwilio}
@@ -172,7 +185,8 @@ const TwilioTrustHub = () => {
                                 businessProfileData={twilioHubData?.profile}
                                 twilioHubData={twilioHubData?.cnam}
                                 trustProducts={twilioHubData?.trustProducts}
-                                getProfileData={getBusinessProfile}
+                                // getProfileData={getBusinessProfile}
+                                getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
                             />
                         </div>
@@ -181,7 +195,8 @@ const TwilioTrustHub = () => {
                                 businessProfileData={twilioHubData?.profile}
                                 twilioHubData={twilioHubData?.shakenStir}
                                 trustProducts={twilioHubData?.trustProducts}
-                                getProfileData={getBusinessProfile}
+                                // getProfileData={getBusinessProfile}
+                                getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
                             />
                         </div>
@@ -190,7 +205,8 @@ const TwilioTrustHub = () => {
                                 businessProfileData={twilioHubData?.profile}
                                 twilioHubData={twilioHubData?.voiceIntegrity}
                                 trustProducts={twilioHubData?.trustProducts}
-                                getProfileData={getBusinessProfile}
+                                // getProfileData={getBusinessProfile}
+                                getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
                             />
                         </div>
@@ -204,6 +220,24 @@ const TwilioTrustHub = () => {
                                 profileStatus={profileStatus}
                             />
                         </div>
+                        <div className="w-full flex flex-row items-center justify-end mt-6 gap-4">
+                            <button
+                                className='text-[15px] font-[500] text-purple outline-none border-none cursor-pointer'
+                                onClick={() => { setIntroVideoModal2(true) }}
+                            >
+                                Learn more about Twilio Trust Hub
+                            </button>
+                            <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                            // onClick={() => setIntroVideoModal2(true)}
+                            />
+                        </div>
+                        {/* Intro modal */}
+                        <IntroVideoModal
+                            open={introVideoModal2}
+                            onClose={() => setIntroVideoModal2(false)}
+                            videoTitle="Learn how to add Twilio Trust Hub"
+                            videoUrl={HowtoVideos.TwilioTrustHub}
+                        />
                     </div>
                 )
             }

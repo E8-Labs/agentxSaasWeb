@@ -114,7 +114,15 @@ const StirCalling = ({
 
                 setLoader(false);
                 if (response.status === true) {
-                    handleClose(response);
+                    setShowSnack({
+                        type: SnackbarTypes.Success,
+                        message: response.message,
+                        isVisible: true
+                    })
+                    // handleClose(response);
+                    setTimeout(() => {
+                        handleClose(response);
+                    }, 300);
                 } else {
                     setShowSnack({
                         type: SnackbarTypes.Error,
@@ -150,7 +158,15 @@ const StirCalling = ({
                     setLoader(false);
                     const apiResponse = response.data;
                     if (apiResponse.status === true) {
-                        handleClose(apiResponse);
+                        setShowSnack({
+                            type: SnackbarTypes.Success,
+                            message: apiResponse.message,
+                            isVisible: true
+                        })
+                        // handleClose(response);
+                        setTimeout(() => {
+                            handleClose(apiResponse);
+                        }, 300);
                     } else if (apiResponse.status === false) {
                         setShowSnack({
                             type: SnackbarTypes.Error,

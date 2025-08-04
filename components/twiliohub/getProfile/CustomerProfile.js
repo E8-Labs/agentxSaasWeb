@@ -213,15 +213,15 @@ const CustomerProfile = ({
                         <AddTwilioAnimation
                             showAddTwilio={showAddTwilio}
                             handleClose={(d) => {
+                                setShowAddTwilio(false);
                                 if (d) {
-                                    getProfileData();
                                     setShowSnack({
                                         message: d.message,
                                         type: SnackbarTypes.Success,
                                         isVisible: true
                                     })
+                                    getProfileData(d);
                                 }
-                                setShowAddTwilio(false);
                             }}
                             getProfileData={getProfileData}
                         />
