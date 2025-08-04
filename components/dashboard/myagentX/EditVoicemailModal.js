@@ -7,6 +7,7 @@ import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import { PersistanceKeys } from '@/constants/Constants';
+import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
 
 function EditVoicemailModal({
     showEditPopup,
@@ -16,7 +17,9 @@ function EditVoicemailModal({
     defaultData,
     showMessage,
     setShowMessage,
-    messageType
+    messageType,
+    kycsData,
+    uniqueColumns
 }) {
 
     // console.log('defaulData', defaultData?.message)
@@ -45,16 +48,16 @@ function EditVoicemailModal({
     const [message, setMessage] = useState(defaultData?.message)
 
 
-    useEffect(()=>{
-        const updateData = () =>{
-            if(defaultData){
+    useEffect(() => {
+        const updateData = () => {
+            if (defaultData) {
                 setSelectedVoice(defaultData.voiceId)
                 setMessage(defaultData.message)
             }
         }
 
         updateData()
-    },[defaultData])
+    }, [defaultData])
 
     // console.log('defaultData', defaultData)
 
@@ -137,25 +140,48 @@ function EditVoicemailModal({
                             </button>
                         </div>
 
-                        <textarea
-                            placeholder="Type here"
-                            className="w-full border rounded p-2 outline-none outline-none focus:ring-0"
-                            style={{
-                                outline: "none",
-                                border: "2px solid #00000010",
-                                borderRadius: "5px",
-                                padding: 12,
-                                height: '156px',
-                                resize: "none",
-                            }}
-                            maxLength={200}
+                        {/*
+                            <textarea
+                                placeholder="Type here"
+                                className="w-full border rounded p-2 outline-none outline-none focus:ring-0"
+                                style={{
+                                    outline: "none",
+                                    border: "2px solid #00000010",
+                                    borderRadius: "5px",
+                                    padding: 12,
+                                    height: '156px',
+                                    resize: "none",
+                                }}
+                                maxLength={200}
+    
+                                value={message}
+                                onChange={(e) => {
+                                    setMessage(e.target.value);
+    
+                                }}
+                            />
+                        */}
 
-                            value={message}
-                            onChange={(e) => {
-                                setMessage(e.target.value);
+                        <div className="mt-4 w-full">
+                            <PromptTagInput
+                                promptTag={message}
+                                kycsList={kycsData}
+                                uniqueColumns={uniqueColumns}
+                                tagValue={setMessage}
+                                // scrollOffset={scrollOffset}
+                                showSaveChangesBtn={message}
+                                from={"Objection"}
+                                isEdit={false}
+                                saveUpdates={async () => {
+                                    // await updateAgent();
+                                    // setShowObjectionsSaveBtn(false);
+                                    // setOldObjective(objective);
+                                }}
+                                limit={200}
+                            />
 
-                            }}
-                        />
+                            {/* <DynamicDropdown /> */}
+                        </div>
 
                         <div style={{
                             fontSize: 14, fontWeight: '500', marginTop: -5, color: '#00000060'
@@ -250,7 +276,7 @@ function EditVoicemailModal({
                                 </div>
                             ) : (
                                 <button className="text-white bg-purple outline-none rounded-xl  mt-4"
-                                    style={{ height: "50px",width: "100px" , alignSelf: 'flex-end'}} 
+                                    style={{ height: "50px", width: "100px", alignSelf: 'flex-end' }}
                                     onClick={() => {
                                         let data = {
                                             message: message,

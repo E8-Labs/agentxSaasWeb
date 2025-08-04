@@ -419,13 +419,13 @@ function Page() {
   useEffect(() => {
     const d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
     if (!d) return;
-  
+
     const cr = JSON.parse(d);
     console.log("credentials from local", cr);
-  
+
     setName(cr?.name || "");
     setPhone(cr?.phone || "");
-  
+
     // Combine all extraColumns into one flat object
     const flatExtraColumns = {};
     if (Array.isArray(cr.extraColumns)) {
@@ -437,7 +437,7 @@ function Page() {
     }
 
     console.log('flatExtracolumns', flatExtraColumns)
-  
+
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
     scriptKeys.forEach((key) => {
@@ -447,10 +447,10 @@ function Page() {
     });
 
     console.log('updatedInputValues', updatedInputValues)
-  
+
     setInputValues(updatedInputValues);
   }, [openTestAiModal]);
-  
+
   ////// //console.log;
 
   //code for scroll ofset
@@ -4433,6 +4433,8 @@ function Page() {
                   setMainAgentsList={setMainAgentsList}
                   agent={showDrawerSelectedAgent}
                   setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                  kycsData={kycsData}
+                  uniqueColumns={uniqueColumns}
                 />
               </div>
             ) : (

@@ -287,16 +287,16 @@ const ProfileNav = () => {
 
   //intro video
   const getShowWalkThrough = () => {
+    console.log("Trigered check for walkthrough")
     const localData = localStorage.getItem("User");
     if (localData) {
       const UserDetails = JSON.parse(localData);
-      console.log("check 111")
       console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
       if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
-        console.log("checko 09124")
+        console.log("should show intro video ")
         setWalkthroughWatched(true);
       } else {
-        console.log("`sjdkfhsj")
+        console.log("should not show intro video")
         setWalkthroughWatched(false);
       }
     }
@@ -947,7 +947,7 @@ const ProfileNav = () => {
         {/* Lower body */}
         <div className="w-full">
           {/* Code for Check list menu bar */}
-          <div>{userDetails && <CheckList userDetails={userDetails} />}</div>
+          <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
 
           <div
             className="w-full flex flex-row items-start justify-start pt-2"

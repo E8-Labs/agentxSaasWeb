@@ -13,7 +13,8 @@ export const PromptTagInput = ({
   showSaveChangesBtn,
   saveUpdates,
   from,
-  isEdit = true
+  isEdit = true,
+  limit
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -429,6 +430,7 @@ export const PromptTagInput = ({
           }}
           placeholder="Type here..."
           value={text}
+          maxLength={limit}
           readOnly
           // onChange={handleChange}
           style={{
@@ -552,6 +554,7 @@ export const PromptTagInput = ({
                   className="outline-none rounded-xl focus:ring-0"
                   ref={textFieldRef}
                   value={text}
+                  maxLength={limit}
                   onClick={() => {
                     setShowScriptModal(true);
                   }}

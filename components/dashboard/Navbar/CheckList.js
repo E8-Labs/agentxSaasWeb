@@ -10,7 +10,7 @@ import CalendarModal from '../myagentX/CalenderModal';
 import { AddCalendarApi } from '@/apiservicescomponent/addcalendar/AddCalendarApi';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 
-const CheckList = ({ userDetails }) => {
+const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
     const router = useRouter();
 
@@ -49,11 +49,11 @@ const CheckList = ({ userDetails }) => {
             const LocalData = JSON.parse(D);
             const T = LocalData?.user?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
-            let percentage = 0;
+            let percentage = 14;
 
             for (let key in T) {
                 if (T[key]) {
-                    percentage += 16.67;
+                    percentage += 14.30;
                 }
             }
 
@@ -66,10 +66,11 @@ const CheckList = ({ userDetails }) => {
             setCheckList([
                 { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
                 { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
-                { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
-                { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
-                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
-                { id: 6, label: 'Claim a number', status: T?.numberClaimed, route: "" }
+                { id: 3, label: 'Intro video', status: true, route: "" },
+                { id: 4, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
+                { id: 5, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
+                { id: 6, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
+                { id: 7, label: 'Claim a number', status: T?.numberClaimed, route: "" },
             ]);
         }
     }
@@ -127,8 +128,10 @@ const CheckList = ({ userDetails }) => {
                     });
                 }}
             />
-            {
+            {/*
                 progressValue < 100 && (
+                )
+            */}
                     <div className='bg-[#F7F7FD] w-full rounded-md mb-2 py-2'>
                         <button
                             className='w-full flex flex-rw items-center justify-between outline-none border-none ps-2'
@@ -161,7 +164,11 @@ const CheckList = ({ userDetails }) => {
                                                 key={item.id}
                                                 className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
                                                 onClick={() => {
-                                                    if (item.label === "Connect a calendar") {
+                                                    if (item.label === "Intro video") {
+                                                        // setShowAddCalendar(true);
+                                                        console.log("show video");
+                                                        setWalkthroughWatched(true);
+                                                    } else if (item.label === "Connect a calendar") {
                                                         setShowAddCalendar(true);
                                                     } else if (item.label === "Claim a number") {
                                                         setShowClaimPopup(true);
@@ -174,7 +181,8 @@ const CheckList = ({ userDetails }) => {
                                                         router.push(item.route);
                                                     }
                                                 }}
-                                                disabled={item.status === true}
+                                                // disabled={item.status === true}
+                                                disabled={item.status === true && item.label !== 'Intro video'}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
                                                     {item.status === true ? <Image
@@ -208,8 +216,6 @@ const CheckList = ({ userDetails }) => {
                             )
                         }
                     </div>
-                )
-            }
 
             {/* Code for add calendar */}
             {
@@ -276,19 +282,21 @@ const CheckList = ({ userDetails }) => {
             }
 
             {/* Code for claim number */}
-            {showClaimPopup && (
-                <ClaimNumber
-                    showClaimPopup={showClaimPopup}
-                    handleCloseClaimPopup={handleCloseClaimPopup}
-                // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-                // setSelectNumber={setAssignNumber}
-                // setPreviousNumber={setPreviousNumber}
-                // previousNumber={previousNumber}
-                // AssignNumber={AssignNumber}
-                />
-            )}
+            {
+                showClaimPopup && (
+                    <ClaimNumber
+                        showClaimPopup={showClaimPopup}
+                        handleCloseClaimPopup={handleCloseClaimPopup}
+                    // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                    // setSelectNumber={setAssignNumber}
+                    // setPreviousNumber={setPreviousNumber}
+                    // previousNumber={previousNumber}
+                    // AssignNumber={AssignNumber}
+                    />
+                )
+            }
 
-        </div>
+        </div >
     )
 }
 
