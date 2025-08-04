@@ -169,6 +169,7 @@ const ProfileNav = () => {
 
   const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
   const [walkthroughWatched, setWalkthroughWatched] = useState(false);
+  const [updateProfileLoader, setUpdateProfileLoader] = useState(false);
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
 
@@ -304,15 +305,18 @@ const ProfileNav = () => {
 
   const updateWalkthroughWatched = async () => {
     try {
+      setUpdateProfileLoader(true);
       const apidata = {
         walkthroughWatched: true
       }
       const response = await UpdateProfile(apidata);
       if (response) {
+        setUpdateProfileLoader(false);
         console.log("Update api resopnse after walkthrough true", response)
       }
       // console.log("Response of update profile api is", response)
     } catch (error) {
+      setUpdateProfileLoader(false);
       console.log("Error occured in update catch api is", error)
     }
   }
@@ -875,6 +879,7 @@ const ProfileNav = () => {
         videoTitle="Welcome to AgentX"
         videoDescription="This short video will show you where everything is. Enjoy!"
         videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
+        showLoader={updateProfileLoader}
       />
 
       <div className="w-full flex flex-col items-center justify-between h-screen">
