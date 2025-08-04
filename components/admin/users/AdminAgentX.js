@@ -900,8 +900,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
-            }`
+            `Phone number assigned`
           );
         } else if (response.data.status === false) {
           setShowSuccessSnack(response.data.message);
@@ -1289,8 +1288,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         //// //console.log;
         if (response.data.status === true) {
           setShowSuccessSnack(
-            `Phone number assigned to ${showDrawerSelectedAgent?.name || "Agent"
-            }`
+            `Phone number assigned`
           );
 
           setShowDrawerSelectedAgent((prev) => {
