@@ -182,7 +182,15 @@ const ProfileNav = () => {
   useEffect(() => {
     if (walkthroughWatched) {
       // UpdateProfile({});
-      updateWalkthroughWatched();
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const u = JSON.parse(localData);
+        const watched = u?.user?.walkthroughWatched;
+        if (u?.user?.plan && (watched === false || watched === "false")) {
+          updateWalkthroughWatched();
+        }
+      }
+      // updateWalkthroughWatched();
     }
   }, [walkthroughWatched]);
 
@@ -292,14 +300,31 @@ const ProfileNav = () => {
     const localData = localStorage.getItem("User");
     if (localData) {
       const UserDetails = JSON.parse(localData);
-      console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
-      if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
-        console.log("should show intro video ")
+      // console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
+      console.log(
+        "walkthroughWatched raw value:",
+        UserDetails.user.walkthroughWatched,
+        "typeof:",
+        typeof UserDetails.user.walkthroughWatched
+      );
+
+      const watched = UserDetails?.user?.walkthroughWatched;
+      if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+        console.log("✅ should show intro video");
         setWalkthroughWatched(true);
       } else {
-        console.log("should not show intro video")
+        console.log("⛔ should not show intro video");
         setWalkthroughWatched(false);
       }
+
+      // if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
+      //   console.log("should show intro video ")
+      //   setWalkthroughWatched(true);
+      // } else {
+      //   console.log("should not show intro video")
+      //   setWalkthroughWatched(false);
+      // }
+
     }
   }
 
