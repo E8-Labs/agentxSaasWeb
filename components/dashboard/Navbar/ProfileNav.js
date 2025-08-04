@@ -174,9 +174,9 @@ const ProfileNav = () => {
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
 
   //walkthroughWatched popup
-  useEffect(() => {
-    getShowWalkThrough();
-  }, []);
+  // useEffect(() => {
+  //   getShowWalkThrough();
+  // }, []);
 
   //update profile if walkthrough is true
   useEffect(() => {
@@ -349,6 +349,7 @@ const ProfileNav = () => {
   const getUserProfile = async () => {
     await getProfile();
     const data = localStorage.getItem("User");
+    getShowWalkThrough();
     if (data) {
       const LocalData = JSON.parse(data);
       console.log(
