@@ -125,7 +125,10 @@ const Leads1 = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
 
-
+  // //test code
+  // useEffect(() => {
+  //   console.log("UpdateHeader is updated is", UpdateHeader);
+  // }, [UpdateHeader]);
 
   useEffect(() => {
     //console.log;
@@ -311,6 +314,7 @@ const Leads1 = () => {
     //console.log;
   }, [NewColumnsObtained]);
 
+  //donot match the custom column with matching array //just compare with the default 5 columns we have
   function ChangeColumnName(UpdatedColumnName) {
     let ColumnToUpdate = UpdateHeader;
     console.log("Updated column value passed is", UpdatedColumnName)
@@ -332,17 +336,22 @@ const Leads1 = () => {
       setNewColumnsObtained(updatedColumns);
     } else {
       console.log("Update columns name exists");
-      console.log("New columns obtained are", NewColumnsObtained);
+      console.log("New columns obtained from the sheet are", NewColumnsObtained);
       let updatedColumns = NewColumnsObtained.map((item) => {
         if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
           //check if the new column Name matches a column
           console.log(`column name in sheet ${item.ColumnNameInSheet} ££ column name to update is ${ColumnToUpdate.ColumnNameInSheet}`)
           console.log("Lead default columns are", LeadDefaultColumns);
           let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-            LeadDefaultColumns[key].mappings.includes(
-              UpdatedColumnName.toLowerCase()
-            )
+            LeadDefaultColumns[key].UserFacingName.toLowerCase() === UpdatedColumnName.toLowerCase()
           );
+
+
+          // let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+          //   LeadDefaultColumns[key].mappings.includes(
+          //     UpdatedColumnName.toLowerCase()
+          //   )
+          // );
 
           console.log("Matched column keys are", matchedColumnKey);
 
@@ -351,9 +360,21 @@ const Leads1 = () => {
               `Matched with default column: ${matchedColumnKey} -`,
               LeadDefaultColumns[matchedColumnKey]
             );
-            let defaultColumn = { ...LeadDefaultColumns[matchedColumnKey] };
-            item.matchedColumn = defaultColumn;
-            item.UserFacingName = null;
+
+            const alreadyExists = NewColumnsObtained.some(
+              (item) => item?.matchedColumn?.UserFacingName?.toLowerCase() === UpdatedColumnName.toLowerCase()
+            );
+
+            if (alreadyExists) {
+              setErrSnack("Columns name already exists.");
+              setShowErrSnack(true);
+            } else {
+              console.log("Column is unique, proceed.");
+              let defaultColumn = { ...LeadDefaultColumns[matchedColumnKey] };
+              item.matchedColumn = defaultColumn;
+              item.UserFacingName = null;
+            }
+
           } else {
             item.matchedColumn = null;
             item.UserFacingName = UpdatedColumnName;
@@ -1376,6 +1397,7 @@ const Leads1 = () => {
                                   item.columnNameTransformed
                                 );
                                 handleColumnPopoverClick(event);
+                                console.log("dropdown clicking item is", item)
                                 setUpdateHeader(item);
                                 // }
                               }
@@ -1398,6 +1420,7 @@ const Leads1 = () => {
                           <button
                             className="underline text-purple w-1/12 outline-none ps-4"
                             onClick={() => {
+                              console.log("Clicking crss item is", item);
                               setUpdateHeader(item);
                               setShowDelCol(true);
                               // setUpdateHeader(item)
@@ -1695,7 +1718,9 @@ const Leads1 = () => {
                     ) {
                       console.log("Matching new column found???");
                       // return
-                      setWarningModal(true);
+                      // setWarningModal(true);
+                      setErrSnack("Columns name already exists.");
+                      setShowErrSnack(true);
                     } else {
                       // //console.log;
                       ChangeColumnName(updateColumnValue);

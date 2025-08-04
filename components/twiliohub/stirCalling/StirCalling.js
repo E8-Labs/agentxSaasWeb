@@ -446,7 +446,7 @@ const StirCalling = ({
                         >
                             {
                                 loader ? (
-                                    <CircularProgress size={25} />
+                                    <CircularProgress size={25} sx={{ color: "white" }} />
                                 ) : ("Continue")
                             }
                         </button>

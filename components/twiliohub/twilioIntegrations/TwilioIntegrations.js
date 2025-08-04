@@ -64,6 +64,7 @@ const TwilioIntegrations = ({
             // If user selected an existing Voice Integrity product, use select API
             if (selectedVoiceIntegrity && String(selectedVoiceIntegrity).trim() !== "") {
                 // Import AddSelectedProduct API
+                console.log("drodown selected")
                 const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
                 const response = await AddSelectedProduct(selectedVoiceIntegrity);
                 
@@ -78,6 +79,7 @@ const TwilioIntegrations = ({
                     })
                 }
             } else {
+                console.log("manually added voice integrity")
                 // If user entered new product details, use create API
                 const token = AuthToken();
                 const ApiPath = Apis.createVoiceIntegrity;
@@ -318,7 +320,7 @@ const TwilioIntegrations = ({
                         >
                             {
                                 loader ? (
-                                    <CircularProgress size={25} />
+                                    <CircularProgress size={25} sx={{ color: "white" }} />
                                 ) : ("Continue")
                             }
                         </button>
