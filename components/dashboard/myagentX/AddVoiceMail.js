@@ -145,7 +145,7 @@ function AddVoiceMail({
                         }}
                     />
                     <div
-                        className="h-[80vh] overflow-auto flex flex-col gap-3"
+                        className="h-[60vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}
                     >
 

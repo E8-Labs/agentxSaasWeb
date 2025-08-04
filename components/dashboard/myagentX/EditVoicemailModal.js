@@ -92,7 +92,7 @@ function EditVoicemailModal({
             >
 
                 <Box
-                    className="w-6/12"
+                    className="w-5/12"
                     sx={{ ...styles.modalsStyle, backgroundColor: "white" }}
                 >
                     <AgentSelectSnackMessage isVisible={showMessage != null ? true : false}
@@ -101,7 +101,7 @@ function EditVoicemailModal({
                         }}
                     />
                     <div
-                        className="h-[65vh] overflow-auto flex flex-col gap-3"
+                        className="h-[50vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}
                     >
 

@@ -964,10 +964,8 @@ function SheduledCalls({ user }) {
                                       }}
                                     >
                                       <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                        <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
-                                          {item?.LeadModel?.firstName
-                                            ?.charAt(0)
-                                            .toUpperCase()}
+                                        <div style={{ width: "fit-content" }}>
+                                          {getAgentsListImage(item?.agents[0])}
                                         </div>
                                         <div
                                           className="truncate"

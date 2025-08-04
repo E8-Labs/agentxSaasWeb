@@ -583,7 +583,7 @@ function AdminAllCalls({selectedUser}) {
                         {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                       </div>
                       <div style={styles.text2}>
-                        {item.LeadModel?.firstName}
+                        {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                       </div>
                     </div>
                     <div className="w-2/12 ">

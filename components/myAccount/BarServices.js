@@ -128,28 +128,33 @@ function BarServices() {
 
   const getProfile = async () => {
     try {
-      const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
 
-       setRole(response?.data?.data?.userRole)
-      //console.log;
-      if (response) {
-        let togglePlan = response?.data?.data?.supportPlan;
-        // let togglePlan = plan?.type;
-        let planType = null;
-        // if (plan.status == "active") {
-        if (togglePlan === "Starter") {
-          planType = 1;
-        } else if (togglePlan === "Professional") {
-          planType = 2;
-        } else if (togglePlan === "Enterprise") {
-          planType = 3;
+      let data = localStorage.getItem("User")
+      if (data) {
+        let user = JSON.parse(data)
+        console.log('user', user)
+        let response =user //await getProfileDetails();
+
+        setRole(response?.data?.data?.userRole)
+        // console.log("response of get ")
+        if (response) {
+          let togglePlan = response?.data?.data?.supportPlan;
+          // let togglePlan = plan?.type;
+          let planType = null;
+          // if (plan.status == "active") {
+          if (togglePlan === "Starter") {
+            planType = 1;
+          } else if (togglePlan === "Professional") {
+            planType = 2;
+          } else if (togglePlan === "Enterprise") {
+            planType = 3;
+          }
+          // }
+          setUserLocalData(response?.data?.data);
+          //console.log;
+          setTogglePlan(planType);
+          setCurrentPlan(planType);
         }
-        // }
-        setUserLocalData(response?.data?.data);
-        //console.log;
-        setTogglePlan(planType);
-        setCurrentPlan(planType);
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
@@ -175,18 +180,18 @@ function BarServices() {
       let planType = null;
 
       //// //console.log;
- if (role !== "AgencySubAccount") {
-      if (togglePlan === 1) {
-        planType = "Starter";
-      } else if (togglePlan === 2) {
-        planType = "Professional";
-      } else if (togglePlan === 3) {
-        planType = "Enterprise";
-      }
-    }else{
-      let type = plans?.find((item) => item.title === togglePlan);
+      if (role !== "AgencySubAccount") {
+        if (togglePlan === 1) {
+          planType = "Starter";
+        } else if (togglePlan === 2) {
+          planType = "Professional";
+        } else if (togglePlan === 3) {
+          planType = "Enterprise";
+        }
+      } else {
+        let type = plans?.find((item) => item.title === togglePlan);
         planType = type?.id;
-    }
+      }
       // console.log;
 
       setSubscribePlanLoader(true);
@@ -212,7 +217,7 @@ function BarServices() {
         supportPlan: planType,
       };
 
-      console.log("apidata",ApiData)
+      console.log("apidata", ApiData)
 
       const ApiPath = Apis.purchaseSupportPlan;
       // //console.log;
@@ -227,7 +232,7 @@ function BarServices() {
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of subscribe support plan is", response.data)
         if (response.data.status === true) {
           localDetails.user = response.data.data;
           // //console.log;
@@ -246,7 +251,7 @@ function BarServices() {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your support plan successfully updated");
+          setSuccessSnack(`Xbar ${togglePlan} plan upgraded! 🎉`);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
