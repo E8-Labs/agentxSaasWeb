@@ -417,16 +417,40 @@ function Page() {
   }, [showDrawerSelectedAgent]);
 
   useEffect(() => {
-    let d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
-    //console.log;
-    if (d) {
-      let cr = JSON.parse(d);
-      //console.log;
-      setName(cr?.name);
-      setPhone(cr?.phone);
+    const d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
+    if (!d) return;
+  
+    const cr = JSON.parse(d);
+    console.log("credentials from local", cr);
+  
+    setName(cr?.name || "");
+    setPhone(cr?.phone || "");
+  
+    // Combine all extraColumns into one flat object
+    const flatExtraColumns = {};
+    if (Array.isArray(cr.extraColumns)) {
+      cr.extraColumns.forEach((obj) => {
+        Object.entries(obj).forEach(([key, value]) => {
+          flatExtraColumns[key] = value;
+        });
+      });
     }
-  }, [openTestAiModal]);
 
+    console.log('flatExtracolumns', flatExtraColumns)
+  
+    // Now map through current scriptKeys and set values if present
+    const updatedInputValues = {};
+    scriptKeys.forEach((key) => {
+      if (flatExtraColumns.hasOwnProperty(key)) {
+        updatedInputValues[key] = flatExtraColumns[key];
+      }
+    });
+
+    console.log('updatedInputValues', updatedInputValues)
+  
+    setInputValues(updatedInputValues);
+  }, [openTestAiModal]);
+  
   ////// //console.log;
 
   //code for scroll ofset
@@ -1767,10 +1791,10 @@ function Page() {
   };
 
   //function to handle input field change
-  const handleInputChange = (index, value) => {
+  const handleInputChange = (key, value) => {
     setInputValues((prevValues) => ({
       ...prevValues,
-      [index]: value, // Update the specific index value
+      [key]: value, // Update the specific index value
     }));
   };
 
@@ -1878,8 +1902,8 @@ function Page() {
         AuthToken = localData.token;
       }
 
-      const newArray = scriptKeys.map((key, index) => ({
-        [key]: inputValues[index] || "", // Use the input value or empty string if not set
+      const newArray = scriptKeys.map((key) => ({
+        [key]: inputValues[key] || "", // Use the input value or empty string if not set
       }));
       ////console.log;
       ////console.log);
@@ -1890,6 +1914,8 @@ function Page() {
         phone: phone,
         extraColumns: newArray,
       };
+
+      console.log('ApiData', ApiData)
 
       localStorage.setItem(
         PersistanceKeys.TestAiCredentials,
@@ -2927,9 +2953,9 @@ function Page() {
                           ...styles.inputStyle,
                           border: "1px solid #00000010",
                         }}
-                        value={inputValues[index] || ""} // Default to empty string if no value
+                        value={inputValues[key] || ""} // Default to empty string if no value
                         onChange={(e) =>
-                          handleInputChange(index, e.target.value)
+                          handleInputChange(key, e.target.value)
                         }
                       />
                     </div>

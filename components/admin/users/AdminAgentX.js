@@ -294,8 +294,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
 
-  const [loadingCalenders, setLoadingCalenders] = useState(false)
-
   const searchTimeoutRef = useRef(null);
 
   const playVoice = (url) => {
@@ -308,16 +306,42 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   //refill the test ai popup input fields
+
   useEffect(() => {
-    let d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
-    //console.log;
-    if (d) {
-      let cr = JSON.parse(d);
-      //console.log;
-      setName(cr?.name);
-      setPhone(cr?.phone);
+    const d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
+    if (!d) return;
+  
+    const cr = JSON.parse(d);
+    console.log("credentials from local", cr);
+  
+    setName(cr?.name || "");
+    setPhone(cr?.phone || "");
+  
+    // Combine all extraColumns into one flat object
+    const flatExtraColumns = {};
+    if (Array.isArray(cr.extraColumns)) {
+      cr.extraColumns.forEach((obj) => {
+        Object.entries(obj).forEach(([key, value]) => {
+          flatExtraColumns[key] = value;
+        });
+      });
     }
+
+    console.log('flatExtracolumns', flatExtraColumns)
+  
+    // Now map through current scriptKeys and set values if present
+    const updatedInputValues = {};
+    scriptKeys.forEach((key) => {
+      if (flatExtraColumns.hasOwnProperty(key)) {
+        updatedInputValues[key] = flatExtraColumns[key];
+      }
+    });
+
+    console.log('updatedInputValues', updatedInputValues)
+  
+    setInputValues(updatedInputValues);
   }, [openTestAiModal]);
+  
 
   useEffect(() => {
     const updateAgentManueList = () => {
@@ -1473,10 +1497,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   //function to handle input field change
-  const handleInputChange = (index, value) => {
-    setInputValues((prevValues) => ({
-      ...prevValues,
-      [index]: value, // Update the specific index value
+  const handleInputChange = (key, value) => {
+    setInputValues((prev) => ({
+      ...prev,
+      [key]: value,
     }));
   };
 
@@ -1577,7 +1601,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       }
 
       const newArray = scriptKeys.map((key, index) => ({
-        [key]: inputValues[index] || "", // Use the input value or empty string if not set
+        [key]: inputValues[key] || "", // Use the input value or empty string if not set
       }));
       ////console.log;
       ////console.log);
@@ -1662,14 +1686,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   useEffect(() => {
-
+    getCalenders();
     setInitialLoader(true)
     getAgents()
   }, [selectedUser]);
-
-  useEffect(() => {
-    getCalenders();
-  }, [selectedUser, showDrawerSelectedAgent]);
 
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click();
@@ -1925,7 +1945,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //function for getitng the calenders list
   const getCalenders = async () => {
     try {
-      setLoadingCalenders(true);
       const localData = localStorage.getItem("User");
       let AuthToken = null;
       if (localData) {
@@ -1958,7 +1977,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       //// console.error("Error occured in the api is ", error);
     } finally {
       //// //console.log;
-      setLoadingCalenders(false);
     }
   };
 
@@ -2598,8 +2616,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         ...styles.inputStyle,
                         border: "1px solid #00000010",
                       }}
-                      value={inputValues[index] || ""} // Default to empty string if no value
-                      onChange={(e) => handleInputChange(index, e.target.value)}
+                      value={inputValues[key] || ""} // Default to empty string if no value
+                      onChange={(e) =>
+                        handleInputChange(key, e.target.value)
+                      }
                     />
                   </div>
                 ))}
@@ -3006,10 +3026,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 {AgentMenuOptions.map((tab) => (
                   <button
                     key={tab}
-                    onClick={() => {
-                      setActiveTab(tab)
-                      console.log('tab', tab)
-                    }}
+                    onClick={() => setActiveTab(tab)}
                     className={`${activeTab === tab
                       ? "text-purple border-b-2 border-purple"
                       : "text-black-500"
@@ -3995,6 +4012,23 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 </div>
               ) : activeTab === "Actions" ? (
                 <div>
+                  <div
+                    className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                    style={
+                      {
+                        // backgroundColor: "red"
+                      }
+                    }
+                  >
+                    {/*<VideoCard
+                        duration="2 min 42 sec"
+                        horizontal={false}
+                        playVideo={() => {
+                          setIntroVideoModal2(true);
+                        }}
+                        title="Learn how to add a calendar"
+                      />*/}
+                  </div>
 
                   <UserCalender
                     selectedUser={selectedUser}
@@ -4004,9 +4038,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
-                    loadingCalenders={loadingCalenders}
                   />
-
                 </div>
               ) : activeTab === "Pipeline" ? (
                 <div className="flex flex-col gap-4">

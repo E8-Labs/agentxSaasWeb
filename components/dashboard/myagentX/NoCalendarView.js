@@ -10,12 +10,6 @@ export default function NoCalendarView({
   const [introVideoModal, setIntroVideoModal] = useState(false);
   return (
     <div className="flex flex-col items-center justify-center h-[20] ">
-      <IntroVideoModal
-        open={introVideoModal}
-        onClose={() => setIntroVideoModal(false)}
-        videoTitle="Learn how to add a calendar"
-        videoUrl={HowtoVideos.Calendar}
-      />
       {/* Icon Section */}
       <div className="flex items-center justify-center w-24 h-24   rounded-lg">
         <img
@@ -26,8 +20,8 @@ export default function NoCalendarView({
       </div>
 
       {/* Text Section */}
-      <div className="mt-4 text-center">
-        <h3 className="text-lg font-semibold text-gray-900 italic">
+      <div className="-mt-2 text-center">
+        <h3 className="text-[15] font-[400] text-gray-900 italic">
           No Calendar added
         </h3>
         {/* <p className="mt-1 text-sm text-gray-500">
@@ -37,7 +31,7 @@ export default function NoCalendarView({
 
       {/* Button Section */}
       <button
-        className="mt-6 flex items-center px-6 py-3 bg-[#7902DF] font-[600] text-white rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+        className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
         onClick={() => {
           addCalendarAction();
         }}
@@ -58,28 +52,6 @@ export default function NoCalendarView({
         </svg>
         Add Calendar
       </button>
-      {showVideo && (
-        <div
-          className="-ml-4 flex  justify-center mt-2  xl:w-[350px] lg:w-[350px]"
-          style={{
-            position: "",
-            // left: "18%",
-            // translate: "-50%",
-            // left: "14%",
-            // top: "20%",
-            // backgroundColor: "red"
-          }}
-        >
-          <VideoCard
-            duration="2 min 42 sec"
-            horizontal={false}
-            playVideo={() => {
-              setIntroVideoModal(true);
-            }}
-            title="Learn how to add a calendar"
-          />
-        </div>
-      )}
     </div>
   );
 }

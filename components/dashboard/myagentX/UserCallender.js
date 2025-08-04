@@ -503,10 +503,11 @@ const UserCalender = ({
 
 
           </div>
-
-          <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
-            + Add Calendar
-          </button>
+          {allCalendars.length > 0 &&
+            <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
+              + Add Calendar
+            </button>
+         }
         </div>
 
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
@@ -811,28 +812,6 @@ const UserCalender = ({
           </Box>
         </Modal>
       </div>
-
-
-
-      {/* video modal to add calendar */}  {/* hidded for now */}
-      {/* <div className="mt-2">
-         <VideoCard
-          duration="2 min 42 sec"
-          horizontal={false}
-          playVideo={() => {
-            setIntroVideoModal2(true);
-          }}
-          title="Learn how to add a calendar"
-        />
-      </div> 
-
-      {/* Intro modal */}
-      <IntroVideoModal
-        open={introVideoModal2}
-        onClose={() => setIntroVideoModal2(false)}
-        videoTitle="Learn how to add a calendar"
-        videoUrl={HowtoVideos.Calendar}
-      />
 
     </div>
   );
