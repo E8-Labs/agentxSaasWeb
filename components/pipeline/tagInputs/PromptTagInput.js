@@ -398,7 +398,7 @@ export const PromptTagInput = ({
   const handleChange = (e) => {
     setText(e.target.value);
     tagValue(e.target.value);
-    setError(null)
+    // setError(null)
   };
 
   const styles = {

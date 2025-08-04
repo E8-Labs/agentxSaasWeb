@@ -22,6 +22,9 @@ import { GreetingTagInput } from "../tagInputs/GreetingTagInput";
 import { PromptTagInput } from "../tagInputs/PromptTagInput";
 
 const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
+
+  console.log("Kycs data passed too guardrails screen is:", kycsData);
+
   const [guardrailsList, setGuardrailsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [showAddObjForm, setShowAddObjForm] = useState(false);
@@ -49,7 +52,12 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
   const [showErrorSnack, setShowErrorSnack] = useState(null);
   const [showSuccessSnack, setShowSuccessSnack] = useState(null);
 
-  const [error, setError] = useState(null);
+  //uniques columns
+  // const [uniqueColumns, setUniqueColumns] = useState([]);
+  const [scrollOffset, setScrollOffset] = useState({
+    scrollTop: 0,
+    scrollLeft: 0,
+  });
 
   useEffect(() => {
     const guadrailsList = localStorage.getItem(PersistanceKeys.GuadrailsList);
@@ -128,10 +136,6 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
 
   //code for add objection guardrial api
   const addGuadrial = async () => {
-    if(!addObjTitle || !addObjDescription ){
-      setError("Enter all credentials");
-      return;
-    }
     try {
       setAddObjectionLoader(true);
 
@@ -189,6 +193,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
         // //console.log;
         if (response.data.status === true) {
           setGuardrailsList(response.data.data.guardrails);
+          setShowSuccessSnack("Guardrail added")
           localStorage.setItem(
             PersistanceKeys.GuadrailsList,
             JSON.stringify(response.data.data.guardrails)
@@ -540,6 +545,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
             }}
             kycsData={kycsData}
             uniqueColumns={uniqueColumns}
+            scrollOffset={scrollOffset}
           />
         )
       }
@@ -595,22 +601,19 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
               value={addObjTitle}
               onChange={(event) => {
                 setAddObjTitle(event.target.value);
-                setError(null)
               }}
             />
             <div style={{ ...styles.title, marginTop: 10 }}>Description</div>
-            {/*
-              <TextareaAutosize
-                maxRows={5}
-                className="outline-none focus:outline-none focus:ring-0"
-                style={styles.inputStyle}
-                placeholder="Add description"
-                value={addObjDescription}
-                onChange={(event) => {
-                  setAddObjDescription(event.target.value);
-                }}
-              />
-            */}
+            {/*<TextareaAutosize
+              maxRows={5}
+              className="outline-none focus:outline-none focus:ring-0"
+              style={styles.inputStyle}
+              placeholder="Add description"
+              value={addObjDescription}
+              onChange={(event) => {
+                setAddObjDescription(event.target.value);
+              }}
+            />*/}
 
             {/*
               <GreetingTagInput
@@ -620,7 +623,7 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
                 tagValue={(text) => {
                   setAddObjDescription(text);
                 }}
-              // scrollOffset={scrollOffset}
+                scrollOffset={scrollOffset}
               />
             */}
 
@@ -630,11 +633,10 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
                 kycsList={kycsData}
                 uniqueColumns={uniqueColumns}
                 tagValue={setAddObjDescription}
-                // scrollOffset={scrollOffset}
+                scrollOffset={scrollOffset}
                 showSaveChangesBtn={addObjDescription}
-                from={"guardrails"}
+                from={"Guardrail"}
                 isEdit={false}
-                setError = {setError}
                 saveUpdates={async () => {
                   // await updateAgent();
                   // setShowObjectionsSaveBtn(false);
@@ -644,26 +646,25 @@ const GuardianSetting = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }
 
               {/* <DynamicDropdown /> */}
             </div>
-            {error && (
-              <div className="text-red text-start mt-2" style={{ fontsize: 15, fontWeight: "500", padding: 2 }}>
-                {error}
-              </div>
-            )}
 
             <div className="w-full">
-              {addObjectionLoader ? (
-                <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">
-                  <CircularProgress size={25} />
-                </div>
-              ) : (
-                <button
-                  className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
-                  onClick={addGuadrial}
-                  style={styles.title}
-                >
-                  Save
-                </button>
-              )}
+
+              {
+                addObjTitle && addObjDescription &&
+                (
+                  addObjectionLoader ? (
+                    <div className="w-full flex flex-row items-center justify-center mt-8 h-[50px]">
+                      <CircularProgress size={25} />
+                    </div>
+                  ) : (
+                    <button
+                      className="text-white bg-purple h-[50px] rounded-xl w-full mt-8"
+                      onClick={addGuadrial}
+                      style={styles.title}
+                    >
+                      Save
+                    </button>
+                  ))}
             </div>
           </div>
         </Box>
