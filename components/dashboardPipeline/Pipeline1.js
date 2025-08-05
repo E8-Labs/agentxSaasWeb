@@ -1003,6 +1003,8 @@ const Pipeline1 = () => {
       formData.append("stageTitle", newStageTitle);
       formData.append("color", stageColor);
       formData.append("action", action);
+      formData.append("tags", tagsValue);
+      formData.append("teams", assignLeadToMember);
 
       // Add examples array
       inputs.forEach((input, index) => {
@@ -3037,69 +3039,70 @@ const Pipeline1 = () => {
                                             }
                                         </div> */}
 
-                      {!isEditingStage && (
-                        <>
-                          <div className="flex flex-row items-center gap-2 mt-4">
-                            <p style={{ fontWeight: "600", fontSize: 15 }}>
-                              Assign to
-                            </p>
-                            {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
-                            <Image
-                              src="/svgIcons/infoIcon.svg"
-                              height={20}
-                              width={20}
-                              alt="*"
-                              aria-owns={open ? "mouse-over-popover2" : undefined}
-                              aria-haspopup="true"
-                              onMouseEnter={(event) => {
-                                setAssigntoActionInfoEl(event.currentTarget);
-                              }}
-                              onMouseLeave={handlePopoverClose}
-                            />
-                          </div>
+                      {/*!isEditingStage && (
+                      )*/}
+                      <>
+                        <div className="flex flex-row items-center gap-2 mt-4">
+                          <p style={{ fontWeight: "600", fontSize: 15 }}>
+                            Assign to
+                          </p>
+                          {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
+                          <Image
+                            src="/svgIcons/infoIcon.svg"
+                            height={20}
+                            width={20}
+                            alt="*"
+                            aria-owns={open ? "mouse-over-popover2" : undefined}
+                            aria-haspopup="true"
+                            onMouseEnter={(event) => {
+                              setAssigntoActionInfoEl(event.currentTarget);
+                            }}
+                            onMouseLeave={handlePopoverClose}
+                          />
+                        </div>
 
-                          <Popover
-                            id="mouse-over-popover2"
-                            sx={{
-                              pointerEvents: "none",
-                            }}
-                            open={openAssigneAction}
-                            anchorEl={assigntoActionInfoEl}
-                            anchorOrigin={{
-                              vertical: "top",
-                              horizontal: "center",
-                            }}
-                            transformOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
-                            }}
-                            PaperProps={{
-                              elevation: 1, // This will remove the shadow
-                              style: {
-                                boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
-                              },
-                            }}
-                            onClose={handlePopoverClose}
-                            disableRestoreFocus
-                          >
-                            <div className="p-2">
-                              <div className="flex flex-row items-center gap-1">
-                                <Image
-                                  src={"/svgIcons/infoIcon.svg"}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                                <p style={{ fontWeight: "500", fontSize: 12 }}>
-                                  {showSampleTip
-                                    ? "What are possible answers leads will give to this question?"
-                                    : "Notify a team member when leads move here."}
-                                </p>
-                              </div>
+                        <Popover
+                          id="mouse-over-popover2"
+                          sx={{
+                            pointerEvents: "none",
+                          }}
+                          open={openAssigneAction}
+                          anchorEl={assigntoActionInfoEl}
+                          anchorOrigin={{
+                            vertical: "top",
+                            horizontal: "center",
+                          }}
+                          transformOrigin={{
+                            vertical: "bottom",
+                            horizontal: "left",
+                          }}
+                          PaperProps={{
+                            elevation: 1, // This will remove the shadow
+                            style: {
+                              boxShadow: "0px 10px 10px rgba(0, 0, 0, 0.1)",
+                            },
+                          }}
+                          onClose={handlePopoverClose}
+                          disableRestoreFocus
+                        >
+                          <div className="p-2">
+                            <div className="flex flex-row items-center gap-1">
+                              <Image
+                                src={"/svgIcons/infoIcon.svg"}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                              <p style={{ fontWeight: "500", fontSize: 12 }}>
+                                {showSampleTip
+                                  ? "What are possible answers leads will give to this question?"
+                                  : "Notify a team member when leads move here."}
+                              </p>
                             </div>
-                          </Popover>
+                          </div>
+                        </Popover>
 
-                          {/* <button
+                        {/* <button
                     className="flex flex-row items-center w-full justify-between rounded-lg h-[50px] px-2 mt-1 outline-none"
                     style={{ border: "1px solid #00000020" }}
                   >
@@ -3109,50 +3112,50 @@ const Pipeline1 = () => {
                     </div>
                   </button> */}
 
-                          <div className="mt-2">
-                            <FormControl fullWidth>
-                              <Select
-                                id="demo-simple-select"
-                                value={assignToMember || ""} // Default to empty string when no value is selected
-                                onChange={handleAssignTeamMember}
-                                displayEmpty // Enables placeholder
-                                renderValue={(selected) => {
-                                  if (!selected) {
-                                    return (
-                                      <div style={{ color: "#aaa" }}>
-                                        Select team member
-                                      </div>
-                                    ); // Placeholder style
-                                  }
-                                  return selected;
-                                }}
-                                sx={{
-                                  border: "1px solid #00000020", // Default border
-                                  "&:hover": {
-                                    border: "1px solid #00000020", // Same border on hover
+                        <div className="mt-2">
+                          <FormControl fullWidth>
+                            <Select
+                              id="demo-simple-select"
+                              value={assignToMember || ""} // Default to empty string when no value is selected
+                              onChange={handleAssignTeamMember}
+                              displayEmpty // Enables placeholder
+                              renderValue={(selected) => {
+                                if (!selected) {
+                                  return (
+                                    <div style={{ color: "#aaa" }}>
+                                      Select team member
+                                    </div>
+                                  ); // Placeholder style
+                                }
+                                return selected;
+                              }}
+                              sx={{
+                                border: "1px solid #00000020", // Default border
+                                "&:hover": {
+                                  border: "1px solid #00000020", // Same border on hover
+                                },
+                                "& .MuiOutlinedInput-notchedOutline": {
+                                  border: "none", // Remove the default outline
+                                },
+                                "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                                {
+                                  border: "none", // Remove outline on focus
+                                },
+                                "&.MuiSelect-select": {
+                                  py: 0, // Optional padding adjustments
+                                },
+                              }}
+                              MenuProps={{
+                                PaperProps: {
+                                  style: {
+                                    maxHeight: "30vh", // Limit dropdown height
+                                    overflow: "auto", // Enable scrolling in dropdown
+                                    scrollbarWidth: "none",
                                   },
-                                  "& .MuiOutlinedInput-notchedOutline": {
-                                    border: "none", // Remove the default outline
-                                  },
-                                  "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                  {
-                                    border: "none", // Remove outline on focus
-                                  },
-                                  "&.MuiSelect-select": {
-                                    py: 0, // Optional padding adjustments
-                                  },
-                                }}
-                                MenuProps={{
-                                  PaperProps: {
-                                    style: {
-                                      maxHeight: "30vh", // Limit dropdown height
-                                      overflow: "auto", // Enable scrolling in dropdown
-                                      scrollbarWidth: "none",
-                                    },
-                                  },
-                                }}
-                              >
-                                {/* <MenuItem value={myTeamAdmin?.name}>
+                                },
+                              }}
+                            >
+                              {/* <MenuItem value={myTeamAdmin?.name}>
                           <div className="w-full flex flex-row items-center gap-2">
                             <div>{myTeamAdmin.name}</div>
                             <div className="bg-purple text-white text-sm px-2 rounded-full">
@@ -3160,55 +3163,54 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </MenuItem> */}
-                                <MenuItem value="">
-                                  <em>Delete</em>
-                                </MenuItem>
-                                {myTeamList.map((item, index) => {
-                                  return (
-                                    <MenuItem
-                                      className="flex flex-row items-center gap-2"
-                                      key={index}
-                                      value={item?.invitedUser?.name}
-                                    >
-                                      {/* <Image
+                              <MenuItem value="">
+                                <em>Delete</em>
+                              </MenuItem>
+                              {myTeamList.map((item, index) => {
+                                return (
+                                  <MenuItem
+                                    className="flex flex-row items-center gap-2"
+                                    key={index}
+                                    value={item?.invitedUser?.name}
+                                  >
+                                    {/* <Image
                                                               src={item.invitedUser.full_profile_image || "/agentXOrb.gif"}
                                                               width={35}
                                                               height={35}
                                                               alt="*"
                                                             /> */}
-                                      {getAgentsListImage(
-                                        item?.invitedUser,
-                                        42,
-                                        42
-                                      )}
-                                      {item.invitedUser?.name}
-                                      {item.id === -1 && (
-                                        <div className="bg-purple text-white text-sm px-2 rounded-full">
-                                          Admin
-                                        </div>
-                                      )}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </Select>
-                            </FormControl>
-                          </div>
+                                    {getAgentsListImage(
+                                      item?.invitedUser,
+                                      42,
+                                      42
+                                    )}
+                                    {item.invitedUser?.name}
+                                    {item.id === -1 && (
+                                      <div className="bg-purple text-white text-sm px-2 rounded-full">
+                                        Admin
+                                      </div>
+                                    )}
+                                  </MenuItem>
+                                );
+                              })}
+                            </Select>
+                          </FormControl>
+                        </div>
 
-                          <p
-                            className="mt-2"
-                            style={{ fontWeight: "500", fontSize: 15 }}
-                          >
-                            Tags
-                          </p>
+                        <p
+                          className="mt-2"
+                          style={{ fontWeight: "500", fontSize: 15 }}
+                        >
+                          Tags
+                        </p>
 
-                          <div
-                            className="h-[45px] p-2 rounded-lg  items-center gap-2"
-                            style={{ border: "0px solid #00000030" }}
-                          >
-                            <TagsInput setTags={setTagsValue} />
-                          </div>
-                        </>
-                      )}
+                        <div
+                          className="h-[45px] p-2 rounded-lg  items-center gap-2"
+                          style={{ border: "0px solid #00000030" }}
+                        >
+                          <TagsInput setTags={setTagsValue} />
+                        </div>
+                      </>
                     </div>
                   )}
                 </div>
