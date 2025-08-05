@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Button, Popover, Typography } from '@mui/material';
+import { Button, Popover, Tooltip, Typography } from '@mui/material';
 import Image from 'next/image';
 
 export default function TwilioProfileToolTip({ toolTip }) {
@@ -19,7 +19,7 @@ export default function TwilioProfileToolTip({ toolTip }) {
 
     return (
         <div>
-            <button
+            {/* <button
                 aria-describedby={id}
                 onClick={handleClick}
             >
@@ -29,7 +29,38 @@ export default function TwilioProfileToolTip({ toolTip }) {
                     height={15}
                     width={15}
                 />
-            </button>
+    </button>*/}
+
+            <Tooltip
+                title={toolTip}
+                arrow
+                placement="top-start"
+                componentsProps={{
+                    tooltip: {
+                        sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "16px",
+                            fontWeight: "500",
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                    },
+                    arrow: {
+                        sx: {
+                            color: "#ffffff", // Match tooltip background
+                        },
+                    },
+                }}
+            >
+                <Image
+                    alt='*'
+                    src={"/agencyIcons/InfoIcon.jpg"}
+                    height={15}
+                    width={15}
+                />
+            </Tooltip>
 
             <Popover
                 id={id}

@@ -2,35 +2,27 @@ import { ArrowDown, CaretDown, CaretUp } from '@phosphor-icons/react';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip';
-import Cnammain from '../cnamtab/Cnammain';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import ShowRequestStatus from '../twilioExtras/ShowRequestStatus';
+import AddAp2MessageAnimation from '../addap2message/AddAp2MessageAnimation';
 import LockDetailsView from './LockDetailsView';
-import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
-import TestTwilioBtn from '../twilioExtras/TestTwilioBtn';
 
-const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileData, businessProfileData }) => {
-
-    console.log("Friendly name papssed is", businessProfileData);
+const Ap2MessagingDetails = ({
+    twilioHubData,
+    profileStatus,
+    getProfileData,
+    block = true
+}) => {
 
     const [showDetails, setShowDetails] = useState(false);
-    const [showAddCNAM, setShowAddCNAM] = useState(false);
+    const [showAddMessage, setShowAddMessage] = useState(false);
     //show success snack
     const [showSnack, setShowSnack] = useState({
         type: SnackbarTypes.Success,
         message: "",
         isVisible: false
     });
-    //allow add details btn
-    const [allowAddDetails, setAllowAddDetails] = useState(true);
 
-    useEffect(() => {
-        if (twilioHubData) {
-            setAllowAddDetails(false);
-        } else {
-            setAllowAddDetails(true);
-        }
-    }, [twilioHubData]);
 
     //styles
     const styles = {
@@ -72,33 +64,22 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                 <div className='w-full flex flex-row items-center justify-between px-4 py-2'>
                     <div className='flex flex-row items-center gap-2'>
                         <Image
-                            src={"/twiliohubassets/cnam.jpg"}
+                            src={"/twiliohubassets/voice.jpg"}
                             alt='*'
-                            height={19}
-                            width={19}
+                            height={18}
+                            width={18}
                         />
                         <div style={styles.fontSemiBold}>
-                            CNAM
+                            A2P SMS Messaging
+                        </div>
+                        <div className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                            Coming Soon
                         </div>
                         <div>
-                            <TwilioProfileToolTip toolTip={"CNAM is the name that shows up on someone's phone when you call them — like “AgentX Real Estate” or “John from ABC Corp.”"} />
+                            <TwilioProfileToolTip toolTip={"Send text messages to your customers"} />
                         </div>
                     </div>
-                    <div className='flex flex-row items-center gap-2'>
-                        {twilioHubData?.status && (
-                            <ShowResubmitBtn
-                                status={twilioHubData?.status}
-                                handleOpenModal={() => { setShowAddCNAM(true) }}
-                            />
-                        )}
-                        {/*
-                            <TestTwilioBtn
-                                handleClick={() => {
-                                    setShowAddCNAM(true);
-                                    console.log("test twilio btn clicked");
-                                }}
-                            />
-                        */}
+                    <div className='flex flex-row items-end gap-2'>
                         <button
                             className='border p-2 rounded-full'
                             disabled={!twilioHubData}
@@ -117,17 +98,15 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                 </div>
             </div>
             {twilioHubData?.status ? (
-                <ShowRequestStatus
-                    status={twilioHubData?.status}
-                    twilioData={twilioHubData}
-                />
+                <ShowRequestStatus status={twilioHubData?.status} />
             ) : (
                 <LockDetailsView
                     profileStatus={profileStatus}
-                    handleShowAddModal={() => { setShowAddCNAM(true) }}
-                    businessProfileData={businessProfileData}
-                    twilioData={twilioHubData}
-                    unLockDescription="Add CNAM."
+                    handleShowAddModal={() => { setShowAddMessage(true) }}
+                    btnTitle='Get Approved'
+                    description="Send text messages to your customers."
+                    showBtn={true}
+                    unLockDescription="Add A2P SMS Messaging."
                 />
             )
             }
@@ -137,10 +116,10 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
                         <div className='w-full px-4 mb-4'>
                             <div className='flex flex-row items-center mt-2'>
                                 <div className='w-1/2' style={styles.mediumfontLightClr}>
-                                    CNAM display name
+                                    Ap2 Message
                                 </div>
                                 <div className='w-1/2' style={styles.mediumfontDarkClr}>
-                                    {twilioHubData?.friendlyName || "N/A"}
+                                    {`Message (No UI now will add aaccording to the ui)`}
                                 </div>
                             </div>
                         </div>
@@ -149,15 +128,13 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
             }
 
             {
-                showAddCNAM && (
-                    <Cnammain
-                        friendlyName={businessProfileData}
-                        showAddCNAM={showAddCNAM}
-                        trustProducts={trustProducts}
+                showAddMessage && (
+                    <AddAp2MessageAnimation
+                        showModal={showAddMessage}
                         handleClose={(d) => {
-                            setShowAddCNAM(false);
+                            setShowAddMessage(false);
                             if (d) {
-                                getProfileData(d);
+                                getProfileData();
                                 setShowSnack({
                                     type: SnackbarTypes.Success,
                                     message: d.message,
@@ -172,4 +149,4 @@ const CenamDetails = ({ twilioHubData, trustProducts, profileStatus, getProfileD
     )
 }
 
-export default CenamDetails
+export default Ap2MessagingDetails

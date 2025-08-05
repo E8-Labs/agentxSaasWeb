@@ -51,6 +51,12 @@ function MyAccount() {
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
+    {
+      id: 6,
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/twilioHub.svg",
+    },
     // {
     //   id: 6,
     //   heading: "Support",
@@ -64,19 +70,19 @@ function MyAccount() {
     //   icon: "/otherAssets/feedbackIcon.png",
     // },
     {
-      id: 6,
+      id: 7,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 7,
+      id: 8,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 8,
+      id: 9,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -121,8 +127,8 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 5:
         return <InviteAgentX />;
-      // case 6:
-      //   return <TwilioTrustHub />;
+      case 6:
+        return <TwilioTrustHub />;
       // case 6:
       //   return <Support />;
       // case 7:
@@ -131,30 +137,30 @@ function MyAccount() {
         return <div>Please select an option.</div>;
     }
   };
-
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 6) {
+    if (item.id === 7) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 7) {
+    } else if (item.id === 8) {
       window.open(
-        privacyPollicyUrl,
+        "/privacy-policy",
         "_blank"
       );
       return
-    } else if (item.id === 8) {
+    } else if (item.id === 9) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"
       );
       return
     }
-    setTabSelected(index + 1);
-    setParamsInSearchBar(index + 1);
+    console.log("Index is", index);
+    setTabSelected(item.id);
+    setParamsInSearchBar(item.id);
 
   }
 

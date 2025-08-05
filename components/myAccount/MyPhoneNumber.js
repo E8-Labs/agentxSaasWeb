@@ -33,6 +33,7 @@ function MyPhoneNumber() {
     //function to close cllaim no popup
     const handleCloseClaimPopup = () => {
         setShowClaimPopup(false);
+        getPhoneNumbers()
     };
 
     //function get phonenumbers

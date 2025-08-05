@@ -1,5 +1,6 @@
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
+import { PersistanceKeys } from "@/constants/Constants";
 import axios from "axios";
 
 export const AddCalendarApi = async (calendarValues
@@ -18,16 +19,16 @@ export const AddCalendarApi = async (calendarValues
         const formData = new FormData();
 
         if (calendarValues?.isFromAddGoogleCal) {
-            formData.append("title", calendarValues?.calenderTitle);
+            formData.append("title", calendarValues?.title);
             formData.append("calendarType", "google");
             // formData.append("mainAgentId", "");
             formData.append("accessToken", calendarValues?.accessToken);
             formData.append("refreshToken", calendarValues?.refreshToken);
-            formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
+            formData.append("scope", PersistanceKeys.addCalendarScope);
             formData.append("expiryDate", calendarValues?.expiryDate);
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);
-            formData.append("email", calendarValues?.email);
+            formData.append("eventId", calendarValues?.eventId);
         } else {
             formData.append("title", calendarValues?.calenderTitle);
             formData.append("timeZone", calendarValues?.selectTimeZone);
@@ -41,7 +42,7 @@ export const AddCalendarApi = async (calendarValues
         }
         console.log("Key updated");
 
-        // return
+        return
         const response = await axios.post(ApiPath, formData, {
             headers: {
                 Authorization: "Bearer " + userAuthToken,
