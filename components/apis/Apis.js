@@ -198,7 +198,7 @@ const Apis = {
   addTwilio: `${BasePath}api/business-profile/twilio/create`,
   createCname: `${BasePath}api/business-profile/cnam`,
   createShakenStir: `${BasePath}api/business-profile/shakenstir`,
-  createVoiceIntegrity: `${BasePath}api/business-profile/vocie-integrity`,
+  createVoiceIntegrity: `${BasePath}api/business-profile/voice-integrity`,
   createBrandedCalling: `${BasePath}api/business-profile/branded-calling`,
   disconnectTwilio: `${BasePath}api/business-profile/twilio/disconnect`,
   addTrustProduct: `${BasePath}api/business-profile/trust-products/select`,
