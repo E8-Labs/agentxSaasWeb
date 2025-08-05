@@ -188,11 +188,6 @@ const ProfileNav = () => {
         const watched = u?.user?.walkthroughWatched;
         if (u?.user?.plan && (watched === false || watched === "false")) {
           updateWalkthroughWatched();
-          window.addEventListener("UpdateProfile", handleUpdateProfile);
-
-          return () => {
-            document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
-          };
         }
       }
       // updateWalkthroughWatched();
@@ -360,6 +355,17 @@ const ProfileNav = () => {
       const response = await UpdateProfile(apidata);
       if (response) {
         setUpdateProfileLoader(false);
+        const handleUpdateProfile = (event) => {
+          // //console.log;
+          getUserProfile(); // Refresh the profile data
+          console.log("Navbar called getprofile api after the intro video");
+        };
+
+        window.addEventListener("UpdateProfile", handleUpdateProfile);
+
+        return () => {
+          document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
+        };
         console.log("Update api resopnse after walkthrough true", response)
       }
       // console.log("Response of update profile api is", response)
