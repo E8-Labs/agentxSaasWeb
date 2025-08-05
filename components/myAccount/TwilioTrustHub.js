@@ -19,22 +19,50 @@ const TwilioTrustHub = () => {
     //how to video
     const [introVideoModal2, setIntroVideoModal2] = useState(false);
 
-    useEffect(() => {
-        getBusinessProfile();
+    // const timer = setTimeout(() => {
+    //     getBusinessProfile(true);
+    // }, 300);
 
-        // Start polling every 6 seconds (silent polling)
+    // return () => clearTimeout(timer);
+
+    // useEffect(() => {
+    //     getBusinessProfile();
+
+    //     // Start polling every 3 seconds (silent polling)
+    //     const interval = setInterval(() => {
+    //         getBusinessProfile(true);
+    //     }, 3000);
+
+
+
+    //     setPollingInterval(interval);
+
+    //     // Cleanup on unmount
+    //     return () => {
+    //         if (interval) {
+    //             clearInterval(interval);
+    //         }
+    //     };
+    // }, []);
+
+    //test polling code
+    
+    
+    useEffect(() => {
+        getBusinessProfile(); // Initial load with loader
+
         const interval = setInterval(() => {
-            getBusinessProfile(true);
+            (async () => {
+                try {
+                    console.log("This is trigering the business profile api in polling");
+                    await getBusinessProfile(true); // Polling
+                } catch (err) {
+                    console.error("Polling error:", err);
+                }
+            })();
         }, 3000);
 
-        setPollingInterval(interval);
-
-        // Cleanup on unmount
-        return () => {
-            if (interval) {
-                clearInterval(interval);
-            }
-        };
+        return () => clearInterval(interval); // Clean up on unmount
     }, []);
 
     const [twilioHubData, setTwilioHubData] = useState(null);
@@ -186,7 +214,10 @@ const TwilioTrustHub = () => {
                                 twilioHubData={twilioHubData?.cnam}
                                 trustProducts={twilioHubData?.trustProducts}
                                 // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => { getBusinessProfile() }}
+                                getProfileData={(d) => {
+                                    console.log("should triger the api to get business profile after cnam added");
+                                    getBusinessProfile(true)//testing pass true
+                                }}
                                 profileStatus={profileStatus}
                             />
                         </div>
@@ -196,7 +227,10 @@ const TwilioTrustHub = () => {
                                 twilioHubData={twilioHubData?.shakenStir}
                                 trustProducts={twilioHubData?.trustProducts}
                                 // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => { getBusinessProfile() }}
+                                getProfileData={(d) => {
+                                    console.log("should triger the api to get business profile after shaken stir added");
+                                    getBusinessProfile();
+                                }}
                                 profileStatus={profileStatus}
                             />
                         </div>
@@ -206,7 +240,10 @@ const TwilioTrustHub = () => {
                                 twilioHubData={twilioHubData?.voiceIntegrity}
                                 trustProducts={twilioHubData?.trustProducts}
                                 // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => { getBusinessProfile() }}
+                                getProfileData={(d) => {
+                                    console.log("should triger the api to get business profile after voice added");
+                                    getBusinessProfile();
+                                }}
                                 profileStatus={profileStatus}
                             />
                         </div>
