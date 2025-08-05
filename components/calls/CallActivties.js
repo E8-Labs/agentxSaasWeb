@@ -564,6 +564,67 @@ function SheduledCalls({ user }) {
     return "-";
   }
 
+  function getAgentImageForActiviti(agent) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
+      let img
+      if (agents[0].agentType === "outbound") {
+        img = agents[0]?.thumb_profile_image;
+
+        if (img) {
+          return (
+            <Image
+              className="rounded-full"
+              src={img}
+              height={40}
+              width={40}
+              style={{
+                height: "40px",
+                width: "40px",
+                resize: "cover",
+              }}
+              alt="*"
+            />
+          )
+        } else {
+          return (
+
+            <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+              {getFirstAlphabetFromName(agent)}
+            </div>
+          )
+        }
+      } else {
+        if (agents.length > 1) {
+          img = agents[1]?.thumb_profile_image;
+          if (img) {
+            return (
+              <Image
+                className="rounded-full"
+                src={img}
+                height={40}
+                width={40}
+                style={{
+                  height: "40px",
+                  width: "40px",
+                  resize: "cover",
+                }}
+                alt="*"
+              />
+            )
+          } else {
+            return (
+              <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                {getFirstAlphabetFromName(agent)}
+              </div>
+            )
+          }
+        }
+      }
+    }
+    return "-";
+  }
+
   function formatName(name) {
     if (typeof name !== "string" || name.length === 0) return "-";
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
@@ -703,24 +764,7 @@ function SheduledCalls({ user }) {
                                 key={index}
                               >
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  {agent?.agents[0]?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={agent?.agents[0].thumb_profile_image}
-                                      height={40}
-                                      width={40}
-                                      style={{
-                                        height: "40px",
-                                        width: "40px",
-                                        resize: "cover",
-                                      }}
-                                      alt="*"
-                                    />
-                                  ) : (
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                      {getFirstAlphabetFromName(agent)}
-                                    </div>
-                                  )}
+                                  {getAgentImageForActiviti(agent)}
 
                                   <div style={styles.text2}>
                                     {getAgentNameForActiviti(agent)}
