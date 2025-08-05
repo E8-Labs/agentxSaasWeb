@@ -3028,7 +3028,7 @@ function Page() {
                           />
                         </div>
                       ) : (
-                        getAgentsListImage(showDrawerSelectedAgent?.agents[0])
+                        getAgentsListImage(showDrawerSelectedAgent)
                       )}
 
                       <Image
