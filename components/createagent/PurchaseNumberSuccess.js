@@ -61,7 +61,7 @@ const PurchaseNumberSuccess = ({ handleContinue, selectedNumber }) => {
 
             <div className='flex flex-row justify-between items-center mt-12 w-full'>
                 <div style={styles.heading}>Amount</div>
-                <div style={styles.details}>$2.00/Mo</div>
+                <div style={styles.details}>$1.15/Mo</div>
             </div>
 
             <button
