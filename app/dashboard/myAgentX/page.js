@@ -627,7 +627,7 @@ function Page() {
   const updateAgentProfile = async (image) => {
     try {
       //console.log;
-      setGlobalLoader(true);
+      setGlobalLoader(true);x
 
       const LocalData = localStorage.getItem("User");
 
@@ -644,10 +644,12 @@ function Page() {
       const formData = new FormData();
 
       formData.append("media", image);
-      formData.append("agentId", showDrawerSelectedAgent.id);
+      formData.append("agentId", showDrawerSelectedAgent?.agents[0].id);
+
+      console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
 
       for (let [key, value] of formData.entries()) {
-        //// //console.log;
+        console.log(key,value)
       }
 
       //// //console.log;
@@ -660,7 +662,7 @@ function Page() {
       });
 
       if (response) {
-        //console.log;
+        console.log("response of update image is",response.data)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -3082,7 +3084,7 @@ function Page() {
                           />
                         </div>
                       ) : (
-                        getAgentsListImage(showDrawerSelectedAgent)
+                        getAgentsListImage(showDrawerSelectedAgent?.agents[0])
                       )}
 
                       <Image

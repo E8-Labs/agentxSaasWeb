@@ -39,7 +39,7 @@ export const PromptTagInput = ({
 
   useEffect(() => {
     let arr = [...options];
-    uniqueColumns.map((item) => {
+    uniqueColumns?.map((item) => {
       if (!arr.includes(item)) {
         arr.push(item);
       }

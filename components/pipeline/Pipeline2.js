@@ -1052,14 +1052,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                 </div>
 
                 <div className="flex flex-col items-center gap-2">
-                  <div className="flex flex-row items-center gap-10 mt-10">
+                  <div className="flex flex-row items-center gap-8 mt-10">
                     {advanceSettingType.map((item, index) => (
-                      <button
+                      <button 
                         key={item.id}
                         style={{
                           ...styles.inputStyle,
                           color:
                             item.id === settingToggleClick ? "#7902DF" : "",
+                          marginLeft:item.id === 2 ? 10 :0
                         }}
                         onClick={(e) => {
                           handleAdvanceSettingToggleClick(item.id);
@@ -1143,9 +1144,11 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                       </div>
                     </div>
                   ) : settingToggleClick === 2 ? (
-                    <GuardianSetting />
+                    <GuardianSetting
+                      kycsData = {kycsData}
+                    />
                   ) : settingToggleClick === 3 ? (
-                    <Objection />
+                    <Objection kycsData = {kycsData} />
                   ) : (
                     ""
                   )}
