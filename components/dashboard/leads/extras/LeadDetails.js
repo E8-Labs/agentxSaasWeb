@@ -216,6 +216,7 @@ const LeadDetails = ({
       //console.log;
       handleClosePopup();
       setGlobalLoader(true);
+      console.log("Item passed is", item);
       let ApiData = null;
       if (item.invitedUserId) {
         ApiData = {
@@ -229,6 +230,9 @@ const LeadDetails = ({
         };
       }
       console.log("Api data to send in api is", ApiData)
+      // selectedLeadsDetails.id,
+      //   item.invitingUserId
+      // return;
       let response = await AssignTeamMember(ApiData);
       if (response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
@@ -705,9 +709,11 @@ const LeadDetails = ({
       if (response) {
         // //console.log;
         if (response.data.status === true) {
+
+          setShowSuccessSnack2(true);
+          setShowSuccessSnack(response.data.message);
+          setShowDetailsModal(false);
           handleDelLead(selectedLeadsDetails);
-          setShowSuccessSnack2(response.data.message);
-          setShowDelModal(false);
         }
       }
     } catch (error) {
@@ -744,6 +750,14 @@ const LeadDetails = ({
   function getExtraColumsCount(columns) {
     // //console.log
     let count = 0;
+    // let ExcludedColumns = [
+    //   "name",
+    //   "phone",
+    //   "email",
+    //   "status",
+    //   "stage",
+    //   // "address",
+    // ];
     let ExcludedColumns = [
       "name",
       "phone",
@@ -969,7 +983,7 @@ const LeadDetails = ({
                             </div>
                             <div
                               className="truncate"
-                              onClick={() => handleToggleClick(item.id)}
+                            // onClick={() => handleToggleClick(item.id)}
                             >
                               {selectedLeadsDetails?.firstName}{" "}
                               {selectedLeadsDetails?.lastName}
@@ -1639,7 +1653,7 @@ const LeadDetails = ({
                               ) : (
                                 <div
                                   className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                  onClick={() => handleToggleClick(item.id)}
+                                // onClick={() => handleToggleClick(item.id)}
                                 >
                                   {myTeamAdmin?.name.slice(0, 1)}
                                 </div>
@@ -1680,9 +1694,9 @@ const LeadDetails = ({
                                     ) : (
                                       <div
                                         className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                        // onClick={() =>
-                                        //   handleToggleClick(item.id)
-                                        // }
+                                      // onClick={() =>
+                                      //   handleToggleClick(item.id)
+                                      // }
                                       >
                                         {item?.name.slice(0, 1)}
                                       </div>
