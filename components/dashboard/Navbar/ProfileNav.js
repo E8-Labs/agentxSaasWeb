@@ -295,38 +295,56 @@ const ProfileNav = () => {
   }, []);
 
   //intro video
+  // const getShowWalkThrough = () => {
+  //   console.log("Trigered check for walkthrough")
+  //   const localData = localStorage.getItem("User");
+  //   if (localData) {
+  //     const UserDetails = JSON.parse(localData);
+  //     // console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
+  //     console.log(
+  //       "walkthroughWatched raw value:",
+  //       UserDetails.user.walkthroughWatched,
+  //       "typeof:",
+  //       typeof UserDetails.user.walkthroughWatched
+  //     );
+
+  //     const watched = UserDetails?.user?.walkthroughWatched;
+  //     if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+  //       console.log("✅ should show intro video");
+  //       setWalkthroughWatched(true);
+  //     } else {
+  //       console.log("⛔ should not show intro video");
+  //       setWalkthroughWatched(false);
+  //     }
+
+  //     // if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
+  //     //   console.log("should show intro video ")
+  //     //   setWalkthroughWatched(true);
+  //     // } else {
+  //     //   console.log("should not show intro video")
+  //     //   setWalkthroughWatched(false);
+  //     // }
+
+  //   }
+  // }
+
   const getShowWalkThrough = () => {
-    console.log("Trigered check for walkthrough")
     const localData = localStorage.getItem("User");
     if (localData) {
       const UserDetails = JSON.parse(localData);
-      // console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
-      console.log(
-        "walkthroughWatched raw value:",
-        UserDetails.user.walkthroughWatched,
-        "typeof:",
-        typeof UserDetails.user.walkthroughWatched
-      );
-
       const watched = UserDetails?.user?.walkthroughWatched;
+
       if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
         console.log("✅ should show intro video");
         setWalkthroughWatched(true);
       } else {
-        console.log("⛔ should not show intro video");
-        setWalkthroughWatched(false);
+        // 👇 Prevent flipping it back off if it’s already been set
+        // console.log("⛔ should not show intro video");
+        // Do not set it to false here — allow modal to control it via onClose
       }
-
-      // if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
-      //   console.log("should show intro video ")
-      //   setWalkthroughWatched(true);
-      // } else {
-      //   console.log("should not show intro video")
-      //   setWalkthroughWatched(false);
-      // }
-
     }
-  }
+  };
+
 
   const updateWalkthroughWatched = async () => {
     try {
