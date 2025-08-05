@@ -49,25 +49,25 @@ const TwilioIntegrations = ({
     useEffect(() => {
         if (selectedVoiceIntegrity && String(selectedVoiceIntegrity).trim() !== "") {
             setIsDisabled(false);
-        } else if (!friendlyName && (!companySize  && companySize > 0) && (!averageCallsPerDay  && averageCallsPerDay < 0)  ) {
+        } else if (!friendlyName && (!companySize && companySize > 0) && (!averageCallsPerDay && averageCallsPerDay < 0)) {
             setIsDisabled(true);
         } else {
             setIsDisabled(false);
         }
-    }, [friendlyName, companySize, selectedVoiceIntegrity,averageCallsPerDay]);
+    }, [friendlyName, companySize, selectedVoiceIntegrity, averageCallsPerDay]);
 
     //add integration
     const handleAddVoiceIntegration = async () => {
         try {
             setLoader(true);
-            
+
             // If user selected an existing Voice Integrity product, use select API
             if (selectedVoiceIntegrity && String(selectedVoiceIntegrity).trim() !== "") {
                 // Import AddSelectedProduct API
                 console.log("drodown selected")
                 const { AddSelectedProduct } = await import('@/apiservicescomponent/twilioapis/AddSelectedProduct');
                 const response = await AddSelectedProduct(selectedVoiceIntegrity);
-                
+
                 setLoader(false);
                 if (response.status === true) {
                     setShowSnack({
@@ -273,7 +273,12 @@ const TwilioIntegrations = ({
                                 placeholder='Enter numbers only'
                                 value={companySize}
                                 onChange={(e) => {
-                                    setCompanySize(e.target.value);
+                                    // setCompanySize(e.target.value);
+                                    const val = e.target.value;
+                                    // ✅ Allow only digits (0–9)
+                                    if (/^\d*$/.test(val)) {
+                                        setCompanySize(val);
+                                    }
                                 }}
                             />
                             {companySize <= 0 &&
@@ -305,7 +310,12 @@ const TwilioIntegrations = ({
                                 placeholder='Enter numbers only'
                                 value={averageCallsPerDay}
                                 onChange={(e) => {
-                                    setAverageCallsPerDay(e.target.value);
+                                    // setAverageCallsPerDay(e.target.value);
+                                    const val = e.target.value;
+                                    // ✅ Allow only digits (0–9)
+                                    if (/^\d*$/.test(val)) {
+                                        setAverageCallsPerDay(val);
+                                    }
                                 }}
                             />
                             {
