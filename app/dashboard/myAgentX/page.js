@@ -593,7 +593,7 @@ function Page() {
       const formData = new FormData();
 
       formData.append("media", image);
-      formData.append("agentId", showDrawerSelectedAgent?.agents[0].id);
+      formData.append("agentId", showDrawerSelectedAgent.id);
 
       for (let [key, value] of formData.entries()) {
         //// //console.log;
