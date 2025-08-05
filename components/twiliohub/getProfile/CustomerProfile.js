@@ -9,6 +9,8 @@ import LockDetailsView from './LockDetailsView';
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn';
 import { CircularProgress } from '@mui/material';
 import AddTwilioAnimation from '../addtwilio/AddTwilioAnimation';
+import IntroVideoModal from '@/components/createagent/IntroVideoModal';
+import { HowtoVideos } from '@/constants/Constants';
 
 const CustomerProfile = ({
     twilioHubData,
@@ -18,6 +20,8 @@ const CustomerProfile = ({
     handleDisconnectTwilio
 }) => {
 
+    //how to video
+    const [introVideoModal2, setIntroVideoModal2] = useState(false);
     console.log("Trust hub data passed is", twilioHubData);
 
     const [showDetails, setShowDetails] = useState(false);
@@ -91,15 +95,35 @@ const CustomerProfile = ({
                 </div>
             </div>
 
-            <div
-                style={{
-                    fontSize: 12,
-                    fontWeight: "500",
-                    color: "#00000090",
-                }}
-            >
-                {"Account > Twilio"}
+            <div className="w-full flex flex-row items-center gap-6">
+                <div
+                    style={{
+                        fontSize: 12,
+                        fontWeight: "500",
+                        color: "#00000090",
+                    }}
+                >
+                    {"Account > Twilio"}
+                </div>
+                <div className="flex flex-row items-center gap-4">
+                    <button
+                        className='text-[15px] font-[500] text-purple outline-none border-none cursor-pointer'
+                        onClick={() => { setIntroVideoModal2(true) }}
+                    >
+                        Learn more about Twilio Trust Hub
+                    </button>
+                    <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                    // onClick={() => setIntroVideoModal2(true)}
+                    />
+                </div>
             </div>
+            {/* Intro modal */}
+            <IntroVideoModal
+                open={introVideoModal2}
+                onClose={() => setIntroVideoModal2(false)}
+                videoTitle="Learn how to add Twilio Trust Hub"
+                videoUrl={HowtoVideos.TwilioTrustHub}
+            />
 
             <div className='border rounded-lg w-full mt-2'>
                 <AgentSelectSnackMessage

@@ -16,9 +16,6 @@ import Image from 'next/image'
 
 const TwilioTrustHub = () => {
 
-    //how to video
-    const [introVideoModal2, setIntroVideoModal2] = useState(false);
-
     useEffect(() => {
         getBusinessProfile();
 
@@ -220,24 +217,6 @@ const TwilioTrustHub = () => {
                                 profileStatus={profileStatus}
                             />
                         </div>
-                        <div className="w-full flex flex-row items-center justify-end mt-6 gap-4">
-                            <button
-                                className='text-[15px] font-[500] text-purple outline-none border-none cursor-pointer'
-                                onClick={() => { setIntroVideoModal2(true) }}
-                            >
-                                Learn more about Twilio Trust Hub
-                            </button>
-                            <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                            // onClick={() => setIntroVideoModal2(true)}
-                            />
-                        </div>
-                        {/* Intro modal */}
-                        <IntroVideoModal
-                            open={introVideoModal2}
-                            onClose={() => setIntroVideoModal2(false)}
-                            videoTitle="Learn how to add Twilio Trust Hub"
-                            videoUrl={HowtoVideos.TwilioTrustHub}
-                        />
                     </div>
                 )
             }
