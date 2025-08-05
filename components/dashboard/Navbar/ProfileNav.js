@@ -188,6 +188,11 @@ const ProfileNav = () => {
         const watched = u?.user?.walkthroughWatched;
         if (u?.user?.plan && (watched === false || watched === "false")) {
           updateWalkthroughWatched();
+          window.addEventListener("UpdateProfile", handleUpdateProfile);
+
+          return () => {
+            document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
+          };
         }
       }
       // updateWalkthroughWatched();
