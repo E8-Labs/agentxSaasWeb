@@ -1143,9 +1143,15 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                       </div>
                     </div>
                   ) : settingToggleClick === 2 ? (
-                    <GuardianSetting />
+                    <GuardianSetting
+                      kycsData={kycsData}
+                      uniqueColumns={uniqueColumns}
+                    />
                   ) : settingToggleClick === 3 ? (
-                    <Objection />
+                    <Objection
+                      kycsData={kycsData}
+                      uniqueColumns={uniqueColumns}
+                    />
                   ) : (
                     ""
                   )}
