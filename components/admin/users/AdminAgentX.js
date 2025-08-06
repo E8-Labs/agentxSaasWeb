@@ -310,13 +310,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   useEffect(() => {
     const d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
     if (!d) return;
-  
+
     const cr = JSON.parse(d);
     console.log("credentials from local", cr);
-  
+
     setName(cr?.name || "");
     setPhone(cr?.phone || "");
-  
+
     // Combine all extraColumns into one flat object
     const flatExtraColumns = {};
     if (Array.isArray(cr.extraColumns)) {
@@ -328,7 +328,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
 
     console.log('flatExtracolumns', flatExtraColumns)
-  
+
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
     scriptKeys.forEach((key) => {
@@ -338,10 +338,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     });
 
     console.log('updatedInputValues', updatedInputValues)
-  
+
     setInputValues(updatedInputValues);
   }, [openTestAiModal]);
-  
+
 
   useEffect(() => {
     const updateAgentManueList = () => {
@@ -1839,26 +1839,34 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   //function to add new agent
   const handleAddNewAgent = (event) => {
+    event.preventDefault();
     console.log('selectedUser create agent', selectedUser)
     // return
-    event.preventDefault();
-    const data = {
-      status: true,
-    };
-    localStorage.setItem("fromDashboard", JSON.stringify(data));
-    const d = {
-      subAccountData: selectedUser,
-      isFromAgency: from,
-    };
+    if (selectedUser?.plan) {
+      const data = {
+        status: true,
+      };
+      localStorage.setItem("fromDashboard", JSON.stringify(data));
+      const d = {
+        subAccountData: selectedUser,
+        isFromAgency: from,
+      };
 
-    let u = {
-      user: selectedUser,
-      isFrom: from,
+      let u = {
+        user: selectedUser,
+        isFrom: from,
+      }
+
+      localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(d));
+
+      // router.push("/createagent");
+      window.location.href = "/createagent";
+    } else {
+      console.log("User has no plan subscribed");
+      setIsVisibleSnack2(true);
+      setShowErrorSnack("User has no plan subscribed")
     }
 
-    localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(d));
-
-    router.push("/createagent");
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -2405,13 +2413,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             canGetMore={canGetMore}
             paginationLoader={paginationLoader}
             from="Admin"
+            selectedUser={selectedUser}
           />
         )}
 
         {/* code to add new agent */}
-        <Link
+        <button
           className="w-full py-6 flex justify-center items-center"
-          href="/createagent"
           style={{
             marginTop: 40,
             border: "1px dashed #7902DF",
@@ -2432,7 +2440,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           >
             <Plus weight="bold" size={22} /> Add New Agent
           </div>
-        </Link>
+        </button>
       </div>
 
       {/* Test ai modal */}

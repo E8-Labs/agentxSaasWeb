@@ -63,7 +63,8 @@ const AgentsListPaginated = ({
   canGetMore = true,
   from = "user",
   agencyUser,
-  initialLoader
+  initialLoader,
+  selectedUser
 }) => {
   console.log('loader for more data ')
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
@@ -543,14 +544,15 @@ const AgentsListPaginated = ({
             ))}
           </div>
         </InfiniteScroll>
-      ) : ( 
+      ) : (
         // <div> hello</div>
         <NoAgent showBtn={
           search ? false : true
-        } 
-        title={
-          search ? "No agent found":"You have no active agents"
         }
+          title={
+            search ? "No agent found" : "You have no active agents"
+          }
+          selectedUser={selectedUser}
         />
       )}
     </div>
