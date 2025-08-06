@@ -626,8 +626,8 @@ function Page() {
   //function to update agent profile image
   const updateAgentProfile = async (image) => {
     try {
-      //console.log;
-      setGlobalLoader(true);x
+      console.log("Trigered update api");
+      setGlobalLoader(true);
 
       const LocalData = localStorage.getItem("User");
 
@@ -644,7 +644,7 @@ function Page() {
       const formData = new FormData();
 
       formData.append("media", image);
-      formData.append("agentId", showDrawerSelectedAgent?.agents[0].id);
+      formData.append("agentId", showDrawerSelectedAgent?.id);
 
       console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
 
@@ -718,7 +718,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.error("Error occured in api is", error);
+      console.log("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
