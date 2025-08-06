@@ -596,7 +596,7 @@ function SheduledCalls({ user }) {
         }
       } else {
         if (agents.length > 1) {
-          img = agents[1]?.thumb_profile_image;
+          img = agents[0]?.thumb_profile_image;
           if (img) {
             return (
               <Image
@@ -764,11 +764,12 @@ function SheduledCalls({ user }) {
                                 key={index}
                               >
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  {getAgentImageForActiviti(agent)}
-
+                                  <div className="w-[30%]">
+                                    {getAgentImageForActiviti(agent)}
+                                  </div>
                                   <div style={styles.text2}>
                                     {getAgentNameForActiviti(agent)}
-                                  </div>
+                                  </div> 
                                 </div>
                                 <div className="w-2/12 ">
                                   {user.user.userType ==
