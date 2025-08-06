@@ -596,7 +596,8 @@ function SheduledCalls({ user }) {
         }
       } else {
         if (agents.length > 1) {
-          img = agents[0]?.thumb_profile_image;
+          // if (agents[1])
+          img = agents[1]?.thumb_profile_image;
           if (img) {
             return (
               <Image
