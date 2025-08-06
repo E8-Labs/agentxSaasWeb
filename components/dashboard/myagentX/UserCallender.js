@@ -29,6 +29,7 @@ import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 import MCPView from "./mcp/MCPView";
 import { MUICustomIcon } from "@/components/globalExtras/MUICustomIcon";
 import { MenuItemHoverStyles } from "@/components/globalExtras/MenuItemHoverStyles";
+import { Scopes } from "./Scopes";
 
 const UserCalender = ({
   calendarDetails,
@@ -281,7 +282,7 @@ const UserCalender = ({
         formData.append("agentId", selectedAgent?.id);
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
-        formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
+        formData.append("scope", Scopes.join(" "));//"openid email profile https://www.googleapis.com/auth/calendar"
         formData.append("expiryDate", calendar.expiryDate);
         // formData.append("googleUserId", calendar.id); // here google id was undefined
         formData.append("googleUserId", calendar.googleUserId);
