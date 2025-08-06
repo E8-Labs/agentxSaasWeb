@@ -630,14 +630,17 @@ const ProfileNav = () => {
               router.push("/subaccountInvite/subscribeSubAccountPlan");
             } else if (
               Data?.userRole !== "AgencySubAccount" &&
-              (Data?.plan == null ||
+              (
+                Data?.plan == null ||
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
                   Data?.totalSecondsAvailable <= 120) ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable <= 120))
-                  && (!Data?.needsChargeConfirmation)
+                  Data?.totalSecondsAvailable <= 120)
+              )
+              && (Data.needsChargeConfirmation === false) &&
+              (Data.callsPausedUntilSubscription === false)
             ) {
               console.log("I am triggered");
               setShowPlansPopup(true);

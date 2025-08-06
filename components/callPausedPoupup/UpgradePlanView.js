@@ -171,7 +171,7 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
           <div className="text-black text-[14px] font-[400]">{selectedPlan?.mins} Mins | {selectedPlan?.calls} Calls*</div>
           <div className="text-gray-500 text-[12px] font-[300] mb-2">Per Month, Billed Monthly</div>
           <div className="text-3xl font-bold">{selectedPlan?.discountPrice}</div>
-          <div className="text-purple text-[14px] font-[400]">Learn More About Plan</div>
+         
         </div>
 
         {/* Divider */}
