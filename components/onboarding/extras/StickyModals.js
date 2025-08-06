@@ -123,8 +123,8 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
       // formData.append("twilioAuthToken", twilioAuthToken);
 
       const ApiData = {
-        twilioAccountSid: accountSID,
-        twilioAuthToken: accountToken
+        twilioAccountSid: sid,
+        twilioAuthToken: twilioAuthToken
       }
 
       // for (let [key, value] of formData.entries()) {
