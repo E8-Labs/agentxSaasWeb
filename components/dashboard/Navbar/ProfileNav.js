@@ -165,7 +165,7 @@ const ProfileNav = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [userLeads, setUserLeads] = useState("loading");
 
-  const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
+  const [showCallPausedPopup, setShowCallPausedPopup] = useState(true);
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   useEffect(() => {
@@ -288,15 +288,15 @@ const ProfileNav = () => {
         setPlans(plansWitTrial);
       }
 
-      if(LocalData.user.needsChargeConfirmation){
+      if (LocalData.user.needsChargeConfirmation) {
         setShowCallPausedPopup(true);
-    }
+      }
 
-    console.log('LocalData', LocalData.user.needsChargeConfirmation)
+      console.log('LocalData', LocalData.user.needsChargeConfirmation)
 
-   
-  };
-}
+
+    };
+  }
 
   useEffect(() => {
     getUserProfile();
@@ -528,13 +528,17 @@ const ProfileNav = () => {
               router.push("/subaccountInvite/subscribeSubAccountPlan");
             } else if (
               Data?.userRole !== "AgencySubAccount" &&
-              (Data?.plan == null ||
+              (
+                Data?.plan == null ||
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
                   Data?.totalSecondsAvailable <= 120) ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable <= 120))
+                  Data?.totalSecondsAvailable <= 120)
+              )
+              && (Data.needsChargeConfirmation === false) &&
+              (Data.callsPausedUntilSubscription === false)
             ) {
               console.log("I am triggered");
               setShowPlansPopup(true);
@@ -949,9 +953,9 @@ const ProfileNav = () => {
         </div>
       </div>
 
-      <CallPausedPopup 
-      open={showCallPausedPopup} 
-      onClose={() => setShowCallPausedPopup(false)}
+      <CallPausedPopup
+        open={showCallPausedPopup}
+        onClose={() => setShowCallPausedPopup(false)}
       />
 
       {/* Subscribe Plan modal */}
