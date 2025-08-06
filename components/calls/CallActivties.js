@@ -765,7 +765,7 @@ function SheduledCalls({ user }) {
                                 key={index}
                               >
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  <div className="w-[30%]">
+                                  <div className="">
                                     {getAgentImageForActiviti(agent)}
                                   </div>
                                   <div style={styles.text2}>
