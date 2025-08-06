@@ -616,11 +616,11 @@ const ProfileNav = () => {
               (Data?.plan == null ||
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
-                  Data?.totalSecondsAvailable >= 120)
+                  Data?.totalSecondsAvailable <= 120)
                 ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable >= 120))
+                  Data?.totalSecondsAvailable <= 120))
             ) {
               const fromDashboard = { fromDashboard: true };
               localStorage.setItem(
