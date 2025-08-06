@@ -329,6 +329,7 @@ const ProfileNav = () => {
   // }
 
   const getShowWalkThrough = () => {
+    console.log("rigered the intro video")
     const localData = localStorage.getItem("User");
     if (localData) {
       const UserDetails = JSON.parse(localData);
@@ -572,7 +573,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-
+      getShowWalkThrough();
       // //console.log;
       if (response?.status == 404) {
         //console.log;
@@ -807,8 +808,9 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
-          getProfile();
+          console.log("Should triger the intro video")
           getShowWalkThrough();
+          getProfile();
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
           setShowErrorSnack(true);
