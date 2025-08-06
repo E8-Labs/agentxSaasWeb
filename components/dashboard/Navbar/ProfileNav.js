@@ -954,7 +954,7 @@ const ProfileNav = () => {
       </div>
 
       <CallPausedPopup 
-      open={showCallPausedPopup} 
+      open={false} 
       onClose={() => setShowCallPausedPopup(false)}
       />
 
