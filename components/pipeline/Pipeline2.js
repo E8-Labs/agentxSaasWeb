@@ -579,6 +579,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           if (isFromAgencyOrAdmin?.isFromAgency === "admin") {
             router.push("/admin");
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
+          } else if (isFromAgencyOrAdmin?.isFromAgency === "agency") {
+            router.push("/agency/dashboard");
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
           } else {
             router.push("/dashboard/myAgentX");
           }
