@@ -537,7 +537,7 @@ const ProfileNav = () => {
                   Data?.totalSecondsAvailable <= 120)
                 
                 ) 
-              && ! Data.needsChargeConfirmation
+              //&& ! Data.needsChargeConfirmation
           
             ) {
               console.log("I am triggered");
