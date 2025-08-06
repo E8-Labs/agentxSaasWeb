@@ -637,6 +637,7 @@ const ProfileNav = () => {
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
                   Data?.totalSecondsAvailable <= 120))
+                  && (!Data?.needsChargeConfirmation)
             ) {
               console.log("I am triggered");
               setShowPlansPopup(true);
