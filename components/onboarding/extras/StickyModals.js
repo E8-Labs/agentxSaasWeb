@@ -114,18 +114,24 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
     try {
       setTwillioLoader(true);
       const Token = AuthToken();
-      const ApiPAth = Apis.setUpAgencyTwilioKey;
+      // const ApiPAth = Apis.setUpAgencyTwilioKey;
+      const ApiPAth = Apis.addTwilio;
 
-      const formData = new FormData();
+      // const formData = new FormData();
 
-      formData.append("twilioSid", sid);
-      formData.append("twilioAuthToken", twilioAuthToken);
+      // formData.append("twilioAccountSid", sid);
+      // formData.append("twilioAuthToken", twilioAuthToken);
+
+      const ApiData = {
+        twilioAccountSid: accountSID,
+        twilioAuthToken: accountToken
+      }
 
       // for (let [key, value] of formData.entries()) {
       //   console.log(`${key} = ${value}`);
       // }
 
-      const response = await axios.post(ApiPAth, formData, {
+      const response = await axios.post(ApiPAth, ApiData, {
         headers: {
           Authorization: "Bearer " + Token,
         },
