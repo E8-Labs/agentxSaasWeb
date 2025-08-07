@@ -154,7 +154,7 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
           Continue Your Calls With Better Rates
         </h1>
         <div className="text-center text-[14px] font-[400] text-black max-w-xl">
-          Upgrading to a higher plan gives you better rates, more call time, and higher volume limits!
+          Upgrading to a higher plan give you better rates and more call time!
         </div>
       </div>
 
