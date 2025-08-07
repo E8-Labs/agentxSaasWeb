@@ -10,6 +10,8 @@ import { logout } from "@/utilities/UserUtility";
 import AdminDashboardCallLogs from "@/components/admin/CallLogs/AdminDashboardCallLogs";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
+import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomingCharges";
+import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
 
 function AdminContainer() {
   const router = useRouter();
@@ -47,6 +49,18 @@ function AdminContainer() {
     },
     {
       id: 6,
+      name: "Upcoming Charges",
+      value: 'upcoming-charges',
+
+    },
+    {
+      id: 7,
+      name: "Payments Needing Refund",
+      value: 'payments-needing-refund',
+
+    },
+    {
+      id: 8,
       name: "Logout",
     },
   ];
@@ -109,20 +123,24 @@ function AdminContainer() {
           ))}
         </div>
 
-        <div className="w-full items-center">
+        <div className="w-full items-center h-full overflow-hidden flex-1">
           {selectedManu.name === "Users" ? (
             <AdminUsers />
           ) : selectedManu.name === "Affiliates" ? (
             <AdminAffiliates />
           ) : selectedManu.name === "Call Logs" ? (
             <AdminDashboardCallLogs />
-          ) : selectedManu.name === "Phone Verification Codes" ?
+          ) : selectedManu.name === "Phone Verification Codes" ? (
             <PhoneVerificationCodesList />
-            : (
-              <div>
-                <Dashboard />
-              </div>
-            )}
+          ) : selectedManu.name === "Upcoming Charges" ? (
+            <AdminUpcomingCharges />
+          ) : selectedManu.name === "Payments Needing Refund" ? (
+            <AdminPaymentsNeedingRefund />
+          ) : (
+            <div>
+              <Dashboard />
+            </div>
+          )}
         </div>
       </div>
     </ErrorBoundary>

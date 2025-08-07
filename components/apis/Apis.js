@@ -115,9 +115,12 @@ const Apis = {
   delNumber: `${BasePath}api/agent/deletePhoneNumber`,
   calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,
   sendFeedbback: `${BasePath}api/user/sendFeedback`,
-  getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
+  getAiNot: `${BasePath}api/agent/sendTestAiNotification`,
 
-  getUsers: `${BasePath}/api/admin/users`,
+  getUsers: `${BasePath}api/admin/users`,
+  getUpcomingPayments: `${BasePath}api/admin/upcoming-charges`,
+  getRefundNeededPayments: `${BasePath}api/admin/payments-needing-refund`,
+  markRefundProcessed: `${BasePath}api/admin/payment-refund-processed`,
 
   addAffiliate: `${BasePath}api/admin/addAffiliate`,
   getAffiliate: `${BasePath}api/admin/getAffiliates`,
