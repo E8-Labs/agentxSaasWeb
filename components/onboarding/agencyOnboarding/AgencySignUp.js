@@ -1221,8 +1221,8 @@ country={"us"} // restrict to US only
                 />
               </div>
               {/* This is getting width of the agncy name div or parent div */}
-              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-fit px-4">
-                <div className="bg-white shadow-xl rounded-xl px-4 pb-4">
+              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-[25vw] px-4 py-4">
+                <div className="bg-white shadow-xl rounded-xl px-4 pb-4 w-full">
                   {[
                     {
                       src: "/agencyIcons/man.jpg",
@@ -1248,9 +1248,10 @@ country={"us"} // restrict to US only
                       <Image alt="*" src={item.src} height={32} width={32} />
                       <div
                         className="truncate"
-                        style={{ ...styles.sideBoxTxt, maxWidth: "20rem" }}
+                        style={{ ...styles.sideBoxTxt }}
                       >
-                        {item?.label?.length > 13 ? item?.label?.slice(0, 13) + '...' : item?.label}
+                        {item?.label} 
+                       {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
                       </div>
                     </div>
                   ))}

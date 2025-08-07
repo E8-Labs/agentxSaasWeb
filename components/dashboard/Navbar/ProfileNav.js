@@ -1066,7 +1066,18 @@ const ProfileNav = () => {
             </Link>
           </div>
         </div>
+
+        {
+            true && (
+                <SnackBarForUpgradePlan/>
+            )
+        }
+
+
       </div>
+
+
+
 
       <CallPausedPopup
         open={showCallPausedPopup}
@@ -1076,7 +1087,8 @@ const ProfileNav = () => {
       {/* Subscribe Plan modal */}
       <div>
         {/* Subscribe Plan modal */}
-        <Modal
+
+        {/* <Modal
           open={showPlansPopup}  //showPlansPopup
           closeAfterTransition
           BackdropProps={{
@@ -1118,14 +1130,7 @@ const ProfileNav = () => {
                   overflow: "hidden",
                 }}
               >
-                {/* <div
-                  style={{
-                    fontWeight: "600",
-                    fontSize: 17,
-                  }}
-                >
-                  Subscribe to plan
-                </div> */}
+               
 
                 <div
                   className="flex  items-start"
@@ -1148,32 +1153,7 @@ const ProfileNav = () => {
                   {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                 </div>
 
-                {/* <div className="flex flex-row items-center justify-center ">
-                  <div
-                    className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-2 px-4"
-                    style={{
-                      backgroundColor: "#402FFF10",
-                      borderRadius: "50px",
-                      width: "fit-content",
-                    }}
-                  >
-                    <Image
-                      src={"/assets/gift.png"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                    <div
-                      className="text-purple"
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "500",
-                      }}
-                    >
-                      Enjoy these discounted rates
-                    </div>
-                  </div>
-                </div> */}
+               
 
                 <div
                   style={{
@@ -1360,7 +1340,9 @@ const ProfileNav = () => {
               </div>
             </div>
           </Box>
-        </Modal>
+        </Modal>*/}
+
+
 
         {/* Add Payment Modal */}
         <Modal
@@ -1426,3 +1408,34 @@ const ProfileNav = () => {
 };
 
 export default ProfileNav;
+
+const SnackBarForUpgradePlan = () => {
+  return (
+
+    <div style={{ position: 'absolute', bottom: 20, alignSelf: 'center', right: 170 }}
+      className="bg-[#845EEE45] border border-[#845EEE21] rounded-2xl flex flex-row items-center gap-1 px-2 py-3"
+    >
+      <Image src={'/otherAssets/infoBlue.jpg'}
+        height={24} width={24} alt="*"
+      />
+
+      <div style={{ fontSize: 15, fontWeight: '700', }}>
+        Action needed! Your calls are paused: You don't have enough minutes to run calls. <span
+         className = "text-purple underline cursor-pointer" 
+         onClick = {()=>{
+          window.open('/dashboard/myAccount?tab=2')
+          }}
+         >
+          Turn on Smart Refill 
+         </span>  or  <span
+         className = "text-purple underline cursor-pointer" 
+         onClick = {()=>{
+          window.open('/dashboard/myAccount?tab=2')
+          }}
+         > Upgrade
+         </span>.
+      </div>
+    </div>
+
+  )
+}

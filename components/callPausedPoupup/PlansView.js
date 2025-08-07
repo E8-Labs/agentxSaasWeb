@@ -27,7 +27,7 @@ function PlansView({
         },
         {
             name: "Scale",
-            mins: "800",
+            mins: "720",
             calls: "5,000",
             price: "$599",
         }

@@ -12,7 +12,7 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import moment, { duration } from "moment";
+import moment from "moment";
 import getProfileDetails from "@/components/apis/GetProfile";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { useRouter } from "next/navigation";
@@ -108,8 +108,9 @@ const Page = () => {
   function GetDashboardDataFromLocalStorage(api) {
     let d = localStorage.getItem(api);
     if (d) {
-      // //console.log;
       let json = JSON.parse(d);
+      console.log("Dashboard data is",json)
+
       let stats = json.stats;
       let comp = json.statsComparison;
       setStatsDetails(stats);
@@ -625,12 +626,16 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/avgDurationIcon.svg"
                       title="Avg Convo Duration"
-                      value={statsDetails?.formattedAvDuration || "-"}
+                      value={
+                        statsDetails?.formattedAvDuration ?
+                          moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
+                          : "-"
+                      }
                       borderSide="border-l-2"
                     />
                   </div>
 
-                 {/* <div className="w-full flex flex-row items-center justify-between mt-4">
+                  {/* <div className="w-full flex flex-row items-center justify-between mt-4">
                     <div
                       className="w-6/12 hover:bg-purple hover:text-white bg-white rounded p-4"
                       style={{

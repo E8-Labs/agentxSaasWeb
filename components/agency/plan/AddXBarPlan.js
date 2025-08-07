@@ -243,7 +243,7 @@ export default function AddXBarPlan({
               </div>
 
               {/* Plan Name */}
-              <label style={styles.labels}>Plan Name</label>
+              <label style={styles.labels}>XBar Name</label>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
@@ -524,14 +524,14 @@ export default function AddXBarPlan({
                             fontWeight: "600",
                           }}
                         >
-                          {title || "My Plan"}
+                          {title || "My XBar"}
                         </div>
                         {tag ? (
                           <div
                             className="rounded-full bg-purple text-white p-3 py-2"
                             style={{ fontSize: 10, fontWeight: "500" }}
                           >
-                            {tag} 🔥
+                            {tag}
                           </div>
                         ) : (
                           <div className="rounded-md bg-gray-200 text-white w-[127px] h-[28px]" />
