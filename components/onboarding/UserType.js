@@ -268,7 +268,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
                 textAlign: "center", //fontSize: 15
               }}
             >
-              Scale your salesforce. Handle any business use case. With AgentX,you can quickly build an AI agent in minutes.
+              Scale your salesforce. Handle any business use case. With AgentX, you can quickly build an AI agent in minutes.
             </div>
 
             <div
