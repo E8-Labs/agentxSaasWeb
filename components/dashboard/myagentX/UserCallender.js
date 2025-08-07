@@ -52,6 +52,7 @@ const UserCalender = ({
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
+  const [gHLCalenderLoader, setGHLCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
   const [calenderTitle, setCalenderTitle] = useState("");
@@ -246,6 +247,8 @@ const UserCalender = ({
       if (calendar?.isFromAddGoogleCal) {
         console.log("Is from google cal", calendar?.isFromAddGoogleCal);
         setGoogleCalenderLoader(true);
+      } else if (calendar?.isFromAddGHLCal) {
+        setGHLCalenderLoader(true)
       } else {
         console.log("Is not from google cal");
         setAddCalenderLoader(true);
@@ -290,6 +293,24 @@ const UserCalender = ({
         formData.append("title", calendar.calenderTitle);
         formData.append("timeZone", calendar.selectTimeZone);
         formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
+      } else if (calendar?.isFromAddGHLCal) {
+        formData.append("GHLapikey", calendar?.apiKey || calenderApiKey);
+        formData.append("title", calendar?.title || calenderTitle);
+        formData.append("timeZone", calendar?.timeZone || selectTimeZone);
+        if (calendar?.id) {
+          // formData.append("mainAgentId", calendarDetails.id);
+          formData.append("calendarId", calendar?.id); //|| selected calendar id
+          console.log("Sending calendar id ", calendar?.id);
+        }
+        // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
+
+
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -423,6 +444,7 @@ const UserCalender = ({
           setMessage(response.data.message);
           setShowAddNewCalender(false);
           setType(SnackbarTypes.Error);
+          setGHLCalenderLoader(false);
         }
       }
     } catch (error) {
@@ -433,6 +455,7 @@ const UserCalender = ({
     } finally {
       setAddCalenderLoader(false);
       setGoogleCalenderLoader(false);
+      setGHLCalenderLoader(false);
     }
   };
 
@@ -508,7 +531,7 @@ const UserCalender = ({
             <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
               + Add Calendar
             </button>
-         }
+          }
         </div>
 
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
@@ -725,6 +748,7 @@ const UserCalender = ({
           test="Test"
           calenderLoader={calenderLoader}
           googleCalenderLoader={googleCalenderLoader}
+          gHLCalenderLoader={gHLCalenderLoader}
           calendarSelected={calendarSelected}
           handleAddCalendar={handleAddCalender}
           calenderTitle={calenderTitle}

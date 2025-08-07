@@ -128,10 +128,8 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                     });
                 }}
             />
-            {/*
+            {
                 progressValue < 100 && (
-                )
-            */}
                     <div className='bg-[#F7F7FD] w-full rounded-md mb-2 py-2'>
                         <button
                             className='w-full flex flex-rw items-center justify-between outline-none border-none ps-2'
@@ -216,6 +214,8 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                             )
                         }
                     </div>
+                )
+            }
 
             {/* Code for add calendar */}
             {

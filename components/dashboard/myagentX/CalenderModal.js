@@ -15,6 +15,7 @@ function CalendarModal(props) {
     selectedAgent,
     calendarSelected,
     calenderLoader,
+    gHLCalenderLoader,
     googleCalenderLoader,
     handleAddCalendar,
     calenderTitle,
@@ -33,6 +34,7 @@ function CalendarModal(props) {
 
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
+  const [showAddNewGHLCalender, setShowAddNewGHLCalender] = useState(false);
 
   console.log("Props passed in calendar modal are", props)
 
@@ -48,7 +50,7 @@ function CalendarModal(props) {
         client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
         redirect_uri: REDIRECT_URI,
         response_type: "code",
-        scope:  Scopes.join(" "), //"openid email profile https://www.googleapis.com/auth/calendar",
+        scope: Scopes.join(" "), //"openid email profile https://www.googleapis.com/auth/calendar",
         access_type: "offline",
         prompt: "consent",
       }).toString();
@@ -150,6 +152,7 @@ function CalendarModal(props) {
           Select a Calendar
         </h2>
         <div className="flex flex-row items-center gap-4 w-full mt-5">
+          {/* Google Calendar box */}
           <div className="flex flex-col items-center gap-4 w-1/2">
             <p style={{
               fontSize: 15,
@@ -178,8 +181,7 @@ function CalendarModal(props) {
               </button>
             )}
           </div>
-
-
+          {/* Cal.com calendar box */}
           <div className="flex flex-col items-center gap-4 w-1/2">
             <p style={{
               fontSize: 15,
@@ -206,11 +208,39 @@ function CalendarModal(props) {
               </button>
             )}
           </div>
+          {/* GHL calendar box */}
+          <div className="flex flex-col items-center gap-4 w-1/2">
+            <p style={{
+              fontSize: 15,
+              fontWeight: '600'
+            }}>
+              GHL Calendar
+            </p>
+
+            {calenderLoader ? (
+              <CircularProgress size={45} />
+            ) : (
+              <button
+                onClick={() => {
+                  setShowAddNewGHLCalender(true)
+                }}
+                className="
+                text-purple border w-11/12 rounded border rounded-lg
+                flex items-center justify-center h-[31vh]"
+              >
+                <Image
+                  src={'/otherAssets/calIcon.jpg'}
+                  height={106} width={106} alt="*"
+                />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
+  //cal.com calendar view
   const calCalendarView = () => {
     return (
       <div className="h-full" style={{ width: "100%" }}>
@@ -399,6 +429,211 @@ function CalendarModal(props) {
                   onClick={() => {
 
                     handleAddCalendar();
+                  }}
+                >
+                  Add
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  //GHL calendar view
+  const GHLCalendarView = () => {
+    return (
+      <div className="h-full" style={{ width: "100%" }}>
+        <div className="" style={{ scrollbarWidth: "none" }}>
+          <div className="w-full">
+            <div className="w-full flex flex-row justify-between">
+              <div style={{
+                fontSize: 20,
+                fontWeight: "600"
+              }}>
+                Add GHL calendar
+              </div>
+              <button
+                className="outline-none"
+                onClick={() => {
+                  setShowAddNewGHLCalender(false);
+                  setCalenderTitle("");
+                  setCalenderApiKey("");
+                  setEventId("");
+                  setSelectTimeZone("");
+                  setSelectedTimeDurationLocal("");
+                }}
+              >
+                <Image
+                  src={"/assets/blackBgCross.png"}
+                  height={20}
+                  width={20}
+                  alt="*"
+                />
+              </button>
+            </div>
+
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: "600",
+                fontSize: 16.8,
+                textAlign: "start",
+              }}
+            >
+              Calendar title
+            </div>
+            <div>
+              <input
+                className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
+                placeholder="Type here"
+                style={styles.inputStyles}
+                value={calenderTitle}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  setCalenderTitle(value);
+                }}
+              />
+            </div>
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: "600",
+                fontSize: 16.8,
+                textAlign: "start",
+              }}
+            >
+              Api key
+            </div>
+            <div>
+              <input
+                className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
+                placeholder="Type here"
+                style={styles.inputStyles}
+                value={calenderApiKey}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  setCalenderApiKey(value);
+                }}
+              />
+            </div>
+            {/*
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: "600",
+                fontSize: 16.8,
+                textAlign: "start",
+              }}
+            >
+              Event id
+            </div>
+              <div>
+                <input
+                  className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
+                  placeholder="Type here"
+                  style={styles.inputStyles}
+                  value={eventId}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    setEventId(value);
+                  }}
+                />
+              </div>
+            */}
+
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: "600",
+                fontSize: 16.8,
+                textAlign: "start",
+              }}
+            >
+              Select timezone
+            </div>
+
+            <div className="w-full mt-2">
+              <FormControl sx={{}} className="w-full h-[50px]">
+                <Select
+                  value={selectTimeZone}
+                  // label="Age"
+                  onChange={(event) => {
+                    setSelectTimeZone(event.target.value);
+                  }}
+                  displayEmpty // Enables placeholder
+                  renderValue={(selected) => {
+                    if (!selected) {
+                      return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
+                    }
+                    return selected;
+                  }}
+                  sx={{
+                    height: "48px",
+                    borderRadius: "13px",
+                    border: "1px solid #00000020", // Default border
+                    "&:hover": {
+                      border: "1px solid #00000020", // Same border on hover
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none", // Remove the default outline
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      border: "none", // Remove outline on focus
+                    },
+                    "&.MuiSelect-select": {
+                      py: 0, // Optional padding adjustments
+                    },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: "30vh", // Limit dropdown height
+                        overflow: "auto", // Enable scrolling in dropdown
+                        scrollbarWidth: "none",
+                        // borderRadius: "10px"
+                      },
+                    },
+                  }}
+                >
+                  {timeZones.map((item, index) => {
+                    return (
+                      <MenuItem
+                        className="w-full"
+                        value={item}
+                        key={index}
+                      >
+                        <button onClick={() => { }}>{item}</button>
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </div>
+
+            <div className="w-full mt-4">
+              {gHLCalenderLoader ? (
+                <div className="w-full flex flex-row items-center justify-center">
+                  <CircularProgress size={25} />
+                </div>
+              ) : (
+                <button
+                  disabled={!isEnabled()}
+                  className="h-[50px] w-full text-white rounded-xl"
+                  style={{
+                    fontWeight: "600",
+                    fontSize: 16,
+                    backgroundColor: !isEnabled()
+                      ? "#00000020"
+                      : "#7902DF",
+                    color: !isEnabled() ? "#000000" : "",
+                  }}
+                  onClick={() => {
+                    const Calendar = {
+                      isFromAddGHLCal: true
+                    }
+                    handleAddCalendar(Calendar);
                   }}
                 >
                   Add
@@ -646,6 +881,10 @@ function CalendarModal(props) {
       return (
         googleCalView()
       )
+    } else if (showAddNewGHLCalender) {
+      return (
+        GHLCalendarView()
+      )
     } else {
       return (
         selectCalendarView()
@@ -661,6 +900,14 @@ function CalendarModal(props) {
     if (google) {
       if (calenderTitle && selectTimeZone && selectedTimeDurationLocal) {
         // //console.log;
+        return true;
+      } else {
+        // //console.log;
+        return false;
+      }
+    } else if (showAddNewGHLCalender) {
+      if (calenderTitle && calenderApiKey && selectTimeZone) {
+        // //console.log;&& selectedTimeDurationLocal
         return true;
       } else {
         // //console.log;

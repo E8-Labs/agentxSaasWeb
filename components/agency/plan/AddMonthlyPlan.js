@@ -339,12 +339,20 @@ export default function AddMonthlyPlan({
                     </div>
                     <input
                       style={styles.inputs}
-                      type="number"
+                      type="text"
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
                       placeholder="00"
                       value={originalPrice}
                       onChange={(e) => {
-                        setOriginalPrice(e.target.value);
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        setOriginalPrice(valid);
                       }}
                     />
                   </div>
@@ -377,13 +385,21 @@ export default function AddMonthlyPlan({
                     </div>
                     <input
                       style={styles.inputs}
-                      type="number"
+                      type="text"
                       className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"
                         }`}
                       placeholder="00"
                       value={discountedPrice}
                       onChange={(e) => {
-                        setDiscountedPrice(e.target.value);
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        setDiscountedPrice(valid);
                       }}
                     />
                   </div>
@@ -451,12 +467,20 @@ export default function AddMonthlyPlan({
               <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
                 <input
                   style={styles.inputs}
-                  type="number"
+                  type="text"
                   className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
                   placeholder="000"
                   value={minutes}
                   onChange={(e) => {
-                    setMinutes(e.target.value);
+                    const value = e.target.value;
+                    // Allow only digits and one optional period
+                    const sanitized = value.replace(/[^0-9.]/g, '');
+
+                    // Prevent multiple periods
+                    const valid = sanitized.split('.').length > 2
+                      ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                      : sanitized;
+                    setMinutes(valid);
                   }}
                 />
               </div>
@@ -491,11 +515,19 @@ export default function AddMonthlyPlan({
 
                   <div className="flex flex-row items-center border rounded-md px-2 mt-1">
                     <input
-                      type="number"
+                      type="text"
                       className="w-[90%] rounded p-2 border-none outline-none focus:outline-none focus:ring-0"
                       value={trialValidForDays}
                       onChange={(e) => {
-                        setTrialValidForDays(e.target.value);
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        setTrialValidForDays(valid);
                       }}
                     />
                     <div>Days</div>

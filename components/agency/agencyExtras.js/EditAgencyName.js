@@ -62,30 +62,28 @@ const EditAgencyName = ({
                 hide={() => { setSnackMsg(null) }}
                 type={snackMsgType}
             />
-            <div className='flex w-full flex-row justify-between'>
+            <div className='flex w-full flex-row justify-between items-center'>
                 <div className='sm:text-lg lg:text-2xl lg:font-bold'>
                     {agencyName}
                 </div>
-                <div>
-                    {
-                        agencyName && (
-                            <button
-                                type="button"
-                                className='border-none outline-none'
-                                onClick={() => {
-                                    setShowEditModal(true);
-                                }}
-                            >
-                                <Image
-                                    src="/otherAssets/editIcon.png"
-                                    alt="*"
-                                    height={20}
-                                    width={20}
-                                />
-                            </button>
-                        )
-                    }
-                </div>
+                {
+                    agencyName && (
+                        <button
+                            type="button"
+                            className='border-none outline-none'
+                            onClick={() => {
+                                setShowEditModal(true);
+                            }}
+                        >
+                            <Image
+                                src="/otherAssets/editIcon.png"
+                                alt="*"
+                                height={20}
+                                width={20}
+                            />
+                        </button>
+                    )
+                }
             </div>
             {
                 setShowEditModal && (

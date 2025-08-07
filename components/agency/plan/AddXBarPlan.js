@@ -284,12 +284,20 @@ export default function AddXBarPlan({
                   <label style={styles.labels}>Price</label>
                   <input
                     style={styles.inputs}
-                    type="number"
+                    type="text"
                     className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                     placeholder="00"
                     value={originalPrice}
                     onChange={(e) => {
-                      setOriginalPrice(e.target.value);
+                      const value = e.target.value;
+                      // Allow only digits and one optional period
+                      const sanitized = value.replace(/[^0-9.]/g, '');
+
+                      // Prevent multiple periods
+                      const valid = sanitized.split('.').length > 2
+                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                        : sanitized;
+                      setOriginalPrice(valid);
                     }}
                   />
                   {minCostErr && (
@@ -316,12 +324,20 @@ export default function AddXBarPlan({
                   </label>
                   <input
                     style={styles.inputs}
-                    type="number"
+                    type="text"
                     className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                     placeholder="00"
                     value={discountedPrice}
                     onChange={(e) => {
-                      setDiscountedPrice(e.target.value);
+                      const value = e.target.value;
+                      // Allow only digits and one optional period
+                      const sanitized = value.replace(/[^0-9.]/g, '');
+
+                      // Prevent multiple periods
+                      const valid = sanitized.split('.').length > 2
+                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                        : sanitized;
+                      setDiscountedPrice(valid);
                     }}
                   />
                 </div>
@@ -388,12 +404,20 @@ export default function AddXBarPlan({
               <label style={styles.labels}>Minutes</label>
               <input
                 style={styles.inputs}
-                type="number"
+                type="text"
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                 placeholder="000"
                 value={minutes}
                 onChange={(e) => {
-                  setMinutes(e.target.value);
+                  const value = e.target.value;
+                  // Allow only digits and one optional period
+                  const sanitized = value.replace(/[^0-9.]/g, '');
+
+                  // Prevent multiple periods
+                  const valid = sanitized.split('.').length > 2
+                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                    : sanitized;
+                  setMinutes(valid);
                 }}
               />
             </div>
