@@ -181,7 +181,7 @@ const Integrations = () => {
                 </div>
                 <div className="flex flex-row items-center gap-2">
                     <div className='text-md font-[500]'>
-                        {agencyData?.phonePrice?.price && (
+                        {agencyData?.phonePrice?.price && allowUpSellPhone && (
                             `$${agencyData?.phonePrice?.price}`
                         )
                         }
