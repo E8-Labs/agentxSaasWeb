@@ -1068,7 +1068,7 @@ const ProfileNav = () => {
         </div>
 
         {
-            true && (
+            showPlansPopup && (
                 <SnackBarForUpgradePlan/>
             )
         }
