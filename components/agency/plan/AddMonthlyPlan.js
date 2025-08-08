@@ -1,5 +1,5 @@
 import { Modal, Box, Switch, CircularProgress } from "@mui/material";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { AuthToken } from "./AuthDetails";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
@@ -17,6 +17,10 @@ export default function AddMonthlyPlan({
   canAddPlan,
   agencyPlanCost,
 }) {
+
+  //auto scroll to bottom
+  const scrollContainerRef = useRef(null);
+
   const [allowTrial, setAllowTrial] = useState(false);
   const [showTrailWarning, setShowTrailWarning] = useState(false);
 
@@ -153,6 +157,28 @@ export default function AddMonthlyPlan({
     }
   };
 
+  //handle allow trial change
+  const handleAllowTrialChange = (e) => {
+    if (canAddPlan) {
+      setAllowTrial(e.target.checked);
+      setShowTrailWarning(false);
+
+      if (e.target.checked) {
+        // Wait for the DOM to render trial inputs, then scroll
+        setTimeout(() => {
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+              top: scrollContainerRef.current.scrollHeight,
+              behavior: "smooth",
+            });
+          }
+        }, 100);
+      }
+    } else {
+      setShowTrailWarning(true);
+    }
+  };
+
   const styles = {
     labels: {
       fontSize: "15px",
@@ -281,6 +307,7 @@ export default function AddMonthlyPlan({
           )}
           <div className="w-6/12 h-[100%] p-6">
             <div
+              ref={scrollContainerRef}
               className="overflow-y-auto w-full h-[90%] scrollbar-hide"
               style={{
                 scrollbarWidth: "none",
@@ -375,21 +402,15 @@ export default function AddMonthlyPlan({
                     </div>
                   )}
 
-                  {/* Strikethrough Price */}
-                  <label style={styles.labels}>
-                    Strikethrough Price (Optional)
-                  </label>
+                  {/* Minutes */}
+                  <label style={styles.labels}>Minutes</label>
                   <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
-                    <div className="" style={styles.inputs}>
-                      $
-                    </div>
                     <input
                       style={styles.inputs}
                       type="text"
-                      className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"
-                        }`}
-                      placeholder="00"
-                      value={discountedPrice}
+                      className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+                      placeholder="000"
+                      value={minutes}
                       onChange={(e) => {
                         const value = e.target.value;
                         // Allow only digits and one optional period
@@ -399,7 +420,7 @@ export default function AddMonthlyPlan({
                         const valid = sanitized.split('.').length > 2
                           ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                           : sanitized;
-                        setDiscountedPrice(valid);
+                        setMinutes(valid);
                       }}
                     />
                   </div>
@@ -430,7 +451,7 @@ export default function AddMonthlyPlan({
                     <div>${agencyPlanCost}/ min</div>
                     <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
                   </div>
-                  {minutes && originalPrice && (
+                  {originalPrice && ( //minutes && 
                     <div className="w-full">
                       <div
                         className="flex flex-row items-center justify-between mt-4"
@@ -462,15 +483,22 @@ export default function AddMonthlyPlan({
                 </div>
               </div>
 
-              {/* Minutes */}
-              <label style={styles.labels}>Minutes</label>
+
+              {/* Strikethrough Price */}
+              <label style={styles.labels}>
+                Strikethrough Price (Optional)
+              </label>
               <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                <div className="" style={styles.inputs}>
+                  $
+                </div>
                 <input
                   style={styles.inputs}
                   type="text"
-                  className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                  placeholder="000"
-                  value={minutes}
+                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"
+                    }`}
+                  placeholder="00"
+                  value={discountedPrice}
                   onChange={(e) => {
                     const value = e.target.value;
                     // Allow only digits and one optional period
@@ -480,7 +508,7 @@ export default function AddMonthlyPlan({
                     const valid = sanitized.split('.').length > 2
                       ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                       : sanitized;
-                    setMinutes(valid);
+                    setDiscountedPrice(valid);
                   }}
                 />
               </div>
@@ -498,14 +526,15 @@ export default function AddMonthlyPlan({
                       backgroundColor: '#7902DF',
                     },
                   }}
-                  onChange={(e) => {
-                    if (canAddPlan) {
-                      setAllowTrial(e.target.checked);
-                      setShowTrailWarning(false);
-                    } else {
-                      setShowTrailWarning(true);
-                    }
-                  }}
+                  // onChange={(e) => {
+                  //   if (canAddPlan) {
+                  //     setAllowTrial(e.target.checked);
+                  //     setShowTrailWarning(false);
+                  //   } else {
+                  //     setShowTrailWarning(true);
+                  //   }
+                  // }}
+                  onChange={handleAllowTrialChange}
                 />
               </div>
 
@@ -681,7 +710,7 @@ export default function AddMonthlyPlan({
                           )}
                           {discountedPrice && (
                             <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice}>
+                              <div style={styles.discountedPrice} className="line-through">
                                 ${discountedPrice}
                               </div>
                               <p style={{ color: "#15151580" }}></p>

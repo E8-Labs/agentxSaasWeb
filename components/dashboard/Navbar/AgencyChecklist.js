@@ -2,11 +2,12 @@ import { ArrowDown, ArrowUp, CaretDown, CaretRight, CaretUp } from '@phosphor-ic
 import React, { useEffect, useState } from 'react';
 import ProgressBar from '@/components/onboarding/ProgressBar';
 import Image from 'next/image';
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import AddNewCalendar from '@/components/onboarding/extras/AddNewCalendar';
 import { useRouter } from 'next/navigation';
 import ClaimNumber from '../myagentX/ClaimNumber';
 import Link from 'next/link';
+import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService';
 
 const AgencyChecklist = ({ userDetails }) => {
 
@@ -14,6 +15,7 @@ const AgencyChecklist = ({ userDetails }) => {
 
     // console.log("User data recieved to check list on agency side is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(true);
+    const [loader, setLoader] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
 
@@ -28,6 +30,7 @@ const AgencyChecklist = ({ userDetails }) => {
         if (D) {
             const LocalData = JSON.parse(D);
             const T = LocalData?.user?.checkList?.checkList;
+            console.log("Agency checklist is", T);
             // const T = userDetails?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
             let percentage = 0;
@@ -45,10 +48,11 @@ const AgencyChecklist = ({ userDetails }) => {
             console.log("percentage of check list is", percentage);   // Output: 60
 
             setCheckList([
-                { id: 1, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
-                { id: 2, label: 'Add Pricing Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
-                { id: 3, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans" },
-                { id: 4, label: 'Add Subaccount', status: T?.subaccountAdded, route: "/agency/dashboard/subAccounts" },
+                { id: 1, label: 'Add Stripe', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
+                { id: 2, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
+                { id: 3, label: 'Add Pricing Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
+                { id: 4, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans" },
+                { id: 5, label: 'Add Subaccount', status: T?.subaccountAdded, route: "/agency/dashboard/subAccounts" },
                 // { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
                 // { id: 6, label: 'Claim a number', status: false, route: "" }
             ]);
@@ -110,24 +114,17 @@ const AgencyChecklist = ({ userDetails }) => {
                                 <div>
                                     {
                                         checkList?.map((item) => (
-                                            <Link
-                                                href={item.route}
+                                            <button
+                                                // href={item.route}
                                                 key={item.id}
-                                                className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
-                                                // onClick={() => {
-                                                //     if (item.label === "Connect a calendar") {
-                                                //         setShowAddCalendar(true);
-                                                //     } else if (item.label === "Claim a number") {
-                                                //         setShowClaimPopup(true);
-                                                //     } else {
-                                                //         const D = {
-                                                //             status: true
-                                                //         }
-                                                //         localStorage.setItem("isFromCheckList", JSON.stringify(D))
-                                                //         // window.open(item.route, "_blank");
-                                                //         router.push(item.route);
-                                                //     }
-                                                // }}
+                                                className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full border-none outline-none'
+                                                onClick={async () => {
+                                                    if (item.label === "Add Stripe") {
+                                                        await getStripeLink(setLoader);
+                                                    } else {
+                                                        window.location.href = item.route
+                                                    }
+                                                }}
                                                 disabled={item.status === true}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
@@ -154,8 +151,14 @@ const AgencyChecklist = ({ userDetails }) => {
                                                         {item.label}
                                                     </div>
                                                 </div>
-                                                <CaretRight size={20} />
-                                            </Link>
+                                                {
+                                                    item.label === "Add Stripe" && loader ? (
+                                                        <CircularProgress size={15} />
+                                                    ) : (
+                                                        <CaretRight size={20} />
+                                                    )
+                                                }
+                                            </button>
                                         ))
                                     }
                                 </div>
@@ -197,4 +200,4 @@ const AgencyChecklist = ({ userDetails }) => {
     )
 }
 
-export default AgencyChecklist
+export default AgencyChecklist;

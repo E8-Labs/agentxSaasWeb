@@ -702,11 +702,11 @@ const AgencySignUp = ({
                   <PhoneInput
                     ref={(el) => (inputsFields.current[2] = el)}
                     className="border outline-none bg-white"
-country={"us"} // restrict to US only
+                    country={"us"} // restrict to US only
                     onlyCountries={["us"]}
                     disableDropdown={true}
                     countryCodeEditable={false}
-                    disableCountryCode={false}                    value={userPhoneNumber}
+                    disableCountryCode={false} value={userPhoneNumber}
                     onChange={handlePhoneNumberChange}
                     placeholder={
                       locationLoader
@@ -1203,15 +1203,20 @@ country={"us"} // restrict to US only
             {/*parent div*/}
             <div className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 max-w-full">
               {/*this one agency name div*/}
-              <div className="inline-flex flex-col items-end mb-4">
+              <div className="inline-flex flex-col items-start w-[25vw]">
                 <div
-                  className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
-                  style={{ fontWeight: "700", whiteSpace: "nowrap" }}
+                  className="
+      truncate w-full
+      text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px]
+      text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF]
+      text-start
+    "
+                  style={{ fontWeight: "700" }}
                 >
-                  {(company || "Agency Name").length > 20
-                    ? (company || "Agency Name").slice(0, 20) + '...'
-                    : (company || "Agency Name")}
+                  {company || "Agency Name"}
                 </div>
+              </div>
+              <div className="inline-flex flex-col items-end w-[25vw] mb-4">
                 <Image
                   className="object-contain"
                   src={"/agencyIcons/poweredByIcon.png"}
@@ -1250,8 +1255,8 @@ country={"us"} // restrict to US only
                         className="truncate"
                         style={{ ...styles.sideBoxTxt }}
                       >
-                        {item?.label} 
-                       {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
+                        {item?.label}
+                        {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
                       </div>
                     </div>
                   ))}

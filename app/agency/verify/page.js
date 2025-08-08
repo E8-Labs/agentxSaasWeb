@@ -8,6 +8,7 @@ import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import { PersistanceKeys } from '@/constants/Constants';
 import getProfileDetails from '@/components/apis/GetProfile';
+import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService';
 
 const Page = () => {
 
@@ -15,41 +16,42 @@ const Page = () => {
     const [loader, setLoader] = useState(false);
 
     const handleVerifyClick = async () => {
-        try {
-            setLoader(true);
-            const data = await getProfileDetails();
-            console.log("Working");
-            if (data) {
-                const D = data.data.data
-                console.log("Getprofile data is", D);
-                if (D.plan) {
-                    const Token = AuthToken();
-                    const ApiPath = Apis.createOnboardingLink;
-                    const response = await axios.post(ApiPath, null, {
-                        headers: {
-                            "Authorization": "Bearer " + Token
-                        }
-                    });
-                    if (response) {
-                        console.log("Route user to connect stripe");
-                        console.log("Payment link is", response.data.data.url);
-                        window.open(response.data.data.url, "_blank");
-                        setLoader(false);
-                    }
-                    // router.push("/agency/verify")
-                } else {
-                    console.log("Need to subscribe plan");
-                    const d = {
-                        subPlan: false
-                    }
-                    localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
-                    router.push("/agency/onboarding");
-                }
-            }
-        } catch (error) {
-            setLoader(false);
-            console.error("Error occured  in getVerify link api is", error);
-        }
+        await getStripeLink(setLoader);
+        // try {
+        //     setLoader(true);
+        //     const data = await getProfileDetails();
+        //     console.log("Working");
+        //     if (data) {
+        //         const D = data.data.data
+        //         console.log("Getprofile data is", D);
+        //         if (D.plan) {
+        //             const Token = AuthToken();
+        //             const ApiPath = Apis.createOnboardingLink;
+        //             const response = await axios.post(ApiPath, null, {
+        //                 headers: {
+        //                     "Authorization": "Bearer " + Token
+        //                 }
+        //             });
+        //             if (response) {
+        //                 console.log("Route user to connect stripe");
+        //                 console.log("Payment link is", response.data.data.url);
+        //                 window.open(response.data.data.url, "_blank");
+        //                 setLoader(false);
+        //             }
+        //             // router.push("/agency/verify")
+        //         } else {
+        //             console.log("Need to subscribe plan");
+        //             const d = {
+        //                 subPlan: false
+        //             }
+        //             localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
+        //             router.push("/agency/onboarding");
+        //         }
+        //     }
+        // } catch (error) {
+        //     setLoader(false);
+        //     console.error("Error occured  in getVerify link api is", error);
+        // }
     }
 
     const styles = {

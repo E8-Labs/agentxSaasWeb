@@ -457,9 +457,9 @@ const AgencyNavBar = () => {
                       {item.name}
                     </div>
 
-                    {navigatingTo === item.href && (
+                    {/*navigatingTo === item.href && (
                       <CircularProgress size={14} />
-                    )}
+                    )*/}
                   </div>
                 </button>
               </div>

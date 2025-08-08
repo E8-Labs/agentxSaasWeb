@@ -10,6 +10,23 @@ function Page() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    const D = localStorage.getItem("User");
+    if (D) {
+      const Data = JSON.parse(D);
+      if (Data.user.userType == "admin") {
+        // router.push("/admin");
+        window.location.href = "/admin";
+      } else if (Data.user.userRole == "Agency") {
+        // router.push("/agency/dashboard");
+        window.location.href = "/agency/dashboard";
+      } else {
+        // router.push("/dashboard");
+        window.location.href = "/dashboard";
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const userData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
     if (userData) {
       const D = JSON.parse(userData);

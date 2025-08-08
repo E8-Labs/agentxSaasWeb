@@ -139,10 +139,10 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
 
       if (response) {
         console.log("Response of add twilio api is", response);
-        setTwillioLoader(false);
         if (response.data.status === true) {
           console.log("Sending the success message");
           await getProfileDetails();
+          setTwillioLoader(false);
           const localData = localStorage.getItem("User");
           if (localData) {
             let d = JSON.parse(localData);
@@ -152,8 +152,10 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
           }
           window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
           handleClose(response.data.message);
+          handleResetValues();
         } else if (response.data.status === false) {
           setShowSnackMessage(response.data.message);
+          setTwillioLoader(false);
         }
       }
     } catch (error) {
@@ -168,6 +170,12 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
     setSid("");
     setTwilioAuthToken("");
   };
+
+  //reset values
+  const handleResetValues = () => {
+    setSid("");
+    setTwilioAuthToken("");
+  }
 
   return (
     <Modal
@@ -202,6 +210,7 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
             <button
               className="outline-none border-none"
               onClick={() => {
+                handleResetValues()
                 closeModal();
               }}
             >

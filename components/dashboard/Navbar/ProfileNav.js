@@ -1415,7 +1415,7 @@ const SnackBarForUpgradePlan = () => {
     <div style={{ position: 'absolute', bottom: 20, alignSelf: 'center', right: 170 }}
       className="bg-[#845EEE45] border border-[#845EEE21] rounded-2xl flex flex-row items-center gap-1 px-2 py-3"
     >
-      <Image src={'/otherAssets/infoBlue.jpg'}
+      <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
         height={24} width={24} alt="*"
       />
 

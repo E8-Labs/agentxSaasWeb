@@ -318,6 +318,27 @@ export default function AddXBarPlan({
                     </div>
                   )}
 
+                  {/* Minutes */}
+                  <label style={styles.labels}>Minutes</label>
+                  <input
+                    style={styles.inputs}
+                    type="text"
+                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                    placeholder="000"
+                    value={minutes}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only digits and one optional period
+                      const sanitized = value.replace(/[^0-9.]/g, '');
+
+                      // Prevent multiple periods
+                      const valid = sanitized.split('.').length > 2
+                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                        : sanitized;
+                      setMinutes(valid);
+                    }}
+                  />
+
                   {/* Strikethrough Price */}
                   <label style={styles.labels}>
                     Strikethrough Price (Optional)
@@ -400,26 +421,6 @@ export default function AddXBarPlan({
                 </div>*/}
               </div>
 
-              {/* Minutes */}
-              <label style={styles.labels}>Minutes</label>
-              <input
-                style={styles.inputs}
-                type="text"
-                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                placeholder="000"
-                value={minutes}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // Allow only digits and one optional period
-                  const sanitized = value.replace(/[^0-9.]/g, '');
-
-                  // Prevent multiple periods
-                  const valid = sanitized.split('.').length > 2
-                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                    : sanitized;
-                  setMinutes(valid);
-                }}
-              />
             </div>
 
             {/* Action Buttons */}
@@ -524,7 +525,7 @@ export default function AddXBarPlan({
                             fontWeight: "600",
                           }}
                         >
-                          {title || "My XBar"}
+                          {title || "XBar"}
                         </div>
                         {tag ? (
                           <div
@@ -563,7 +564,7 @@ export default function AddXBarPlan({
                           )}
                           {discountedPrice && (
                             <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice}>
+                              <div style={styles.discountedPrice} className="line-through">
                                 ${discountedPrice}
                               </div>
                               <p style={{ color: "#15151580" }}></p>
