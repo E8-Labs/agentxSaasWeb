@@ -113,6 +113,8 @@ function SelectedUserDetails({
 
             if (d) {
                 setUser(d)
+                console.log('selected user details from api', d.profile_status)
+
             }
 
             // console.log('selectedUser after api', selectedUser)
@@ -349,7 +351,7 @@ function SelectedUserDetails({
                                                     }}
                                                 >
                                                     {
-                                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                                        user?.profile_status === "paused" ? "Resume" : "Pause"
                                                     }
                                                 </button>
                                             )
