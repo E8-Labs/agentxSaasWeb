@@ -1420,7 +1420,7 @@ const SnackBarForUpgradePlan = () => {
       />
 
       <div style={{ fontSize: 15, fontWeight: '700', }}>
-        Action needed! Your calls are paused: You don't have enough minutes to run calls. <span
+       {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
          className = "text-purple underline cursor-pointer" 
          onClick = {()=>{
           window.open('/dashboard/myAccount?tab=2')
