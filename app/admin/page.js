@@ -11,6 +11,8 @@ import { logout } from "@/utilities/UserUtility";
 import AdminDashboardCallLogs from "@/components/admin/CallLogs/AdminDashboardCallLogs";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
+import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomingCharges";
+import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
 
 function Page() {
   const router = useRouter();
@@ -18,25 +20,46 @@ function Page() {
     {
       id: 1,
       name: "Dashboard",
+      value: 'dashboard',
+
     },
     {
       id: 2,
       name: "Users",
+      value: 'users',
     },
     {
       id: 3,
       name: "Affiliates",
+      value: 'affiliates',
+
     },
     {
       id: 4,
       name: "Call Logs",
+      value: 'call-logs',
+
     },
     {
       id: 5,
       name: "Phone Verification Codes",
+      value: 'phone-verification-codes',
+
     },
     {
       id: 6,
+      name: "Upcoming Charges",
+      value: 'upcoming-charges',
+
+    },
+    {
+      id: 7,
+      name: "Payments Needing Refund",
+      value: 'payments-needing-refund',
+
+    },
+    {
+      id: 8,
       name: "Logout",
     },
   ];
@@ -94,21 +117,25 @@ function Page() {
           ))}
         </div>
 
-        <div className="w-full items-center">
-          {selectedManu.name === "Users" ? (
-            <AdminUsers />
-          ) : selectedManu.name === "Affiliates" ? (
-            <AdminAffiliates />
-          ) : selectedManu.name === "Call Logs" ? (
-            <AdminDashboardCallLogs />
-          ) :selectedManu.name === "Phone Verification Codes" ? 
-            <PhoneVerificationCodesList />
-          : (
-            <div>
-              <Dashboard />
-            </div>
-          )}
-        </div>
+        <div className="w-full items-center h-full overflow-hidden flex-1">
+        {selectedManu.name === "Users" ? (
+          <AdminUsers />
+        ) : selectedManu.name === "Affiliates" ? (
+          <AdminAffiliates />
+        ) : selectedManu.name === "Call Logs" ? (
+          <AdminDashboardCallLogs />
+        ) : selectedManu.name === "Phone Verification Codes" ? (
+          <PhoneVerificationCodesList />
+        ) : selectedManu.name === "Upcoming Charges" ? (
+          <AdminUpcomingCharges />
+        ) : selectedManu.name === "Payments Needing Refund" ? (
+          <AdminPaymentsNeedingRefund />
+        ) : (
+          <div>
+            <Dashboard />
+          </div>
+        )}
+      </div>
       </div>
     </ErrorBoundary>
   );
