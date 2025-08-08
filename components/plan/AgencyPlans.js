@@ -40,7 +40,7 @@ function AgencyPlans() {
     //hover plans state
     const [hoverPlan, setHoverPlan] = useState(null);
 
-    const [togglePlan, setTogglePlan] = useState(false);
+    const [togglePlan, setTogglePlan] = useState(null);
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(null);
     const [monthlyPlans, setMonthlyPlans] = useState([]);
@@ -296,7 +296,26 @@ function AgencyPlans() {
 
     useEffect(() => {
         getPlans();
+
     }, []);
+
+    const selectDefaultPlan = (monthly) => {
+        // if (monthlyPlans.length > 0) {
+        setSelectedPlanIndex(1);
+        setTogglePlan(monthly[1]?.id);
+        setSelectedPlan(monthly[1]);
+        // console.log('monthlyPlans', monthlyPlans)
+        // }else{
+        //     console.log('no plan')
+        // }
+    }
+
+
+    useEffect(() => {
+
+        console.log('selectedPlanIndex', selectedPlanIndex)
+        console.log('togglePlan', togglePlan)
+    }, [selectedPlan, togglePlan])
 
     //continue monthly plan
     const continueMonthly = () => {
@@ -334,7 +353,7 @@ function AgencyPlans() {
 
     //handle select plan
     const handleTogglePlanClick = (item, index) => {
-        // console.log("Selected plan index is", index);
+        console.log("Selected plan index is", index, item);
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -420,6 +439,9 @@ function AgencyPlans() {
                         setMonthlyPlans(monthly);
                         setQuaterlyPlans(quarterly);
                         setYearlyPlans(yearly);
+
+                        selectDefaultPlan(monthly)
+
                     } else {
                         console.log('Error in getting plans: ', response.data.message);
                     }

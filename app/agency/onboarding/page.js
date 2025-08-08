@@ -7,7 +7,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 function Page() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(1);
 
   useEffect(() => {
     const D = localStorage.getItem("User");
@@ -18,7 +18,7 @@ function Page() {
         window.location.href = "/admin";
       } else if (Data.user.userRole == "Agency") {
         // router.push("/agency/dashboard");
-        window.location.href = "/agency/dashboard";
+        // window.location.href = "/agency/dashboard";
       } else {
         // router.push("/dashboard");
         window.location.href = "/dashboard";

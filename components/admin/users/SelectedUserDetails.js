@@ -230,6 +230,7 @@ function SelectedUserDetails({
                 if (response) {
                     console.log("Respose of pause unpause apis is", response);
                     if (response.data.status === true) {
+                        selectedUser.profile_status = "paused"
                         setShowSnackMessage(response.data.message);
                         handlePauseUser();
                         setpauseLoader(false);

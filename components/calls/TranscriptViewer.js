@@ -150,9 +150,109 @@ export function TranscriptViewer({ callId }) {
     }
   };
 
+  const dumyMsg = [
+    {
+      id: 483809,
+      message: "Hi. It's Sky. Let's get started. What can I help with?",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483810,
+      message: "How do I know when the agent is calling?",
+      sender: "human",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483811,
+      message: "Thanks for sharing that. Just to make su...",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483813,
+      message: "Great. Let me walk you through how you can check when a...",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483809,
+      message: "Hi. It's Sky. Let's get started. What can I help with?",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483810,
+      message: "How do I know when the agent is calling?",
+      sender: "human",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+    {
+      id: 483811,
+      message: "Thanks for sharing that. Just to make su...",
+      sender: "bot",
+      createdAt: "2025-08-08T00:00:00.000Z",
+      updatedAt: "2025-08-08T00:00:00.000Z",
+      comment: null,
+      liked: null
+    },
+  ];
+
+
   useEffect(() => {
     GetCallTranscript()
   }, [callId])
+
+  function areMessagesEqual(m1, m2) {
+    return (
+      m1.message.trim() === m2.message.trim() &&
+      m1.sender === m2.sender
+    );
+  }
+  
+  function getMessagesWithLoopCheck(data) {
+    const result = [];
+  
+    for (let i = 0; i < data.length; i++) {
+      const current = data[i];
+  
+      // Compare current message with all previous messages
+      let isDuplicate = false;
+      for (let j = 0; j < result.length; j++) {
+        if (areMessagesEqual(current, result[j])) {
+          console.warn("🔁 Duplicate/loop detected at index", i);
+          isDuplicate = true;
+          break;
+        }
+      }
+  
+      if (isDuplicate) break;
+      result.push(current);
+    }
+  
+    return result;
+  }
+  
+
+
 
   const GetCallTranscript = async () => {
     const Token = AuthToken();
@@ -171,8 +271,9 @@ export function TranscriptViewer({ callId }) {
         console.log("Response of get call transcript is", response.data);
         if (response.data.status === true) {
           console.log('call transcript is', response.data.data);
+          const filteredMessages = getMessagesWithLoopCheck(response.data.data);
           // const parsedMessages = parseTranscript(response.data.data.transcript);
-          setMessages(response.data.data);
+          setMessages(filteredMessages);
         }
       }
 
