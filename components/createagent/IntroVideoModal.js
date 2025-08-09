@@ -17,7 +17,13 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, videoDescription
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        if (videoTitle === "Welcome to AgentX") {
+          console.log("Donot close")
+        } else {
+          onClose()
+        }
+      }}
       closeAfterTransition
       BackdropProps={{
         timeout: 1000,
