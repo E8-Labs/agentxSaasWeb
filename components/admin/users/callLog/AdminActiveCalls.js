@@ -466,7 +466,8 @@ function AdminActiveCalls({ selectedUser }) {
       const data = await response.json();
 
       if (response.ok) {
-        //console.log;
+        console.log("calls in a batch ",data.data.pastCalls)
+
         if (firstCall) {
           setSheduledCalllogs(data.data.pastCalls);
           setFilteredSheduledCalllogs(data.data.pastCalls);
