@@ -1,4 +1,6 @@
+// app/layout.js
 import localFont from "next/font/local";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -21,12 +23,6 @@ export const metadata = {
     description: "Design and create custom AI agents with ease.",
     url: "https://ai.myagentx.com/createagent",
     images: [
-      // {
-      //   url: "https://ai.myagentx.com/thumbOrb.png",
-      //   width: 1200,
-      //   height: 630,
-      //   alt: "Thumbnail Alt Text",
-      // },
       {
         url: "https://ai.myagentx.com/thumbOrbSmall.png",
         width: 276,
@@ -49,7 +45,8 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        {/* Code for popins */}
+
+        {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -59,8 +56,7 @@ export default function RootLayout({ children }) {
         <link
           href="https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Arrows:wght@400..700&display=swap"
           rel="stylesheet"
-        ></link>
-        {/* Code for inter */}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -71,12 +67,71 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
           rel="stylesheet"
         />
+
+        {/* Step 1 – Visitor tracking script */}
+        <Script
+          id="agentx-visitor-tracking"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+            console.log("[AgentX Tracking] Injecting am.js...");
+            var t=document.createElement("script");
+            t.type="text/javascript";
+            t.async=!0;
+            t.src='https://set.myagentx.com/js/am.js';
+            t.onload=t.onreadystatechange=function(){
+              var s=this.readyState;
+              if(!s||"complete"==s||"loaded"==s){
+                try{
+                  console.log("[AgentX Tracking] am.js loaded, initializing affiliateManager...");
+                  affiliateManager.init(
+                    'UoIYax6ZF0P9Ds6xa6mC',
+                    'https://backend.leadconnectorhq.com',
+                    '.myagentx.com'
+                  );
+                  console.log("[AgentX Tracking] affiliateManager initialized:", affiliateManager);
+                }catch(e){
+                  console.error("[AgentX Tracking] Initialization error:", e);
+                }
+              }
+            };
+            var e=document.getElementsByTagName("script")[0];
+            e.parentNode.insertBefore(t,e);
+          })();`,
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ fontFamily: "Inter" }}
       >
         {children}
+
+        {/* Step 2 – Signup tracking helper */}
+        <Script id="agentx-signup-helper" strategy="afterInteractive">
+          {`
+            window.agentxTrackSignup = function(email, firstName, lastName) {
+              const trySignup = () => {
+                if (window.affiliateManager && typeof window.affiliateManager.signup === "function") {
+                  console.log("[AgentX Tracking] Sending signup event...");
+                  affiliateManager.signup(email, { firstname: firstName || '', lastname: lastName || '' });
+                } else if (window.affiliateManager && typeof window.affiliateManager.signUp === "function") {
+                  console.log("[AgentX Tracking] Sending signup event...");
+                  affiliateManager.signUp(email, { firstname: firstName || '', lastname: lastName || '' });
+                } else {
+                  console.warn("[AgentX Tracking] Signup method not found on affiliateManager");
+                }
+              };
+
+              if (document.readyState === "complete") {
+                trySignup();
+              } else {
+                window.addEventListener("load", trySignup);
+              }
+            };
+
+          `}
+        </Script>
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { getReadableStatus } from "@/utilities/UserUtility";
 
 function AdminActiveCalls({ selectedUser }) {
   const Limit = 30;
@@ -685,7 +686,7 @@ function AdminActiveCalls({ selectedUser }) {
                                 "-"
                               )}
                             </div>
-                            <div className="w-2/12">{item.status}</div>
+                            <div className="w-2/12">{getReadableStatus(item.status)}</div>
                             <div className="w-1/12">
                               <button
                                 aria-describedby={id}

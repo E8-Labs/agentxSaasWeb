@@ -36,8 +36,6 @@ export const PersistanceKeys = {
   //selected user for admin side
   selectedUser: "selectedUser",
 
- addCalendarScope: process.env.NEXT_PUBLIC_REACT_APP_addCalendarScope,
-
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,
   GlobalConsultationUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,
   GlobalWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalWebinarUrl,
@@ -96,7 +94,7 @@ export const XBarPlans = [
   {
     id: 3,
     type: "Enterprise",
-    PlanTitle: "Scale | 1500 mins",
+    PlanTitle: "Enterprise | 1500 mins",
     details: [
       "Dedicated Success Manager",
       `6 AgentX AI | 6hrs of Support`,

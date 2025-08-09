@@ -11,6 +11,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { UserTypes } from "@/constants/UserTypes";
 import LeadLoading from "../dashboard/leads/LeadLoading";
 import { BatchStatus } from "../constants/constants";
+import { getReadableStatus } from "@/utilities/UserUtility";
 
 function SheduledCalls({ user }) {
   const Limit = 30;
@@ -528,12 +529,7 @@ function SheduledCalls({ user }) {
     }
   }
 
-  function getReadableStatus(status) {
-    if (status === BatchStatus.PausedForNonPayment) {
-      return "Paused (Non Payment)";
-    }
-    return status;
-  }
+ 
 
   // function getAgentNameForActiviti(agent) {
   //   const agents = agent.agents || [];

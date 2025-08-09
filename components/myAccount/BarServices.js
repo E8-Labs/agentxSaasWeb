@@ -133,12 +133,13 @@ function BarServices() {
       if (data) {
         let user = JSON.parse(data)
         console.log('user', user)
-        let response =user //await getProfileDetails();
+        let response = await getProfileDetails();
 
         setRole(response?.data?.data?.userRole)
-        // console.log("response of get ")
         if (response) {
           let togglePlan = response?.data?.data?.supportPlan;
+        console.log("response of get ",togglePlan)
+
           // let togglePlan = plan?.type;
           let planType = null;
           // if (plan.status == "active") {

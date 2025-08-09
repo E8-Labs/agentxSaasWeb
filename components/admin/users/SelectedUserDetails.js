@@ -54,7 +54,7 @@ function SelectedUserDetails({
             name: 'Pipeline',
             selectedImage: '/svgIcons/selectedPiplineIcon.svg',
             unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg'
-        }, , {
+        }, {
             id: 6,
             name: 'Integration',
             selectedImage: '/svgIcons/selectedIntegration.svg',
@@ -396,7 +396,7 @@ function SelectedUserDetails({
                                         handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
                                         handlePaueUser={handlePause}
                                         pauseLoader={pauseLoader}
-                                        selectedUser={selectedUser}
+                                        selectedUser={user}
                                     />
                                 )
                             }

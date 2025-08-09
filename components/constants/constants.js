@@ -18,6 +18,7 @@ export const BatchStatus = {
   Paused: "Paused",
   PausedForNonPayment: "PausedForNonPayment",
   PausedForUpdateCadence: "PausedForUpdateCadence",
+  PausedForNoPhoneNumber: "PausedForNoPhoneNumber",
   Completed: "Completed", // the rest of the cadence for that
 };
 

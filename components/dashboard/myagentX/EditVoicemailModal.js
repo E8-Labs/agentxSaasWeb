@@ -170,8 +170,8 @@ function EditVoicemailModal({
                                 tagValue={setMessage}
                                 // scrollOffset={scrollOffset}
                                 showSaveChangesBtn={message}
-                                from={"Objection"}
-                                isEdit={false}
+                                from={"Voicemail"}
+                                isEdit={true}
                                 saveUpdates={async () => {
                                     // await updateAgent();
                                     // setShowObjectionsSaveBtn(false);

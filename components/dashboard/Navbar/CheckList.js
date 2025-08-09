@@ -49,11 +49,11 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
             const LocalData = JSON.parse(D);
             const T = LocalData?.user?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
-            let percentage = 14;
+            let percentage = 14.29;
 
             for (let key in T) {
                 if (T[key]) {
-                    percentage += 14.30;
+                    percentage += 14.29;
                 }
             }
 
@@ -113,6 +113,8 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
             fontSize: 16
         }
     }
+console.log('progressValue', progressValue)
+console.log('checkList', checkList)
 
     return (
         <div className='w-full'>

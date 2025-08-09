@@ -547,6 +547,18 @@ export const PromptTagInput = ({
                 >
                   {isEdit ? "Edit" : "Add"} {from}
                 </div>
+
+                {
+                  from === "Voicemail" && (
+                    <div  className="w-full flex flex-col  items-end jutstify-end">
+                      <div style={{
+                        fontSize: 14, fontWeight: '500', color: '#00000060'
+                      }}>
+                        {text?.length}/200
+                      </div>
+                    </div>
+                  )
+                }
               </div>
 
               <div style={{ position: "relative", height: "80%" }}>

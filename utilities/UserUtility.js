@@ -1,3 +1,4 @@
+import { BatchStatus } from "@/components/constants/constants";
 import { PersistanceKeys } from "@/constants/Constants";
 
 export function GetCampaigneeNameIfAvailable(window) {
@@ -29,4 +30,22 @@ export function logout() {
     );
     document.cookie = "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
+}
+
+
+export  function getReadableStatus(status) {
+  console.log("status",status)
+  if (status === BatchStatus.PausedForNonPayment) {
+    return "Paused - No Payment";
+  }
+  if (status === BatchStatus.PausedForUpdateCadence) {
+    return "Paused - Update Cadence";
+  }
+
+  if (status === BatchStatus.PausedForNoPhoneNumber) {
+    return "Paused - No Phone";
+  }
+
+
+  return status;
 }
