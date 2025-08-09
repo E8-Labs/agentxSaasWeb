@@ -27,7 +27,7 @@ function PlansView({
         },
         {
             name: "Scale",
-            mins: "720",
+            mins: "800",
             calls: "5,000",
             price: "$599",
         }
@@ -72,8 +72,8 @@ function PlansView({
                         setShowMessage({
                             message: response.data.message,
                             type: SnackbarTypes.Success
-                        })
-                        handleClose()
+                        });
+                      
                     } else {
                         setShowMessage({
                             message: response.data.message,

@@ -8,7 +8,7 @@ const AdminPaymentsNeedingRefund = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     status: 'pending',
-    limit: 50,
+    limit: 100,
     offset: 0
   });
   const [summary, setSummary] = useState({
@@ -35,7 +35,7 @@ const AdminPaymentsNeedingRefund = () => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      console.log('token ', AuthToken)
+      // console.log('token ', AuthToken)
       
       const response = await axios.get(`${baseURL}?${params}`, {
         headers: {

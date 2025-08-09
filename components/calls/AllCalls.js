@@ -525,8 +525,8 @@ function AllCalls({ user }) {
         <LeadLoading />
       ) : (
         <>
-          <div className="flex w-full pl-10 flex-row items-center gap-3">
-            <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
+          <div className="flex w-full flex-row items-center gap-3">
+            <div className="flex ml-10 flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
               <input
                 style={{ fontSize: 15 }}
                 type="text"

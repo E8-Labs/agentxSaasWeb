@@ -2512,7 +2512,7 @@ function Page() {
         <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
 
         <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
+          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded-full px-4">
             <input
               // style={styles.paragraph}
               className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"

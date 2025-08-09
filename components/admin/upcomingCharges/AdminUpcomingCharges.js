@@ -8,8 +8,8 @@ const AdminUpcomingCharges = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     type: 'all',
-    daysAhead: 7,
-    limit: 50,
+    daysAhead: 30,
+    limit: 100,
     offset: 0
   });
   const [summary, setSummary] = useState({
@@ -37,7 +37,7 @@ const AdminUpcomingCharges = () => {
         const UserDetails = JSON.parse(LocalData);
         AuthToken = UserDetails.token;
       }
-      console.log('token ', AuthToken)
+      // console.log('token ', AuthToken)
       
       const response = await axios.get(`${baseURL}?${params}`, {
         headers: {
