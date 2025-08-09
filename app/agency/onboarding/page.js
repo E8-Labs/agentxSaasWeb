@@ -18,7 +18,7 @@ function Page() {
         window.location.href = "/admin";
       } else if (Data.user.userRole == "Agency") {
         // router.push("/agency/dashboard");
-        // window.location.href = "/agency/dashboard";
+        window.location.href = "/agency/dashboard";
       } else {
         // router.push("/dashboard");
         window.location.href = "/dashboard";
