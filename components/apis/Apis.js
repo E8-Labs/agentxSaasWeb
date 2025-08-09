@@ -118,6 +118,8 @@ const Apis = {
   getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
 
   getUsers: `${BasePath}/api/admin/users`,
+  getUpcomingPayments: `${BasePath}api/admin/upcoming-charges`,
+  getRefundNeededPayments: `${BasePath}api/admin/payments-needing-refund`,
 
   addAffiliate: `${BasePath}api/admin/addAffiliate`,
   getAffiliate: `${BasePath}api/admin/getAffiliates`,
