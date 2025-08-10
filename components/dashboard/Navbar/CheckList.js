@@ -42,6 +42,9 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
         isVisible: false,
     });
     const [selectedTimeDurationLocal, setSelectedTimeDurationLocal] = useState("");
+    //selected ghl calendar
+    const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
+    const [gHLCalenderLoader, setGHLCalenderLoader] = useState(false);
 
     const getChecklist = () => {
         const D = localStorage.getItem("User");
@@ -113,8 +116,8 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
             fontSize: 16
         }
     }
-console.log('progressValue', progressValue)
-console.log('checkList', checkList)
+    console.log('progressValue', progressValue)
+    console.log('checkList', checkList)
 
     return (
         <div className='w-full'>
@@ -278,6 +281,9 @@ console.log('checkList', checkList)
                             }}
                             selectedTimeDurationLocal={selectedTimeDurationLocal}
                             setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}
+                            gHLCalenderLoader={gHLCalenderLoader}
+                            selectGHLCalendar={selectGHLCalendar}
+                            setSelectGHLCalendar={setSelectGHLCalendar}
                         />
                     </div>
                 )

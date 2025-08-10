@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import ProfileNav from "@/components/dashboard/Navbar/ProfileNav";
 import ErrorBoundary from "@/components/ErrorBoundary";
+// import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOAuthWatcher";
+import GhlOauthWatcher from "@/components/dashboard/oAuthWatcher/GhlOauthWatcher";
 
 const shouldShowServiceBanner =
   process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === "Yes";
@@ -39,9 +41,8 @@ export default function DashboardLayout({ children }) {
 
         {/* Main Layout */}
         <div
-          className={`flex flex-row w-full ${
-            shouldShowServiceBanner ? "pt-[4vh]" : ""
-          }`}
+          className={`flex flex-row w-full ${shouldShowServiceBanner ? "pt-[4vh]" : ""
+            }`}
         >
           {/* Sidebar */}
           <div
@@ -56,7 +57,10 @@ export default function DashboardLayout({ children }) {
 
           {/* Main Content */}
           <div className="w-10/12">
-            <div>{/* <NoPlanPopup /> */}</div>
+            <div>
+              {/* <NoPlanPopup /> */}
+              <GhlOauthWatcher />
+            </div>
             {children}
           </div>
         </div>

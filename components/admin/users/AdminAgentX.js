@@ -259,6 +259,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [previousCalenders, setPreviousCalenders] = useState([]);
   const [showModelLoader, setShowModelLoader] = useState(false);
   const [openGptManu, setOpenGptManu] = useState("");
+  const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
 
   const [selectedGptManu, setSelectedGptManu] = useState(models[0]);
 
@@ -4046,6 +4047,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
+                    selectGHLCalendar={selectGHLCalendar}
+                    setSelectGHLCalendar={setSelectGHLCalendar}
                   />
                 </div>
               ) : activeTab === "Pipeline" ? (

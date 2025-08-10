@@ -3,10 +3,11 @@ import Apis from "@/components/apis/Apis";
 import timeZones, { timeDuration } from "@/utilities/Timezones";
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from "@mui/material";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
 import axios from "axios";
 import { Scopes } from "./Scopes";
+import { PersistanceKeys } from "@/constants/Constants";
 
 function CalendarModal(props) {
   const {
@@ -30,15 +31,184 @@ function CalendarModal(props) {
     // setSelectedTimeDuration
     selectedTimeDurationLocal,
     setSelectedTimeDurationLocal,
+    selectGHLCalendar,
+    setSelectGHLCalendar
   } = props;
 
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
   const [showAddNewGHLCalender, setShowAddNewGHLCalender] = useState(false);
 
-  console.log("Props passed in calendar modal are", props)
+  //code for adding ghl calendar
+  const [status, setStatus] = useState(null);
+  const [tokens, setTokens] = useState(null);
+  const [ghlCalendars, setGHLCalendars] = useState([]);
+  const popupRef = useRef(null);
+
+  console.log("Props passed in calendar modal are", props);
+
+  // If we are the popup landing back at "/" with ?code=..., send it to the opener, then close.
+  useEffect(() => {
+    const qs = new URLSearchParams(window.location.search);
+    const code = qs.get("code");
+    const error = qs.get("error");
+
+    // If this window was opened by another window (popup case)
+    if (window.opener && (code || error)) {
+      try {
+        window.opener.postMessage(
+          { type: "GHL_OAUTH_CODE", code, error },
+          window.location.origin // only our own origin
+        );
+      } finally {
+        window.close();
+      }
+      return; // Don't run the rest in the popup
+    }
+  }, []);
+
+  // Main window: listen for the popup's message
+  useEffect(() => {
+    function onMessage(e) {
+      // Security: ensure it came from our own origin
+      if (e.origin !== window.location.origin) return;
+      const { type, code, error } = e.data || {};
+      if (type !== "GHL_OAUTH_CODE") return;
+
+      if (error) {
+        setStatus(`OAuth error: ${error}`);
+        return;
+      }
+      if (!code) return;
+
+      // Got the code from the popup → exchange on server
+      (async () => {
+        setStatus("Exchanging code...");
+        // const res = await fetch(`/api/ghl/exchange?code=${encodeURIComponent(code)}`);
+        const res = await fetch(`/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`)
+
+        const json = await res.json();
+        if (!res.ok) {
+          setStatus("Exchange failed");
+          console.error(json);
+          return;
+        }
+        // setStatus("Connected!");
+        console.log("Token recieving are", json);
+        setTokens(json);
+        // setStatus("Connected! Loading calendars...");
+        // const calRes = await fetch("/api/ghl/calendars");
+        // const calendars = await calRes.json();
+        // if (!calRes.ok) {
+        //   setStatus("Failed to load calendars");
+        //   console.log(calendars);
+        // } else {
+        //   setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
+        //   setTokens(calendars); // or keep separate state like setCalendars(calendars)
+        // }
+
+        setStatus("Connected! Loading locations...");
+        // const locRes = await fetch("/api/ghl/locations");
+        // if (!locRes.ok) {
+        //   setStatus(`Failed to load locations (${locRes.status})`);
+        //   console.error(await locRes.text());
+        //   return;
+        // }
+        // const locs = await locRes.json();
+        // const locationId = locs?.locations?.[0]?.id; // pick one or show a selector
+        // const locationId = cookieStore.get("ghl_location_id")?.value;
+        // if (!locationId) {
+        //   setStatus("No locations found for this token");
+        //   return;
+        // }else{
+        // console.log("Location id fetched is", locationId);
+        // }
+
+        setStatus("Loading calendars...");
+        const calRes = await fetch(`/api/ghl/calendars/`);//?locationId=${encodeURIComponent(locationId)}
+        if (!calRes.ok) {
+          setStatus(`Failed to load calendars (${calRes.status})`);
+          console.error(await calRes.text());
+          return;
+        }
+        const calendars = await calRes.json();
+        console.log("Calendars fetched are", calendars);
+        setStatus("");
+        // setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
+        // const { userId } = await fetch("/api/ghl/user-id/", { cache: "no-store" }).then(r => r.json());
+        // console.log("Stored user id:", userId);
 
 
+        // setTokens(calendars); // or setCalendars(calendars)
+        // localStorage.setItem(PersistanceKeys.localGHLs, JSON.stringify(calendars.calendars));
+        setGHLCalendars(calendars.calendars);
+
+      })();
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+
+  }, []);
+
+  //ghl calendar popup click
+  const startGHLAuthPopup = useCallback(() => {
+    const currentPath = window.location.origin + window.location.pathname;
+    console.log("Path to redirect is", currentPath)
+    // Build scopes as a space-separated string
+    const scope =
+      (process.env.NEXT_PUBLIC_GHL_SCOPE || "").trim() ||
+      [
+        "calendars.readonly",
+        "calendars/events.readonly",
+        "calendars/resources.readonly",
+        "contacts.readonly",
+        "lc-email.readonly",
+        "locations.readonly",
+        "locations/customFields.readonly",
+      ].join(" ");
+
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID ?? "",
+      redirect_uri: currentPath ?? "",//process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
+      scope,
+      // keep auth in the same popup window
+      loginWindowOpenMode: "self",
+    });
+
+    const authUrl =
+      "https://marketplace.gohighlevel.com/oauth/chooselocation?" + params.toString();
+
+    // Open a centered popup
+    const w = 520;
+    const h = 650;
+    const y = window.top.outerHeight / 2 + window.top.screenY - h / 2;
+    const x = window.top.outerWidth / 2 + window.top.screenX - w / 2;
+
+    popupRef.current = window.open(
+      authUrl,
+      "ghl_oauth",
+      `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`
+    );
+
+    if (!popupRef.current) {
+      // Popup blocked → fallback to full redirect
+      window.location.href = authUrl;
+    } else {
+      setStatus("Waiting for authorization...");
+      // Optional: poll if user closes popup without completing
+      const timer = setInterval(() => {
+        if (popupRef.current && popupRef.current.closed) {
+          clearInterval(timer);
+          setStatus((prev) =>
+            prev === "Waiting for authorization..." ? "Popup closed" : prev
+          );
+        }
+      }, 500);
+    }
+  }, []);
+
+  //google calendar click
   const handlGoogleClick = () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID;
@@ -222,15 +392,16 @@ function CalendarModal(props) {
             ) : (
               <button
                 onClick={() => {
-                  setShowAddNewGHLCalender(true)
+                  setShowAddNewGHLCalender(true);
+                  startGHLAuthPopup();
                 }}
                 className="
                 text-purple border w-11/12 rounded border rounded-lg
                 flex items-center justify-center h-[31vh]"
               >
                 <Image
-                  src={'/otherAssets/calIcon.jpg'}
-                  height={106} width={106} alt="*"
+                  src={'/assets/ghlCal.png'}
+                  height={104} width={104} alt="*"
                 />
               </button>
             )}
@@ -496,48 +667,26 @@ function CalendarModal(props) {
                 }}
               />
             </div>
-            <div
-              className="mt-4"
-              style={{
-                fontWeight: "600",
-                fontSize: 16.8,
-                textAlign: "start",
-              }}
-            >
-              Api key
-            </div>
-            <div>
-              <input
-                className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
-                placeholder="Type here"
-                style={styles.inputStyles}
-                value={calenderApiKey}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  setCalenderApiKey(value);
-                }}
-              />
-            </div>
             {/*
-            <div
-              className="mt-4"
-              style={{
-                fontWeight: "600",
-                fontSize: 16.8,
-                textAlign: "start",
-              }}
-            >
-              Event id
-            </div>
+              <div
+                className="mt-4"
+                style={{
+                  fontWeight: "600",
+                  fontSize: 16.8,
+                  textAlign: "start",
+                }}
+              >
+                Api key
+              </div>
               <div>
                 <input
                   className="w-full rounded-xl h-[50px] outline-none focus:ring-0 p-2 mt-1"
                   placeholder="Type here"
                   style={styles.inputStyles}
-                  value={eventId}
+                  value={calenderApiKey}
                   onChange={(e) => {
                     let value = e.target.value;
-                    setEventId(value);
+                    setCalenderApiKey(value);
                   }}
                 />
               </div>
@@ -611,6 +760,97 @@ function CalendarModal(props) {
                 </Select>
               </FormControl>
             </div>
+
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: "600",
+                fontSize: 16.8,
+                textAlign: "start",
+              }}
+            >
+              Select calendar
+            </div>
+
+            {
+              status ? (
+                <div className="p-2">
+                  {status}
+                </div>
+              ) : (
+                <div className="w-full mt-2">
+                  <FormControl sx={{}} className="w-full h-[50px]">
+                    <Select
+                      value={selectGHLCalendar}
+                      // label="Age"
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        console.log("Click on calendars", value);
+                        setSelectGHLCalendar(event.target.value);
+                      }}
+                      displayEmpty // Enables placeholder
+                      renderValue={(selected) =>
+                        selected ? selected.name : <div style={{ color: "#aaa" }}>Select</div>
+                      }
+                      sx={{
+                        height: "48px",
+                        borderRadius: "13px",
+                        border: "1px solid #00000020", // Default border
+                        "&:hover": {
+                          border: "1px solid #00000020", // Same border on hover
+                        },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none", // Remove the default outline
+                        },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                          border: "none", // Remove outline on focus
+                        },
+                        "&.MuiSelect-select": {
+                          py: 0, // Optional padding adjustments
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: "30vh", // Limit dropdown height
+                            overflow: "auto", // Enable scrolling in dropdown
+                            scrollbarWidth: "none",
+                            // borderRadius: "10px"
+                          },
+                        },
+                      }}
+                    >
+                      {ghlCalendars.map((item, index) => {
+                        return (
+                          <MenuItem
+                            className="w-full"
+                            value={item}
+                            key={index}
+                          >
+                            <button onClick={() => { }}>{item.name}</button>
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </div>
+              )
+            }
+
+
+            {/* Select calendar fetched from ghl account
+            <button
+              onClick={startGHLAuthPopup}
+              style={{
+                padding: "10px 16px",
+                borderRadius: 12,
+                border: "1px solid #e5e7eb",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Connect GHL (Popup)
+            </button> */}
 
             <div className="w-full mt-4">
               {gHLCalenderLoader ? (
@@ -906,7 +1146,7 @@ function CalendarModal(props) {
         return false;
       }
     } else if (showAddNewGHLCalender) {
-      if (calenderTitle && calenderApiKey && selectTimeZone) {
+      if (calenderTitle && selectTimeZone && selectGHLCalendar) {
         // //console.log;&& selectedTimeDurationLocal
         return true;
       } else {
@@ -914,7 +1154,7 @@ function CalendarModal(props) {
         return false;
       }
     } else
-      if (calenderTitle && calenderApiKey && eventId && selectTimeZone && selectedTimeDurationLocal) {
+      if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
         // //console.log;
         return true;
       } else {

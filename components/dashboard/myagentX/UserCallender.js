@@ -78,6 +78,7 @@ const UserCalender = ({
   const [calendarSelected, setCalendarSelected] = useState(null);
   const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
   const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
+  const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
 
   //code for the IANA time zone lists
 
@@ -294,13 +295,20 @@ const UserCalender = ({
         formData.append("timeZone", calendar.selectTimeZone);
         formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
       } else if (calendar?.isFromAddGHLCal) {
-        formData.append("GHLapikey", calendar?.apiKey || calenderApiKey);
+        formData.append("calendarType", "ghl");
+        // formData.append("GHLapikey", calendar?.apiKey || calenderApiKey);
+        const getCookiesReponse = await axios.get("/api/getCookies");
+        // console.log("Cokies recieved are", getCookiesReponse);
+        formData.append("ghlAuthToken", getCookiesReponse?.data?.accessToken);
+        formData.append("refreshToken", getCookiesReponse?.data?.refreshToken);
+        formData.append("locationId", selectGHLCalendar?.locationId);
         formData.append("title", calendar?.title || calenderTitle);
         formData.append("timeZone", calendar?.timeZone || selectTimeZone);
-        if (calendar?.id) {
+
+        if (selectGHLCalendar) {
           // formData.append("mainAgentId", calendarDetails.id);
-          formData.append("calendarId", calendar?.id); //|| selected calendar id
-          console.log("Sending calendar id ", calendar?.id);
+          formData.append("ghlCalendarId", selectGHLCalendar?.id); //|| selected calendar id
+          console.log("Sending calendar id ", selectGHLCalendar?.id);
         }
         // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
 
@@ -761,6 +769,8 @@ const UserCalender = ({
           setSelectTimeZone={setSelectTimeZone}
           selectedTimeDurationLocal={selectedTimeDurationLocal}
           setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}
+          selectGHLCalendar={selectGHLCalendar}
+          setSelectGHLCalendar={setSelectGHLCalendar}
         />
 
         {/* Modal to add custom calender */}
