@@ -91,15 +91,15 @@ import { NextResponse } from "next/server";
 
 export async function GET(req) {
     const { searchParams } = new URL(req.url);
-    const redirectUri = searchParams.get("redirect_uri") ?? process.env.GHL_REDIRECT_URI;
+    const redirectUri = searchParams.get("redirect_uri") ?? process.env.NEXT_PUBLIC_GHL_REDIRECT_URI;
     const code = searchParams.get("code");
     if (!code) return NextResponse.json({ error: "Missing code" }, { status: 400 });
 
     const body = new URLSearchParams({
         grant_type: "authorization_code",
         code,
-        client_id: process.env.GHL_CLIENT_ID,
-        client_secret: process.env.GHL_CLIENT_SECRET,
+        client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
+        client_secret: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
         redirect_uri: redirectUri,
         // redirect_uri: process.env.GHL_REDIRECT_URI,
     });

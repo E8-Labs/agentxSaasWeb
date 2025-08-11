@@ -161,9 +161,9 @@ function CalendarModal(props) {
       NEXT_PUBLIC_GHL_REDIRECT_URI: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
       NEXT_PUBLIC_GHL_SCOPE: process.env.NEXT_PUBLIC_GHL_SCOPE,
       NODE_ENV: process.env.NODE_ENV,
-      GHL_CLIENT_ID: process.env.GHL_CLIENT_ID,
-      GHL_CLIENT_SECRET: process.env.GHL_CLIENT_SECRET,
-      GHL_REDIRECT_URI: process.env.GHL_REDIRECT_URI,
+      // GHL_CLIENT_ID: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
+      // GHL_CLIENT_SECRET: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
+      // GHL_REDIRECT_URI: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
     }
     console.log("GHL ENV variables are", ghlVariables)
   }
