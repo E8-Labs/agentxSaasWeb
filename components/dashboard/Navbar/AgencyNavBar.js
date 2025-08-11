@@ -362,8 +362,8 @@ const AgencyNavBar = () => {
           style: { backgroundColor: 'transparent' }
         }}
       >
-        <Box className="w-full flex flex-row items-center justify-end border-none outline-none" sx={{ backgroundColor: "transparent" }}>
-          <div className="flex flex-row items-center gap-4 bg-white mt-4 mr-4 rounded-md shadow-lg p-2">
+        <Box className="w-full h-screen flex flex-row items-end justify-end border-none outline-none" sx={{ backgroundColor: "transparent" }}>
+          <div className="flex flex-row items-center gap-4 bg-white mb-6 mr-4 rounded-md shadow-lg p-2">
             <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
             <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
               {`You're Stripe account has not been connected.`}

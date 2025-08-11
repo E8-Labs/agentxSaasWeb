@@ -1125,85 +1125,19 @@ const AgencySignUp = ({
           <div className="flex w-6/12 flex-col items-center justify-center">
             <Image
               className="object-contain"
-              src={"/agencyIcons/signupLogo.jpg"}
+              src={"/agencyIcons/signupLogo.png"}
               height={620}
               width={620}
               alt="*"
             />
 
             {/* Side Box Code */}
-            {/* <div
-                            className="absolute bottom-10 right-6 sm:right-10 w-60 sm:w-4/12"
-                        // style={{
-                        //     position: "absolute",
-                        //     right: "3%",
-                        //     bottom: "10%"
-                        // }}
-                        >
-                            <div className="w-8/12 flex flex-col items-end mb-4">
-                                <div className="text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px] text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF] text-start"
-                                    style={{ fontWeight: "700" }}>
-                                    {company || "Agency Name"}
-                                </div>
-                                <Image
-                                    className="object-contain"
-                                    src={'/agencyIcons/poweredByIcon.png'}
-                                    height={22} width={177} alt='*'
-                                />
-                            </div>
-                            <div className="bg-white w-7/12 flex flex-row justify-center items-start shadow-xl pb-6 rounded-xl">
-                                <div className="w-9/12 bg-white shadow-xl rounded-xl px-4">
-                                    <div className="flex flex-row items-center gap-3 pt-6">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/man.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div style={styles.sideBoxTxt}>
-                                            {userName ? userName : "Agency Owner"}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center gap-3 mt-4">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/web.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div className="w-32 truncate" style={styles.sideBoxTxt}>
-                                            {website ? website : "Website"}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center gap-3 mt-4">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/email.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div className="w-32 truncate" style={styles.sideBoxTxt}>
-                                            {userEmail ? userEmail : "Email"}
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-row items-center gap-3 mt-4 pb-6">
-                                        <Image
-                                            alt="*"
-                                            src={"/agencyIcons/building.jpg"}
-                                            height={32}
-                                            width={32}
-                                        />
-                                        <div style={styles.sideBoxTxt}>
-                                            {size ? size.label : "Agency Size"}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                                </div>*/}
-            {/*parent div*/}
-            <div className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 max-w-full">
+            <div
+              className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 w-[30vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+            // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+            >
               {/*this one agency name div*/}
-              <div className="inline-flex flex-col items-start w-[25vw]">
+              <div className="inline-flex flex-col items-start w-full px-6">
                 <div
                   className="
       truncate w-full
@@ -1216,7 +1150,7 @@ const AgencySignUp = ({
                   {company || "Agency Name"}
                 </div>
               </div>
-              <div className="inline-flex flex-col items-end w-[25vw] mb-4">
+              <div className="inline-flex flex-col items-end w-full mb-4 px-6">
                 <Image
                   className="object-contain"
                   src={"/agencyIcons/poweredByIcon.png"}
@@ -1226,43 +1160,42 @@ const AgencySignUp = ({
                 />
               </div>
               {/* This is getting width of the agncy name div or parent div */}
-              <div className="bg-white flex justify-center shadow-xl pb-6 rounded-xl w-[25vw] px-4 py-4">
-                <div className="bg-white shadow-xl rounded-xl px-4 pb-4 w-full">
-                  {[
-                    {
-                      src: "/agencyIcons/man.jpg",
-                      label: userName || "Agency Owner",
-                    },
-                    {
-                      src: "/agencyIcons/web.jpg",
-                      label: website || "Website",
-                    },
-                    // {
-                    //   src: "/agencyIcons/email.jpg",
-                    //   label: userEmail || "Email",
-                    // },
-                    {
-                      src: "/agencyIcons/building.jpg",
-                      label: size?.label || "Agency Size",
-                    },
-                  ].map((item, idx) => (
+              <div className="pb-4 w-full px-6">
+                {[
+                  {
+                    src: "/agencyIcons/man.jpg",
+                    label: userName || "Agency Owner",
+                  },
+                  {
+                    src: "/agencyIcons/web.jpg",
+                    label: website || "Website",
+                  },
+                  // {
+                  //   src: "/agencyIcons/email.jpg",
+                  //   label: userEmail || "Email",
+                  // },
+                  {
+                    src: "/agencyIcons/building.jpg",
+                    label: size?.label || "Agency Size",
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-row items-center gap-3 mt-4 first:pt-2 min-w-0"
+                  >
+                    <Image alt="*" src={item.src} height={32} width={32} />
                     <div
-                      key={idx}
-                      className="flex flex-row items-center gap-3 mt-4 first:pt-6 min-w-0"
+                      className="truncate"
+                      style={{ ...styles.sideBoxTxt }}
                     >
-                      <Image alt="*" src={item.src} height={32} width={32} />
-                      <div
-                        className="truncate"
-                        style={{ ...styles.sideBoxTxt }}
-                      >
-                        {item?.label}
-                        {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
-                      </div>
+                      {item?.label}
+                      {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
             </div>
+
           </div>
         </div>
       </div>

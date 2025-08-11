@@ -64,7 +64,15 @@ const EditAgencyName = ({
             />
             <div className='flex w-full flex-row justify-between items-center'>
                 <div className='sm:text-lg lg:text-2xl lg:font-bold'>
-                    {agencyName}
+                    {agencyName.length < 8 ? (
+                        <div>
+                            {agencyName}
+                        </div>
+                    ) : (
+                        <div>
+                            {agencyName.slice(0, 8)}...
+                        </div>
+                    )}
                 </div>
                 {
                     agencyName && (
