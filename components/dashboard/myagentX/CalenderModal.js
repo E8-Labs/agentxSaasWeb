@@ -4,7 +4,7 @@ import timeZones, { timeDuration } from "@/utilities/Timezones";
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from "@mui/material";
 import Image from "next/image";
 import React, { useRef, useState, useCallback, useEffect } from "react";
-import { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnackMessage";
 import axios from "axios";
 import { Scopes } from "./Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
@@ -39,11 +39,19 @@ function CalendarModal(props) {
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
   const [showAddNewGHLCalender, setShowAddNewGHLCalender] = useState(false);
 
+  console.log("Status of ghl loader is", gHLCalenderLoader);
+
   //code for adding ghl calendar
   const [status, setStatus] = useState(null);
   const [tokens, setTokens] = useState(null);
   const [ghlCalendars, setGHLCalendars] = useState([]);
   const popupRef = useRef(null);
+
+  const [showSnack, setShowSnack] = useState({
+    type: "",
+    message: "",
+    isVisible: false
+  });
 
   console.log("Props passed in calendar modal are", props);
 
@@ -77,6 +85,11 @@ function CalendarModal(props) {
 
       if (error) {
         setStatus(`OAuth error: ${error}`);
+        setShowSnack({
+          message: `OAuth error: ${error}`,
+          type: SnackbarTypes.Error,
+          isVisible: true
+        })
         return;
       }
       if (!code) return;
@@ -84,12 +97,22 @@ function CalendarModal(props) {
       // Got the code from the popup → exchange on server
       (async () => {
         setStatus("Exchanging code...");
+        // setShowSnack({
+        //   message: "Exchanging code...",
+        //   type: "",
+        //   isVisible: true
+        // })
         // const res = await fetch(`/api/ghl/exchange?code=${encodeURIComponent(code)}`);
         const res = await fetch(`/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`)
 
         const json = await res.json();
         if (!res.ok) {
           setStatus("Exchange failed");
+          setShowSnack({
+            message: "Exchange failed",
+            type: SnackbarTypes.Error,
+            isVisible: true
+          })
           console.error(json);
           return;
         }
@@ -125,13 +148,24 @@ function CalendarModal(props) {
         // }
 
         setStatus("Loading calendars...");
+        // setShowSnack({
+        //   message: "Loading calendars...",
+        //   type: "",
+        //   isVisible: true
+        // })
         const calRes = await fetch(`/api/ghl/calendars/`);//?locationId=${encodeURIComponent(locationId)}
         if (!calRes.ok) {
           setStatus(`Failed to load calendars (${calRes.status})`);
+          setShowSnack({
+            message: `Failed to load calendars (${calRes.status})`,
+            type: SnackbarTypes.Error,
+            isVisible: true
+          })
           console.error(await calRes.text());
           return;
         }
         const calendars = await calRes.json();
+        setShowAddNewGHLCalender(true);
         console.log("Calendars fetched are", calendars);
         setStatus("");
         // setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
@@ -214,6 +248,11 @@ function CalendarModal(props) {
       window.location.href = authUrl;
     } else {
       setStatus("Waiting for authorization...");
+      // setShowSnack({
+      //   message: "Waiting for authorization...",
+      //   type: "",
+      //   isVisible: true
+      // })
       // Optional: poll if user closes popup without completing
       const timer = setInterval(() => {
         if (popupRef.current && popupRef.current.closed) {
@@ -221,6 +260,13 @@ function CalendarModal(props) {
           setStatus((prev) =>
             prev === "Waiting for authorization..." ? "Popup closed" : prev
           );
+          // setShowSnack({
+          //   message: ((prev) =>
+          //     prev === "Waiting for authorization..." ? "Popup closed" : prev
+          //   ),
+          //   type: "",
+          //   isVisible: true
+          // })
         }
       }, 500);
     }
@@ -410,7 +456,7 @@ function CalendarModal(props) {
             ) : (
               <button
                 onClick={() => {
-                  setShowAddNewGHLCalender(true);
+                  // setShowAddNewGHLCalender(true);
                   startGHLAuthPopup();
                 }}
                 className="
@@ -1207,6 +1253,18 @@ function CalendarModal(props) {
           p: 4,
         }}
       >
+        <AgentSelectSnackMessage
+          type={showSnack.type}
+          message={showSnack.message}
+          isVisible={showSnack.isVisible}
+          hide={() => {
+            setShowSnack({
+              message: "",
+              isVisible: false,
+              type: SnackbarTypes.Success,
+            });
+          }}
+        />
         {
           renderView()
         }

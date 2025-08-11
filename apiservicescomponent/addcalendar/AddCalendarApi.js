@@ -30,11 +30,13 @@ export const AddCalendarApi = async (calendarValues
             formData.append("googleUserId", calendarValues?.googleUserId);
             formData.append("eventId", calendarValues?.eventId);
         } else if (calendarValues?.isFromAddGHLCal) {
+            console.log("GHL calendar passed is", calendarValues);
             const getCookiesReponse = await axios.get("/api/getCookies");
+            formData.append("calendarType", "ghl");
             // console.log("Cokies recieved are", getCookiesReponse);
             formData.append("ghlAuthToken", getCookiesReponse?.data?.accessToken);
             formData.append("refreshToken", getCookiesReponse?.data?.refreshToken);
-            formData.append("locationId", calendarValues?.locationId);
+            formData.append("locationId", calendarValues?.ghlCalendar?.locationId);
             formData.append("title", calendarValues?.title);
             formData.append("timeZone", calendarValues?.timeZone);
         } else {

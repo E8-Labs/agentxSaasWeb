@@ -110,6 +110,51 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
         setShowClaimPopup(false);
     };
 
+    //add calendar api
+    const handleAddCalendar = async (calendar) => {
+        try {
+            let response = null;
+            if (calendar?.isFromAddGoogleCal) {
+                console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+                response = await AddCalendarApi(calendar);
+                setGoogleCalenderLoader(true);
+            } else if (calendar?.isFromAddGHLCal) {
+                console.log("Is not from google cal");
+                response = await AddCalendarApi(calendar);
+                setGHLCalenderLoader(true);
+            } else {
+                console.log("Is not from google cal");
+                response = await AddCalendarApi(addCalendarValues);
+                setCalenderLoader(true);
+            }
+
+            if (response.status === true) {
+                getChecklist();
+                setShowAddCalendar(false);
+                setSnackMessage({
+                    message: response.message,
+                    type: SnackbarTypes.Success,
+                    isVisible: true,
+                });
+                setCalenderLoader(false);
+                setGoogleCalenderLoader(false);
+                setGHLCalenderLoader(false);
+            } else {
+                console.log("error");
+                setSnackMessage({
+                    message: response.message,
+                    type: SnackbarTypes.Error,
+                    isVisible: true,
+                });
+                setCalenderLoader(false);
+                setGoogleCalenderLoader(false);
+                setGHLCalenderLoader(false);
+            }
+        } catch (error) {
+            console.log("Error occured in add calendar api is", error)
+        }
+    }
+
     const styles = {
         text: {
             fontWeight: "500",
@@ -249,39 +294,8 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                             eventId={eventId}
                             selectTimeZone={selectTimeZone}
                             setSelectTimeZone={setSelectTimeZone}
-                            handleAddCalendar={async (calendar) => {
-                                let response = null;
-                                if (calendar?.isFromAddGoogleCal) {
-                                    console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-                                    response = await AddCalendarApi(calendar);
-                                    setGoogleCalenderLoader(true);
-                                } else if (calendar?.isFromAddGHLCal) {
-                                    console.log("Is not from google cal");
-                                    response = await AddCalendarApi(calendar);
-                                    setCalenderLoader(true);
-                                } else {
-                                    console.log("Is not from google cal");
-                                    response = await AddCalendarApi(addCalendarValues);
-                                    setCalenderLoader(true);
-                                }
-                                setCalenderLoader(false);
-                                setGoogleCalenderLoader(false);
-                                if (response.status === true) {
-                                    getChecklist();
-                                    setShowAddCalendar(false);
-                                    setSnackMessage({
-                                        message: response.message,
-                                        type: SnackbarTypes.Success,
-                                        isVisible: true,
-                                    });
-                                } else {
-                                    console.log("error");
-                                    setSnackMessage({
-                                        message: response.message,
-                                        type: SnackbarTypes.Error,
-                                        isVisible: true,
-                                    });
-                                }
+                            handleAddCalendar={(calendar) => {
+                                handleAddCalendar(calendar);
                             }}
                             selectedTimeDurationLocal={selectedTimeDurationLocal}
                             setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}

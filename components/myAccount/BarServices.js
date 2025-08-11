@@ -435,7 +435,7 @@ function BarServices() {
           </div>
         </div>
 
-        <div className="w-9/12 max-h-[20%] overflow-y-auto scrollbar-hide md:max-h-[33%] lg:max-h-[45%]"
+        <div className="w-9/12 max-h-[25%] overflow-y-auto scrollbar-hide md:max-h-[38%] lg:max-h-[50%]"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
