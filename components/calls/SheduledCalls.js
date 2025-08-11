@@ -557,6 +557,96 @@ function SheduledCalls({ user }) {
     }
   }
 
+  function getAgentNameForActiviti(agent) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
+      let name = agents[0]?.name || "-";
+
+      if (agents[0].agentType === "outbound") {
+        return formatName(name);
+      } else {
+        if (agents.length > 1) {
+          return formatName(name);
+        }
+      }
+    }
+    return "-";
+  }
+
+  function getAgentImageForActiviti(agent) {
+    const agents = agent.agents || [];
+    if (agents.length > 0) {
+      let img
+      if (agents[0].agentType === "outbound") {
+        img = agents[0]?.thumb_profile_image;
+
+        if (img) {
+          return (
+            <Image
+              className="rounded-full"
+              src={img}
+              height={40}
+              width={40}
+              style={{
+                height: "40px",
+                width: "40px",
+                resize: "cover",
+              }}
+              alt="*"
+            />
+          )
+        } else {
+          return (
+
+            <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+              {getFirstAlphabetFromName(agent)}
+            </div>
+          )
+        }
+      } else {
+        if (agents.length > 1) {
+          img = agents[1]?.thumb_profile_image;
+          if (img) {
+            return (
+              <Image
+                className="rounded-full"
+                src={img}
+                height={40}
+                width={40}
+                style={{
+                  height: "40px",
+                  width: "40px",
+                  resize: "cover",
+                }}
+                alt="*"
+              />
+            )
+          } else {
+            return (
+              <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                {getFirstAlphabetFromName(agent)}
+              </div>
+            )
+          }
+        }
+      }
+    }
+    return "-";
+  }
+
+  function formatName(name) {
+    if (typeof name !== "string" || name.length === 0) return "-";
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  }
+
+
+  function getFirstAlphabetFromName(agent) {
+    const name = getAgentNameForActiviti(agent);
+    // console.log('name', name)
+
+    return name.length > 0 ? name?.slice(0, 1).toUpperCase() : "";
+  }
+
   return (
     <div className="w-full items-start">
       {
@@ -606,16 +696,11 @@ function SheduledCalls({ user }) {
                                   key={index}
                                 >
                                   <div className="w-3/12 flex flex-row gap-4 items-center">
-                                    <div style={{ width: "fit-content" }}>
-                                      {getAgentsListImage(agent?.agents[0])}
+                                    {getAgentImageForActiviti(agent)}
+
+                                    <div style={styles.text2}>
+                                      {getAgentNameForActiviti(agent)}
                                     </div>
-                                    <div style={styles.text2}>{
-                                      agent?.agents[0].agentType === "outbound" ? (
-                                        agent?.agents[0].name
-                                      ) : (
-                                        agent?.agents[1].name
-                                      )
-                                    }</div>
                                   </div>
                                   <div className="w-2/12 ">
                                     {user.user.userType == UserTypes.RealEstateAgent
