@@ -125,7 +125,10 @@ const Leads1 = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
 
-
+  // //test code
+  // useEffect(() => {
+  //   console.log("UpdateHeader is updated is", UpdateHeader);
+  // }, [UpdateHeader]);
 
   useEffect(() => {
     //console.log;
@@ -311,67 +314,104 @@ const Leads1 = () => {
     //console.log;
   }, [NewColumnsObtained]);
 
+  //donot match the custom column with matching array //just compare with the default 5 columns we have
   function ChangeColumnName(UpdatedColumnName) {
     let ColumnToUpdate = UpdateHeader;
-
+    console.log("Updated column value passed is", UpdatedColumnName)
+    console.log("Update header is", ColumnToUpdate)
     if (UpdatedColumnName == null) {
-      console.log("Log 1 running");
+      console.log("Update columns name are null");
+      console.log("New columns obtained list is", NewColumnsObtained);
       let updatedColumns = NewColumnsObtained.map((item) => {
-        if (item.ColumnNameInSheet === ColumnToUpdate.ColumnNameInSheet) {
+        if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
           item.matchedColumn = null;
           item.UserFacingName = null;
+          console.log("Conditional column name is", item);
+          return item;
         }
+        console.log("Non conditional column nam is", item);
         return item;
       });
+      console.log("Updated columns list is", updatedColumns);
       setNewColumnsObtained(updatedColumns);
     } else {
-      console.log("Log 2 running");
-
-      let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
-        LeadDefaultColumns[key].mappings.includes(
-          UpdatedColumnName.toLowerCase()
-        )
-      );
-
-      let isAlreadyMapped = matchedColumnKey
-        ? NewColumnsObtained.some(
-          (item) =>
-            item.matchedColumn?.dbName === matchedColumnKey &&
-            item.ColumnNameInSheet !== ColumnToUpdate.ColumnNameInSheet // skip current row
-        )
-        : false;
-
-      if (isAlreadyMapped) {
-        console.warn(`Duplicate match attempt for: ${matchedColumnKey}`);
-        setWarningModal(true);
-        setShowPopUp(false);
-        setcolumnAnchorEl(null);
-        setSelectedItem(null);
-        return;
-      }
-
-
+      console.log("Update columns name exists");
+      console.log("New columns obtained from the sheet are", NewColumnsObtained);
       let updatedColumns = NewColumnsObtained.map((item) => {
-        if (item.ColumnNameInSheet === ColumnToUpdate.ColumnNameInSheet) {
+        if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
+          // First check if any default column matches this name (prioritize default mappings)
+          let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+            LeadDefaultColumns[key].UserFacingName.toLowerCase() === UpdatedColumnName.toLowerCase()
+          );
+
+          console.log("Matched column keys are", matchedColumnKey);
+
           if (matchedColumnKey) {
-            console.log(
-              `Matched with default column: ${matchedColumnKey} -`,
-              LeadDefaultColumns[matchedColumnKey]
+            // Check if this default column is already mapped to another sheet column
+            // We need to check the current state, not the old state
+            const alreadyExists = NewColumnsObtained.some(
+              (existingItem) =>
+                existingItem.ColumnNameInSheet !== item.ColumnNameInSheet &&
+                existingItem?.matchedColumn?.dbName === matchedColumnKey
             );
-            let defaultColumn = {
-              ...LeadDefaultColumns[matchedColumnKey],
-              dbName: matchedColumnKey,
-            };
-            item.matchedColumn = defaultColumn;
-            item.UserFacingName = null;
+
+            console.log(`Checking if default column '${matchedColumnKey}' is already used...`);
+            console.log("Currently mapped columns:", NewColumnsObtained.map(col => ({
+              sheet: col.ColumnNameInSheet,
+              matched: col.matchedColumn?.dbName,
+              custom: col.UserFacingName
+            })));
+            console.log(`Already exists: ${alreadyExists}`);
+
+            if (alreadyExists) {
+              // Default column already used, treat this as custom column instead
+              console.log(`Default column ${matchedColumnKey} already used, treating "${UpdatedColumnName}" as custom column`);
+
+              // Check if custom name already exists
+              const customNameExists = NewColumnsObtained.some(
+                (existingItem) =>
+                  existingItem.ColumnNameInSheet !== item.ColumnNameInSheet &&
+                  existingItem?.UserFacingName?.toLowerCase() === UpdatedColumnName.toLowerCase()
+              );
+
+              if (customNameExists) {
+                setErrSnack("Column name already exists.");
+                setShowErrSnack(true);
+                return item; // Don't update if already exists
+              } else {
+                // Create as custom column
+                item.matchedColumn = null;
+                item.UserFacingName = UpdatedColumnName;
+              }
+            } else {
+              // Default column is available, use it
+              console.log("Default column is available, mapping it.");
+              let defaultColumn = { ...LeadDefaultColumns[matchedColumnKey] };
+              item.matchedColumn = defaultColumn;
+              item.UserFacingName = null;
+            }
+
           } else {
-            item.matchedColumn = null;
-            item.UserFacingName = UpdatedColumnName;
+            // No default column matches, check if custom name already exists
+            const customNameExists = NewColumnsObtained.some(
+              (existingItem) =>
+                existingItem.ColumnNameInSheet !== item.ColumnNameInSheet &&
+                existingItem?.UserFacingName?.toLowerCase() === UpdatedColumnName.toLowerCase()
+            );
+
+            if (customNameExists) {
+              setErrSnack("Custom column name already exists.");
+              setShowErrSnack(true);
+              return item; // Don't update if already exists
+            } else {
+              console.log("Creating custom column:", UpdatedColumnName);
+              item.matchedColumn = null;
+              item.UserFacingName = UpdatedColumnName;
+            }
           }
         }
         return item;
       });
-
       setNewColumnsObtained(updatedColumns);
     }
 
@@ -379,6 +419,76 @@ const Leads1 = () => {
     setcolumnAnchorEl(null);
     setSelectedItem(null);
   }
+
+  // function ChangeColumnName(UpdatedColumnName) {
+  //   let ColumnToUpdate = UpdateHeader;
+
+  //   if (UpdatedColumnName == null) {
+  //     console.log("Log 1 running");
+  //     let updatedColumns = NewColumnsObtained.map((item) => {
+  //       if (item.ColumnNameInSheet === ColumnToUpdate.ColumnNameInSheet) {
+  //         item.matchedColumn = null;
+  //         item.UserFacingName = null;
+  //       }
+  //       return item;
+  //     });
+  //     setNewColumnsObtained(updatedColumns);
+  //   } else {
+  //     console.log("Log 2 running");
+
+  //     let matchedColumnKey = Object.keys(LeadDefaultColumns).find((key) =>
+  //       LeadDefaultColumns[key].mappings.includes(
+  //         UpdatedColumnName.toLowerCase()
+  //       )
+  //     );
+
+  //     let isAlreadyMapped = matchedColumnKey
+  //       ? NewColumnsObtained.some(
+  //         (item) =>
+  //           item.matchedColumn?.dbName === matchedColumnKey &&
+  //           item.ColumnNameInSheet !== ColumnToUpdate.ColumnNameInSheet // skip current row
+  //       )
+  //       : false;
+
+  //     if (isAlreadyMapped) {
+  //       console.warn(`Duplicate match attempt for: ${matchedColumnKey}`);
+  //       setWarningModal(true);
+  //       setShowPopUp(false);
+  //       setcolumnAnchorEl(null);
+  //       setSelectedItem(null);
+  //       return;
+  //     }
+
+
+  //     let updatedColumns = NewColumnsObtained.map((item) => {
+  //       if (item.ColumnNameInSheet === ColumnToUpdate.ColumnNameInSheet) {
+  //         if (matchedColumnKey) {
+  //           console.log(
+  //             `Matched with default column: ${matchedColumnKey} -`,
+  //             LeadDefaultColumns[matchedColumnKey]
+  //           );
+  //           let defaultColumn = {
+  //             ...LeadDefaultColumns[matchedColumnKey],
+  //             dbName: matchedColumnKey,
+  //           };
+  //           item.matchedColumn = defaultColumn;
+  //           item.UserFacingName = null;
+  //         } else {
+  //           item.matchedColumn = null;
+  //           item.UserFacingName = UpdatedColumnName;
+  //         }
+  //       }
+  //       return item;
+  //     });
+
+  //     setNewColumnsObtained(updatedColumns);
+  //   }
+
+  //   setShowPopUp(false);
+  //   setcolumnAnchorEl(null);
+  //   setSelectedItem(null);
+  // }
+
 
   const validateColumns = () => {
     //console.log;
@@ -490,9 +600,9 @@ const Leads1 = () => {
               usedKeys.add(matchedColumnKey); // Mark as used
             }
 
-            console.log(
-              `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
-            );
+            // console.log(
+            //   `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`
+            // );
 
             return {
               ColumnNameInSheet: header, // Original header from the file
@@ -526,6 +636,7 @@ const Leads1 = () => {
           });
 
           // Update state
+          // console.log("Transformed data (first 10):", JSON.stringify(transformedData.slice(0, 10), null, 2));
           setProcessedData(transformedData);
           setNewColumnsObtained(mappedColumns); // Store the column mappings
         }
@@ -577,13 +688,13 @@ const Leads1 = () => {
     }
 
     const ApiPath = Apis.createLead;
-    const BATCH_SIZE = 250;
+    const BATCH_SIZE = 250
     const totalBatches = Math.ceil(resumeData ? resumeData.data.length : data.length / BATCH_SIZE);
     setUploading(true);
     setCurrentBatch(startIndex);
     setTotalBatches(totalBatches);
     setUploadProgress(Math.floor((startIndex / totalBatches) * 100));
-
+    console.log("data", data);
     console.log(`Uploading ${resumeData ? resumeData.data.length : data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
 
     let uploadData = {
@@ -597,6 +708,8 @@ const Leads1 = () => {
       data: data.resumeData ? resumeData.data : data
     }
 
+    console.log("leads data", uploadData);
+    // return
     localStorage.setItem(PersistanceKeys.leadUploadState, JSON.stringify(uploadData));
 
     setTimeout(() => {
@@ -699,6 +812,9 @@ const Leads1 = () => {
       (col) => col.matchedColumn !== null
     ).map((col) => col.matchedColumn.dbName);
 
+    console.log("All default db names:", allDefaultDbNames);
+    console.log("Currently matched db names:", matchedDbNames);
+
     // Find default columns that were NOT matched
     const columnsNotMatched = allDefaultDbNames
       .filter((dbName) => !matchedDbNames.includes(dbName))
@@ -706,7 +822,7 @@ const Leads1 = () => {
         Object.values(LeadDefaultColumns).find((col) => col.dbName === dbName)
       );
 
-    //console.log;
+    console.log("Available default columns for dropdown:", columnsNotMatched);
     return columnsNotMatched;
   }
 
@@ -1315,6 +1431,7 @@ const Leads1 = () => {
                                   item.columnNameTransformed
                                 );
                                 handleColumnPopoverClick(event);
+                                console.log("dropdown clicking item is", item)
                                 setUpdateHeader(item);
                                 // }
                               }
@@ -1337,6 +1454,7 @@ const Leads1 = () => {
                           <button
                             className="underline text-purple w-1/12 outline-none ps-4"
                             onClick={() => {
+                              console.log("Clicking crss item is", item);
                               setUpdateHeader(item);
                               setShowDelCol(true);
                               // setUpdateHeader(item)
@@ -1625,18 +1743,31 @@ const Leads1 = () => {
                   }}
                   disabled={!updateColumnValue}
                   onClick={() => {
-                    if (
-                      NewColumnsObtained?.some(
-                        (item) =>
-                          item?.UserFacingName?.toLowerCase() ===
-                          updateColumnValue?.toLowerCase()
-                      )
-                    ) {
-                      // //console.log;
-                      // return
-                      setWarningModal(true);
+                    // Check if custom column name already exists
+                    const customNameExists = NewColumnsObtained?.some(
+                      (item) =>
+                        item?.UserFacingName?.toLowerCase() ===
+                        updateColumnValue?.toLowerCase()
+                    );
+
+                    // Check if trying to use a default column name that's already mapped
+                    const defaultColumnExists = Object.keys(LeadDefaultColumns).find((key) =>
+                      LeadDefaultColumns[key].UserFacingName.toLowerCase() === updateColumnValue?.toLowerCase()
+                    );
+
+                    const defaultAlreadyMapped = defaultColumnExists && NewColumnsObtained?.some(
+                      (item) => item?.matchedColumn?.dbName === defaultColumnExists
+                    );
+
+                    if (customNameExists) {
+                      setErrSnack("Custom column name already exists.");
+                      setShowErrSnack(true);
+                    } else if (defaultAlreadyMapped) {
+                      setErrSnackTitle("Column already mapped")
+                      setErrSnack("This default column is already mapped to another column.");
+                      setShowErrSnack(true);
                     } else {
-                      // //console.log;
+                      console.log("Column name is valid, proceeding...");
                       ChangeColumnName(updateColumnValue);
                     }
                   }}
