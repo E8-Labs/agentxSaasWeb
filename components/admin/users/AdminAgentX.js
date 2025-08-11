@@ -2969,7 +2969,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   iconColor="text-green-500"
                 />
                 <Card
-                  name="Mins Talked"
+                  name="Time"
                   value={
                     showDrawerSelectedAgent?.totalDuration &&
                       showDrawerSelectedAgent?.totalDuration > 0 ? (
