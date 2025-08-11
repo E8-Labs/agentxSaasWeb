@@ -154,6 +154,38 @@ export function TranscriptViewer({ callId }) {
     GetCallTranscript()
   }, [callId])
 
+  function areMessagesEqual(m1, m2) {
+    return (
+      m1.message.trim() === m2.message.trim() &&
+      m1.sender === m2.sender
+    );
+  }
+  
+  function getMessagesWithLoopCheck(data) {
+    const result = [];
+  
+    for (let i = 0; i < data.length; i++) {
+      const current = data[i];
+  
+      // Compare current message with all previous messages
+      let isDuplicate = false;
+      for (let j = 0; j < result.length; j++) {
+        if (areMessagesEqual(current, result[j])) {
+          console.warn("🔁 Duplicate/loop detected at index", i);
+          isDuplicate = true;
+          break;
+        }
+      }
+  
+      if (isDuplicate) break;
+      result.push(current);
+    }
+  
+    return result;
+  }
+  
+
+
   const GetCallTranscript = async () => {
     const Token = AuthToken();
     try {
@@ -172,7 +204,9 @@ export function TranscriptViewer({ callId }) {
         if (response.data.status === true) {
           console.log('call transcript is', response.data.data);
           // const parsedMessages = parseTranscript(response.data.data.transcript);
-          setMessages(response.data.data);
+
+          let fileteredMsgs = getMessagesWithLoopCheck(response.data.data)
+          setMessages(fileteredMsgs);
         }
       }
 
