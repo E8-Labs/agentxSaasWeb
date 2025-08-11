@@ -251,15 +251,19 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                             setSelectTimeZone={setSelectTimeZone}
                             handleAddCalendar={async (calendar) => {
                                 let response = null;
-                                // if (calendar?.isFromAddGoogleCal) {
-                                //     console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-                                //     response = await AddCalendarApi(calendar);  
-                                //     setGoogleCalenderLoader(true);
-                                // } else {
-                                //     console.log("Is not from google cal");
-                                //     response = await AddCalendarApi(addCalendarValues);
-                                //     setCalenderLoader(true);
-                                // }
+                                if (calendar?.isFromAddGoogleCal) {
+                                    console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+                                    response = await AddCalendarApi(calendar);
+                                    setGoogleCalenderLoader(true);
+                                } else if (calendar?.isFromAddGHLCal) {
+                                    console.log("Is not from google cal");
+                                    response = await AddCalendarApi(calendar);
+                                    setCalenderLoader(true);
+                                } else {
+                                    console.log("Is not from google cal");
+                                    response = await AddCalendarApi(addCalendarValues);
+                                    setCalenderLoader(true);
+                                }
                                 setCalenderLoader(false);
                                 setGoogleCalenderLoader(false);
                                 if (response.status === true) {

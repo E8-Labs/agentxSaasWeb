@@ -29,6 +29,14 @@ export const AddCalendarApi = async (calendarValues
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);
             formData.append("eventId", calendarValues?.eventId);
+        } else if (calendarValues?.isFromAddGHLCal) {
+            const getCookiesReponse = await axios.get("/api/getCookies");
+            // console.log("Cokies recieved are", getCookiesReponse);
+            formData.append("ghlAuthToken", getCookiesReponse?.data?.accessToken);
+            formData.append("refreshToken", getCookiesReponse?.data?.refreshToken);
+            formData.append("locationId", calendarValues?.locationId);
+            formData.append("title", calendarValues?.title);
+            formData.append("timeZone", calendarValues?.timeZone);
         } else {
             formData.append("title", calendarValues?.calenderTitle);
             formData.append("timeZone", calendarValues?.selectTimeZone);
@@ -42,7 +50,7 @@ export const AddCalendarApi = async (calendarValues
         }
         console.log("Key updated");
 
-        return
+        // return
         const response = await axios.post(ApiPath, formData, {
             headers: {
                 Authorization: "Bearer " + userAuthToken,
@@ -62,7 +70,7 @@ export const AddCalendarApi = async (calendarValues
                 window.dispatchEvent(
                     new CustomEvent("UpdateCheckList", { detail: { update: true } })
                 );
-            } 
+            }
             return response.data;
         }
     } catch (error) {
