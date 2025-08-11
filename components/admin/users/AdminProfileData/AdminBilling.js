@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -113,6 +114,9 @@ function AdminBilling({ selectedUser, from }) {
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
 
+  const [allowSmartRefill, setAllowSmartRefill] = useState(false);
+
+
   useEffect(() => {
     let screenWidth = 1000;
     if (typeof window !== "undefined") {
@@ -155,6 +159,12 @@ function AdminBilling({ selectedUser, from }) {
   ];
 
   useEffect(() => {
+    const d = localStorage.getItem("User");
+    if (d) {
+      const Data = JSON.parse(d);
+      console.log("Smart refill is", Data.user.smartRefill);
+      setAllowSmartRefill(Data.user.smartRefill);
+    }
     getProfile();
     getPaymentHistory();
     // getCardsList();
@@ -727,129 +737,7 @@ function AdminBilling({ selectedUser, from }) {
         */}
       </div>
 
-      <div className="w-full">
-        {getCardLoader ? (
-          <div
-            className="h-full w-full flex flex-row items-center justify-center"
-            style={{
-              marginTop: 20,
-            }}
-          >
-            <CircularProgress size={35} />
-          </div>
-        ) : (
-          <div className="w-full">
-            {cards.length > 0 ? (
-              <div
-                className="w-full flex flex-row gap-4"
-                style={{
-                  overflowX: "auto",
-                  overflowY: "hidden",
-                  display: "flex",
-                  scrollbarWidth: "none",
-                  WebkitOverflowScrolling: "touch",
-                  height: "",
-                  marginTop: 20,
-                  // border:'2px solid red'
-                  scrollbarWidth: "none",
-                  overflowY: "hidden",
-                  height: "", // Ensures the height is always fixed
-                  flexShrink: 0,
-                }}
-              >
-                {cards.map((item) => (
-                  <div className="flex-shrink-0 w-5/12" key={item.id}>
-                    <button
-                      className="w-full outline-none"
-                      onClick={() => makeDefaultCard(item)}
-                    >
-                      <div
-                        className={`flex items-start justify-between w-full p-4 border rounded-lg `}
-                        style={{
-                          backgroundColor:
-                            item.isDefault || selectedCard?.id === item.id
-                              ? "#4011FA05"
-                              : "transparent",
-                          borderColor:
-                            item.isDefault || selectedCard?.id === item.id
-                              ? "#7902DF"
-                              : "#15151510",
-                        }}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
-                            style={{
-                              borderWidth:
-                                item.isDefault || selectedCard?.id === item.id
-                                  ? 3
-                                  : 1,
-                            }}
-                          ></div>
-                          {/* Card Details */}
-                          <div className="flex flex-col items-start">
-                            <div className="flex flex-row items-center gap-3">
-                              <div
-                                style={{
-                                  fontSize: "16px",
-                                  fontWeight: "700",
-                                  color: "#000",
-                                }}
-                              >
-                                ****{item.last4}
-                              </div>
-                              {
-                                // makeDefaultCardLoader ? (
-                                //   <CircularProgress size={20} />
-                                // ) :
-
-                                item.isDefault && (
-                                  <div
-                                    className="flex px-2 py-1 rounded-full bg-purple text-white text-[10]"
-                                    style={{ fontSize: 11, fontWeight: "500" }}
-                                  >
-                                    Default
-                                  </div>
-                                )
-                              }
-                            </div>
-                            <div
-                              style={{
-                                fontSize: "14px",
-                                fontWeight: "500",
-                                color: "#909090",
-                              }}
-                            >
-                              {item.brand} Card
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Card Logo */}
-                        <div>
-                          <Image
-                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                            alt="Card Logo"
-                            width={50}
-                            height={50}
-                          />
-                        </div>
-                      </div>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div
-                className="text-start mt-12"
-                style={{ fontSize: 18, fontWeight: "600" }}
-              >
-                No payment method added
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <SmartRefillCard selectedUser = {selectedUser} />
 
       {/* code for current plans available */}
 

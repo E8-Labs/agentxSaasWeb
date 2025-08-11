@@ -1,8 +1,9 @@
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails';
 import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi';
 import { CircularProgress, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 
-const SmartRefillCard = () => {
+const SmartRefillCard = ({selectedUser = null}) => {
 
     //smart refill variables
     const [allowSmartRefill, setAllowSmartRefill] = useState(false);
@@ -12,13 +13,24 @@ const SmartRefillCard = () => {
     const [errorSnack, setErrorSnack] = useState(null);
 
     useEffect(() => {
-        const d = localStorage.getItem("User");
-        if (d) {
-            const Data = JSON.parse(d);
-            console.log("Smart refill is", Data.user.smartRefill);
-            setAllowSmartRefill(Data?.user?.smartRefill);
-        }
+        selectRefillOption()
     }, []);
+
+    const selectRefillOption = async () => {
+        if (selectedUser) {
+            let data = await AdminGetProfileDetails(selectedUser.id)
+            console.log("smart refill ", selectedUser)
+            setAllowSmartRefill(data?.smartRefill);
+        } else {
+
+            const d = localStorage.getItem("User");
+            if (d) {
+                const Data = JSON.parse(d);
+                console.log("Smart refill is", Data.user.smartRefill);
+                setAllowSmartRefill(Data?.user?.smartRefill);
+            }
+        }
+    }
 
     //function to update profile
     const handleUpdateProfile = async () => {

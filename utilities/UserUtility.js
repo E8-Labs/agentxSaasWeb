@@ -10,7 +10,7 @@ export function GetCampaigneeNameIfAvailable(window) {
 }
 
 export const getSupportUrlFor = (user) => {
-  return PersistanceKeys.GlobalSupportUrl;
+  return PersistanceKeys.SupportWebinarUrl;
 };
 
 export function logout() {

@@ -136,13 +136,9 @@ function NotficationsDrawer({ close }) {
 
   //function to get support
   const getSupport = () => {
-    let userData = localStorage.getItem("User");
-    if (userData) {
-      const D = JSON.parse(userData);
-      let url = getSupportUrlFor(D.user);
-      if (typeof window !== "undefined") {
-        window.open(url, "_blank");
-      }
+    let url = getSupportUrlFor();
+    if (typeof window !== "undefined") {
+      window.open(url, "_blank");
     }
   };
 
@@ -428,6 +424,7 @@ function NotficationsDrawer({ close }) {
         <button
           onClick={() => {
             handleShowDetails(item);
+            // getSupport()
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
