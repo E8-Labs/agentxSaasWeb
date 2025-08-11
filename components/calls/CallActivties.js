@@ -362,7 +362,7 @@ function SheduledCalls({ user }) {
   };
 
   const fetchLeadsInBatch = async (batch, offset = 0) => {
-    //console.log;
+    console.log("batch is",batch)
     try {
       let firstApiCall = false;
       setLeadsLoading(true);
@@ -387,12 +387,14 @@ function SheduledCalls({ user }) {
       }
 
       const token = user.token; // Extract JWT token
+      
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
       console.log(
         "Api Call Leads : ",
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`
+        path
       );
-      const response = await fetch(
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`,
+
+      const response = await fetch(path,
         {
           method: "GET",
           headers: {
@@ -788,11 +790,11 @@ function SheduledCalls({ user }) {
                                     onClick={(event) => {
                                       // handleShowPopup(event, item, agent);
                                       // fetchLeadsInBatch(item);
-                                      // handleShowLeads(agent, item);
+                                      handleShowLeads(agent, item);
                                       // setShowDetailsModal(true);
                                       // setHasMoreCalls(true);
                                       // fetchCallsInBatch(SelectedItem);
-                                      handleShowBatchCalls(item, agent, null);
+                                      // handleShowBatchCalls(item, agent, null);
                                     }}
                                   >
                                     {item?.totalLeads}
@@ -983,7 +985,7 @@ function SheduledCalls({ user }) {
                               <div className="w-2/12">Phone Number</div>
                               <div className="w-3/12">Address</div>
                               <div className="w-2/12">Tag</div>
-                              <div className="w-2/12">Status</div>
+                              <div className="w-2/12">Stage</div>
                             </div>
                             {filteredSheduledCalllogs.length > 0 ? (
                               <div
@@ -1064,7 +1066,7 @@ function SheduledCalls({ user }) {
                                         )}
                                       </div>
                                       <div className="w-2/12 truncate">
-                                        {item?.status || "-"}
+                                        {item?.PipelineStages?.stageTitle || "-"}
                                       </div>
                                     </div>
                                   </div>

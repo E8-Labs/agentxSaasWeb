@@ -400,23 +400,17 @@ function MCPView({
                             Tools
                         </div>
 
-                        {
-                            mcpTools.length > 0 && (
-                                <div className="flex flex-row items-center gap-2">
-                                    <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
-                                        onClick={() => setIntroVideoModal2(true)}
-                                    >
-                                        Learn how to add Tools
-                                        <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                                        // onClick={() => setIntroVideoModal2(true)}
-                                        />
-                                    </button>
 
-
-
-                                </div>
-                            )
-                        }
+                        <div className="flex flex-row items-center gap-2">
+                            <button className="border-none outline-none text-[13px] font-[500] text-purple underline cursor-pointer flex flex-row items-center gap-2"
+                                onClick={() => setIntroVideoModal2(true)}
+                            >
+                                Learn how to add Tools
+                                <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
+                                // onClick={() => setIntroVideoModal2(true)}
+                                />
+                            </button>
+                        </div>
                     </div>
                     {
                         mcpTools.length > 0 && (
@@ -638,40 +632,53 @@ function MCPView({
     }) => {
         return (
 
-            <div className="flex flex-col w-full h-[170px] items-center justify-center bg-[#fafafa] mt-4">
+            <div className="flex flex-col items-center justify-center h-[20] ">
+                {/* Icon Section */}
+                <div className="flex items-center justify-center w-24 h-24   rounded-lg">
+                    <img
+                        src="/otherAssets/noMCPIcon.jpg"
+                        alt="No Calendar Icon"
+                        className="w-12 h-12"
+                    />
+                </div>
 
-                <button className="border-none outline-none" onClick={() => { setIntroVideoModal2(true) }}>
-                    <div className="relative flex-shrink-0">
-                        <Image
-                            src="/assets/youtubeplay.png"
-                            alt="Video thumbnail"
-                            width={parseInt(80, 10)}
-                            height={parseInt(150, 10)}
-                            priority
-                            className="rounded-lg object-cover"
+                {/* Text Section */}
+                <div className="-mt-2 text-center">
+                    <h3 className="text-[15] font-[400] text-gray-900 italic">
+                        No Tools added
+                    </h3>
+                    {/* <p className="mt-1 text-sm text-gray-500">
+                Please add a calendar to lorem ipsum dolor miset.
+              </p> */}
+                </div>
+
+                {/* Button Section */}
+                <button
+                    className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+                    onClick={() => {
+                        setShowAddMcpPopup(true)
+                    }}
+                >
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5 mr-2"
+                        fill="#"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 4v16m8-8H4"
                         />
-                    </div>
-                </button>
-
-                <button
-                    className='text-[15px] font-[500] text-black mt-2 outline-none border-none cursor-pointer'
-                    onClick={() => { setIntroVideoModal2(true) }}
-                >
-                    Learn more about Tools
-                </button>
-
-                <button
-                    className='text-[13px] font-[500] mt-2 text-purple flex flex-row items-center gap-1  cursor-pointer'
-                    onClick={() => setShowAddMcpPopup(true)}
-                >
-                    <Plus size={16} /> <span className='underline'>
-                        Add New Tool
-                    </span>
+                    </svg>
+                    Add Tools
                 </button>
             </div>
         )
     }
-
 
 
     return (
