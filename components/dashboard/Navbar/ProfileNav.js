@@ -172,6 +172,8 @@ const ProfileNav = () => {
   const [updateProfileLoader, setUpdateProfileLoader] = useState(false);
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
+  const [showUpgradePlanBar, setShowUpgradePlanBar] = useState(false)
+  const [showFailedPaymentBar, setShowFailedPaymentBar] = useState(false)
 
   //walkthroughWatched popup
   // useEffect(() => {
@@ -628,22 +630,39 @@ const ProfileNav = () => {
                 JSON.stringify(fromDashboard)
               );
               router.push("/subaccountInvite/subscribeSubAccountPlan");
-            } else if (
-              Data?.userRole !== "AgencySubAccount" &&
-              (
-                Data?.plan == null ||
-                (Data?.plan &&
-                  Data?.plan?.status !== "active" &&
-                  Data?.totalSecondsAvailable <= 120) ||
-                (Data?.plan &&
-                  Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable <= 120)
-              )
-              && (Data.needsChargeConfirmation === false) &&
-              (Data.callsPausedUntilSubscription === false)
-            ) {
-              console.log("I am triggered");
-              setShowPlansPopup(true);
+            } else if (Data?.userRole !== "AgencySubAccount") {
+              if (
+                (Data.cards.length === 0) &&
+                (Data.needsChargeConfirmation === false) &&
+                (Data.callsPausedUntilSubscription === false)
+              ) {
+                // if user comes first time then show plans popup
+                setShowPlansPopup(true);
+              } else if (
+
+                (Data?.paymentFailed === true)
+                && (Data.needsChargeConfirmation === false) &&
+                (Data.callsPausedUntilSubscription === false)
+              ) {
+                setShowFailedPaymentBar(true)
+
+              } else if (
+                (
+                  Data?.plan == null ||
+                  (Data?.plan &&
+                    Data?.plan?.status !== "active" &&
+                    Data?.totalSecondsAvailable <= 120) ||
+                  (Data?.plan &&
+                    Data?.plan?.status === "active" &&
+                    Data?.totalSecondsAvailable <= 120)
+                )
+                && (Data.needsChargeConfirmation === false) &&
+                (Data.callsPausedUntilSubscription === false)
+              ) {
+                //if user have less then 2 minuts show upgrade plan bar
+                setShowUpgradePlanBar(true)
+              }
+
             } else {
               setShowPlansPopup(false);
             }
@@ -909,6 +928,61 @@ const ProfileNav = () => {
     }
   };
 
+  const SnackBarForUpgradePlan = () => {
+    return (
+
+      <div
+        style={{
+          position: 'fixed',
+          top: 20,
+          left: '55%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+        }}
+        className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
+      >
+        <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
+          height={24} width={24} alt="*"
+        />
+        {
+          showUpgradePlanBar ? (
+            <div style={{ fontSize: showUpgradePlanBar ? 10 : 13, fontWeight: '700', whiteSpace: 'nowrap', }}>
+              {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              >
+                Turn on Smart Refill
+              </span>  or  <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              > Upgrade
+              </span>.
+            </div>
+
+          ) : (
+            <div style={{ fontSize: 15, fontWeight: '700', }}>
+
+              {`Action needed!  Your payment method failed, please add a new`} <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              >
+                Payment Method
+              </span>.
+            </div>
+          )
+        }
+
+      </div>
+
+    )
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -1068,9 +1142,10 @@ const ProfileNav = () => {
         </div>
 
         {
-            showPlansPopup && (
-                <SnackBarForUpgradePlan/>
-            )
+          (showUpgradePlanBar || showFailedPaymentBar) && (
+            <SnackBarForUpgradePlan
+            />
+          )
         }
 
 
@@ -1088,7 +1163,7 @@ const ProfileNav = () => {
       <div>
         {/* Subscribe Plan modal */}
 
-        {/* <Modal
+        <Modal
           open={showPlansPopup}  //showPlansPopup
           closeAfterTransition
           BackdropProps={{
@@ -1130,7 +1205,7 @@ const ProfileNav = () => {
                   overflow: "hidden",
                 }}
               >
-               
+
 
                 <div
                   className="flex  items-start"
@@ -1153,7 +1228,7 @@ const ProfileNav = () => {
                   {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                 </div>
 
-               
+
 
                 <div
                   style={{
@@ -1340,7 +1415,7 @@ const ProfileNav = () => {
               </div>
             </div>
           </Box>
-        </Modal>*/}
+        </Modal>
 
 
 
@@ -1409,33 +1484,4 @@ const ProfileNav = () => {
 
 export default ProfileNav;
 
-const SnackBarForUpgradePlan = () => {
-  return (
 
-    <div style={{ position: 'absolute', bottom: 20, alignSelf: 'center', right: 170 }}
-      className="bg-[#845EEE45] border border-[#845EEE21] rounded-2xl flex flex-row items-center gap-1 px-2 py-3"
-    >
-      <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
-        height={24} width={24} alt="*"
-      />
-
-      <div style={{ fontSize: 15, fontWeight: '700', }}>
-       {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
-         className = "text-purple underline cursor-pointer" 
-         onClick = {()=>{
-          window.open('/dashboard/myAccount?tab=2')
-          }}
-         >
-          Turn on Smart Refill 
-         </span>  or  <span
-         className = "text-purple underline cursor-pointer" 
-         onClick = {()=>{
-          window.open('/dashboard/myAccount?tab=2')
-          }}
-         > Upgrade
-         </span>.
-      </div>
-    </div>
-
-  )
-}

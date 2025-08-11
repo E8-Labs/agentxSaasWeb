@@ -323,7 +323,7 @@ function BarServices() {
     } else if (togglePlan === 2) {
       planType = "Professional";
     } else if (togglePlan === 3) {
-      planType = "Enterprise";
+      planType = "Scale";
     }
     return planType;
   };

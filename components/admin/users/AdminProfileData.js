@@ -10,6 +10,7 @@ import AdminXbarServices from "./AdminProfileData/AdminXbarServices";
 import AdminSendFeedback from "./AdminSendFeedback";
 import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAccountBilling";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -35,15 +36,18 @@ function AdminProfileData({ selectedUser, from }) {
         },
         {
             id: 4,
+            heading: "Twilio Trust Hub",
+            subHeading: "Caller ID & compliance for trusted calls",
+            icon: "/svgIcons/twilioHub.svg",
+          },
+
+        {
+            id: 5,
             heading: "Bar Services",
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
-        }, {
-            id: 5,
-            heading: "Send Feedback",
-            subHeading: "Report bugs, new features and more",
-            icon: "/otherAssets/feedbackIcon.png",
-        },
+        }
+           
     ];
 
 
@@ -77,11 +81,10 @@ function AdminProfileData({ selectedUser, from }) {
                 );
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
-            case 4:
-                return <AdminXbarServices selectedUser={selectedUser} />;
-
             case 5:
-                return <AdminSendFeedback selectedUser={selectedUser} />;
+                return <AdminXbarServices selectedUser={selectedUser} />;
+            case 4 :
+                return <TwilioTrustHub />
 
             default:
                 return <div>Please select an option.</div>;
@@ -115,7 +118,7 @@ function AdminProfileData({ selectedUser, from }) {
             <div className="w-12/12">
             </div>
             <div className="w-full flex flex-row item-center pl-4">
-                <div className="w-4/12 items-center flex flex-col pt-4 pr-2">
+                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-auto border">
                     {manuBar.map((item, index) => (
                         <div key={item.id} className="w-full">
                             <button

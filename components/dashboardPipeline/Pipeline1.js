@@ -2030,7 +2030,7 @@ const Pipeline1 = () => {
                     </div>
                   </Popover>
                 </div>
-                <div className="flex fex-row items-center gap-6">
+                <div className="flex fex-row items-center gap-3">
                   <div
                     className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2"
                     style={{ borderRadius: "50px" }}
