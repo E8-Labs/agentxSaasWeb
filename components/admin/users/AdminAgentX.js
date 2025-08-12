@@ -1181,7 +1181,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       }
 
       for (let [key, value] of formData.entries()) {
-        //// //console.log;
+        console.log(key, value)
       }
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -1928,8 +1928,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   ////console.log);
 
   const handleChangeVoice = async (event) => {
+    console.log("voice changed")
     setShowVoiceLoader(true);
-    const selectedVoice = filteredVoices.find(
+    const selectedVoice = voicesList.find(
       (voice) => voice.name === event.target.value
     );
 
@@ -1941,7 +1942,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     await updateAgent(selectedVoice.name); // ✅ send name
     setSelectedVoice(selectedVoice.name); // ✅ store name now
     setShowVoiceLoader(false);
-
 
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
@@ -3203,6 +3203,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         Voice
                       </div>
 
+
                       <div
                         style={{
                           // width: "115px",
@@ -3230,15 +3231,24 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                               onChange={handleChangeVoice}
                               displayEmpty // Enables placeholder
                               renderValue={(selected) => {
-                                console.log('selected', selected)
-                                if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
+                                console.log("selected", selected);
+                                if (!selected)
+                                  return (
+                                    <div style={{ color: "#aaa" }}>Select</div>
+                                  );
 
-                                const selectedVoice = filteredVoices.find(
+                                const selectedVoice = voicesList.find(
                                   (voice) => voice.name === selected
                                 );
 
                                 return selectedVoice ? (
-                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "8px",
+                                    }}
+                                  >
                                     {selectedVoice.img && (
                                       <Image
                                         src={selectedVoice.img}
@@ -3270,9 +3280,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                 },
                               }}
                             >
-                              {filteredVoices.map((item, index) => {
+                              {voicesList.map((item, index) => {
                                 const selectedVoiceName = (id) => {
-                                  const voiceName = filteredVoices.find(
+                                  const voiceName = voicesList.find(
                                     (voice) => voice.voice_id === id
                                   );
                                   return voiceName?.name || "Unknown";
@@ -3286,9 +3296,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       alignItems: "center",
                                       justifyContent: "space-between",
                                     }}
-                                    value={item.voice_id}
+                                    value={item.name}
                                     key={index}
-                                    disabled={SelectedVoice === item.voice_id}
+                                    disabled={SelectedVoice === item.name}
                                   >
                                     <Image
                                       src={item.img}
@@ -3296,24 +3306,27 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       width={35}
                                       alt="*"
                                     />
-                                    <div>
-                                      {selectedVoiceName(item.voice_id)}
-                                    </div>
+                                    <div>{item.name}</div>
 
                                     {/* Play/Pause Button (Prevents dropdown close) */}
                                     {item.preview ? (
                                       <div //style={{marginLeft:15}}
                                         onClick={(e) => {
+                                          console.log(
+                                            "audio preview ",
+                                            item.preview
+                                          );
                                           e.stopPropagation(); // Prevent dropdown from closing
                                           e.preventDefault(); // Prevent selection event
 
                                           if (preview === item.preview) {
                                             if (audio) {
                                               audio.pause();
+                                              audio.removeEventListener("ended", () => { });
                                             }
                                             setPreview(null);
                                           } else {
-                                            setPreview(item.preview);
+
                                             playVoice(item.preview);
                                           }
                                         }}
