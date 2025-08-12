@@ -782,7 +782,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
       const mainAgentData = localStorage.getItem("agentDetails");
       // //console.log;
 
-      if (mainAgentData) {
+      if (mainAgentData && mainAgentData !== "undefined") {
         const mainAgentDetails = JSON.parse(mainAgentData);
         // //console.log;
         // //console.log;

@@ -125,7 +125,7 @@ function AdminDashboardScheduledCalls({ }) {
 
       let mainAgent = null;
       const localAgent = localStorage.getItem("agentDetails");
-      if (localAgent) {
+      if (localAgent !== "undefined" && localAgent) {
         const agentDetails = JSON.parse(localAgent);
         // //console.log;
         // //console.log;

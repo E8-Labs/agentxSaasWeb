@@ -53,7 +53,7 @@ const Page = () => {
 
       let mainAgentId = null;
       const mainAgentData = localStorage.getItem("agentDetails");
-      if (mainAgentData) {
+      if (mainAgentData && mainAgentData != "undefined") {
         const Data = JSON.parse(mainAgentData);
         //console.log;
         mainAgentId = Data.id;

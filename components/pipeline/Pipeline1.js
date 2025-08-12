@@ -66,7 +66,7 @@ const Pipeline1 = ({ handleContinue }) => {
   // const [assignedNewLEad, setAssignedNewLead] = useState(false);
   useEffect(() => {
     const localAgentData = localStorage.getItem("agentDetails");
-    if (localAgentData) {
+    if (localAgentData && localAgentData != "undefined") {
       const Data = JSON.parse(localAgentData);
       if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
         return;
@@ -99,7 +99,7 @@ const Pipeline1 = ({ handleContinue }) => {
         const restoredRowsByIndex = {};
         const restoredNextStage = {};
 
-        storedCadenceDetails.forEach((cadence) => {
+        storedCadenceDetails?.forEach((cadence) => {
           const stageIndex = selectedPipeline.stages.findIndex(
             (stage) => stage.id === cadence.stage
           );
