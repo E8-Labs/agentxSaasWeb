@@ -216,7 +216,9 @@ const AddTwilio = ({
             <div className='w-full flex flex-row items-center justify-end mt-4'>
                 {
                     (addTwilioLoader || profileLoader) ? (
-                        <CircularProgress size={25} />
+                        <CircularProgress size={25} sx={{
+                            color:'white'
+                        }} />
                     ) :
                         <button
                             className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}
