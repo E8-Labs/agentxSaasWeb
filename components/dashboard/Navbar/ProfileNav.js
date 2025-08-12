@@ -383,10 +383,17 @@ const ProfileNav = () => {
   }
 
   const getUserProfile = async () => {
-    await getProfile();
     const data = localStorage.getItem("User");
     getShowWalkThrough();
     if (data) {
+      if (data.user.userType == "admin") {
+        router.push("/admin");
+      } else if (data.user.userRole == "Agency") {
+        router.push("/agency/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+      await getProfile();
       const LocalData = JSON.parse(data);
       console.log(
         "LocalData.user.profile_status",

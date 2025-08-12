@@ -128,6 +128,14 @@ export default function AddXBarPlan({
     }
   };
 
+  const shouldContinue = () =>{
+    if(!title || !planDescription || !tag || !originalPrice ){
+      return false
+    }else{
+      return true
+    }
+  }
+
   const styles = {
     labels: {
       fontSize: "15px",
@@ -318,26 +326,7 @@ export default function AddXBarPlan({
                     </div>
                   )}
 
-                  {/* Minutes */}
-                  <label style={styles.labels}>Minutes</label>
-                  <input
-                    style={styles.inputs}
-                    type="text"
-                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                    placeholder="000"
-                    value={minutes}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Allow only digits and one optional period
-                      const sanitized = value.replace(/[^0-9.]/g, '');
-
-                      // Prevent multiple periods
-                      const valid = sanitized.split('.').length > 2
-                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                        : sanitized;
-                      setMinutes(valid);
-                    }}
-                  />
+                  
 
                   {/* Strikethrough Price */}
                   <label style={styles.labels}>
@@ -361,64 +350,30 @@ export default function AddXBarPlan({
                       setDiscountedPrice(valid);
                     }}
                   />
+
+                  {/* Minutes */}
+                  <label style={styles.labels}>Bonus Minutes</label>
+                  <input
+                    style={styles.inputs}
+                    type="text"
+                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                    placeholder="000"
+                    value={minutes}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only digits and one optional period
+                      const sanitized = value.replace(/[^0-9.]/g, '');
+
+                      // Prevent multiple periods
+                      const valid = sanitized.split('.').length > 2
+                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                        : sanitized;
+                      setMinutes(valid);
+                    }}
+                  />
                 </div>
 
-                {/*<div className="bg-[#F9F9F9] rounded-lg p-2 w-6/12 h-full">
-                  <div
-                    style={{
-                      fontWeight: "500",
-                      fontSize: 15,
-                      color: "#00000050",
-                    }}
-                  >
-                    Margin Calculation
-                  </div>
-                  <div
-                    className="flex flex-row items-center justify-between"
-                    style={styles.inputs}
-                  >
-                    <div>Your Price</div>
-                    <div>${originalPrice}/ min</div>
-                    <div>${(originalPrice * minutes).toFixed(2)}</div>
-                  </div>
-                  <div
-                    className="flex flex-row items-center justify-between mt-4"
-                    style={styles.inputs}
-                  >
-                    <div>Your Cost</div>
-                    <div>${agencyPlanCost}/ min</div>
-                    <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
-                  </div>
-                  {minutes && originalPrice && (
-                    <div className="w-full">
-                      <div
-                        className="flex flex-row items-center justify-between mt-4"
-                        style={{ ...styles.inputs, color: getClr() }}
-                      >
-                        <div>Your Profit</div>
-                        <div>
-                          ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
-                        </div>
-                        <div>
-                          $
-                          {((originalPrice - agencyPlanCost) * minutes).toFixed(
-                            2
-                          )}
-                        </div>
-                      </div>
-                      <div
-                        className="text-end w-full mt-2"
-                        style={{ color: getClr() }}
-                      >
-                        {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
-                          100
-                        ).toFixed(2)}
-                        %
-                      </div>
-                    </div>
-                  )}
-                </div>*/}
+                
               </div>
 
             </div>
@@ -437,8 +392,9 @@ export default function AddXBarPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className="bg-purple w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg"
+                  className={` ${shouldContinue()? "bg-purple" :"bg-[#00000050] " } w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg`}
                   onClick={handleAddPlanClick}
+                  disabled={ !shouldContinue()}
                 >
                   Create Plan
                 </button>

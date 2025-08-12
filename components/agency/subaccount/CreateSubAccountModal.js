@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Modal, Box, Switch } from '@mui/material';
+import { Modal, Box, Switch, Tooltip } from '@mui/material';
 import axios from 'axios';
 import Apis from '@/components/apis/Apis';
 import PhoneInput from "react-phone-input-2";
@@ -812,8 +812,42 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             )
                         }
                     </div>
+
+                    <Tooltip
+                        title="If the lead has given consent, no need to run against DNC"
+                        arrow
+                        componentsProps={{
+                            tooltip: {
+                                sx: {
+                                    backgroundColor: "#ffffff", // Ensure white background
+                                    color: "#333", // Dark text color
+                                    fontSize: "14px",
+                                    padding: "10px 15px",
+                                    borderRadius: "8px",
+                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                },
+                            },
+                            arrow: {
+                                sx: {
+                                    color: "#ffffff", // Match tooltip background
+                                },
+                            },
+                        }}
+                    >
+                        <div
+                            style={{
+                                fontSize: 12,
+                                fontWeight: "600",
+                                color: "#000000",
+                                cursor: "pointer",
+                            }}
+                        >
+                            Maximize revenue by selling seats per month to any org.
+                        </div>
+                    </Tooltip>
+
                     <div className='flex flex-row items-center gap-4'>
-                        
+
                         <Switch
                             checked={alowSellSeats}
                             onChange={(e) => setAlowSellSeats(e.target.checked)}
@@ -998,7 +1032,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             onClick={handleAddMember}
                             className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
                         >
-                           + New Member
+                            + New Member
                         </button>
                     </div>
                 </div>
