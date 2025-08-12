@@ -714,7 +714,7 @@ function AllCalls({ user }) {
                           {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                         </div>
                         <div style={{ ...styles.text2, ...{ width: "80%" } }}>
-                          {item.LeadModel?.firstName}
+                          {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                         </div>
                       </div>
                       <div className="w-2/12 ">

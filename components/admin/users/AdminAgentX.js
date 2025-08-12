@@ -306,16 +306,42 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   };
 
   //refill the test ai popup input fields
+
   useEffect(() => {
-    let d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
-    //console.log;
-    if (d) {
-      let cr = JSON.parse(d);
-      //console.log;
-      setName(cr?.name);
-      setPhone(cr?.phone);
+    const d = localStorage.getItem(PersistanceKeys.TestAiCredentials);
+    if (!d) return;
+
+    const cr = JSON.parse(d);
+    console.log("credentials from local", cr);
+
+    setName(cr?.name || "");
+    setPhone(cr?.phone || "");
+
+    // Combine all extraColumns into one flat object
+    const flatExtraColumns = {};
+    if (Array.isArray(cr.extraColumns)) {
+      cr.extraColumns.forEach((obj) => {
+        Object.entries(obj).forEach(([key, value]) => {
+          flatExtraColumns[key] = value;
+        });
+      });
     }
+
+    console.log('flatExtracolumns', flatExtraColumns)
+
+    // Now map through current scriptKeys and set values if present
+    const updatedInputValues = {};
+    scriptKeys.forEach((key) => {
+      if (flatExtraColumns.hasOwnProperty(key)) {
+        updatedInputValues[key] = flatExtraColumns[key];
+      }
+    });
+
+    console.log('updatedInputValues', updatedInputValues)
+
+    setInputValues(updatedInputValues);
   }, [openTestAiModal]);
+
 
   useEffect(() => {
     const updateAgentManueList = () => {
@@ -2581,18 +2607,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       {key[0]?.toUpperCase()}
                       {key?.slice(1)}
                     </div>
-                    <input
-                      placeholder="Type here"
-                      // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                        }`}
-                      style={{
-                        ...styles.inputStyle,
-                        border: "1px solid #00000010",
-                      }}
-                      value={inputValues[index] || ""} // Default to empty string if no value
-                      onChange={(e) => handleInputChange(index, e.target.value)}
-                    />
+                   <input
+                        placeholder="Type here"
+                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                          }`}
+                        style={{
+                          ...styles.inputStyle,
+                          border: "1px solid #00000010",
+                        }}
+                        value={inputValues[key] || ""} // Default to empty string if no value
+                        onChange={(e) =>
+                          handleInputChange(key, e.target.value)
+                        }
+                      />
                   </div>
                 ))}
               </div>
