@@ -31,6 +31,9 @@ const SmartRefillCard = ({
         if (selectedUser) {
             let data = await AdminGetProfileDetails(selectedUser.id)
             console.log("smart refill ", selectedUser)
+            window.dispatchEvent(
+                new CustomEvent("hidePlanBar", { detail: { update: true } })
+              )
             setAllowSmartRefill(data?.smartRefill);
         } else {
 

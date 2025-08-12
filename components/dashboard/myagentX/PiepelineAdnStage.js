@@ -94,10 +94,10 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent,selectedUser 
       });
 
       if (response) {
-        // console.log(
-        //   "Response of get agent cadence api is:",
-        //   JSON.stringify(response.data)
-        // );
+        console.log(
+          "Response of get agent cadence api is:",
+          response.data
+        );
         setAgentCadence(response.data.data);
       }
     } catch (error) {
@@ -166,7 +166,8 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent,selectedUser 
                   PersistanceKeys.selectedUser,
                   JSON.stringify(selectedUser)
                 );
-                if (agentCadence.length === 0) {
+                if (agentCadence?.length === 0) {
+
                   router.push("/pipeline/update");
                   return;
                 }

@@ -1,5 +1,4 @@
 import { Box, Modal } from '@mui/material'
-import Image from 'next/image';
 import React, { useState } from 'react'
 import PlansView from './PlansView';
 import UpgradePlanView from './UpgradePlanView';

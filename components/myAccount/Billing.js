@@ -200,6 +200,9 @@ function Billing() {
     console.log("Data recieved is", data);
     if (data) {
       setAddPaymentPopup(false);
+      window.dispatchEvent(
+        new CustomEvent("hidePlanBar", { detail: { update: true } })
+      )
       getCardsList();
     }
   };
@@ -377,6 +380,9 @@ function Billing() {
           console.log("User plan sibscibe res[ponse is",response.data.data)
           let user = userLocalData
           user.plan = response.data.data
+          window.dispatchEvent(
+            new CustomEvent("hidePlanBar", { detail: { update: true } })
+          )
           setUserLocalData(user)
           let response2 = await getProfileDetails();
           if (response2) {

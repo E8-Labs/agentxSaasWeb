@@ -12,9 +12,9 @@ export const PromptTagInput = ({
   uniqueColumns,
   showSaveChangesBtn,
   saveUpdates,
-  setError = null,
   from,
-  isEdit = true
+  isEdit = true,
+  limit
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -39,7 +39,7 @@ export const PromptTagInput = ({
 
   useEffect(() => {
     let arr = [...options];
-    uniqueColumns.map((item) => {
+    uniqueColumns?.map((item) => {
       if (!arr.includes(item)) {
         arr.push(item);
       }
@@ -398,7 +398,6 @@ export const PromptTagInput = ({
   const handleChange = (e) => {
     setText(e.target.value);
     tagValue(e.target.value);
-    // setError(null)
   };
 
   const styles = {
@@ -431,6 +430,7 @@ export const PromptTagInput = ({
           }}
           placeholder="Type here..."
           value={text}
+          maxLength={limit}
           readOnly
           // onChange={handleChange}
           style={{
@@ -547,6 +547,18 @@ export const PromptTagInput = ({
                 >
                   {isEdit ? "Edit" : "Add"} {from}
                 </div>
+
+                {
+                  from === "Voicemail" && (
+                    <div  className="w-full flex flex-col  items-end jutstify-end">
+                      <div style={{
+                        fontSize: 14, fontWeight: '500', color: '#00000060'
+                      }}>
+                        {text?.length}/200
+                      </div>
+                    </div>
+                  )
+                }
               </div>
 
               <div style={{ position: "relative", height: "80%" }}>
@@ -554,6 +566,7 @@ export const PromptTagInput = ({
                   className="outline-none rounded-xl focus:ring-0"
                   ref={textFieldRef}
                   value={text}
+                  maxLength={limit}
                   onClick={() => {
                     setShowScriptModal(true);
                   }}
@@ -580,7 +593,7 @@ export const PromptTagInput = ({
                     style={{ fontWeight: "600", fontSize: 15 }}
                     onClick={() => {
                       setShowScriptModal(false);
-                      saveUpdates();
+                      // saveUpdates();
                     }}
                   >
                     Save Changes
