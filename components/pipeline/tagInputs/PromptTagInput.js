@@ -593,7 +593,7 @@ export const PromptTagInput = ({
                     style={{ fontWeight: "600", fontSize: 15 }}
                     onClick={() => {
                       setShowScriptModal(false);
-                      saveUpdates();
+                      // saveUpdates();
                     }}
                   >
                     Save Changes
