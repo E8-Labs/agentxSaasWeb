@@ -53,7 +53,7 @@ export const RemoveSmartRefillApi = async (selectedUser) => {
         }
         if (selectedUser) {
             ApiData = {
-                "smartRefill": true,
+                "smartRefill": false,
                 "userId": selectedUser.id
             }
         }
