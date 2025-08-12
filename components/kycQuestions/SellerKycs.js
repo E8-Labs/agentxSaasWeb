@@ -781,14 +781,14 @@ const SellerKycs = ({ handleContinue }) => {
                 }}
               >
                 <Box
-                  className="lg:w-5/12 sm:w-full w-8/12"
+                  className="lg:w-4/12 sm:w-full w-6/12"
                   sx={styles.AddNewKYCQuestionModal}
                 >
                   <div className="flex flex-row justify-center w-full">
                     <div
                       className="sm:w-9/12 w-full"
                       style={{
-                        backgroundColor: "#ffffff",
+                        backgroundColor: "red",//#ffffff
                         padding: 20,
                         borderRadius: "13px",
                       }}

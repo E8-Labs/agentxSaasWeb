@@ -958,7 +958,7 @@ const AddBuyerKyc = ({
               }}
             >
               <Box
-                className="lg:w-5/12 sm:w-full w-8/12"
+                className="lg:w-4/12 sm:w-full w-6/12" //"lg:w-5/12 sm:w-full w-8/12"
                 sx={styles.AddNewKYCQuestionModal}
               >
                 <div className="flex flex-row justify-center w-full">
