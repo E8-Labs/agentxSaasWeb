@@ -10,7 +10,7 @@ import CalendarModal from '../myagentX/CalenderModal';
 import { AddCalendarApi } from '@/apiservicescomponent/addcalendar/AddCalendarApi';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 
-const CheckList = ({ userDetails }) => {
+const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
     const router = useRouter();
 
@@ -41,6 +41,10 @@ const CheckList = ({ userDetails }) => {
         message: "Calendar added successfully!",
         isVisible: false,
     });
+    const [selectedTimeDurationLocal, setSelectedTimeDurationLocal] = useState("");
+    //selected ghl calendar
+    const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
+    const [gHLCalenderLoader, setGHLCalenderLoader] = useState(false);
 
     const getChecklist = () => {
         const D = localStorage.getItem("User");
@@ -48,11 +52,11 @@ const CheckList = ({ userDetails }) => {
             const LocalData = JSON.parse(D);
             const T = LocalData?.user?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
-            let percentage = 0;
+            let percentage = 14.29;
 
             for (let key in T) {
                 if (T[key]) {
-                    percentage += 16.67;
+                    percentage += 14.29;
                 }
             }
 
@@ -65,10 +69,11 @@ const CheckList = ({ userDetails }) => {
             setCheckList([
                 { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
                 { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
-                { id: 3, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
-                { id: 4, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
-                { id: 5, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
-                { id: 6, label: 'Claim a number', status: T?.numberClaimed, route: "" }
+                { id: 3, label: 'Intro video', status: LocalData?.user?.walkthroughWatched, route: "" },
+                { id: 4, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
+                { id: 5, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
+                { id: 6, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
+                { id: 7, label: 'Claim a number', status: T?.numberClaimed, route: "" },
             ]);
         }
     }
@@ -105,12 +110,59 @@ const CheckList = ({ userDetails }) => {
         setShowClaimPopup(false);
     };
 
+    //add calendar api
+    const handleAddCalendar = async (calendar) => {
+        try {
+            let response = null;
+            if (calendar?.isFromAddGoogleCal) {
+                console.log("Is from google cal", calendar?.isFromAddGoogleCal);
+                response = await AddCalendarApi(calendar);
+                setGoogleCalenderLoader(true);
+            } else if (calendar?.isFromAddGHLCal) {
+                console.log("Is not from google cal");
+                response = await AddCalendarApi(calendar);
+                setGHLCalenderLoader(true);
+            } else {
+                console.log("Is not from google cal");
+                response = await AddCalendarApi(addCalendarValues);
+                setCalenderLoader(true);
+            }
+
+            if (response.status === true) {
+                getChecklist();
+                setShowAddCalendar(false);
+                setSnackMessage({
+                    message: response.message,
+                    type: SnackbarTypes.Success,
+                    isVisible: true,
+                });
+                setCalenderLoader(false);
+                setGoogleCalenderLoader(false);
+                setGHLCalenderLoader(false);
+            } else {
+                console.log("error");
+                setSnackMessage({
+                    message: response.message,
+                    type: SnackbarTypes.Error,
+                    isVisible: true,
+                });
+                setCalenderLoader(false);
+                setGoogleCalenderLoader(false);
+                setGHLCalenderLoader(false);
+            }
+        } catch (error) {
+            console.log("Error occured in add calendar api is", error)
+        }
+    }
+
     const styles = {
         text: {
             fontWeight: "500",
             fontSize: 16
         }
     }
+    console.log('progressValue', progressValue)
+    console.log('checkList', checkList)
 
     return (
         <div className='w-full'>
@@ -160,7 +212,11 @@ const CheckList = ({ userDetails }) => {
                                                 key={item.id}
                                                 className='flex flex-row items-center justify-between mt-4 outline-none border-none w-full'
                                                 onClick={() => {
-                                                    if (item.label === "Connect a calendar") {
+                                                    if (item.label === "Intro video") {
+                                                        // setShowAddCalendar(true);
+                                                        console.log("show video");
+                                                        setWalkthroughWatched(true);
+                                                    } else if (item.label === "Connect a calendar") {
                                                         setShowAddCalendar(true);
                                                     } else if (item.label === "Claim a number") {
                                                         setShowClaimPopup(true);
@@ -173,7 +229,8 @@ const CheckList = ({ userDetails }) => {
                                                         router.push(item.route);
                                                     }
                                                 }}
-                                                disabled={item.status === true}
+                                                // disabled={item.status === true}
+                                                disabled={item.status === true && item.label !== 'Intro video'}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
                                                     {item.status === true ? <Image
@@ -237,55 +294,35 @@ const CheckList = ({ userDetails }) => {
                             eventId={eventId}
                             selectTimeZone={selectTimeZone}
                             setSelectTimeZone={setSelectTimeZone}
-                            handleAddCalendar={async (calendar) => {
-                                let response = null;
-                                if (calendar?.isFromAddGoogleCal) {
-                                    console.log("Is from google cal", calendar?.isFromAddGoogleCal);
-                                    response = await AddCalendarApi(calendar);
-                                    setGoogleCalenderLoader(true);
-                                } else {
-                                    console.log("Is not from google cal");
-                                    response = await AddCalendarApi(addCalendarValues);
-                                    setCalenderLoader(true);
-                                }
-                                setCalenderLoader(false);
-                                setGoogleCalenderLoader(false);
-                                if (response.status === true) {
-                                    getChecklist();
-                                    setShowAddCalendar(false);
-                                    setSnackMessage({
-                                        message: response.message,
-                                        type: SnackbarTypes.Success,
-                                        isVisible: true,
-                                    });
-                                } else {
-                                    console.log("error");
-                                    setSnackMessage({
-                                        message: response.message,
-                                        type: SnackbarTypes.Error,
-                                        isVisible: true,
-                                    });
-                                }
+                            handleAddCalendar={(calendar) => {
+                                handleAddCalendar(calendar);
                             }}
+                            selectedTimeDurationLocal={selectedTimeDurationLocal}
+                            setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}
+                            gHLCalenderLoader={gHLCalenderLoader}
+                            selectGHLCalendar={selectGHLCalendar}
+                            setSelectGHLCalendar={setSelectGHLCalendar}
                         />
                     </div>
                 )
             }
 
             {/* Code for claim number */}
-            {showClaimPopup && (
-                <ClaimNumber
-                    showClaimPopup={showClaimPopup}
-                    handleCloseClaimPopup={handleCloseClaimPopup}
-                // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-                // setSelectNumber={setAssignNumber}
-                // setPreviousNumber={setPreviousNumber}
-                // previousNumber={previousNumber}
-                // AssignNumber={AssignNumber}
-                />
-            )}
+            {
+                showClaimPopup && (
+                    <ClaimNumber
+                        showClaimPopup={showClaimPopup}
+                        handleCloseClaimPopup={handleCloseClaimPopup}
+                    // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                    // setSelectNumber={setAssignNumber}
+                    // setPreviousNumber={setPreviousNumber}
+                    // previousNumber={previousNumber}
+                    // AssignNumber={AssignNumber}
+                    />
+                )
+            }
 
-        </div>
+        </div >
     )
 }
 

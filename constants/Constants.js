@@ -50,7 +50,7 @@ export const HowtoVideos = {
   LetsTalkDigits: process.env.NEXT_PUBLIC_REACT_APP_LetsTalkDigits,
   Pipeline: process.env.NEXT_PUBLIC_REACT_APP_Pipeline,
   script: process.env.NEXT_PUBLIC_REACT_APP_script,
-  Tools: process.env.NEXT_PUBLIC_REACT_APP_Tools,
+  Tools: process.env.NEXT_PUBLIC_REACT_APP_MCPTool,
   WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched,
   TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub,
 };

@@ -1,9 +1,13 @@
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails';
 import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi';
 import { CircularProgress, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 
-const SmartRefillCard = () => {
+const SmartRefillCard = ({
+    selectedUser = null
+}) => {
 
+    console.log("Selected user passed to smart refill is", selectedUser)
     //smart refill variables
     const [allowSmartRefill, setAllowSmartRefill] = useState(false);
     const [userDataLoader, setUserDataLoader] = useState(false);
@@ -11,20 +15,39 @@ const SmartRefillCard = () => {
     const [successSnack, setSuccessSnack] = useState(null);
     const [errorSnack, setErrorSnack] = useState(null);
 
+    // useEffect(() => {
+    //     const d = localStorage.getItem("User");
+    //     if (d) {
+    //         const Data = JSON.parse(d);
+    //         console.log("Smart refill is", Data.user.smartRefill);
+    //         setAllowSmartRefill(Data?.user?.smartRefill);
+    //     }
+    // }, []);
     useEffect(() => {
-        const d = localStorage.getItem("User");
-        if (d) {
-            const Data = JSON.parse(d);
-            console.log("Smart refill is", Data.user.smartRefill);
-            setAllowSmartRefill(Data?.user?.smartRefill);
-        }
+        selectRefillOption()
     }, []);
+
+    const selectRefillOption = async () => {
+        if (selectedUser) {
+            let data = await AdminGetProfileDetails(selectedUser.id)
+            console.log("smart refill ", selectedUser)
+            setAllowSmartRefill(data?.smartRefill);
+        } else {
+
+            const d = localStorage.getItem("User");
+            if (d) {
+                const Data = JSON.parse(d);
+                console.log("Smart refill is", Data.user.smartRefill);
+                setAllowSmartRefill(Data?.user?.smartRefill);
+            }
+        }
+    }
 
     //function to update profile
     const handleUpdateProfile = async () => {
         try {
             setUserDataLoader(true);
-            const response = await SmartRefillApi();
+            const response = await SmartRefillApi(selectedUser);
             if (response) {
                 setUserDataLoader(false);
                 console.log("Response of update profile api is", response);
@@ -45,7 +68,7 @@ const SmartRefillCard = () => {
     const handleRemoveSmartRefill = async () => {
         try {
             setUserDataLoader(true);
-            const response = await RemoveSmartRefillApi();
+            const response = await RemoveSmartRefillApi(selectedUser);
             if (response) {
                 setUserDataLoader(false);
                 console.log("Response of remove smart refill api is", response);

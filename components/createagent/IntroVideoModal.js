@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Modal, Box } from "@mui/material";
 
-const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl,}) => {
+const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl, }) => {
   const modalStyles = {
     position: "fixed",
     top: "50%",
@@ -17,7 +17,13 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl,}) => {
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        if (videoTitle === "Welcome to AgentX") {
+          console.log("Donot close")
+        } else {
+          onClose()
+        }
+      }}
       closeAfterTransition
       BackdropProps={{
         timeout: 1000,
@@ -50,7 +56,7 @@ const IntroVideoModal = ({ open, onClose, videoTitle, videoUrl,}) => {
           {/* Title */}
           <div
             className="text-center"
-            style={{ fontWeight: "700",fontSize:25 }}
+            style={{ fontWeight: "700", fontSize: 25 }}
           >
             {videoTitle || "Learn more about assigning leads"}
           </div>

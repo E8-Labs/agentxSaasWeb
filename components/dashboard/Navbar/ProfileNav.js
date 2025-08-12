@@ -31,11 +31,13 @@ import { UpdateProfile } from "@/components/apis/UpdateProfile";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
-import { PersistanceKeys, userType } from "@/constants/Constants";
+import { HowtoVideos, PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import CheckList from "./CheckList";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
+import IntroVideoModal from "@/components/createagent/IntroVideoModal";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -166,14 +168,41 @@ const ProfileNav = () => {
   const [userLeads, setUserLeads] = useState("loading");
 
   const [showCallPausedPopup, setShowCallPausedPopup] = useState(false);
+  const [walkthroughWatched, setWalkthroughWatched] = useState(false);
+  const [updateProfileLoader, setUpdateProfileLoader] = useState(false);
 
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
+  const [showUpgradePlanBar, setShowUpgradePlanBar] = useState(false)
+  const [showFailedPaymentBar, setShowFailedPaymentBar] = useState(false)
+
+  //walkthroughWatched popup
+  // useEffect(() => {
+  //   getShowWalkThrough();
+  // }, []);
+
+  //update profile if walkthrough is true
   useEffect(() => {
-    let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
-    // requestNotificationPermission();
-    UpdateProfile({});
-    // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
-  }, []);
+    if (walkthroughWatched) {
+      // UpdateProfile({});
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const u = JSON.parse(localData);
+        const watched = u?.user?.walkthroughWatched;
+        if (u?.user?.plan && (watched === false || watched === "false")) {
+          updateWalkthroughWatched();
+        }
+      }
+      // updateWalkthroughWatched();
+    }
+  }, [walkthroughWatched]);
+
+  // useEffect(() => {
+  //   let pixelId = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID;
+  //   // requestNotificationPermission();
+  //   UpdateProfile({});
+  //   // FacebookPixel.initFacebookPixel(pixelId); //initFacebookPixel(pixed_id);
+  // }, []);
+
   useEffect(() => {
     const testNot = async () => {
       try {
@@ -267,9 +296,84 @@ const ProfileNav = () => {
     }
   }, []);
 
+  //intro video
+  // const getShowWalkThrough = () => {
+  //   console.log("Trigered check for walkthrough")
+  //   const localData = localStorage.getItem("User");
+  //   if (localData) {
+  //     const UserDetails = JSON.parse(localData);
+  //     // console.log("UserDetails for ShowWalkthroughWatchedPopup", UserDetails.user.walkthroughWatched);
+  //     console.log(
+  //       "walkthroughWatched raw value:",
+  //       UserDetails.user.walkthroughWatched,
+  //       "typeof:",
+  //       typeof UserDetails.user.walkthroughWatched
+  //     );
+
+  //     const watched = UserDetails?.user?.walkthroughWatched;
+  //     if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+  //       console.log("✅ should show intro video");
+  //       setWalkthroughWatched(true);
+  //     } else {
+  //       console.log("⛔ should not show intro video");
+  //       setWalkthroughWatched(false);
+  //     }
+
+  //     // if (UserDetails.user.plan && UserDetails?.user?.walkthroughWatched === false) {
+  //     //   console.log("should show intro video ")
+  //     //   setWalkthroughWatched(true);
+  //     // } else {
+  //     //   console.log("should not show intro video")
+  //     //   setWalkthroughWatched(false);
+  //     // }
+
+  //   }
+  // }
+
+  const getShowWalkThrough = () => {
+    console.log("rigered the intro video")
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      const watched = UserDetails?.user?.walkthroughWatched;
+
+      if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
+        console.log("✅ should show intro video");
+        setWalkthroughWatched(true);
+      } else {
+        // 👇 Prevent flipping it back off if it’s already been set
+        // console.log("⛔ should not show intro video");
+        // Do not set it to false here — allow modal to control it via onClose
+      }
+    }
+  };
+
+
+  const updateWalkthroughWatched = async () => {
+    try {
+      setUpdateProfileLoader(true);
+      const apidata = {
+        walkthroughWatched: true
+      }
+      const response = await UpdateProfile(apidata);
+      if (response) {
+        setUpdateProfileLoader(false);
+        window.dispatchEvent(
+          new CustomEvent("UpdateCheckList", { detail: { update: true } })
+        );
+        console.log("Update api resopnse after walkthrough true", response)
+      }
+      // console.log("Response of update profile api is", response)
+    } catch (error) {
+      setUpdateProfileLoader(false);
+      console.log("Error occured in update catch api is", error)
+    }
+  }
+
   const getUserProfile = async () => {
     await getProfile();
     const data = localStorage.getItem("User");
+    getShowWalkThrough();
     if (data) {
       const LocalData = JSON.parse(data);
       console.log(
@@ -288,15 +392,15 @@ const ProfileNav = () => {
         setPlans(plansWitTrial);
       }
 
-      if(LocalData.user.needsChargeConfirmation){
+      if (LocalData.user.needsChargeConfirmation) {
         setShowCallPausedPopup(true);
-    }
+      }
 
-    console.log('LocalData', LocalData.user.needsChargeConfirmation)
+      console.log('LocalData', LocalData.user.needsChargeConfirmation)
 
-   
-  };
-}
+
+    };
+  }
 
   useEffect(() => {
     getUserProfile();
@@ -471,7 +575,7 @@ const ProfileNav = () => {
   const getProfile = async () => {
     try {
       let response = await getProfileDetails();
-
+      getShowWalkThrough();
       // //console.log;
       if (response?.status == 404) {
         //console.log;
@@ -514,11 +618,11 @@ const ProfileNav = () => {
               (Data?.plan == null ||
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
-                  Data?.totalSecondsAvailable >= 120)
+                  Data?.totalSecondsAvailable <= 120)
                 ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable >= 120))
+                  Data?.totalSecondsAvailable <= 120))
             ) {
               const fromDashboard = { fromDashboard: true };
               localStorage.setItem(
@@ -526,22 +630,39 @@ const ProfileNav = () => {
                 JSON.stringify(fromDashboard)
               );
               router.push("/subaccountInvite/subscribeSubAccountPlan");
-            } else if (
-              Data?.userRole !== "AgencySubAccount" &&
-              (Data?.plan == null ||
-                (Data?.plan &&
-                  Data?.plan?.status !== "active" &&
-                  Data?.totalSecondsAvailable <= 120) ||
-                (Data?.plan &&
-                  Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable <= 120)
-                
-                ) 
-              //&& ! Data.needsChargeConfirmation
-          
-            ) {
-              console.log("I am triggered");
-              setShowPlansPopup(true);
+            } else if (Data?.userRole !== "AgencySubAccount") {
+              if (
+                (Data.cards.length === 0) &&
+                (Data.needsChargeConfirmation === false) &&
+                (Data.callsPausedUntilSubscription === false)
+              ) {
+                // if user comes first time then show plans popup
+                setShowPlansPopup(true);
+              } else if (
+
+                (Data?.paymentFailed === true)
+                && (Data.needsChargeConfirmation === false) &&
+                (Data.callsPausedUntilSubscription === false)
+              ) {
+                setShowFailedPaymentBar(true)
+
+              } else if (
+                (
+                  Data?.plan == null ||
+                  (Data?.plan &&
+                    Data?.plan?.status !== "active" &&
+                    Data?.totalSecondsAvailable <= 120) ||
+                  (Data?.plan &&
+                    Data?.plan?.status === "active" &&
+                    Data?.totalSecondsAvailable <= 120)
+                )
+                && (Data.needsChargeConfirmation === false) &&
+                (Data.callsPausedUntilSubscription === false)
+              ) {
+                //if user have less then 2 minuts show upgrade plan bar
+                setShowUpgradePlanBar(true)
+              }
+
             } else {
               setShowPlansPopup(false);
             }
@@ -710,6 +831,8 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
+          console.log("Should triger the intro video")
+          getShowWalkThrough();
           getProfile();
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
@@ -805,6 +928,61 @@ const ProfileNav = () => {
     }
   };
 
+  const SnackBarForUpgradePlan = () => {
+    return (
+
+      <div
+        style={{
+          position: 'fixed',
+          top: 20,
+          left: '55%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+        }}
+        className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
+      >
+        <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
+          height={24} width={24} alt="*"
+        />
+        {
+          showUpgradePlanBar ? (
+            <div style={{ fontSize: showUpgradePlanBar ? 10 : 13, fontWeight: '700', whiteSpace: 'nowrap', }}>
+              {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              >
+                Turn on Smart Refill
+              </span>  or  <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              > Upgrade
+              </span>.
+            </div>
+
+          ) : (
+            <div style={{ fontSize: 15, fontWeight: '700', }}>
+
+              {`Action needed!  Your payment method failed, please add a new`} <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              >
+                Payment Method
+              </span>.
+            </div>
+          )
+        }
+
+      </div>
+
+    )
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -818,6 +996,17 @@ const ProfileNav = () => {
         hide={() => setShowErrorSnack(false)}
         message={errorSnack}
         type={SnackbarTypes.Error}
+      />
+
+      {/* For Walkthrough Watched Popup */}
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={walkthroughWatched}
+        onClose={() => setWalkthroughWatched(false)}
+        videoTitle="Welcome to AgentX"
+        videoDescription="This short video will show you where everything is. Enjoy!"
+        videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
+        showLoader={updateProfileLoader}
       />
 
       <div className="w-full flex flex-col items-center justify-between h-screen">
@@ -890,7 +1079,7 @@ const ProfileNav = () => {
         {/* Lower body */}
         <div className="w-full">
           {/* Code for Check list menu bar */}
-          <div>{userDetails && <CheckList userDetails={userDetails} />}</div>
+          <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
 
           <div
             className="w-full flex flex-row items-start justify-start pt-2"
@@ -951,16 +1140,29 @@ const ProfileNav = () => {
             </Link>
           </div>
         </div>
+
+        {
+          (showUpgradePlanBar || showFailedPaymentBar) && (
+            <SnackBarForUpgradePlan
+            />
+          )
+        }
+
+
       </div>
 
-      <CallPausedPopup 
-      open={false} 
-      onClose={() => setShowCallPausedPopup(false)}
+
+
+
+      <CallPausedPopup
+        open={showCallPausedPopup}
+        onClose={() => setShowCallPausedPopup(false)}
       />
 
       {/* Subscribe Plan modal */}
       <div>
         {/* Subscribe Plan modal */}
+
         <Modal
           open={showPlansPopup}  //showPlansPopup
           closeAfterTransition
@@ -1003,14 +1205,7 @@ const ProfileNav = () => {
                   overflow: "hidden",
                 }}
               >
-                {/* <div
-                  style={{
-                    fontWeight: "600",
-                    fontSize: 17,
-                  }}
-                >
-                  Subscribe to plan
-                </div> */}
+
 
                 <div
                   className="flex  items-start"
@@ -1033,32 +1228,7 @@ const ProfileNav = () => {
                   {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                 </div>
 
-                {/* <div className="flex flex-row items-center justify-center ">
-                  <div
-                    className="hidden md:flex flex flex-row items-center justify-center py-3 gap-4 mt-2 px-4"
-                    style={{
-                      backgroundColor: "#402FFF10",
-                      borderRadius: "50px",
-                      width: "fit-content",
-                    }}
-                  >
-                    <Image
-                      src={"/assets/gift.png"}
-                      height={24}
-                      width={24}
-                      alt="*"
-                    />
-                    <div
-                      className="text-purple"
-                      style={{
-                        fontSize: 14,
-                        fontWeight: "500",
-                      }}
-                    >
-                      Enjoy these discounted rates
-                    </div>
-                  </div>
-                </div> */}
+
 
                 <div
                   style={{
@@ -1247,6 +1417,8 @@ const ProfileNav = () => {
           </Box>
         </Modal>
 
+
+
         {/* Add Payment Modal */}
         <Modal
           open={addPaymentPopUp} //addPaymentPopUp
@@ -1311,3 +1483,5 @@ const ProfileNav = () => {
 };
 
 export default ProfileNav;
+
+

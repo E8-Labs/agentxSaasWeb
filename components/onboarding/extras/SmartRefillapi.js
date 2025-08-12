@@ -2,13 +2,19 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails"
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 
-export const SmartRefillApi = async () => {
+export const SmartRefillApi = async (selectedUser) => {
     try {
         const token = AuthToken();
-        // console.log(token);
+        console.log("Selected user passed to api is", selectedUser);
         const ApiPath = Apis.updateProfileApi;
-        const ApiData = {
+        let ApiData = {
             "smartRefill": true
+        }
+        if (selectedUser) {
+            ApiData = {
+                "smartRefill": true,
+                "userId": selectedUser.id
+            }
         }
         console.log("Api data is", ApiData);
         const response = await axios.post(ApiPath, ApiData, {
@@ -37,13 +43,19 @@ export const SmartRefillApi = async () => {
 }
 
 //code to remove smart refill
-export const RemoveSmartRefillApi = async () => {
+export const RemoveSmartRefillApi = async (selectedUser) => {
     try {
         const token = AuthToken();
         // console.log(token);
         const ApiPath = Apis.updateProfileApi;
-        const ApiData = {
+        let ApiData = {
             "smartRefill": false
+        }
+        if (selectedUser) {
+            ApiData = {
+                "smartRefill": true,
+                "userId": selectedUser.id
+            }
         }
         console.log("Api data is", ApiData);
         const response = await axios.post(ApiPath, ApiData, {

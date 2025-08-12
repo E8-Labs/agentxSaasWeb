@@ -22,6 +22,7 @@ import AgentSelectSnackMessage, {
 import { GetFormattedDateString } from "@/utilities/utility";
 import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -112,6 +113,20 @@ function AdminBilling({ selectedUser, from }) {
     useState(false);
   const [showConfirmCancelPlanPopup2, setShowConfirmCancelPlanPopup2] =
     useState(false);
+
+  const [allowSmartRefill, setAllowSmartRefill] = useState(false);
+  //checks for smart refill
+  useEffect(() => {
+    const d = localStorage.getItem("User");
+    if (d) {
+      const Data = JSON.parse(d);
+      console.log("Smart refill is", Data.user.smartRefill);
+      setAllowSmartRefill(Data.user.smartRefill);
+    }
+    getProfile();
+    getPaymentHistory();
+    // getCardsList();
+  }, []);
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -847,6 +862,9 @@ function AdminBilling({ selectedUser, from }) {
         )}
       </div>
 
+      {/* Code for smart refill */}
+      <SmartRefillCard selectedUser={selectedUser} />
+
       {/* code for current plans available */}
 
       <div>
@@ -854,7 +872,7 @@ function AdminBilling({ selectedUser, from }) {
           <button
             key={item.id}
             className="w-9/12 mt-4 outline-none"
-          onClick={(e) => handleTogglePlanClick(item)}
+            onClick={(e) => handleTogglePlanClick(item)}
           >
             <div
               className="px-4 py-1 pb-4"
@@ -1005,7 +1023,7 @@ function AdminBilling({ selectedUser, from }) {
         </div>
       </div>
 
-{userLocalData?.plan && (
+      {userLocalData?.plan && (
         <div className="w-full">
           <div className="w-full">
             {subscribePlanLoader ? (
@@ -1032,7 +1050,7 @@ function AdminBilling({ selectedUser, from }) {
             )}
           </div>
 
-         
+
 
           <div className="w-9/12 flex flex-row items-center justify-center">
             {userLocalData.plan && (
