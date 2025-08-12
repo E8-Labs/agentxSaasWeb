@@ -3,7 +3,7 @@ import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/ex
 import { CircularProgress, Switch } from '@mui/material';
 import React, { useEffect, useState } from 'react'
 
-const SmartRefillCard = ({selectedUser = null}) => {
+const SmartRefillCard = ({ selectedUser = null }) => {
 
     //smart refill variables
     const [allowSmartRefill, setAllowSmartRefill] = useState(false);
@@ -43,6 +43,9 @@ const SmartRefillCard = ({selectedUser = null}) => {
                 if (response.data.status === true) {
                     setSuccessSnack(response.data.message);
                     setAllowSmartRefill(true);
+                    window.dispatchEvent(
+                        new CustomEvent("hidePlanBar", { detail: { update: true } })
+                    )
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message)
                 }

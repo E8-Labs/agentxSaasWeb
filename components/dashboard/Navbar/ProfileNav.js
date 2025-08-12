@@ -296,6 +296,18 @@ const ProfileNav = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleHidePlanBar = (event) => {
+      console.log("hidePlanBar event received:", event.detail.update); // true
+      getProfile();
+    };
+
+    window.addEventListener("hidePlanBar", handleHidePlanBar);
+
+    return () => {
+      window.removeEventListener("hidePlanBar", handleHidePlanBar); // Clean up
+    };
+  }, []);
   //intro video
   // const getShowWalkThrough = () => {
   //   console.log("Trigered check for walkthrough")
@@ -416,7 +428,7 @@ const ProfileNav = () => {
     window.addEventListener("UpdateProfile", handleUpdateProfile);
 
     return () => {
-      document.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
+      window.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
     };
   }, []);
 
@@ -573,6 +585,7 @@ const ProfileNav = () => {
 
   //function to getprofile
   const getProfile = async () => {
+    console.log('trying to get profile from nav')
     try {
       let response = await getProfileDetails();
       getShowWalkThrough();
@@ -661,10 +674,18 @@ const ProfileNav = () => {
               ) {
                 //if user have less then 2 minuts show upgrade plan bar
                 setShowUpgradePlanBar(true)
+              }else{
+                console.log('no plans condition is true')
+              setShowPlansPopup(false);
+              setShowUpgradePlanBar(false)
+              setShowFailedPaymentBar(false)
               }
 
             } else {
+              console.log('no condition is true')
               setShowPlansPopup(false);
+              setShowUpgradePlanBar(false)
+              setShowFailedPaymentBar(false)
             }
 
             let plan = response?.data?.data?.plan;

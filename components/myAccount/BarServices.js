@@ -236,6 +236,9 @@ function BarServices() {
         console.log("response of subscribe support plan is", response.data)
         if (response.data.status === true) {
           localDetails.user = response.data.data;
+          window.dispatchEvent(
+            new CustomEvent("hidePlanBar", { detail: { update: true } })
+          )
           // //console.log;
 
           //   if (response2) {
