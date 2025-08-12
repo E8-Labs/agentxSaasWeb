@@ -388,12 +388,12 @@ function SheduledCalls({ user }) {
       }
 
       const token = user.token; // Extract JWT token
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
       console.log(
         "Api Call Leads : ",
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`
+       path
       );
-      const response = await fetch(
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`,
+      const response = await fetch(path,
         {
           method: "GET",
           headers: {
@@ -786,13 +786,13 @@ function SheduledCalls({ user }) {
                                     style={styles.text2}
                                     className="text-purple underline outline-none"
                                     onClick={(event) => {
-                                      // handleShowPopup(event, item, agent);
+                                      handleShowPopup(event, item, agent);
                                       // fetchLeadsInBatch(item);
-                                      // handleShowLeads(agent, item);
+                                      handleShowLeads(agent, item);
                                       // setShowDetailsModal(true);
                                       // setHasMoreCalls(true);
                                       // fetchCallsInBatch(SelectedItem);
-                                      handleShowBatchCalls(item, agent, null);
+                                      // handleShowBatchCalls(item, agent, null);
                                     }}
                                   >
                                     {item?.totalLeads}
