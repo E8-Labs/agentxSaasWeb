@@ -36,7 +36,7 @@ const SmartRefillCard = ({selectedUser = null}) => {
     const handleUpdateProfile = async () => {
         try {
             setUserDataLoader(true);
-            const response = await SmartRefillApi();
+            const response = await SmartRefillApi(selectedUser);
             if (response) {
                 setUserDataLoader(false);
                 console.log("Response of update profile api is", response);
@@ -57,7 +57,7 @@ const SmartRefillCard = ({selectedUser = null}) => {
     const handleRemoveSmartRefill = async () => {
         try {
             setUserDataLoader(true);
-            const response = await RemoveSmartRefillApi();
+            const response = await RemoveSmartRefillApi(selectedUser);
             if (response) {
                 setUserDataLoader(false);
                 console.log("Response of remove smart refill api is", response);
