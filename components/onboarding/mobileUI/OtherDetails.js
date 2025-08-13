@@ -261,6 +261,15 @@ const OtherDetails = ({
         }
       }
 
+    }else if (userData?.userTypeTitle === UserTypes.General ||userData?.userTypeTitle === UserTypes.Reception ) {
+      if (companyName  && userFarm) {
+        setShouldContinue(false);
+      } else if (!companyName || !userFarm) {
+        {
+          setShouldContinue(true);
+        }
+      }
+
     }
 
     else {

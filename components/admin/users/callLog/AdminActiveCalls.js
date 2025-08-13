@@ -79,9 +79,10 @@ function AdminActiveCalls({ selectedUser }) {
     // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
-    // setSelectedLeadsList([]);
-    // setFilteredSelectedLeadsList([]);
+    setSelectedLeadsList([]);
+    setFilteredSelectedLeadsList([]);
     setShowLeadDetailsModal(true);
+    fetchLeadsInBatch(item)
   };
 
   //code to filter slected agent leads
@@ -347,34 +348,39 @@ function AdminActiveCalls({ selectedUser }) {
     }
   };
 
-  const fetchLeadsInBatch = async (batch) => {
-    console.log("Trigerred api to get leads in batch");
+
+  const fetchLeadsInBatch = async (batch, offset = 0) => {
+    //console.log;
     try {
-      let firstCall = false;
+      let firstApiCall = false;
       setLeadsLoading(true);
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
       if (selectedLeadsList.length == 0) {
-        firstCall = false;
+        firstApiCall = true;
         if (leadsInBatchLocalData) {
           //console.log;
           let leads = JSON.parse(leadsInBatchLocalData);
-          console.log("List of ____", leads);
-          setSelectedLeadsList(leads);
-          setFilteredSelectedLeadsList(leads);
+          //console.log;
+          // setSelectedLeadsList(leads);
+          // setFilteredSelectedLeadsList(leads);
           setLeadsLoading(false);
           // return;
         } else {
           //console.log;
         }
+      } else {
+        //console.log;
       }
 
       const token = user.token; // Extract JWT token
-
-      const response = await fetch(
-        "/api/calls/leadsInABatch" +
-        `?batchId=${batch.id}&offset=${selectedLeadsList.length}`,
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
+      console.log(
+        "Api Call Leads : ",
+       path
+      );
+      const response = await fetch(path,
         {
           method: "GET",
           headers: {
@@ -395,9 +401,9 @@ function AdminActiveCalls({ selectedUser }) {
         //   JSON.stringify(data.data)
         // );
 
-        if (firstCall) {
+        console.log("Response of leads list detail", data.data)
+        if (firstApiCall) {
           setSelectedLeadsList(data.data);
-          console.log("List of ____", data.data);
           setFilteredSelectedLeadsList(data.data);
           localStorage.setItem(
             PersistanceKeys.LeadsInBatch + `${batch.id}`,
@@ -405,7 +411,6 @@ function AdminActiveCalls({ selectedUser }) {
           );
         } else {
           setSelectedLeadsList((prev) => [...prev, ...data.data]);
-          console.log("List of ____", data.data);
           setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
         }
 
@@ -418,7 +423,7 @@ function AdminActiveCalls({ selectedUser }) {
         }
         // setStats(data.stats.data);
       } else {
-        console.error("Failed to fetch leads in batch:", data.message);
+        console.error("Failed to fetch leads in batch:", data);
       }
     } catch (error) {
       console.error("Error fetching leads in batch:", error);
@@ -562,10 +567,8 @@ function AdminActiveCalls({ selectedUser }) {
           <button
             className="text-start outline-none"
             onClick={() => {
-              setShowDetailsModal(true);
-              setHasMoreCalls(true);
-              fetchCallsInBatch(SelectedItem);
-              // handleShowDetails();
+              handleShowLeads(SelectedAgent,SelectedItem)
+
             }}
           >
             View Details
@@ -727,228 +730,6 @@ function AdminActiveCalls({ selectedUser }) {
           </div>
         )}
       </div>
-
-      {/* Calls List modal goes here */}
-      <Modal
-        open={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100svh",
-          },
-        }}
-      >
-        <Box
-          className="flex flex-col justify-center items-center w-full h-[100svh] "
-          sx={{ scrollbarWidth: "none" }}
-        >
-          <div className="flex flex-row justify-center w-full h-[90svh] ">
-            <div className="sm:w-10/12 lg:w-9/12 xl:w-6/12 w-9/12 bg-white p-5 rounded-lg">
-              <div className="flex flex-row justify-end">
-                <button
-                  onClick={() => {
-                    setShowDetailsModal(false);
-                    setSheduledCalllogs([]);
-                    setFilteredSheduledCalllogs([]);
-                    setHasMoreCalls(true);
-                  }}
-                >
-                  <Image
-                    src="/assets/crossIcon.png"
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-              <div className="overflow-hidden">
-                {AgentCallLogLoader ? (
-                  <div className="flex flex-row items-center justify-center h-full">
-                    <CircularProgress size={35} />
-                  </div>
-                ) : (
-                  <div className="flex flex-col h-full overflow-hidden">
-                    <div className="flex flex-col h-[20%] flex-shrink-0">
-                      <div>
-                        {SelectedAgent?.name
-                          ? SelectedAgent.name.charAt(0).toUpperCase() +
-                          SelectedAgent.name.slice(1)
-                          : ""}{" "}
-                        call activity
-                      </div>
-                      <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
-                        <input
-                          type="text"
-                          placeholder="Search by name or phone"
-                          className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-                          value={detailsFilterSearchValue}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            handleDetailsSearchChange(value);
-                            setDetailsFilterSearchValue(value);
-                          }}
-                        />
-                        <img
-                          src="/otherAssets/searchIcon.png"
-                          alt="Search"
-                          width={20}
-                          height={20}
-                        />
-                      </div>
-                    </div>
-                    <div
-                      className="overflow-auto pb-4 flex-grow max-h-[74vh]"
-                      id="scrollableDiv1"
-                      style={{ scrollbarWidth: "none" }}
-                    >
-                      <InfiniteScroll
-                        className="flex flex-col "
-                        endMessage={
-                          <p
-                            style={{
-                              textAlign: "center",
-                              paddingTop: "10px",
-                              fontWeight: "400",
-                              fontFamily: "inter",
-                              fontSize: 16,
-                              color: "#00000060",
-                            }}
-                          >
-                            {`You're all caught up`}
-                          </p>
-                        }
-                        scrollableTarget="scrollableDiv1"
-                        dataLength={filteredSheduledCalllogs.length}
-                        next={() => {
-                          //console.log;
-                          fetchCallsInBatch(SelectedItem);
-                        }}
-                        hasMore={hasMoreCalls}
-                        loader={
-                          <div className="w-full flex flex-row justify-center mt-8">
-                            {callsLoading && (
-                              <CircularProgress
-                                size={35}
-                                sx={{ color: "#7902DF" }}
-                              />
-                            )}
-                          </div>
-                        }
-                        style={{ overflow: "unset" }}
-                      >
-                        <div
-                          className="flex flex-row items-center mt-6"
-                          style={{
-                            fontSize: 15,
-                            fontWeight: "500",
-                            color: "#00000070",
-                          }}
-                        >
-                          <div className="w-3/12">Name</div>
-                          <div className="w-2/12">Phone Number</div>
-                          <div className="w-3/12">Address</div>
-                          <div className="w-2/12">Tag</div>
-                          <div className="w-2/12">Stage</div>
-                        </div>
-                        {filteredSheduledCalllogs.length > 0 ? (
-                          <div
-                            className="w-full "
-                            style={{ scrollbarWidth: "none" }}
-                          >
-                            {filteredSheduledCalllogs.map((item, index) => (
-                              <div
-                                key={index}
-                                className="w-full mt-4"
-                                style={{
-                                  fontSize: 15,
-                                  fontWeight: "500",
-                                  scrollbarWidth: "none",
-                                }}
-                              >
-                                <div
-                                  className="flex flex-row items-center mt-4"
-                                  style={{ fontSize: 15, fontWeight: "500" }}
-                                >
-                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
-                                      {item?.LeadModel?.firstName
-                                        ?.charAt(0)
-                                        .toUpperCase()}
-                                    </div>
-                                    <div
-                                      className="truncate"
-                                      style={{
-                                        width: "100px",
-                                        textOverflow: "ellipsis",
-                                      }}
-                                    >
-                                      {item?.LeadModel.firstName}{" "}
-                                      {item?.LeadModel.lastName}
-                                    </div>
-                                  </div>
-                                  <div className="w-2/12 truncate">
-                                    {item?.LeadModel.phone || "-"}
-                                  </div>
-                                  <div className="w-3/12 truncate">
-                                    {item?.LeadModel.address || "-"}
-                                  </div>
-                                  <div className="w-2/12 truncate flex flex-row items-center gap-2">
-                                    {item?.tags?.length > 0 ? (
-                                      <div className="flex flex-row gap-2">
-                                        {item?.tags
-                                          .slice(0, 2)
-                                          .map((tag, idx) => (
-                                            <div
-                                              key={idx}
-                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
-                                            >
-                                              {tag}
-                                            </div>
-                                          ))}
-                                      </div>
-                                    ) : (
-                                      "-"
-                                    )}
-                                    {item?.tags?.length > 2 && (
-                                      <div
-                                        className="text-purple underline cursor-pointer"
-                                        style={{
-                                          fontWeight: "500",
-                                          fontSize: 13,
-                                        }}
-                                        onClick={() => {
-                                          setExtraTagsModal(true);
-                                          setOtherTags(item?.tags);
-                                        }}
-                                      >
-                                        +{item.tags.length - 2}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="w-2/12 truncate">
-                                    {item?.PipelineStages?.stageTitle || "-"}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          GetLoadingOrNoCallsView()
-                        )}
-                      </InfiniteScroll>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
 
       {/* Leads list modal goes here */}
       <Modal
@@ -1149,7 +930,7 @@ function AdminActiveCalls({ selectedUser }) {
                                   </div>
                                   <div className="w-2/12 truncate">
                                     {/*item?.stage || "-"*/}
-                                    {item?.PipelineStages?.stageTitle || "-"}
+                                    {item?.stage?.stageTitle || "-"}
                                   </div>
                                 </div>
                               </div>

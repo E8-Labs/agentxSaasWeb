@@ -385,41 +385,37 @@ const ProfileNav = () => {
   const getUserProfile = async () => {
     const user = localStorage.getItem("User");
     getShowWalkThrough();
-    if (user) {
-      let data = JSON.parse(user)
-      if (data.user.userType == "admin") {
-        router.push("/admin");
-      } else if (data.user.userRole == "Agency") {
-        router.push("/agency/dashboard");
-      } else {
-        router.push("/dashboard");
-      }
-      await getProfile();
-      const LocalData = JSON.parse(data);
-      console.log(
-        "LocalData.user.profile_status",
-        LocalData.user.profile_status
-      );
-      if (LocalData.user.profile_status === "paused") {
-        setErrorSnack("Your account has been frozen.");
-        logout();
-        router.push("/");
-        return;
-      }
-      setUserDetails(LocalData);
-      if (LocalData.user.plan == null) {
-        // user haven't subscribed to any plan
-        setPlans(plansWitTrial);
-      }
 
-      if (LocalData.user.needsChargeConfirmation) {
-        setShowCallPausedPopup(true);
-      }
+    let data = JSON.parse(user)
 
-      console.log('LocalData', LocalData.user.needsChargeConfirmation)
+    const LocalData = JSON.parse(user);
+    
+
+    await getProfile();
+    console.log(
+      "LocalData.user.profile_status",
+      LocalData.user.profile_status
+    );
+    if (LocalData.user.profile_status === "paused") {
+      setErrorSnack("Your account has been frozen.");
+      logout();
+      router.push("/");
+      return;
+    }
+    setUserDetails(LocalData);
+    if (LocalData.user.plan == null) {
+      // user haven't subscribed to any plan
+      setPlans(plansWitTrial);
+    }
+
+    if (LocalData.user.needsChargeConfirmation) {
+      setShowCallPausedPopup(true);
+    }
+
+    console.log('LocalData', LocalData.user.needsChargeConfirmation)
 
 
-    };
+
   }
 
   useEffect(() => {
@@ -682,11 +678,11 @@ const ProfileNav = () => {
               ) {
                 //if user have less then 2 minuts show upgrade plan bar
                 setShowUpgradePlanBar(true)
-              }else{
+              } else {
                 console.log('no plans condition is true')
-              setShowPlansPopup(false);
-              setShowUpgradePlanBar(false)
-              setShowFailedPaymentBar(false)
+                setShowPlansPopup(false);
+                setShowUpgradePlanBar(false)
+                setShowFailedPaymentBar(false)
               }
 
             } else {
