@@ -40,6 +40,7 @@ import LawAgentOtherDetails from "./LawAgentOtherDetails";
 import LoanOfficerOtherDetails from "./LoanOfficerOtherDetails";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { SnackMessageTitles } from "@/components/constants/constants";
+import GeneralAgentOtherDetails from "./GeneralAgentOtherDetails";
 
 const OtherDetails = ({
   handleContinue,
@@ -709,6 +710,21 @@ const OtherDetails = ({
             setUserBrokage={setUserBrokage}
             setUserFarm={setUserFarm}
             setUserTransaction={setUserTransaction}
+            handleVerifyPopup={handleVerifyPopup}
+
+          />
+        )
+      }
+      if (userData?.userTypeTitle === UserTypes.General 
+        || userData.userTypeTitle == UserTypes.Reception
+      ) {
+        return (
+          <GeneralAgentOtherDetails
+            inputsFields={inputsFields}
+            company={company}
+            userFarm={userFarm}
+            setCompany={setCompanyName}
+            setUserFarm={setUserFarm}
             handleVerifyPopup={handleVerifyPopup}
 
           />

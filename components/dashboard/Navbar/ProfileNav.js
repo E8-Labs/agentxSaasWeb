@@ -383,9 +383,10 @@ const ProfileNav = () => {
   }
 
   const getUserProfile = async () => {
-    const data = localStorage.getItem("User");
+    const user = localStorage.getItem("User");
     getShowWalkThrough();
-    if (data) {
+    if (user) {
+      let data = JSON.parse(user)
       if (data.user.userType == "admin") {
         router.push("/admin");
       } else if (data.user.userRole == "Agency") {

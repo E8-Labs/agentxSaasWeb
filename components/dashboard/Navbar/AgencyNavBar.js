@@ -105,10 +105,6 @@ const AgencyNavBar = () => {
     getUserProfile(); // sets `userDetails`
   }, []);
 
-
-
-
-
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
     getAgencyPlans();

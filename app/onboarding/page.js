@@ -32,6 +32,7 @@ import LawAgentSignUpMobile from "@/components/onboarding/mobileUI/LawAgentSignU
 import TexAgentSignUpMoble from "@/components/onboarding/mobileUI/TexAgentSignUpMoble";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import GeneralAgentSignUp from "@/components/onboarding/otherAgentsSignUp/GeneralAgentSignUp";
 
 const Page = ({ params }) => {
   const router = useRouter();
@@ -123,6 +124,8 @@ const Page = ({ params }) => {
       [UserTypes.MedSpaAgent]: MedSpaAgentSignUp,
       [UserTypes.LawAgent]: LawAgentSignUp,
       [UserTypes.LoanOfficerAgent]: LoanOfficerSignUp,
+      [UserTypes.General] : GeneralAgentSignUp,
+      [UserTypes.Reception] : GeneralAgentSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
@@ -157,6 +160,8 @@ const Page = ({ params }) => {
       [UserTypes.MedSpaAgent]: MedSpaAgentSignUpMobile,
       [UserTypes.LawAgent]: LawAgentSignUpMobile,
       [UserTypes.LoanOfficerAgent]: LoanOfficerSignUpMobile,
+      [UserTypes.General] : GeneralAgentSignUp,
+      [UserTypes.Reception] : GeneralAgentSignUp,
     };
 
     const selectedComponent = agentComponents[agentTitle] || SignUpForm;
