@@ -650,7 +650,7 @@ const ProfileNav = () => {
               if (
                 (Data.cards.length === 0) &&
                 (Data.needsChargeConfirmation === false) &&
-                (Data.callsPausedUntilSubscription === false)
+                (!Data.callsPausedUntilSubscription)
               ) {
                 // if user comes first time then show plans popup
                 setShowPlansPopup(true);
@@ -658,7 +658,7 @@ const ProfileNav = () => {
 
                 (Data?.paymentFailed === true)
                 && (Data.needsChargeConfirmation === false) &&
-                (Data.callsPausedUntilSubscription === false)
+                (!Data.callsPausedUntilSubscription)
               ) {
                 setShowFailedPaymentBar(true)
 
@@ -673,7 +673,7 @@ const ProfileNav = () => {
                     Data?.totalSecondsAvailable <= 120)
                 )
                 && (Data.needsChargeConfirmation === false) &&
-                (Data.callsPausedUntilSubscription === false)
+                (!Data.callsPausedUntilSubscription)
               ) {
                 //if user have less then 2 minuts show upgrade plan bar
                 setShowUpgradePlanBar(true)
