@@ -721,8 +721,8 @@ function AdminAllCalls({ selectedUser }) {
                     </div>
                     <div className="w-1/12">
                       <div style={styles.text2}>
-                        {item?.callStage?.stageTitle
-                          ? item.callStage?.stageTitle
+                        {item?.PipelineStages?.stageTitle
+                          ? item.PipelineStages?.stageTitle
                           : "No Stage"}
                       </div>
                     </div>
