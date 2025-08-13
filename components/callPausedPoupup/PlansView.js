@@ -39,13 +39,6 @@ function PlansView({
         message: null, type: null
     })
 
-    const handleDontUpgrade = async () => {
-        setIsLoading(true);
-        await handleAutoCharge();
-        handleClose();
-        setIsLoading(false);
-    }
-
     const handlePauseCall = async (action) => {
         try {
             setMulitpleChargeLoading(true)
@@ -73,7 +66,7 @@ function PlansView({
                             message: response.data.message,
                             type: SnackbarTypes.Success
                         });
-                      
+                        handleClose()
                     } else {
                         setShowMessage({
                             message: response.data.message,
@@ -154,25 +147,25 @@ function PlansView({
                     ))}
                 </div>
                 <div className="w-full flex flex-col justify-center items-center mt-4">
-                {
-                    mutlipleChargeLoading ? <CircularProgress size={20} /> :
-                    <>
-                        <button className="text-purple text-base font-medium bg-transparent" onClick={() => {
-                            handlePauseCall("continue")
-                        }}>
-                            {`Don't Upgrade and Continue on $45/mo plan`}
-                        </button>
+                    {
+                        mutlipleChargeLoading ? <CircularProgress size={20} /> :
+                            <>
+                                <button className="text-purple text-base font-medium bg-transparent" onClick={() => {
+                                    handlePauseCall("continue")
+                                }}>
+                                    {`Don't Upgrade and Continue on $45/mo plan`}
+                                </button>
 
 
 
-                        <button className="text-gray-500 text-base font-medium mt-2"
-                            onClick={() => {
-                                handlePauseCall("pause_until_subscription")
-                            }}
-                        >
-                            {`Pause Calls Until Next Subscription`}
-                        </button>
-                    </>
+                                <button className="text-gray-500 text-base font-medium mt-2"
+                                    onClick={() => {
+                                        handlePauseCall("pause_until_subscription")
+                                    }}
+                                >
+                                    {`Pause Calls Until Next Subscription`}
+                                </button>
+                            </>
                     }
                 </div>
 

@@ -13,6 +13,7 @@ function CallPausedPopup({
     const [selectedPlan, setSelectedPlan] = useState(null);
 
     const handleClose = () => {
+        console.log('handle close trigered in call pused popup')
         setStep('plans'); // Reset on close
         onClose();
     };

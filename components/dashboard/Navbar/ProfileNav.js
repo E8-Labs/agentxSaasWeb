@@ -663,18 +663,18 @@ const ProfileNav = () => {
                 setShowFailedPaymentBar(true)
 
               } else if (
-                (
-                  Data?.plan == null ||
-                  (Data?.plan &&
-                    Data?.plan?.status !== "active" &&
-                    Data?.totalSecondsAvailable <= 120) ||
-                  (Data?.plan &&
-                    Data?.plan?.status === "active" &&
-                    Data?.totalSecondsAvailable <= 120)
-                )
-                && (Data.needsChargeConfirmation === false) &&
-                (!Data.callsPausedUntilSubscription)
-              ) {
+                
+                  // Data?.plan == null ||
+                  // (Data?.plan &&
+                  //   Data?.plan?.status !== "active" &&
+                    Data?.totalSecondsAvailable <= 120 //||
+                //   (Data?.plan &&
+                //     Data?.plan?.status === "active" &&
+                //     Data?.totalSecondsAvailable <= 120)
+                // )
+                // && (Data.needsChargeConfirmation === false) &&
+                // (!Data.callsPausedUntilSubscription)
+              ){
                 //if user have less then 2 minuts show upgrade plan bar
                 setShowUpgradePlanBar(true)
               }else{
@@ -969,7 +969,7 @@ const ProfileNav = () => {
         />
         {
           showUpgradePlanBar ? (
-            <div style={{ fontSize: showUpgradePlanBar ? 10 : 13, fontWeight: '700', whiteSpace: 'nowrap', }}>
+            <div style={{ fontSize: 10 , fontWeight: '700', whiteSpace: 'nowrap', }}>
               {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
@@ -1174,7 +1174,10 @@ const ProfileNav = () => {
 
       <CallPausedPopup
         open={showCallPausedPopup}
-        onClose={() => setShowCallPausedPopup(false)}
+        onClose={() =>{
+          console.log('close popup profile nave')
+           setShowCallPausedPopup(false)}
+          }
       />
 
       {/* Subscribe Plan modal */}
