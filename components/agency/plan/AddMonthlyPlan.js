@@ -678,7 +678,7 @@ export default function AddMonthlyPlan({
                             className="rounded-full bg-purple text-white p-3 py-2"
                             style={{ fontSize: 10, fontWeight: "500" }}
                           >
-                            {tag} 🔥
+                            {tag}
                           </div>
                         ) : (
                           <div className="rounded-md bg-gray-200 text-white w-[127px] h-[28px]" />

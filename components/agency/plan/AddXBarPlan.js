@@ -554,7 +554,7 @@ export default function AddXBarPlan({
 //                 <div
 //                     className='rounded-full bg-purple text-white p-3 py-2'
 //                     style={styles.text}>
-//                     {tag} 🔥
+//                     {tag}
 //                 </div>
 //             ) : (
 //                 <div
