@@ -999,18 +999,34 @@ const Pipeline1 = () => {
       const ApiPath = Apis.UpdateStage;
       const formData = new FormData();
 
+
       formData.append("stageId", selectedStage.id);
       formData.append("stageTitle", newStageTitle);
       formData.append("color", stageColor);
       formData.append("action", action);
-      formData.append("tags", tagsValue);
-      formData.append("teams", assignLeadToMember);
 
       // Add examples array
       inputs.forEach((input, index) => {
         if (input.value && input.value.trim() !== "") {
           formData.append(`examples[${index}]`, input.value);
         }
+      });
+
+      console.log("Tags are", tagsValue);
+
+      tagsValue.forEach((tag, i) => {
+        if (typeof tag === "string" && tag.trim()) {
+          formData.append(`tags[${i}]`, tag.trim());
+        }
+      });
+
+      console.log("Teams list 1.0 is", assignToMember);
+      console.log("Teams list is", assignLeadToMember);
+
+      assignLeadToMember.forEach((assignedTeam, i) => {
+        formData.append(`teams[${i}]`, assignedTeam);
+        // if (assignedTeam.trim()) {
+        // }
       });
 
       console.log("Update stage API data:");
@@ -2209,7 +2225,7 @@ const Pipeline1 = () => {
                                   }}
                                   onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                                 />
-                                <div class="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">Color</div>
+                                <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">Color</div>
                                 <div
                                   style={{
                                     opacity: 0,
@@ -2249,6 +2265,21 @@ const Pipeline1 = () => {
                                       // Pre-populate the modal with selected stage data
                                       setNewStageTitle(selectedStage.stageTitle);
                                       setStageColor(selectedStage.defaultColor || "#000000");
+                                      // setTagsValue(selectedStage.tags)
+                                      const tags = selectedStage.tags;
+
+                                      const tagNames = tags.map(item => item.tag);
+
+                                      console.log(tagNames);
+                                      setTagsValue(tagNames);
+                                      // setAssignToMember(
+                                      //   selectedStage?.teams[0]?.name
+                                      // );
+                                      setAssignToMember(selectedStage?.teams?.[selectedStage.teams.length - 1]?.name ?? '');
+                                      setAssignLeadToMember([
+                                        ...assignLeadToMember,
+                                        selectedStage?.teams[0]?.id
+                                      ]);
                                       setAction(parsedConfig.action || "");
 
                                       // Pre-populate sample answers if they exist
@@ -3208,7 +3239,7 @@ const Pipeline1 = () => {
                           className="h-[45px] p-2 rounded-lg  items-center gap-2"
                           style={{ border: "0px solid #00000030" }}
                         >
-                          <TagsInput setTags={setTagsValue} />
+                          <TagsInput setTags={setTagsValue} tags={tagsValue} />
                         </div>
                       </>
                     </div>
