@@ -721,7 +721,7 @@ const OtherDetails = ({
         return (
           <GeneralAgentOtherDetails
             inputsFields={inputsFields}
-            company={company}
+            company={companyName}
             userFarm={userFarm}
             setCompany={setCompanyName}
             setUserFarm={setUserFarm}
