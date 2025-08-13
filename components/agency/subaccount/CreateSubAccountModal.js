@@ -799,52 +799,57 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
                 {/* Code for allow sell seats */}
                 <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-                    <div style={styles.inputs}>
-                        {
-                            seats ? (
-                                <div>
-                                    Sell Seats(${seats}/seat)
-                                </div>
-                            ) : (
-                                <div>
-                                    Sell Seats / Month
-                                </div>
-                            )
-                        }
-                    </div>
 
-                    <Tooltip
-                        title="If the lead has given consent, no need to run against DNC"
-                        arrow
-                        componentsProps={{
-                            tooltip: {
-                                sx: {
-                                    backgroundColor: "#ffffff", // Ensure white background
-                                    color: "#333", // Dark text color
-                                    fontSize: "14px",
-                                    padding: "10px 15px",
-                                    borderRadius: "8px",
-                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                    <div className="flex flex-row items-center gap-2">
+                        <div style={styles.inputs}>
+                            {
+                                seats ? (
+                                    <div>
+                                        Sell Seats(${seats}/seat)
+                                    </div>
+                                ) : (
+                                    <div>
+                                        Sell Seats / Month
+                                    </div>
+                                )
+                            }
+                        </div>
+
+                        <Tooltip
+                            title="Maximize revenue by selling seats per month to any org." //"If the lead has given consent, no need to run against DNC"
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#ffffff", // Ensure white background
+                                        color: "#333", // Dark text color
+                                        fontSize: "14px",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                    },
                                 },
-                            },
-                            arrow: {
-                                sx: {
-                                    color: "#ffffff", // Match tooltip background
+                                arrow: {
+                                    sx: {
+                                        color: "#ffffff", // Match tooltip background
+                                    },
                                 },
-                            },
-                        }}
-                    >
-                        <div
-                            style={{
-                                fontSize: 12,
-                                fontWeight: "600",
-                                color: "#000000",
-                                cursor: "pointer",
                             }}
                         >
-                            Maximize revenue by selling seats per month to any org.
-                        </div>
-                    </Tooltip>
+                            <div
+                                style={{
+                                    fontSize: 12,
+                                    fontWeight: "600",
+                                    color: "#000000",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <Image src="/agencyIcons/infoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                // onClick={() => setIntroVideoModal2(true)}
+                                />
+                            </div>
+                        </Tooltip>
+                    </div>
 
                     <div className='flex flex-row items-center gap-4'>
 
