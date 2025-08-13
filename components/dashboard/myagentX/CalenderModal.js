@@ -96,6 +96,7 @@ function CalendarModal(props) {
 
       // Got the code from the popup → exchange on server
       (async () => {
+        setShowAddNewGHLCalender(true);
         setStatus("Exchanging code...");
         // setShowSnack({
         //   message: "Exchanging code...",
@@ -165,7 +166,6 @@ function CalendarModal(props) {
           return;
         }
         const calendars = await calRes.json();
-        setShowAddNewGHLCalender(true);
         console.log("Calendars fetched are", calendars);
         setStatus("");
         // setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
@@ -175,7 +175,10 @@ function CalendarModal(props) {
 
         // setTokens(calendars); // or setCalendars(calendars)
         // localStorage.setItem(PersistanceKeys.localGHLs, JSON.stringify(calendars.calendars));
-        setGHLCalendars(calendars.calendars);
+        let ghlCalendars = calendars?.calendars;
+        // setGHLCalendars(ghlCalendars.filter((ghlCal) => { ghlCal.isActive === true }));
+        setGHLCalendars(ghlCalendars.filter(ghlCal => ghlCal.isActive === true));
+
 
       })();
     }
@@ -199,7 +202,7 @@ function CalendarModal(props) {
       // GHL_CLIENT_SECRET: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
       // GHL_REDIRECT_URI: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
     }
-    console.log("GHL ENV variables are", ghlVariables)
+    // console.log("GHL ENV variables are", ghlVariables)
   }
 
   //ghl calendar popup click
@@ -890,6 +893,7 @@ function CalendarModal(props) {
                             className="w-full"
                             value={item}
                             key={index}
+                            disabled={item?.isActive === false}
                           >
                             <button onClick={() => { }}>{item.name}</button>
                           </MenuItem>
