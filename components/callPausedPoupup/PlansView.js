@@ -73,6 +73,7 @@ function PlansView({
                             message: response.data.message,
                             type: SnackbarTypes.Success
                         });
+                        handleClose()
                       
                     } else {
                         setShowMessage({

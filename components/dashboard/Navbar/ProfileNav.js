@@ -383,39 +383,35 @@ const ProfileNav = () => {
   }
 
   const getUserProfile = async () => {
-    const user = localStorage.getItem("User");
-    getShowWalkThrough();
-
-    let data = JSON.parse(user)
-
-    const LocalData = JSON.parse(user);
-    
-
     await getProfile();
-    console.log(
-      "LocalData.user.profile_status",
-      LocalData.user.profile_status
-    );
-    if (LocalData.user.profile_status === "paused") {
-      setErrorSnack("Your account has been frozen.");
-      logout();
-      router.push("/");
-      return;
-    }
-    setUserDetails(LocalData);
-    if (LocalData.user.plan == null) {
-      // user haven't subscribed to any plan
-      setPlans(plansWitTrial);
-    }
+    const data = localStorage.getItem("User");
+    getShowWalkThrough();
+    if (data) {
+      const LocalData = JSON.parse(data);
+      console.log(
+        "LocalData.user.profile_status",
+        LocalData.user.profile_status
+      );
+      if (LocalData.user.profile_status === "paused") {
+        setErrorSnack("Your account has been frozen.");
+        logout();
+        router.push("/");
+        return;
+      }
+      setUserDetails(LocalData);
+      if (LocalData.user.plan == null) {
+        // user haven't subscribed to any plan
+        setPlans(plansWitTrial);
+      }
 
-    if (LocalData.user.needsChargeConfirmation) {
-      setShowCallPausedPopup(true);
-    }
+      if (LocalData.user.needsChargeConfirmation) {
+        setShowCallPausedPopup(true);
+      }
 
-    console.log('LocalData', LocalData.user.needsChargeConfirmation)
+      console.log('LocalData', LocalData.user.needsChargeConfirmation)
 
 
-
+    };
   }
 
   useEffect(() => {
@@ -590,6 +586,7 @@ const ProfileNav = () => {
   //function to getprofile
   const getProfile = async () => {
     console.log('trying to get profile from nav')
+    
     try {
       let response = await getProfileDetails();
       getShowWalkThrough();
@@ -651,7 +648,7 @@ const ProfileNav = () => {
               if (
                 (Data.cards.length === 0) &&
                 (Data.needsChargeConfirmation === false) &&
-                (Data.callsPausedUntilSubscription === false)
+                (!Data.callsPausedUntilSubscription)
               ) {
                 // if user comes first time then show plans popup
                 setShowPlansPopup(true);
@@ -659,30 +656,30 @@ const ProfileNav = () => {
 
                 (Data?.paymentFailed === true)
                 && (Data.needsChargeConfirmation === false) &&
-                (Data.callsPausedUntilSubscription === false)
+                (!Data.callsPausedUntilSubscription)
               ) {
                 setShowFailedPaymentBar(true)
 
               } else if (
-                (
-                  Data?.plan == null ||
-                  (Data?.plan &&
-                    Data?.plan?.status !== "active" &&
-                    Data?.totalSecondsAvailable <= 120) ||
-                  (Data?.plan &&
-                    Data?.plan?.status === "active" &&
-                    Data?.totalSecondsAvailable <= 120)
-                )
-                && (Data.needsChargeConfirmation === false) &&
-                (Data.callsPausedUntilSubscription === false)
-              ) {
+                
+                  // Data?.plan == null ||
+                  // (Data?.plan &&
+                  //   Data?.plan?.status !== "active" &&
+                    Data?.totalSecondsAvailable <= 120 //||
+                //   (Data?.plan &&
+                //     Data?.plan?.status === "active" &&
+                //     Data?.totalSecondsAvailable <= 120)
+                // )
+                // && (Data.needsChargeConfirmation === false) &&
+                // (!Data.callsPausedUntilSubscription)
+              ){
                 //if user have less then 2 minuts show upgrade plan bar
                 setShowUpgradePlanBar(true)
-              } else {
+              }else{
                 console.log('no plans condition is true')
-                setShowPlansPopup(false);
-                setShowUpgradePlanBar(false)
-                setShowFailedPaymentBar(false)
+              setShowPlansPopup(false);
+              setShowUpgradePlanBar(false)
+              setShowFailedPaymentBar(false)
               }
 
             } else {
