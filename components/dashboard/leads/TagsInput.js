@@ -10,9 +10,21 @@ const createOption = (label) => ({
     value: label,
 });
 
-const TagsInput = ({ setTags }) => {
+const TagsInput = ({ setTags, tags }) => {
     const [inputValue, setInputValue] = useState('');
     const [value, setValue] = useState([]);
+
+    useEffect(() => {
+        console.log("Test code trigered")
+        if (
+          tags &&
+          Array.isArray(tags) &&
+          JSON.stringify(tags) !== JSON.stringify(value.map(v => v.value))
+        ) {
+          setValue(tags.map(tag => createOption(tag)));
+        }
+      }, []);
+      
 
     useEffect(() => {
        // //console.log;
