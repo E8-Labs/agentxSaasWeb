@@ -47,7 +47,7 @@ export const PromptTagInput = ({
     setOptions(arr);
 
     // setOptions((prev) => {
-    //   return [...prev, ...uniqueColumns];
+    // return [...prev, ...uniqueColumns];
     // });
   }, [uniqueColumns]);
 
@@ -149,7 +149,7 @@ export const PromptTagInput = ({
     let distance = 35 + (markerRect.top - 1005);
     // //console.log;
     // if(maxLines > 18){
-    //     distance = 18 * 24 + 35;
+    // distance = 18 * 24 + 35;
     // }
     let textOffset = getTextScrollOffset();
     let popupTop = distance - textOffset.scrollTop; //inputRect.top / markerRect.top * scrollOffset.scrollTop//markerRect.top - inputRect.top + scrollOffset.scrollTop - (markerRect.top - inputRect.top - scrollOffset.scrollTop) * 0.25;//490
@@ -424,7 +424,7 @@ export const PromptTagInput = ({
         }}
       >
         <textarea
-          className="outline-none rounded-xl focus:ring-0 border-none w-full  min-h-[50px]"
+          className="outline-none rounded-xl focus:ring-0 border-none w-full min-h-[50px]"
           onClick={() => {
             setShowScriptModal(true);
           }}
@@ -462,40 +462,40 @@ export const PromptTagInput = ({
       </div>
 
       {/*popupVisible && filteredOptions.length > 0 && (
-        <div
-          style={{
-            position: "absolute",
-            top: `${popupPosition.top}px`,
-            left: `${popupPosition.left}px`,
-            height: "200px",
-            backgroundColor: "white",
-            border: "1px solid lightgray",
-            borderRadius: "5px",
-            boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
-            zIndex: 1000,
-            padding: "10px",
-            minWidth: "150px",
-          }}
-        >
-          {filteredOptions.map((option) => (
-            <div
-              key={option}
-              onClick={() => handleOptionSelect(option)}
-              style={{
-                padding: "5px 10px",
-                cursor: "pointer",
-                // borderBottom: "1px solid lightgray",
-              }}
-              onMouseEnter={(e) =>
-                (e.target.style.backgroundColor = "lightblue")
-              }
-              onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
-            >
-              {option}
-            </div>
-          ))}
-        </div>
-      )*/}
+ <div
+ style={{
+ position: "absolute",
+ top: `${popupPosition.top}px`,
+ left: `${popupPosition.left}px`,
+ height: "200px",
+ backgroundColor: "white",
+ border: "1px solid lightgray",
+ borderRadius: "5px",
+ boxShadow: "0 0 5px rgba(0, 0, 0, 0.2)",
+ zIndex: 1000,
+ padding: "10px",
+ minWidth: "150px",
+ }}
+ >
+ {filteredOptions.map((option) => (
+ <div
+ key={option}
+ onClick={() => handleOptionSelect(option)}
+ style={{
+ padding: "5px 10px",
+ cursor: "pointer",
+ // borderBottom: "1px solid lightgray",
+ }}
+ onMouseEnter={(e) =>
+ (e.target.style.backgroundColor = "lightblue")
+ }
+ onMouseLeave={(e) => (e.target.style.backgroundColor = "white")}
+ >
+ {option}
+ </div>
+ ))}
+ </div>
+ )*/}
 
       <Modal
         open={showScriptModal}
@@ -550,7 +550,7 @@ export const PromptTagInput = ({
 
                 {
                   from === "Voicemail" && (
-                    <div  className="w-full flex flex-col  items-end jutstify-end">
+                    <div className="w-full flex flex-col items-end jutstify-end">
                       <div style={{
                         fontSize: 14, fontWeight: '500', color: '#00000060'
                       }}>
@@ -601,27 +601,27 @@ export const PromptTagInput = ({
                 )}
 
                 {/* <textarea
-                  className="outline-none rounded-xl focus:ring-0"
-                  ref={textFieldRef}
-                  value={text}
-                  onClick={() => {
-                    setShowScriptModal(true);
-                  }}
-                  onChange={handleChange}
-                  onKeyUp={handleKeyUp}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type here..."
-                  style={{
-                    fontSize: "16px",
-                    padding: "15px",
-                    width: "100%",
-                    fontWeight: "500",
-                    fontSize: 15,
-                    height: "100%",
-                    resize: "none",
-                    border: "1px solid #00000020",
-                  }}
-                /> */}
+ className="outline-none rounded-xl focus:ring-0"
+ ref={textFieldRef}
+ value={text}
+ onClick={() => {
+ setShowScriptModal(true);
+ }}
+ onChange={handleChange}
+ onKeyUp={handleKeyUp}
+ onKeyDown={handleKeyDown}
+ placeholder="Type here..."
+ style={{
+ fontSize: "16px",
+ padding: "15px",
+ width: "100%",
+ fontWeight: "500",
+ fontSize: 15,
+ height: "100%",
+ resize: "none",
+ border: "1px solid #00000020",
+ }}
+ /> */}
 
                 {popupVisible && filteredOptions.length > 0 && (
                   <div
@@ -665,15 +665,15 @@ export const PromptTagInput = ({
               </div>
 
               {/* <div className="mt-4 w-full h-[15%]">
-                <button
-                  className="bg-purple text-white text-xl font-medium w-full rounded-2xl h-[50px]"
-                  onClick={() => {
-                    setShowScriptModal(false);
-                  }}
-                >
-                  Update & Close
-                </button>
-              </div> */}
+ <button
+ className="bg-purple text-white text-xl font-medium w-full rounded-2xl h-[50px]"
+ onClick={() => {
+ setShowScriptModal(false);
+ }}
+ >
+ Update & Close
+ </button>
+ </div> */}
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

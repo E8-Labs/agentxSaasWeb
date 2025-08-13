@@ -4404,6 +4404,8 @@ function Page() {
                   setMainAgentsList={setMainAgentsList}
                   agent={showDrawerSelectedAgent}
                   setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                  kycsData={kycsData}
+                  uniqueColumns={uniqueColumns}
                 />
               </div>
             ) : (

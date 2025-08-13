@@ -13,7 +13,14 @@ import EditVoicemailModal from './EditVoicemailModal';
 import { getAgentsListImage } from '@/utilities/agentUtilities';
 
 
-function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,selectedUser = null }) {
+function VoiceMailTab({
+  agent,
+  setShowDrawerSelectedAgent,
+  setMainAgentsList,
+  selectedUser = null,
+  kycsData,
+  uniqueColumns
+}) {
 
   const [showAddNewPopup, setShowAddNewPopup] = useState(false)
   // console.log('agent', agent)
@@ -65,11 +72,11 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
   ]
 
   const saveVoiceMail = async (data) => {
-    if (!data.voiceId) {
-      setShowMessage("Select a voice")
-      setMessageType(SnackbarTypes.Error)
-      return
-    }
+    // if (!data.voiceId) {
+    //   setShowMessage("Select a voice")
+    //   setMessageType(SnackbarTypes.Error)
+    //   return
+    // }
     if (!data.message) {
       setShowMessage("Enter voicemail")
       setMessageType(SnackbarTypes.Error)
@@ -87,7 +94,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
           agentType: data.agentType,
           voice: data.voiceId,
           agentId: agent.id,
-          
+
         }
         let response = await axios.post(Apis.setVoicemaeil, apidata, {
           headers: {
@@ -163,11 +170,11 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
 
   const updateVoicemail = async (data) => {
 
-    if (!data.voiceId) {
-      setShowMessage("Select a voice")
-      setMessageType(SnackbarTypes.Error)
-      return
-    }
+    // if (!data.voiceId) {
+    //   setShowMessage("Select a voice")
+    //   setMessageType(SnackbarTypes.Error)
+    //   return
+    // }
     if (!data.message) {
       setShowMessage("Enter voicemail")
       setMessageType(SnackbarTypes.Error)
@@ -270,7 +277,7 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
 
   return (
     <div>
-      <AgentSelectSnackMessage isVisible={showMessage != null &&  !showAddNewPopup && !showEditPopup ? true : false}
+      <AgentSelectSnackMessage isVisible={showMessage != null && !showAddNewPopup && !showEditPopup ? true : false}
         message={showMessage} type={messageType} hide={() => {
           setShowMessage(null);
         }}
@@ -368,6 +375,8 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
             showMessage={showMessage}
             setShowMessage={setShowMessage}
             messageType={messageType}
+            kycsData={kycsData}
+            uniqueColumns={uniqueColumns}
           />
         )
       }
@@ -382,7 +391,8 @@ function VoiceMailTab({ agent, setShowDrawerSelectedAgent, setMainAgentsList,sel
         showMessage={showMessage}
         setShowMessage={setShowMessage}
         messageType={messageType}
-
+        kycsData={kycsData}
+        uniqueColumns={uniqueColumns}
       />
 
     </div>

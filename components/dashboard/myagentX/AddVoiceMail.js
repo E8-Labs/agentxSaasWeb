@@ -8,6 +8,7 @@ import Apis from '@/components/apis/Apis';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import { PersistanceKeys } from '@/constants/Constants';
 import { UserTypes } from '@/constants/UserTypes';
+import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
 
 function AddVoiceMail({
     showAddNewPopup,
@@ -16,7 +17,9 @@ function AddVoiceMail({
     loading,
     showMessage,
     setShowMessage,
-    messageType
+    messageType,
+    kycsData,
+    uniqueColumns
 }) {
 
 
@@ -145,7 +148,7 @@ function AddVoiceMail({
                         }}
                     />
                     <div
-                        className="h-[80vh] overflow-auto flex flex-col gap-3"
+                        className="h-[60vh] overflow-auto flex flex-col gap-3"
                         style={{ scrollbarWidth: "none" }}
                     >
 
@@ -207,24 +210,47 @@ function AddVoiceMail({
                             </button>
                         </div>
 
-                        <textarea
-                            placeholder="Type here"
-                            className="w-full border rounded p-2 outline-none outline-none focus:ring-0"
-                            style={{
-                                outline: "none",
-                                border: "2px solid #00000010",
-                                borderRadius: "5px",
-                                padding: 12,
-                                height: '156px',
-                                resize: "none",
-                            }}
-                            maxLength={200}
-                            value={message}
-                            onChange={(e) => {
-                                setMessage(e.target.value);
+                        {/*
+                            <textarea
+                                placeholder="Type here"
+                                className="w-full border rounded p-2 outline-none outline-none focus:ring-0"
+                                style={{
+                                    outline: "none",
+                                    border: "2px solid #00000010",
+                                    borderRadius: "5px",
+                                    padding: 12,
+                                    height: '156px',
+                                    resize: "none",
+                                }}
+                                maxLength={200}
+                                value={message}
+                                onChange={(e) => {
+                                    setMessage(e.target.value);
+    
+                                }}
+                            />
+                        */}
 
-                            }}
-                        />
+                        <div className="mt-4 w-full">
+                            <PromptTagInput
+                                promptTag={message}
+                                kycsList={kycsData}
+                                uniqueColumns={uniqueColumns}
+                                tagValue={setMessage}
+                                // scrollOffset={scrollOffset}
+                                showSaveChangesBtn={message}
+                                from={"Voicemail"}
+                                isEdit={false}
+                                saveUpdates={async () => {
+                                    // await updateAgent();
+                                    // setShowObjectionsSaveBtn(false);
+                                    // setOldObjective(objective);
+                                }}
+                                limit={200}
+                            />
+
+                            {/* <DynamicDropdown /> */}
+                        </div>
 
                         <div style={{
                             fontSize: 14, fontWeight: '500', marginTop: -5, color: '#00000060'
@@ -242,11 +268,11 @@ function AddVoiceMail({
                             ) : (
                                 <button
                                     className="text-white bg-purple outline-none rounded-xl  mt-4"
-                                    style={{ height: "50px",width: "100px" , alignSelf: 'flex-end'}} 
+                                    style={{ height: "50px", width: "100px", alignSelf: 'flex-end' }}
                                     onClick={() => {
                                         const data = {
                                             message,
-                                            voiceId: selectedVoice,
+                                            // voiceId: selectedVoice,
                                             agentType: selectedManu.type
                                         };
                                         addVoiceMail(data);
