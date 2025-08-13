@@ -372,8 +372,6 @@ function Page() {
       }
     }
   }, [])
-
-
   // get selected agent from local if calendar added by google
 
   useEffect(() => {
@@ -2465,6 +2463,20 @@ function Page() {
 
   // ////console.log
 
+  const handleWebhookClick = (assistantId, baseUrl) => {
+    let url = baseUrl + "api/agent/demoAi/" + assistantId
+     navigator.clipboard
+       .writeText(url)
+       .then(() => {
+         // alert("Embed code copied to clipboard!");
+         setShowSuccessSnack("Url copied");
+         setIsVisibleSnack(true);
+       })
+       .catch((err) => {
+         console.error("Failed to copy text: ", err);
+       });
+   };
+
   const handleCopy = (assistantId, baseUrl) => {
     const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
@@ -2482,6 +2494,7 @@ function Page() {
         console.error("Failed to copy text: ", err);
       });
   };
+
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -3327,6 +3340,17 @@ function Page() {
                       height={22} width={22} alt="*"
                     />
                   </button>
+
+                  <button
+                  style={{ paddingLeft: "3px" }}
+                  onClick={() => {
+                    handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                  }}
+                >
+                  <Image src={'/svgIcons/webhook.svg'}
+                    height={22} width={22} alt="*"
+                  />
+                </button>
                 </div>
               </div>
             </div>
