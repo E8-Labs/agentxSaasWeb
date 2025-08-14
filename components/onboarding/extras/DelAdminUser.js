@@ -144,7 +144,7 @@ const DelAdminUser = ({
                                 {/* <div style={{ width: "20%" }} /> */}
                                 <div style={{ fontWeight: "500", fontSize: 17 }}>
                                     {
-                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                        selectedUser?.profile_status === "paused" ? "Reinstate" : "Pause"
                                     } {selectedUser?.name}
                                 </div>
                                 <div
@@ -171,7 +171,7 @@ const DelAdminUser = ({
                             <div className="mt-6">
                                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                                     Are you sure to  {
-                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                        selectedUser?.profile_status === "paused" ? "Reinstate" : "Pause"
                                     }?
                                 </div>
                             </div>

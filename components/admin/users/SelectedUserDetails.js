@@ -351,7 +351,7 @@ function SelectedUserDetails({
                                                     }}
                                                 >
                                                     {
-                                                        user?.profile_status === "paused" ? "Resume" : "Pause"
+                                                        user?.profile_status === "paused" ? "Reinstate" : "Pause"
                                                     }
                                                 </button>
                                             )
