@@ -1408,25 +1408,28 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   //function ot compare the selected agent wiith the main agents list
   const matchingAgent = (agent) => {
-    //// //console.log;
+    console.log("agent for matching",agent)
     const agentData = mainAgentsList.filter((prevAgent) => {
       //// //console.log;
+      console.log('prev agent is', prevAgent.id)
+
       if (prevAgent.id === agent.mainAgentId) {
         return true;
       } else {
         return false;
       }
     });
-    //// //console.log;
+    console.log("agent data after compair",agentData)
     if (typeof agentData == undefined || agentData == null) {
       return;
     }
-    ////console.log;
+    console.log("agent data after null check",agentData)
     setKYCList(agentData[0]?.kyc);
 
     ////console.log;
-    //// //console.log;
-    setMainAgentId(agentData[0]?.id);
+    console.log("matcheing agent",agentData)
+    // setMainAgentId(agentData[0]?.id);
+    setMainAgentId(agent.mainAgentId)
     let firstAgent = agentData[0];
     //// //console.log;
     setUserPipeline(firstAgent?.pipeline);
