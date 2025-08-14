@@ -5,7 +5,7 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
 import { ShowConfirmationPopup } from "./CallActivties";
 import { UserTypes } from "@/constants/UserTypes";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -88,14 +88,10 @@ function SheduledCalls({ user }) {
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
     setAnchorEl(event.currentTarget);
-    // //console.log;
-    // //console.log;
-    localStorage.setItem("curentCalllogItem", JSON.stringify(item));
-    localStorage.setItem("currentCalllogAgent", JSON.stringify(agent));
     setSelectedAgent(agent);
     setSelectedItem(item);
-  };
 
+  };
   const handleClosePopup = () => {
     setAnchorEl(null);
   };
@@ -475,6 +471,7 @@ function SheduledCalls({ user }) {
     }
   };
 
+
   const fetchLeadsInBatch = async (batch, offset = 0) => {
     //console.log;
     try {
@@ -483,7 +480,7 @@ function SheduledCalls({ user }) {
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`
       );
-      if (offset == 0) {
+      if (selectedLeadsList.length == 0) {
         firstApiCall = true;
         if (leadsInBatchLocalData) {
           //console.log;
@@ -501,26 +498,33 @@ function SheduledCalls({ user }) {
       }
 
       const token = user.token; // Extract JWT token
-
-      let url =
-        "/api/calls/leadsInABatch" + `?batchId=${batch.id}&offset=${offset}`;
-      if (leadsSearchValue && leadsSearchValue.length > 0) {
-        url = `${url}&search=${leadsSearchValue}`;
-      }
-      //console.log;
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
+      console.log(
+        "Api Call Leads : ",
+        path
+      );
+      const response = await fetch(path,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       setLeadsLoading(false);
       const data = await response.json();
 
       if (response.ok) {
         //console.log;
+        // setSelectedLeadsList(data.data);
+        // setFilteredSelectedLeadsList(data.data);
+        // localStorage.setItem(
+        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
+        //   JSON.stringify(data.data)
+        // );
 
+        console.log("Response of leads list detail", data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data);
           setFilteredSelectedLeadsList(data.data);
@@ -548,6 +552,7 @@ function SheduledCalls({ user }) {
       console.error("Error fetching leads in batch:", error);
     }
   };
+
 
   function GetLoadingOrNoCallsView() {
     if (callsLoading) {
@@ -696,7 +701,7 @@ function SheduledCalls({ user }) {
                                   key={index}
                                 >
                                   <div className="w-3/12 flex flex-row gap-4 items-center">
-                                    {getAgentImageForActiviti(agent)}
+                                    {getAgentImageWithMemoji(agent)}
 
                                     <div style={styles.text2}>
                                       {getAgentNameForActiviti(agent)}
@@ -819,7 +824,7 @@ function SheduledCalls({ user }) {
                                         <button
                                           className="text-start outline-none"
                                           onClick={() => {
-                                            handleShowLeads(agent, item);
+                                            handleShowLeads(SelectedAgent, SelectedItem);
                                           }}
                                         >
                                           View Details
@@ -930,7 +935,7 @@ function SheduledCalls({ user }) {
                         </div>
                       ) : (
                         <div>
-                          <div className="flex w-full items-center border border-gray-300 rounded-full px-4 max-w-md shadow-sm mt-6">
+                          <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
                             <input
                               type="text"
                               placeholder="Search by name or phone"
@@ -962,7 +967,7 @@ function SheduledCalls({ user }) {
                             <div className="w-2/12">Phone Number</div>
                             <div className="w-3/12">Address</div>
                             <div className="w-2/12">Tag</div>
-                            <div className="w-2/12">Status</div>
+                            <div className="w-2/12">Stage</div>
                           </div>
 
                           <div
@@ -1009,71 +1014,78 @@ function SheduledCalls({ user }) {
                                   }
                                   style={{ overflow: "unset" }}
                                 >
-                                  {filteredSelectedLeadsList.map((item, index) => (
-                                    <div
-                                      key={index}
-                                      className="w-full mt-4"
-                                      style={{
-                                        fontSize: 15,
-                                        fontWeight: 500,
-                                        scrollbarWidth: "none",
-                                      }}
-                                    >
+                                  {filteredSelectedLeadsList.map(
+                                    (item, index) => (
                                       <div
-                                        className="flex flex-row items-center mt-4"
-                                        style={{ fontSize: 15, fontWeight: 500 }}
+                                        key={index}
+                                        className="w-full mt-4"
+                                        style={{
+                                          fontSize: 15,
+                                          fontWeight: 500,
+                                          scrollbarWidth: "none",
+                                        }}
                                       >
-                                        <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                          <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
-                                            {item?.firstName?.charAt(0).toUpperCase()}
-                                          </div>
-                                          <div>
-                                            <div className="truncate w-[100px]">
-                                              {item?.firstName} {item?.lastName}
+                                        <div
+                                          className="flex flex-row items-center mt-4"
+                                          style={{
+                                            fontSize: 15,
+                                            fontWeight: 500,
+                                          }}
+                                        >
+                                          <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                            <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                              {item?.firstName
+                                                ?.charAt(0)
+                                                .toUpperCase()}
+                                            </div>
+                                            <div>
+                                              <div className="truncate w-[100px]">
+                                                {item?.firstName} {item?.lastName}
+                                              </div>
                                             </div>
                                           </div>
-                                        </div>
-                                        <div className="w-2/12 truncate">
-                                          {item?.phone || "-"}
-                                        </div>
-                                        <div className="w-3/12 truncate">
-                                          {item?.address || "-"}
-                                        </div>
-                                        <div className="w-2/12">
-                                          {item.tags.length > 0 ? (
-                                            <div className="w-full truncate flex flex-row items-center gap-1">
-                                              {item.tags
-                                                .slice(0, 1)
-                                                .map((tag, index) => (
+                                          <div className="w-2/12 truncate">
+                                            {item?.phone || "-"}
+                                          </div>
+                                          <div className="w-3/12 truncate">
+                                            {item?.address || "-"}
+                                          </div>
+                                          <div className="w-2/12">
+                                            {item.tags.length > 0 ? (
+                                              <div className="w-full truncate flex flex-row items-center gap-1">
+                                                {item.tags
+                                                  .slice(0, 1)
+                                                  .map((tag, index) => (
+                                                    <div
+                                                      key={index}
+                                                      className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                                    >
+                                                      {tag}
+                                                    </div>
+                                                  ))}
+                                                {item.tags.length > 1 && (
                                                   <div
-                                                    key={index}
-                                                    className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                                    className="text-purple underline cursor-pointer"
+                                                    onClick={() => {
+                                                      setExtraTagsModal(true);
+                                                      setOtherTags(item.tags);
+                                                    }}
                                                   >
-                                                    {tag}
+                                                    +{item.tags.length - 1}
                                                   </div>
-                                                ))}
-                                              {item.tags.length > 1 && (
-                                                <div
-                                                  className="text-purple underline cursor-pointer"
-                                                  onClick={() => {
-                                                    setExtraTagsModal(true);
-                                                    setOtherTags(item.tags);
-                                                  }}
-                                                >
-                                                  +{item.tags.length - 1}
-                                                </div>
-                                              )}
-                                            </div>
-                                          ) : (
-                                            "-"
-                                          )}
-                                        </div>
-                                        <div className="w-2/12 truncate">
-                                          {item?.status || "-"}
+                                                )}
+                                              </div>
+                                            ) : (
+                                              "-"
+                                            )}
+                                          </div>
+                                          <div className="w-2/12 truncate">
+                                            {item?.stage?.stageTitle || "-"}
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                  ))}
+                                    )
+                                  )}
                                 </InfiniteScroll>
                               </div>
                             ) : !leadsLoading ? (

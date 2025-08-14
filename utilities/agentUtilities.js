@@ -45,7 +45,7 @@ export const getAgentImage = (item) => {
       const selectedVoice = voicesList.find(
         (voice) => voice.voice_id === subAgent.voiceId
       );
-     // //console.log;
+      // //console.log;
       if (selectedVoice && selectedVoice.img) {
         return (
           <div
@@ -234,7 +234,7 @@ export const getAgentProfileImage = (subAgent) => {
   //// //console.log;
 
   // Extract subagents
- // //console.log;
+  // //console.log;
 
   if (subAgent?.thumb_profile_image) {
     return (
@@ -268,7 +268,7 @@ export const getAgentProfileImage = (subAgent) => {
     const selectedVoice = voicesList.find(
       (voice) => voice.voice_id === subAgent?.voiceId
     );
-   // //console.log;
+    // //console.log;
     if (selectedVoice && selectedVoice.img) {
       return (
         <div
@@ -315,20 +315,108 @@ export const getAgentProfileImage = (subAgent) => {
 };
 
 
-export  function findLLMModel(value) {
-    let model = null;
-    for (const m of models) {
-      if (m.model == value) {
-        model = m;
+const agentMemoji = (agent) => {
+  const selectedVoice = voicesList.find(
+    (voice) => voice.voice_id === agent?.voiceId
+  );
+  // //console.log;
+  if (selectedVoice && selectedVoice.img) {
+    return (
+      <div
+        className="flex flex-row items-center justify-center"
+        style={{
+          height: "40px",
+          width: "40px",
+          borderRadius: "50%",
+          backgroundColor: "white",
+        }}
+      >
+        <Image
+          src={selectedVoice.img}
+          height={40}
+          width={40}
+          alt="*"
+          className="rounded-full"
+
+        />
+      </div>
+
+    )
+
+  }
+}
+
+
+
+export function getAgentImageWithMemoji(agent) {
+  // console.log('agent', agent)
+  const agents = agent.agents || [];
+  if (agents.length > 0) {
+    let img
+    if (agents[0].agentType === "outbound") {
+      img = agents[0]?.thumb_profile_image;
+
+      if (img) {
+        return (
+          <Image
+            className="rounded-full"
+            src={img}
+            height={40}
+            width={40}
+            style={{
+              height: "40px",
+              width: "40px",
+              resize: "cover",
+            }}
+            alt="*"
+          />
+        )
+      } else {
+        return agentMemoji(agents[0])
       }
     }
-    console.log("Selected model:", model);
-    if (model === null) {
-      return models[0]; // Default to the first model if not found
+    else {
+      if (agents.length > 1) {
+        img = agents[1]?.thumb_profile_image;
+        if (img) {
+          return (
+            <Image
+              className="rounded-full"
+              src={img}
+              height={40}
+              width={40}
+              style={{
+                height: "40px",
+                width: "40px",
+                resize: "cover",
+              }}
+              alt="*"
+            />
+          )
+        } else {
+          return agentMemoji(agents[1])
+        }
+      }
     }
-
-
-    return model;
   }
+  return "-";
+}
+
+
+export function findLLMModel(value) {
+  let model = null;
+  for (const m of models) {
+    if (m.model == value) {
+      model = m;
+    }
+  }
+  console.log("Selected model:", model);
+  if (model === null) {
+    return models[0]; // Default to the first model if not found
+  }
+
+
+  return model;
+}
 
 

@@ -5,7 +5,7 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getReadableStatus } from "@/utilities/UserUtility";
@@ -634,28 +634,8 @@ function AdminActiveCalls({ selectedUser }) {
                             key={index}
                           >
                             <div className="w-3/12 flex flex-row gap-4 items-center">
-                              {agent?.agents[0]?.thumb_profile_image ? (
-                                <Image
-                                  className="rounded-full"
-                                  src={agent?.agents[0].thumb_profile_image}
-                                  height={40}
-                                  width={40}
-                                  style={{
-                                    height: "40px",
-                                    width: "40px",
-                                    resize: "cover",
-                                  }}
-                                  alt="*"
-                                />
-                              ) : (
-                                <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                  {agent.name.slice(0, 1).toUpperCase()}
-                                </div>
-                              )}
-                              {/* <div>
-                                  {getAgentsListImage(agent?.agents[0])}
-                                </div> */}
-
+                              {getAgentImageWithMemoji(agent)}
+                            
                               <div style={styles.text2}>{agent.name}</div>
                             </div>
                             <div className="w-2/12 ">

@@ -5,7 +5,7 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString, ToUppercase } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { UserTypes } from "@/constants/UserTypes";
@@ -761,7 +761,7 @@ function SheduledCalls({ user }) {
                                 key={index}
                               >
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  {getAgentImageForActiviti(agent)}
+                                  {getAgentImageWithMemoji(agent)}
 
                                   <div style={styles.text2}>
                                     {getAgentNameForActiviti(agent)}
