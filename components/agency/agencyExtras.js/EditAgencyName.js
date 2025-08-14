@@ -63,16 +63,8 @@ const EditAgencyName = ({
                 type={snackMsgType}
             />
             <div className='flex w-full flex-row justify-between items-center'>
-                <div className='sm:text-lg lg:text-2xl lg:font-bold'>
-                    {agencyName.length < 8 ? (
-                        <div>
-                            {agencyName}
-                        </div>
-                    ) : (
-                        <div>
-                            {agencyName.slice(0, 8)}...
-                        </div>
-                    )}
+                <div className='sm:text-lg lg:text-2xl lg:font-bold w-[90%] truncate overflow-hidden whitespace-nowrap'>
+                    {agencyName}
                 </div>
                 {
                     agencyName && (

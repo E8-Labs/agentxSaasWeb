@@ -620,7 +620,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             </div>
                             <div>
                                 {emailLoader ? (
-                                    <p className='text-purple' style={{ ...styles.errmsg, }}>
+                                    <p className='text-black' style={{ ...styles.errmsg, }}>
                                         Checking ...
                                     </p>
                                 ) : (
@@ -701,7 +701,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             <div className=''>
                                 {locationLoader && (
                                     <p
-                                        className="text-purple"
+                                        className="text-black"
                                         style={{ ...styles.errmsg, height: "20px" }}
                                     >
                                         Getting location ...
@@ -844,7 +844,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     cursor: "pointer",
                                 }}
                             >
-                                <Image src="/agencyIcons/infoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
                                 // onClick={() => setIntroVideoModal2(true)}
                                 />
                             </div>

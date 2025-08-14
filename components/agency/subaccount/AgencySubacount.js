@@ -46,7 +46,7 @@ function AgencySubacount() {
   //del subAcc
   const [delLoader, setDelLoader] = useState(false);
   const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
-  
+
   useEffect(() => {
     getLocalData();
     getSubAccounts();
@@ -202,13 +202,13 @@ function AgencySubacount() {
 
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
-            style={{
-              fontSize: 29,
-              fontWeight: "700",
-              color: "black",
-            }}
-          >
-            Sub Accounts
+          style={{
+            fontSize: 29,
+            fontWeight: "700",
+            color: "black",
+          }}
+        >
+          Sub Accounts
           {/* <EditAgencyName
             flex={true} /> */}
 
@@ -502,10 +502,32 @@ function AgencySubacount() {
               </div>
             ) : (
               <div
-                className="text-center mt-4"
+                className="text-center flex flex-col items-center w-full"
                 style={{ fontWeight: "bold", fontSize: 20 }}
               >
-                No sub-account found
+                <Image
+                  alt='*'
+                  src={"/agencyIcons/nosubAccount.png"}
+                  height={230}
+                  width={420}
+                />
+                <div className="flex flex-col items-center gap-6" style={{ marginTop: "-120px" }}>
+                  <div style={{ fontWeight: "600", fontSize: "22px" }} className="text-center">
+                    No Sub-Account Added
+                  </div>
+                  <div style={{ fontWeight: "600", fontSize: "15px" }} className="text-center">
+                    {`You don’t have any sub-accounts created yet`}
+                  </div>
+                  <button
+                    disabled={twililoConectedStatus}
+                    className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
+                    onClick={() => {
+                      handleCheckPlans();
+                    }}
+                  >
+                    Create Sub Account
+                  </button>
+                </div>
               </div>
             )}
           </div>

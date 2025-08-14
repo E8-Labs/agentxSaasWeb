@@ -591,7 +591,7 @@ export default function AddMonthlyPlan({
           <div
             className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
             style={{
-              backgroundImage: "url('/agencyIcons/addPlanBg.jpg')",
+              backgroundImage: "url('/assets/agencyPlanBG3.png')", //"url('/agencyIcons/addPlanBg.jpg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}

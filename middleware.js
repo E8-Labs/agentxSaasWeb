@@ -68,6 +68,7 @@ export const config = {
     "/onboarding/:path*",
     "/admin/:path*",
     "/embedCalendar/:path*",
+    "/agency/dashboard/:path*",
     // "/recordings/:path*",
   ],
 };
