@@ -5,10 +5,17 @@ import axios from "axios";
 import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import moment from "moment";
 import { GetFormattedDateString } from "@/utilities/utility";
-import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUtilities";
 import { ShowConfirmationPopup } from "./AdminActiveCalls";
+import { PersistanceKeys } from "@/constants/Constants";
+import InfiniteScroll from "react-infinite-scroll-component";
 
-function AdminScheduledCalls({selectedUser}) {
+function AdminScheduledCalls({ selectedUser }) {
+  const [user, setUser] = useState(null);
+  const Limit = 30;
+
+  const [leadsLoading, setLeadsLoading] = useState(false);
+  const [hasMoreLeads, setHasMoreLeads] = useState(true);
   const [searchValue, setSearchValue] = useState("");
   //code for agent details
   const [callDetails, setCallDetails] = useState([]);
@@ -43,6 +50,11 @@ function AdminScheduledCalls({selectedUser}) {
 
   useEffect(() => {
     getAgents();
+    let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (localD) {
+      let d = JSON.parse(localD);
+      setUser(d);
+    }
     // getSheduledCallLogs();
   }, []);
 
@@ -51,8 +63,6 @@ function AdminScheduledCalls({selectedUser}) {
     setAnchorEl(event.currentTarget);
     // //console.log;
     // //console.log;
-    localStorage.setItem("curentCalllogItem", JSON.stringify(item));
-    localStorage.setItem("currentCalllogAgent", JSON.stringify(agent));
     setSelectedAgent(agent);
     setSelectedItem(item);
   };
@@ -70,9 +80,10 @@ function AdminScheduledCalls({selectedUser}) {
     // //console.log;
     setSelectedAgent(agent);
     setSelectedItem(item);
-    setSelectedLeadsList(item.leads);
-    setFilteredSelectedLeadsList(item.leads);
+    setSelectedLeadsList([]);
+    setFilteredSelectedLeadsList([]);
     setShowLeadDetailsModal(true);
+    fetchLeadsInBatch(item)
   };
 
   //code to filter slected agent leads
@@ -125,8 +136,8 @@ function AdminScheduledCalls({selectedUser}) {
       let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`;
 
       ApiPath = ApiPath
-    
-      console.log("api path is",ApiPath)
+
+      // //console.log;
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -136,7 +147,7 @@ function AdminScheduledCalls({selectedUser}) {
       });
 
       if (response) {
-        console.log("response of schedule calls",response.data)
+        // //console.log;
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);
@@ -147,46 +158,6 @@ function AdminScheduledCalls({selectedUser}) {
     } finally {
       setInitialLoader(false);
     }
-  };
-
-  //code to show call log details popup
-
-  const handleShowDetails = () => {
-    //// //console.log
-    // const AgentId = filteredAgentsList.map((item) => item.id);
-    //// //console.log;
-    //// //console.log;
-    // //console.log;
-    let updatedCallDetails = callDetails.map((item) => item.agentCalls);
-    let CallsArray = [];
-
-    // updatedCallDetails.forEach((item) => {
-    //     if (item.agentId === SelectedItem.id) {
-    //         CallsArray.push(item);
-    //     }
-    // });
-
-    //// //console.log;
-
-    const calls = SelectedItem.agentCalls.map((item) =>
-      item.calls.map((item) => item.leadId)
-    );
-
-    const leads = SelectedItem.leads.map((item) => item.id);
-
-    const matchingCallLeadsData = SelectedItem.leads.filter((lead) => {
-      lead.id ===
-        SelectedItem.agentCalls.map((item) =>
-          item.calls.map((item) => item.leadId)
-        );
-      return lead;
-    });
-    // //console.log;
-    // //console.log;
-
-    setSheduledCalllogs(matchingCallLeadsData);
-    setFilteredSheduledCallDetails(matchingCallLeadsData);
-    setShowDetailsModal(true);
   };
 
   //code for details search field
@@ -232,6 +203,88 @@ function AdminScheduledCalls({selectedUser}) {
     });
 
     setFilteredAgentsList(filtered);
+  };
+
+
+  const fetchLeadsInBatch = async (batch, offset = 0) => {
+    //console.log;
+    try {
+      let firstApiCall = false;
+      setLeadsLoading(true);
+      let leadsInBatchLocalData = localStorage.getItem(
+        PersistanceKeys.LeadsInBatch + `${batch.id}`
+      );
+      if (selectedLeadsList.length == 0) {
+        firstApiCall = true;
+        if (leadsInBatchLocalData) {
+          //console.log;
+          let leads = JSON.parse(leadsInBatchLocalData);
+          //console.log;
+          // setSelectedLeadsList(leads);
+          // setFilteredSelectedLeadsList(leads);
+          setLeadsLoading(false);
+          // return;
+        } else {
+          //console.log;
+        }
+      } else {
+        //console.log;
+      }
+
+      const token = user.token; // Extract JWT token
+      let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
+      console.log(
+        "Api Call Leads : ",
+        path
+      );
+      const response = await fetch(path,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setLeadsLoading(false);
+      const data = await response.json();
+
+      if (response.ok) {
+        //console.log;
+        // setSelectedLeadsList(data.data);
+        // setFilteredSelectedLeadsList(data.data);
+        // localStorage.setItem(
+        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
+        //   JSON.stringify(data.data)
+        // );
+
+        console.log("Response of leads list detail", data.data)
+        if (firstApiCall) {
+          setSelectedLeadsList(data.data);
+          setFilteredSelectedLeadsList(data.data);
+          localStorage.setItem(
+            PersistanceKeys.LeadsInBatch + `${batch.id}`,
+            JSON.stringify(data.data)
+          );
+        } else {
+          setSelectedLeadsList((prev) => [...prev, ...data.data]);
+          setFilteredSelectedLeadsList((prev) => [...prev, ...data.data]);
+        }
+
+        // setShowDetailsModal(true);
+
+        if (data.data.length < Limit) {
+          setHasMoreLeads(false);
+        } else {
+          setHasMoreLeads(true);
+        }
+        // setStats(data.stats.data);
+      } else {
+        console.error("Failed to fetch leads in batch:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching leads in batch:", error);
+    }
   };
 
 
@@ -364,33 +417,6 @@ function AdminScheduledCalls({selectedUser}) {
   return (
     <div className="w-full items-start">
       <div className="flex w-full pl-10 flex-row items-start gap-3">
-        {/* <div className="flex w-3/12 items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm">
-          <input
-            type="text"
-            placeholder="Search by name, email or phone"
-            className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-            value={searchValue}
-            onChange={(e) => {
-              const value = e.target.value;
-              handleSearchChange(value);
-              setSearchValue(e.target.value);
-            }}
-          />
-          <img
-            src={"/otherAssets/searchIcon.png"}
-            alt="Search"
-            width={20}
-            height={20}
-          />
-        </div> */}
-
-        {/* <button>
-                    <Image src={'/otherAssets/filterBtn.png'}
-                        height={36}
-                        width={36}
-                        alt='Search'
-                    />
-                </button> */}
       </div>
 
       <div className="w-full flex flex-row justify-between mt-10 px-10">
@@ -424,8 +450,8 @@ function AdminScheduledCalls({selectedUser}) {
         ) : (
           <div className={`h-[42vh] overflow-auto`} style={{ scrollbarWidth: "none" }}>
             {filteredAgentsList.length > 0 ? (
-              <div               
-              className={`h-[42vh] overflow-auto`}>
+              <div
+                className={`h-[42vh] overflow-auto`}>
 
                 {filteredAgentsList.map((item, index) => {
                   return (
@@ -439,28 +465,10 @@ function AdminScheduledCalls({selectedUser}) {
                             >
                               <div className="w-3/12 flex flex-row gap-4 items-center">
 
-                                {/* {agent?.agents[0]?.thumb_profile_image ? (
-                                  <Image
-                                    className="rounded-full"
-                                    src={agent?.agents[0].thumb_profile_image}
-                                    height={40}
-                                    width={40}
-                                    style={{
-                                      height: "40px",
-                                      width: "40px",
-                                      resize: "cover",
-                                    }}
-                                    alt="*"
-                                  />
-                                ) : (
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                    {agent.name.slice(0, 1).toUpperCase()}
-                                  </div>
-                                )} */}
-
                                 <div style={{ width: "fit-content" }}>
                                   {getAgentsListImage(agent?.agents[0])}
                                 </div>
+
                                 <div style={styles.text2}>{agent.name}</div>
                               </div>
                               <div className="w-2/12 ">
@@ -575,7 +583,7 @@ function AdminScheduledCalls({selectedUser}) {
                                     <button
                                       className="text-start outline-none"
                                       onClick={() => {
-                                        handleShowDetails();
+                                        handleShowLeads(agent, item);
                                       }}
                                     >
                                       View Details
@@ -614,161 +622,7 @@ function AdminScheduledCalls({selectedUser}) {
         )}
       </div>
 
-      {/* agent call details Modal goes here */}
-      <Modal
-        open={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
-        >
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="sm:w-10/12 w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <div className="flex flex-row justify-between items-center">
-                <div
-                  style={{
-                    fontWeight: "500",
-                    fontSize: 17,
-                  }}
-                >
-                  {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                    SelectedAgent?.name.slice(1)}{" "}
-                  call activity
-                </div>
-                <button
-                  onClick={() => {
-                    setShowDetailsModal(false);
-                  }}
-                >
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-              <div>
-                {AgentCallLogLoader ? (
-                  <div className="flex flex-row items-center justify-center h-full">
-                    <CircularProgress size={35} />
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
-                      <input
-                        type="text"
-                        placeholder="Search by name, email or phone"
-                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
-                        value={callDetailsSearchValue}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          handleDetailsSearchChange(value);
-                          setcallDetailsSearchValue(e.target.value);
-                        }}
-                      />
-                      <img
-                        src={"/otherAssets/searchIcon.png"}
-                        alt="Search"
-                        width={20}
-                        height={20}
-                      />
-                    </div>
-
-                    <div
-                      className="flex flex-row items-center mt-6"
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#00000070",
-                      }}
-                    >
-                      <div className="w-3/12">Name</div>
-                      <div className="w-2/12">Phone Number</div>
-                      <div className="w-3/12">Address</div>
-                      <div className="w-2/12">Tag</div>
-                      <div className="w-2/12">Status</div>
-                    </div>
-
-                    {sheduledCalllogs.length > 0 ? (
-                      <div className="w-full">
-                        {filteredSheduledCalllogs.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="w-full mt-4"
-                              style={{
-                                fontSize: 15,
-                                fontWeight: "500",
-                                scrollbarWidth: "none",
-                              }}
-                            >
-                              <div
-                                className="flex flex-row items-center mt-4"
-                                style={{ fontSize: 15, fontWeight: "500" }}
-                              >
-                                <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white" style={{ flexShrink: 0 }}>
-                                    {item?.firstName.slice(0, 1).toUpperCase()}
-                                  </div>
-                                  <div className="truncate">
-                                    <div className="truncate w-[100px]"
-                                    // style={{ textOverflow: "ellipsis" }}
-                                    >
-                                      {item?.firstName} {item?.lastName}
-                                    </div>
-                                    {/* <div
-                                      style={{
-                                        fontSize: 11,
-                                        fontWeight: "500",
-                                        color: "#00000060",
-                                      }}
-                                    >
-                                      {item?.email}
-                                    </div> */}
-                                  </div>
-                                </div>
-                                <div className="w-2/12 truncate">
-                                  {item?.phone}
-                                </div>
-                                <div className="w-3/12 truncate">
-                                  {item?.address}
-                                </div>
-                                <div className="w-2/12 truncate">-</div>
-                                <div className="w-2/12 truncate">Scheduled</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center mt-6 text-3xl">No Call</div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Modals goes here */}
+      {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
         onClose={() => setShowLeadDetailsModal(false)}
@@ -782,12 +636,12 @@ function AdminScheduledCalls({selectedUser}) {
         }}
       >
         <Box
-          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12 max-h-[70vh]"
+          className="sm:w-10/12 lg:w-10/12 xl:w-8/12 w-11/12"
           sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
         >
-          <div className="flex flex-row justify-center w-full">
+          <div className="flex flex-row justify-center w-full h-[80vh]">
             <div
-              className="sm:w-10/12 w-full"
+              className="sm:w-10/12 w-full h-[100%] overflow-none"
               style={{
                 backgroundColor: "#ffffff",
                 padding: 20,
@@ -818,7 +672,12 @@ function AdminScheduledCalls({selectedUser}) {
                   />
                 </button>
               </div>
-              <div>
+              <div
+                className="max-h-[92%] overflow-auto"
+                style={{
+                  scrollbarWidth: "none",
+                }}
+              >
                 {AgentCallLogLoader ? (
                   <div className="flex flex-row items-center justify-center h-full">
                     <CircularProgress size={35} />
@@ -828,7 +687,7 @@ function AdminScheduledCalls({selectedUser}) {
                     <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
                       <input
                         type="text"
-                        placeholder="Search by name, email or phone"
+                        placeholder="Search by name or phone"
                         className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
                         value={leadsSearchValue}
                         onChange={(e) => {
@@ -857,71 +716,128 @@ function AdminScheduledCalls({selectedUser}) {
                       <div className="w-2/12">Phone Number</div>
                       <div className="w-3/12">Address</div>
                       <div className="w-2/12">Tag</div>
-                      <div className="w-2/12">Status</div>
+                      <div className="w-2/12">Stage</div>
                     </div>
 
-                    {filteredSelectedLeadsList.length > 0 ? (
-                      <div className="w-full">
-                        {filteredSelectedLeadsList.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="w-full mt-4"
-                              style={{
-                                fontSize: 15,
-                                fontWeight: "500",
-                                scrollbarWidth: "none",
-                              }}
-                            >
-                              <div
-                                className="flex flex-row items-center mt-4"
-                                style={{ fontSize: 15, fontWeight: "500" }}
+                    <div
+                      className="h-[70svh] overflow-auto pb-[100px] mt-6"
+                      id="scrollableDiv1"
+                      style={{ scrollbarWidth: "none" }}
+                    >
+                      {filteredSelectedLeadsList.length > 0 ? (
+                        <div className="w-full">
+                          <InfiniteScroll
+                            className="lg:flex hidden flex-col w-full"
+                            endMessage={
+                              <p
+                                style={{
+                                  textAlign: "center",
+                                  paddingTop: "10px",
+                                  fontWeight: "400",
+                                  fontFamily: "inter",
+                                  fontSize: 16,
+                                  color: "#00000060",
+                                }}
                               >
-                                <div className="w-3/12 flex flex-row items-center gap-2 truncate">
-                                  <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white flex-shrink-0">
-                                    {item?.firstName?.slice(0, 1).toUpperCase()}
-                                  </div>
-                                  <div className="truncate">
-                                    <div className="truncate w-[100px]">
-                                      {item?.firstName} {item?.lastName}
-                                    </div>
-                                    {/* <div style={{ fontSize: 11, fontWeight: "500", color: "#00000060" }}>
-                                                                                        {item?.email}
-                                                                                    </div> */}
-                                  </div>
-                                </div>
-                                <div className="w-2/12 truncate">
-                                  {item?.phone}
-                                </div>
-                                <div className="w-3/12 truncate">
-                                  {item?.address}
-                                </div>
-                                <div className="w-2/12 truncate flex flex-row gap-1">
-                                  {item.tags.slice(0, 2).map((tag, index) => {
-                                    return (
-                                      <div
-                                        key={index}
-                                        className="bg-[#1C55FF10] text-[#1C55FF] rounded p-2"
-                                      >
-                                        {tag}
-                                      </div>
-                                    );
-                                  })}
-                                  {item.tags.length > 2 && (
-                                    <div>+{item.tags.length - 2}</div>
-                                  )}
-                                </div>
-                                <div className="w-2/12 truncate">Scheduled</div>
+                                {`You're all caught up`}
+                              </p>
+                            }
+                            scrollableTarget="scrollableDiv1"
+                            dataLength={filteredSelectedLeadsList.length}
+                            next={() => {
+                              fetchLeadsInBatch(SelectedItem);
+                            }}
+                            hasMore={hasMoreLeads}
+                            loader={
+                              <div className="w-full flex flex-row justify-center mt-8">
+                                {leadsLoading && (
+                                  <CircularProgress
+                                    size={35}
+                                    sx={{ color: "#7902DF" }}
+                                  />
+                                )}
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div className="text-center mt-6 text-3xl">
-                        No Call Found
-                      </div>
-                    )}
+                            }
+                            style={{ overflow: "unset" }}
+                          >
+                            {filteredSelectedLeadsList.map((item, index) => (
+                              <div
+                                key={index}
+                                className="w-full mt-4"
+                                style={{
+                                  fontSize: 15,
+                                  fontWeight: 500,
+                                  scrollbarWidth: "none",
+                                }}
+                              >
+                                <div
+                                  className="flex flex-row items-center mt-4"
+                                  style={{ fontSize: 15, fontWeight: 500 }}
+                                >
+                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                    <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
+                                      {item?.firstName?.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                      <div className="truncate w-[100px]">
+                                        {item?.firstName} {item?.lastName}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.phone || "-"}
+                                  </div>
+                                  <div className="w-3/12 truncate">
+                                    {item?.address || "-"}
+                                  </div>
+                                  <div className="w-2/12">
+                                    {item.tags.length > 0 ? (
+                                      <div className="w-full truncate flex flex-row items-center gap-1">
+                                        {item.tags
+                                          .slice(0, 1)
+                                          .map((tag, index) => (
+                                            <div
+                                              key={index}
+                                              className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg text-purple"
+                                            >
+                                              {tag}
+                                            </div>
+                                          ))}
+                                        {item.tags.length > 1 && (
+                                          <div
+                                            className="text-purple underline cursor-pointer"
+                                            onClick={() => {
+                                              setExtraTagsModal(true);
+                                              setOtherTags(item.tags);
+                                            }}
+                                          >
+                                            +{item.tags.length - 1}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {/*item?.stage || "-"*/}
+                                    {item?.stage?.stageTitle || "-"}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </InfiniteScroll>
+                        </div>
+                      ) : !leadsLoading ? (
+                        <div className="text-center mt-6 text-3xl">
+                          No Call Found
+                        </div>
+                      ) : (
+                        <div className="text-center mt-6 text-3xl">
+                          Loading...
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -929,6 +845,7 @@ function AdminScheduledCalls({selectedUser}) {
           </div>
         </Box>
       </Modal>
+
     </div>
   );
 }
