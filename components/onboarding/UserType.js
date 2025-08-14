@@ -99,8 +99,8 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
     },
     {
       id: 2,
-      title: "Sales Dev Agent",
-      agentType: "SDR/BDR Agent",
+      title: "Sales Agent",
+      agentType: "Sales Agent",
       // icon: "/usertype/avt2.png",
       icon: "/agencyIcons/agentsView/salesDev.jpg",
       areaOfFocusTitle: "What area of sales do you focus on?",

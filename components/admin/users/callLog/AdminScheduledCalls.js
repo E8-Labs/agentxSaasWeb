@@ -122,11 +122,11 @@ function AdminScheduledCalls({selectedUser}) {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
+      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`;
 
       ApiPath = ApiPath
     
-      // //console.log;
+      console.log("api path is",ApiPath)
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -136,7 +136,7 @@ function AdminScheduledCalls({selectedUser}) {
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of schedule calls",response.data)
 
         setFilteredAgentsList(response.data.data);
         setCallDetails(response.data.data);

@@ -1425,7 +1425,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
     ////console.log;
     //// //console.log;
-    setMainAgentId(agentData[0]?.id);
+    // setMainAgentId(agentData[0]?.id);
+    setMainAgentId(agent.mainAgentId);
+
     let firstAgent = agentData[0];
     //// //console.log;
     setUserPipeline(firstAgent?.pipeline);
@@ -1932,7 +1934,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     await updateAgent(selectedVoice.name); // ✅ send name
     setSelectedVoice(selectedVoice.name); // ✅ store name now
     setShowVoiceLoader(false);
-
 
     if (showDrawerSelectedAgent.thumb_profile_image) {
       return;
@@ -2607,20 +2608,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       {key[0]?.toUpperCase()}
                       {key?.slice(1)}
                     </div>
-                   <input
-                        placeholder="Type here"
-                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
-                          }`}
-                        style={{
-                          ...styles.inputStyle,
-                          border: "1px solid #00000010",
-                        }}
-                        value={inputValues[key] || ""} // Default to empty string if no value
-                        onChange={(e) =>
-                          handleInputChange(key, e.target.value)
-                        }
-                      />
+                    <input
+                      placeholder="Type here"
+                      // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
+                      className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? "mb-16" : ""
+                        }`}
+                      style={{
+                        ...styles.inputStyle,
+                        border: "1px solid #00000010",
+                      }}
+                      value={inputValues[key] || ""} // Default to empty string if no value
+                      onChange={(e) =>
+                        handleInputChange(key, e.target.value)
+                      }
+                    />
                   </div>
                 ))}
               </div>
@@ -3193,7 +3194,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       >
                         Voice
                       </div>
-
                       <div
                         style={{
                           // width: "115px",
@@ -3221,15 +3221,24 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                               onChange={handleChangeVoice}
                               displayEmpty // Enables placeholder
                               renderValue={(selected) => {
-                                console.log('selected', selected)
-                                if (!selected) return <div style={{ color: "#aaa" }}>Select</div>;
+                                console.log("selected", selected);
+                                if (!selected)
+                                  return (
+                                    <div style={{ color: "#aaa" }}>Select</div>
+                                  );
 
                                 const selectedVoice = filteredVoices.find(
                                   (voice) => voice.name === selected
                                 );
 
                                 return selectedVoice ? (
-                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "8px",
+                                    }}
+                                  >
                                     {selectedVoice.img && (
                                       <Image
                                         src={selectedVoice.img}
@@ -3277,9 +3286,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       alignItems: "center",
                                       justifyContent: "space-between",
                                     }}
-                                    value={item.voice_id}
+                                    value={item.name}
                                     key={index}
-                                    disabled={SelectedVoice === item.voice_id}
+                                    disabled={SelectedVoice === item.name}
                                   >
                                     <Image
                                       src={item.img}
@@ -3287,14 +3296,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       width={35}
                                       alt="*"
                                     />
-                                    <div>
-                                      {selectedVoiceName(item.voice_id)}
-                                    </div>
+                                    <div>{item.name}</div>
 
                                     {/* Play/Pause Button (Prevents dropdown close) */}
                                     {item.preview ? (
                                       <div //style={{marginLeft:15}}
                                         onClick={(e) => {
+                                          console.log(
+                                            "audio preview ",
+                                            item.preview
+                                          );
                                           e.stopPropagation(); // Prevent dropdown from closing
                                           e.preventDefault(); // Prevent selection event
 
