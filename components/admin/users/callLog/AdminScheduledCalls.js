@@ -122,7 +122,7 @@ function AdminScheduledCalls({selectedUser}) {
         mainAgent = agentDetails;
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true`;
+      let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`;
 
       ApiPath = ApiPath
     

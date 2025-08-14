@@ -528,7 +528,7 @@ const AdminLeadDetails = ({
         // setIsExpanded(!isExpanded);
         if (item.callOutcome === "No Answer") {
             return;
-          }
+        }
         setIsExpandedActivity((prevIds) => {
             if (prevIds.includes(item.id)) {
                 // Unselect the item if it's already selected
@@ -713,15 +713,15 @@ const AdminLeadDetails = ({
 
     const showColor = (item) => {
         let color =
-          callStatusColors[
-          Object.keys(callStatusColors).find(
-            (key) => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
-          )
-          ] || "#000";
-    
+            callStatusColors[
+            Object.keys(callStatusColors).find(
+                (key) => key.toLowerCase() === (item?.callOutcome || "").toLowerCase()
+            )
+            ] || "#000";
+
         return color;
-      };
-    
+    };
+
 
     return (
         <div className="h-[100svh]">
@@ -1213,14 +1213,14 @@ const AdminLeadDetails = ({
                                                                             return (
                                                                                 <div
                                                                                     key={index}
-                                                                                    className="flex flex-row items-start gap-1 w-full flex-wrap"
+                                                                                    className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
                                                                                 >
                                                                                     <div className="flex flex-row items-center gap-4">
                                                                                         <div style={styles.subHeading}>
                                                                                             {capitalize(column?.title || "")}
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div className="flex w-full flex-row whitespace-normal break-words overflow-hidden items-end justify-end flex-wrap">
+                                                                                    <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
                                                                                         <div className="flex flex-col items-end flex-grow w-full">
                                                                                             {getDetailsColumnData(
                                                                                                 column,
@@ -2035,7 +2035,7 @@ const AdminLeadDetails = ({
 
                                                 {/* Call activity goes here */}
                                                 {showAcitivityDetails && (
-                                                     <div>
+                                                    <div>
                                                         {selectedLeadsDetails?.callActivity.length < 1 ? (
                                                             <div
                                                                 className="flex flex-col items-center justify-center mt-12 w-full"
@@ -2325,7 +2325,7 @@ const AdminLeadDetails = ({
                                                                                                                         No transcript
                                                                                                                     </div>
                                                                                                                 )}
-                                                                                                                
+
                                                                                                             </div>
                                                                                                         </>
                                                                                                     ))}

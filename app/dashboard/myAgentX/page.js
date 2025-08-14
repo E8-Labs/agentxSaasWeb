@@ -2469,7 +2469,7 @@ function Page() {
        .writeText(url)
        .then(() => {
          // alert("Embed code copied to clipboard!");
-         setShowSuccessSnack("Url copied");
+         setShowSuccessSnack("Webhook URL Copied");
          setIsVisibleSnack(true);
        })
        .catch((err) => {
