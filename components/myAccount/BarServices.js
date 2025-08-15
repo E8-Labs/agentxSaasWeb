@@ -130,7 +130,7 @@ function BarServices() {
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
 
-       setRole(response?.data?.data?.userRole)
+      setRole(response?.data?.data?.userRole)
       //console.log;
       if (response) {
         let togglePlan = response?.data?.data?.supportPlan;
@@ -174,18 +174,18 @@ function BarServices() {
       let planType = null;
 
       //// //console.log;
- if (role !== "AgencySubAccount") {
-      if (togglePlan === 1) {
-        planType = "Starter";
-      } else if (togglePlan === 2) {
-        planType = "Professional";
-      } else if (togglePlan === 3) {
-        planType = "Enterprise";
-      }
-    }else{
-      let type = plans?.find((item) => item.title === togglePlan);
+      if (role !== "AgencySubAccount") {
+        if (togglePlan === 1) {
+          planType = "Starter";
+        } else if (togglePlan === 2) {
+          planType = "Professional";
+        } else if (togglePlan === 3) {
+          planType = "Enterprise";
+        }
+      } else {
+        let type = plans?.find((item) => item.title === togglePlan);
         planType = type?.id;
-    }
+      }
       // console.log;
 
       setSubscribePlanLoader(true);
@@ -211,7 +211,7 @@ function BarServices() {
         supportPlan: planType,
       };
 
-      console.log("apidata",ApiData)
+      console.log("apidata", ApiData)
 
       const ApiPath = Apis.purchaseSupportPlan;
       // //console.log;
@@ -248,8 +248,13 @@ function BarServices() {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your support plan successfully updated");
-        } else if (response.data.status === false) {
+          let msg = togglePlan;
+          if (togglePlan == "Enterprise") {
+            msg = "Scale"
+          }
+          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
+        }
+        else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
       }
@@ -319,11 +324,10 @@ function BarServices() {
     } else if (togglePlan === 2) {
       planType = "Professional";
     } else if (togglePlan === 3) {
-      planType = "Enterprise";
+      planType = "Scale";
     }
     return planType;
   };
-
   return (
     <div
       className="w-full flex flex-col items-start px-8 py-2 h-[100%] overflow-none overflow-hidden">
