@@ -54,6 +54,48 @@ export const HowtoVideos = {
   WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched,
   TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub,
 };
+export const XBarPlans = [
+  {
+    id: 1,
+    type: "Starter",
+    PlanTitle: "Starter | 250 mins",
+    details: [
+      `1 AgentX AI | 1hrs of Support`,
+      `1 External Integration | 1 Calendar Integration`,
+    ],
+    originalPrice: "2,450",
+    discountPrice: "997",
+    planStatus: "40%",
+    status: "",
+  },
+  {
+    id: 2,
+    type: "Professional",
+    PlanTitle: "Professional | 750 mins",
+    details: [
+      `4 AgentX AI | 4hrs of Support`,
+      `2 External Integration | 2 Calendar Integration`,
+    ],
+    originalPrice: "5,900",
+    discountPrice: "2,997",
+    planStatus: "50%",
+    status: "Popular",
+  },
+  {
+    id: 3,
+    type: "Enterprise",
+    PlanTitle: "Scale | 1500 mins",
+    details: [
+      "Dedicated Success Manager",
+      `6 AgentX AI | 6hrs of Support`,
+      `Unlimited External Integration | Calendar Integration`,
+    ],
+    originalPrice: "8,742",
+    discountPrice: "3,497",
+    planStatus: "60%",
+    status: "Best Value",
+  },
+];
 
 export const Constants = {
   GlobalPhoneNumber: "+16505403715",
