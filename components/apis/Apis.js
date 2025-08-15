@@ -87,6 +87,7 @@ const Apis = {
   sendVerificationCode: `${BasePath}api/user/sendVerificationCode`,
   deleteLead: `${BasePath}api/leads/deleteLead`,
   getProfileData: `${BasePath}api/user/myProfile`,
+  getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgentVapiId`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,
@@ -196,8 +197,8 @@ const Apis = {
   //twilio trust hub
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
-  deleteCallLog:`${BasePath}api/leads/deleteCallLog`,
-  confirmContinueCharging:`${BasePath}api/user/confirm-continue-charging`,
+  deleteCallLog: `${BasePath}api/leads/deleteCallLog`,
+  confirmContinueCharging: `${BasePath}api/user/confirm-continue-charging`,
   addTwilio: `${BasePath}api/business-profile/twilio/create`,
   createCname: `${BasePath}api/business-profile/cnam`,
   createShakenStir: `${BasePath}api/business-profile/shakenstir`,
@@ -205,7 +206,7 @@ const Apis = {
   createBrandedCalling: `${BasePath}api/business-profile/branded-calling`,
   disconnectTwilio: `${BasePath}api/business-profile/twilio/disconnect`,
   addTrustProduct: `${BasePath}api/business-profile/trust-products/select`,
-  
+
   profileSupportDetails: `${BasePath}api/user/myProfileSupportDetails`,
 
   getMcpTools: `${BasePath}api/agent/getMcpTools`,
@@ -218,10 +219,7 @@ const Apis = {
 
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
-  handleMultipleCharge : `${BasePath}api/user/handle-multiple-charge-action`
-
-
-  
+  handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
 };
 
 export default Apis;
