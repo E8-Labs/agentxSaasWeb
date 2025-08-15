@@ -336,6 +336,8 @@ const AdminAssignLead = ({
         batchSize: batchSize,
         selectedAll: selectedAll,
         dncCheck: isDncChecked ? true : false,
+        userId : userProfile.id
+
       };
 
       // console.log("apidata is", Apidata)
