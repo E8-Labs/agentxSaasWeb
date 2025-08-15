@@ -25,10 +25,11 @@ import {
   convertUTCToTimezone,
   GetFormattedDateString,
   GetFormattedTimeString,
+  GetTimezone,
 } from "@/utilities/utility";
 import AdminLeadDetails from "../AdminLeadDetails";
 
-function AdminAllCalls({selectedUser}) {
+function AdminAllCalls({ selectedUser }) {
   const LimitPerPage = 20;
 
   const [searchValue, setSearchValue] = useState("");
@@ -61,6 +62,8 @@ function AdminAllCalls({selectedUser}) {
 
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedStageIds, setSelectedStageIds] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState([]);
+  const [filtersChanged, setFiltersChanged] = useState(false);
 
   //code for pagination
   const [offset, setOffset] = useState(5);
@@ -69,6 +72,49 @@ function AdminAllCalls({selectedUser}) {
   const requestVersion = useRef(0);
 
   const filterRef = useRef(null);
+
+  const statusList = [
+    {
+      id: 1,
+      status: "Voicemail",
+    },
+    {
+      id: 2,
+      status: "Booked",
+    },
+    {
+      id: 3,
+      status: "Hangup",
+    },
+    {
+      id: 4,
+      status: "Hot Lead",
+    },
+    {
+      id: 5,
+      status: "Agent Goodbye",
+    },
+    {
+      id: 6,
+      status: "Human Goodbye",
+    },
+    {
+      id: 7,
+      status: "Busy",
+    },
+    {
+      id: 8,
+      status: "Failed",
+    },
+    {
+      id: 9,
+      status: "Not Interested",
+    },
+    {
+      id: 10,
+      status: "No answer",
+    },
+  ];
 
   useEffect(() => {
     //console.log;
@@ -79,7 +125,7 @@ function AdminAllCalls({selectedUser}) {
     setInitialLoader(true);
     getCallLogs(0);
     // }
-  }, [selectedToDate, selectedFromDate, selectedStageIds,selectedUser]);
+  }, [filtersChanged || searchValue]);
 
   useEffect(() => {
     if (filterRef.current) {
@@ -107,6 +153,7 @@ function AdminAllCalls({selectedUser}) {
     setStagesList(selectedItem.stages);
     // setSelectedPipelineStages(selectedItem.stages);
   };
+
 
   function getFilterTitle(filter) {
     if (filter.key == "date") {
@@ -139,6 +186,11 @@ function AdminAllCalls({selectedUser}) {
       }
       return "";
     }
+
+    if (filter.key === "status") {
+      return filter.values[0]; // ✅ Fix: Just return the string value
+    }
+    //console.log;
   }
 
   function GetFiltersFromSelection() {
@@ -176,6 +228,25 @@ function AdminAllCalls({selectedUser}) {
       }
     }
 
+    if (selectedStatus.length > 0) {
+      selectedStatus.forEach((status) => {
+        filters.push({
+          key: "status",
+          values: [status], // ✅ Fix: Store each status separately
+        });
+      });
+    }
+
+    //console.log;
+
+    // Status filters (Ensure each status is separate)
+    // selectedStatus.forEach((status) => {
+    //   filters.push({
+    //     key: "status",
+    //     values: [status], // Pass each status individually
+    //   });
+    // });
+
     return filters;
   }
 
@@ -210,7 +281,7 @@ function AdminAllCalls({selectedUser}) {
   //function for getting pipelines
   const getPipelines = async () => {
     try {
-      const ApiPath = Apis.getPipelines + "?userId="+selectedUser.id;
+      const ApiPath = Apis.getPipelines + "?userId=" + selectedUser.id;
 
       let AuthToken = null;
       const LocalData = localStorage.getItem("User");
@@ -264,38 +335,62 @@ function AdminAllCalls({selectedUser}) {
       let endDate = "";
 
       if (selectedFromDate && selectedToDate) {
-        startDate = moment(selectedFromDate).format("MM-DD-YYYY");
-        endDate = moment(selectedToDate).format("MM-DD-YYYY");
+        startDate = moment(selectedFromDate).format("MM-DD-YYYY HH:mm:ss");
+        endDate = moment(selectedToDate).format("MM-DD-YYYY HH:mm:ss");
       }
 
       // //console.log;
       const stages = selectedStageIds.join(",");
-      // //console.log;
+      //console.log;
       // //console.log;
       let ApiPath = null;
       // //console.log;
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
-      if ((selectedFromDate && selectedToDate) || stages.length > 0) {
-        ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}`;
+      let separator = "?";
+      if (selectedFromDate && selectedToDate) {
+        ApiPath = `${Apis.getCallLogs}${separator}startDate=${startDate}&endDate=${endDate}`;
+        separator = "&";
       } else {
-        ApiPath = `${Apis.getCallLogs}?offset=${offset}`; //Apis.getCallLogs;
+        ApiPath = `${Apis.getCallLogs}`; //Apis.getCallLogs;
+        // separator = "&";
       }
-      if (searchValue && searchValue.length > 0) {
-        ApiPath = `${ApiPath}&name=${searchValue}`;
+      if (selectedPipeline) {
+        let pipeline = pipelinesList.filter(
+          (pipeline) => selectedPipeline === pipeline.title
+        );
+        //console.log
+        ApiPath = ApiPath + separator + "pipelineId=" + pipeline[0].id;
+        separator = "&";
       }
 
-      ApiPath = ApiPath+"&userId="+selectedUser.id
+      if (stages.length > 0) {
+        ApiPath = `${ApiPath}${separator}stageIds=${stages}`;
+        separator = "&";
+      }
+      if (searchValue && searchValue.length > 0) {
+        ApiPath = `${ApiPath}${separator}name=${searchValue}`;
+        separator = "&";
+      }
+
+      if (selectedStatus.length > 0) {
+        ApiPath += `${separator}status=${selectedStatus.join(",")}`;
+        separator = "&";
+      }
 
       // if (selectedFromDate && selectedToDate && stages.length > 0) {
       //     ApiPath = `${Apis.getCallLogs}?startDate=${startDate}&endDate=${endDate}&stageIds=${stages}&offset=${offset}&limit=10`;
       // }
+      ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}&limit=${LimitPerPage}`;
 
+      ApiPath = ApiPath + "&userId=" + selectedUser.id
+
+      console.log("api path is ", ApiPath);
       //console.log;
 
       //// //console.log;
-      // return
+      // return;
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -306,18 +401,20 @@ function AdminAllCalls({selectedUser}) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          //console.log;
+          console.log;
           // setCallDetails(response.data.data);
           // setFilteredCallDetails(response.data.data);
+          console.log('call logs length is', response.data.data.length)
 
           const data = response.data.data;
-          localStorage.setItem("callDetails", response.data.data);
+          localStorage.setItem("callDetails", JSON.stringify(response.data.data));
           setCallDetails((prevDetails) => [...prevDetails, ...data]);
           setFilteredCallDetails((prevDetails) => [...prevDetails, ...data]);
 
           if (data.length < LimitPerPage) {
             setHasMore(false);
           }
+          // setOffset((prevOffset) => prevOffset + 5);
         }
       }
     } catch (error) {
@@ -466,23 +563,36 @@ function AdminAllCalls({selectedUser}) {
                       if (filter.key == "date") {
                         setSelectedFromDate(null);
                         setSelectedToDate(null);
+                        setFiltersChanged((prev) => !prev);
                       }
                       if (filter.key == "stage") {
-                        const newStageIds = selectedStageIds.filter(
-                          (stageId) => stageId != filter.values[0].id
-                        );
-                        setSelectedStageIds(newStageIds);
+                        setSelectedStageIds((prev) => {
+                          const updatedstage = prev.filter(
+                            (s) => s !== filter.values[0].id
+                          );
+
+                          // ✅ Call API AFTER state update using setTimeout (ensures latest state is used
+
+                          return updatedstage; // Update state
+                        });
+                        setFiltersChanged((prev) => !prev);
                       }
                       if (filter.key == "pipeline") {
                         setSelectedPipeline(null);
                         setSelectedStageIds([]);
+                        setFiltersChanged((prev) => !prev);
                       }
-                      setInitialLoader(true);
-                      setCallDetails([]);
-                      setFilteredCallDetails([]);
-                      setTimeout(() => {
-                        // getCallLogs(0);
-                      }, 2000);
+                      if (filter.key === "status") {
+                        // ✅ Update state first
+                        setSelectedStatus((prev) => {
+                          const updatedStatus = prev.filter(
+                            (s) => s !== filter.values[0]
+                          );
+                          return updatedStatus; // Update state
+                        });
+
+                        setFiltersChanged((prev) => !prev);
+                      }
                     }}
                   >
                     <Image
@@ -919,18 +1029,16 @@ function AdminAllCalls({selectedUser}) {
                           onClick={() => {
                             handleSelectStage(item);
                           }}
-                          className={`p-2 border border-[#00000020] ${
-                            selectedStageIds.includes(item.id)
-                              ? `bg-purple`
-                              : "bg-transparent"
-                          } px-6
-                                                                ${
-                                                                  selectedStageIds.includes(
-                                                                    item.id
-                                                                  )
-                                                                    ? `text-white`
-                                                                    : "text-black"
-                                                                } rounded-2xl`}
+                          className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
+                            ? `bg-purple`
+                            : "bg-transparent"
+                            } px-6
+                                                                ${selectedStageIds.includes(
+                              item.id
+                            )
+                              ? `text-white`
+                              : "text-black"
+                            } rounded-2xl`}
                         >
                           {item.stageTitle}
                         </button>
@@ -938,6 +1046,50 @@ function AdminAllCalls({selectedUser}) {
                     ))}
                   </div>
                 )}
+
+                <div
+                  style={{
+                    fontWeight: "500",
+                    fontSize: 12,
+                    color: "#00000060",
+                    marginTop: 10,
+                  }}
+                >
+                  Status
+                </div>
+
+                <div className="w-full flex flex-row items-center gap-2 flex-wrap mt-4">
+                  {statusList.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedStatus((prev) => {
+                          if (prev.includes(item.status)) {
+                            return prev.filter((s) => s !== item.status);
+                          } else {
+                            return [...prev, item.status];
+                          }
+                        });
+                      }}
+                    >
+                      <div
+                        className="py-2 px-3 border rounded-full"
+                        style={{
+                          color: selectedStatus.includes(item.status)
+                            ? "#fff"
+                            : "",
+                          backgroundColor: selectedStatus.includes(
+                            item.status
+                          )
+                            ? "#7902df"
+                            : "",
+                        }}
+                      >
+                        {item.status}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
@@ -966,7 +1118,8 @@ function AdminAllCalls({selectedUser}) {
                       fontWeight: "600",
                       backgroundColor:
                         (selectedFromDate && selectedToDate) ||
-                        selectedStageIds.length > 0
+                          selectedStageIds.length > 0 ||
+                          selectedStatus.length > 0
                           ? ""
                           : "#00000050",
                     }}
@@ -974,12 +1127,16 @@ function AdminAllCalls({selectedUser}) {
                       // //console.log;
                       if (
                         (selectedFromDate && selectedToDate) ||
-                        selectedStageIds.length > 0
+                        selectedStageIds.length > 0 ||
+                        selectedStatus.length > 0 ||
+                        selectedPipeline
                       ) {
                         localStorage.removeItem("callDetails");
-                        // setInitialLoader(true);
-                        // setCallDetails([]);
-                        // setFilteredCallDetails([]);
+                        setHasMore(true);
+                        setCallDetails([]);
+                        setFilteredCallDetails([]);
+                        setInitialLoader(true);
+                        getCallLogs(0);
                         setShowFilterModal(false);
                         // getCallLogs(0);
                       } else {
