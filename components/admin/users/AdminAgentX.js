@@ -1602,9 +1602,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         AuthToken = localData.token;
       }
 
-      const newArray = scriptKeys.map((key, index) => ({
-        [key]: inputValues[index] || "", // Use the input value or empty string if not set
+      const newArray = scriptKeys.map((key) => ({
+        [key]: inputValues[key] || "", // Use the input value or empty string if not set
       }));
+
       ////console.log;
       ////console.log);
 

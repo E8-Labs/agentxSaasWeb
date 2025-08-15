@@ -1751,10 +1751,10 @@ function Page() {
   };
 
   //function to handle input field change
-  const handleInputChange = (index, value) => {
+  const handleInputChange = (key, value) => {
     setInputValues((prevValues) => ({
       ...prevValues,
-      [index]: value, // Update the specific index value
+      [key]: value, // Update the specific index value
     }));
   };
 
@@ -1862,8 +1862,8 @@ function Page() {
         AuthToken = localData.token;
       }
 
-      const newArray = scriptKeys.map((key, index) => ({
-        [key]: inputValues[index] || "", // Use the input value or empty string if not set
+      const newArray = scriptKeys.map((key) => ({
+        [key]: inputValues[key] || "", // Use the input value or empty string if not set
       }));
       ////console.log;
       ////console.log);
@@ -1874,6 +1874,8 @@ function Page() {
         phone: phone,
         extraColumns: newArray,
       };
+
+      console.log('ApiData', ApiData)
 
       localStorage.setItem(
         PersistanceKeys.TestAiCredentials,
@@ -2418,17 +2420,17 @@ function Page() {
   // ////console.log
   const handleWebhookClick = (assistantId, baseUrl) => {
     let url = baseUrl + "api/agent/demoAi/" + assistantId
-     navigator.clipboard
-       .writeText(url)
-       .then(() => {
-         // alert("Embed code copied to clipboard!");
-         setShowSuccessSnack("Webhook URL Copied");
-         setIsVisibleSnack(true);
-       })
-       .catch((err) => {
-         console.error("Failed to copy text: ", err);
-       });
-   };
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        // alert("Embed code copied to clipboard!");
+        setShowSuccessSnack("Webhook URL Copied");
+        setIsVisibleSnack(true);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
 
   const handleCopy = (assistantId, baseUrl) => {
     const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 

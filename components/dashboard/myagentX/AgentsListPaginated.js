@@ -523,7 +523,7 @@ const AgentsListPaginated = ({
                       iconColor="text-orange-500"
                     />
                     <AgentInfoCard
-                      name="Mins Talked"
+                      name="Time"
                       value={
                         <div>
                           {item?.totalDuration
