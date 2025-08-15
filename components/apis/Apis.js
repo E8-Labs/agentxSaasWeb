@@ -220,6 +220,8 @@ const Apis = {
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
   handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
+
+  getAdminAgencies: `${BasePath}api/admin/agencies`,
 };
 
 export default Apis;

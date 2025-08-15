@@ -12,6 +12,7 @@ import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
 import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomingCharges";
 import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
+import AdminAgencyDetails from "./agency/AdminAgencyDetails";
 
 function AdminContainer() {
   const router = useRouter();
@@ -45,6 +46,12 @@ function AdminContainer() {
       id: 5,
       name: "Phone Verification Codes",
       value: 'phone-verification-codes',
+
+    },
+    {
+      id: 9,
+      name: "Agency",
+      value: 'agency',
 
     },
     {
@@ -136,6 +143,8 @@ function AdminContainer() {
             <AdminUpcomingCharges />
           ) : selectedManu.name === "Payments Needing Refund" ? (
             <AdminPaymentsNeedingRefund />
+          ): selectedManu.name === "Agency" ? (
+            <AdminAgencyDetails />
           ) : (
             <div>
               <Dashboard />
