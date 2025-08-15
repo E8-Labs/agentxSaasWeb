@@ -255,7 +255,12 @@ function BarServices() {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack(`Xbar ${togglePlan} plan upgraded! 🎉`);
+
+          let msg = togglePlan;
+          if(togglePlan == "Enterprise"){
+            msg = "Scale"
+          }
+          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }

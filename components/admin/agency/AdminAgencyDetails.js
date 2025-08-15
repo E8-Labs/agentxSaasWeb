@@ -1,8 +1,10 @@
 import Apis from '@/components/apis/Apis';
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component';
+
 
 function AdminAgencyDetails() {
 
