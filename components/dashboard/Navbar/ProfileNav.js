@@ -968,7 +968,7 @@ const ProfileNav = () => {
         />
         {
           showUpgradePlanBar ? (
-            <div style={{ fontSize: showUpgradePlanBar ? 10 : 13, fontWeight: '700', whiteSpace: 'nowrap', }}>
+            <div style={{ fontSize:13, fontWeight: '700', whiteSpace: 'nowrap', }}>
               {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {

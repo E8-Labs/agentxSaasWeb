@@ -269,6 +269,7 @@ const AdminAssignLead = ({
   };
 
   const handleAssignLead = async () => {
+    console.log('enter in function')
     let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
@@ -292,6 +293,8 @@ const AdminAssignLead = ({
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
+    console.log('wrrong time')
+
       setInvalidTimeMessage(
         "Calls only between 7am-8:30pm"
         // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
@@ -303,6 +306,7 @@ const AdminAssignLead = ({
 
     try {
       setLoader(true);
+      console.log('calling api')
 
       let timer = null;
       let batchSize = null;
@@ -1239,10 +1243,10 @@ const AdminAssignLead = ({
                         const localData = localStorage.getItem("User");
                         if (localData) {
                           const UserDetails = JSON.parse(localData);
-                          console.log(UserDetails.user.smartRefill);
+                          console.log(UserDetails.user.smartRefill)
                           if (UserDetails.user.smartRefill === false) {
                             setShowSmartRefillPopUp(true);
-                            return;
+                            // return;
                           }
                         }
                         handleAssignLead();

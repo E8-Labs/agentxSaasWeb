@@ -21,7 +21,7 @@ export const PersistanceKeys = {
   //moving from admin to creat agent
   isFromAdminOrAgency: "isFromAdminOrAgency",
   leadUploadState: "leadUploadState",
-  aadminDashboardData: 'aadminDashboardData',
+  adminDashboardData: 'aadminDashboardData',
   SelectedAgent:'SelectedAgent',
   CalendarAddedByGoogle:"CalendarAddedByGoogle",
   

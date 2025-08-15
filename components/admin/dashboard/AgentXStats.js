@@ -88,7 +88,7 @@ function AgentXStats({ user }) {
       if (response.ok) {
         console.log("dashboard data is",data)
         setStats(data.stats.data);
-        localStorage.setItem(PersistanceKeys.aadminDashboardData, JSON.stringify(data.stats.data));
+        localStorage.setItem(PersistanceKeys.adminDashboardData, JSON.stringify(data.stats.data));
       } else {
         console.error("Failed to fetch admin stats:", data.error);
       }
@@ -194,7 +194,7 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.activeUsers.DAU.count}
+              {stats?.activeUsers?.DAU?.count}
             </h2>
           </CardContent>
           <CardContent>
@@ -227,12 +227,12 @@ function AgentXStats({ user }) {
           </CardHeader>
           <CardContent>
             <h2 className="cursor-pointer text-2xl font-bold">
-              {stats?.activeUsers.MAU.count}
+              {stats?.activeUsers?.MAU?.count}
             </h2>
           </CardContent>
           <CardContent>
             <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
-              {stats?.activeUsers.MAU.percentage}%
+              {stats?.activeUsers?.MAU?.percentage}%
             </h2>
           </CardContent>
         </Card>
@@ -318,8 +318,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "> 2 agents",
-            stats?.pipelineUsers.percentage,
-            stats?.pipelineUsers.count,
+            stats?.pipelineUsers?.percentage,
+            stats?.pipelineUsers?.count,
             "/mt2agentsicon.png"
           )}
         </button>
@@ -331,8 +331,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "> 1 pipeline",
-            stats?.agentUsers.percentage,
-            stats?.agentUsers.count,
+            stats?.agentUsers?.percentage,
+            stats?.agentUsers?.count,
             "/mt1pipelineicon.png"
           )}
         </button>
@@ -344,8 +344,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "Uploaded Leads",
-            stats?.leadsUsers.percentage,
-            stats?.leadsUsers.count,
+            stats?.leadsUsers?.percentage,
+            stats?.leadsUsers?.count,
             "/uploadleadsicon.png"
           )}
         </button>
@@ -357,8 +357,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "Invited Teams",
-            stats?.teamsUsers.percentage,
-            stats?.teamsUsers.count,
+            stats?.teamsUsers?.percentage,
+            stats?.teamsUsers?.count,
             "/invtedteamsiocn.png"
           )}
         </button>
@@ -370,8 +370,8 @@ function AgentXStats({ user }) {
         >
           {GetStatView(
             "Added calendar",
-            stats?.calendarUsers.percentage,
-            stats?.calendarUsers.count,
+            stats?.calendarUsers?.percentage,
+            stats?.calendarUsers?.count,
             "/addedtocalendaricon.png"
           )}
         </button>
@@ -545,13 +545,13 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans["No Plan"].count}
+            {stats?.usersOnPlans["No Plan"]?.count}
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
           <p className="cursor-pointer text-lg font-regular text-gray-500">
-            {`${stats?.usersOnPlans["No Plan"].percentage}`}%
+            {`${stats?.usersOnPlans["No Plan"]?.percentage}`}%
           </p>
         </CardContent>
       </Card>
@@ -563,13 +563,13 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.trialUsers.count}
+            {stats?.trialUsers?.count}
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
         <CardContent>
           <p className="cursor-pointer text-lg font-regular text-gray-500">
-            {stats?.trialUsers.percentage}%
+            {stats?.trialUsers?.percentage}%
           </p>
         </CardContent>
       </Card>
@@ -581,12 +581,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan30.count}
+            {stats?.usersOnPlans?.Plan30?.count}
           </h2>
         </CardContent>
         <CardContent>
           <h2 className="cursor-pointer text-lg font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan30.percentage}%
+            {stats?.usersOnPlans?.Plan30?.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -598,12 +598,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan120.count}
+            {stats?.usersOnPlans?.Plan120?.count}
           </h2>
         </CardContent>
         <CardContent>
           <h2 className="cursor-pointer text-lg font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan120.percentage}%
+            {stats?.usersOnPlans?.Plan120?.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -615,12 +615,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan360.count}
+            {stats?.usersOnPlans?.Plan360?.count}
           </h2>
         </CardContent>
         <CardContent>
           <h2 className="cursor-pointer text-lg font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan360.percentage}%
+            {stats?.usersOnPlans?.Plan360?.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -632,12 +632,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Plan720.count}
+            {stats?.usersOnPlans?.Plan720?.count}
           </h2>
         </CardContent>
         <CardContent>
           <h2 className="cursor-pointer text-lg font-regular text-gray-500">
-            {stats?.usersOnPlans.Plan720.percentage}%
+            {stats?.usersOnPlans?.Plan720?.percentage}%
           </h2>
         </CardContent>
       </Card>
@@ -650,12 +650,12 @@ function SubscriptionsStatsComponent({ stats }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.usersOnPlans.Cancelled.count}
+            {stats?.usersOnPlans?.Cancelled?.count}
           </h2>
         </CardContent>
         <CardContent>
           <h2 className="cursor-pointer text-lg font-regular text-gray-500">
-            {stats?.usersOnPlans.Cancelled.percentage}%
+            {stats?.usersOnPlans?.Cancelled?.percentage}%
           </h2>
         </CardContent>
       </Card>
