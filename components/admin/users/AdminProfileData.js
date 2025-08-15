@@ -10,6 +10,7 @@ import AdminXbarServices from "./AdminProfileData/AdminXbarServices";
 import AdminSendFeedback from "./AdminSendFeedback";
 import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAccountBilling";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -35,15 +36,18 @@ function AdminProfileData({ selectedUser, from }) {
         },
         {
             id: 4,
+            heading: "Twilio Trust Hub",
+            subHeading: "Caller ID & compliance for trusted calls",
+            icon: "/svgIcons/twilioHub.svg",
+        },
+
+        {
+            id: 5,
             heading: "Bar Services",
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
-        }, {
-            id: 5,
-            heading: "Send Feedback",
-            subHeading: "Report bugs, new features and more",
-            icon: "/otherAssets/feedbackIcon.png",
-        },
+        }
+
     ];
 
 
@@ -77,11 +81,10 @@ function AdminProfileData({ selectedUser, from }) {
                 );
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
-            case 4:
-                return <AdminXbarServices selectedUser={selectedUser} />;
-
             case 5:
-                return <AdminSendFeedback selectedUser={selectedUser} />;
+                return <AdminXbarServices selectedUser={selectedUser} />;
+            case 4 :
+                return <TwilioTrustHub selectedUser = {selectedUser}/>
 
             default:
                 return <div>Please select an option.</div>;
