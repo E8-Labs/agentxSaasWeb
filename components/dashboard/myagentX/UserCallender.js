@@ -214,10 +214,13 @@ const UserCalender = ({
         setCalenderDelLoader(null);
 
         if (response.data.status === true) {
-          //console.log;
+          console.log("Response of del cal api is", response.data);
           let newCalList = allCalendars.filter(
-            (item) => item.apiKey != calendarToDelete.apiKey
+            (item) => item.id != calendarToDelete.id
+            // (item) => item.apiKey != calendarToDelete.apiKey
           );
+          console.log("Calendar to del is", calendarToDelete)
+          console.log("List updated of cals", newCalList);
           setShowDelPopup(false);
           setAllCalendars(newCalList);
           setCalendarToDelete(null);

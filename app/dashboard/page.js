@@ -109,7 +109,7 @@ const Page = () => {
     let d = localStorage.getItem(api);
     if (d) {
       let json = JSON.parse(d);
-      console.log("Dashboard data is",json)
+      console.log("Dashboard data is", json)
 
       let stats = json.stats;
       let comp = json.statsComparison;
@@ -626,11 +626,12 @@ const Page = () => {
                     <Card
                       icon="/svgIcons/avgDurationIcon.svg"
                       title="Avg Convo Duration"
-                      value={
-                        statsDetails?.formattedAvDuration ?
-                          moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
-                          : "-"
-                      }
+                      // value={
+                      //   statsDetails?.formattedAvDuration ?
+                      //     moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
+                      //     : "-"
+                      // }
+                      value={statsDetails?.formattedAvDuration ?? "-"}
                       borderSide="border-l-2"
                     />
                   </div>

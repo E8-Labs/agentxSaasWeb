@@ -1046,7 +1046,8 @@ const Pipeline1 = () => {
         if (response.data.status === true) {
           setStagesList(response.data.data.stages);
           handleCloseAddStage();
-          setSnackMessage({ message: response.data.message || "Stage updated successfully", type: SnackbarTypes.Success });
+          // setSnackMessage({ message: response.data.message || "Stage updated successfully", type: SnackbarTypes.Success });
+          setSnackMessage({ message: "Stage updated", type: SnackbarTypes.Success });
 
           // Update selected pipeline stages
           setSelectedPipeline((prevData) => ({

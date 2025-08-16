@@ -671,7 +671,7 @@ function AdminAllCalls({ selectedUser }) {
             scrollableTarget="scrollableDiv1"
             dataLength={filteredCallDetails.length}
             next={() => {
-              //console.log;
+              console.log("Trigered scrolling on admin call logs");
               if (!loading && hasMore) {
                 getCallLogs(filteredCallDetails.length);
               }

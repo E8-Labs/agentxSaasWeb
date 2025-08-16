@@ -39,6 +39,10 @@ function CalendarModal(props) {
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
   const [showAddNewGHLCalender, setShowAddNewGHLCalender] = useState(false);
 
+  //stores google auth details //token, id, etc;
+
+  const [googleAuthDetails, setGoogleAuthDetails] = useState(null);
+
   console.log("Status of ghl loader is", gHLCalenderLoader);
 
   //code for adding ghl calendar
@@ -177,7 +181,8 @@ function CalendarModal(props) {
         // localStorage.setItem(PersistanceKeys.localGHLs, JSON.stringify(calendars.calendars));
         let ghlCalendars = calendars?.calendars;
         // setGHLCalendars(ghlCalendars.filter((ghlCal) => { ghlCal.isActive === true }));
-        setGHLCalendars(ghlCalendars.filter(ghlCal => ghlCal.isActive === true));
+        // setGHLCalendars(ghlCalendars.filter(ghlCal => ghlCal.isActive === true));
+        setGHLCalendars(ghlCalendars);
 
 
       })();
@@ -276,7 +281,7 @@ function CalendarModal(props) {
   }, []);
 
   //google calendar click
-  const handlGoogleClick = () => {
+  const handleGoogleOAuthClick = () => {
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID;
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI;
@@ -299,6 +304,11 @@ function CalendarModal(props) {
         window.removeEventListener("message", listener);
 
         try {
+          setShowSnack({
+            message: `Loading ...`,
+            type: SnackbarTypes.Loading,
+            isVisible: true
+          })
           const res = await fetch(
             `/api/google/exchange-token?code=${event.data.code}`
           );
@@ -313,13 +323,20 @@ function CalendarModal(props) {
                 },
               }
             );
-
             const userInfo = await userInfoRes.json();
+            setShowAddNewGoogleCalender(true);
 
-            handleAfterGoogleLogin({
+            const googleLoginData = {
               ...tokens,
               ...userInfo,
-            });
+            };
+            setGoogleAuthDetails(googleLoginData);
+            // console.log("Google login details are", googleLoginData);
+
+            // handleGoogleCalLogin({
+            //   ...tokens,
+            //   ...userInfo,
+            // });
           }
         } catch (err) {
           console.error("Google OAuth error:", err);
@@ -330,8 +347,13 @@ function CalendarModal(props) {
     window.addEventListener("message", listener);
   };
 
-  const handleAfterGoogleLogin = (data) => {
+  const handleGoogleCalLogin = () => {
     try {
+      const data = googleAuthDetails
+      if (!data) {
+        console.warn("No auth details found for google login");
+        return;
+      }
       console.log("🆔 Google User LogIn:", data);
       console.log("🔑 Access Token:", data.access_token);
       console.log(
@@ -378,6 +400,18 @@ function CalendarModal(props) {
   const selectCalendarView = () => {
     return (
       <div className="flex flex-col w-full items-center bg-white rounded-lg">
+        <AgentSelectSnackMessage
+          type={showSnack.type}
+          message={showSnack.message}
+          isVisible={showSnack.isVisible}
+          hide={() => {
+            setShowSnack({
+              message: "",
+              isVisible: false,
+              type: SnackbarTypes.Success,
+            });
+          }}
+        />
         <button className="flex self-end"
           onClick={onClose}
         >
@@ -404,8 +438,8 @@ function CalendarModal(props) {
               <button
                 // disabled={true}
                 onClick={() => {
-                  // handlGoogleClick()
-                  setShowAddNewGoogleCalender(true);
+                  // setShowAddNewGoogleCalender(true);
+                  handleGoogleOAuthClick()
                 }}
                 className="
                 text-purple border w-11/12 rounded border rounded-lg
@@ -893,7 +927,7 @@ function CalendarModal(props) {
                             className="w-full"
                             value={item}
                             key={index}
-                            disabled={item?.isActive === false}
+                            // disabled={item?.isActive === false}
                           >
                             <button onClick={() => { }}>{item.name}</button>
                           </MenuItem>
@@ -1170,7 +1204,7 @@ function CalendarModal(props) {
                     color: !isEnabled(true) ? "#000000" : "",
                   }}
                   onClick={() => {
-                    handlGoogleClick();
+                    handleGoogleCalLogin();
                   }}
                 >
                   Add

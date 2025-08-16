@@ -4,6 +4,7 @@ export const SnackbarTypes = {
   Error: "Error",
   Warning: "Warning",
   Success: "Success",
+  Loading: "Loading"
 };
 
 const DefaultMessage = null;
@@ -27,6 +28,10 @@ export default function AgentSelectSnackMessage({
     }
     if (type == SnackbarTypes.Warning) {
       return "/assets/salmanassets/danger_conflict.svg";
+    }
+    if (type == SnackbarTypes.Loading) {
+      // return "";///assets/salmanassets/danger_conflict.svg
+      console.log("Loading snack")
     }
 
     return "/assets/salmanassets/danger_conflict.svg";
