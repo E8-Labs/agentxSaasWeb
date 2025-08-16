@@ -1,23 +1,18 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-  // //console.log;
-
   const { pathname } = request.nextUrl;
 
-  //forbid /agency path only
-  if (pathname === "/agency") {
+  // Redirect ONLY /agency (and /agency/) to /
+  if (pathname === "/agency" || pathname === "/agency/") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // === 1. SECURITY HEADERS FOR IFRAME EMBED WIDGETS ===
+  // Security headers
   if (pathname.startsWith("/embed/vapi")) {
     const res = NextResponse.next();
-
-    // Set security headers
-    res.headers.set("X-Frame-Options", "ALLOWALL"); // Or restrict to trusted domains if needed
+    res.headers.set("X-Frame-Options", "ALLOWALL");
     res.headers.set(
-      "Content-Security-Policy",
       [
         "default-src 'none'",
         "script-src 'self'",
@@ -25,49 +20,37 @@ export function middleware(request) {
         "img-src 'self' data:",
         "font-src 'self'",
         "connect-src 'self'",
-        "frame-ancestors *", // Or specify trusted parent domains
+        "frame-ancestors *",
       ].join("; ")
     );
     return res;
   }
-  // Allow unauthenticated access to specific paths
-  const allowedPaths = ["/", "/onboarding", "/onboarding/WaitList", "/recordings/:path*"];// 
-  if (allowedPaths.includes(pathname)) {
-    // //console.log;
+
+  // Public paths
+  if (
+    pathname === "/" ||
+    pathname === "/onboarding" ||
+    pathname === "/onboarding/WaitList" ||
+    pathname.startsWith("/recordings/")
+  ) {
     return NextResponse.next();
   }
 
-  // Retrieve the user cookie
-  // //console.log;
+  // Auth gate
   const userCookie = request.cookies.get("User");
-  // //console.log;
-
   if (!userCookie) {
-    if (pathname === "/agency") {
+    if (pathname.startsWith("/createagent")) {
       return NextResponse.redirect(new URL("/", request.url));
     }
-    // //console.log;
-    // Check if the user is trying to access the createagent route
-    if (pathname.startsWith("/createagent")) {
-      const loginUrl = new URL("/", request.url);
-      // loginUrl.searchParams.set("redirect", request.nextUrl.pathname); // Add redirect query param
-      // console.log(
-      //   "Redirecting to login with redirect URL:",
-      //   loginUrl.toString()
-      // );
-      return NextResponse.redirect(loginUrl);
-    }
-
-    return NextResponse.redirect(new URL("/", request.url)); // Default redirect for other paths
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Proceed to the requested page
-  // //console.log;
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
+    "/agency",                 // <-- add exact /agency
     "/createagent/:path*",
     "/pipeline/:path*",
     "/sellerkycquestions/:path*",
@@ -76,7 +59,6 @@ export const config = {
     "/onboarding/:path*",
     "/admin/:path*",
     "/embedCalendar/:path*",
-    "/agency/dashboard/:path*",
-    // "/recordings/:path*",
+    "/agency/dashboard/:path*", // subpaths still processed normally
   ],
 };
