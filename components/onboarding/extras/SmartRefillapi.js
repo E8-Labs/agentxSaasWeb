@@ -2,10 +2,10 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails"
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 
-export const SmartRefillApi = async (selectedUser) => {
+export const SmartRefillApi = async (selectedUser = null) => {
     try {
         const token = AuthToken();
-        console.log("Selected user passed to api is", selectedUser);
+        // console.log("Selected user passed to api is", selectedUser);
         const ApiPath = Apis.updateProfileApi;
         let ApiData = {
             "smartRefill": true
