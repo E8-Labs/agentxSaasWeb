@@ -43,7 +43,7 @@ export const SmartRefillApi = async (selectedUser) => {
 }
 
 //code to remove smart refill
-export const RemoveSmartRefillApi = async () => {
+export const RemoveSmartRefillApi = async (selectedUser) => {
     try {
         const token = AuthToken();
         // console.log(token);
