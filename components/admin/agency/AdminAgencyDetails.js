@@ -4,6 +4,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component';
+import moment from 'moment';
 
 
 function AdminAgencyDetails() {
@@ -36,13 +37,12 @@ function AdminAgencyDetails() {
         },
       });
 
-      if (response.data?.data) {
-        const newData = response.data.data;
+      if (response.data?.data?.agencies) {
+        const newData = response.data.data.agencies;
         console.log('reponse.data', response.data)
         const updated = offset === 0 ? newData : [...agencies, ...newData];
 
         setAgencies(updated);
-        // localStorage.setItem(PersistanceKeys.LocalVerificationCodes, JSON.stringify(updated));
         if (newData.length < LimitPerPage) setHasMore(false);
       }
     } catch (error) {
@@ -74,7 +74,7 @@ function AdminAgencyDetails() {
           scrollableTarget="scrollableDiv1"
           dataLength={agencies.length}
           hasMore={hasMore}
-          next={() => getCodes(agencies.length)}
+          next={() => getAgencyDetails(agencies.length, false)}
           loader={
             <div className="w-full flex flex-row justify-center mt-8">
               <CircularProgress size={35} />
@@ -94,32 +94,23 @@ function AdminAgencyDetails() {
                 style={{ cursor: "pointer" }}
               >
                 <div className="w-3/12 flex flex-row gap-2 items-center">
-                  {item.User?.thumb_profile_image ? (
-                    <Image
-                      src={item.User.thumb_profile_image}
-                      height={40}
-                      width={40}
-                      style={{ borderRadius: "100%" }}
-                      alt="*"
-                    />
-                  ) : (
-                    <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
-                      {item.User?.name?.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
-                  <div style={styles.text2}>{item.User?.name}</div>
+                  <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
+                    {item.agencyName?.slice(0, 1).toUpperCase()}
+                  </div>
+                  <div style={styles.text2}>{item.agencyName}</div>
                 </div>
 
-                <div className="w-3/12">
-                  <div style={styles.text2}>
-                    {item.phone ? formatPhoneNumber(item.phone) : "-"}
-                  </div>
+                <div className="w-2/12">
+                  <div style={styles.text2}>{item.subAccountsCount}</div>
                 </div>
-                <div className="w-2/12"><div style={styles.text2}>{item.code}</div></div>
-                <div className="w-2/12"><div style={styles.text2}>{item.status}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{item.plan}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>${item.totalSpent}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{item.minutesUsed} min</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{item.renewal}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{item.agentsCount}</div></div>
                 <div className="w-2/12">
                   <div style={styles.text2}>
-                    {moment(item.createdAt).format("MMMM DD hh:mma")}
+                    {moment(item.createdAt).format("MMM DD, YYYY")}
                   </div>
                 </div>
               </div>
