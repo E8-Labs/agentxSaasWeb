@@ -31,7 +31,7 @@ export function middleware(request) {
     return res;
   }
   // Allow unauthenticated access to specific paths
-  const allowedPaths = ["/","/onboarding", "/onboarding/WaitList", "/recordings/:path*"];// 
+  const allowedPaths = ["/", "/onboarding", "/onboarding/WaitList", "/recordings/:path*"];// 
   if (allowedPaths.includes(pathname)) {
     // //console.log;
     return NextResponse.next();
@@ -43,6 +43,9 @@ export function middleware(request) {
   // //console.log;
 
   if (!userCookie) {
+    if (pathname === "/agency") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
     // //console.log;
     // Check if the user is trying to access the createagent route
     if (pathname.startsWith("/createagent")) {
