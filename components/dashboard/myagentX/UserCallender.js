@@ -849,6 +849,14 @@ const UserCalender = ({
             </div>
           </Box>
         </Modal>
+
+        {/* Intro modal */}
+        <IntroVideoModal
+          open={introVideoModal2}
+          onClose={() => setIntroVideoModal2(false)}
+          videoTitle="Learn how to add a calendar"
+          videoUrl={HowtoVideos.Calendar}
+        />
       </div>
 
     </div>

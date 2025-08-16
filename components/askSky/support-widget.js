@@ -9,6 +9,7 @@ import classNames from "classnames";
 import { VoiceInterface } from "./voice-interface";
 import { ChatInterface } from "./askskycomponents/chat-interface";
 import { GetHelpBtn } from "../animations/DashboardSlider";
+import { Alert, Snackbar } from "@mui/material";
 
 export function SupportWidget({
   assistantId = DEFAULT_ASSISTANT_ID,
@@ -28,6 +29,9 @@ export function SupportWidget({
   const [chatOpen, setChatOpen] = useState(false); // Sets up the chat interface
   const [open, setOpen] = useState(false)
   const [isCallRunning, setIsCallRunning] = useState(false)
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
 
 
   // User loading messages to fake feedback...
@@ -120,6 +124,29 @@ export function SupportWidget({
   }, [vapi])
 
   async function startCall() {
+
+    // Check if user has sufficient minutes before starting call
+    let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+    console.log('api path of get user by agent id is', path)
+
+    const response = await axios.get(
+      path
+    );
+
+
+    if (response.data.status && response.data.data.user) {
+      console.log('response of get user api by agent id is', response.data.data.user)
+      const { totalSecondsAvailable } = response.data.data.user;
+
+      if (totalSecondsAvailable < 120) {
+        setSnackbarMessage("Insufficient balance");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return;
+      }
+    }
+
+
     console.log("starting call")
     if (vapi) {
       const { pipelines = [], ...userProfile } =
@@ -254,6 +281,21 @@ export function SupportWidget({
           marginRight: '16px'
         }}
       >
+        {/* Snackbar for error messages */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={4000}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={() => setSnackbarOpen(false)}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <div className="h-full w-full flex flex-col gap-0 items-center justify-between">
           {voiceOpen ? (
             <VoiceInterface

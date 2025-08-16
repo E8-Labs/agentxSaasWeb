@@ -8,8 +8,11 @@ import axios from "axios";
 import Image from "next/image";
 import { AudioWaveActivity } from "./askskycomponents/AudioWaveActivity";
 import { PersistanceKeys } from "@/constants/Constants";
+import { Alert, Snackbar } from "@mui/material";
 
+// not actualy being used in live only used in test route
 //Update from salman
+
 export function VapiWidget({
   assistantId = DEFAULT_ASSISTANT_ID,
   shouldStart = false,
@@ -23,6 +26,10 @@ export function VapiWidget({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingMessage, setloadingMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+
 
 
   useEffect(() => {
@@ -104,6 +111,26 @@ export function VapiWidget({
   }, []);
 
   const startVapiCall = async () => {
+
+    // Check if user has sufficient minutes before starting call
+    let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+    const response = await axios.get(
+      path
+    );
+
+    console.log('api path of get user by agent id is', path)
+
+    if (response.data.status && response.data.data.user) {
+      console.log('response of get user api by agent id is', response.data.data.user)
+      const { totalSecondsAvailable } = response.data.data.user;
+
+      if (totalSecondsAvailable < 120) {
+        setSnackbarMessage("Insufficient balance");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return;
+      }
+    }
     setLoading(true)
     if (shouldStart && vapi) {
       //store the value on localstorage if the initial call trigered
@@ -206,6 +233,22 @@ export function VapiWidget({
        `}
     // style={{ border: "4px solid green" }}
     >
+
+      {/* Snackbar for error messages */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       {isEmbeded && !open ? (
         <button
           className="fixed bottom-6 right-6 z-modal flex flex-col items-end"
