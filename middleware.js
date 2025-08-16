@@ -5,6 +5,11 @@ export function middleware(request) {
 
   const { pathname } = request.nextUrl;
 
+  //forbid /agency path only
+  if (pathname === "/agency") {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   // === 1. SECURITY HEADERS FOR IFRAME EMBED WIDGETS ===
   if (pathname.startsWith("/embed/vapi")) {
     const res = NextResponse.next();
