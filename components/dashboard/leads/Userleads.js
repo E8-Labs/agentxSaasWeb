@@ -140,7 +140,7 @@ const Userleads = ({
   //code for pagination variables
   const [hasMore, setHasMore] = useState(true);
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false);
-  const [nextCursorValue, setNextCursorValue] = useState("");
+  const [nextCursorValue, setNextCursorValue] = useState(0);
 
   //code for delete smart list popover
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -826,7 +826,9 @@ const Userleads = ({
       if (filterText) {
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}`;
         ApiPath = ApiPath + "&noStage=" + noStageSelected;
-        ApiPath = ApiPath + `&id=${nextCursorValue}`;
+        if (nextCursorValue && nextCursorValue != "undefined") {
+          ApiPath = ApiPath + `&id=${nextCursorValue}`;
+        }
       } else {
         if (nextCursorValue == 0) {
           getLocallyCachedLeads();
