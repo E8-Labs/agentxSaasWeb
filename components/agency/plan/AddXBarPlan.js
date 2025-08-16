@@ -405,7 +405,7 @@ export default function AddXBarPlan({
           <div
             className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
             style={{
-              backgroundImage: "url('/agencyIcons/addPlanBg.jpg')",
+              backgroundImage: "url('/agencyIcons/addPlanBg4.png')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -457,6 +457,7 @@ export default function AddXBarPlan({
                       borderTopRightRadius: "15px",
                     }}
                   ></div>
+                  {/* Triangle price here */}
                   {
                     discountedPrice && minutes && (
                       <span style={styles.labelText}>
