@@ -221,7 +221,11 @@ export default function AddMonthlyPlan({
     pricingBox: {
       position: "relative",
       // padding: '10px',
-      borderRadius: "15px",
+      borderRadius: allowTrial && trialValidForDays ? "0px" : "15px",
+      borderBottomLeftRadius: allowTrial && trialValidForDays ? "15px" : "none",
+      borderBottomRightRadius: allowTrial && trialValidForDays ? "15px" : "none",
+      // borderTopLeftRadius: allowTrial && trialValidForDays ? "0px" : "none",
+      // borderTopRightRadius: allowTrial && trialValidForDays ? "15px" : "none",
       // backgroundColor: '#f9f9ff',
       display: "inline-block",
       width: "100%",
@@ -644,7 +648,7 @@ export default function AddMonthlyPlan({
                   <div
                     style={{
                       ...styles.triangleLabel,
-                      borderTopRightRadius: "15px",
+                      borderTopRightRadius: allowTrial && trialValidForDays ? "0px" : "15px",
                     }}
                   ></div>
                   {/* Triangle price here */}
