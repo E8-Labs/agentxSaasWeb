@@ -616,7 +616,7 @@ export default function AddMonthlyPlan({
                   <div className="w-full rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
                     <div className="flex flex-row items-center gap-2">
                       <Image
-                        src={"/agencyIcons/batchIcon.jpg"}
+                        src={"/otherAssets/batchIcon.png"}
                         alt="*"
                         height={24}
                         width={24}
@@ -677,7 +677,7 @@ export default function AddMonthlyPlan({
                         {tag ? (
                           <div
                             className="rounded-full bg-purple text-white p-3 py-2"
-                            style={{ fontSize: 10, fontWeight: "500" }}
+                            style={{ fontSize: 14, fontWeight: "500" }}
                           >
                             {tag}
                           </div>
@@ -703,12 +703,7 @@ export default function AddMonthlyPlan({
                             <div className="rounded-md bg-gray-200 text-white w-[150px] h-[32px]" />
                           )}
                         </div>
-                        <div className="flex flex-row items-center">
-                          {originalPrice && (
-                            <div style={styles.originalPrice}>
-                              ${(originalPrice * minutes).toFixed(2)}
-                            </div>
-                          )}
+                        <div className="flex flex-row items-center gap-2">
                           {discountedPrice && (
                             <div className="flex flex-row justify-start items-start ">
                               <div style={styles.discountedPrice} className="line-through">
@@ -717,6 +712,12 @@ export default function AddMonthlyPlan({
                               <p style={{ color: "#15151580" }}></p>
                             </div>
                           )}
+                          {originalPrice && (
+                            <div style={styles.originalPrice}>
+                              ${(originalPrice * minutes).toFixed(2)}
+                            </div>
+                          )}
+
                         </div>
                       </div>
                     </div>

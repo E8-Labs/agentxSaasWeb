@@ -579,7 +579,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 </div>
 
                 <div style={styles.headings}>
-                    Account Owner Name
+                    Sub Account Name
                 </div>
                 <input
                     type="text"
@@ -593,7 +593,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 <div
                     className='mb-4'
                     style={styles.headings}>
-                    Sub Account Name
+                    Account Owner Name
                 </div>
 
                 <div className='w-full flex flex-row items-center gap-2'>

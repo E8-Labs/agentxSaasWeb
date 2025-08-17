@@ -305,6 +305,10 @@ export default function AddXBarPlan({
                       const valid = sanitized.split('.').length > 2
                         ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                         : sanitized;
+                        // if (valid === 0) {
+                        //   setSnackMsg("Price cannot be zero");
+                        //   setSnackMsgType(SnackbarTypes.Warning);
+                        // }
                       setOriginalPrice(valid);
                     }}
                   />
@@ -487,7 +491,7 @@ export default function AddXBarPlan({
                         {tag ? (
                           <div
                             className="rounded-full bg-purple text-white p-3 py-2"
-                            style={{ fontSize: 10, fontWeight: "500" }}
+                            style={{ fontSize: 14, fontWeight: "500" }}
                           >
                             {tag}
                           </div>
@@ -513,20 +517,21 @@ export default function AddXBarPlan({
                             <div className="rounded-md bg-gray-200 text-white w-[150px] h-[32px]" />
                           )}
                         </div>
-                        <div className="flex flex-row items-center">
+                        <div className="flex flex-row items-center gap-2">
+                        {discountedPrice && (
+                          <div className="flex flex-row justify-start items-start ">
+                            <div style={styles.discountedPrice} className="line-through">
+                              ${discountedPrice}
+                            </div>
+                            <p style={{ color: "#15151580" }}></p>
+                          </div>
+                        )}
                           {originalPrice && (
                             <div style={styles.originalPrice}>
                               ${(originalPrice * minutes).toFixed(2)}
                             </div>
                           )}
-                          {discountedPrice && (
-                            <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice} className="line-through">
-                                ${discountedPrice}
-                              </div>
-                              <p style={{ color: "#15151580" }}></p>
-                            </div>
-                          )}
+                         
                         </div>
                       </div>
                     </div>

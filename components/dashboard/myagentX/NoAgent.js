@@ -51,6 +51,7 @@ function NoAgent({
   return (
     <div
       className='flex flex-col items-center w-[60vw] h-full overflow-x-hidden'
+      style = {{scrollbarWidth:'none'}}
     >
       <AgentSelectSnackMessage
         type={showSnack.type}
@@ -64,17 +65,17 @@ function NoAgent({
           });
         }}
       />
-      <Image
+      <Image className=''
         alt="No img"
         src={"/agencyIcons/noAgents.jpg"}
-        height={500}
-        width={550}
+        height={200}
+        width={450}
       />
 
       <div
 
         style={{
-          fontSize: 18, fontWeight: '700', color: 'black', lineHeight: 1, marginTop: -100
+          fontSize: 18, fontWeight: '700', color: 'black', lineHeight: 1, marginTop: -80
         }}>
         {title}
 
