@@ -1122,77 +1122,84 @@ const AgencySignUp = ({
             </div>
           </div>
 
-          <div className="flex w-6/12 flex-col items-center justify-center">
-            <Image
-              className="object-contain"
-              src={"/agencyIcons/signupLogo.png"}
-              height={620}
-              width={620}
-              alt="*"
-            />
-
-            {/* Side Box Code */}
+          <div className="flex w-6/12 flex-col items-center justify-center bg-red">
+            {/*
+              <Image
+                className="object-contain"
+                src={"/agencyIcons/signupLogo.png"}
+                height={570}
+                width={570}
+                alt="*"
+              />
+            */}
             <div
-              className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 w-[30vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
-            // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+              className="w-full h-full"
+              style={{
+                backgroundImage: "url('/agencyIcons/signupLogo.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
             >
-              {/*this one agency name div*/}
-              <div className="inline-flex flex-col items-start w-full px-6">
-                <div
-                  className="
+              <div
+                className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 w-[30vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+              // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+              >
+                <div className="inline-flex flex-col items-start w-full px-6">
+                  <div
+                    className="
       truncate w-full
       text-[32px] sm:text-[36px] md:text-[42px] lg:text-[47px] xl:text-[52px]
       text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF]
       text-start
     "
-                  style={{ fontWeight: "700" }}
-                >
-                  {company || "Agency Name"}
-                </div>
-              </div>
-              <div className="inline-flex flex-col items-end w-full mb-4 px-6">
-                <Image
-                  className="object-contain"
-                  src={"/agencyIcons/poweredByIcon.png"}
-                  height={22}
-                  width={177}
-                  alt="*"
-                />
-              </div>
-              {/* This is getting width of the agncy name div or parent div */}
-              <div className="pb-4 w-full px-6">
-                {[
-                  {
-                    src: "/agencyIcons/man.jpg",
-                    label: userName || "Agency Owner",
-                  },
-                  {
-                    src: "/agencyIcons/web.jpg",
-                    label: website || "Website",
-                  },
-                  // {
-                  //   src: "/agencyIcons/email.jpg",
-                  //   label: userEmail || "Email",
-                  // },
-                  {
-                    src: "/agencyIcons/building.jpg",
-                    label: size?.label || "Agency Size",
-                  },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-row items-center gap-3 mt-4 first:pt-2 min-w-0"
+                    style={{ fontWeight: "700" }}
                   >
-                    <Image alt="*" src={item.src} height={32} width={32} />
-                    <div
-                      className="truncate"
-                      style={{ ...styles.sideBoxTxt }}
-                    >
-                      {item?.label}
-                      {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
-                    </div>
+                    {company || "Agency Name"}
                   </div>
-                ))}
+                </div>
+                <div className="inline-flex flex-col items-end w-full mb-4 px-6">
+                  <Image
+                    className="object-contain"
+                    src={"/agencyIcons/poweredByIcon.png"}
+                    height={22}
+                    width={177}
+                    alt="*"
+                  />
+                </div>
+                <div className="pb-4 w-full px-6">
+                  {[
+                    {
+                      src: "/agencyIcons/man.jpg",
+                      label: userName || "Agency Owner",
+                    },
+                    {
+                      src: "/agencyIcons/web.jpg",
+                      label: website || "Website",
+                    },
+                    // {
+                    //   src: "/agencyIcons/email.jpg",
+                    //   label: userEmail || "Email",
+                    // },
+                    {
+                      src: "/agencyIcons/building.jpg",
+                      label: size?.label || "Agency Size",
+                    },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-row items-center gap-3 mt-4 first:pt-2 min-w-0"
+                    >
+                      <Image alt="*" src={item.src} height={32} width={32} />
+                      <div
+                        className="truncate"
+                        style={{ ...styles.sideBoxTxt }}
+                      >
+                        {item?.label}
+                        {/* ?.length  32 ? item?.label?.slice(0, 32) + '...' : item?.label*/}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
