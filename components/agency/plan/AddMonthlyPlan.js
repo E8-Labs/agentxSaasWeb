@@ -656,7 +656,7 @@ export default function AddMonthlyPlan({
                       <span style={styles.labelText}>
                         {(
                           // (originalPrice / discountedPrice) *
-                          (originalPrice - minutes) / discountedPrice *
+                          ((originalPrice * minutes) - discountedPrice) / discountedPrice *
                           100
                         ).toFixed(0) || "-"}
                         %
