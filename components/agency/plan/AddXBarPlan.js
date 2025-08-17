@@ -128,11 +128,11 @@ export default function AddXBarPlan({
     }
   };
 
-  const shouldContinue = () =>{
-    if(!title || !planDescription || !tag || !originalPrice ){
-      return false
-    }else{
+  const shouldContinue = () => {
+    if (!title || !planDescription || !tag || !originalPrice || originalPrice === 0 || minCostErr) {
       return true
+    } else {
+      return false
     }
   }
 
@@ -326,7 +326,7 @@ export default function AddXBarPlan({
                     </div>
                   )}
 
-                  
+
 
                   {/* Strikethrough Price */}
                   <label style={styles.labels}>
@@ -373,7 +373,7 @@ export default function AddXBarPlan({
                   />
                 </div>
 
-                
+
               </div>
 
             </div>
@@ -392,9 +392,9 @@ export default function AddXBarPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${shouldContinue()? "bg-purple" :"bg-[#00000050] " } w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg`}
+                  className={` ${shouldContinue() ? "bg-[#00000050]" : "bg-purple "} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg`}
                   onClick={handleAddPlanClick}
-                  disabled={ !shouldContinue()}
+                  disabled={shouldContinue()}
                 >
                   Create Plan
                 </button>

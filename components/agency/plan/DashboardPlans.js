@@ -43,7 +43,9 @@ function DashboardPlans() {
                 const u = JSON.parse(agencyPlansList);
                 const matchedPlan = u.find(plan => plan.id === currentPlanId);
                 console.log("Matched plan is", matchedPlan);
-                setAgencyPlanCost(matchedPlan.ratePerMin);
+                if (matchedPlan?.ratePerMin) {
+                    setAgencyPlanCost(matchedPlan?.ratePerMin);
+                }
             }
         }
     }, [])
@@ -360,12 +362,12 @@ function DashboardPlans() {
                                                             </div>
                                                             <div className="w-1/12">
                                                                 <div style={styles.text2}>
-                                                                    ${item.discountedPrice || 0}
+                                                                    ${item.originalPrice || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-2/12">
                                                                 <div style={styles.text2}>
-                                                                    ${item.originalPrice || 0}
+                                                                    ${item.discountedPrice || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-1/12">
