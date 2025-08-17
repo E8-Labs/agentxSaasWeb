@@ -1122,7 +1122,7 @@ const AgencySignUp = ({
             </div>
           </div>
 
-          <div className="flex w-6/12 flex-col items-center justify-center bg-red">
+          <div className="flex w-6/12 flex-col items-center justify-start">
             {/*
               <Image
                 className="object-contain"
@@ -1133,15 +1133,17 @@ const AgencySignUp = ({
               />
             */}
             <div
-              className="w-full h-full"
+              className="w-full bg-transparent flex flex-col items-center justify-end"
               style={{
                 backgroundImage: "url('/agencyIcons/signupLogo.png')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
+                height: "580px",
+                width: "580px"
               }}
             >
               <div
-                className="inline-flex flex-col items-center absolute bottom-10 right-0 sm:right-40 w-[30vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+                className="inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl" //absolute bottom-10 right-0 sm:right-40
               // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
               >
                 <div className="inline-flex flex-col items-start w-full px-6">

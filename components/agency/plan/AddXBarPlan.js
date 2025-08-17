@@ -129,7 +129,7 @@ export default function AddXBarPlan({
   };
 
   const shouldContinue = () => {
-    if (!title || !planDescription || !tag || !originalPrice || originalPrice === 0 || minCostErr) {
+    if (!title || !planDescription || !tag || !originalPrice || originalPrice === 0 || discountedPrice === 0 || minutes === 0  || minCostErr) {
       return true
     } else {
       return false
@@ -519,13 +519,13 @@ export default function AddXBarPlan({
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           {discountedPrice && (
-                            <div style={styles.originalPrice}>
+                            <div style={styles.originalPrice} className="line-through">
                               ${discountedPrice}
                             </div>
                           )}
                           {originalPrice && (
                             <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice} className="line-through">
+                              <div style={styles.discountedPrice}>
                                 ${(originalPrice * minutes).toFixed(2)}
                               </div>
                               <p style={{ color: "#15151580" }}></p>

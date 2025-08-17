@@ -195,17 +195,14 @@ const TwilioTrustHub = ({
                 ) : (
                     <div className='w-full'>
                         <div className='w-full mt-2'>
-                            {
-                                !isFromAgency && (
-                                    <CustomerProfile
-                                        twilioHubData={twilioHubData?.profile}
-                                        getProfileData={(d) => { getBusinessProfile(d) }}
-                                        profileStatus={profileStatus}
-                                        disconnectLoader={disconnectLoader}
-                                        handleDisconnectTwilio={handleDisconnectTwilio}
-                                    />
-                                )
-                            }
+                            <CustomerProfile
+                                twilioHubData={twilioHubData?.profile}
+                                getProfileData={(d) => { getBusinessProfile(d) }}
+                                profileStatus={profileStatus}
+                                disconnectLoader={disconnectLoader}
+                                handleDisconnectTwilio={handleDisconnectTwilio}
+                                isFromAgency={isFromAgency}
+                            />
                         </div>
                         <div className='w-full mt-4'>
                             <CenamDetails

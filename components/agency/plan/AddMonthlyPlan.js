@@ -24,6 +24,10 @@ export default function AddMonthlyPlan({
   const [allowTrial, setAllowTrial] = useState(false);
   const [showTrailWarning, setShowTrailWarning] = useState(false);
 
+  //for Hamza update the inout fields value storing
+  //strike through is original price
+  //price/min is discoounted orice
+
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState("");
   const [planDescription, setPlanDescription] = useState("");
@@ -659,7 +663,7 @@ export default function AddMonthlyPlan({
                       <span style={styles.labelText}>
                         {(
                           // (originalPrice / discountedPrice) *
-                          ((originalPrice * minutes) - discountedPrice) / discountedPrice *
+                          (discountedPrice - (originalPrice * minutes)) / discountedPrice *
                           100
                         ).toFixed(0) || "-"}
                         %
@@ -712,13 +716,13 @@ export default function AddMonthlyPlan({
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           {discountedPrice && (
-                            <div style={styles.originalPrice}>
+                            <div style={styles.originalPrice} className="line-through">
                               ${discountedPrice}
                             </div>
                           )}
                           {originalPrice && (
                             <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice} className="line-through">
+                              <div style={styles.discountedPrice}>
                                 ${(originalPrice * minutes).toFixed(2)}
                               </div>
                               <p style={{ color: "#15151580" }}></p>

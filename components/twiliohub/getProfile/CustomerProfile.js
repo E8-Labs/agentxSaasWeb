@@ -17,7 +17,8 @@ const CustomerProfile = ({
     getProfileData,
     profileStatus,
     disconnectLoader,
-    handleDisconnectTwilio
+    handleDisconnectTwilio,
+    isFromAgency = false
 }) => {
 
     //how to video
@@ -66,7 +67,7 @@ const CustomerProfile = ({
                 </div>
                 <div>
                     {
-                        !twilioHubData && (
+                        !twilioHubData && !isFromAgency && (
                             <button
                                 className='bg-purple text-white h-[49px] w-[150px] rounded-lg'
                                 style={{ fontSize: 15, fontWeight: "500" }}
@@ -76,7 +77,7 @@ const CustomerProfile = ({
                         )
                     }
                     {
-                        twilioHubData && (
+                        twilioHubData && !isFromAgency && (
                             <div className='w-full flex flex-row items-center justify-end'>
                                 {
                                     disconnectLoader ? (
@@ -96,15 +97,19 @@ const CustomerProfile = ({
             </div>
 
             <div className="w-full flex flex-row items-center gap-6">
-                <div
-                    style={{
-                        fontSize: 12,
-                        fontWeight: "500",
-                        color: "#00000090",
-                    }}
-                >
-                    {"Account > Twilio"}
-                </div>
+                {
+                    !isFromAgency && (
+                        <div
+                            style={{
+                                fontSize: 12,
+                                fontWeight: "500",
+                                color: "#00000090",
+                            }}
+                        >
+                            {"Account > Twilio"}
+                        </div>
+                    )
+                }
                 <div className="flex flex-row items-center gap-4">
                     <button
                         className='text-[15px] font-[500] text-purple outline-none border-none cursor-pointer'
