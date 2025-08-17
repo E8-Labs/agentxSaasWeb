@@ -37,7 +37,7 @@ function DashboardPlans() {
         const localData = localStorage.getItem("User");
         if (localData) {
             const u = JSON.parse(localData);
-            const currentPlanId = u.user.plan.planId;
+            const currentPlanId = u.user?.plan?.planId;
             const agencyPlansList = localStorage.getItem("agencyPlansList");
             if (agencyPlansList) {
                 const u = JSON.parse(agencyPlansList);
@@ -291,13 +291,13 @@ function DashboardPlans() {
                     plansList.length > 0 ? (
                         <>
                             <div className="w-full flex flex-row justify-between mt-4">
-                                <div className="w-2/12">
+                                <div className="w-3/12">
                                     <div style={styles.text}>Name</div>
                                 </div>
                                 <div className="w-2/12">
                                     <div style={styles.text}>Description</div>
                                 </div>
-                                <div className="w-2/12">
+                                <div className="w-1/12">
                                     <div style={styles.text}>Tag</div>
                                 </div>
                                 <div className="w-1/12">
@@ -335,7 +335,7 @@ function DashboardPlans() {
                                                             className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
                                                         >
                                                             <div
-                                                                className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                                                                className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
                                                                 onClick={() => {
                                                                     // // //console.log;
                                                                     // setselectedLeadsDetails(item);
@@ -346,7 +346,7 @@ function DashboardPlans() {
                                 {item.name.slice(0, 1).toUpperCase()}
                         </div>*/}
                                                                 <div style={{ ...styles.text2, ...{ width: "80%", } }}>
-                                                                    {item.title}
+                                                                    {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
                                                                 </div>
                                                             </div>
                                                             <div className="w-2/12 ">
@@ -354,7 +354,7 @@ function DashboardPlans() {
                                                                     {item.planDescription}
                                                                 </div>
                                                             </div>
-                                                            <div className="w-2/12">
+                                                            <div className="w-1/12">
                                                                 {/* (item.LeadModel?.phone) */}
                                                                 <div style={styles.text2}>
                                                                     {item.tag}

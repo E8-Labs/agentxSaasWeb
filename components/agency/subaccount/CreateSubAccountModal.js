@@ -584,7 +584,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 <input
                     type="text"
                     className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                    placeholder="Type here..."
+                    placeholder="Name"
                     style={styles.inputs}
                     value={subAccountName}
                     onChange={(e) => { setSubAccountName(e.target.value) }}
@@ -603,9 +603,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                         <div>
                             <input
-                                type="email"
+                                type="Full Name"
                                 className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                placeholder="Type here..."
+                                placeholder="Name"
                                 value={fullName}
                                 onChange={(e) => { setFullName(e.target.value) }}
                                 style={styles.inputs}
@@ -651,9 +651,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                         <div>
                             <input
-                                type="email"
+                                type="Email"
                                 className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                placeholder="Type here..."
+                                placeholder="Email"
                                 style={styles.inputs}
                                 value={userEmail}
                                 onChange={(e) => {
@@ -945,7 +945,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             >
                                 <input
                                     type="text"
-                                    placeholder="Type here..."
+                                    placeholder="Full Name"
                                     className="px-3 py-2 border border-gray-300 rounded-lg w-4/12 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
                                     value={member.name}
                                     onChange={(e) => handleChange(index, 'name', e.target.value)}
@@ -955,7 +955,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                 <div className='w-4/12'>
                                     <input
                                         type="email"
-                                        placeholder="Type here..."
+                                        placeholder="Email"
                                         className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
                                         value={member.email}
                                         onChange={(e) => {

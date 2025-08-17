@@ -87,7 +87,7 @@ const AgentsListPaginated = ({
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam);
-
+      console.log('agentsListSeperatedParam', agentsListSeparatedParam)
   }, [agentsListSeparatedParam]);
 
   useEffect(() => {

@@ -50,7 +50,7 @@ function NoAgent({
 
   return (
     <div
-      className='flex flex-col items-center w-[60vw] h-full overflow-x-hidden'
+      className='flex flex-col items-center w-full h-full overflow-x-hidden'
       style = {{scrollbarWidth:'none'}}
     >
       <AgentSelectSnackMessage

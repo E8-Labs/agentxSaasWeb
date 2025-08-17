@@ -341,18 +341,7 @@ const SubAccountPlan = () => {
                               </div>
                             </div>
                             <div className="w-full">
-                              {/*item.id === 1 && (
-                                                            <div
-                                                                className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                                                                style={{
-                                                                    fontSize: 11.6,
-                                                                    fontWeight: "500",
-                                                                    width: "fit-content",
-                                                                }}
-                                                            >
-                                                                Current Plan
-                                                            </div>
-                                                        )*/}
+                             
                               {item.status && (
                                 <div
                                   className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
@@ -373,7 +362,7 @@ const SubAccountPlan = () => {
                                 }}
                                 className="flex flex-row items-center gap-1"
                               >
-                                {item.title}
+                                {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
                               </div>
                               <div className="flex flex-row items-center justify-between">
                                 <div

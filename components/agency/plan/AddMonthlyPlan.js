@@ -179,6 +179,15 @@ export default function AddMonthlyPlan({
     }
   };
 
+  // Keep only up to 2 fractional digits; always render as "0.xx"
+  const formatFractional2 = (raw) => {
+    const s = raw ?? "";
+    // If there's already a dot, take only what's after the first dot.
+    const afterDot = s.includes(".") ? s.split(".")[1] : s;
+    const digits = afterDot.replace(/\D/g, "").slice(0, 2);
+    return digits ? `0.${digits}` : "";
+  };
+
   const styles = {
     labels: {
       fontSize: "15px",
@@ -370,19 +379,13 @@ export default function AddMonthlyPlan({
                     <input
                       style={styles.inputs}
                       type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                      placeholder="00"
+                      placeholder="0.00"
                       value={originalPrice}
                       onChange={(e) => {
-                        const value = e.target.value;
-                        // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '');
-
-                        // Prevent multiple periods
-                        const valid = sanitized.split('.').length > 2
-                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                          : sanitized;
-                        setOriginalPrice(valid);
+                        setOriginalPrice(formatFractional2(e.target.value)); // no more repeated "0."
                       }}
                     />
                   </div>

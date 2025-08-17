@@ -124,7 +124,6 @@ export default function SetXBarOptions({
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Select XBar Options</h2>
-                <button onClick={() => { handleBack() }} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide"
@@ -174,7 +173,7 @@ export default function SetXBarOptions({
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => { handleBack() }}
-                    className="text-purple-700 font-medium w-2/6"
+                    className="text-purple-700 font-medium w-2/6 rounded-lg border"
                 >
                     Back
                 </button>

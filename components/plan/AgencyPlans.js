@@ -47,7 +47,7 @@ function AgencyPlans() {
     const [quaterlyPlans, setQuaterlyPlans] = useState([]);
     const [yearlyPlans, setYearlyPlans] = useState([]);
     const [loading, setLoading] = useState(false)
-    const [selectedDuration, setSelectedDuration] = useState(duration[0]);
+    const [selectedDuration, setSelectedDuration] = useState(duration[2]);
     //code for add card
     const [addPaymentPopUp, setAddPaymentPopUp] = useState(false);
     const [subPlanLoader, setSubPlanLoader] = useState(null);

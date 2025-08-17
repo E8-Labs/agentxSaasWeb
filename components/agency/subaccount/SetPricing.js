@@ -85,7 +85,6 @@ export default function SetPricing({
             />
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Set Pricing Plans</h2>
-                <button onClick={() => { handleBack() }} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide"
@@ -102,7 +101,7 @@ export default function SetPricing({
                     >
                         <div className="w-[80%]">
                             <h3 className="font-semibold text-gray-900">
-                                {plan.title} | {plan.minutes || "X"}mins
+                                {plan.title} | {plan.minutes || "X"}mins{" "}{plan.hasTrial == true && (`| ${plan.trialValidForDays} Day Free Trial`)}
                             </h3>
                             <p className="text-sm text-gray-500">{plan.planDescription}</p>
                             <p className="mt-1 font-medium text-lg text-gray-800">
@@ -127,7 +126,7 @@ export default function SetPricing({
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => { handleBack() }}
-                    className="text-purple-700 font-medium w-2/6"
+                    className="text-purple-700 font-medium w-2/6 border rounded-lg"
                 >
                     Back
                 </button>

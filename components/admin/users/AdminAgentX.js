@@ -1752,43 +1752,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         },
       });
 
-      // if (response) {
-      //   //console.log;
-      //   setPaginationLoader(false);
-      //   let agents = response.data.data || [];
-      //   console.log("Agents from api", agents);
-      //   if (!search) {
-      //     setAllAgentsList(agents)
-
-      //   }
-      //   setOldAgentsList(agents)
-      //   if (agents.length >= 6) {
-      //     setCanGetMore(true);
-      //   } else {
-      //     setPaginationLoader(false);
-      //     setCanGetMore(false);
-      //   }
-
-      //   if (search) {
-      //     setAgentsListSeparated(agents);
-      //     return
-      //   }
-
-      //   let newList = [...mainAgentsList]; // makes a shallow copy
-      //   if (Array.isArray(agents) && agents.length > 0) {
-      //     newList.push(...agents); // append all agents at once
-      //   }
-
-      //   console.log("Agents after pushing", newList);
-
-      //   localStorage.setItem(
-      //     PersistanceKeys.LocalStoredAgentsListMain,
-      //     JSON.stringify(newList)
-      //   );
-
-      //   setMainAgentsList(newList);
-      // }
-
       if (response) {
         //console.log;
         setPaginationLoader(false);

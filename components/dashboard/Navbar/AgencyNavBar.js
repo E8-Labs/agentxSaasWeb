@@ -246,10 +246,10 @@ const AgencyNavBar = () => {
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
     }, {
       id: 2,
-      name: "Sub Account",
-      href: "/agency/dashboard/subAccounts",
-      selected: "/svgIcons/selectedSubAccountIcon.svg",
-      uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
+      name: "Integrations",
+      href: "/agency/dashboard/integration",
+      selected: "/agencyIcons/integrationFocus.jpg",
+      uneselected: "/agencyIcons/integrationsUnFocus.jpg",
     }, {
       id: 3,
       name: "Plans",
@@ -258,16 +258,24 @@ const AgencyNavBar = () => {
       uneselected: "/svgIcons/unSelectedPlansIcon.svg",
     }, {
       id: 4,
-      name: "Integrations",
-      href: "/agency/dashboard/integration",
-      selected: "/agencyIcons/integrationFocus.jpg",
-      uneselected: "/agencyIcons/integrationsUnFocus.jpg",
+      name: "Sub Account",
+      href: "/agency/dashboard/subAccounts",
+      selected: "/svgIcons/selectedSubAccountIcon.svg",
+      uneselected: "/svgIcons/unSelectedSubAccountIcon.svg",
     }, {
       id: 5,
       name: "Call Logs",
       href: "/agency/dashboard/callLogs",
       selected: "/agencyIcons/callLogSel.jpg",
       uneselected: "/agencyIcons/callLogUnSel.jpg",
+    },
+    {
+      id: 6,
+      name: "Teams",
+      href: "/agency/dashboard/teams",
+      selected: "/svgIcons/selectedTeam.svg",
+      uneselected: "/svgIcons/unSelectedTeamIcon.svg",
+
     },
   ];
 

@@ -160,14 +160,7 @@ const SubAccountUserType = ({
                 <div className='w-full' style={{ fontWeight: "600", fontSize: 18 }}>
                     Select an Agent
                 </div>
-                <button>
-                    <Image
-                        src={"/assets/cross.png"}
-                        alt="*"
-                        height={12}
-                        width={12}
-                    />
-                </button>
+               
             </div>
             <div className='flex-1 overflow-y-auto scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple max-h-[80%] mt-8 px-10'>
                 <div
@@ -221,7 +214,7 @@ const SubAccountUserType = ({
             <div className="flex justify-between mt-6">
                 <button
                     onClick={() => { handleBack() }}
-                    className="text-purple-700 font-medium w-2/6"
+                    className="text-purple-700 font-medium w-2/6 border rounded-lg"
                 >
                     Back
                 </button>
