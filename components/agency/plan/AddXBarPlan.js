@@ -215,7 +215,7 @@ export default function AddXBarPlan({
       color: "#000000",
       fontWeight: "700",
       fontSize: 22,
-      marginLeft: "10px",
+      // marginLeft: "10px",
     },
   };
 
@@ -305,10 +305,10 @@ export default function AddXBarPlan({
                       const valid = sanitized.split('.').length > 2
                         ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                         : sanitized;
-                        // if (valid === 0) {
-                        //   setSnackMsg("Price cannot be zero");
-                        //   setSnackMsgType(SnackbarTypes.Warning);
-                        // }
+                      // if (valid === 0) {
+                      //   setSnackMsg("Price cannot be zero");
+                      //   setSnackMsgType(SnackbarTypes.Warning);
+                      // }
                       setOriginalPrice(valid);
                     }}
                   />
@@ -518,20 +518,20 @@ export default function AddXBarPlan({
                           )}
                         </div>
                         <div className="flex flex-row items-center gap-2">
-                        {discountedPrice && (
-                          <div className="flex flex-row justify-start items-start ">
-                            <div style={styles.discountedPrice} className="line-through">
+                          {discountedPrice && (
+                            <div style={styles.originalPrice}>
                               ${discountedPrice}
                             </div>
-                            <p style={{ color: "#15151580" }}></p>
-                          </div>
-                        )}
+                          )}
                           {originalPrice && (
-                            <div style={styles.originalPrice}>
-                              ${(originalPrice * minutes).toFixed(2)}
+                            <div className="flex flex-row justify-start items-start ">
+                              <div style={styles.discountedPrice} className="line-through">
+                                ${(originalPrice * minutes).toFixed(2)}
+                              </div>
+                              <p style={{ color: "#15151580" }}></p>
                             </div>
                           )}
-                         
+
                         </div>
                       </div>
                     </div>

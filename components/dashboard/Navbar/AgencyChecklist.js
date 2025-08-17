@@ -29,6 +29,7 @@ const AgencyChecklist = ({ userDetails }) => {
         const D = localStorage.getItem("User");
         if (D) {
             const LocalData = JSON.parse(D);
+            const LD = LocalData?.user;
             const T = LocalData?.user?.checkList?.checkList;
             console.log("Agency checklist is", T);
             // const T = userDetails?.checkList?.checkList;
@@ -48,7 +49,7 @@ const AgencyChecklist = ({ userDetails }) => {
             console.log("percentage of check list is", percentage);   // Output: 60
 
             setCheckList([
-                { id: 1, label: 'Add Stripe', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
+                { id: 1, label: 'Add Stripe', status: LD?.canAcceptPaymentsAgencyccount, route: "/agency/dashboard/integration" },
                 { id: 2, label: 'Add Twilio Keys', status: T?.twilioConnected, route: "/agency/dashboard/integration" },
                 { id: 3, label: 'Add Pricing Plans', status: T?.plansAdded, route: "/agency/dashboard/plans" },
                 { id: 4, label: 'Add XBar Options', status: T?.plansXbarAdded, route: "/agency/dashboard/plans" },

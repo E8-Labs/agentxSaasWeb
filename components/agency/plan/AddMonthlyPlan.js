@@ -221,11 +221,10 @@ export default function AddMonthlyPlan({
     pricingBox: {
       position: "relative",
       // padding: '10px',
-      borderRadius: allowTrial && trialValidForDays ? "0px" : "15px",
-      borderBottomLeftRadius: allowTrial && trialValidForDays ? "15px" : "none",
-      borderBottomRightRadius: allowTrial && trialValidForDays ? "15px" : "none",
-      // borderTopLeftRadius: allowTrial && trialValidForDays ? "0px" : "none",
-      // borderTopRightRadius: allowTrial && trialValidForDays ? "15px" : "none",
+      borderBottomLeftRadius: "15px",
+      borderBottomRightRadius: "15px",
+      borderTopLeftRadius: allowTrial && trialValidForDays ? "0px" : "15px",
+      borderTopRightRadius: allowTrial && trialValidForDays ? "0px" : "15px",
       // backgroundColor: '#f9f9ff',
       display: "inline-block",
       width: "100%",
@@ -262,7 +261,7 @@ export default function AddMonthlyPlan({
       color: "#000000",
       fontWeight: "700",
       fontSize: 22,
-      marginLeft: "10px",
+      // marginLeft: "10px",
     },
   };
 
@@ -656,7 +655,8 @@ export default function AddMonthlyPlan({
                     discountedPrice && minutes && (
                       <span style={styles.labelText}>
                         {(
-                          (originalPrice / discountedPrice) *
+                          // (originalPrice / discountedPrice) *
+                          discountedPrice / (originalPrice * minutes) *
                           100
                         ).toFixed(0) || "-"}
                         %
@@ -709,16 +709,16 @@ export default function AddMonthlyPlan({
                         </div>
                         <div className="flex flex-row items-center gap-2">
                           {discountedPrice && (
-                            <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice} className="line-through">
-                                ${discountedPrice}
-                              </div>
-                              <p style={{ color: "#15151580" }}></p>
+                            <div style={styles.originalPrice}>
+                              ${discountedPrice}
                             </div>
                           )}
                           {originalPrice && (
-                            <div style={styles.originalPrice}>
-                              ${(originalPrice * minutes).toFixed(2)}
+                            <div className="flex flex-row justify-start items-start ">
+                              <div style={styles.discountedPrice} className="line-through">
+                                ${(originalPrice * minutes).toFixed(2)}
+                              </div>
+                              <p style={{ color: "#15151580" }}></p>
                             </div>
                           )}
 
