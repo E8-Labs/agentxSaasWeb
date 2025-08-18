@@ -99,6 +99,12 @@ function Page() {
       ? "https://ai.myagentx.com/"
       : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
 
+  let demoBaseUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? "https://apimyagentx.com/agentx/"
+      : "https://apimyagentx.com/agentxtest/";
+ 
+
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
@@ -647,7 +653,7 @@ function Page() {
       console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
 
       for (let [key, value] of formData.entries()) {
-        console.log(key,value)
+        console.log(key, value)
       }
 
       //// //console.log;
@@ -660,7 +666,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("response of update image is",response.data)
+        console.log("response of update image is", response.data)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -2465,17 +2471,17 @@ function Page() {
 
   const handleWebhookClick = (assistantId, baseUrl) => {
     let url = baseUrl + "api/agent/demoAi/" + assistantId
-     navigator.clipboard
-       .writeText(url)
-       .then(() => {
-         // alert("Embed code copied to clipboard!");
-         setShowSuccessSnack("Webhook URL Copied");
-         setIsVisibleSnack(true);
-       })
-       .catch((err) => {
-         console.error("Failed to copy text: ", err);
-       });
-   };
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        // alert("Embed code copied to clipboard!");
+        setShowSuccessSnack("Webhook URL Copied");
+        setIsVisibleSnack(true);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
 
   const handleCopy = (assistantId, baseUrl) => {
     const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
@@ -3342,15 +3348,15 @@ function Page() {
                   </button>
 
                   <button
-                  style={{ paddingLeft: "3px" }}
-                  onClick={() => {
-                    handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
-                  }}
-                >
-                  <Image src={'/svgIcons/webhook.svg'}
-                    height={22} width={22} alt="*"
-                  />
-                </button>
+                    style={{ paddingLeft: "3px" }}
+                    onClick={() => {
+                      handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                    }}
+                  >
+                    <Image src={'/svgIcons/webhook.svg'}
+                      height={22} width={22} alt="*"
+                    />
+                  </button>
                 </div>
               </div>
             </div>

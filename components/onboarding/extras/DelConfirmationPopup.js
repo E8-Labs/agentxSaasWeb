@@ -7,7 +7,7 @@ const DelConfirmationPopup = ({
     showDeleteModal,
     handleClose,
     handleDelete,
-    loader
+    delLoading
 }) => {
 
 
@@ -54,7 +54,7 @@ const DelConfirmationPopup = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                   <CloseBtn onClick={handleClose}/>
+                                    <CloseBtn onClick={handleClose} />
                                 </div>
                             </div>
 
@@ -72,26 +72,26 @@ const DelConfirmationPopup = ({
                                 Cancel
                             </button>
                             <div className="w-1/2">
-                                {/*delLoader ? (
+                                {delLoading ? (
                                     <div className="flex flex-row iems-center justify-center w-full mt-4">
                                         <CircularProgress size={25} />
                                     </div>
-                                ) : (*/}
-                                <button
-                                    className="outline-none bg-red"
-                                    style={{
-                                        color: "white",
-                                        height: "50px",
-                                        borderRadius: "10px",
-                                        width: "100%",
-                                        fontWeight: 600,
-                                        fontSize: "20",
-                                    }}
-                                    onClick={handleDelete}
-                                >
-                                    Yes! Delete Plan
-                                </button>
-                                {/*})*/}
+                                ) : (
+                                    <button
+                                        className="outline-none bg-red"
+                                        style={{
+                                            color: "white",
+                                            height: "50px",
+                                            borderRadius: "10px",
+                                            width: "100%",
+                                            fontWeight: 600,
+                                            fontSize: "20",
+                                        }}
+                                        onClick={handleDelete}
+                                    >
+                                        Yes! Delete Plan
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
