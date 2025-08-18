@@ -21,6 +21,8 @@ import NewInviteTeamModal from "./NewInviteTeamModal";
 import ViewSubAccountPlans from "./ViewSubAccountPlans";
 import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
+import { CheckStripe } from "../agencyServices/CheckAgencyData";
+
 
 function AgencySubacount() {
   const [subAccountList, setSubAccountsList] = useState([]);
@@ -68,8 +70,9 @@ function AgencySubacount() {
     try {
       const monthlyPlans = await getMonthlyPlan();
       const xBarOptions = await getXBarOptions();
+      const stripeStatus = CheckStripe();
 
-      if (monthlyPlans.length > 0 && xBarOptions.length > 0) {
+      if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0) {
         setShowModal(true);
       } else {
         setShowSnackType(SnackbarTypes.Error);

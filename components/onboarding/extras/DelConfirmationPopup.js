@@ -4,7 +4,9 @@ import React, { useState } from 'react'
 
 const DelConfirmationPopup = ({
     showDeleteModal,
-    handleClose
+    handleClose,
+    handleDelete,
+    loader
 }) => {
 
 
@@ -66,9 +68,9 @@ const DelConfirmationPopup = ({
                             </div>
 
                             <div className="mt-6">
-                               
+
                                 <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                    This plan is currently assigned to active customers. <br/>
+                                    This plan is currently assigned to active customers. <br />
                                     Delete are you sure and this cannot be undone
                                 </div>
                             </div>
@@ -94,7 +96,7 @@ const DelConfirmationPopup = ({
                                         fontWeight: 600,
                                         fontSize: "20",
                                     }}
-                                // onClick={handleDeleteUser}
+                                    onClick={handleDelete}
                                 >
                                     Yes! Delete Plan
                                 </button>

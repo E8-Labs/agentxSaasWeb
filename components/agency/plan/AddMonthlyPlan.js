@@ -8,6 +8,8 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { useEffect } from "react";
 import Image from "next/image";
+import { handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
+
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddMonthlyPlan({
@@ -55,21 +57,29 @@ export default function AddMonthlyPlan({
 
   //auto check minCostError
   useEffect(() => {
-    if (originalPrice && minutes) {
-      const P = (originalPrice * 100) / minutes;
+    if (discountedPrice && minutes) {
+      const P = (discountedPrice * 100) / minutes;
       console.log("Calculated price is", P);
-      if (P < 0.2) {
+      if (P < 0.20) {
         setMinCostErr(true);
-      } else if (P >= 0.2) {
+      } else if (P >= 0.20) {
         setMinCostErr(false);
       }
     }
-  }, [minutes, originalPrice]);
+  }, [minutes, discountedPrice]);
+
+  //check percentage calculation
+  const checkCalulations = () => {
+    console.log("OP ===", originalPrice)//updated
+    console.log("DP ===", (discountedPrice * minutes))
+    const percentage = (originalPrice - (discountedPrice * minutes)) / originalPrice * 100 //replace the op * min done
+    console.log("Percenage of addmonthly plan is", percentage)
+  }
 
   //profit text color
   const getClr = () => {
     const percentage =
-      ((originalPrice - agencyPlanCost) / agencyPlanCost) * 100;
+      ((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100;
 
     if (percentage >= 0 && percentage <= 50) {
       return "#FF4E4E";
@@ -109,11 +119,11 @@ export default function AddMonthlyPlan({
       const formData = new FormData();
       formData.append("title", title);
       formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice);
-      formData.append("discountedPrice", originalPrice * minutes);
+      formData.append("originalPrice", originalPrice);//replaced
+      formData.append("discountedPrice", discountedPrice * minutes);
       formData.append(
         "percentageDiscount",
-        100 - (originalPrice / discountedPrice) * 100
+        100 - (discountedPrice / originalPrice) * 100
       );
       formData.append("hasTrial", allowTrial);
       formData.append("trialValidForDays", trialValidForDays);
@@ -283,7 +293,7 @@ export default function AddMonthlyPlan({
       title.trim() &&
       planDescription.trim() &&
       originalPrice &&
-      discountedPrice &&
+      discountedPrice && //no need to replace here
       minutes;
 
     const trialValid = allowTrial ? trialValidForDays : true;
@@ -387,9 +397,16 @@ export default function AddMonthlyPlan({
                       pattern="[0-9]*"
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
                       placeholder="0.00"
-                      value={originalPrice}
+                      value={discountedPrice}
                       onChange={(e) => {
-                        setOriginalPrice(formatFractional2(e.target.value)); // no more repeated "0."
+                        // setDiscountedPrice(formatFractional2(e.target.value)); // no more repeated "0."
+                        const value = e.target.value;
+                        if (value > 0 && value < agencyPlanCost) {
+                          setSnackMsg(`Discount price cannot be less then ${agencyPlanCost}`);
+                          setSnackMsgType(SnackbarTypes.Warning);
+                        }
+                        const UpdatedValue = handlePricePerMinInputValue(value);
+                        setDiscountedPrice(UpdatedValue);
                       }}
                     />
                   </div>
@@ -407,7 +424,7 @@ export default function AddMonthlyPlan({
                         style={{ fontSize: "15px", fontWeight: "500" }}
                       >
                         {/*<AiOutlineInfoCircle className="text-sm" />*/}
-                        Min cost per min is 20 cents
+                        Min cost per min is ${agencyPlanCost}
                       </p>
                     </div>
                   )}
@@ -450,18 +467,26 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Price</div>
-                    <div>${originalPrice}/ min</div>
-                    <div>${(originalPrice * minutes).toFixed(2)}</div>
+                    <div>${discountedPrice}/ min</div>
+                    {
+                      discountedPrice && minutes && (
+                        <div>${(discountedPrice * minutes).toFixed(2)}</div>
+                      )
+                    }
                   </div>
                   <div
                     className="flex flex-row items-center justify-between mt-4"
                     style={styles.inputs}
                   >
                     <div>Your Cost</div>
-                    <div>${agencyPlanCost}/ min</div>
-                    <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
+                    <div>{agencyPlanCost && `$${(agencyPlanCost).toFixed(2)}`}/ min</div>
+                    {
+                      discountedPrice && minutes && (
+                        <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
+                      )
+                    }
                   </div>
-                  {originalPrice && ( //minutes && 
+                  {discountedPrice && minutes && ( // 
                     <div className="w-full">
                       <div
                         className="flex flex-row items-center justify-between mt-4"
@@ -469,11 +494,11 @@ export default function AddMonthlyPlan({
                       >
                         <div>Your Profit</div>
                         <div>
-                          ${(originalPrice - agencyPlanCost).toFixed(2)}/ min
+                          ${(discountedPrice - agencyPlanCost).toFixed(2)}/ min
                         </div>
                         <div>
                           $
-                          {((originalPrice - agencyPlanCost) * minutes).toFixed(
+                          {((discountedPrice - agencyPlanCost) * minutes).toFixed(
                             2
                           )}
                         </div>
@@ -483,7 +508,7 @@ export default function AddMonthlyPlan({
                         style={{ color: getClr() }}
                       >
                         {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
+                          ((discountedPrice - agencyPlanCost) / agencyPlanCost) *
                           100
                         ).toFixed(2)}
                         %
@@ -505,10 +530,10 @@ export default function AddMonthlyPlan({
                 <input
                   style={styles.inputs}
                   type="text"
-                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${discountedPrice && "line-through"
+                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${originalPrice && "line-through" //replced
                     }`}
                   placeholder="00"
-                  value={discountedPrice}
+                  value={originalPrice} //replaced
                   onChange={(e) => {
                     const value = e.target.value;
                     // Allow only digits and one optional period
@@ -518,7 +543,7 @@ export default function AddMonthlyPlan({
                     const valid = sanitized.split('.').length > 2
                       ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                       : sanitized;
-                    setDiscountedPrice(valid);
+                    setOriginalPrice(valid);
                   }}
                 />
               </div>
@@ -659,11 +684,12 @@ export default function AddMonthlyPlan({
                   ></div>
                   {/* Triangle price here */}
                   {
-                    discountedPrice && minutes && (
+                    originalPrice && minutes && ( //replaced
                       <span style={styles.labelText}>
+                        {checkCalulations()}
                         {(
-                          // (originalPrice / discountedPrice) *
-                          (discountedPrice - (originalPrice * minutes)) / discountedPrice *
+                          // (originalPrice / originalPrice) * //replaced
+                          (originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
                           100
                         ).toFixed(0) || "-"}
                         %
@@ -715,15 +741,15 @@ export default function AddMonthlyPlan({
                           )}
                         </div>
                         <div className="flex flex-row items-center gap-2">
-                          {discountedPrice && (
+                          {originalPrice && (
                             <div style={styles.originalPrice} className="line-through">
-                              ${discountedPrice}
+                              ${originalPrice}
                             </div>
                           )}
-                          {originalPrice && (
+                          {discountedPrice && minutes && (
                             <div className="flex flex-row justify-start items-start ">
                               <div style={styles.discountedPrice}>
-                                ${(originalPrice * minutes).toFixed(2)}
+                                ${(discountedPrice * minutes).toFixed(2)}
                               </div>
                               <p style={{ color: "#15151580" }}></p>
                             </div>

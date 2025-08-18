@@ -523,7 +523,7 @@ export default function AddXBarPlan({
                               ${discountedPrice}
                             </div>
                           )}
-                          {originalPrice && (
+                          {originalPrice && minutes && (
                             <div className="flex flex-row justify-start items-start ">
                               <div style={styles.discountedPrice}>
                                 ${(originalPrice * minutes).toFixed(2)}

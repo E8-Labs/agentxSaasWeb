@@ -396,6 +396,7 @@ function SubAccountBilling({
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
+      console.log("Payment history trigered for subaccount")
       setHistoryLoader(true);
 
       let AuthToken = null;
@@ -407,7 +408,8 @@ function SubAccountBilling({
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.getPaymentHistory;
+      const ApiPath = `${Apis.getPaymentHistory}?userId=${selectedUser.id}`;
+      console.log("Api path for payment history of subaccount is", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -442,7 +444,7 @@ function SubAccountBilling({
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.cancelPlan;
+      const ApiPath = `${Apis.cancelPlan}?userId=${selectedUser.id}`;
 
       // //console.log;
 

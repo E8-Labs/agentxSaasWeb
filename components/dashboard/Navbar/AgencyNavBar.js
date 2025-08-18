@@ -37,6 +37,8 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import EditAgencyName from "@/components/agency/agencyExtras.js/EditAgencyName";
 import CheckList from "./CheckList";
 import AgencyChecklist from "./AgencyChecklist";
+import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData";
+
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -359,37 +361,34 @@ const AgencyNavBar = () => {
       />
 
       {/* Sticky Modal */}
-      <Modal
-        open={canAcceptPaymentsAgencyccount} //canAcceptPaymentsAgencyccount
-        className="border-none outline-none"
-        BackdropProps={{
-          style: { backgroundColor: 'transparent' }
-        }}
-      >
-        <Box className="w-full h-screen flex flex-row items-end justify-end border-none outline-none" sx={{ backgroundColor: "transparent" }}>
-          <div className="flex flex-row items-center gap-4 bg-white mb-6 mr-4 rounded-md shadow-lg p-2">
-            <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
-            <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
-              {`You're Stripe account has not been connected.`}
-            </div>
-            {
-              loader ? (
-                <CircularProgress size={20} />
-              ) : (
 
-                <button style={{ fontSize: 12, fontWeight: 500 }}
-                  className="bg-purple text-white rounded-md p-2 outline-none border-none"
-                  onClick={() => {
-                    handleVerifyClick()
-                  }}
-                >
-                  Connect Now
-                </button>
-              )
-            }
+      {
+        !CheckStripe() && (
+          <div style={{ position: "absolute", bottom: 10, right: 10 }}>
+            <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
+              <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
+              <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
+                {`You're Stripe account has not been connected.`}
+              </div>
+              {
+                loader ? (
+                  <CircularProgress size={20} />
+                ) : (
+
+                  <button style={{ fontSize: 12, fontWeight: 500 }}
+                    className="bg-purple text-white rounded-md p-2 outline-none border-none"
+                    onClick={() => {
+                      handleVerifyClick()
+                    }}
+                  >
+                    Connect Now
+                  </button>
+                )
+              }
+            </div>
           </div>
-        </Box>
-      </Modal>
+        )
+      }
 
       <div className="h-screen w-full flex flex-col items-center justify-between">
         <div
@@ -430,7 +429,7 @@ const AgencyNavBar = () => {
                   sx={{ cursor: "pointer", textDecoration: "none" }}
                   // href={item.href}
                   onClick={() => {
-                     router.prefetch(item.href);
+                    router.prefetch(item.href);
                     if (pathname !== item.href) {
                       setNavigatingTo(item.href);
                       router.push(item.href);

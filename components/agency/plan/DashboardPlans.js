@@ -10,6 +10,8 @@ import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
+import { CheckStripe } from '../agencyServices/CheckAgencyData';
+
 
 function DashboardPlans() {
 
@@ -75,7 +77,14 @@ function DashboardPlans() {
 
     //handle add new plan click
     const handleAddPlan = () => {
-        setOpen(true);
+        const getStripe = CheckStripe();
+        if (!getStripe) {
+            console.log("Show stripe warning ⚠️");
+            setSnackMsg("Stripe needs to be connected");
+            setSnackMsgType(SnackbarTypes.Warning);
+        } else {
+            setOpen(true);
+        }
     }
 
     //plan created
@@ -90,19 +99,6 @@ function DashboardPlans() {
         setPlansList(prev => [...prev, newPlan]);
     };
 
-    // const subAcccounts = [
-    //     {
-    //         id: 1,
-    //         name: 'ali',
-    //         plan: 'abc',
-    //         tag: 'Best Deak',
-    //         price: '378',
-    //         STPrice: '260',
-    //         Sold: 12,
-    //         mins: '21',
-    //     }
-    // ]
-
     //code to get the monthly plans
 
     const getMonthlyPlan = async () => {
@@ -113,22 +109,21 @@ function DashboardPlans() {
             if (localPlans) {
                 setPlansList(JSON.parse(localPlans));
                 console.log("Plans list is", JSON.parse(localPlans));
-            } else {
-                const Token = AuthToken();
-                const ApiPath = Apis.getMonthlyPlan
-                const response = await axios.get(ApiPath,
-                    {
-                        headers: {
-                            "Authorization": "Bearer " + Token,
-                            "Content-Type": "application/json",
-                        }
+            } //else {
+            const Token = AuthToken();
+            const ApiPath = Apis.getMonthlyPlan
+            const response = await axios.get(ApiPath,
+                {
+                    headers: {
+                        "Authorization": "Bearer " + Token,
+                        "Content-Type": "application/json",
                     }
-                );
-                if (response) {
-                    console.log("Response of get monthly plan api is", response.data);
-                    setPlansList(response.data.data);
-                    localStorage.setItem("agencyMonthlyPlans", JSON.stringify(response.data.data));
                 }
+            );
+            if (response) {
+                console.log("Response of get monthly plan api is", response.data);
+                setPlansList(response.data.data);
+                localStorage.setItem("agencyMonthlyPlans", JSON.stringify(response.data.data));
             }
         } catch (error) {
             setInitialLoader(false);
@@ -148,23 +143,23 @@ function DashboardPlans() {
                 const d = JSON.parse(localXbarPlans);
                 console.log(d);
                 setPlansList(JSON.parse(localXbarPlans));
-            } else {
-                const Token = AuthToken();
-                const ApiPath = Apis.getXBarOptions
-                const response = await axios.get(ApiPath,
-                    {
-                        headers: {
-                            "Authorization": "Bearer " + Token,
-                            "Content-Type": "application/json",
-                        }
+            } //else {
+            const Token = AuthToken();
+            const ApiPath = Apis.getXBarOptions
+            const response = await axios.get(ApiPath,
+                {
+                    headers: {
+                        "Authorization": "Bearer " + Token,
+                        "Content-Type": "application/json",
                     }
-                );
-                if (response) {
-                    console.log("Response of XBar Option api is", response.data);
-                    setPlansList(response.data.data);
-                    localStorage.setItem("XBarOptions", JSON.stringify(response.data.data));
                 }
+            );
+            if (response) {
+                console.log("Response of XBar Option api is", response.data);
+                setPlansList(response.data.data);
+                localStorage.setItem("XBarOptions", JSON.stringify(response.data.data));
             }
+            // }
         } catch (error) {
             setInitialLoader(false);
             console.error("Error occured in getting XBar Option is", error);
@@ -185,6 +180,38 @@ function DashboardPlans() {
         if (mesg) {
             setSnackMsg(mesg);
             setSnackMsgType(SnackbarTypes.Success);
+        }
+    }
+
+    //code to del plan
+    const handleDeletePlan = async () => {
+        try {
+            const token = AuthToken();
+            const ApiPath = "";
+            const ApiData = {
+                planId: "id"
+            }
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                }
+            });
+
+            if (response) {
+                console.log("Response of add plans api is", response.data);
+                if (response.data.status === true) {
+                    if (planType === "monthly") {
+                        // setInitialLoader(true);
+                        getMonthlyPlan();
+                    } else if (planType === "Xbar") {
+                        getXBarOptions()
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.log("Error occured in del plan api is", error)
         }
     }
 
@@ -362,12 +389,12 @@ function DashboardPlans() {
                                                             </div>
                                                             <div className="w-1/12">
                                                                 <div style={styles.text2}>
-                                                                    ${item.originalPrice || 0}
+                                                                    ${item.discountedPrice || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-2/12">
                                                                 <div style={styles.text2}>
-                                                                    ${item.discountedPrice || 0}
+                                                                    ${item.originalPrice || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-1/12">
@@ -413,6 +440,7 @@ function DashboardPlans() {
                                                                                     handleClose={() => {
                                                                                         setShowDeleteModal(false);
                                                                                     }}
+                                                                                    handleDelete={handleDeletePlan}
                                                                                 />
                                                                             )
                                                                         }
