@@ -33,6 +33,8 @@ function DashboardPlans() {
     //agencyp plan cost
     const [agencyPlanCost, setAgencyPlanCost] = useState("");
 
+    const [delLoading,setDelLoading] = useState(false)
+
 
     //get local user data
     useEffect(() => {
@@ -186,9 +188,11 @@ function DashboardPlans() {
     //code to del plan
     const handleDeleteXBarPlan = async () => {
         try {
+            setDelLoading(true)
             const token = AuthToken();
-            const ApiPath = `${Apis.removeAgencyXBar}/:${moreDropdown}`;
-            console.log("")
+            const ApiPath = `${Apis.removeAgencyXBar}/${moreDropdown}`;
+            console.log("api path is", ApiPath)
+            // return
             const response = await axios.delete(ApiPath, {}, {
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -205,11 +209,15 @@ function DashboardPlans() {
                     } else if (planType === "Xbar") {
                         getXBarOptions()
                     }
+                    setShowDeleteModal(false);
                 }
             }
 
         } catch (error) {
             console.log("Error occured in del plan api is", error)
+        }
+        finally{
+            setDelLoading(true)
         }
     }
 
@@ -438,7 +446,16 @@ function DashboardPlans() {
                                                                                     handleClose={() => {
                                                                                         setShowDeleteModal(false);
                                                                                     }}
-                                                                                    handleDelete={handleDeleteXBarPlan}
+                                                                                    delLoading = {delLoading}
+                                                                                    handleDelete={() => {
+                                                                                        // console.log('planType', planType)
+                                                                                        if (planType === "monthly") {
+                                                                                           
+                                                                                        } else if (planType === "Xbar") {
+                                                                                            handleDeleteXBarPlan()
+                                                                                        }
+
+                                                                                    }}
                                                                                 />
                                                                             )
                                                                         }

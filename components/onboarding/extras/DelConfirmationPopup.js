@@ -1,3 +1,4 @@
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
@@ -53,17 +54,7 @@ const DelConfirmationPopup = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
-                                        onClick={handleClose}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                   <CloseBtn onClick={handleClose}/>
                                 </div>
                             </div>
 
