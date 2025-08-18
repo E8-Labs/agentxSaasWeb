@@ -12,7 +12,8 @@ const DelAdminUser = ({
     handleClosePauseModal,
     handlePaueUser,
     pauseLoader,
-    selectedUser
+    selectedUser,
+    selectedAccount
 }) => {
 
     return (
@@ -144,8 +145,8 @@ const DelAdminUser = ({
                                 {/* <div style={{ width: "20%" }} /> */}
                                 <div style={{ fontWeight: "500", fontSize: 17 }}>
                                     {
-                                        selectedUser?.profile_status === "paused" ? "Reinstate" : "Pause"
-                                    } {selectedUser?.name}
+                                        selectedUser?.profile_status === "paused" || selectedAccount?.profile_status === "paused" ? "Reinstate" : "Pause"
+                                    } {selectedUser?.name} {selectedAccount?.name}
                                 </div>
                                 <div
                                     style={{
@@ -171,7 +172,7 @@ const DelAdminUser = ({
                             <div className="mt-6">
                                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                                     Are you sure to  {
-                                        selectedUser?.profile_status === "paused" ? "Reinstate" : "Pause"
+                                        selectedUser?.profile_status === "paused" || selectedAccount?.profile_status === "paused" ? "Reinstate" : "Pause"
                                     }?
                                 </div>
                             </div>
@@ -205,7 +206,7 @@ const DelAdminUser = ({
                                         onClick={handlePaueUser}
                                     >
                                         Yes!  {
-                                            selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                            selectedUser?.profile_status === "paused" || selectedAccount?.profile_status === "paused" ? "Reinstate" : "Pause"
                                         }
                                     </button>
                                 )}

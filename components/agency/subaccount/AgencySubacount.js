@@ -28,6 +28,7 @@ function AgencySubacount() {
   const [subAccountList, setSubAccountsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [moreDropdown, setmoreDropdown] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(false);
   const [agencyData, setAgencyData] = useState("");
@@ -145,6 +146,8 @@ function AgencySubacount() {
             setShowSnackMessage(response.data.message);
             setShowPauseConfirmationPopup(false);
             setmoreDropdown(null);
+            setSelectedItem(null);
+            getSubAccounts();
           }
           console.log("response.data.data", response.data);
         }
@@ -184,6 +187,8 @@ function AgencySubacount() {
           setDelLoader(false);
           setShowDelConfirmationPopup(false);
           setmoreDropdown(null);
+          setSelectedItem(null);
+          getSubAccounts();
         }
       }
     } catch (error) {
@@ -191,6 +196,29 @@ function AgencySubacount() {
       setDelLoader(false);
     }
   };
+
+  //get clor of profile status
+  const getProfileStatus = (status) => {
+    if (status.profile_status === "paused") {
+      return (
+        <div style={{ color: "orange" }}>
+          Paused
+        </div>
+      )
+    } else if (status.profile_status === "deleted") {
+      return (
+        <div className="text-red">
+          Deleted
+        </div>
+      )
+    } else if (status.profile_status === "active") {
+      return (
+        <div className="text-green">
+          Active
+        </div>
+      )
+    }
+  }
 
   return (
     <div className="w-full flex flex-col items-center ">
@@ -267,8 +295,11 @@ function AgencySubacount() {
         </div>
 
         <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
-          <div className="w-3/12">
+          <div className="w-2/12">
             <div style={styles.text}>Sub Account</div>
+          </div>
+          <div className="w-1/12">
+            <div style={styles.text}>Status</div>
           </div>
           <div className="w-2/12 ">
             <div style={styles.text}>Plan</div>
@@ -312,7 +343,7 @@ function AgencySubacount() {
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer"
                   >
                     <div
-                      className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
                     // onClick={() => {
                     //     // // //console.log;
                     //     // setselectedLeadsDetails(item);
@@ -341,6 +372,9 @@ function AgencySubacount() {
                       <div style={{ ...styles.text2 }} className="w-[60%]">
                         {item.name}
                       </div>
+                    </div>
+                    <div className="w-1/12">
+                      <div style={styles.text2}>{item?.profile_status ? <div>{getProfileStatus(item)}</div> : "-"}</div>
                     </div>
                     <div className=" w-2/12">
                       <div style={styles.text2}>
@@ -378,7 +412,8 @@ function AgencySubacount() {
                           setUserData(item);
                           setmoreDropdown(
                             moreDropdown === item.id ? null : item.id
-                          )
+                          );
+                          setSelectedItem(item);
                         }}
                       >
                         <Image
@@ -418,6 +453,7 @@ function AgencySubacount() {
                                 if (data === "showSnack") {
                                   setShowSnackMessage("Invite Sent");
                                   setmoreDropdown(null);
+                                  setSelectedItem(null);
                                 }
                               }}
                             />
@@ -454,7 +490,7 @@ function AgencySubacount() {
                                   setShowPauseConfirmationPopup(true);
                                 }}
                               >
-                                Pause
+                                {selectedItem?.profile_status === "paused" ? "Reinstate" : "Pause"}
                               </button>
                             )}
                           </div>
@@ -462,6 +498,7 @@ function AgencySubacount() {
                           {
                             showPauseConfirmationPopup && (
                               <DelAdminUser
+                                selectedAccount={selectedItem}
                                 showPauseModal={showPauseConfirmationPopup}
                                 handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
                                 handlePaueUser={handlePause}
@@ -480,6 +517,7 @@ function AgencySubacount() {
                                 // handleDeleteUser();
                                 setShowDelConfirmationPopup(true);
                               }}
+                              disabled={selectedItem?.profile_status === "deleted"}
                             >
                               Delete
                             </button>

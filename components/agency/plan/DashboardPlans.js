@@ -21,6 +21,7 @@ function DashboardPlans() {
 
     const [planType, setPlanType] = useState("monthly");
     const [open, setOpen] = useState(false);
+    const [isEditPlan, setIsEditPlan] = useState(false);
     const [initialLoader, setInitialLoader] = useState(true);
     const [canAddPlan, setCanAddPlan] = useState(true);
     //code for snack messages    
@@ -30,10 +31,13 @@ function DashboardPlans() {
     //code for confiration modal
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+    //selected plan details
+    const [selectedPlan, setSelectedPlan] = useState(null);
+
     //agencyp plan cost
     const [agencyPlanCost, setAgencyPlanCost] = useState("");
 
-    const [delLoading,setDelLoading] = useState(false)
+    const [delLoading, setDelLoading] = useState(false)
 
 
     //get local user data
@@ -216,7 +220,7 @@ function DashboardPlans() {
         } catch (error) {
             console.log("Error occured in del plan api is", error)
         }
-        finally{
+        finally {
             setDelLoading(true)
         }
     }
@@ -265,7 +269,10 @@ function DashboardPlans() {
 
                     <button
                         className='flex px-5 py-3 bg-white rounded-lg text-purple font-medium'
-                        onClick={handleAddPlan}
+                        onClick={() => {
+                            setIsEditPlan(false);
+                            handleAddPlan()
+                        }}
                     >
                         Create New Plan
                     </button>
@@ -410,11 +417,12 @@ function DashboardPlans() {
                                                             <div className="w-1/12 relative">
                                                                 <button
                                                                     id={`dropdown-toggle-${item.id}`}
-                                                                    onClick={() =>
+                                                                    onClick={() => {
                                                                         setmoreDropdown(
                                                                             moreDropdown === item.id ? null : item.id
-                                                                        )
-                                                                    }
+                                                                        );
+                                                                        setSelectedPlan(selectedPlan === item ? null : item);
+                                                                    }}
                                                                 >
                                                                     <Image src={'/svgIcons/threeDotsIcon.svg'} height={24} width={24} alt="menu" />
                                                                 </button>
@@ -425,7 +433,9 @@ function DashboardPlans() {
                                                                             <button
                                                                                 className="px-4 py-2 hover:bg-purple10 w-full text-start bg-transparent cursor-pointer text-sm font-medium text-gray-800"
                                                                                 onClick={() => {
-                                                                                    setmoreDropdown(null)
+                                                                                    // setmoreDropdown(null)
+                                                                                    setIsEditPlan(true);
+                                                                                    setOpen(true);
                                                                                 }}
                                                                             >
                                                                                 Edit
@@ -446,11 +456,11 @@ function DashboardPlans() {
                                                                                     handleClose={() => {
                                                                                         setShowDeleteModal(false);
                                                                                     }}
-                                                                                    delLoading = {delLoading}
+                                                                                    delLoading={delLoading}
                                                                                     handleDelete={() => {
                                                                                         // console.log('planType', planType)
                                                                                         if (planType === "monthly") {
-                                                                                           
+
                                                                                         } else if (planType === "Xbar") {
                                                                                             handleDeleteXBarPlan()
                                                                                         }
@@ -496,8 +506,12 @@ function DashboardPlans() {
                                         <button
                                             className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
                                             style={{ fontWeight: "500", fontSize: 15 }}
-                                            onClick={handleAddPlan}>
                                             Create New Plan
+                                            onClick={() => {
+                                                setIsEditPlan(false);
+                                                handleAddPlan();
+                                            }}
+                                        >
                                         </button>
                                     </div>
                                 ) : (
@@ -537,12 +551,16 @@ function DashboardPlans() {
                             handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated}
                             canAddPlan={canAddPlan}
                             agencyPlanCost={agencyPlanCost}
+                            isEditPlan={isEditPlan}
+                            selectedPlan={selectedPlan}
                         /> :
                         <AddXBarPlan
                             open={open}
                             handleClose={handleClosePlanPopUp}
                             onPlanCreated={handlePlanCreated}
                             agencyPlanCost={agencyPlanCost}
+                            isEditPlan={isEditPlan}
+                            selectedPlan={selectedPlan}
                         />
                 }
 

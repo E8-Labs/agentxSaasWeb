@@ -46,7 +46,7 @@ export const handlePricePerMinInputValue = (value) => {
     const num = Number(digits);
 
     // If > 3, turn it into "points": 5 -> 0.5, 12 -> 0.12, etc.
-    const normalized = num > 3 ? `0.${digits}` : digits;
+    const normalized = num > 1 ? `0.${digits}` : digits;
 
     // setDiscountedPrice(normalized);
     return normalized;

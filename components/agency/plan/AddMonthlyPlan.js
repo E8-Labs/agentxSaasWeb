@@ -18,6 +18,8 @@ export default function AddMonthlyPlan({
   onPlanCreated,
   canAddPlan,
   agencyPlanCost,
+  isEditPlan,
+  selectedPlan
 }) {
 
   //auto scroll to bottom
@@ -43,6 +45,24 @@ export default function AddMonthlyPlan({
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
   const [minCostErr, setMinCostErr] = useState(false);
+
+  //check if is edit plan is true then store the predefault values
+  useEffect(() => {
+    console.log("Test log")
+    if (selectedPlan) {
+      console.log("Value of selected plan passed is", selectedPlan);
+      setTitle(selectedPlan?.title);
+      setTag(selectedPlan?.tag);
+      setPlanDescription(selectedPlan?.planDescription);
+      setOriginalPrice(selectedPlan?.originalPrice);
+      setDiscountedPrice(selectedPlan?.discountedPrice.toFixed(2));
+      setMinutes(selectedPlan?.minutes);
+      if (selectedPlan?.trialValidForDays !== null) {
+        setTrialValidForDays(selectedPlan?.trialValidForDays);
+      }
+      setAllowTrial(selectedPlan?.hasTrial);
+    }
+  }, [selectedPlan])
 
   //auto remove show trial warning
   useEffect(() => {
@@ -108,6 +128,70 @@ export default function AddMonthlyPlan({
 
   //code to create plan
   const handleCreatePlan = async () => {
+    try {
+      setCreatePlanLoader(true);
+
+      console.log("Working");
+
+      const Token = AuthToken();
+      const ApiPath = Apis.addMonthlyPlan;
+      console.log("Api path is", ApiPath);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("planDescription", planDescription);
+      formData.append("originalPrice", originalPrice);//replaced
+      formData.append("discountedPrice", discountedPrice * minutes);
+      formData.append(
+        "percentageDiscount",
+        100 - (discountedPrice / originalPrice) * 100
+      );
+      formData.append("hasTrial", allowTrial);
+      formData.append("trialValidForDays", trialValidForDays);
+      formData.append("trialMinutes", "23");
+      formData.append("tag", tag);
+      formData.append("minutes", minutes);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} = ${value}`);
+      }
+      // return
+
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          Authorization: "Bearer " + Token,
+        },
+      });
+
+      if (response) {
+        console.log("Response of Add plan is", response.data);
+        setCreatePlanLoader(false);
+        onPlanCreated(response);
+        if (response.data.status === true) {
+          //update the monthlyplans state on localstorage to update checklist
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.plansAdded = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+
+          setSnackMsg(response.data.message);
+          setSnackMsgType(SnackbarTypes.Success);
+          handleClose(response.data.message);
+          handleResetValues();
+        } else if (response.data.status === false) {
+          setSnackMsg(response.data.message);
+          setSnackMsgType(SnackbarTypes.Error);
+        }
+      }
+    } catch (error) {
+      console.error("Error occured is", error);
+      setCreatePlanLoader(false);
+    }
+  };
+
+  const handleUpdatePlan = async () => {
     try {
       setCreatePlanLoader(true);
 
@@ -307,6 +391,7 @@ export default function AddMonthlyPlan({
       open={open}
       onClose={() => {
         handleClose("");
+        handleResetValues();
       }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
@@ -341,7 +426,7 @@ export default function AddMonthlyPlan({
               }}
             >
               <div className="mb-4" style={{ fontWeight: "600", fontSize: 18 }}>
-                New Plan
+                {isEditPlan ? "Edit Plan" : "New Plan"}
               </div>
 
               {/* Plan Name */}
@@ -604,6 +689,7 @@ export default function AddMonthlyPlan({
               <button
                 onClick={() => {
                   handleClose("");
+                  handleResetValues();
                 }}
                 className="text-purple-600 font-semibold"
               >
@@ -614,11 +700,16 @@ export default function AddMonthlyPlan({
               ) : (
                 <button
                   className={` ${isFormValid() ? "bg-purple" : "bg-[#00000020]"} w-[12vw] hover:bg-purple-700 ${isFormValid() ? "text-white" : "text-black"} font-semibold py-2 px-4 rounded-lg`}
-                  onClick={handleCreatePlan}
+                  onClick={() => {
+                    if (isEditPlan) {
+                      handleUpdatePlan();
+                    } else {
+                      handleCreatePlan();
+                    }
+                  }}
                   disabled={!isFormValid()}
-
                 >
-                  Create Plan
+                  {isEditPlan ? "Update" : "Create Plan"}
                 </button>
               )}
             </div>
@@ -636,6 +727,7 @@ export default function AddMonthlyPlan({
                 <button
                   onClick={() => {
                     handleClose("");
+                    handleResetValues();
                   }}
                 >
                   <Image
