@@ -175,6 +175,9 @@ const Apis = {
   getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
   CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
   getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
+  //remove and update agency xbars plan
+  removeAgencyXBar: `${BasePath}api/agency/xbar-plans`,
+  updateAgencyXBar: `${BasePath}api/agency/xbar-plans`,
 
   //subaccount plan apis
   getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,

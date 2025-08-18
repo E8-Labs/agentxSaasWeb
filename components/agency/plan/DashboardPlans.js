@@ -184,14 +184,12 @@ function DashboardPlans() {
     }
 
     //code to del plan
-    const handleDeletePlan = async () => {
+    const handleDeleteXBarPlan = async () => {
         try {
             const token = AuthToken();
-            const ApiPath = "";
-            const ApiData = {
-                planId: "id"
-            }
-            const response = await axios.post(ApiPath, ApiData, {
+            const ApiPath = `${Apis.removeAgencyXBar}/:${moreDropdown}`;
+            console.log("")
+            const response = await axios.delete(ApiPath, {}, {
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
@@ -440,7 +438,7 @@ function DashboardPlans() {
                                                                                     handleClose={() => {
                                                                                         setShowDeleteModal(false);
                                                                                     }}
-                                                                                    handleDelete={handleDeletePlan}
+                                                                                    handleDelete={handleDeleteXBarPlan}
                                                                                 />
                                                                             )
                                                                         }
