@@ -87,7 +87,7 @@ const Apis = {
   sendVerificationCode: `${BasePath}api/user/sendVerificationCode`,
   deleteLead: `${BasePath}api/leads/deleteLead`,
   getProfileData: `${BasePath}api/user/myProfile`,
-  getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgentVapiId`,
+  getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,
