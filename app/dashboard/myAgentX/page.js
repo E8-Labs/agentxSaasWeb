@@ -98,6 +98,13 @@ function Page() {
       ? "https://ai.myagentx.com/"
       : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
 
+  let demoBaseUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? "https://apimyagentx.com/agentx/"
+      : "https://apimyagentx.com/agentxtest/";
+
+
+
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
@@ -3317,7 +3324,7 @@ function Page() {
                   <button
                     style={{ paddingLeft: "3px" }}
                     onClick={() => {
-                      handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                      handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
                     }}
                   >
                     <Image src={'/svgIcons/webhook.svg'}
