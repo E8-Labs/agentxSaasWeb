@@ -2163,7 +2163,7 @@ const Pipeline1 = () => {
                               } else {
                                 setShowDelBtn(false);
                               }
-                              if (stage.identifier.startsWith("custom_stage")) {
+                              if (stage.identifier === "hot_lead" || stage.identifier.startsWith("custom_stage")) {
                                 setShowConfigureBtn(true);
                               } else {
                                 setShowConfigureBtn(false);
