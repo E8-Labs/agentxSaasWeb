@@ -69,7 +69,7 @@ export default function RootLayout({ children }) {
         />
 
         {/* Step 1 – Visitor tracking script */}
-        <Script
+        {/*<Script
           id="agentx-visitor-tracking"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
@@ -98,6 +98,24 @@ export default function RootLayout({ children }) {
             var e=document.getElementsByTagName("script")[0];
             e.parentNode.insertBefore(t,e);
           })();`,
+          }}
+        />*/}
+
+        <Script
+          id="agentx-visitor-tracking"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function() {
+                var t = document.createElement("script");
+                t.type = "text/javascript", t.async = !0, t.src = 'https://set.myagentx.com/js/am.js', t.onload = t.onreadystatechange = function() {
+                    var t = this.readyState;
+                    if (!t || "complete" == t || "loaded" == t) try {
+                      affiliateManager.init('UoIYax6ZF0P9Ds6xa6mC', 'https://backend.leadconnectorhq.com', '.agentx-git-test-salman-majid-alis-projects.vercel.app')
+                    } catch (t) {}
+                };
+                var e = document.getElementsByTagName("script")[0];
+                e.parentNode.insertBefore(t, e)
+            })();`,
           }}
         />
       </head>
