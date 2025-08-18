@@ -200,8 +200,8 @@ export default function AddMonthlyPlan({
       const Token = AuthToken();
       // const ApiPath = Apis.updateAgencyPlan;
 
-      const url = `${Apis.updateAgencyPlan}/${encodeURIComponent(selectedPlan.id)}`;//getUserByAgentVapiId
-      const method = "put";
+      const url = `${Apis.updateAgencyPlan}/${selectedPlan.id}`;//getUserByAgentVapiId
+      // const method = "put";
 
       console.log("Api path is", url);
       const formData = new FormData();
@@ -224,18 +224,18 @@ export default function AddMonthlyPlan({
       }
       // return
 
-      // const response = await axios.post(ApiPath, formData, {
-      //   headers: {
-      //     Authorization: "Bearer " + Token,
-      //   },
-      // });
-      const response = await axios({
-        url,
-        method,
-        data: formData,
-        headers: { Authorization: `Bearer ${Token}` },
-        // ...extra, // uncomment if using query param style
+      const response = await axios.put(url, formData, {
+        headers: {
+          Authorization: "Bearer " + Token,
+        },
       });
+      // const response = await axios({
+      //   url,
+      //   method,
+      //   data: formData,
+      //   headers: { Authorization: `Bearer ${Token}` },
+      //   // ...extra, // uncomment if using query param style
+      // });
 
       if (response) {
         console.log("Response of Add plan is", response.data);
