@@ -94,16 +94,83 @@ function DashboardPlans() {
     }
 
     //plan created
+    // const handlePlanCreated = (response) => {
+    //     console.log("Response received is:", response);
+    //     let newPlan = response?.data?.data;
+
+    //     //get plans from local
+    //     let localPlans = null;
+    //     if (planType === "monthly") {
+    //         const LP = localStorage.getItem("agencyMonthlyPlans");
+    //         if(LP){
+    //             const d = JSON.parse(LP);
+    //             localPlans = d;
+    //         }
+    //     } else if (planType === "Xbar") {
+    //         const LP = localStorage.getItem("XBarOptions");
+    //         if(LP){
+    //             const d = JSON.parse(LP);
+    //             localPlans = d;
+    //         }
+    //     }
+    //     console.log("Local Plans list is", localPlans);
+
+
+
+    //     if (planType === "monthly") {
+    //         localStorage.setItem("agencyMonthlyPlans", JSON.stringify([...plansList, newPlan]));
+    //     } else if (planType === "Xbar") {
+    //         localStorage.setItem("XBarOptions", JSON.stringify([...plansList, newPlan]));
+    //     }
+    //     setPlansList(prev => [...prev, newPlan]);
+    // };
+
     const handlePlanCreated = (response) => {
         console.log("Response received is:", response);
         let newPlan = response?.data?.data;
+
+        // Load existing plans based on type
+        let localPlans = [];
         if (planType === "monthly") {
-            localStorage.setItem("agencyMonthlyPlans", JSON.stringify([...plansList, newPlan]));
+            console.log("")
+            const LP = localStorage.getItem("agencyMonthlyPlans");
+            if (LP) {
+                localPlans = JSON.parse(LP);
+            }
         } else if (planType === "Xbar") {
-            localStorage.setItem("XBarOptions", JSON.stringify([...plansList, newPlan]));
+            const LP = localStorage.getItem("XBarOptions");
+            if (LP) {
+                localPlans = JSON.parse(LP);
+            }
         }
-        setPlansList(prev => [...prev, newPlan]);
+        console.log("Local Plans list is", localPlans);
+
+        // Update if exists, otherwise add
+        let updatedPlans = [];
+        const idToCompare = newPlan.id
+        const existingIndex = localPlans.findIndex(plan => plan.id === idToCompare);
+
+        if (existingIndex !== -1) {
+            // Replace existing plan
+            updatedPlans = [...localPlans];
+            updatedPlans[existingIndex] = newPlan;
+        } else {
+            // Add new plan
+            updatedPlans = [...localPlans, newPlan];
+        }
+
+        console.log("Updated plans are", updatedPlans);
+        // Save to localStorage
+        if (planType === "monthly") {
+            localStorage.setItem("agencyMonthlyPlans", JSON.stringify(updatedPlans));
+        } else if (planType === "Xbar") {
+            localStorage.setItem("XBarOptions", JSON.stringify(updatedPlans));
+        }
+
+        // Update state
+        setPlansList(updatedPlans);
     };
+
 
     //code to get the monthly plans
 
@@ -190,14 +257,19 @@ function DashboardPlans() {
     }
 
     //code to del plan
-    const handleDeleteXBarPlan = async () => {
+    const handleDeletePlan = async () => {
         try {
             setDelLoading(true)
             const token = AuthToken();
-            const ApiPath = `${Apis.removeAgencyXBar}/${moreDropdown}`;
+            let ApiPath = "";
+            if (planType === "monthly") {
+                ApiPath = `${Apis.removeAgencyPlan}/${moreDropdown}`;
+            } else if (planType === "Xbar") {
+                ApiPath = `${Apis.removeAgencyXBar}/${moreDropdown}`;
+            }
             console.log("api path is", ApiPath)
             // return
-            const response = await axios.delete(ApiPath, {}, {
+            const response = await axios.delete(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
@@ -213,6 +285,7 @@ function DashboardPlans() {
                     } else if (planType === "Xbar") {
                         getXBarOptions()
                     }
+                    setmoreDropdown(null);
                     setShowDeleteModal(false);
                 }
             }
@@ -221,7 +294,7 @@ function DashboardPlans() {
             console.log("Error occured in del plan api is", error)
         }
         finally {
-            setDelLoading(true)
+            setDelLoading(false);
         }
     }
 
@@ -459,12 +532,7 @@ function DashboardPlans() {
                                                                                     delLoading={delLoading}
                                                                                     handleDelete={() => {
                                                                                         // console.log('planType', planType)
-                                                                                        if (planType === "monthly") {
-
-                                                                                        } else if (planType === "Xbar") {
-                                                                                            handleDeleteXBarPlan()
-                                                                                        }
-
+                                                                                        handleDeletePlan()
                                                                                     }}
                                                                                 />
                                                                             )

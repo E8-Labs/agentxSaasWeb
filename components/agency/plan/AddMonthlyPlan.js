@@ -55,7 +55,7 @@ export default function AddMonthlyPlan({
       setTag(selectedPlan?.tag);
       setPlanDescription(selectedPlan?.planDescription);
       setOriginalPrice(selectedPlan?.originalPrice);
-      setDiscountedPrice(selectedPlan?.discountedPrice.toFixed(2));
+      setDiscountedPrice(selectedPlan?.discountedPrice?.toFixed(2)/selectedPlan?.minutes);
       setMinutes(selectedPlan?.minutes);
       if (selectedPlan?.trialValidForDays !== null) {
         setTrialValidForDays(selectedPlan?.trialValidForDays);
@@ -200,7 +200,7 @@ export default function AddMonthlyPlan({
       const Token = AuthToken();
       // const ApiPath = Apis.updateAgencyPlan;
 
-      const url = `${Apis.updateAgencyPlan}/${selectedPlan.id}`;//getUserByAgentVapiId
+      const url = `${Apis.updateAgencyPlan}/${selectedPlan.id}`;
       // const method = "put";
 
       console.log("Api path is", url);

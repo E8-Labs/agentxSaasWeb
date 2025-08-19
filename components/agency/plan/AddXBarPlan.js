@@ -15,6 +15,8 @@ export default function AddXBarPlan({
   handleClose,
   onPlanCreated,
   agencyPlanCost,
+  isEditPlan,
+  selectedPlan
 }) {
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState("");
@@ -27,6 +29,20 @@ export default function AddXBarPlan({
 
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+
+  //check if is edit plan is true then store the predefault values
+  useEffect(() => {
+    console.log("Test log xbars")
+    if (selectedPlan) {
+      console.log("Value of selected plan passed is", selectedPlan);
+      setTitle(selectedPlan?.title);
+      setTag(selectedPlan?.tag);
+      setPlanDescription(selectedPlan?.planDescription);
+      setOriginalPrice((selectedPlan?.discountedPrice / selectedPlan?.minutes).toFixed(2));
+      setDiscountedPrice(selectedPlan?.originalPrice);
+      setMinutes(selectedPlan?.minutes);
+    }
+  }, [selectedPlan]);
 
   //auto check minCostError
   useEffect(() => {
@@ -113,6 +129,66 @@ export default function AddXBarPlan({
 
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
+          handleResetValues()
+          handleClose(response.data.message);
+        } else if (response.data.status === false) {
+          setSnackMsg(response.data.message);
+          setSnackMsgType(SnackbarTypes.Error);
+        }
+      }
+    } catch (error) {
+      setAddPlanLoader(false);
+      console.error("Error is", error);
+    } finally {
+      setAddPlanLoader(false);
+    }
+  };
+
+  //code to update plan
+  const handleUpdatePlanClick = async () => {
+    try {
+      setAddPlanLoader(true);
+      console.log("Working");
+
+      // const ApiPath = Apis.addXBarOptions; //vincecamuto
+      const url = `${Apis.updateAgencyXBar}/${selectedPlan.id}`;
+      const Token = AuthToken();
+      console.log("Url for udate ageny is", url);
+
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("tag", tag);
+      formData.append("planDescription", planDescription);
+      formData.append("originalPrice", discountedPrice);
+      formData.append("discountedPrice", originalPrice * minutes);
+      formData.append(
+        "percentageDiscount",
+        100 - (originalPrice / discountedPrice) * 100
+      );
+      formData.append("minutes", minutes);
+
+      const response = await axios.put(url, formData, {
+        headers: {
+          Authorization: "Bearer " + Token,
+        },
+      });
+
+      if (response) {
+        console.log("Response of add xbars api is", response.data);
+        setAddPlanLoader(false);
+        onPlanCreated(response);
+        if (response.data.status === true) {
+          //update the xbars state on localstorage to update checklist
+          const localData = localStorage.getItem("User");
+          if (localData) {
+            let D = JSON.parse(localData);
+            D.user.checkList.checkList.plansXbarAdded = true;
+            localStorage.setItem("User", JSON.stringify(D));
+          }
+          window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
+
+          setSnackMsg(response.data.message);
+          setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);
           handleResetValues()
         } else if (response.data.status === false) {
@@ -129,7 +205,7 @@ export default function AddXBarPlan({
   };
 
   const shouldContinue = () => {
-    if (!title || !planDescription || !tag || !originalPrice || originalPrice === 0 || discountedPrice === 0 || minutes === 0  || minCostErr) {
+    if (!title || !planDescription || !tag || !originalPrice || originalPrice === 0 || discountedPrice === 0 || minutes === 0 || minCostErr) {
       return true
     } else {
       return false
@@ -247,7 +323,7 @@ export default function AddXBarPlan({
               }}
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">New XBar Option</h2>
+                <h2 className="text-xl font-semibold">{isEditPlan ? "Edit Plan" : "New XBar Option"}</h2>
               </div>
 
               {/* Plan Name */}
@@ -397,10 +473,17 @@ export default function AddXBarPlan({
               ) : (
                 <button
                   className={` ${shouldContinue() ? "bg-[#00000050]" : "bg-purple "} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg`}
-                  onClick={handleAddPlanClick}
+                  // onClick={handleAddPlanClick}
+                  onClick={() => {
+                    if (isEditPlan) {
+                      handleUpdatePlanClick();
+                    } else {
+                      handleAddPlanClick();
+                    }
+                  }}
                   disabled={shouldContinue()}
                 >
-                  Create Plan
+                  {isEditPlan ? "Update" : "Create Plan"}
                 </button>
               )}
             </div>
