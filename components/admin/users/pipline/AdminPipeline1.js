@@ -100,6 +100,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   const [leadsCountInStage, setLeadsCountInStage] = useState(null);
   //code to add new stage
   const [addNewStageModal, setAddNewStageModal] = useState(false);
+  const [isEditingStage, setIsEditingStage] = useState(false);
   const [newStageTitle, setNewStageTitle] = useState("");
   const [stageColor, setStageColor] = useState("#000000");
   const [addStageLoader, setAddStageLoader] = useState(false);
@@ -223,6 +224,11 @@ const AdminPipeline1 = ({ selectedUser }) => {
   //update the stage color
   const [updateStageColor, setUpdateStageColor] = useState("");
   const [stageColorUpdate, setStageColorUpdate] = useState(null);
+  //configure popup
+  const [showConfigureBtn, setShowConfigureBtn] = useState(false);
+  const [snackMessage, setSnackMessage] = useState(null);
+  const [showConfigurePopup, setShowConfigurePopup] = useState(false);
+  const [configureLoader, setConfigureLoader] = useState(false);
 
   //code for rename pipeline
   const [showRenamePipelinePopup, setShowRenamePipelinePopup] = useState(false);
@@ -652,8 +658,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setStagesList(response.data.data[index].stages);
           setOldStages(response.data.data[index].stages);
           setLeadsList(response.data.data[index].leads);
-          // const LeadsList = response.data.data[index].leads;
-          // console.log("Leads list is", LeadsList);
+          // //console.log;
         }
       }
     } catch (error) {
@@ -758,11 +763,101 @@ const AdminPipeline1 = ({ selectedUser }) => {
     setStagesList(item.stages);
     setLeadsCountInStage(item.leadsCountInStage);
     setLeadsList(item.leads);
-    // console.log("Leads found are c_2", item.leads)
     setReservedLeads(item.leads);
     handleCloseOtherPipeline();
     selectedPipelineIndex = index;
     setParamsInSearchBar(index);
+  };
+
+  //code for updating existing custom stage
+  const handleUpdateCustomStage = async () => {
+    try {
+      setAddStageLoader(true);
+      const localData = localStorage.getItem("User");
+      let AuthToken = null;
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      const ApiPath = Apis.UpdateStage;
+      const formData = new FormData();
+
+
+      formData.append("stageId", selectedStage.id);
+      formData.append("stageTitle", newStageTitle);
+      formData.append("color", stageColor);
+      formData.append("action", action);
+      formData.append("userId", selectedUser.id);
+
+      // Add examples array
+      inputs.forEach((input, index) => {
+        if (input.value && input.value.trim() !== "") {
+          formData.append(`examples[${index}]`, input.value);
+        }
+      });
+
+      console.log("Tags are", tagsValue);
+
+      tagsValue.forEach((tag, i) => {
+        if (typeof tag === "string" && tag.trim()) {
+          formData.append(`tags[${i}]`, tag.trim());
+        }
+      });
+
+      console.log("Teams list 1.0 is", assignToMember);
+      console.log("Teams list is", assignLeadToMember);
+
+      assignLeadToMember.forEach((assignedTeam, i) => {
+        formData.append(`teams[${i}]`, assignedTeam);
+        // if (assignedTeam.trim()) {
+        // }
+      });
+
+      console.log("Update stage API data:");
+      for (let [key, value] of formData) {
+        console.log(`${key} = ${value}`);
+      }
+
+      const response = await axios.post(ApiPath, formData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response) {
+        console.log("Response of update stage api is", response.data);
+        if (response.data.status === true) {
+          setStagesList(response.data.data.stages);
+          handleCloseAddStage();
+          setSnackMessage({ message: response.data.message || "Stage updated", type: SnackbarTypes.Success });
+
+          // Update selected pipeline stages
+          setSelectedPipeline((prevData) => ({
+            ...prevData,
+            stages: response.data.data.stages,
+          }));
+
+          // Update pipelines list
+          setPipeLines((prevData) =>
+            prevData.map((item) =>
+              item.id === SelectedPipeline.id
+                ? { ...item, stages: response.data.data.stages }
+                : item
+            )
+          );
+        } else if (response.data.status == false) {
+          let message = response.data.message;
+          setSnackMessage({ message: message, type: SnackbarTypes.Error });
+        }
+      }
+    } catch (error) {
+      console.error("Error occurred in updating stage api:", error);
+      setSnackMessage({ message: "Failed to update stage", type: SnackbarTypes.Error });
+    } finally {
+      setAddStageLoader(false);
+    }
   };
 
   //code for adding new custom stage
@@ -782,7 +877,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
       const mainAgentData = localStorage.getItem("agentDetails");
       // //console.log;
 
-      if (mainAgentData && mainAgentData !== "undefined") {
+      if (mainAgentData) {
         const mainAgentDetails = JSON.parse(mainAgentData);
         // //console.log;
         // //console.log;
@@ -1702,6 +1797,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
         hide={() => setSuccessSnack(false)}
         message={SuccessSnack}
       />
+      <AgentSelectSnackMessage
+        type={snackMessage?.type}
+        isVisible={snackMessage != null}
+        hide={() => setSnackMessage(null)}
+        message={snackMessage?.message}
+      />
       <div
         className="w-full flex flex-row justify-center"
       // style={{ borderBottom: "1px solid #15151510" }}
@@ -1964,11 +2065,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
                         aria-describedby={stageId}
                         variant="contained"
                         onClick={(evetn) => {
-                          if (stage.identifier === "new_lead") {
+                          if (stage.identifier === "new_lead" || stage.identifier === "booked") {
                             // //console.log;
                             setShowDelBtn(true);
                           } else {
                             setShowDelBtn(false);
+                          }
+                          if (stage.identifier.startsWith("custom_stage") || stage.identifier.startsWith("hot_lead")) {
+                            setShowConfigureBtn(true);
+                          } else {
+                            setShowConfigureBtn(false);
                           }
                           // //console.log;
                           handleShowStagePopover(evetn, stage);
@@ -1994,65 +2100,47 @@ const AdminPipeline1 = ({ selectedUser }) => {
                       PaperProps={{
                         elevation: 0, // This will remove the shadow
                         style: {
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.08)",
+                          boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
                           borderRadius: "12px",
                         },
                       }}
                     >
-                      <div className="p-3">
-                        <div className="w-full flex flex-row">
+                      <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
+                        <div className="self-stretch flex flex-col justify-start items-start gap-2">
                           <button
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
+                            className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                             onClick={() => {
                               setShowRenamePopup(true);
                               // //console.log;
                               setRenameStage(selectedStage.stageTitle);
-                              setUpdateStageColor(selectedStage.defaultColor);
-                            }} //handleRenameStage
+                              setUpdateStageColor(
+                                selectedStage.defaultColor
+                              );
+                            }}
                           >
                             <Image
                               src={"/assets/editPen.png"}
-                              height={15}
-                              width={15}
+                              height={16}
+                              width={16}
                               alt="*"
                             />
-                            Rename
+                            <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">Rename</div>
                           </button>
-                        </div>
-                        <div className="w-full flex flex-row mt-4">
-                          {/* {
-                                                        delStageLoader ?
-                                                            <CircularProgress size={20} /> :
-                                                           
-                                                    } */}
-                          <div
-                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                            style={styles.paragraph}
-                          // onClick={handleDeleteStage}
+                          <button
+                            className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                            onClick={() => colorPickerRef.current.click()}
                           >
-                            <button
-                              className="flex flex-row gap-2 outline-none"
-                              onClick={() => colorPickerRef.current.click()}
-                            >
-                              <Image
-                                src={"/assets/colorDrop.png"}
-                                height={18}
-                                width={15}
-                                alt="*"
-                              />
-                              Change Color
-                            </button>
                             <div
                               style={{
-                                height: "15px",
-                                width: "15px",
+                                height: 18,
+                                width: 18,
                                 borderRadius: "50%",
                                 backgroundColor: stageColorUpdate,
                                 cursor: "pointer", // Pointer to indicate clickable
                               }}
                               onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
                             />
+                            <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">Color</div>
                             <div
                               style={{
                                 opacity: 0,
@@ -2070,15 +2158,92 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                 stageColor={stageColorUpdate}
                               />
                             </div>
-                          </div>
-                        </div>
-                        <div ref={bottomRef}></div>
+                          </button>
+                          {
+                            showConfigureBtn && (
+                              <button
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                onClick={() => {
+                                  console.log("Configure button clicked for stage:", selectedStage);
 
-                        {!showDelBtn && (
-                          <div className="w-full flex flex-row mt-4">
+                                  // Parse advancedConfig JSON string to get action and examples
+                                  let parsedConfig = {};
+                                  if (selectedStage.advancedConfig) {
+                                    try {
+                                      parsedConfig = JSON.parse(selectedStage.advancedConfig);
+                                      console.log("Parsed advanced config:", parsedConfig);
+                                    } catch (error) {
+                                      console.error("Error parsing advancedConfig:", error);
+                                    }
+                                  }
+
+                                  // Pre-populate the modal with selected stage data
+                                  setNewStageTitle(selectedStage.stageTitle);
+                                  setStageColor(selectedStage.defaultColor || "#000000");
+                                  // setTagsValue(selectedStage.tags)
+                                  const tags = selectedStage.tags;
+
+                                  const tagNames = tags.map(item => item.tag);
+
+                                  console.log(tagNames);
+                                  setTagsValue(tagNames);
+                                  // setAssignToMember(
+                                  //   selectedStage?.teams[0]?.name
+                                  // );
+                                  setAssignToMember(selectedStage?.teams?.[selectedStage.teams.length - 1]?.name ?? '');
+                                  setAssignLeadToMember([
+                                    ...assignLeadToMember,
+                                    selectedStage?.teams[0]?.id
+                                  ]);
+                                  setAction(parsedConfig.action || "");
+
+                                  // Pre-populate sample answers if they exist
+                                  const stageExamples = parsedConfig.examples || [];
+                                  console.log("Found examples:", stageExamples);
+
+                                  if (stageExamples && stageExamples.length > 0) {
+                                    const updatedInputs = inputs.map((input, index) => {
+                                      const exampleValue = stageExamples[index];
+                                      // Handle both object format {id, value} and string format
+                                      const value = typeof exampleValue === 'object' && exampleValue?.value
+                                        ? String(exampleValue.value)
+                                        : String(exampleValue || "");
+
+                                      return {
+                                        ...input,
+                                        value: value
+                                      };
+                                    });
+                                    setInputs(updatedInputs);
+                                  } else {
+                                    // Clear inputs if no examples
+                                    const clearedInputs = inputs.map((input) => ({
+                                      ...input,
+                                      value: ""
+                                    }));
+                                    setInputs(clearedInputs);
+                                  }
+
+                                  // Automatically show advanced settings when configuring
+                                  setShowAdvanceSettings(true);
+                                  setIsEditingStage(true);
+                                  setAddNewStageModal(true);
+                                  // Close the stage popover
+                                  handleCloseStagePopover();
+                                }}
+                              >
+                                <Image
+                                  src={"/otherAssets/colorDrop.jpg"}
+                                  height={18}
+                                  width={18}
+                                  alt="*"
+                                />
+                                <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">Configure</div>
+                              </button>
+                            )}
+                          {!showDelBtn && (
                             <button
-                              className="text-red flex flex-row items-center gap-4 me-2 outline-none"
-                              style={styles.paragraph}
+                              className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                               onClick={() => {
                                 // console.log(
                                 //   "Selected stage is:",
@@ -2094,10 +2259,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                 width={18}
                                 alt="*"
                               />
-                              Delete
+                              <div className="w-36 justify-start text-start text-red text-base font-normal font-['Inter'] leading-normal">Delete</div>
                             </button>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                     </Popover>
 
@@ -2213,6 +2378,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                         className="text-purple underline"
                                         style={styles.agentName}
                                       >
+                                        {/* lead.agent.name */}
                                         {lead.agent?.agents[0]?.agentType ===
                                           "outbound"
                                           ? lead.agent?.agents[0]?.name
@@ -2524,7 +2690,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
               >
                 {/* <div style={{ width: "20%" }} /> */}
                 <div style={{ fontWeight: "700", fontSize: 22 }}>
-                  Add New Stage
+                  {isEditingStage ? "Configure Stage" : "Add New Stage"}
                 </div>
                 <div
                   style={{
@@ -2897,7 +3063,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                     className="h-[45px] p-2 rounded-lg  items-center gap-2"
                     style={{ border: "0px solid #00000030" }}
                   >
-                    <TagsInput setTags={setTagsValue} />
+                    <TagsInput setTags={setTagsValue} tags={tagsValue} />
                   </div>
                 </div>
               )}
@@ -2924,9 +3090,9 @@ const AdminPipeline1 = ({ selectedUser }) => {
                           fontWeight: 600,
                           fontSize: "20",
                         }}
-                        onClick={handleAddCustomStage}
+                        onClick={isEditingStage ? handleUpdateCustomStage : handleAddCustomStage}
                       >
-                        Add Stage
+                        {isEditingStage ? "Update Stage" : "Add Stage"}
                       </button>
                     )}
                   </div>
