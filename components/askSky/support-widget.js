@@ -75,7 +75,7 @@ export function SupportWidget({
         const response = await axios.get(path)
 
         if (response) {
-          // console.log('response', response)
+          console.log('response', response)
           return response.data.data.agent
         }
       }
