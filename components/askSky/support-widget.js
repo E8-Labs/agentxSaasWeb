@@ -78,9 +78,12 @@ console.log('loading', loading)
         let u = JSON.parse(data)
 
         let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
-
-        const response = await axios.get(path)
-
+        console.log('api path of agent is', path)
+    
+        const response = await axios.get(
+          path
+        );
+    
         if (response) {
           console.log('response', response)
           return response.data.data.agent
