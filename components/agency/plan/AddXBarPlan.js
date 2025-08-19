@@ -128,8 +128,8 @@ export default function AddXBarPlan({
           window.dispatchEvent(new CustomEvent("UpdateAgencyCheckList", { detail: { update: true } }));
 
           setSnackMsg(response.data.message);
-          setSnackMsgType(SnackbarTypes.Success);
           handleResetValues()
+          setSnackMsgType(SnackbarTypes.Success);
           handleClose(response.data.message);
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
@@ -189,8 +189,8 @@ export default function AddXBarPlan({
 
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
-          handleClose(response.data.message);
           handleResetValues()
+          handleClose(response.data.message);
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
@@ -205,7 +205,7 @@ export default function AddXBarPlan({
   };
 
   const shouldContinue = () => {
-    if (!title || !planDescription || !tag || !originalPrice || originalPrice === 0 || discountedPrice === 0 || minutes === 0 || minCostErr) {
+    if (!title || !planDescription || !tag || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minutes === "0" || minCostErr) {
       return true
     } else {
       return false
@@ -299,6 +299,7 @@ export default function AddXBarPlan({
     <Modal
       open={open}
       onClose={() => {
+        handleResetValues();
         handleClose("");
       }}
     >
@@ -462,6 +463,7 @@ export default function AddXBarPlan({
             <div className="flex justify-between mt-6">
               <button
                 onClick={() => {
+                  handleResetValues();
                   handleClose("");
                 }}
                 className="text-purple-600 font-semibold"
@@ -501,6 +503,7 @@ export default function AddXBarPlan({
               <div className="flex justify-end w-full items-center h-[5%]">
                 <button
                   onClick={() => {
+                    handleResetValues();
                     handleClose("");
                   }}
                 >

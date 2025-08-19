@@ -178,8 +178,8 @@ export default function AddMonthlyPlan({
 
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
-          handleClose(response.data.message);
           handleResetValues();
+          handleClose(response.data.message);
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
@@ -253,8 +253,8 @@ export default function AddMonthlyPlan({
 
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
-          handleClose(response.data.message);
           handleResetValues();
+          handleClose(response.data.message);
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
