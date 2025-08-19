@@ -776,12 +776,12 @@ const AdminLeadDetails = ({
                                     </div>
                                 ) : (
                                     <div
-                                        className="h-[95vh] overflow-auto"
+                                        className="h-[90svh] overflow-auto"
                                         style={{ scrollbarWidth: "none" }}
                                     >
                                         <div
                                             style={{
-                                                padding: 20,
+                                                // padding: 20,
                                                 paddingInline: 30,
                                             }}
                                         >
