@@ -184,7 +184,7 @@ const Creator = ({ agentId, name }) => {
         const { totalSecondsAvailable } = response.data.data.user;
 
         if (totalSecondsAvailable < 120) {
-          setSnackbarMessage("Insufficient balance");
+          setSnackbarMessage("Insufficient Balance");
           setSnackbarSeverity("error");
           setSnackbarOpen(true);
           return;
