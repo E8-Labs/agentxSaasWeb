@@ -46,24 +46,26 @@ console.log('isEmbed', isEmbed)
 console.log('loading', loading)
 }, [loading,isEmbed]);
 
-  const setLoadingMsg = async () => {
-   
-    let agent = await getAgentByVapiId()
-    console.log('agent', agent)
-    
-      if (isEmbed) {
-        setloadingMessage(`${agent.name} is booting up...`);
-      } else {
-        setloadingMessage("Sky is booting up...");
-      }
+// 1) Safer loading message
+const setLoadingMsg = async () => {
+  try {
+    const agent = await getAgentByVapiId();
+    const displayName = agent?.name || "Sky";
+    setloadingMessage(`${displayName} is booting up...`);
 
-
-      const timer = setTimeout(() => {
-        setloadingMessage("...getting coffee...");
-      }, 3000);
-
-      return () => clearTimeout(timer);
+    // follow-up beat after 3s
+    setTimeout(() => {
+      setloadingMessage("...getting coffee...");
+    }, 3000);
+  } catch (e) {
+    console.log("setLoadingMsg error:", e);
+    setloadingMessage("Sky is booting up...");
+    setTimeout(() => {
+      setloadingMessage("...getting coffee...");
+    }, 3000);
   }
+};
+
 
 
   const getAgentByVapiId = async () => {
@@ -84,7 +86,7 @@ console.log('loading', loading)
     
         if (response) {
           console.log('response', response)
-          return response.data.data.agent
+          return response?.data?.data?.agent ?? null;
         }
       }
     } catch (e) {
