@@ -42,7 +42,7 @@ export const AddCalendarApi = async (calendarValues
         }
         console.log("Key updated");
 
-        return
+        // return
         const response = await axios.post(ApiPath, formData, {
             headers: {
                 Authorization: "Bearer " + userAuthToken,

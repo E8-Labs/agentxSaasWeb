@@ -29,6 +29,7 @@ import CalendarModal from "@/components/dashboard/myagentX/CalenderModal";
 import MCPView from "./mcp/MCPView";
 import { MUICustomIcon } from "@/components/globalExtras/MUICustomIcon";
 import { MenuItemHoverStyles } from "@/components/globalExtras/MenuItemHoverStyles";
+import { Scopes } from "./Scopes";
 
 const UserCalender = ({
   calendarDetails,
@@ -51,6 +52,7 @@ const UserCalender = ({
   const [agent, setAgent] = useState(selectedAgent);
   const [calenderLoader, setAddCalenderLoader] = useState(false);
   const [googleCalenderLoader, setGoogleCalenderLoader] = useState(false);
+  const [gHLCalenderLoader, setGHLCalenderLoader] = useState(false);
   const [shouldContinue, setshouldContinue] = useState(true);
 
   const [calenderTitle, setCalenderTitle] = useState("");
@@ -76,6 +78,7 @@ const UserCalender = ({
   const [calendarSelected, setCalendarSelected] = useState(null);
   const [showCalendarConfirmation, setShowCalendarConfirmation] = useState(false);
   const [addGoogleCalendar, setAddGoogleCalendar] = useState(false);
+  const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
 
   //code for the IANA time zone lists
 
@@ -84,6 +87,9 @@ const UserCalender = ({
   const [showDelBtn, setShowDelBtn] = useState(false);
   const [showDelPopup, setShowDelPopup] = useState(false);
   const [calenderDelLoader, setCalenderDelLoader] = useState(null);
+  // const [selectedTimeDuration, setSelectedTimeDuration] = useState(null);
+  const [selectedTimeDurationLocal, setSelectedTimeDurationLocal] = useState("");
+
 
   //video card
   const [introVideoModal2, setIntroVideoModal2] = useState(false);
@@ -208,10 +214,13 @@ const UserCalender = ({
         setCalenderDelLoader(null);
 
         if (response.data.status === true) {
-          //console.log;
+          console.log("Response of del cal api is", response.data);
           let newCalList = allCalendars.filter(
-            (item) => item.apiKey != calendarToDelete.apiKey
+            (item) => item.id != calendarToDelete.id
+            // (item) => item.apiKey != calendarToDelete.apiKey
           );
+          console.log("Calendar to del is", calendarToDelete)
+          console.log("List updated of cals", newCalList);
           setShowDelPopup(false);
           setAllCalendars(newCalList);
           setCalendarToDelete(null);
@@ -242,6 +251,8 @@ const UserCalender = ({
       if (calendar?.isFromAddGoogleCal) {
         console.log("Is from google cal", calendar?.isFromAddGoogleCal);
         setGoogleCalenderLoader(true);
+      } else if (calendar?.isFromAddGHLCal) {
+        setGHLCalenderLoader(true)
       } else {
         console.log("Is not from google cal");
         setAddCalenderLoader(true);
@@ -278,13 +289,39 @@ const UserCalender = ({
         formData.append("agentId", selectedAgent?.id);
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
-        formData.append("scope", "openid email profile https://www.googleapis.com/auth/calendar");
+        formData.append("scope", Scopes.join(" "));//"openid email profile https://www.googleapis.com/auth/calendar"
         formData.append("expiryDate", calendar.expiryDate);
         // formData.append("googleUserId", calendar.id); // here google id was undefined
         formData.append("googleUserId", calendar.googleUserId);
         formData.append("email", calendar.email);
         formData.append("title", calendar.calenderTitle);
         formData.append("timeZone", calendar.selectTimeZone);
+        formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
+      } else if (calendar?.isFromAddGHLCal) {
+        formData.append("calendarType", "ghl");
+        // formData.append("GHLapikey", calendar?.apiKey || calenderApiKey);
+        const getCookiesReponse = await axios.get("/api/getCookies");
+        // console.log("Cokies recieved are", getCookiesReponse);
+        formData.append("ghlAuthToken", getCookiesReponse?.data?.accessToken);
+        formData.append("refreshToken", getCookiesReponse?.data?.refreshToken);
+        formData.append("locationId", selectGHLCalendar?.locationId);
+        formData.append("title", calendar?.title || calenderTitle);
+        formData.append("timeZone", calendar?.timeZone || selectTimeZone);
+
+        if (selectGHLCalendar) {
+          // formData.append("mainAgentId", calendarDetails.id);
+          formData.append("ghlCalendarId", selectGHLCalendar?.id); //|| selected calendar id
+          console.log("Sending calendar id ", selectGHLCalendar?.id);
+        }
+        // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
+
+
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -295,6 +332,7 @@ const UserCalender = ({
           console.log("Sending calendar id ", calendar?.id);
         }
         formData.append("eventId", calendar?.eventId || eventId); //|| eventId
+
 
         if (selectedUser) {
           formData.append("userId", selectedUser?.id);
@@ -309,6 +347,8 @@ const UserCalender = ({
       for (let [key, value] of formData.entries()) {
         console.log(`${key} ===== ${value}`);
       }
+
+      // return;
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -415,6 +455,7 @@ const UserCalender = ({
           setMessage(response.data.message);
           setShowAddNewCalender(false);
           setType(SnackbarTypes.Error);
+          setGHLCalenderLoader(false);
         }
       }
     } catch (error) {
@@ -425,6 +466,7 @@ const UserCalender = ({
     } finally {
       setAddCalenderLoader(false);
       setGoogleCalenderLoader(false);
+      setGHLCalenderLoader(false);
     }
   };
 
@@ -496,10 +538,11 @@ const UserCalender = ({
 
 
           </div>
-
-          <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
-            + Add Calendar
-          </button>
+          {allCalendars.length > 0 &&
+            <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
+              + Add Calendar
+            </button>
+          }
         </div>
 
         {selectedAgent?.calendar || allCalendars.length > 0 ? (
@@ -713,8 +756,10 @@ const UserCalender = ({
           onClose={() => {
             setShowCalendarConfirmation(false);
           }}
+          test="Test"
           calenderLoader={calenderLoader}
           googleCalenderLoader={googleCalenderLoader}
+          gHLCalenderLoader={gHLCalenderLoader}
           calendarSelected={calendarSelected}
           handleAddCalendar={handleAddCalender}
           calenderTitle={calenderTitle}
@@ -725,6 +770,10 @@ const UserCalender = ({
           eventId={eventId}
           selectTimeZone={selectTimeZone}
           setSelectTimeZone={setSelectTimeZone}
+          selectedTimeDurationLocal={selectedTimeDurationLocal}
+          setSelectedTimeDurationLocal={setSelectedTimeDurationLocal}
+          selectGHLCalendar={selectGHLCalendar}
+          setSelectGHLCalendar={setSelectGHLCalendar}
         />
 
         {/* Modal to add custom calender */}
@@ -749,11 +798,13 @@ const UserCalender = ({
           open={showDelPopup}
           onClose={() => setShowDelPopup(false)}
           closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: "#00000020",
-              // //backdropFilter: "blur(5px)",
+          slotProps={{
+            backdrop: {
+              timeout: 1000,
+              sx: {
+                backgroundColor: "#00000020",
+                // //backdropFilter: "blur(5px)",
+              },
             },
           }}
         >
@@ -798,29 +849,15 @@ const UserCalender = ({
             </div>
           </Box>
         </Modal>
-      </div>
 
-
-
-      {/* video modal to add calendar */}  {/* hidded for now */}
-      {/* <div className="mt-2">
-         <VideoCard
-          duration="2 min 42 sec"
-          horizontal={false}
-          playVideo={() => {
-            setIntroVideoModal2(true);
-          }}
-          title="Learn how to add a calendar"
+        {/* Intro modal */}
+        <IntroVideoModal
+          open={introVideoModal2}
+          onClose={() => setIntroVideoModal2(false)}
+          videoTitle="Learn how to add a calendar"
+          videoUrl={HowtoVideos.Calendar}
         />
-      </div> 
-
-      {/* Intro modal */}
-      <IntroVideoModal
-        open={introVideoModal2}
-        onClose={() => setIntroVideoModal2(false)}
-        videoTitle="Learn how to add a calendar"
-        videoUrl={HowtoVideos.Calendar}
-      />
+      </div>
 
     </div>
   );

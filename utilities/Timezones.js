@@ -360,3 +360,11 @@ const timeZones = [
 
 
 export default timeZones;
+
+export const timeDuration = [
+    "15 minutes",
+    "30 minutes",
+    "45 minutes",
+    "60 minutes"
+]
+

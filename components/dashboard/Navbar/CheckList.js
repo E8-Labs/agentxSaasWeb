@@ -128,7 +128,8 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                 setCalenderLoader(true);
             }
 
-            if (response.status === true) {
+            console.log("Response of add calendar api is", response);
+            if (response?.status === true) {
                 getChecklist();
                 setShowAddCalendar(false);
                 setSnackMessage({
@@ -230,10 +231,10 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                                                     }
                                                 }}
                                                 // disabled={item.status === true}
-                                                disabled={item.status === true && item.label !== 'Intro video'}
+                                                disabled={item?.status === true && item.label !== 'Intro video'}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
-                                                    {item.status === true ? <Image
+                                                    {item?.status === true ? <Image
                                                         className='ms-2'
                                                         src={"/agencyIcons/Check.jpg"}
                                                         alt='*'
