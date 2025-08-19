@@ -684,7 +684,7 @@ function AgencyPlans() {
                                                                     : selectedDuration.title === "Yearly"
                                                                         ? `$${(item.originalPrice / 12).toFixed(2)}`
                                             : ""*/}
-                                                            ${selectedDuration.title === "Monthly" && item.originalPrice} {selectedDuration.title === "Quarterly" && item.originalPrice / 3} {selectedDuration.title === "Yearly" && item.originalPrice / 12}
+                                                            ${selectedDuration.title === "Monthly" && item.originalPrice} {selectedDuration.title === "Quarterly" && (item.originalPrice / 3).toFixed(2)} {selectedDuration.title === "Yearly" && (item.originalPrice / 12).toFixed(2)}
 
                                                         </div>
 
@@ -693,7 +693,7 @@ function AgencyPlans() {
                                                         </div>
 
                                                         <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${item.ratePerMin} per min
+                                                            ${item.ratePerMin.toFixed(2)} per min
                                                         </div>
 
                                                         <div className="mt-3 mb-3">
