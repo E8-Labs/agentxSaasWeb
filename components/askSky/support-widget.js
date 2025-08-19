@@ -51,7 +51,6 @@ console.log('loading', loading)
     let agent = await getAgentByVapiId()
     console.log('agent', agent)
     
-    if (loading) {
       if (isEmbed) {
         setloadingMessage(`${agent.name} is booting up...`);
       } else {
@@ -64,7 +63,6 @@ console.log('loading', loading)
       }, 3000);
 
       return () => clearTimeout(timer);
-    }
   }
 
 
