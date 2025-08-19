@@ -72,11 +72,6 @@ const setLoadingMsg = async () => {
     console.log('try to get agentembed tst')
 
     try {
-      const data = localStorage.getItem("User")
-
-      if (data) {
-        let u = JSON.parse(data)
-
         let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
         console.log('api path of agent is', path)
     
