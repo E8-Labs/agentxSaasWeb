@@ -38,7 +38,7 @@ export function SupportWidget({
 
 
   useEffect(() => {
-    setLoadingMsg()
+    // setLoadingMsg()
   }, [loading]);
   useEffect(() => {
 
@@ -70,7 +70,7 @@ console.log('loading', loading)
 
   const getAgentByVapiId = async () => {
     console.log('try to get agentembed tst')
-    
+
     try {
       const data = localStorage.getItem("User")
 
@@ -240,7 +240,7 @@ console.log('loading', loading)
     setOpen(true)
     console.log('trying to start call',)
     setLoading(true);
-
+    await setLoadingMsg()
     if (voice) {
       setVoiceOpen(true);
     } else {
