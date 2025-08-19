@@ -40,6 +40,11 @@ export function SupportWidget({
   useEffect(() => {
     setLoadingMsg()
   }, [loading]);
+  useEffect(() => {
+
+console.log('isEmbed', isEmbed)
+console.log('loading', loading)
+}, [loading,isEmbed]);
 
   const setLoadingMsg = async () => {
    
@@ -64,6 +69,8 @@ export function SupportWidget({
 
 
   const getAgentByVapiId = async () => {
+    console.log('try to get agentembed tst')
+    
     try {
       const data = localStorage.getItem("User")
 
