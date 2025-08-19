@@ -35,9 +35,24 @@ export function SupportWidget({
 
 
   // User loading messages to fake feedback...
+
+
   useEffect(() => {
+    setLoadingMsg()
+  }, [loading]);
+
+  const setLoadingMsg = async () => {
+   
+    let agent = await getAgentByVapiId()
+    console.log('agent', agent)
+    
     if (loading) {
-      setloadingMessage("Sky is booting up...");
+      if (isEmbed) {
+        setloadingMessage(`${agent.name} is booting up...`);
+      } else {
+        setloadingMessage("Sky is booting up...");
+      }
+
 
       const timer = setTimeout(() => {
         setloadingMessage("...getting coffee...");
@@ -45,7 +60,31 @@ export function SupportWidget({
 
       return () => clearTimeout(timer);
     }
-  }, [loading]);
+  }
+
+
+  const getAgentByVapiId = async () => {
+    try {
+      const data = localStorage.getItem("User")
+
+      if (data) {
+        let u = JSON.parse(data)
+
+        let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+
+        const response = await axios.get(path)
+
+        if (response) {
+          // console.log('response', response)
+          return response.data.data.agent
+        }
+      }
+    } catch (e) {
+      console.log('error in get agent by id', e)
+    }
+  }
+
+
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY);
