@@ -10,7 +10,7 @@ export function Searchbar({
   placeholder = "Search by name, email or phone",
 }) {
   return (
-    <div className="flex flex-row items-center gap-1 sm:w-[22vw] h-[50px] flex-shrink-0 border rounded pe-2">
+    <div className="flex flex-row items-center gap-1 sm:w-[22vw] h-[50px] flex-shrink-0 border rounded-full pe-2">
       <input
         style={{
           fontWeight: "500",
