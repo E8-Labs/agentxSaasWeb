@@ -510,7 +510,7 @@ function AdminAllCalls({ selectedUser }) {
             style={{ fontSize: 15 }}
             type="text"
             placeholder="Search by name, email or phone"
-            className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0"
+            className="flex-grow outline-none font-[500] rounded-full border-none focus:outline-none focus:ring-0 flex-shrink-0"
             value={searchValue}
             onChange={(e) => {
               const value = e.target.value;
