@@ -16,7 +16,7 @@ export function Searchbar({
           fontWeight: "500",
           fontSize: 15,
         }}
-        className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+        className="outline-none border-none w-full bg-transparent rounded-full focus:outline-none focus:ring-0"
         placeholder={placeholder}
         value={value}
         onChange={(e) => {

@@ -688,7 +688,7 @@ function AdminScheduledCalls({ selectedUser }) {
                       <input
                         type="text"
                         placeholder="Search by name or phone"
-                        className="flex-grow outline-none text-gray-600 placeholder-gray-400 border-none focus:outline-none focus:ring-0"
+                        className="flex-grow outline-none text-gray-600 rounded-full placeholder-gray-400 border-none focus:outline-none focus:ring-0"
                         value={leadsSearchValue}
                         onChange={(e) => {
                           const value = e.target.value;

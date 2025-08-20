@@ -1912,7 +1912,7 @@ const Userleads = ({
                   <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
                     <input
                       style={styles.paragraph}
-                      className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+                      className="outline-none border-none w-full rounded-full bg-transparent focus:outline-none focus:ring-0"
                       placeholder="Search by name, email or phone"
                       value={searchLead}
                       onChange={(e) => {
