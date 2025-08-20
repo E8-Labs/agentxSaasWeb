@@ -505,7 +505,7 @@ function AdminAllCalls({ selectedUser }) {
   return (
     <div className="w-full items-start">
       <div className="flex w-full pl-10 flex-row items-center gap-3">
-        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded pe-2">
+        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
           <input
             style={{ fontSize: 15 }}
             type="text"

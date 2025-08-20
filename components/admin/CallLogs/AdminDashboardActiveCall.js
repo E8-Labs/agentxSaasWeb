@@ -976,7 +976,7 @@ function AdminDashboardActiveCall({ }) {
                   </div>
                 ) : (
                   <div>
-                    <div className="flex w-full items-center border border-gray-300 rounded-lg px-4 max-w-md shadow-sm mt-6">
+                    <div className="flex w-full items-center border border-gray-300 rounded-full px-4 max-w-md shadow-sm mt-6">
                       <input
                         type="text"
                         placeholder="Search by name or phone"
