@@ -38,6 +38,7 @@ import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { checkCurrentUserRole } from "@/components/constants/constants";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -285,6 +286,7 @@ const ProfileNav = () => {
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
+    checkCurrentUserRole();
     let windowWidth = 1000;
     if (typeof window !== "undefined") {
       windowWidth = window.innerWidth;

@@ -38,6 +38,7 @@ import EditAgencyName from "@/components/agency/agencyExtras.js/EditAgencyName";
 import CheckList from "./CheckList";
 import AgencyChecklist from "./AgencyChecklist";
 import { CheckStripe } from "@/components/agency/agencyServices/CheckAgencyData";
+import { checkCurrentUserRole } from "@/components/constants/constants";
 
 
 let stripePublickKey =
@@ -85,6 +86,7 @@ const AgencyNavBar = () => {
 
   //reset navigation loader
   useEffect(() => {
+    checkCurrentUserRole();
     // Fallback reset after 2 seconds
     if (navigatingTo) {
       const timeout = setTimeout(() => {

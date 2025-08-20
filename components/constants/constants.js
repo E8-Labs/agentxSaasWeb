@@ -46,3 +46,67 @@ export const stagesDropdown = [
   }
 ]
 
+//check if this is user/agency/admin route them accordingly
+// export const checkCurrentUserRole = () => {
+
+//   const localData = localStorage.getItem("User");
+//   console.log("Current path is:", window.location.pathname);
+//   let currentPath = window.location.pathname;
+//   if (localData) {
+//     let d = JSON.parse(localData);
+//     console.log("Test log trigered");
+
+//     // set user type in global variable
+
+//     if (d.user.userType == "admin") {
+//       // router.push("/admin");
+//       window.location.href = "/admin";
+//     } else if (d.user.userRole == "Agency" || d.user.agencyTeamMember === true) {
+//       // router.push("/agency/dashboard");
+//       window.location.href = "/agency/dashboard";
+//     } else if (d.user.userRole == "AgencySubAccount") {
+//       // router.push("/subaccountInvite/subscribeSubAccountPlan");
+//       window.location.href = "/dashboard";
+//       // router.push("/dashboard");
+//     } else {
+//       window.location.href = "/dashboard";
+//       // router.push("/dashboard");
+//     }
+//   }
+// }
+
+export const checkCurrentUserRole = () => {
+
+  if (typeof window === "undefined") {
+    console.log("Running on server, window is not available");
+    return; // stop here during SSR
+  }
+
+  const localData = localStorage.getItem("User");
+  console.log("Current path is:", window.location.pathname);
+  let currentPath = window.location.pathname;
+
+  if (localData) {
+    let d = JSON.parse(localData);
+    console.log("Test log triggered");
+
+    if (d.user.userType === "admin") {
+      if (currentPath !== "/admin") {
+        window.location.href = "/admin";
+      }
+    } else if (d.user.userRole === "Agency" || d.user.agencyTeamMember === true) {
+      if (currentPath !== "/agency/dashboard") {
+        window.location.href = "/agency/dashboard";
+      }
+    } else if (d.user.userRole === "AgencySubAccount") {
+      if (currentPath !== "/dashboard") {
+        window.location.href = "/dashboard";
+      }
+    } else {
+      if (currentPath !== "/dashboard") {
+        window.location.href = "/dashboard";
+      }
+    }
+  }
+};
+
