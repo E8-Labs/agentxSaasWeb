@@ -54,7 +54,7 @@ function SelectedUserDetails({
             name: 'Pipeline',
             selectedImage: '/svgIcons/selectedPiplineIcon.svg',
             unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg'
-        }, , {
+        }, {
             id: 6,
             name: 'Integration',
             selectedImage: '/svgIcons/selectedIntegration.svg',
@@ -95,7 +95,7 @@ function SelectedUserDetails({
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
 
-    const [selectedDate,setSelectedDate] = useState(null)
+    const [selectedDate, setSelectedDate] = useState(null)
 
     useEffect(() => {
         console.log("selected user", selectedUser);
@@ -113,6 +113,8 @@ function SelectedUserDetails({
 
             if (d) {
                 setUser(d)
+                console.log('selected user details from api', d.profile_status)
+
             }
 
             // console.log('selectedUser after api', selectedUser)
@@ -230,6 +232,7 @@ function SelectedUserDetails({
                 if (response) {
                     console.log("Respose of pause unpause apis is", response);
                     if (response.data.status === true) {
+                        selectedUser.profile_status = "paused"
                         setShowSnackMessage(response.data.message);
                         handlePauseUser();
                         setpauseLoader(false);
@@ -248,7 +251,7 @@ function SelectedUserDetails({
 
     const handleResetTrail = async () => {
 
-        if(!selectedDate){
+        if (!selectedDate) {
             return
         }
         //profile_status
@@ -259,7 +262,7 @@ function SelectedUserDetails({
                 let u = JSON.parse(data)
                 let apidata = {
                     userId: selectedUser.id,
-                    trialEndDate:selectedDate
+                    trialEndDate: selectedDate
                 }
 
                 console.log('apidata of reset trail', apidata)
@@ -348,7 +351,7 @@ function SelectedUserDetails({
                                                     }}
                                                 >
                                                     {
-                                                        selectedUser?.profile_status === "paused" ? "Resume" : "Pause"
+                                                        user?.profile_status === "paused" ? "Reinstate" : "Pause"
                                                     }
                                                 </button>
                                             )
@@ -393,7 +396,7 @@ function SelectedUserDetails({
                                         handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
                                         handlePaueUser={handlePause}
                                         pauseLoader={pauseLoader}
-                                        selectedUser={selectedUser}
+                                        selectedUser={user}
                                     />
                                 )
                             }
