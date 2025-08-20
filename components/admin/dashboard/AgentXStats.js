@@ -86,7 +86,7 @@ function AgentXStats({ user }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("admin stats are", data.stats.data)
+        console.log("dashboard data is", data)
         setStats(data.stats.data);
         localStorage.setItem(PersistanceKeys.adminDashboardData, JSON.stringify(data.stats.data));
       } else {
@@ -524,9 +524,9 @@ function VoicesComponent({
 
 function SubscriptionsStatsComponent({ stats }) {
   return (
-    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white px-4 rounded-lg w-[96%]">
+    <div className="  grid gap-2 grid-cols-8 md:grid-cols-8 lg:grid-cols-8 bg-white px-4 rounded-lg w-[96%]">
       {/* Top Metrics */}
-      <Card className="cursor-pointer border-none shadow-none w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none w-[10vw]">
         <CardHeader>
           <CardTitle>Total Users</CardTitle>
         </CardHeader>
@@ -539,7 +539,7 @@ function SubscriptionsStatsComponent({ stats }) {
 
       {/* No plan users */}
 
-      <Card className="cursor-pointer border-none shadow-none  w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none  w-[10vw]">
         <CardHeader>
           <CardTitle>No Plan</CardTitle>
         </CardHeader>
@@ -557,13 +557,13 @@ function SubscriptionsStatsComponent({ stats }) {
       </Card>
 
       {/* Trial Users */}
-      <Card className="cursor-pointer border-none shadow-none  w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none  w-[10vw]">
         <CardHeader>
           <CardTitle>Trial Plan</CardTitle>
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-2xl font-regular">
-            {stats?.trialUsers.count}
+            {stats?.trialUsers?.count}
           </h2>
           {/* <Progress value={27} /> */}
         </CardContent>
@@ -575,7 +575,7 @@ function SubscriptionsStatsComponent({ stats }) {
       </Card>
 
       {/* Plan 45 */}
-      <Card className="cursor-pointer border-none shadow-none w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none w-[10vw]">
         <CardHeader>
           <CardTitle>$45 Plan</CardTitle>
         </CardHeader>
@@ -592,7 +592,7 @@ function SubscriptionsStatsComponent({ stats }) {
       </Card>
 
       {/* Plan 120 */}
-      <Card className="cursor-pointer border-none shadow-none w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none w-[10vw]">
         <CardHeader>
           <CardTitle>$99 Plan</CardTitle>
         </CardHeader>
@@ -609,7 +609,7 @@ function SubscriptionsStatsComponent({ stats }) {
       </Card>
 
       {/* Plan 360 */}
-      <Card className="cursor-pointer border-none shadow-none w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none w-[10vw]">
         <CardHeader>
           <CardTitle>$299 Plan</CardTitle>
         </CardHeader>
@@ -626,7 +626,7 @@ function SubscriptionsStatsComponent({ stats }) {
       </Card>
 
       {/* Plan 720 */}
-      <Card className="cursor-pointer border-none shadow-none w-[11vw]">
+      <Card className="cursor-pointer border-none shadow-none w-[10vw]">
         <CardHeader>
           <CardTitle>$599 Plan</CardTitle>
         </CardHeader>
@@ -641,6 +641,7 @@ function SubscriptionsStatsComponent({ stats }) {
           </h2>
         </CardContent>
       </Card>
+
 
       {/* Cancelled */}
       <Card className="cursor-pointer border-none shadow-none w-[10vw]">
@@ -658,7 +659,6 @@ function SubscriptionsStatsComponent({ stats }) {
           </h2>
         </CardContent>
       </Card>
-
     </div>
   );
 }
