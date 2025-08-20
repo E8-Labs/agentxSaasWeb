@@ -42,29 +42,29 @@ export function SupportWidget({
   }, [loading]);
   useEffect(() => {
 
-console.log('isEmbed', isEmbed)
-console.log('loading', loading)
-}, [loading,isEmbed]);
+    console.log('isEmbed', isEmbed)
+    console.log('loading', loading)
+  }, [loading, isEmbed]);
 
-// 1) Safer loading message
-const setLoadingMsg = async () => {
-  try {
-    const agent = await getAgentByVapiId();
-    const displayName = agent?.name || "Sky";
-    setloadingMessage(`${displayName} is booting up...`);
+  // 1) Safer loading message
+  const setLoadingMsg = async () => {
+    try {
+      const agent = await getAgentByVapiId();
+      const displayName = agent?.name || "Sky";
+      setloadingMessage(`${displayName} is booting up...`);
 
-    // follow-up beat after 3s
-    setTimeout(() => {
-      setloadingMessage("...getting coffee...");
-    }, 3000);
-  } catch (e) {
-    console.log("setLoadingMsg error:", e);
-    setloadingMessage("Sky is booting up...");
-    setTimeout(() => {
-      setloadingMessage("...getting coffee...");
-    }, 3000);
-  }
-};
+      // follow-up beat after 3s
+      setTimeout(() => {
+        setloadingMessage("...getting coffee...");
+      }, 3000);
+    } catch (e) {
+      console.log("setLoadingMsg error:", e);
+      setloadingMessage("Sky is booting up...");
+      setTimeout(() => {
+        setloadingMessage("...getting coffee...");
+      }, 3000);
+    }
+  };
 
 
 
@@ -72,17 +72,16 @@ const setLoadingMsg = async () => {
     console.log('try to get agentembed tst')
 
     try {
-        let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
-        console.log('api path of agent is', path)
-    
-        const response = await axios.get(
-          path
-        );
-    
-        if (response) {
-          console.log('response', response)
-          return response?.data?.data?.agent ?? null;
-        }
+      let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+      console.log('api path of agent is', path)
+
+      const response = await axios.get(
+        path
+      );
+
+      if (response) {
+        console.log('response', response)
+        return response?.data?.data?.agent ?? null;
       }
     } catch (e) {
       console.log('error in get agent by id', e)
