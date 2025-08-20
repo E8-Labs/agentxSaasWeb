@@ -80,7 +80,7 @@ export function SupportWidget({
       );
 
       if (response) {
-        console.log('response', response)
+        // console.log('response', response)
         return response?.data?.data?.agent ?? null;
       }
     } catch (e) {
