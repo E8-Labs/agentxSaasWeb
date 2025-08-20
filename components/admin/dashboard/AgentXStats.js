@@ -66,7 +66,7 @@ function AgentXStats({ user }) {
         setStats(adminData)
       } else {
 
-      fetchAdminStats();
+        fetchAdminStats();
       }
     }
   }, [user]);
@@ -86,7 +86,7 @@ function AgentXStats({ user }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("admin stats are",data.stats.data)
+        console.log("admin stats are", data.stats.data)
         setStats(data.stats.data);
         localStorage.setItem(PersistanceKeys.adminDashboardData, JSON.stringify(data.stats.data));
       } else {
@@ -641,6 +641,24 @@ function SubscriptionsStatsComponent({ stats }) {
           </h2>
         </CardContent>
       </Card>
+
+      {/* Cancelled */}
+      <Card className="cursor-pointer border-none shadow-none w-[10vw]">
+        <CardHeader>
+          <CardTitle>Cancelled Plan</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <h2 className="cursor-pointer text-2xl font-regular">
+            {stats?.usersOnPlans?.Cancelled?.count}
+          </h2>
+        </CardContent>
+        <CardContent>
+          <h2 className="cursor-pointer text-lg font-regular text-gray-500">
+            {stats?.usersOnPlans?.Cancelled?.percentage}%
+          </h2>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
