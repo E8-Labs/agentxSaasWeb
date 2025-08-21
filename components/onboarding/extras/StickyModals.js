@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export const TwilioWarning = ({
-  agencyData,
+  // agencyData,
   showSuccess,
   integration = "",
   isTwilioAdded,
@@ -25,14 +25,20 @@ export const TwilioWarning = ({
   const [showAddTwilioWarning, setShowAddTwiliowarning] = useState(false);
 
   useEffect(() => {
-    if (agencyData.isTwilioConnected === false) {
-      setShowAddTwiliowarning(true);
-      isTwilioAdded({ status: true });
-    } else {
-      setShowAddTwiliowarning(false);
-      isTwilioAdded({ status: false });
+
+    let data = localStorage.getItem("User");
+    if (data) {
+      const agencyData = JSON.parse(data)
+      if (agencyData.isTwilioConnected === false) {
+        setShowAddTwiliowarning(true);
+        isTwilioAdded({ status: true });
+      } else {
+        setShowAddTwiliowarning(false);
+        isTwilioAdded({ status: false });
+      }
     }
-  }, [agencyData]);
+
+  }, []);
 
   return (
     <div className="w-full">

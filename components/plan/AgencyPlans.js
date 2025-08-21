@@ -30,10 +30,10 @@ function AgencyPlans() {
             title: "Monthly",
         }, {
             id: 2,
-            title: "Quarterly",
+            title: "Quarterly (save 20%)",
         }, {
             id: 3,
-            title: "Yearly",
+            title: "Yearly (save 30%)",
         },
     ]
 
