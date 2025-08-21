@@ -86,7 +86,7 @@ const AgencyNavBar = () => {
 
   //reset navigation loader
   useEffect(() => {
-    checkCurrentUserRole();
+    // checkCurrentUserRole();
     // Fallback reset after 2 seconds
     if (navigatingTo) {
       const timeout = setTimeout(() => {

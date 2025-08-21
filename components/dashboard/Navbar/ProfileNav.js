@@ -286,7 +286,7 @@ const ProfileNav = () => {
 
   //useeffect that redirect the user back to the main screen for mobile view
   useEffect(() => {
-    checkCurrentUserRole();
+    // checkCurrentUserRole();
     let windowWidth = 1000;
     if (typeof window !== "undefined") {
       windowWidth = window.innerWidth;
