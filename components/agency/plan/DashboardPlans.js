@@ -71,7 +71,7 @@ function DashboardPlans() {
     //check if plan has already trial true
     useEffect(() => {
         console.log("Trigered one 2");
-        for (let i = 0; i < plansList.length; i++) {
+        for (let i = 0; i < plansList?.length; i++) {
             if (plansList[i].hasTrial === true) {
                 console.log("hasTrial is true at index", i);
                 setCanAddPlan(false);
@@ -337,7 +337,7 @@ function DashboardPlans() {
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Plans: {plansList.length}
+                        Total Plans: {plansList.length || 0}
                     </div>
 
                     <button
@@ -401,7 +401,7 @@ function DashboardPlans() {
                 </div>
 
                 {
-                    plansList.length > 0 ? (
+                    plansList?.length > 0 ? (
                         <>
                             <div className="w-full flex flex-row justify-between mt-4">
                                 <div className="w-3/12">
