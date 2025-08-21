@@ -335,10 +335,20 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         AuthToken = UserDetails.token;
       }
 
+      let isFromAgencyOrAdmin = null;
+      const FromAgencyOrAdmin = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      if (FromAgencyOrAdmin) {
+        const R = JSON.parse(FromAgencyOrAdmin);
+        isFromAgencyOrAdmin = R;
+      }
+
       //////console.log;
 
-      const ApiPath = Apis.uniqueColumns;
-      //////console.log;
+      let ApiPath = Apis.uniqueColumns;
+      if(isFromAgencyOrAdmin){
+        ApiPath = `${Apis.uniqueColumns}?userId=${isFromAgencyOrAdmin.subAccountData.id}`
+      }
+      console.log("Api path for get unques columns is ", ApiPath);
 
       const response = await axios.get(ApiPath, {
         headers: {
