@@ -2049,14 +2049,14 @@ const Pipeline1 = () => {
                 </div>
                 <div className="flex fex-row items-center gap-3">
                   <div
-                    className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2"
-                    style={{ borderRadius: "50px" }}
+                    className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2 rounded-full"
+                    // style={{ borderRadius: "50px" }}
                   >
                     <input
                       style={{ MozOutline: "none" }}
                       value={searchValue}
                       onChange={handldSearch}
-                      className="outline-none bg-transparent  border-none focus:outline-none focus:ring-0"
+                      className="outline-none bg-transparent  border-none focus:outline-none focus:ring-0 rounded-full"
                       placeholder="Search by name, phone or email"
                     />
                     <button className="outline-none">
