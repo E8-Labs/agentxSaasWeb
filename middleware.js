@@ -45,6 +45,11 @@ export function middleware(request) {
   }
 
   let user;
+
+  if (pathname.startsWith("/createagent") || pathname.startsWith("/pipeline")) {
+    return NextResponse.next();
+  }
+
   try {
     user = JSON.parse(decodeURIComponent(userCookie.value));
     console.log("User cookie parsed value is", user);
