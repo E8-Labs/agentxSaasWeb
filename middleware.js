@@ -36,16 +36,43 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // Auth gate
+  // Grab User cookie
   const userCookie = request.cookies.get("User");
+
   if (!userCookie) {
-    if (pathname.startsWith("/createagent")) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
+    // Not logged in → always send home
     return NextResponse.redirect(new URL("/", request.url));
   }
 
+  let user;
+  try {
+    user = JSON.parse(decodeURIComponent(userCookie.value));
+    console.log("User cookie parsed value is", user);
+  } catch (err) {
+    console.error("Invalid User cookie:", err);
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // ---- Centralized redirect rule (same as client router.push) ----
+  let expectedPath = null;
+
+  if (user.userType === "admin") {
+    expectedPath = "/admin";
+  } else if (user.userRole === "AgencySubAccount") {
+    expectedPath = "/dashboard";
+  } else if (user.userRole === "Agency" || user.agencyTeammember === true) {
+    expectedPath = "/agency/dashboard";
+  } else {
+    expectedPath = "/dashboard/myAgentX";
+  }
+
+  // ---- If the user is NOT on their expected path, redirect them ----
+  if (!pathname.startsWith(expectedPath)) {
+    return NextResponse.redirect(new URL(expectedPath, request.url));
+  }
+
   return NextResponse.next();
+
 }
 
 export const config = {
