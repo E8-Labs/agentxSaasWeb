@@ -75,7 +75,7 @@ export function middleware(request) {
   } else if (user.userRole === "Agency" || user.agencyTeammember === true) {
     expectedPath = "/agency/dashboard";
   } else {
-    expectedPath = "/dashboard/myAgentX";
+    expectedPath = "/dashboard";
   }
 
   // ---- If the user is NOT on their expected path, redirect them ----
