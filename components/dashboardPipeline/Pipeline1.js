@@ -2053,16 +2053,16 @@ const Pipeline1 = () => {
                     </div>
                   </Popover>
                 </div>
-                <div className="flex fex-row items-center gap-6">
+                <div className="flex fex-row items-center gap-4">
                   <div
-                    className="flex flex-row items-center justify-between w-[22vw] border h-[50px] px-4 gap-8 rounded-full"
+                    className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2 w-[20vw] rounded-full"
                     // style={{ borderRadius: "50px" }}
                   >
                     <input
                       style={{ MozOutline: "none" }}
                       value={searchValue}
                       onChange={handldSearch}
-                      className="outline-none bg-transparent w-full rounded-full mx-2 border-none focus:outline-none focus:ring-0"
+                      className="outline-none bg-transparent w-full rounded-full border-none focus:outline-none focus:ring-0 w-full"
                       placeholder="Search by name, phone or email"
                     />
                     <button className="outline-none">
