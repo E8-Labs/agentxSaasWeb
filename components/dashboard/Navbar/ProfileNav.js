@@ -588,7 +588,7 @@ const ProfileNav = () => {
   //function to getprofile
   const getProfile = async () => {
     console.log('trying to get profile from nav')
-    
+
     try {
       let response = await getProfileDetails();
       getShowWalkThrough();
@@ -663,25 +663,25 @@ const ProfileNav = () => {
                 setShowFailedPaymentBar(true)
 
               } else if (
-                
-                  // Data?.plan == null ||
-                  // (Data?.plan &&
-                  //   Data?.plan?.status !== "active" &&
-                    Data?.totalSecondsAvailable <= 120 //||
+
+                // Data?.plan == null ||
+                // (Data?.plan &&
+                //   Data?.plan?.status !== "active" &&
+                Data?.totalSecondsAvailable <= 120 //||
                 //   (Data?.plan &&
                 //     Data?.plan?.status === "active" &&
                 //     Data?.totalSecondsAvailable <= 120)
                 // )
                 // && (Data.needsChargeConfirmation === false) &&
                 // (!Data.callsPausedUntilSubscription)
-              ){
+              ) {
                 //if user have less then 2 minuts show upgrade plan bar
                 setShowUpgradePlanBar(true)
-              }else{
+              } else {
                 console.log('no plans condition is true')
-              setShowPlansPopup(false);
-              setShowUpgradePlanBar(false)
-              setShowFailedPaymentBar(false)
+                setShowPlansPopup(false);
+                setShowUpgradePlanBar(false)
+                setShowFailedPaymentBar(false)
               }
 
             } else {
@@ -951,6 +951,61 @@ const ProfileNav = () => {
     }
   };
 
+  // const SnackBarForUpgradePlan = () => {
+  //   return (
+
+  //     <div
+  //       style={{
+  //         position: 'fixed',
+  //         top: 20,
+  //         left: '55%',
+  //         transform: 'translateX(-50%)',
+  //         zIndex: 1000,
+  //       }}
+  //       className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
+  //     >
+  //       <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
+  //         height={24} width={24} alt="*"
+  //       />
+  //       {
+  //         showUpgradePlanBar ? (
+  //           <div style={{ fontSize: 10, fontWeight: '700', whiteSpace: 'nowrap', }}>
+  //             {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
+  //               className="text-purple underline cursor-pointer"
+  //               onClick={() => {
+  //                 window.open('/dashboard/myAccount?tab=2')
+  //               }}
+  //             >
+  //               Turn on Smart Refill
+  //             </span>  or  <span
+  //               className="text-purple underline cursor-pointer"
+  //               onClick={() => {
+  //                 window.open('/dashboard/myAccount?tab=2')
+  //               }}
+  //             > Upgrade
+  //             </span>.
+  //           </div>
+
+  //         ) : (
+  //           <div style={{ fontSize: 15, fontWeight: '700', }}>
+
+  //             {`Action needed!  Your payment method failed, please add a new`} <span
+  //               className="text-purple underline cursor-pointer"
+  //               onClick={() => {
+  //                 window.open('/dashboard/myAccount?tab=2')
+  //               }}
+  //             >
+  //               Payment Method
+  //             </span>.
+  //           </div>
+  //         )
+  //       }
+
+  //     </div>
+
+  //   )
+  // }
+
   const SnackBarForUpgradePlan = () => {
     return (
 
@@ -969,7 +1024,7 @@ const ProfileNav = () => {
         />
         {
           showUpgradePlanBar ? (
-            <div style={{ fontSize: 10 , fontWeight: '700', whiteSpace: 'nowrap', }}>
+            <div style={{ fontSize: 13, fontWeight: '700', whiteSpace: 'nowrap', }}>
               {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
@@ -987,16 +1042,28 @@ const ProfileNav = () => {
             </div>
 
           ) : (
-            <div style={{ fontSize: 15, fontWeight: '700', }}>
+            <div>
 
-              {`Action needed!  Your payment method failed, please add a new`} <span
+              <div style={{ fontSize: 15, fontWeight: '700', }}>Your subscription payment could not be processed.</div>
+              <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>Your calls are paused and will resume once your subscription has renewed <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
                   window.open('/dashboard/myAccount?tab=2')
                 }}
-              >
-                Payment Method
+              > Upgrade
               </span>.
+              </div>
+
+              {/*
+                {`Action needed!  Your payment method failed, please add a new`} <span
+                  className="text-purple underline cursor-pointer"
+                  onClick={() => {
+                    window.open('/dashboard/myAccount?tab=2')
+                  }}
+                >
+                  Payment Method
+                </span>.
+              */}
             </div>
           )
         }
@@ -1174,10 +1241,11 @@ const ProfileNav = () => {
 
       <CallPausedPopup
         open={showCallPausedPopup}
-        onClose={() =>{
+        onClose={() => {
           console.log('close popup profile nave')
-           setShowCallPausedPopup(false)}
-          }
+          setShowCallPausedPopup(false)
+        }
+        }
       />
 
       {/* Subscribe Plan modal */}
