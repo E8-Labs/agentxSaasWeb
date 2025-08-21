@@ -53,6 +53,13 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
+  // 🚨 Force re-login if cookie is outdated (missing userRole or userType)
+  if (!user.userRole || !user.userType) {
+    const response = NextResponse.redirect(new URL("/", request.url));
+    response.cookies.delete("User"); // clear old cookie
+    return response;
+  }
+
   // ---- Centralized redirect rule (same as client router.push) ----
   let expectedPath = null;
 
