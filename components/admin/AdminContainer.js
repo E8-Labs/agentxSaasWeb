@@ -105,7 +105,7 @@ function AdminContainer() {
               onClick={() => {
                 if (item.name === "Logout") {
                   logout();
-                  router.replace("/");
+                  // router.replace("/");
                 } else {
                   setSelectedManu(item);
                   const newUrl = `?tab=${encodeURIComponent(item.value)}`;
