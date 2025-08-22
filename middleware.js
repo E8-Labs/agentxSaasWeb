@@ -5,6 +5,7 @@ export function middleware(request) {
 
   // Redirect ONLY /agency (and /agency/) to /
   if (pathname === "/agency" || pathname === "/agency/") {
+    console.log("Running this /agency stricted path");
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -31,7 +32,8 @@ export function middleware(request) {
     pathname === "/" ||
     pathname === "/onboarding" ||
     pathname === "/onboarding/WaitList" ||
-    pathname === "/agency/onboarding" ||
+    pathname.startsWith === "/agency/onboarding" ||
+    pathname.startsWith === "/agency/verify" ||
     pathname.startsWith("/recordings/")
   ) {
     return NextResponse.next();
