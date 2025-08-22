@@ -129,7 +129,12 @@ export default function RootLayout({ children }) {
         <Script id="agentx-signup-helper" strategy="afterInteractive">
           {`
             window.agentxTrackSignup = function(email, fullName = '', uid = null) {
+              console.log("[AgentX Tracking] agentxTrackSignup called with:", { email, fullName, uid });
               const trySignup = () => {
+                console.log("[AgentX Tracking] trySignup function executing");
+                console.log("[AgentX Tracking] window.affiliateManager exists:", !!window.affiliateManager);
+                console.log("[AgentX Tracking] trackLead function exists:", !!(window.affiliateManager && typeof window.affiliateManager.trackLead === "function"));
+                
                 if (window.affiliateManager && typeof window.affiliateManager.trackLead === "function") {
                   console.log("[AgentX Tracking] Sending signup event...", { email, fullName, uid });
                   
