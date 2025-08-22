@@ -128,16 +128,18 @@ export default function RootLayout({ children }) {
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">
           {`
-            window.agentxTrackSignup = function(email, firstName, lastName) {
+            window.agentxTrackSignup = function(email, uid = null) {
               const trySignup = () => {
-                if (window.affiliateManager && typeof window.affiliateManager.signup === "function") {
+                if (window.affiliateManager && typeof window.affiliateManager.trackLead === "function") {
                   console.log("[AgentX Tracking] Sending signup event...");
-                  affiliateManager.signup(email, { firstname: firstName || '', lastname: lastName || '' });
-                } else if (window.affiliateManager && typeof window.affiliateManager.signUp === "function") {
-                  console.log("[AgentX Tracking] Sending signup event...");
-                  affiliateManager.signUp(email, { firstname: firstName || '', lastname: lastName || '' });
+                  const trackingData = { email };
+                  if (uid) trackingData.uid = uid;
+                  
+                  setTimeout(() => {
+                    affiliateManager.trackLead(trackingData);
+                  }, 1000);
                 } else {
-                  console.warn("[AgentX Tracking] Signup method not found on affiliateManager");
+                  console.warn("[AgentX Tracking] trackLead method not found on affiliateManager");
                 }
               };
 

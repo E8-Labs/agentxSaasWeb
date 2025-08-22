@@ -319,6 +319,11 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
             setCookie(response.data.data.user, document);
           }
 
+          // Track signup for affiliate marketing
+          if (typeof window !== "undefined" && window.agentxTrackSignup) {
+            window.agentxTrackSignup(userEmail, response.data.data.user?.id);
+          }
+
           let screenWidth = 1000;
           if (typeof window !== "undefined") {
             screenWidth = window.innerWidth; // Get current screen width
