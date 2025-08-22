@@ -147,7 +147,13 @@ export default function RootLayout({ children }) {
                   
                   setTimeout(() => {
                     console.log("[AgentX Tracking] Calling trackLead with:", trackingData);
-                    affiliateManager.trackLead(trackingData);
+                    affiliateManager.trackLead(trackingData, function(error, response) {
+                      if (error) {
+                        console.error("[AgentX Tracking] Error:", error);
+                      } else {
+                        console.log("[AgentX Tracking] Success:", response);
+                      }
+                    });
                   }, 1000);
                 } else {
                   console.warn("[AgentX Tracking] trackLead method not found on affiliateManager", window.affiliateManager);
