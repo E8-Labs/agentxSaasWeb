@@ -14,7 +14,8 @@ const AddTwilio = ({
     handleContinue,
     setTrustProducts,
     profileLoader,
-    closeLoader
+    closeLoader,
+    selectedUser
 }) => {
 
     const [accountSID, setAccountSID] = useState("");
@@ -51,12 +52,16 @@ const AddTwilio = ({
             } else {
                 setAddTwilioLoader(true);
             }
-            const ApiPath = Apis.addTwilio;
+            let ApiPath = Apis.addTwilio;
+            if (selectedUser) {
+                ApiPath = `${Apis.addTwilio}?userId=${selectedUser.id}`
+            }
             const token = AuthToken();
             const ApiData = {
                 twilioAccountSid: accountSID,
                 twilioAuthToken: accountToken
             }
+            console.log("Api path for connect twilio is", ApiPath);
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + token,

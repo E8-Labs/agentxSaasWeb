@@ -39,7 +39,7 @@ function AdminProfileData({ selectedUser, from }) {
             heading: "Twilio Trust Hub",
             subHeading: "Caller ID & compliance for trusted calls",
             icon: "/svgIcons/twilioHub.svg",
-          },
+        },
 
         {
             id: 5,
@@ -47,7 +47,7 @@ function AdminProfileData({ selectedUser, from }) {
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
         }
-           
+
     ];
 
 
@@ -83,8 +83,8 @@ function AdminProfileData({ selectedUser, from }) {
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 5:
                 return <AdminXbarServices selectedUser={selectedUser} />;
-            case 4 :
-                return <TwilioTrustHub />
+            case 4:
+                return <TwilioTrustHub selectedUser={selectedUser} />
 
             default:
                 return <div>Please select an option.</div>;

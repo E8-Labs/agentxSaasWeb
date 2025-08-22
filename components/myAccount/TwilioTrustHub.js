@@ -19,10 +19,12 @@ const TwilioTrustHub = ({
     hotReloadTrustProducts,
     setHotReloadTrustProducts,
     removeTrustHubData,
-    setRemoveTrustHubData
+    setRemoveTrustHubData,
+    selectedUser
 }) => {
 
     useEffect(() => {
+        console.log("Should triger the get businessprofile api");
         getBusinessProfile();
 
         // Start polling every 6 seconds (silent polling)
@@ -64,20 +66,35 @@ const TwilioTrustHub = ({
         if (removeTrustHubData) {
             setTwilioHubData(null);
             setProfileStatus(true);
-            setRemoveTrustHubData(false);
+            if (typeof setRemoveTrustHubData === "function") {
+                setRemoveTrustHubData(false);
+            }
         }
     }, [removeTrustHubData]);
 
     //get the twilio profile details
     const getBusinessProfile = async (isPolling = false, d = null) => {
-        setHotReloadTrustProducts(false);
+        console.log("Get business profile trigered")
+        if (typeof setHotReloadTrustProducts === "function") {
+            setHotReloadTrustProducts(false);
+        }
+        console.log("Check 1");
         try {
+            console.log("Check 2");
             // Only show loader on initial load, not during polling
             if (!twilioHubData && !isPolling) {
                 setLoader(true);
+                console.log("Check 3");
             }
+            console.log("Check 4");
             const token = AuthToken();
-            const ApiPath = Apis.getBusinessProfile;
+            console.log("Check 5");
+            let ApiPath = Apis.getBusinessProfile;
+            console.log("Check 6");
+            if (selectedUser) {
+                ApiPath = `${Apis.getBusinessProfile}?userId=${selectedUser.id}`
+            }
+            console.log("Api path for get twilio details is", ApiPath);
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -90,7 +107,7 @@ const TwilioTrustHub = ({
                 if (!isPolling) {
                     setLoader(false);
                 }
-                console.log("Response og get business profile is", response.data);
+                console.log("Response of get business profile is", response.data);
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
                     setTwilioHubData(ApiResponse.data);
@@ -114,7 +131,9 @@ const TwilioTrustHub = ({
             if (!twilioHubData && !isPolling) {
                 setLoader(false);
             }
-            setHotReloadTrustProducts(false);
+            if (typeof setHotReloadTrustProducts === "function") {
+                setHotReloadTrustProducts(false);
+            }
             console.log("Error occured in getBusinessProfile api is", error);
         }
     }
@@ -124,7 +143,12 @@ const TwilioTrustHub = ({
         try {
             setDisConnectLoader(true);
             const token = AuthToken();
-            const ApiPath = Apis.disconnectTwilio;
+            let ApiPath = Apis.disconnectTwilio;
+            console.log("Selected user passed in twilio is", Boolean(selectedUser));
+            if (selectedUser) {
+                ApiPath = `${Apis.disconnectTwilio}?userId=${selectedUser.id}`
+            }
+            console.log("Apipath fr disconnect twilio is", ApiPath);
             const response = await axios.post(ApiPath, {}, {
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -202,6 +226,7 @@ const TwilioTrustHub = ({
                                 disconnectLoader={disconnectLoader}
                                 handleDisconnectTwilio={handleDisconnectTwilio}
                                 isFromAgency={isFromAgency}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         <div className='w-full mt-4'>
@@ -212,6 +237,7 @@ const TwilioTrustHub = ({
                                 // getProfileData={getBusinessProfile}
                                 getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         <div className='w-full mt-4'>
@@ -222,6 +248,7 @@ const TwilioTrustHub = ({
                                 // getProfileData={getBusinessProfile}
                                 getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         <div className='w-full mt-4'>
@@ -232,6 +259,7 @@ const TwilioTrustHub = ({
                                 // getProfileData={getBusinessProfile}
                                 getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         {/*<div className='w-full mt-4'>
@@ -242,6 +270,7 @@ const TwilioTrustHub = ({
                                 // twilioHubData={twilioHubData?.voiceIntegrity}
                                 businessProfileData={twilioHubData?.profile}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                     </div>

@@ -18,7 +18,8 @@ const CustomerProfile = ({
     profileStatus,
     disconnectLoader,
     handleDisconnectTwilio,
-    isFromAgency = false
+    isFromAgency = false,
+    selectedUser
 }) => {
 
     //how to video
@@ -253,6 +254,7 @@ const CustomerProfile = ({
                                 }
                             }}
                             getProfileData={getProfileData}
+                            selectedUser={selectedUser}
                         />
                     )
                 }
