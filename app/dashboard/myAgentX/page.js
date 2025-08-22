@@ -103,7 +103,7 @@ function Page() {
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? "https://apimyagentx.com/agentx/"
       : "https://apimyagentx.com/agentxtest/";
- 
+
 
   const timerRef = useRef();
   const fileInputRef = useRef([]);
@@ -296,8 +296,7 @@ function Page() {
   //it saves previous list of agents before search
   const [allAgentsList, setAllAgentsList] = useState([]);
 
-  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] =
-    useState(false);
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false);
 
   const [showEmbed, setShowEmbed] = useState(false);
 
