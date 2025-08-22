@@ -31,6 +31,7 @@ export function middleware(request) {
     pathname === "/" ||
     pathname === "/onboarding" ||
     pathname === "/onboarding/WaitList" ||
+    pathname === "/agency/onboarding" ||
     pathname.startsWith("/recordings/")
   ) {
     return NextResponse.next();
