@@ -118,6 +118,10 @@ function AllCalls({ user }) {
       id: 10,
       status: "No answer",
     },
+    {
+      id: 11,
+      status: "Call Back",
+    },
   ];
 
   const fromCalendarRef = useRef(null);
@@ -288,9 +292,9 @@ function AllCalls({ user }) {
   }, []);
 
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log('setFilteredCallDetails', filteredCallDetails)
-  },[filteredCallDetails])
+  }, [filteredCallDetails])
 
   //function for getting pipelines
   const getPipelines = async () => {
@@ -980,9 +984,9 @@ function AllCalls({ user }) {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -1036,18 +1040,16 @@ function AllCalls({ user }) {
                               onClick={() => {
                                 handleSelectStage(item);
                               }}
-                              className={`p-2 border border-[#00000020] ${
-                                selectedStageIds.includes(item.id)
+                              className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
                                   ? `bg-purple`
                                   : "bg-transparent"
-                              } px-6
-                                                                ${
-                                                                  selectedStageIds.includes(
-                                                                    item.id
-                                                                  )
-                                                                    ? `text-white`
-                                                                    : "text-black"
-                                                                } rounded-2xl`}
+                                } px-6
+                                                                ${selectedStageIds.includes(
+                                  item.id
+                                )
+                                  ? `text-white`
+                                  : "text-black"
+                                } rounded-2xl`}
                             >
                               {item.stageTitle}
                             </button>
@@ -1128,8 +1130,8 @@ function AllCalls({ user }) {
                           fontWeight: "600",
                           backgroundColor:
                             (selectedFromDate && selectedToDate) ||
-                            selectedStageIds.length > 0 ||
-                            selectedStatus.length > 0
+                              selectedStageIds.length > 0 ||
+                              selectedStatus.length > 0
                               ? ""
                               : "#00000050",
                         }}
