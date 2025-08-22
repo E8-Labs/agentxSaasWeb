@@ -149,7 +149,9 @@ export default function RootLayout({ children }) {
                     lastName: lastName,
                     email: email 
                   };
-                  if (uid) trackingData.uid = uid;
+                  // Note: uid should be Stripe Customer ID, not user database ID
+                  // Removing until Stripe integration is available
+                  // if (uid) trackingData.uid = uid;
                   
                   setTimeout(() => {
                     console.log("[AgentX Tracking] Calling trackLead with:", trackingData);
