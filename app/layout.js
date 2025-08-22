@@ -147,13 +147,14 @@ export default function RootLayout({ children }) {
                   
                   setTimeout(() => {
                     console.log("[AgentX Tracking] Calling trackLead with:", trackingData);
-                    affiliateManager.trackLead(trackingData, function(error, response) {
-                      if (error) {
-                        console.error("[AgentX Tracking] Error:", error);
-                      } else {
-                        console.log("[AgentX Tracking] Success:", response);
-                      }
-                    });
+                    try {
+                      const result = affiliateManager.trackLead(trackingData, function(result) {
+                        console.log("[AgentX Tracking] Callback result:", result);
+                      });
+                      console.log("[AgentX Tracking] trackLead returned:", result);
+                    } catch (e) {
+                      console.error("[AgentX Tracking] Exception:", e);
+                    }
                   }, 1000);
                 } else {
                   console.warn("[AgentX Tracking] trackLead method not found on affiliateManager", window.affiliateManager);
