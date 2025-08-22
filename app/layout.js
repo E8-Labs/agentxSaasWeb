@@ -131,15 +131,16 @@ export default function RootLayout({ children }) {
             window.agentxTrackSignup = function(email, uid = null) {
               const trySignup = () => {
                 if (window.affiliateManager && typeof window.affiliateManager.trackLead === "function") {
-                  console.log("[AgentX Tracking] Sending signup event...");
+                  console.log("[AgentX Tracking] Sending signup event...", { email, uid });
                   const trackingData = { email };
                   if (uid) trackingData.uid = uid;
                   
                   setTimeout(() => {
+                    console.log("[AgentX Tracking] Calling trackLead with:", trackingData);
                     affiliateManager.trackLead(trackingData);
                   }, 1000);
                 } else {
-                  console.warn("[AgentX Tracking] trackLead method not found on affiliateManager");
+                  console.warn("[AgentX Tracking] trackLead method not found on affiliateManager", window.affiliateManager);
                 }
               };
 
