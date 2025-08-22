@@ -118,6 +118,10 @@ function AllCalls({ user }) {
       id: 10,
       status: "No answer",
     },
+    {
+      id: 11,
+      status: "Call Back",
+    },
   ];
 
   const fromCalendarRef = useRef(null);
