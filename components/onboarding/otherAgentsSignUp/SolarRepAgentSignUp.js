@@ -365,7 +365,7 @@ const SolarRepAgentSignUp = ({
 
           // Track signup for affiliate marketing
           if (typeof window !== "undefined" && window.agentxTrackSignup) {
-            window.agentxTrackSignup(userEmail, response.data.data.user?.id);
+            window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
           }
 
           let screenWidth = 1000;

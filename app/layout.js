@@ -128,11 +128,21 @@ export default function RootLayout({ children }) {
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">
           {`
-            window.agentxTrackSignup = function(email, uid = null) {
+            window.agentxTrackSignup = function(email, fullName = '', uid = null) {
               const trySignup = () => {
                 if (window.affiliateManager && typeof window.affiliateManager.trackLead === "function") {
-                  console.log("[AgentX Tracking] Sending signup event...", { email, uid });
-                  const trackingData = { email };
+                  console.log("[AgentX Tracking] Sending signup event...", { email, fullName, uid });
+                  
+                  // Split fullName into firstName and lastName
+                  const nameParts = (fullName || '').trim().split(' ');
+                  const firstName = nameParts[0] || '';
+                  const lastName = nameParts.slice(1).join(' ') || '';
+                  
+                  const trackingData = { 
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email 
+                  };
                   if (uid) trackingData.uid = uid;
                   
                   setTimeout(() => {
