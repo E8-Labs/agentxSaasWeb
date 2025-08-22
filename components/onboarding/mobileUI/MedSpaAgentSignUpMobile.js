@@ -371,6 +371,7 @@ const MedSpaAgentSignUpMobile = ({
         setIsVisible(true);
         // //console.log;
         if (response.data.status === true) {
+          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
           if (typeof document !== "undefined") {
@@ -378,8 +379,12 @@ const MedSpaAgentSignUpMobile = ({
           }
 
           // Track signup for affiliate marketing
+          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
           if (typeof window !== "undefined" && window.agentxTrackSignup) {
+            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
             window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          } else {
+            console.log("[DEBUG] agentxTrackSignup not available");
           }
 
           let screenWidth = 1000;

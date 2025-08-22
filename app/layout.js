@@ -128,7 +128,8 @@ export default function RootLayout({ children }) {
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">
           {`
-            window.agentxTrackSignup = function(email, fullName = '', uid = null) {
+            console.log("[DEBUG] Loading agentxTrackSignup function...");
+            window.agentxTrackSignup = function(email, fullName, uid) {
               console.log("[AgentX Tracking] agentxTrackSignup called with:", { email, fullName, uid });
               const trySignup = () => {
                 console.log("[AgentX Tracking] trySignup function executing");

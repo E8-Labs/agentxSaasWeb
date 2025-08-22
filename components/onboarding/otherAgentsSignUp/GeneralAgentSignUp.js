@@ -311,7 +311,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
-          //console.log;
+          console.log("[DEBUG] Registration successful, starting affiliate tracking...");
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
 
@@ -320,8 +320,12 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
           }
 
           // Track signup for affiliate marketing
+          console.log("[DEBUG] Checking affiliate tracking function...", typeof window.agentxTrackSignup);
           if (typeof window !== "undefined" && window.agentxTrackSignup) {
+            console.log("[DEBUG] Calling agentxTrackSignup with:", userEmail, userName, response.data.data.user?.id);
             window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
+          } else {
+            console.log("[DEBUG] agentxTrackSignup not available");
           }
 
           let screenWidth = 1000;
