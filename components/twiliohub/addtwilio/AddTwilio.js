@@ -54,12 +54,13 @@ const AddTwilio = ({
             }
             let ApiPath = Apis.addTwilio;
             if (selectedUser) {
-                ApiPath = `${Apis.addTwilio}?userId=${selectedUser.id}`
+                ApiPath = `${Apis.addTwilio}`
             }
             const token = AuthToken();
             const ApiData = {
                 twilioAccountSid: accountSID,
-                twilioAuthToken: accountToken
+                twilioAuthToken: accountToken,
+                userId: selectedUser.id
             }
             console.log("Api path for connect twilio is", ApiPath);
             const response = await axios.post(ApiPath, ApiData, {

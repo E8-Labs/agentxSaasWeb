@@ -759,7 +759,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             <PhoneInput
                                 specialLabel=""
                                 className="border outline-none bg-white"
-                                country={countryCode} // Set the default country
+                                country="us" // Set the default country
                                 value={userPhoneNumber}
                                 onChange={handlePhoneNumberChange}
                                 placeholder={
@@ -788,7 +788,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     maxHeight: "150px",
                                     overflowY: "auto",
                                 }}
-                                countryCodeEditable={true}
+                                countryCodeEditable={false}
+                                disableDropdown={true}
                                 defaultMask={loading ? "Loading..." : undefined}
                             />
                         </div>
@@ -980,7 +981,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     <div className='w-[90%] flex flex-row items-center'>
                                         <div className="w-full">
                                             <PhoneInput
-                                                country={countryCode}
+                                                country={"us"}
                                                 value={member.phone}
                                                 onChange={(value, countryData, e) => {
                                                     handleChange(index, 'phone', value);
@@ -989,6 +990,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                                     // }
                                                 }}
                                                 specialLabel=""
+                                                countryCodeEditable={false}
+                                                disableDropdown={true}
                                                 inputStyle={{
                                                     width: "100%",
                                                     borderWidth: "0px",
@@ -1043,8 +1046,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 </div>
             </div>
 
-            <div className="flex justify-between">
-                <button onClick={onClose} className="w-1/4 text-center text-purple">Cancel</button>
+            <div className="flex justify-between mt-4">
+                <button onClick={onClose} className="w-1/4 text-center text-purple border rounded-lg py-2">Cancel</button>
                 <button
                     disabled={shouldContinue}
                     className={`w-1/3 hover:bg-purple-700 px-6 py-2 rounded-lg ${shouldContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}

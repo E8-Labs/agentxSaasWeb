@@ -34,7 +34,7 @@ const SubAccountUserType = ({
         {
             id: 2,
             title: "Sales Dev Agent",
-            agentType: "SDR/BDR Agent",
+            agentType: "Sales Agent",
             // icon: "/usertype/avt2.png",
             icon: "/agencyIcons/agentsView/salesDev.jpg",
             areaOfFocusTitle: "What area of sales do you focus on?",

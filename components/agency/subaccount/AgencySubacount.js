@@ -6,7 +6,7 @@ import Image from "next/image";
 import Apis from "@/components/apis/Apis";
 import { AuthToken } from "../plan/AuthDetails";
 import axios from "axios";
-import { Box, CircularProgress, Modal } from "@mui/material";
+import { Box, CircularProgress, Modal, Popover } from "@mui/material";
 import SelectedUserDetails from "@/components/admin/users/SelectedUserDetails";
 import InviteTeamModal from "./InviteTeamModal";
 import AgentSelectSnackMessage, {
@@ -50,10 +50,41 @@ function AgencySubacount() {
   const [delLoader, setDelLoader] = useState(false);
   const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false);
 
+  //variables for dropdown
+  // const [accountAnchorel, setAccountAnchorel] = useState(null);
+  // const openAccountDropDown = Boolean(accountAnchorel);
+  // const accountId = accountAnchorel ? "accountAnchor" : undefined;
+
+  // state variables for dropdown
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [activeAccount, setActiveAccount] = useState(null);
+
   useEffect(() => {
     getLocalData();
     getSubAccounts();
   }, []);
+
+  //dropdown popover functions
+  const handleTogglePopover = (event, item) => {
+    if (activeAccount === item.id) {
+      // same row clicked again → close
+      setAnchorEl(null);
+      setActiveAccount(null);
+    } else {
+      // open for this row
+      setAnchorEl(event.currentTarget);
+      setActiveAccount(item.id);
+      setUserData(item);
+      setSelectedItem(item);
+      setmoreDropdown(item.id);
+    }
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+    setActiveAccount(null);
+  };
+
 
   // get agency data from local
 
@@ -217,6 +248,12 @@ function AgencySubacount() {
           Active
         </div>
       )
+    } else if (status.profile_status === "cancelled") {
+      return (
+        <div className="text-grayclr75">
+          Cancelled
+        </div>
+      )
     }
   }
 
@@ -340,16 +377,18 @@ function AgencySubacount() {
                   <div
                     key={item.id}
                     style={{ cursor: "pointer" }}
-                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer"
+                    className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer cursor-pointer"
+                    // onClick={() => {
+                    //   setUserData(item);
+                    //   setmoreDropdown(
+                    //     moreDropdown === item.id ? null : item.id
+                    //   );
+                    //   setSelectedItem(item);
+                    // }}
+                    onClick={(e) => handleTogglePopover(e, item)}
                   >
                     <div
-                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
-                    // onClick={() => {
-                    //     // // //console.log;
-                    //     // setselectedLeadsDetails(item);
-                    //     // setShowDetailsModal(true);
-                    // }}
-                    >
+                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0">
                       {item.thumb_profile_image ? (
                         <Image
                           src={item.thumb_profile_image}
@@ -407,14 +446,14 @@ function AgencySubacount() {
                     <div className="w-1/12 relative">
                       <button
                         disabled={twililoConectedStatus}
-                        id={`dropdown-toggle-${item.id}`}
-                        onClick={() => {
-                          setUserData(item);
-                          setmoreDropdown(
-                            moreDropdown === item.id ? null : item.id
-                          );
-                          setSelectedItem(item);
-                        }}
+                        id={`account-popover-toggle-${item.id}`}
+                      // onClick={() => {
+                      //   setUserData(item);
+                      //   setmoreDropdown(
+                      //     moreDropdown === item.id ? null : item.id
+                      //   );
+                      //   setSelectedItem(item);
+                      // }}
                       >
                         <Image
                           src={"/svgIcons/threeDotsIcon.svg"}
@@ -424,120 +463,82 @@ function AgencySubacount() {
                         />
                       </button>
 
-                      {moreDropdown === item.id && (
-                        <div className="absolute top-8 right-0 bg-white border rounded-lg shadow-lg z-50 w-[180px]">
-                          <button
-                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                            onClick={() => {
-                              setSelectedUser(item);
-                            }}
-                          // setmoreDropdown(null)
-                          >
-                            View Detail
-                          </button>
-                          <button
-                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                            onClick={() => {
-                              setOpenInvitePopup(true);
-                            }}
-                          >
-                            Invite Team
-                          </button>
-                          {/* Code for invite team modal */}
-                          {openInvitePopup && (
-                            <NewInviteTeamModal
-                              openInvitePopup={openInvitePopup}
-                              userID={moreDropdown}
-                              handleCloseInviteTeam={(data) => {
-                                setOpenInvitePopup(false);
-                                if (data === "showSnack") {
-                                  setShowSnackMessage("Invite Sent");
-                                  setmoreDropdown(null);
-                                  setSelectedItem(null);
-                                }
-                              }}
-                            />
-                          )}
-
-                          <button
-                            className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                            onClick={() => {
-                              console.log(selectedUser);
-                              setShowPlans(true);
-                            }}
-                          >
-                            View Plans
-                          </button>
-
-                          {
-                            showPlans && (
-                              <ViewSubAccountPlans
-                                showPlans={setShowPlans}
-                                hidePlans={() => { setShowPlans(false) }}
-                                selectedUser={userData}
-                              />
-                            )
-                          }
-
-                          <div>
-                            {pauseLoader ? (
-                              <CircularProgress size={25} />
-                            ) : (
-                              <button
-                                className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                                onClick={() => {
-                                  // handlePause();
-                                  setShowPauseConfirmationPopup(true);
-                                }}
-                              >
-                                {selectedItem?.profile_status === "paused" ? "Reinstate" : "Pause"}
-                              </button>
-                            )}
-                          </div>
-
-                          {
-                            showPauseConfirmationPopup && (
-                              <DelAdminUser
-                                selectedAccount={selectedItem}
-                                showPauseModal={showPauseConfirmationPopup}
-                                handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
-                                handlePaueUser={handlePause}
-                                pauseLoader={pauseLoader}
-                                selectedUser={selectedUser}
-                              />
-                            )
-                          }
-
-                          {delLoader ? (
-                            <CircularProgress size={25} />
-                          ) : (
-                            <button
-                              className="px-4 py-2 hover:bg-purple10 cursor-pointer text-sm font-medium text-gray-800 w-full text-start"
-                              onClick={() => {
-                                // handleDeleteUser();
-                                setShowDelConfirmationPopup(true);
-                              }}
-                              disabled={selectedItem?.profile_status === "deleted"}
-                            >
-                              Delete
-                            </button>
-                          )}
-
-                          {
-                            showDelConfirmationPopup && (
-                              <DelAdminUser
-                                showDeleteModal={showDelConfirmationPopup}
-                                handleClose={() => { setShowDelConfirmationPopup(false) }}
-                                handleDeleteUser={handleDeleteUser}
-                                delLoader={delLoader}
-                                selectedUser={selectedUser}
-                              />
-                            )
-                          }
-
-                        </div>
-                      )}
                     </div>
+
+                    {/* Popover unique per row */}
+                    <Popover
+                      id={`account-popover-${item.id}`}
+                      open={activeAccount === item.id}
+                      anchorEl={anchorEl}
+                      onClose={handleClosePopover}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "right",
+                      }}
+                      PaperProps={{
+                        elevation: 6,
+                        style: {
+                          boxShadow:
+                            "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
+                          borderRadius: "12px",
+                          // border: "1px solid black",
+                        },
+                      }}
+                    >
+                      <div className="rounded-[10px] inline-flex flex-col gap-4 w-[200px] shadow-lg">
+                        <button
+                          className="px-4 pt-1 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setSelectedUser(item);
+                            handleClosePopover();
+                          }}
+                        >
+                          View Detail
+                        </button>
+                        <button
+                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setOpenInvitePopup(true);
+                            handleClosePopover();
+                          }}
+                        >
+                          Invite Team
+                        </button>
+                        <button
+                          className="px-4 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowPlans(true);
+                            // handleClosePopover();
+                          }}
+                        >
+                          View Plans
+                        </button>
+                        <button
+                          className="px-4  hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowPauseConfirmationPopup(true);
+                            // handleClosePopover();
+                          }}
+                        >
+                          {item?.profile_status === "paused" ? "Reinstate" : "Pause"}
+                        </button>
+                        <button
+                          className="px-4 pb-1 hover:bg-purple10 text-sm font-medium text-gray-800 text-start"
+                          onClick={() => {
+                            setShowDelConfirmationPopup(true);
+                            // handleClosePopover();
+                          }}
+                          disabled={item?.profile_status === "deleted"}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </Popover>
+
                   </div>
                 ))}
               </div>
@@ -571,6 +572,61 @@ function AgencySubacount() {
                 </div>
               </div>
             )}
+
+
+            {openInvitePopup && (
+              <NewInviteTeamModal
+                openInvitePopup={openInvitePopup}
+                userID={moreDropdown}
+                handleCloseInviteTeam={(data) => {
+                  setOpenInvitePopup(false);
+                  if (data === "showSnack") {
+                    setShowSnackMessage("Invite Sent");
+                    setmoreDropdown(null);
+                    setSelectedItem(null);
+                  }
+                }}
+              />
+            )}
+
+
+            {
+              showPlans && (
+                <ViewSubAccountPlans
+                  showPlans={setShowPlans}
+                  hidePlans={() => { setShowPlans(false) }}
+                  selectedUser={userData}
+                />
+              )
+            }
+
+            {
+              showPauseConfirmationPopup && (
+                <DelAdminUser
+                  selectedAccount={selectedItem}
+                  showPauseModal={showPauseConfirmationPopup}
+                  handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
+                  handlePaueUser={handlePause}
+                  pauseLoader={pauseLoader}
+                  selectedUser={selectedUser}
+                />
+              )
+            }
+
+            {
+              showDelConfirmationPopup && (
+                <DelAdminUser
+                  showDeleteModal={showDelConfirmationPopup}
+                  handleClose={() => { setShowDelConfirmationPopup(false) }}
+                  handleDeleteUser={handleDeleteUser}
+                  delLoader={delLoader}
+                  selectedUser={selectedUser}
+                />
+              )
+            }
+
+
+
           </div>
         )}
 

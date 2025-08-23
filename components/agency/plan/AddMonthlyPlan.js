@@ -44,6 +44,8 @@ export default function AddMonthlyPlan({
   const [createPlanLoader, setCreatePlanLoader] = useState(false);
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
+  const [snackBannerMsg, setSnackBannerMsg] = useState(null);
+  const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
   const [minCostErr, setMinCostErr] = useState(false);
 
   //check if is edit plan is true then store the predefault values
@@ -55,7 +57,7 @@ export default function AddMonthlyPlan({
       setTag(selectedPlan?.tag);
       setPlanDescription(selectedPlan?.planDescription);
       setOriginalPrice(selectedPlan?.originalPrice);
-      setDiscountedPrice(selectedPlan?.discountedPrice?.toFixed(2)/selectedPlan?.minutes);
+      setDiscountedPrice(selectedPlan?.discountedPrice?.toFixed(2) / selectedPlan?.minutes);
       setMinutes(selectedPlan?.minutes);
       if (selectedPlan?.trialValidForDays !== null) {
         setTrialValidForDays(selectedPlan?.trialValidForDays);
@@ -81,9 +83,11 @@ export default function AddMonthlyPlan({
       const P = (discountedPrice * 100) / minutes;
       console.log("Calculated price is", P);
       if (P < 0.20) {
-        setMinCostErr(true);
+        const cal = discountedPrice * minutes;
+        setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)} or more than ${cal.toFixed(2)}`);
+        setSnackBannerMsgType(SnackbarTypes.Warning);
       } else if (P >= 0.20) {
-        setMinCostErr(false);
+        setSnackBannerMsg(null);
       }
     }
   }, [minutes, discountedPrice]);
@@ -387,7 +391,7 @@ export default function AddMonthlyPlan({
     const requiredFieldsFilled =
       title.trim() &&
       planDescription.trim() &&
-      originalPrice &&
+      // originalPrice &&
       discountedPrice && //no need to replace here
       minutes;
 
@@ -401,8 +405,8 @@ export default function AddMonthlyPlan({
     <Modal
       open={open}
       onClose={() => {
-        handleClose("");
         handleResetValues();
+        handleClose("");
       }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
@@ -414,6 +418,14 @@ export default function AddMonthlyPlan({
             setSnackMsg(null);
           }}
           type={snackMsgType}
+        />
+        <AgentSelectSnackMessage
+          isVisible={snackBannerMsg !== null}
+          message={snackBannerMsg}
+          hide={() => {
+            // setSnackMsg(null);
+          }}
+          type={snackBannerMsgType}
         />
         <div className="w-full flex flex-row h-[100%] items-start">
           {showTrailWarning && (
@@ -482,7 +494,7 @@ export default function AddMonthlyPlan({
                   <label style={styles.labels}>
                     Price/Min {agencyPlanCost && (`Your cost is $${(agencyPlanCost).toFixed(2)}`)}
                   </label>
-                  <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                  <div className={`border ${minCostErr || (discountedPrice && discountedPrice < agencyPlanCost) ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                     <div className="" style={styles.inputs}>
                       $
                     </div>
@@ -497,9 +509,11 @@ export default function AddMonthlyPlan({
                       onChange={(e) => {
                         // setDiscountedPrice(formatFractional2(e.target.value)); // no more repeated "0."
                         const value = e.target.value;
-                        if (value > 0 && value < agencyPlanCost) {
-                          setSnackMsg(`Discount price cannot be less then ${agencyPlanCost}`);
-                          setSnackMsgType(SnackbarTypes.Warning);
+                        if (value && value < agencyPlanCost) {
+                          setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)}`);
+                          setSnackBannerMsgType(SnackbarTypes.Warning);
+                        } else {
+                          setSnackBannerMsg(null);
                         }
                         const UpdatedValue = handlePricePerMinInputValue(value);
                         setDiscountedPrice(UpdatedValue);
@@ -507,7 +521,7 @@ export default function AddMonthlyPlan({
                     />
                   </div>
 
-                  {minCostErr && (
+                  {/*minCostErr && (
                     <div className="flex flex-row items-center gap-2 mb-4">
                       <Image
                         src={"/agencyIcons/InfoIcon.jpg"}
@@ -519,11 +533,10 @@ export default function AddMonthlyPlan({
                         className="flex items-center gap-1"
                         style={{ fontSize: "15px", fontWeight: "500" }}
                       >
-                        {/*<AiOutlineInfoCircle className="text-sm" />*/}
                         Min cost per min is ${agencyPlanCost}
                       </p>
                     </div>
-                  )}
+                  )*/}
 
                   {/* Minutes */}
                   <label style={styles.labels}>Minutes</label>

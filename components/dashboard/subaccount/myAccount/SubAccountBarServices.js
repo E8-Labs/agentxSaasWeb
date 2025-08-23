@@ -99,6 +99,7 @@ function SubAccountBarServices({
   //function to get subaccount plans
   const getPlans = async () => {
     try {
+      setGetPlansLoader(true);
       const Token = AuthToken();
       const ApiPath = Apis.getSubAccountPlans
       const response = await axios.get(ApiPath, {
@@ -111,10 +112,12 @@ function SubAccountBarServices({
       if (response) {
         console.log("Response of get plans api is", response.data.data);
         setPlans(response.data.data.xbarPlans);
+        setGetPlansLoader(false);
       }
 
     } catch (error) {
       console.error("Error occured in getting plans", error);
+      setGetPlansLoader(false);
     }
   }
   //get profile
@@ -304,8 +307,9 @@ function SubAccountBarServices({
     let planType = "";
     plans.forEach((item) => {
       if (item.id === togglePlan) {
-        planType = item.type;
-      }}
+        planType = item.title;
+      }
+    }
     )
     return planType;
   };
@@ -423,110 +427,122 @@ function SubAccountBarServices({
           </div>
         </div>
 
-        {plans.length > 0 && plans.map((item, index) => (
-          <button
-            key={item.id}
-            className="w-9/12 mt-4 outline-none"
-            onClick={(e) => handleTogglePlanClick(item)}
-          >
-            <div
-              className="px-4 py-1 pb-4"
-              style={{
-                ...styles.pricingBox,
-                border:
-                  item.id === togglePlan
-                    ? "2px solid #7902DF"
-                    : "1px solid #15151520",
-                backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-              }}
-            >
-              <div
-                style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-              ></div>
-              <span style={styles.labelText}>{item.planStatus}</span>
-              <div
-                className="flex flex-row items-start gap-3"
-                style={styles.content}
-              >
-                <div className="mt-1">
-                  <div>
-                    {item.id === togglePlan ? (
-                      <Image
-                        src={"/svgIcons/checkMark.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/svgIcons/unCheck.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
-                  </div>
-                </div>
-                <div className="w-full">
-                  {item.id === currentPlan && (
-                    <div
-                      className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                      style={{
-                        fontSize: 11.6,
-                        fontWeight: "500",
-                        width: "fit-content",
-                      }}
-                    >
-                      Current Plan
-                    </div>
-                  )}
-
-                  <div className="flex flex-row items-center gap-3">
-                    <div
-                      style={{
-                        color: "#151515",
-                        fontSize: 20,
-                        fontWeight: "600",
-                      }}
-                    >
-                      {item.title}
-                    </div>
-                    {item.status && (
-                      <div
-                        className="flex px-2 py-1 bg-purple rounded-full text-white"
-                        style={{ fontSize: 11.6, fontWeight: "500" }}
-                      >
-                        {item.status}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-row items-center justify-between">
-                    <div
-                      className="mt-2"
-                      style={{
-                        color: "#15151590",
-                        fontSize: 12,
-                        width: "60%",
-                        fontWeight: "600",
-                      }}
-                    >
-                      {item.planDescription}
-                    </div>
-                    <div className="flex flex-row items-center">
-
-                      <div className="flex flex-row justify-start items-start ">
-                        <div style={styles.discountedPrice}>
-                          ${item.originalPrice}
-                        </div>
-                        <p style={{ color: "#15151580" }}>/mo*</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {
+          getPlansLoader ? (
+            <div className="w-full flex flex-row items-center justify-center">
+              <CircularProgress size={25} />
             </div>
-          </button>
-        ))}
+          ) : (
+            <div className="w-full flex flex-col items-center">
+              {plans.length > 0 && plans.map((item, index) => (
+                <button
+                  key={item.id}
+                  className="w-9/12 mt-4 outline-none"
+                  onClick={(e) => handleTogglePlanClick(item)}
+                >
+                  <div
+                    className="px-4 py-1 pb-4"
+                    style={{
+                      ...styles.pricingBox,
+                      border:
+                        item.id === togglePlan
+                          ? "2px solid #7902DF"
+                          : "1px solid #15151520",
+                      backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                    }}
+                  >
+                    <div
+                      style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                    ></div>
+                    <span style={styles.labelText}>{item.percentageDiscount.toFixed(2)}%</span>
+                    <div
+                      className="flex flex-row items-start gap-3"
+                      style={styles.content}
+                    >
+                      <div className="mt-1">
+                        <div>
+                          {item.id === togglePlan ? (
+                            <Image
+                              src={"/svgIcons/checkMark.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          ) : (
+                            <Image
+                              src={"/svgIcons/unCheck.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-full">
+                        {item.id === currentPlan && (
+                          <div
+                            className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                            style={{
+                              fontSize: 11.6,
+                              fontWeight: "500",
+                              width: "fit-content",
+                            }}
+                          >
+                            Current Plan
+                          </div>
+                        )}
+
+                        <div className="flex flex-row items-center gap-3">
+                          <div
+                            style={{
+                              color: "#151515",
+                              fontSize: 20,
+                              fontWeight: "600",
+                            }}
+                          >
+                            {item.title} | {item.minutes} Mins <span className="px-4 py-2 text-white bg-purple rounded-full" style={{ fontWeight: "500", fontSize: 14 }}>{item.tag}</span>
+                          </div>
+                          {item.status && (
+                            <div
+                              className="flex px-2 py-1 bg-purple rounded-full text-white"
+                              style={{ fontSize: 11.6, fontWeight: "500" }}
+                            >
+                              {item.status}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-row items-center justify-between">
+                          <div
+                            className="mt-2"
+                            style={{
+                              color: "#15151590",
+                              fontSize: 12,
+                              width: "60%",
+                              fontWeight: "600",
+                            }}
+                          >
+                            {item.planDescription}
+                          </div>
+                          <div className="flex flex-row items-center">
+                            <div style={styles.originalPrice}>
+                              ${item.originalPrice}
+                            </div>
+                            <div className="flex flex-row justify-start items-start ">
+                              <div style={styles.discountedPrice}>
+                                ${item.originalPrice}
+                              </div>
+                              <p style={{ color: "#15151580" }}>/mo*</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )
+        }
 
         <div className="flex flex-col w-full items-center justify-center">
           {subscribePlanLoader ? (

@@ -183,7 +183,6 @@ const SubAccountPlan = () => {
     pricingBox: {
       position: "relative",
       // padding: '10px',
-      borderRadius: "10px",
       // backgroundColor: '#f9f9ff',
       display: "inline-block",
       width: "100%",
@@ -296,6 +295,27 @@ const SubAccountPlan = () => {
                         className="w-full mt-4"
                         onClick={(e) => handleTogglePlanClick2(item)}
                       >
+                        {item.hasTrial && (
+                          <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                            <div className="flex flex-row items-center gap-2">
+                              <Image
+                                src={"/otherAssets/batchIcon.png"}
+                                alt="*"
+                                height={24}
+                                width={24}
+                              />
+                              <div
+                                style={{
+                                  fontWeight: "600",
+                                  fontSize: 18,
+                                  color: "white",
+                                }}
+                              >
+                                First {item.hasTrial == true && (`| ${item.trialValidForDays}`)} Days Free
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         <div
                           className="px-4 py-1 pb-4"
                           style={{
@@ -306,16 +326,21 @@ const SubAccountPlan = () => {
                                 : "1px solid #15151520",
                             backgroundColor:
                               item.id === togglePlan ? "#402FFF05" : "",
+                            // borderRadius: item.hasTrial == true ? "" : "10px",
+                            borderTopLeftRadius: item.hasTrial == true ? "" : "10px",
+                            borderTopRightRadius: item.hasTrial == true ? "" : "10px",
+                            borderBottomLeftRadius: "10px",
+                            borderBottomRightRadius: "10px",
                           }}
                         >
                           <div
                             style={{
                               ...styles.triangleLabel,
-                              borderTopRightRadius: "7px",
+                              borderTopRightRadius: item.hasTrial == true ? "" : "7px",
                             }}
                           ></div>
                           <span style={styles.labelText}>
-                            {item.percentageDiscount}%
+                            {item?.percentageDiscount.toFixed(2)}%
                           </span>
                           <div
                             className="flex flex-row items-start gap-3"
@@ -341,7 +366,7 @@ const SubAccountPlan = () => {
                               </div>
                             </div>
                             <div className="w-full">
-                             
+
                               {item.status && (
                                 <div
                                   className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
@@ -362,7 +387,7 @@ const SubAccountPlan = () => {
                                 }}
                                 className="flex flex-row items-center gap-1"
                               >
-                                {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
+                                {item.title}{" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
                               </div>
                               <div className="flex flex-row items-center justify-between">
                                 <div
@@ -427,18 +452,17 @@ const SubAccountPlan = () => {
               </button>
               <TermsText />
             </div>
-            
-              <button
-                className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${
-                  canSubPlan
-                    ? "bg-purple text-white"
-                    : "bg-[#00000030] text-black"
+
+            <button
+              className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan
+                ? "bg-purple text-white"
+                : "bg-[#00000030] text-black"
                 }`}
-                onClick={subscribePlanClick}
-                disabled={!canSubPlan}
-              >
-                Continue
-              </button>
+              onClick={subscribePlanClick}
+              disabled={!canSubPlan}
+            >
+              Continue
+            </button>
 
           </div>
           <div className="w-6/12 h-[100%] flex flex-col items-end justify-center">
@@ -451,7 +475,7 @@ const SubAccountPlan = () => {
           </div>
         </div>
 
-        <LoaderAnimation isOpen={planSubscribed || subPlanLoader} title="Redirecting to dashboard..."  />
+        <LoaderAnimation isOpen={planSubscribed || subPlanLoader} title="Redirecting to dashboard..." />
 
         {/* Code for add card */}
         {/* Add Payment Modal */}
@@ -504,8 +528,8 @@ const SubAccountPlan = () => {
                     // stop={stop}
                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                     handleClose={handleCardAddedClose}
-                    // togglePlan={togglePlan}
-                    // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  // togglePlan={togglePlan}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                   />
                 </Elements>
               </div>

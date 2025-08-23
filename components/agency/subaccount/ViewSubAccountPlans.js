@@ -1,6 +1,9 @@
-import { Box, Modal } from '@mui/material'
+import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { AuthToken } from '../plan/AuthDetails';
+import Apis from '@/components/apis/Apis';
+import axios from 'axios';
 
 const ViewSubAccountPlans = ({
     showPlans,
@@ -9,6 +12,46 @@ const ViewSubAccountPlans = ({
 }) => {
 
     console.log("selected user passed is", selectedUser);
+
+    const [initialLoader, setInitialLoader] = useState(false);
+    const [plans, setPlans] = useState([]);
+
+    useEffect(() => {
+        getPlans();
+    }, []);
+
+
+    //get plans from user id api
+    const getPlans = async () => {
+        try {
+            setInitialLoader(true);
+            const Token = AuthToken();
+            console.log("user id is", selectedUser?.id);
+            let ApiPath = null;
+            if (selectedUser) {
+                ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`;
+            } else {
+                ApiPath = Apis.getSubAccountPlans;
+            }
+            console.log("Api path of get plan is", ApiPath);
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + Token,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response) {
+                console.log("Response of get plans api is", response.data.data);
+                setPlans(response.data.data.monthlyPlans);
+                setInitialLoader(false);
+            }
+
+        } catch (error) {
+            setInitialLoader(false);
+            console.error("Error occured in getting subaccount plans", error);
+        }
+    }
 
     return (
         <Modal
@@ -23,7 +66,7 @@ const ViewSubAccountPlans = ({
                 },
             }}
         >
-            <Box className="w-6/12 bg-white p-6" sx={styles.modalsStyle}>
+            <Box className="w-6/12 bg-white p-6" sx={subaccountstyles.modalsStyle}>
                 <div className='w-full flex flex-row items-center justify-between mb-6'>
                     <div style={{ fontWeight: "600", fontSize: 18 }}>
                         View Plans
@@ -39,20 +82,116 @@ const ViewSubAccountPlans = ({
                 </div>
                 {/*selectedUser.plan.map((plan, index) => ())*/}
                 {
-                    selectedUser?.plan ? (
-                        <div className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition">
-                            <div className="w-[80%]">
-                                <h3 className="font-semibold text-gray-900">
-                                    {selectedUser?.plan?.title} | {selectedUser?.plan?.minutes || "X"}mins
-                                </h3>
-                                <p className="text-sm text-gray-500">{selectedUser?.plan?.planDescription}</p>
-                                <p className="mt-1 font-medium text-lg text-gray-800">
-                                    ${selectedUser?.plan?.price}/<span className="text-sm text-gray-400">Mo*</span>
-                                </p>
-                            </div>
-                        </div>) : (
-                        <div className='text-xl font-bold text-center mt-6'>
-                            No Plan
+                    initialLoader ? (
+                        <div className="w-full flex flex-row items-center justify-center">
+                            <CircularProgress size={25} />
+                        </div>
+                    ) : (
+                        <div className="w-full">
+                            {plans.map((item, index) => (
+                                <button
+                                    key={index}
+                                    className="w-full mt-4 outline-none"
+                                    // onClick={(e) => handleTogglePlanClick(item)}
+                                >
+                                    <div
+                                        className="px-4 py-1 pb-4"
+                                        style={{
+                                            ...styles.pricingBox,
+                                            border:
+                                                item.id === selectedUser?.plan?.planId
+                                                    ? "2px solid #7902DF"
+                                                    : "1px solid #15151520",
+                                            backgroundColor: item.id === selectedUser?.plan?.planId ? "#402FFF05" : "",
+                                        }}
+                                    >
+                                        <div
+                                            style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                                        ></div>
+                                        <span style={styles.labelText}>{item.percentageDiscount}</span>
+                                        <div
+                                            className="flex flex-row items-start gap-3"
+                                            style={styles.content}
+                                        >
+                                            <div className="mt-1">
+                                                <div>
+                                                    {item.id === selectedUser?.plan?.planId ? (
+                                                        <Image
+                                                            src={"/svgIcons/checkMark.svg"}
+                                                            height={24}
+                                                            width={24}
+                                                            alt="*"
+                                                        />
+                                                    ) : (
+                                                        <Image
+                                                            src={"/svgIcons/unCheck.svg"}
+                                                            height={24}
+                                                            width={24}
+                                                            alt="*"
+                                                        />
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="w-full">
+                                                {item.id === selectedUser?.plan?.planId && (
+                                                    <div
+                                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                                        style={{
+                                                            fontSize: 11.6,
+                                                            fontWeight: "500",
+                                                            width: "fit-content",
+                                                        }}
+                                                    >
+                                                        Current Plan
+                                                    </div>
+                                                )}
+
+                                                <div className="flex flex-row items-center gap-3">
+                                                    <div
+                                                        style={{
+                                                            color: "#151515",
+                                                            fontSize: 20,
+                                                            fontWeight: "600",
+                                                        }}
+                                                    >
+                                                        {item.title}
+                                                    </div>
+                                                    {item.status && (
+                                                        <div
+                                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                                            style={{ fontSize: 11.6, fontWeight: "500" }}
+                                                        >
+                                                            {item.status}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-row items-center justify-between">
+                                                    <div
+                                                        className="mt-2"
+                                                        style={{
+                                                            color: "#15151590",
+                                                            fontSize: 12,
+                                                            width: "60%",
+                                                            fontWeight: "600",
+                                                        }}
+                                                    >
+                                                        {item.planDescription}
+                                                    </div>
+                                                    <div className="flex flex-row items-center">
+
+                                                        <div className="flex flex-row justify-start items-start ">
+                                                            <div style={styles.discountedPrice}>
+                                                                ${item.discountedPrice}
+                                                            </div>
+                                                            <p style={{ color: "#15151580" }}>/mo*</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            ))}
                         </div>
                     )
                 }
@@ -64,7 +203,7 @@ const ViewSubAccountPlans = ({
 export default ViewSubAccountPlans;
 
 
-const styles = {
+const subaccountstyles = {
     modalsStyle: {
         height: "auto",
         // bgcolor: "transparent",
@@ -81,3 +220,113 @@ const styles = {
         fontSize: 15
     }
 };
+
+const styles = {
+    text: {
+        fontSize: 12,
+        color: "#00000090",
+    },
+    text2: {
+        textAlignLast: "left",
+        fontSize: 15,
+        color: "#000000",
+        fontWeight: 500,
+        whiteSpace: "nowrap", // Prevent text from wrapping
+        overflow: "hidden", // Hide overflow text
+        textOverflow: "ellipsis", // Add ellipsis for overflow text
+    },
+    paymentModal: {
+        height: "auto",
+        bgcolor: "transparent",
+        // p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-50%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
+    },
+    headingStyle: {
+        fontSize: 16,
+        fontWeight: "700",
+    },
+    gitTextStyle: {
+        fontSize: 15,
+        fontWeight: "700",
+    },
+
+    //style for plans
+    cardStyles: {
+        fontSize: "14",
+        fontWeight: "500",
+        border: "1px solid #00000020",
+    },
+    pricingBox: {
+        position: "relative",
+        // padding: '10px',
+        borderRadius: "10px",
+        // backgroundColor: '#f9f9ff',
+        display: "inline-block",
+        width: "100%",
+    },
+    triangleLabel: {
+        position: "absolute",
+        top: "0",
+        right: "0",
+        width: "0",
+        height: "0",
+        borderTop: "50px solid #7902DF", // Increased height again for more padding
+        borderLeft: "50px solid transparent",
+    },
+    labelText: {
+        position: "absolute",
+        top: "10px", // Adjusted to keep the text centered within the larger triangle
+        right: "5px",
+        color: "white",
+        fontSize: "10px",
+        fontWeight: "bold",
+        transform: "rotate(45deg)",
+    },
+    content: {
+        textAlign: "left",
+        paddingTop: "10px",
+    },
+    originalPrice: {
+        textDecoration: "line-through",
+        color: "#7902DF65",
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    discountedPrice: {
+        color: "#7902DF65",
+        fontWeight: "bold",
+        fontSize: 18,
+        marginLeft: "10px",
+    },
+};
+
+
+
+
+{/*
+                            <div className="w-full">
+                                {
+                                    selectedUser?.plan ? (
+                                        <div className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition">
+                                            <div className="w-[80%]">
+                                                <h3 className="font-semibold text-gray-900">
+                                                    {selectedUser?.plan?.title} | {selectedUser?.plan?.minutes || "X"}mins
+                                                </h3>
+                                                <p className="text-sm text-gray-500">{selectedUser?.plan?.planDescription}</p>
+                                                <p className="mt-1 font-medium text-lg text-gray-800">
+                                                    ${selectedUser?.plan?.price}/<span className="text-sm text-gray-400">Mo*</span>
+                                                </p>
+                                            </div>
+                                        </div>) : (
+                                        <div className='text-xl font-bold text-center mt-6'>
+                                            No Plan
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        */}

@@ -30,6 +30,9 @@ export default function AddXBarPlan({
   const [snackMsg, setSnackMsg] = useState(null);
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
+  const [snackBannerMsg, setSnackBannerMsg] = useState(null);
+  const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
+
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
     console.log("Test log xbars")
@@ -50,8 +53,12 @@ export default function AddXBarPlan({
       const P = (originalPrice * 100) / minutes;
       console.log("Calculated price is", P);
       if (P < 20) {
+        const cal = originalPrice * minutes;
         setMinCostErr(true);
+        setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
+        setSnackBannerMsgType(SnackbarTypes.Warning);
       } else if (P >= 20) {
+        setSnackBannerMsg(null);
         setMinCostErr(false);
       }
     }
@@ -314,6 +321,15 @@ export default function AddXBarPlan({
           type={snackMsgType}
         />
 
+        <AgentSelectSnackMessage
+          isVisible={snackBannerMsg !== null}
+          message={snackBannerMsg}
+          hide={() => {
+            // setSnackMsg(null);
+          }}
+          type={snackBannerMsgType}
+        />
+
         <div className="w-full flex flex-row h-[100%] items-start">
           <div className="w-6/12 h-[100%] p-6">
             <div
@@ -370,7 +386,7 @@ export default function AddXBarPlan({
                   <input
                     style={styles.inputs}
                     type="text"
-                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                    className={`w-full border ${minCostErr ? "border-red" : "border-gray-200"}  outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1`}
                     placeholder="00"
                     value={originalPrice}
                     onChange={(e) => {
@@ -389,7 +405,7 @@ export default function AddXBarPlan({
                       setOriginalPrice(valid);
                     }}
                   />
-                  {minCostErr && (
+                  {/*minCostErr && (
                     <div className="flex flex-row items-center gap-2 mb-4">
                       <Image
                         src={"/agencyIcons/InfoIcon.jpg"}
@@ -401,11 +417,10 @@ export default function AddXBarPlan({
                         className="flex items-center gap-1"
                         style={{ fontSize: "15px", fontWeight: "500" }}
                       >
-                        {/*<AiOutlineInfoCircle className="text-sm" />*/}
                         Min cost per min is 20 cents
                       </p>
                     </div>
-                  )}
+                  )*/}
 
 
 
@@ -549,10 +564,10 @@ export default function AddXBarPlan({
                   ></div>
                   {/* Triangle price here */}
                   {
-                    discountedPrice && minutes && (
+                    discountedPrice && originalPrice && (
                       <span style={styles.labelText}>
                         {(
-                          ((originalPrice - agencyPlanCost) / agencyPlanCost) *
+                          ((discountedPrice - originalPrice) / discountedPrice) *
                           100
                         ).toFixed(0) || "-"}
                         %
@@ -572,7 +587,7 @@ export default function AddXBarPlan({
                             fontWeight: "600",
                           }}
                         >
-                          {title || "XBar"}
+                          {title || "XBar"} | {minutes || "Bonus Mins"}
                         </div>
                         {tag ? (
                           <div
@@ -609,10 +624,10 @@ export default function AddXBarPlan({
                               ${discountedPrice}
                             </div>
                           )}
-                          {originalPrice && minutes && (
+                          {originalPrice && (
                             <div className="flex flex-row justify-start items-start ">
                               <div style={styles.discountedPrice}>
-                                ${(originalPrice * minutes).toFixed(2)}
+                                ${originalPrice}
                               </div>
                               <p style={{ color: "#15151580" }}></p>
                             </div>

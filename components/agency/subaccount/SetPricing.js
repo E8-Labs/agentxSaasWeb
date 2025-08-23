@@ -4,6 +4,7 @@ import { Check } from "@phosphor-icons/react"; // Optional: replace with your ow
 import SetXBarOptions from "./SetXBarOptions";
 import { getMonthlyPlan } from "./GetPlansList";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import Image from "next/image";
 
 
 
@@ -96,28 +97,53 @@ export default function SetPricing({
                 {monthlyPlans.map((plan, index) => (
                     <div
                         key={index}
-                        className="flex justify-between items-center border rounded-lg p-4 hover:shadow transition"
                         onClick={() => toggleSelection(plan.id)}
+                        className="cursor-pointer"
                     >
-                        <div className="w-[80%]">
-                            <h3 className="font-semibold text-gray-900">
-                                {plan.title} | {plan.minutes || "X"}mins{" "}{plan.hasTrial == true && (`| ${plan.trialValidForDays} Day Free Trial`)}
-                            </h3>
-                            <p className="text-sm text-gray-500">{plan.planDescription}</p>
-                            <p className="mt-1 font-medium text-lg text-gray-800">
-                                ${plan.discountedPrice}/<span className="text-sm text-gray-400">Mo*</span>
-                            </p>
-                        </div>
-
-                        <div className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
-                            style={{
-                                borderColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "#ccc",
-                                backgroundColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "transparent",
-                            }}
+                        {plan.hasTrial && (
+                            <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                                <div className="flex flex-row items-center gap-2">
+                                    <Image
+                                        src={"/otherAssets/batchIcon.png"}
+                                        alt="*"
+                                        height={24}
+                                        width={24}
+                                    />
+                                    <div
+                                        style={{
+                                            fontWeight: "600",
+                                            fontSize: 18,
+                                            color: "white",
+                                        }}
+                                    >
+                                        First {plan.hasTrial == true && (`| ${plan.trialValidForDays}`)} Days Free
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        <div
+                            className={`flex justify-between items-center border ${plan.hasTrial ? "rounded-b-lg" : "rounded-lg"} p-4 hover:shadow transition`}
                         >
-                            {selectedPlans.includes(plan.id) && (
-                                <Check size={16} color="#fff" />
-                            )}
+                            <div className="w-[80%]">
+                                <h3 className="font-semibold text-gray-900">
+                                    {plan.title} | {plan.minutes || "X"}mins{" "}
+                                </h3>
+                                <p className="text-sm text-gray-500">{plan.planDescription}</p>
+                                <p className="mt-1 font-medium text-lg text-gray-800">
+                                    <span className="line-through text-[#00000090]">${plan.originalPrice.toFixed(2)}</span> ${plan.discountedPrice.toFixed(2)}/<span className="text-sm text-gray-400">Mo*</span>
+                                </p>
+                            </div>
+
+                            <div className="w-6 h-6 border-2 rounded-sm flex items-center justify-center transition-all duration-150 ease-in-out"
+                                style={{
+                                    borderColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "#ccc",
+                                    backgroundColor: selectedPlans.includes(plan.id) ? "#7e22ce" : "transparent",
+                                }}
+                            >
+                                {selectedPlans.includes(plan.id) && (
+                                    <Check size={16} color="#fff" />
+                                )}
+                            </div>
                         </div>
                     </div>
                 ))}
@@ -134,7 +160,7 @@ export default function SetPricing({
                     onClick={() => {
                         handleContinue()
                     }}
-                    className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? "bg-[#00000020] text-black": "bg-purple text-white"}`}
+                    className={`px-8 py-2 rounded-lg w-1/2 ${selectedPlans.length === 0 ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
                 >
                     Continue
                 </button>
