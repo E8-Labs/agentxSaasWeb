@@ -219,6 +219,10 @@ const Apis = {
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
 
+  templets : `${BasePath}api/templates`,
+  gmailAccount :`${BasePath}api/mail/accounts`,
+  connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
+
 };
 
 export default Apis;

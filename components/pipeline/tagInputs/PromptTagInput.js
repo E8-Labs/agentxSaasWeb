@@ -438,7 +438,7 @@ export const PromptTagInput = ({
             width: "100%",
             fontWeight: "500",
             fontSize: 15,
-            height: showSaveChangesBtn
+            height: from == "Template" ? "15vh" : showSaveChangesBtn
               ? window.innerHeight <= 900
                 ? "calc(100vh - 670px)"
                 : "calc(100vh - 730px)"
@@ -549,12 +549,12 @@ export const PromptTagInput = ({
                 </div>
 
                 {
-                  from === "Voicemail" && (
+                  (from === "Voicemail" || from === "Template") && (
                     <div className="w-full flex flex-col items-end jutstify-end">
                       <div style={{
                         fontSize: 14, fontWeight: '500', color: '#00000060'
                       }}>
-                        {text?.length}/200
+                        {text?.length}/{limit}
                       </div>
                     </div>
                   )

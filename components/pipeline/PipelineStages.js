@@ -8,11 +8,13 @@ import {
   CircularProgress,
   Fade,
   FormControl,
+  Menu,
   MenuItem,
   Modal,
   Popover,
   Select,
   Snackbar,
+  Tooltip,
 } from "@mui/material";
 import Apis from "../apis/Apis";
 import axios from "axios";
@@ -23,6 +25,11 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
+import { getTempletes } from "./TempleteServices";
+import EmailTempletePopup from "./EmailTempletePopup";
+import SMSTempletePopup from "./SMSTempletePopup";
+import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
+import AuthSelectionPopup from "./AuthSelectionPopup";
 
 const PipelineStages = ({
   stages,
@@ -34,6 +41,7 @@ const PipelineStages = ({
   rowsByIndex,
   removeRow,
   addRow,
+  updateRow,
   nextStage,
   handleSelectNextChange,
   selectedPipelineStages,
@@ -81,6 +89,9 @@ const PipelineStages = ({
   const [addStageLoader, setAddStageLoader] = useState(false);
   //code for advance setting modal inside new stages
   const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
+
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+
   //code for input arrays
   const [inputs, setInputs] = useState([
     {
@@ -102,9 +113,124 @@ const PipelineStages = ({
   const [assignToMember, setAssignToMember] = useState("");
   const [assignLeadToMember, setAssignLeadToMember] = useState([]);
 
+
+  //templetes variables
+  const [templates, setTempletes] = useState([])
+  const [tempLoader, setTempLoader] = useState(null)
+
+  const [showEmailTemPopup, setShowEmailTempPopup] = useState(false)
+  const [showSmsTemPopup, setShowSmsTempPopup] = useState(false)
+
+  const [phoneNumbers, setPhoneNumbers] = useState([])
+  const [phoneLoading, setPhoneLoading] = useState(false)
+  const [selectedType, setSelectedType] = useState(null)
+
+  const [selectedIndex, setSelectedIndex] = useState(null)
+
+  // Edit functionality variables
+  const [isEditing, setIsEditing] = useState(false)
+  const [editingRow, setEditingRow] = useState(null)
+  const [editingStageIndex, setEditingStageIndex] = useState(null)
+
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
+
+  const ACTIONS = [
+    { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
+    { value: "sms", label: "Text", icon: '/otherAssets/smsIcon.png', focusedIcon: '/otherAssets/blueSmsIcon.png' },
+    { value: "call", label: "Call", icon: '/otherAssets/callIcon.png', focusedIcon: '/otherAssets/blueCallIcon.png' },
+  ];
+
+  const actionLabel = (v) => ACTIONS.find(a => a.value === v)?.label || "Make Call";
+
+  console.log('rowsByIndex', rowsByIndex)
+
+  // one menu anchor per stage row-set
+  const [addMenuAnchor, setAddMenuAnchor] = useState({}); // { [stageIndex]: HTMLElement|null }
+
+  const openAddMenu = (stageIndex, e) => {
+    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }));
+  };
+
+  const closeAddMenu = (stageIndex) => {
+    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }));
+  };
+
+  const handleSelectAdd = async (stageIndex, value) => {
+
+    if (value != "call") {
+      setSelectedIndex(stageIndex)
+      setSelectedType(value)
+      // if (temp && temp.length > 0) {
+      if (value === "email") {
+        setShowAuthSelectionPopup(true)
+      } else {
+        setShowSmsTempPopup(true)
+      }
+      // }
+    } else {
+      addRow(stageIndex, value);
+    }
+    closeAddMenu(stageIndex);
+  };
+
+  const handleEditRow = async (stageIndex, row) => {
+    console.log('row for edit', row)
+    setIsEditing(true);
+    setEditingRow(row);
+    setEditingStageIndex(stageIndex);
+    setSelectedType(row.action);
+    setSelectedIndex(stageIndex);
+
+    if (row.action === "email") {
+      setShowEmailTempPopup(true);
+    } else if (row.action === "sms") {
+      setShowSmsTempPopup(true);
+    }
+  };
+
+  const handleUpdateRow = (rowId, updatedData) => {
+    // Update the specific row in the pipeline using the updateRow prop
+    if (editingStageIndex !== null && updateRow) {
+      updateRow(editingStageIndex, rowId, updatedData);
+    }
+
+    // Reset editing state
+    setIsEditing(false);
+    setEditingRow(null);
+    setEditingStageIndex(null);
+  };
+
+
+
+
   useEffect(() => {
     getMyTeam();
+    getNumbers()
   }, []);
+
+
+  useEffect(() => {
+    if (showEmailTemPopup) {
+      getTemp()
+    }
+  }, [showEmailTemPopup])
+
+  const getTemp = async () => {
+    setTempLoader(selectedType)
+    let temp = await getTempletes(selectedType)
+    setTempletes(temp)
+    setTempLoader(null)
+    setShowEmailTempPopup(true)
+  }
+
+  const getNumbers = async () => {
+    setPhoneLoading(true)
+    let num = await getAvailabePhoneNumbers()
+    if (num) {
+      setPhoneNumbers(num)
+    }
+    setPhoneLoading(false)
+  }
 
   //ading stages data
   useEffect(() => {
@@ -113,30 +239,7 @@ const PipelineStages = ({
     }
   }, [selectedPipelineStages]);
 
-  //code for showing the add stage button according to dirredent conditions
-  // useEffect(() => {
 
-  //     if (action) {
-  //         if (!newStageTitle || !action || inputs.filter(input => input.value.trim() !== "").length < 3) {
-  //            // //console.log
-  //             setShowAddStageBtn(false);
-  //         }
-  //         else if (newStageTitle && action && inputs.filter(input => input.value.trim() !== "").length === 3) {
-  //            // //console.log
-  //             setShowAddStageBtn(true);
-  //         }
-  //     }
-  //     else if (!action) {
-  //         // if (newStageTitle) {
-  //         if (newStageTitle) {
-  //             setShowAddStageBtn(true);
-  //         } else if (!newStageTitle) {
-  //             setShowAddStageBtn(false);
-  //         }
-  //         // }
-  //     }
-
-  // }, [showAdvanceSettings, newStageTitle, inputs, action])
 
   function canProceed() {
     if (newStageTitle.length > 0 && action.length == 0) {
@@ -218,7 +321,7 @@ const PipelineStages = ({
   //gets recent agent details
   useEffect(() => {
     const agentDetails = localStorage.getItem("agentDetails");
-    if (agentDetails && agentDetails!= "undefined") {
+    if (agentDetails && agentDetails != "undefined") {
       const agentData = JSON.parse(agentDetails);
       // //console.log;
       if (agentData.agents?.length > 1) {
@@ -239,10 +342,7 @@ const PipelineStages = ({
     setPipelineStages(stages);
   }, [stages]);
 
-  //function for rename modal
-  // const handleCloseStagePopover = () => {
-  //     setStageAnchorel(null);
-  // };
+
 
   //code to rename the stage
   const handleRenameStage = async () => {
@@ -518,6 +618,15 @@ const PipelineStages = ({
     }
   };
 
+
+  const shouldDisable = (item) => {
+    if (item.value == "sms" && phoneNumbers.length === 0) {// 
+      return true
+    } else {
+      return false
+    }
+  }
+
   const styles = {
     headingStyle: {
       fontSize: 16,
@@ -746,120 +855,138 @@ const PipelineStages = ({
                                   (row, rowIndex) => (
                                     <div
                                       key={row.id}
-                                      className="flex flex-row items-center mb-2"
+                                      className="flex flex-row items-center justify-center mb-2"
                                     >
-                                      <div style={styles.headingStyle}>
+                                      <div className="mt-2" style={styles.headingStyle}>
                                         Wait
                                       </div>
-                                      <div className="ms-6 flex flex-row items-center">
-                                        <div>
-                                          <label
-                                            className="ms-1 px-2"
-                                            style={styles.labelStyle}
-                                          >
-                                            Days
-                                          </label>
-                                          <input
-                                            className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                            style={{
-                                              ...styles.inputStyle,
-                                              height: "42px",
-                                              width: "80px",
-                                              border: "1px solid #00000020",
-                                              borderTopLeftRadius: "10px",
-                                              borderBottomLeftRadius: "10px",
-                                            }}
-                                            placeholder="Days"
-                                            value={row.waitTimeDays}
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                index,
-                                                row.id,
-                                                "waitTimeDays",
-                                                e.target.value.replace(
-                                                  /[^0-9]/g,
-                                                  ""
+                                      <div className="ms-6 flex flex-row items-center w-full justify-between">
+                                        <div className="flex flex-row items-center">
+                                          <div>
+                                            <label
+                                              className="ms-1 px-2"
+                                              style={styles.labelStyle}
+                                            >
+                                              Days
+                                            </label>
+                                            <input
+                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                              style={{
+                                                ...styles.inputStyle,
+                                                height: "42px",
+                                                width: "80px",
+                                                border: "1px solid #00000020",
+                                                borderTopLeftRadius: "10px",
+                                                borderBottomLeftRadius: "10px",
+                                              }}
+                                              placeholder="Days"
+                                              value={row.waitTimeDays}
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  index,
+                                                  row.id,
+                                                  "waitTimeDays",
+                                                  e.target.value.replace(
+                                                    /[^0-9]/g,
+                                                    ""
+                                                  )
                                                 )
-                                              )
-                                            }
-                                          />
-                                        </div>
-                                        <div>
-                                          <label
-                                            className="ms-1 px-2"
-                                            style={styles.labelStyle}
-                                          >
-                                            Hours
-                                          </label>
-                                          <input
-                                            className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                            style={{
-                                              ...styles.inputStyle,
-                                              height: "42px",
-                                              width: "80px",
-                                              border: "1px solid #00000020",
-                                              borderRight: "none",
-                                              borderLeft: "none",
-                                            }}
-                                            placeholder="Hours"
-                                            value={row.waitTimeHours}
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                index,
-                                                row.id,
-                                                "waitTimeHours",
-                                                e.target.value.replace(
-                                                  /[^0-9]/g,
-                                                  ""
+                                              }
+                                            />
+                                          </div>
+                                          <div>
+                                            <label
+                                              className="ms-1 px-2"
+                                              style={styles.labelStyle}
+                                            >
+                                              Hours
+                                            </label>
+                                            <input
+                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                              style={{
+                                                ...styles.inputStyle,
+                                                height: "42px",
+                                                width: "80px",
+                                                border: "1px solid #00000020",
+                                                borderRight: "none",
+                                                borderLeft: "none",
+                                              }}
+                                              placeholder="Hours"
+                                              value={row.waitTimeHours}
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  index,
+                                                  row.id,
+                                                  "waitTimeHours",
+                                                  e.target.value.replace(
+                                                    /[^0-9]/g,
+                                                    ""
+                                                  )
                                                 )
-                                              )
-                                            }
-                                          />
-                                        </div>
-                                        <div>
-                                          <label
-                                            className="ms-1 px-2"
-                                            style={styles.labelStyle}
-                                          >
-                                            Mins
-                                          </label>
-                                          <input
-                                            className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                            style={{
-                                              ...styles.inputStyle,
-                                              height: "42px",
-                                              width: "80px",
-                                              border: "1px solid #00000020",
-                                              borderTopRightRadius: "10px",
-                                              borderBottomRightRadius: "10px",
-                                            }}
-                                            placeholder="Minutes"
-                                            value={row.waitTimeMinutes}
-                                            onChange={(e) =>
-                                              handleInputChange(
-                                                index,
-                                                row.id,
-                                                "waitTimeMinutes",
-                                                e.target.value.replace(
-                                                  /[^0-9]/g,
-                                                  ""
+                                              }
+                                            />
+                                          </div>
+                                          <div>
+                                            <label
+                                              className="ms-1 px-2"
+                                              style={styles.labelStyle}
+                                            >
+                                              Mins
+                                            </label>
+                                            <input
+                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                              style={{
+                                                ...styles.inputStyle,
+                                                height: "42px",
+                                                width: "80px",
+                                                border: "1px solid #00000020",
+                                                borderTopRightRadius: "10px",
+                                                borderBottomRightRadius: "10px",
+                                              }}
+                                              placeholder="Minutes"
+                                              value={row.waitTimeMinutes}
+                                              onChange={(e) =>
+                                                handleInputChange(
+                                                  index,
+                                                  row.id,
+                                                  "waitTimeMinutes",
+                                                  e.target.value.replace(
+                                                    /[^0-9]/g,
+                                                    ""
+                                                  )
                                                 )
+                                              }
+                                            />
+                                          </div>
+                                          <div
+                                            className="ms-4 mt-2 flex flex-row items-center"
+                                            style={styles.inputStyle}
+                                          ><div>
+                                              {item.stageTitle === "Booked" &&
+                                                "before the meeting"}
+                                              , then{" "}
+                                            </div>
+                                            <div className="ml-2" style={{ fontWeight: "600" }}>
+                                              {(row.action === "email" || row.action === "sms") ? (
+                                                <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
+                                                  <div className="text-purple text-[10px]">
+                                                    Send {actionLabel(row.action)}
+                                                  </div>
+                                                  <button onClick={() => handleEditRow(index, row)}>
+                                                    <Image src={'/svgIcons/editIconPurple.svg'}
+                                                      height={16} width={16} alt="*"
+                                                    />
+                                                  </button>
+                                                </div>
+                                              ) : (
+                                                `Make ${actionLabel(row.action || "call")}`
                                               )
-                                            }
-                                          />
-                                        </div>
-                                        <div
-                                          className="ms-4 mt-2"
-                                          style={styles.inputStyle}
-                                        >
-                                          {item.stageTitle === "Booked" &&
-                                            "before the meeting"}
-                                          , then{" "}
-                                          <span style={{ fontWeight: "600" }}>
-                                            Make Call
-                                          </span>
-                                        </div>
+                                                // actionLabel(row.action || "call")
 
+                                              }
+                                            </div>
+                                          </div>
+                                        </div>
                                         {rowIndex > 0 && (
                                           <button
                                             className="ms-2 mt-2"
@@ -880,32 +1007,117 @@ const PipelineStages = ({
                                   )
                                 )}
                                 <button
-                                  onClick={() => addRow(index)}
+                                  onClick={(e) => openAddMenu(index, e)}
                                   style={styles.inputStyle}
                                   className="text-purple mt-4"
                                 >
-                                  + Add Call (If no answer)
+                                  + Add (If no answer)
                                 </button>
+                                <Menu
+                                  anchorEl={addMenuAnchor[index] || null}
+                                  open={Boolean(addMenuAnchor[index])}
+                                  onClose={() => closeAddMenu(index)}
+                                PaperProps={{
+                                  style: {
+                                    boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
+                                    borderRadius: "12px",
+                                  },
+                                }}
+                                >
+                                  {ACTIONS.map((a) => (
+                                    <Tooltip key={a.id}
+                                      title={shouldDisable(a) ? "You need to complete A2P to text" : ""}
+                                      arrow
+                                      disableHoverListener={!shouldDisable(a)}
+                                      disableFocusListener={!shouldDisable(a)}
+                                      disableTouchListener={!shouldDisable(a)}
+                                      componentsProps={{
+                                        tooltip: {
+                                          sx: {
+                                            backgroundColor: "#ffffff", // Ensure white background
+                                            color: "#333", // Dark text color
+                                            fontSize: "16px",
+                                            fontWeight: "500",
+                                            padding: "10px 15px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                          },
+                                        },
+                                        arrow: {
+                                          sx: {
+                                            color: "#ffffff", // Match tooltip background
+                                          },
+                                        },
+                                      }}
+                                    >
+                                      <div>
+                                        <MenuItem
+                                          disabled={shouldDisable(a)}
+                                          key={a.value}
+                                          sx={{
+                                            width: 180,
+                                            '&:hover .action-icon': {
+                                              display: 'none',
+                                            },
+                                            '&:hover .action-icon-hover': {
+                                              display: 'block',
+                                            },
+                                          }}
+                                          onClick={() => handleSelectAdd(index, a.value)}
+                                        >
+                                          {
+                                            tempLoader === a.value ? (
+                                              <CircularProgress size={20} />
+                                            ) : (
+                                              <div className="flex flex-row items-center justify-between w-full">
+                                                <div className="flex flex-row items-center gap-3">
+                                                  {/* default icon */}
+                                                  <Image
+                                                    src={a.icon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon"
+                                                    style={{ display: 'block' }}
+                                                  />
+                                                  {/* blue (hover) icon */}
+                                                  <Image
+                                                    src={a.focusedIcon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none' }}
+                                                  />
+
+                                                  <div style={{ fontSize: 15, fontWeight: '400' }}>{a.label}</div>
+
+                                                </div>
+                                                {
+                                                  shouldDisable(a) && (
+                                                    <Image
+                                                      src={"/otherAssets/redInfoIcon.png"}
+                                                      height={16}
+                                                      width={16}
+                                                      alt="*"
+                                                    />
+                                                  )
+                                                }
+                                              </div>
+                                            )}
+                                        </MenuItem>
+                                      </div>
+                                    </Tooltip>
+                                  ))}
+                                </Menu>
+
+
                               </div>
                               <div className="flex flex-row items-center gap-2 mt-4">
                                 <div style={styles.inputStyle}>
                                   Then move to
                                 </div>
-                                {/* <div>
-                                                                    {selectedPipelineStages.map(
-                                                                        (dropDownStateItem) => (
-                                                                            <option
-                                                                                disabled={
-                                                                                    dropDownStateItem.id <= item.id
-                                                                                }
-                                                                                key={dropDownStateItem.id}
-                                                                                value={dropDownStateItem.stageTitle}
-                                                                            >
-                                                                                {dropDownStateItem.stageTitle}
-                                                                            </option>
-                                                                        )
-                                                                    )}
-                                                                </div> */}
+
                                 <Box
                                   className="flex flex-row item-center justify-center"
                                   sx={{ width: "141px", py: 0, m: 0 }}
@@ -1193,69 +1405,6 @@ const PipelineStages = ({
                                 </button>
                               </div>
 
-                              {/* <div className='text-start mt-4 font-15' style={{ fontWeight: "500" }}>
-                                                                Confirm you want to delete this stage. This action is irreversible
-                                                            </div>
-
-                                                            <div className='mt-6' style={{
-                                                                fontWeight: "700", fontSize: 15
-                                                            }}>
-                                                                Move to
-                                                            </div>
-
-                                                            <FormControl fullWidth>
-                                                                <Select
-                                                                    id="demo-simple-select"
-                                                                    value={assignNextStage || ""} // Default to empty string when no value is selected
-                                                                    onChange={handleChangeNextStage}
-                                                                    displayEmpty // Enables placeholder
-                                                                    renderValue={(selected) => {
-                                                                        if (!selected) {
-                                                                            return <div style={{ color: "#aaa" }}>Select Stage</div>; // Placeholder style
-                                                                        }
-                                                                        return selected;
-                                                                    }}
-                                                                    sx={{
-                                                                        border: "1px solid #00000020", // Default border
-                                                                        "&:hover": {
-                                                                            border: "1px solid #00000020", // Same border on hover
-                                                                        },
-                                                                        "& .MuiOutlinedInput-notchedOutline": {
-                                                                            border: "none", // Remove the default outline
-                                                                        },
-                                                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                                            border: "none", // Remove outline on focus
-                                                                        },
-                                                                        "&.MuiSelect-select": {
-                                                                            py: 0, // Optional padding adjustments
-                                                                        },
-                                                                    }}
-                                                                    MenuProps={{
-                                                                        PaperProps: {
-                                                                            style: {
-                                                                                maxHeight: "30vh", // Limit dropdown height
-                                                                                overflow: "auto", // Enable scrolling in dropdown
-                                                                                scrollbarWidth: "none"
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                >
-                                                                    {
-                                                                        pipelineStages.map((stage, index) => {
-                                                                            return (
-                                                                                <MenuItem
-                                                                                    key={index}
-                                                                                    value={stage.stageTitle}
-                                                                                    disabled={stage.id <= selectedStage?.id}
-                                                                                >
-                                                                                    {stage.stageTitle}
-                                                                                </MenuItem>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                </Select>
-                                                            </FormControl> */}
-
                               {selectedStage?.hasLeads ? (
                                 <div>
                                   <div
@@ -1472,6 +1621,47 @@ const PipelineStages = ({
                 </p>
               </div>
             </button>
+
+            <AuthSelectionPopup open={showAuthSelectionPopup}
+              onClose={() => setShowAuthSelectionPopup(false)}
+              showEmailTemPopup={showEmailTemPopup}
+              setShowEmailTempPopup={setShowEmailTempPopup}
+              setSelectedGoogleAccount={setSelectedGoogleAccount}
+
+            />
+
+            <EmailTempletePopup open={showEmailTemPopup} onClose={() => {
+              setShowEmailTempPopup(false)
+              setIsEditing(false);
+              setEditingRow(null);
+              setEditingStageIndex(null);
+            }}
+              setSelectedGoogleAccount={setSelectedGoogleAccount}
+              selectedGoogleAccount={selectedGoogleAccount}
+              onGoogleAccountChange={setSelectedGoogleAccount}
+              templetes={templates}
+              setTempletes={setTempletes}
+              communicationType={selectedType} // in this varable i have stored selected option value like email or sms
+              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+              isEditing={isEditing}
+              editingRow={editingRow}
+              onUpdateRow={handleUpdateRow}
+            />
+            <SMSTempletePopup
+            
+              open={showSmsTemPopup}
+              onClose={() => setShowSmsTempPopup(false)}
+              phoneNumbers={phoneNumbers}
+              phoneLoading={phoneLoading}
+              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+              communicationType={selectedType}
+              onUpdateRow={handleUpdateRow}
+              isEditing={isEditing}
+              editingRow={editingRow}
+            />
+
+
+
 
             {/* Code for add stage modal */}
             <Modal

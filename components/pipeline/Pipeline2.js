@@ -554,6 +554,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         cadence: cadence.cadenceDetails,
       };
 
+      console.log('ApiData for create pipeline cadence', ApiData)
+
       const ApiPath = Apis.createPipeLineCadence;
       //////console.log;
 
