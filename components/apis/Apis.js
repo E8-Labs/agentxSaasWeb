@@ -227,6 +227,11 @@ const Apis = {
   handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
 
   getAdminAgencies: `${BasePath}api/admin/agencies`,
+
+
+  templets : `${BasePath}api/templates`,
+  gmailAccount :`${BasePath}api/mail/accounts`,
+  connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
 };
 
 export default Apis;

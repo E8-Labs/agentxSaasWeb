@@ -66,7 +66,7 @@ const Pipeline1 = ({ handleContinue }) => {
   // const [assignedNewLEad, setAssignedNewLead] = useState(false);
   useEffect(() => {
     const localAgentData = localStorage.getItem("agentDetails");
-    if (localAgentData) {
+    if (localAgentData && localAgentData != "undefined") {
       const Data = JSON.parse(localAgentData);
       if (Data.agents.length === 1 && Data.agents[0].agentType == "inbound") {
         return;
@@ -90,7 +90,7 @@ const Pipeline1 = ({ handleContinue }) => {
       );
 
       if (selectedPipeline) {
-        
+        // //console.log;
         setSelectedPipelineItem(selectedPipeline);
         setSelectedPipelineStages(selectedPipeline.stages);
 
@@ -99,7 +99,7 @@ const Pipeline1 = ({ handleContinue }) => {
         const restoredRowsByIndex = {};
         const restoredNextStage = {};
 
-        storedCadenceDetails.forEach((cadence) => {
+        storedCadenceDetails?.forEach((cadence) => {
           const stageIndex = selectedPipeline.stages.findIndex(
             (stage) => stage.id === cadence.stage
           );
@@ -189,7 +189,7 @@ const Pipeline1 = ({ handleContinue }) => {
       }
       let ApiPath = Apis.getPipelines + "?liteResource=true"
 
-      if(selectedUser){
+      if (selectedUser) {
         ApiPath = ApiPath + "&userId=" + selectedUser?.id;
       }
 
@@ -274,37 +274,45 @@ const Pipeline1 = ({ handleContinue }) => {
   };
 
   const handleInputChange = (leadIndex, rowId, field, value) => {
-    // //console.log;
-    // //console.log;
-    // //console.log;
-    // //console.log;
+
     setRowsByIndex((prev) => ({
       ...prev,
-      [leadIndex]: prev[leadIndex].map((row) =>
+      [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
         row.id === rowId ? { ...row, [field]: Number(value) || 0 } : row
       ),
     }));
   };
 
-  const addRow = (index) => {
+  const addRow = (index, action = "call", templateData = null) => {
     setRowsByIndex((prev) => {
-      let id = (prev[index]?.length || 0) + 1;
-      // //console.log;
-      // //console.log;
-      // //console.log;
-      if ((prev[index]?.length || 0) > 0) {
-        let array = prev[index];
-        // //console.log;
-        let lastRow = array[array.length - 1];
-        id = lastRow.id + 1;
+      const list = prev[index] ?? [];
+      const nextId = list.length ? list[list.length - 1].id + 1 : 1;
+
+      const newRow = {
+        id: nextId,
+        waitTimeDays: 0,
+        waitTimeHours: 0,
+        waitTimeMinutes: 0,
+        action, // "call" | "sms" | "email"
+        communicationType: action, // Set communicationType to match action
+      };
+
+      // Add template information for email and SMS actions
+      if (templateData) {
+        // Add additional template-specific data
+        if (action === "email") {
+          newRow.templateId = templateData.templateId;
+          newRow.emailAccountId = templateData.emailAccountId;
+        } else if (action === "sms") {
+          newRow.templateId = templateData.templateId;
+        }
       }
-      // //console.log;
 
       return {
         ...prev,
         [index]: [
-          ...(prev[index] || []),
-          { id: id, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
+          ...list,
+          newRow,
         ],
       };
     });
@@ -313,12 +321,22 @@ const Pipeline1 = ({ handleContinue }) => {
   const removeRow = (leadIndex, rowId) => {
     setRowsByIndex((prev) => ({
       ...prev,
-      [leadIndex]: prev[leadIndex].filter((row) => row.id !== rowId),
+      [leadIndex]: (prev[leadIndex] ?? []).filter((row) => row.id !== rowId),
+    }));
+  };
+
+  const updateRow = (leadIndex, rowId, updatedData) => {
+    setRowsByIndex((prev) => ({
+      ...prev,
+      [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
+        row.id === rowId ? { ...row, ...updatedData } : row
+      ),
     }));
   };
 
   const printAssignedLeadsData = async () => {
     console.log("print clicked", assignedLeads);
+    // return
     setPipelineLoader(true);
 
     const allData = Object.keys(assignedLeads)
@@ -339,6 +357,9 @@ const Pipeline1 = ({ handleContinue }) => {
       .filter((item) => item !== null); // Filter out null values
 
     console.log("All Data ", allData);
+    
+  
+    
     const pipelineID = selectedPipelineItem.id;
     const cadence = allData;
 
@@ -346,7 +367,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
     //getting local agent data then sending the cadence accordingly
     const agentDetails = localStorage.getItem("agentDetails");
-    console.log("Agent Details ", agentDetails);
+    // console.log("Agent Details ", agentDetails);
     if (agentDetails) {
       const agentData = JSON.parse(agentDetails);
       // //console.log;
@@ -365,6 +386,7 @@ const Pipeline1 = ({ handleContinue }) => {
                   waitTimeDays: 3650,
                   waitTimeHours: 0,
                   waitTimeMinutes: 0,
+                  communicationType : "call"
                 },
               ],
             },
@@ -381,10 +403,10 @@ const Pipeline1 = ({ handleContinue }) => {
 
     // //console.log;
 
-    // console.log(
-    //   "Cadence data storing on local storage is :",
-    //   JSON.stringify(cadenceData)
-    // );
+    console.log(
+      "Cadence data storing on local storage is :",
+      cadence
+    );
 
     if (cadenceData) {
       localStorage.setItem("AddCadenceDetails", JSON.stringify(cadenceData));
@@ -466,15 +488,6 @@ const Pipeline1 = ({ handleContinue }) => {
     setSelectedPipelineStages(selectedItem.stages);
     setOldStages(selectedItem.stages);
   };
-
-  // const handleSelectNextChange = (event) => {
-  //     const selectedValue = event.target.value;
-  //     setNextStage(selectedValue);
-  //     // Find the selected item from the pipelinesDetails array
-  //     const selectedItem = selectedPipelineStages.find(item => item.stageTitle === selectedValue);
-  //    // //console.log;
-  //     setSelectedNextStage(selectedItem);
-  // }
 
   const handleSelectNextChange = (index, event) => {
     const selectedValue = event.target.value;
@@ -730,6 +743,7 @@ const Pipeline1 = ({ handleContinue }) => {
                 rowsByIndex={rowsByIndex}
                 removeRow={removeRow}
                 addRow={addRow}
+                updateRow={updateRow}
                 nextStage={nextStage}
                 handleSelectNextChange={handleSelectNextChange}
                 selectedPipelineStages={selectedPipelineStages}
