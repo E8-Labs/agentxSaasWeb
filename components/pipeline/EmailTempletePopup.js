@@ -353,7 +353,7 @@ function EmailTempletePopup({
                                         templetes?.map((item, index) => (
 
                                             detailsLoader?.id === item.id ? (
-                                                <CircularProgress size={20} />
+                                                <CircularProgress key={item.id}  size={20} />
                                             ) :
 
                                                 <MenuItem key={index}
