@@ -18,12 +18,53 @@ import SubAccountSupport from "./SubAccountSupport";
 import SubAccountSendFeedback from "./SubAccountSendFeedback";
 import SubAccountInviteAgentX from "./SubAccountInviteAgentX";
 import SubAccountBarServices from "./SubAccountBarServices";
+import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
+import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
 
 function SubAccountMyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
   const [tabSelected, setTabSelected] = useState(6);
+
+  // const manuBar = [
+  //   {
+  //     id: 1,
+  //     heading: "Basic Information",
+  //     subHeading: "Manage personal information ",
+  //     icon: "/otherAssets/profileCircle.png",
+  //   },
+  //   {
+  //     id: 2,
+  //     heading: "Billing",
+  //     subHeading: "Manage your billing and payment methods",
+  //     icon: "/otherAssets/walletIcon.png",
+  //   },
+  //   {
+  //     id: 3,
+  //     heading: "My Phone Numbers",
+  //     subHeading: "All agent phone numbers",
+  //     icon: "/assets/unSelectedCallIcon.png",
+  //   },
+  //   {
+  //     id: 4,
+  //     heading: "Bar Services",
+  //     subHeading: "Our version of the genius bar",
+  //     icon: "/assets/X.svg",
+  //   },
+  //   {
+  //     id: 5,
+  //     heading: "Support",
+  //     subHeading: "Get in touch with our team and get help",
+  //     icon: "/otherAssets/headPhoneIcon.png",
+  //   },
+  //   {
+  //     id: 6,
+  //     heading: "Send Feedback",
+  //     subHeading: "Report bugs, new features and more",
+  //     icon: "/otherAssets/feedbackIcon.png",
+  //   },
+  // ];
 
   const manuBar = [
     {
@@ -40,27 +81,58 @@ function SubAccountMyAccount() {
     },
     {
       id: 3,
-      heading: "My Phone Numbers",
-      subHeading: "All agent phone numbers",
-      icon: "/assets/unSelectedCallIcon.png",
-    },
-    {
-      id: 4,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
     },
     {
-      id: 5,
-      heading: "Support",
-      subHeading: "Get in touch with our team and get help",
-      icon: "/otherAssets/headPhoneIcon.png",
+      id: 4,
+      heading: "My Phone Numbers",
+      subHeading: "All agent phone numbers",
+      icon: "/assets/unSelectedCallIcon.png",
     },
     {
+      id: 5,
+      heading: "Invite Agents",
+      subHeading: "Get 60 minutes ",
+      icon: "/otherAssets/inviteAgentIcon.png",
+    },
+    // {
+    //   id: 6,
+    //   heading: "Support",
+    //   subHeading: "Get in touch with our team and get help",
+    //   icon: "/otherAssets/headPhoneIcon.png",
+    // },
+    // {
+    //   id: 7,
+    //   heading: "Send Feedback",
+    //   subHeading: "Report bugs, new features and more",
+    //   icon: "/otherAssets/feedbackIcon.png",
+    // },
+    {
       id: 6,
-      heading: "Send Feedback",
-      subHeading: "Report bugs, new features and more",
-      icon: "/otherAssets/feedbackIcon.png",
+      heading: "Twilio Trust Hub",
+      subHeading: "Caller ID & compliance for trusted calls",
+      icon: "/svgIcons/twilioHub.svg",
+    },
+    {
+      id: 7,
+      heading: "Terms & Condition",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
+    {
+      id: 8,
+      heading: "Privacy Policy",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
+    {
+      id: 8,
+      id: 9,
+      heading: "Cancellation & Refund",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
     },
   ];
 
@@ -105,20 +177,50 @@ function SubAccountMyAccount() {
           selectedUser={selectedUserData}
         />;
       case 3:
-        return <SubAccountMyPhoneNumber />;
-      case 4:
         return <SubAccountBarServices
-        selectedUser={selectedUserData} />;
+          selectedUser={selectedUserData} />;
+      case 4:
+
+        return <SubAccountMyPhoneNumber />;
+      // <SubAccountBarServices
+      //   selectedUser={selectedUserData} />;
       case 5:
-        return <SubAccountSupport />;
+        return <InviteAgentX selectedUser={selectedUserData} isSubAccount={true} />;
       // case 6:
       //   return <SubAccountInviteAgentX />;
       case 6:
-        return <SubAccountSendFeedback />;
+        return <TwilioTrustHub />;
       default:
         return <div>Please select an option.</div>;
     }
   };
+
+  const handleTabSelect = (item, index) => {
+
+    if (item.id === 7) {
+      window.open(
+        termsAndConditionUrl,
+        "_blank"
+      );
+      return
+    } else if (item.id === 8) {
+      window.open(
+        "/privacy-policy",
+        "_blank"
+      );
+      return
+    } else if (item.id === 9) {
+      window.open(
+        CancellationAndRefundUrl,
+        "_blank"
+      );
+      return
+    }
+    console.log("Index is", index);
+    setTabSelected(item.id);
+    setParamsInSearchBar(item.id);
+
+  }
 
   return (
     // <Suspense>
@@ -138,7 +240,7 @@ function SubAccountMyAccount() {
       </div>
 
       <div className="w-full flex flex-row item-center pl-4">
-        <div className="w-4/12 items-center flex flex-col pt-4 pr-2">
+        <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
               <button
@@ -149,8 +251,7 @@ function SubAccountMyAccount() {
                 }}
                 onClick={() => {
                   //   setSelectedManu(index + 1);
-                  setTabSelected(index + 1);
-                  setParamsInSearchBar(index + 1);
+                  handleTabSelect(item, index)
                 }}
               >
                 <div

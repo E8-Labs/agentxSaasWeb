@@ -91,9 +91,9 @@ function SubAccountBarServices({
 
 
   useEffect(() => {
+    getPlans();
     getProfile();
     getCardsList();
-    getPlans();
   }, []);
 
   //function to get subaccount plans
@@ -110,7 +110,7 @@ function SubAccountBarServices({
       });
 
       if (response) {
-        console.log("Response of get plans api is", response.data.data);
+        console.log("Response of get plans api is testing", response.data.data);
         setPlans(response.data.data.xbarPlans);
         setGetPlansLoader(false);
       }
@@ -127,7 +127,7 @@ function SubAccountBarServices({
       let response = await getProfileDetails();
       //console.log;
       if (response) {
-        let togglePlan = response?.data?.data?.plan?.planId;
+        let togglePlan = response?.data?.data?.supportPlan;
         // let togglePlan = plan?.type;
         // let planType = null;
         // // if (plan.status == "active") {
@@ -150,8 +150,9 @@ function SubAccountBarServices({
   };
 
   useEffect(() => {
-    // //console.log;
-  }, [userLocalData]);
+    console.log("Toggle plan value is", togglePlan);
+    console.log("Current plan value is", currentPlan);
+  }, [togglePlan, currentPlan]);
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
@@ -445,10 +446,11 @@ function SubAccountBarServices({
                     style={{
                       ...styles.pricingBox,
                       border:
-                        item.id === togglePlan
+                        Number(item.id) === Number(togglePlan)
                           ? "2px solid #7902DF"
                           : "1px solid #15151520",
-                      backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                      // backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                      backgroundColor: Number(item.id) === Number(togglePlan) ? "#402FFF05" : "",
                     }}
                   >
                     <div
@@ -461,7 +463,7 @@ function SubAccountBarServices({
                     >
                       <div className="mt-1">
                         <div>
-                          {item.id === togglePlan ? (
+                          {Number(item.id) === Number(togglePlan) ? (
                             <Image
                               src={"/svgIcons/checkMark.svg"}
                               height={24}

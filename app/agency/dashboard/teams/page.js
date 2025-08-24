@@ -5,10 +5,19 @@ import React, { useEffect, useState } from 'react'
 
 function page() {
 
-    // const [agencyData,setAgencyData] = useState(null)
+  const [agencyData, setAgencyData] = useState(null);
+
+  useEffect(() => {
+    const Data = localStorage.getItem("User");
+    if (Data) {
+      const LD = JSON.parse(Data);
+      setAgencyData(LD.user);
+    }
+  }, [])
+
   return (
     <div>
-        <Teams/>
+      <Teams agencyData={agencyData} />
     </div>
   )
 }

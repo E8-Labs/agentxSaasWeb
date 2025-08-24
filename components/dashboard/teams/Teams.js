@@ -23,7 +23,9 @@ import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 
-function Teams() {
+function Teams({
+  agencyData
+}) {
   const timerRef = useRef(null);
   const router = useRouter();
   const [teamDropdown, setteamDropdown] = useState(null);
@@ -822,8 +824,8 @@ function Teams() {
               </div>
               <input
                 placeholder="Type here"
-                className="w-full border rounded p-2 outline-none outline-none focus:ring-0"
-                style={styles.inputStyle}
+                className="w-full border mt-2 rounded p-2 outline-none outline-none focus:ring-0"
+                style={styles.inputFieldStyle}
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
@@ -867,8 +869,8 @@ function Teams() {
               </div>
               <input
                 placeholder="Type here"
-                className="w-full border rounded p-2 focus:ring-0 outline-none"
-                style={styles.inputStyle}
+                className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
+                style={styles.inputFieldStyle}
                 value={email}
                 onChange={(e) => {
                   let value = e.target.value;
@@ -1028,7 +1030,7 @@ function Teams() {
                           : "#ffffff",
                     }}
                   >
-                    Send Invite
+                    {agencyData?.sellSeats ? "Add Team $5/mo" : "Send Invite"}
                   </div>
                 </button>
               )}
@@ -1072,10 +1074,10 @@ const styles = {
     fontWeight: "400",
     color: "#00000050",
   },
-  inputStyle: {
+  inputFieldStyle: {
     fontSize: 15,
     fontWeight: "500",
-    marginTop: 10,
+    // marginTop: 10,
     border: "1px solid #00000010",
     height: "50px",
   },

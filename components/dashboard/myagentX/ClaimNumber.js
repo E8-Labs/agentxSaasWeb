@@ -292,6 +292,7 @@ const ClaimNumber = ({
                     type=""
                     placeholder="Ex: 619, 213, 313"
                     value={findNumber}
+                    maxLength={3}
                     onChange={(e) => {
                       setFindeNumberLoader(true);
                       if (timerRef.current) {

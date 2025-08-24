@@ -144,7 +144,7 @@ function AgencyPlans() {
                 { main: "Lead Source", sub: "(Upsell)" },
                 { main: "AI Powered iMessage", sub: "(coming soon)" },
                 { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Slack Support", sub: "" }
+                { main: "Dedicated Slack Support", sub: "" }
             ],
             [ // Column 3
                 { main: "Unlimited Minutes", sub: "" },
@@ -160,8 +160,8 @@ function AgencyPlans() {
                 { main: "Lead Source", sub: "(Upsell)" },
                 { main: "AI Powered iMessage", sub: "(coming soon)" },
                 { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Slack Support", sub: "" },
-                { main: "Tech Support", sub: "" }
+                { main: "Dedicated Slack Support", sub: "" },
+                { main: "Dedicated Zoom Support", sub: "" }
             ]
         ],
         2: [ // Quarterly
@@ -171,7 +171,7 @@ function AgencyPlans() {
                 { main: "Unlimited Teams", sub: "" },
                 { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
                 { main: "7000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" },
+                { main: "Mins roll over for 6 months", sub: "" },
                 { main: "Custom Monthly Plans", sub: "" },
                 { main: "16 + Custom Engineered Voices", sub: "" }
             ],
@@ -180,14 +180,14 @@ function AgencyPlans() {
                 { main: "Unlimited Agents", sub: "" },
                 { main: "Unlimited Teams", sub: "" },
                 { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
+                { main: "Mins roll over for 6 months", sub: "" }
             ],
             [ // Column 3
                 { main: "Agents", sub: "" },
                 { main: "Unlimited Agents", sub: "" },
                 { main: "Unlimited Teams", sub: "" },
                 { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
+                { main: "Mins roll over for 6 months", sub: "" }
             ]
         ],
         3: [ // Yearly
@@ -197,7 +197,7 @@ function AgencyPlans() {
                 { main: "Unlimited Teams", sub: "" },
                 { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
                 { main: "7000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" },
+                { main: "Mins roll over for 6 months", sub: "" },
                 { main: "Custom Monthly Plans", sub: "" }
             ],
             [ // Column 2
@@ -205,14 +205,14 @@ function AgencyPlans() {
                 { main: "Unlimited Agents", sub: "" },
                 { main: "Unlimited Teams", sub: "" },
                 { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
+                { main: "Mins roll over for 6 months", sub: "" }
             ],
             [ // Column 3
                 { main: "Agents", sub: "" },
                 { main: "Unlimited Agents", sub: "" },
                 { main: "Unlimited Teams", sub: "" },
                 { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over", sub: "for 6 months" }
+                { main: "Mins roll over for 6 months", sub: "" }
             ]
         ]
     };
@@ -222,11 +222,11 @@ function AgencyPlans() {
     const planFeaturesUnavailable = {
         1: [ // Monthly
             [
-                { main: "Slack Support", sub: "" },
-                { main: "Tech Support", sub: "" }
+                { main: "Dedicated Slack Support", sub: "" },
+                { main: "Dedicated Zoom Support", sub: "" }
             ],
             [
-                { main: "Tech Support", sub: "" }
+                { main: "Dedicated Zoom Support", sub: "" }
             ],
             [
                 // No unavailable features
@@ -235,16 +235,16 @@ function AgencyPlans() {
         2: [ // Quarterly
             [
                 { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "Lead Enrichment", sub: "" },
                 { main: "DNC Checklist", sub: "" },
                 { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
+                { main: "Custom Pipelines", sub: "" },
                 { main: "Calendar Integration", sub: "" },
                 { main: "Support", sub: "" }
             ],
             [
                 { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "Lead Enrichment (Perplexity)", sub: "" },
                 { main: "DNC Checklist", sub: "" },
                 { main: "AI Powered CRM", sub: "" },
                 { main: "Custom Pipeline Steps", sub: "" },
@@ -264,7 +264,7 @@ function AgencyPlans() {
         3: [ // Yearly
             [
                 { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "Lead Enrichment", sub: "" },
                 { main: "DNC Checklist", sub: "" },
                 { main: "AI Powered CRM", sub: "" },
                 { main: "Custom Pipeline Steps", sub: "" },
@@ -273,7 +273,7 @@ function AgencyPlans() {
             ],
             [
                 { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "Lead Enrichment", sub: "" },
                 { main: "DNC Checklist", sub: "" },
                 { main: "AI Powered CRM", sub: "" },
                 { main: "Custom Pipeline Steps", sub: "" },
@@ -282,7 +282,7 @@ function AgencyPlans() {
             ],
             [
                 { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
+                { main: "Lead Enrichment", sub: "" },
                 { main: "DNC Checklist", sub: "" },
                 { main: "AI Powered CRM", sub: "" },
                 { main: "Custom Pipeline Steps", sub: "" },
