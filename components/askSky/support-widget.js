@@ -9,6 +9,7 @@ import classNames from "classnames";
 import { VoiceInterface } from "./voice-interface";
 import { ChatInterface } from "./askskycomponents/chat-interface";
 import { GetHelpBtn } from "../animations/DashboardSlider";
+import { Alert, Snackbar } from "@mui/material";
 
 export function SupportWidget({
   assistantId = DEFAULT_ASSISTANT_ID,
@@ -27,21 +28,14 @@ export function SupportWidget({
   const [voiceOpen, setVoiceOpen] = useState(false); // Sets up the Voice AI interface
   const [chatOpen, setChatOpen] = useState(false); // Sets up the chat interface
   const [open, setOpen] = useState(false)
-  const [isCallRunning,setIsCallRunning] = useState(false)
+  const [isCallRunning, setIsCallRunning] = useState(false)
 
 
-  // User loading messages to fake feedback...
-  useEffect(() => {
-    if (loading) {
-      setloadingMessage("Sky is booting up...");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
 
-      const timer = setTimeout(() => {
-        setloadingMessage("Getting coffee...");
-      }, 3000);
 
-      return () => clearTimeout(timer);
-    }
-  }, [loading]);
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY);
@@ -119,6 +113,48 @@ export function SupportWidget({
     }
   }, [vapi])
 
+  // 1) Safer loading message
+  const setLoadingMsg = async () => {
+    try {
+      const agent = await getAgentByVapiId();
+      const displayName = agent?.name || "Sky";
+      setloadingMessage(`${displayName} is booting up...`);
+
+      // follow-up beat after 3s
+      setTimeout(() => {
+        setloadingMessage("...getting coffee...");
+      }, 3000);
+    } catch (e) {
+      console.log("setLoadingMsg error:", e);
+      setloadingMessage("Sky is booting up...");
+      setTimeout(() => {
+        setloadingMessage("...getting coffee...");
+      }, 3000);
+    }
+  };
+
+
+  const getAgentByVapiId = async () => {
+    console.log('try to get agentembed tst')
+
+    try {
+      let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+      console.log('api path of agent is', path)
+
+      const response = await axios.get(
+        path
+      );
+
+      if (response) {
+        // console.log('response', response)
+        return response?.data?.data?.agent ?? null;
+      }
+    } catch (e) {
+      console.log('error in get agent by id', e)
+    }
+  }
+
+
   async function startCall() {
     console.log("starting call")
     if (vapi) {
@@ -160,9 +196,35 @@ export function SupportWidget({
   }
 
   async function handleStartCall(voice) {
-    setOpen(true)
+
+    await setLoadingMsg()
+
+    // Check if user has sufficient minutes before starting call
+    let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+    console.log('api path of get user by agent id is', path)
+
+    const response = await axios.get(
+      path
+    );
+
+
+    if (response.data.status && response.data.data.user) {
+      
+      setLoading(true);
+      setOpen(true)
+
+      console.log('response of get user api by agent id is', response.data.data.user)
+      const { totalSecondsAvailable } = response.data.data.user;
+
+      if (totalSecondsAvailable < 120) {
+        setSnackbarMessage("Insufficient Balance");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return;
+      }
+    }
+
     console.log('trying to start call',)
-    setLoading(true);
 
     if (voice) {
       setVoiceOpen(true);
@@ -246,6 +308,21 @@ export function SupportWidget({
           marginRight: '16px'
         }}
       >
+        {/* Snackbar for error messages */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={4000}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={() => setSnackbarOpen(false)}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <div className="h-full w-full flex flex-col gap-0 items-center justify-between">
           {voiceOpen ? (
             <VoiceInterface
@@ -279,7 +356,7 @@ export function SupportWidget({
       <div className="relative z-0 h-11 mb-4 mr-4">
 
         {
-          voiceOpen &&isCallRunning && (
+          voiceOpen && isCallRunning && (
 
             <button
               onClick={handleCloseMenu}

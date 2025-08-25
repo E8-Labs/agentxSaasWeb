@@ -87,6 +87,7 @@ const Apis = {
   sendVerificationCode: `${BasePath}api/user/sendVerificationCode`,
   deleteLead: `${BasePath}api/leads/deleteLead`,
   getProfileData: `${BasePath}api/user/myProfile`,
+  getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,
@@ -115,11 +116,12 @@ const Apis = {
   delNumber: `${BasePath}api/agent/deletePhoneNumber`,
   calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,
   sendFeedbback: `${BasePath}api/user/sendFeedback`,
-  getAiNot: `${BasePath}/api/agent/sendTestAiNotification`,
+  getAiNot: `${BasePath}api/agent/sendTestAiNotification`,
 
-  getUsers: `${BasePath}/api/admin/users`,
+  getUsers: `${BasePath}api/admin/users`,
   getUpcomingPayments: `${BasePath}api/admin/upcoming-charges`,
   getRefundNeededPayments: `${BasePath}api/admin/payments-needing-refund`,
+  markRefundProcessed: `${BasePath}api/admin/payment-refund-processed`,
 
   addAffiliate: `${BasePath}api/admin/addAffiliate`,
   getAffiliate: `${BasePath}api/admin/getAffiliates`,
@@ -173,6 +175,11 @@ const Apis = {
   getXBarOptions: `${BasePath}api/agency/getAgencyXbarPlansList`,
   CreateAgencySubAccount: `${BasePath}api/agency/createSubAccount`,
   getAgencySubAccount: `${BasePath}api/agency/getSubAccounts`,
+  //remove and update agency xbars plan
+  removeAgencyXBar: `${BasePath}api/agency/deleteAgencyXbarPlan`,
+  updateAgencyXBar: `${BasePath}api/agency/updateAgencyXbarPlan`,
+  removeAgencyPlan: `${BasePath}api/agency/deleteAgencyPlan`,
+  updateAgencyPlan: `${BasePath}api/agency/updateAgencyPlan`,
 
   //subaccount plan apis
   getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,
@@ -196,8 +203,7 @@ const Apis = {
   createBusinessProfile: `${BasePath}api/business-profile`,
   getBusinessProfile: `${BasePath}api/business-profile`,
   deleteCallLog: `${BasePath}api/leads/deleteCallLog`,
-  confirmContinueCharging:`${BasePath}api/user/confirm-continue-charging`,
-  handleMultipleCharge : `${BasePath}api/user/handle-multiple-charge-action`,
+  confirmContinueCharging: `${BasePath}api/user/confirm-continue-charging`,
   addTwilio: `${BasePath}api/business-profile/twilio/create`,
   createCname: `${BasePath}api/business-profile/cnam`,
   createShakenStir: `${BasePath}api/business-profile/shakenstir`,
@@ -218,7 +224,14 @@ const Apis = {
 
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
+  handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
 
+  getAdminAgencies: `${BasePath}api/admin/agencies`,
+
+
+  templets : `${BasePath}api/templates`,
+  gmailAccount :`${BasePath}api/mail/accounts`,
+  connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
 };
 
 export default Apis;
