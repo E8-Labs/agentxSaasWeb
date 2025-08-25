@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { AuthToken } from '../plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
+import { getMonthlyPlan } from './GetPlansList';
 
 const ViewSubAccountPlans = ({
     showPlans,
@@ -14,12 +15,46 @@ const ViewSubAccountPlans = ({
     console.log("selected user passed is", selectedUser);
 
     const [initialLoader, setInitialLoader] = useState(false);
-    const [plans, setPlans] = useState([]);
+    const [agencyPlans, setAgencyPlans] = useState([]);
+    const [subAccountPlans, setSubAccountPlans] = useState([]);
+    const [selectedPlans, setSelectedPlans] = useState([]);
+
+    useEffect(() => {
+        if (subAccountPlans?.length > 0) {
+            setSelectedPlans(subAccountPlans.map(plan => plan.id));
+        }
+    }, [subAccountPlans]);
+
+    useEffect(() => {
+        console.log("Current selected plan is", selectedPlans);
+    }, [selectedPlans])
 
     useEffect(() => {
         getPlans();
+        getAgencyPlans()
     }, []);
 
+    //const get Agency plans
+    const getAgencyPlans = async () => {
+        try {
+            setInitialLoader(true);
+            const Token = AuthToken();
+            // const ApiPath = Apis.getPlansForAgency;
+            // const response = await axios.get(ApiPath, {
+            //     headers: {
+            //         "Authorization": "Bearer " + Token,
+            //         "Content-Type": "application/json"
+            //     }
+            // });
+            const response = await getMonthlyPlan();
+            if (response) {
+                console.log("Response of get hosted plans api is", response);
+                setAgencyPlans(response);
+            }
+        } catch (error) {
+            console.log("Error occured in getAgencysubaccount plans is", error)
+        }
+    }
 
     //get plans from user id api
     const getPlans = async () => {
@@ -43,7 +78,7 @@ const ViewSubAccountPlans = ({
 
             if (response) {
                 console.log("Response of get plans api is", response.data.data);
-                setPlans(response.data.data.monthlyPlans);
+                setSubAccountPlans(response.data.data.monthlyPlans);
                 setInitialLoader(false);
             }
 
@@ -52,6 +87,16 @@ const ViewSubAccountPlans = ({
             console.error("Error occured in getting subaccount plans", error);
         }
     }
+
+    //toggle plans click
+    const handleTogglePlanClick = (planId) => {
+        setSelectedPlans((prev) =>
+            prev.includes(planId)
+                ? prev.filter((id) => id !== planId) // remove if already selected
+                : [...prev, planId] // add if not selected
+        );
+    };
+
 
     return (
         <Modal
@@ -88,18 +133,18 @@ const ViewSubAccountPlans = ({
                         </div>
                     ) : (
                         <div className="w-full">
-                            {plans.map((item, index) => (
+                            {agencyPlans.map((item, index) => (
                                 <button
                                     key={index}
                                     className="w-full mt-4 outline-none"
-                                    // onClick={(e) => handleTogglePlanClick(item)}
+                                    onClick={(e) => { handleTogglePlanClick(item.id); }}
                                 >
                                     <div
                                         className="px-4 py-1 pb-4"
                                         style={{
                                             ...styles.pricingBox,
                                             border:
-                                                item.id === selectedUser?.plan?.planId
+                                                selectedPlans.includes(item.id)
                                                     ? "2px solid #7902DF"
                                                     : "1px solid #15151520",
                                             backgroundColor: item.id === selectedUser?.plan?.planId ? "#402FFF05" : "",
@@ -108,7 +153,7 @@ const ViewSubAccountPlans = ({
                                         <div
                                             style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
                                         ></div>
-                                        <span style={styles.labelText}>{item.percentageDiscount}</span>
+                                        <span style={styles.labelText}>{item.percentageDiscount?.toFixed(2)}%</span>
                                         <div
                                             className="flex flex-row items-start gap-3"
                                             style={styles.content}

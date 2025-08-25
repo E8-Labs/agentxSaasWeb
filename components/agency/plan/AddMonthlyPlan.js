@@ -35,7 +35,7 @@ export default function AddMonthlyPlan({
   const [title, setTitle] = useState("");
   const [tag, setTag] = useState("");
   const [planDescription, setPlanDescription] = useState("");
-  const [originalPrice, setOriginalPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState(0);
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [minutes, setMinutes] = useState("");
   const [trialValidForDays, setTrialValidForDays] = useState("");
@@ -48,10 +48,14 @@ export default function AddMonthlyPlan({
   const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
   const [minCostErr, setMinCostErr] = useState(false);
 
+  //plan passed is
+  const [planPassed, setPlanPassed] = useState(null);
+
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
     console.log("Test log")
     if (selectedPlan) {
+      setPlanPassed(selectedPlan);
       console.log("Value of selected plan passed is", selectedPlan);
       setTitle(selectedPlan?.title);
       setTag(selectedPlan?.tag);
@@ -95,10 +99,12 @@ export default function AddMonthlyPlan({
 
   //check percentage calculation
   const checkCalulations = () => {
-    console.log("OP ===", originalPrice)//updated
-    console.log("DP ===", (discountedPrice * minutes))
-    const percentage = (originalPrice - (discountedPrice * minutes)) / originalPrice * 100 //replace the op * min done
-    console.log("Percenage of addmonthly plan is", percentage)
+    if (originalPrice > 0) {
+      console.log("OP ===", originalPrice)//updated
+      console.log("DP ===", (discountedPrice * minutes))
+      const percentage = (originalPrice - (discountedPrice * minutes)) / originalPrice * 100 //replace the op * min done
+      console.log("Percenage of addmonthly plan is", percentage)
+    }
   }
 
   //profit text color
@@ -146,10 +152,17 @@ export default function AddMonthlyPlan({
       formData.append("planDescription", planDescription);
       formData.append("originalPrice", originalPrice);//replaced
       formData.append("discountedPrice", discountedPrice * minutes);
-      formData.append(
-        "percentageDiscount",
-        100 - (discountedPrice / originalPrice) * 100
-      );
+      if (originalPrice > 0) {
+        formData.append(
+          "percentageDiscount",
+          100 - (discountedPrice / originalPrice) * 100
+        );
+      } else {
+        formData.append(
+          "percentageDiscount",
+          0
+        );
+      }
       formData.append("hasTrial", allowTrial);
       formData.append("trialValidForDays", trialValidForDays);
       formData.append("trialMinutes", "23");
@@ -203,9 +216,10 @@ export default function AddMonthlyPlan({
       console.log("Working");
 
       const Token = AuthToken();
+      // console.log("Selected plans passed is", planPassed);
       // const ApiPath = Apis.updateAgencyPlan;
 
-      const url = `${Apis.updateAgencyPlan}/${selectedPlan.id}`;
+      const url = `${Apis.updateAgencyPlan}/${planPassed.id}`;
       // const method = "put";
 
       console.log("Api path is", url);
@@ -392,7 +406,6 @@ export default function AddMonthlyPlan({
     const requiredFieldsFilled =
       title.trim() &&
       planDescription.trim() &&
-      // originalPrice &&
       discountedPrice && //no need to replace here
       minutes;
 
@@ -640,7 +653,7 @@ export default function AddMonthlyPlan({
                 <input
                   style={styles.inputs}
                   type="text"
-                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${originalPrice && "line-through" //replced
+                  className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${originalPrice > 0 && "line-through" //replced
                     }`}
                   placeholder="00"
                   value={originalPrice} //replaced
@@ -716,7 +729,7 @@ export default function AddMonthlyPlan({
                   handleClose("");
                   handleResetValues();
                 }}
-                className="text-purple-600 font-semibold"
+                className="text-purple-600 font-semibold border rounded-lg w-[12vw]"
               >
                 Cancel
               </button>
@@ -801,7 +814,7 @@ export default function AddMonthlyPlan({
                   ></div>
                   {/* Triangle price here */}
                   {
-                    originalPrice && minutes && ( //replaced
+                    originalPrice > 0 && minutes && ( //replaced
                       <span style={styles.labelText}>
                         {checkCalulations()}
                         {(
@@ -858,7 +871,7 @@ export default function AddMonthlyPlan({
                           )}
                         </div>
                         <div className="flex flex-row items-center gap-2">
-                          {originalPrice && (
+                          {originalPrice > 0 && (
                             <div style={styles.originalPrice} className="line-through">
                               ${originalPrice}
                             </div>

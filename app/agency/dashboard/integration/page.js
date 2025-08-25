@@ -32,13 +32,13 @@ function Page() {
             <div className='w-full flex flex-row justify-center items-start'>
                 <div className="flex flex-row items-center gap-4 w-11/12 pt-6">
                     <button
-                        className={`${currentTab === 1 ? "border-purple" : "border-black"} border rounded-full px-4 py-2 outline-none`}
+                        className={`${currentTab === 1 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
                         onClick={() => { handleTabSelection(1) }}
                     >
                         Twillio
                     </button>
                     <button
-                        className={`${currentTab === 2 ? "border-purple" : "border-black"} border rounded-full px-4 py-2 outline-none`}
+                        className={`${currentTab === 2 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
                         onClick={() => { handleTabSelection(2) }}
                     >
                         Stripe

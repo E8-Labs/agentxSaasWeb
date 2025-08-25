@@ -33,10 +33,14 @@ export default function AddXBarPlan({
   const [snackBannerMsg, setSnackBannerMsg] = useState(null);
   const [snackBannerMsgType, setSnackBannerMsgType] = useState(SnackbarTypes.Error);
 
+  //plan passed is
+  const [planPassed, setPlanPassed] = useState(null);
+
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
     console.log("Test log xbars")
     if (selectedPlan) {
+      setPlanPassed(selectedPlan);
       console.log("Value of selected plan passed is", selectedPlan);
       setTitle(selectedPlan?.title);
       setTag(selectedPlan?.tag);
@@ -107,13 +111,21 @@ export default function AddXBarPlan({
       formData.append("title", title);
       formData.append("tag", tag);
       formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice);
+      formData.append("originalPrice", discountedPrice || 0);
       formData.append("discountedPrice", originalPrice * minutes);
-      formData.append(
-        "percentageDiscount",
-        100 - (originalPrice / discountedPrice) * 100
-      );
+      if (discountedPrice > 0) {
+        formData.append(
+          "percentageDiscount",
+          100 - (originalPrice / discountedPrice) * 100
+        );
+      } else {
+        formData.append("percentageDiscount", 0)
+      }
       formData.append("minutes", minutes);
+
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key} = ${value}`);
+      }
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -159,7 +171,7 @@ export default function AddXBarPlan({
       console.log("Working");
 
       // const ApiPath = Apis.addXBarOptions; //vincecamuto
-      const url = `${Apis.updateAgencyXBar}/${selectedPlan.id}`;
+      const url = `${Apis.updateAgencyXBar}/${planPassed.id}`;
       const Token = AuthToken();
       console.log("Url for udate ageny is", url);
 
@@ -167,8 +179,12 @@ export default function AddXBarPlan({
       formData.append("title", title);
       formData.append("tag", tag);
       formData.append("planDescription", planDescription);
-      formData.append("originalPrice", discountedPrice);
-      formData.append("discountedPrice", originalPrice * minutes);
+      formData.append("originalPrice", discountedPrice || 0);
+      if (discountedPrice) {
+        formData.append("discountedPrice", originalPrice * minutes);
+      } else {
+        formData.append("discountedPrice", 0);
+      }
       formData.append(
         "percentageDiscount",
         100 - (originalPrice / discountedPrice) * 100
