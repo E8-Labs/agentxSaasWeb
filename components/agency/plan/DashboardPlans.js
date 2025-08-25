@@ -581,6 +581,7 @@ function DashboardPlans() {
                                                 handleAddPlan();
                                             }}
                                         >
+                                            Create New Plan
                                         </button>
                                     </div>
                                 ) : (

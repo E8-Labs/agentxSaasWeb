@@ -492,7 +492,7 @@ export default function AddMonthlyPlan({
                 <div className="w-6/12">
                   {/* Price */}
                   <label style={styles.labels}>
-                    Price/Min {agencyPlanCost && (`Your cost is $${(agencyPlanCost).toFixed(2)}`)}
+                    {agencyPlanCost && (`Your price/min is $${(agencyPlanCost).toFixed(2)}`)}
                   </label>
                   <div className={`border ${minCostErr || (discountedPrice && discountedPrice < agencyPlanCost) ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                     <div className="" style={styles.inputs}>

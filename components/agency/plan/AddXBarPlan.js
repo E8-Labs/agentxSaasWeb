@@ -387,7 +387,7 @@ export default function AddXBarPlan({
                     style={styles.inputs}
                     type="text"
                     className={`w-full border ${minCostErr ? "border-red" : "border-gray-200"}  outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1`}
-                    placeholder="00"
+                    placeholder=""
                     value={originalPrice}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -432,7 +432,7 @@ export default function AddXBarPlan({
                     style={styles.inputs}
                     type="text"
                     className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                    placeholder="00"
+                    placeholder=""
                     value={discountedPrice}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -453,7 +453,7 @@ export default function AddXBarPlan({
                     style={styles.inputs}
                     type="text"
                     className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                    placeholder="000"
+                    placeholder=""
                     value={minutes}
                     onChange={(e) => {
                       const value = e.target.value;
