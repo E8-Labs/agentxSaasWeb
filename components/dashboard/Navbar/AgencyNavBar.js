@@ -427,16 +427,16 @@ const AgencyNavBar = () => {
           >
             {agencyLinks.map((item) => (
               <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-                <button
+                <Link
                   sx={{ cursor: "pointer", textDecoration: "none" }}
-                  // href={item.href}
-                  onClick={() => {
-                    router.prefetch(item.href);
-                    if (pathname !== item.href) {
-                      setNavigatingTo(item.href);
-                      router.push(item.href);
-                    }
-                  }}
+                  href={item.href}
+                  // onClick={() => {
+                  //   router.prefetch(item.href);
+                  //   if (pathname !== item.href) {
+                  //     setNavigatingTo(item.href);
+                  //     router.push(item.href);
+                  //   }
+                  // }}
                 >
                   <div
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
@@ -466,7 +466,7 @@ const AgencyNavBar = () => {
                       <CircularProgress size={14} />
                     )*/}
                   </div>
-                </button>
+                </Link>
               </div>
             ))}
           </div>

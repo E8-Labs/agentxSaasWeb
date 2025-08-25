@@ -99,18 +99,7 @@ const Integrations = () => {
                 }}
             />
 
-            <div className='flex w-full flex-row items-center justify-between px-5 py-5 border-b'>
-
-                <div style={{
-                    fontSize: 22, fontWeight: '700'
-                }}>
-                    Integrations
-                </div>
-
-                <div>
-                    <NotficationsDrawer />
-                </div>
-            </div>
+            
 
             <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-11/12 mt-6'>
                 <div className='flex flex-row item-center gap-2'>

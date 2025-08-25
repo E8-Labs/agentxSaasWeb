@@ -887,7 +887,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                     showSellSeatsModal && (
                         <div>
                             <div style={styles.subheading} className='mt-2'>
-                                Amount per month
+                                Price per month
                             </div>
                             <div className='border border-gray-200 rounded px-2 py-0 mt-2 flex flex-row items-center w-full'>
                                 <div className='' style={styles.subheading}>

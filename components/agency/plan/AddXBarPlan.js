@@ -50,14 +50,15 @@ export default function AddXBarPlan({
   //auto check minCostError
   useEffect(() => {
     if (originalPrice && minutes) {
-      const P = (originalPrice * 100) / minutes;
+      const P = originalPrice / minutes;
       console.log("Calculated price is", P);
-      if (P < 20) {
+      if (P <= agencyPlanCost) {
         const cal = originalPrice * minutes;
         setMinCostErr(true);
-        setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
+        // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
+        setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)} or more than  ${originalPrice / agencyPlanCost.toFixed(2)}`);
         setSnackBannerMsgType(SnackbarTypes.Warning);
-      } else if (P >= 20) {
+      } else if (P > agencyPlanCost) {
         setSnackBannerMsg(null);
         setMinCostErr(false);
       }
@@ -212,8 +213,9 @@ export default function AddXBarPlan({
   };
 
   const shouldContinue = () => {
-    if (!title || !planDescription || !tag || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minutes === "0" || minCostErr) {
+    if (!title || !planDescription || !originalPrice || originalPrice === "0" || discountedPrice === "0" || minCostErr) {
       return true
+      // || !tag|| minutes === "0"
     } else {
       return false
     }
@@ -356,7 +358,7 @@ export default function AddXBarPlan({
               />
 
               {/* Tag Option */}
-              <label style={styles.labels}>Tag Option</label>
+              <label style={styles.labels}>Tag</label>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
@@ -383,28 +385,33 @@ export default function AddXBarPlan({
                 <div className="w-full">
                   {/* Price */}
                   <label style={styles.labels}>Price</label>
-                  <input
-                    style={styles.inputs}
-                    type="text"
-                    className={`w-full border ${minCostErr ? "border-red" : "border-gray-200"}  outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1`}
-                    placeholder=""
-                    value={originalPrice}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Allow only digits and one optional period
-                      const sanitized = value.replace(/[^0-9.]/g, '');
+                  <div className={`border ${minCostErr ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                    <div className="" style={styles.inputs}>
+                      $
+                    </div>
+                    <input
+                      style={styles.inputs}
+                      type="text"
+                      className={`w-full border border-none outline-none focus:outline-none focus:ring-0 focus:border-none rounded`}
+                      placeholder=""
+                      value={originalPrice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
 
-                      // Prevent multiple periods
-                      const valid = sanitized.split('.').length > 2
-                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                        : sanitized;
-                      // if (valid === 0) {
-                      //   setSnackMsg("Price cannot be zero");
-                      //   setSnackMsgType(SnackbarTypes.Warning);
-                      // }
-                      setOriginalPrice(valid);
-                    }}
-                  />
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        // if (valid === 0) {
+                        //   setSnackMsg("Price cannot be zero");
+                        //   setSnackMsgType(SnackbarTypes.Warning);
+                        // }
+                        setOriginalPrice(valid);
+                      }}
+                    />
+                  </div>
                   {/*minCostErr && (
                     <div className="flex flex-row items-center gap-2 mb-4">
                       <Image
@@ -428,24 +435,29 @@ export default function AddXBarPlan({
                   <label style={styles.labels}>
                     Strikethrough Price (Optional)
                   </label>
-                  <input
-                    style={styles.inputs}
-                    type="text"
-                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                    placeholder=""
-                    value={discountedPrice}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // Allow only digits and one optional period
-                      const sanitized = value.replace(/[^0-9.]/g, '');
+                  <div className={`border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                    <div className="" style={styles.inputs}>
+                      $
+                    </div>
+                    <input
+                      style={styles.inputs}
+                      type="text"
+                      className="w-full border border-none outline-none focus:outline-none focus:ring-0 focus:border-none rounded"
+                      placeholder=""
+                      value={discountedPrice}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '');
 
-                      // Prevent multiple periods
-                      const valid = sanitized.split('.').length > 2
-                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                        : sanitized;
-                      setDiscountedPrice(valid);
-                    }}
-                  />
+                        // Prevent multiple periods
+                        const valid = sanitized.split('.').length > 2
+                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                          : sanitized;
+                        setDiscountedPrice(valid);
+                      }}
+                    />
+                  </div>
 
                   {/* Minutes */}
                   <label style={styles.labels}>Bonus Minutes</label>
@@ -481,7 +493,7 @@ export default function AddXBarPlan({
                   handleResetValues();
                   handleClose("");
                 }}
-                className="text-purple-600 font-semibold"
+                className="text-purple-600 font-semibold border rounded-lg w-[12vw] text-center"
               >
                 Cancel
               </button>

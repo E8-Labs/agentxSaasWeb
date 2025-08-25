@@ -69,7 +69,7 @@ const SellSeatsModal = ({
                         </button>
                     </div>
                     <div style={styles.subheading} className='mt-8'>
-                        Amount per month
+                        Price per month
                     </div>
                     <div className='border border-gray-200 rounded px-2 py-0 mt-2 flex flex-row items-center w-full'>
                         <div className='' style={styles.subheading}>

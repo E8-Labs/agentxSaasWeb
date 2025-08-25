@@ -82,13 +82,14 @@ export default function AddMonthlyPlan({
     if (discountedPrice && minutes) {
       const P = (discountedPrice * 100) / minutes;
       console.log("Calculated price is", P);
-      if (P < 0.20) {
-        const cal = discountedPrice * minutes;
-        setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)} or more than ${cal.toFixed(2)}`);
-        setSnackBannerMsgType(SnackbarTypes.Warning);
-      } else if (P >= 0.20) {
-        setSnackBannerMsg(null);
-      }
+      // if (P < agencyPlanCost) {
+      //   const cal = discountedPrice * minutes;
+      //   // setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)} or more than ${cal.toFixed(2)}`);
+      //   setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)} or more than ${cal.toFixed(2)}`);
+      //   setSnackBannerMsgType(SnackbarTypes.Warning);
+      // } else if (P >= 0.20) {
+      //   setSnackBannerMsg(null);
+      // }
     }
   }, [minutes, discountedPrice]);
 
@@ -465,7 +466,7 @@ export default function AddMonthlyPlan({
               />
 
               {/* Tag Option */}
-              <label style={styles.labels}>Tag Option</label>
+              <label style={styles.labels}>Tag</label>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"

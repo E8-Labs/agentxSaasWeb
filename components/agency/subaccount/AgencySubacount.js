@@ -104,7 +104,7 @@ function AgencySubacount() {
       const xBarOptions = await getXBarOptions();
       const stripeStatus = CheckStripe();
 
-      if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0) {
+      if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
         setShowModal(true);
       } else {
         setShowSnackType(SnackbarTypes.Error);
