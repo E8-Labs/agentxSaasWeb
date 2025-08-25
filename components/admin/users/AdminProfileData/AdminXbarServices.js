@@ -25,6 +25,7 @@ import { PersistanceKeys, XBarPlans } from "@/constants/Constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -147,12 +148,12 @@ function AdminXbarServices({ selectedUser }) {
     try {
       const localData = localStorage.getItem("User");
       setGetPlansLoader(true);
-      let response = await getProfileDetails();
+      let response = await AdminGetProfileDetails(selectedUser.id);
       //console.log;
       if (response) {
-        console.log("Response of get profile apis is")
-        setRole(response?.data?.data?.userRole)
-        let togglePlan = response?.data?.data?.supportPlan;
+        console.log("Response of get profile apis is",response)
+        setRole(response?.userRole)
+        let togglePlan = response?.supportPlan;
         // let togglePlan = plan?.type;
         let planType = null;
         // if (plan.status == "active") {
@@ -171,8 +172,8 @@ function AdminXbarServices({ selectedUser }) {
           planType = selectedUser?.supportPlan;
         }
         // }
-        setUserLocalData(response?.data?.data);
-        console.log("plan type is ", response?.data?.data)
+        setUserLocalData(response);
+        console.log("plan type is ", response)
         setTogglePlan(planType);
         setCurrentPlan(planType);
       }
@@ -273,7 +274,11 @@ function AdminXbarServices({ selectedUser }) {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your support plan successfully updated");
+          let msg
+          if (togglePlan == "Enterprise") {
+            msg = "Scale"
+          }
+          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -344,7 +349,7 @@ function AdminXbarServices({ selectedUser }) {
     } else if (togglePlan === 2) {
       planType = "Professional";
     } else if (togglePlan === 3) {
-      planType = "Enterprise";
+      planType = "Scale";
     }
     return planType;
   };
@@ -535,7 +540,7 @@ function AdminXbarServices({ selectedUser }) {
                               fontWeight: "600",
                             }}
                           >
-                            {item.title}
+                            {role === "Agency" || selectedUser.agencyTeamMember === true?item.title:item.PlanTitle}
                           </div>
                           {item.status && (
                             <div
