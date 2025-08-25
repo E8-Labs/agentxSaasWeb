@@ -18,6 +18,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import ResetTrial from './ResetTrial'
+import { PersistanceKeys } from '@/constants/Constants'
 
 function SelectedUserDetails({
     selectedUser,
@@ -126,6 +127,7 @@ function SelectedUserDetails({
 
     const handleManuClick = (item) => {
         setSelectedManu(item)
+        localStorage.removeItem(PersistanceKeys.LocalStoredAgentsListMain,)
     }
 
     const handleAddMinutes = async () => {

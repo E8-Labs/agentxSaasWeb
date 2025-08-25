@@ -1691,6 +1691,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   useEffect(() => {
     getCalenders();
     setInitialLoader(true)
+    setAgentsListSeparated([]);
+    setMainAgentsList([])
     getAgents()
   }, [selectedUser]);
 
