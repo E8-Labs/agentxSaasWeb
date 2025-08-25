@@ -79,7 +79,7 @@ export default function EditMcpPopup({ open, handleClose,
                     >
                         <div className='w-full flex flex-row items-center justify-between'>
                             <div className='text-[17px] font-[600] text-black'>
-                                Edit MCP
+                                Edit Tool
                             </div>
                             <button onClick={handleClose} className='cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'>
                                 <Image src="/assets/cross.png" alt="close" width={15} height={15} />
@@ -98,7 +98,7 @@ export default function EditMcpPopup({ open, handleClose,
                                 className='w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2' />
 
                             <div className='text-[15px] font-[500] text-black mt-3'>
-                                URL
+                                Server URL
                             </div>
                             <input
                                 type="text"
