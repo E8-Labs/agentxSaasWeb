@@ -96,7 +96,6 @@ export const XBarPlans = [
     status: "Best Value",
   },
 ];
-
 export const Constants = {
   GlobalPhoneNumber: "+16505403715",
 };

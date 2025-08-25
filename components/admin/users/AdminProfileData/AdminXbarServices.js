@@ -21,7 +21,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { GetFormattedDateString } from "@/utilities/utility";
 import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal";
-import { PersistanceKeys } from "@/constants/Constants";
+import { PersistanceKeys, XBarPlans } from "@/constants/Constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
@@ -33,7 +33,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AdminXbarServices({selectedUser}) {
+function AdminXbarServices({ selectedUser }) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -85,45 +85,7 @@ function AdminXbarServices({selectedUser}) {
   }, []);
 
   //array of plans
-  const defaultPlan = [
-    {
-      id: 1,
-      PlanTitle: "Starter | 250 mins",
-      details: [
-        `1 AgentX AI | 2hrs of Support`,
-        `1 External Integration | 1 Calendar Integration`,
-      ],
-      originalPrice: "2,450",
-      discountPrice: "997",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 2,
-      PlanTitle: "Professional | 750 mins",
-      details: [
-        `4 AgentX AI | 5hrs of Support`,
-        `2 External Integration | 2 Calendar Integration`,
-      ],
-      originalPrice: "5,900",
-      discountPrice: "2,997",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 3,
-      PlanTitle: "Enterprise | 1500 mins",
-      details: [
-        "Dedicated Success Manager",
-        `10 AgentX AI | 10hrs of Support`,
-        `External Integration | Calendar Integration`,
-      ],
-      originalPrice: "8,200",
-      discountPrice: "4,997",
-      planStatus: "60%",
-      status: "Best Value",
-    },
-  ];
+  const defaultPlan = XBarPlans
 
   const [plans, setPlans] = useState(defaultPlan);
 
@@ -134,7 +96,7 @@ function AdminXbarServices({selectedUser}) {
   const getPlans = async () => {
     try {
       const Token = AuthToken();
-      const ApiPath = Apis.getSubAccountPlans+"?userId="+selectedUser.id;
+      const ApiPath = Apis.getSubAccountPlans + "?userId=" + selectedUser.id;
       const response = await axios.get(ApiPath, {
         headers: {
           "Authorization": "Bearer " + Token,
@@ -153,15 +115,15 @@ function AdminXbarServices({selectedUser}) {
   }
 
   useEffect(() => {
-  if(role === "Agency"){  
-    getPlans()
-  }
+    if (role === "Agency") {
+      getPlans()
+    }
   }, [role])
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
       let response = await AdminGetProfileDetails(selectedUser.id);
-      console.log("resopnse of admin get profile api is",response)
+      console.log("resopnse of admin get profile api is", response)
 
       if (response) {
         setRole(response?.userRole)
@@ -170,18 +132,18 @@ function AdminXbarServices({selectedUser}) {
         // let togglePlan = plan?.type;
         let planType = null;
         // if (plan.status == "active") {
-        if(role !== "Agency"){
-        if (togglePlan === "Starter") {
-          planType = 1;
-        } else if (togglePlan === "Professional") {
-          planType = 2;
-        } else if (togglePlan === "Enterprise") {
-          planType = 3;
+        if (role !== "Agency") {
+          if (togglePlan === "Starter") {
+            planType = 1;
+          } else if (togglePlan === "Professional") {
+            planType = 2;
+          } else if (togglePlan === "Enterprise") {
+            planType = 3;
+          }
+        } else {
+          let type = plans?.find((item) => item.title === togglePlan);
+          planType = type?.id;
         }
-      }else{
-        let type = plans?.find((item) => item.title === togglePlan);
-        planType = type?.id;
-      }
         // }
         setUserLocalData(response?.data?.data);
         console.log("plan type is ", response?.data?.data)
@@ -219,7 +181,7 @@ function AdminXbarServices({selectedUser}) {
           planType = "Enterprise";
         }
       }
-      else{
+      else {
         let type = plans?.find((item) => item.id === togglePlan);
         planType = type?.id;
       }
@@ -285,7 +247,11 @@ function AdminXbarServices({selectedUser}) {
           setCurrentPlan(planType);
           //   }
           // localStorage.setItem("User", JSON.stringify(localDetails));
-          setSuccessSnack("Your support plan successfully updated");
+          let msg = togglePlan;
+          if (togglePlan == "Enterprise") {
+            msg = "Scale"
+          }
+          setSuccessSnack(`Xbar ${msg} plan upgraded! 🎉`);
         } else if (response.data.status === false) {
           setErrorSnack(response.data.message);
         }
@@ -356,7 +322,7 @@ function AdminXbarServices({selectedUser}) {
     } else if (togglePlan === 2) {
       planType = "Professional";
     } else if (togglePlan === 3) {
-      planType = "Enterprise";
+      planType = "Scale";
     }
     return planType;
   };
@@ -540,7 +506,7 @@ function AdminXbarServices({selectedUser}) {
                         fontWeight: "600",
                       }}
                     >
-                      {item.title}
+                      {role && role === "Agency" ? item.title : item.PlanTitle}
                     </div>
                     {item.status && (
                       <div
