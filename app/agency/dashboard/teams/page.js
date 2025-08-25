@@ -3,7 +3,7 @@ import AdminTeam from '@/components/admin/users/AdminTeams'
 import Teams from '@/components/dashboard/teams/Teams'
 import React, { useEffect, useState } from 'react'
 
-function page() {
+function Page() {
 
   const [agencyData, setAgencyData] = useState(null);
 
@@ -22,4 +22,4 @@ function page() {
   )
 }
 
-export default page
+export default Page
