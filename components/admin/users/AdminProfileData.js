@@ -116,7 +116,7 @@ function AdminProfileData({ selectedUser, from }) {
             <div className="w-12/12">
             </div>
             <div className="w-full flex flex-row item-center pl-4">
-                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[90%] overflow-auto border"
+                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[90%] overflow-auto"
                     style={{scrollbarWidth:'none'}}
                 >
                     {manuBar.map((item, index) => (
