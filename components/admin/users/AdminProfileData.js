@@ -112,13 +112,13 @@ function AdminProfileData({ selectedUser, from }) {
                 style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
             >
                 <div style={{ fontSize: 24, fontWeight: "600" }}>My Account</div>
-
-
             </div>
             <div className="w-12/12">
             </div>
             <div className="w-full flex flex-row item-center pl-4">
-                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-auto border">
+                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[90%] overflow-auto border"
+                    style={{scrollbarWidth:'none'}}
+                >
                     {manuBar.map((item, index) => (
                         <div key={item.id} className="w-full">
                             <button
