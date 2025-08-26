@@ -73,8 +73,23 @@ import AgentsListPaginated from "@/components/dashboard/myagentX/AgentsListPagin
 import { get } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
+import DuplicateButton from "@/components/animation/DuplicateButton";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
+
+
+
+  let baseUrl =
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    ? "https://ai.myagentx.com/"
+    : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+
+let demoBaseUrl =
+  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+    ? "https://apimyagentx.com/agentx/"
+    : "https://apimyagentx.com/agentxtest/";
+
 
   const voiceExpressivenessList = [
     {
@@ -294,6 +309,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //supporting variable
   const [canKeepLoading, setCanKeepLoading] = useState(false);
 
+
+  const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false);
+  const [duplicateLoader, setDuplicateLoader] = useState(false);
+
+
+
+
   const searchTimeoutRef = useRef(null);
 
   const playVoice = (url) => {
@@ -432,6 +454,111 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowModelLoader(false);
     setOpenGptManu(null);
   };
+    //handle duplicate agent
+    const handleDuplicate = async () => {
+      console.log("Duplicate agent clicked");
+      setDuplicateLoader(true);
+      setShowDuplicateConfirmationPopup(false);
+      try {
+        const data = localStorage.getItem("User");
+  
+        if (data) {
+          const userData = JSON.parse(data);
+          const AuthToken = userData.token;
+          // const ApiPath = Apis.duplicateAgent;
+          const ApiPath = `${Apis.duplicateAgent}?userId=${selectedUser.id}`;
+          console.log("Api path for admin copy agent", ApiPath);
+          let apidata = {
+            agentId: showDrawerSelectedAgent.id,
+          };
+  
+          const response = await axios.post(ApiPath, apidata, {
+            headers: {
+              Authorization: "Bearer " + AuthToken,
+            },
+          });
+  
+          if (response) {
+            setDuplicateLoader(false);
+            console.log("Responseof duplicate agent is", response);
+            if (response.data.status === true) {
+              console.log("duplicate agent data ", response);
+  
+              setShowSuccessSnack("Agent duplicated successfully");
+              setIsVisibleSnack(true);
+              const localAgentsList = localStorage.getItem(
+                PersistanceKeys.LocalStoredAgentsListMain
+              );
+  
+              if (localAgentsList) {
+                const agentsList = JSON.parse(localAgentsList);
+                // agentsListDetails = agentsList;
+  
+                const updatedArray = [response.data.data, ...agentsList];
+                localStorage.setItem(
+                  PersistanceKeys.LocalStoredAgentsListMain,
+                  JSON.stringify(updatedArray)
+                );
+                setMainAgentsList(updatedArray);
+              }
+            } else {
+              setShowErrorSnack(response.data.message);
+              setIsVisibleSnack2(true);
+            }
+          }
+        }
+      } catch (error) {
+        setDuplicateLoader(false);
+        // console.error("Error occured in duplicate agent api is", error);
+        // setShowErrorSnack("Error occured while duplicating agent");
+        const errorMessage =
+          error?.response?.data?.message || error?.message || error.toString();
+  
+        console.error("Error occurred in duplicate agent API:", errorMessage);
+        setShowErrorSnack(`Error: ${errorMessage}`);
+        setIsVisibleSnack2(true);
+      }
+    };
+  
+
+  const handleCopy = (assistantId, baseUrl) => {
+    const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`;
+
+    navigator.clipboard
+      .writeText(iframeCode)
+      .then(() => {
+        // alert("Embed code copied to clipboard!");
+        setShowSuccessSnack("Embed widget copied");
+        setIsVisibleSnack(true);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
+
+
+
+
+    const handleWebhookClick = (assistantId, baseUrl) => {
+    let url = baseUrl + "api/agent/demoAi/" + assistantId
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        // alert("Embed code copied to clipboard!");
+        setShowSuccessSnack("Webhook URL Copied");
+        setIsVisibleSnack(true);
+      })
+      .catch((err) => {
+        console.error("Failed to copy text: ", err);
+      });
+  };
+
+
+
+
   //function for numbers width
   //code for update agent api
   const handleRenameAgent = async () => {
@@ -2861,6 +2988,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2  ">
+                  <DuplicateConfirmationPopup
+                    open={showDuplicateConfirmationPopup}
+                    handleClose={() => setShowDuplicateConfirmationPopup(false)}
+                    handleDuplicate={handleDuplicate}
+                  />
                   {/* GPT Button */}
 
                   {showModelLoader ? (
@@ -2941,7 +3073,59 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                       </Menu>
                     </div>
                   )}
+                  <div className="flex flex-row items-center gap-2">
+                    <DuplicateButton
+                      handleDuplicate={() => {
+                        setShowDuplicateConfirmationPopup(true);
+                      }}
+                      loading={duplicateLoader}
+                    />
+                    <button onClick={() => {
+                      console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
+                      // return;
+                      // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
+                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
+                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
+                      const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
+                      const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
+
+                      window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+
+                    }}
+                    >
+                      <Image
+                        src={"/assets/openVoice.png"}
+                        alt="*"
+                        height={18}
+                        width={18}
+                      />
+                    </button>
+                    <button
+                      style={{ paddingLeft: "3px" }}
+                      onClick={() => {
+                        handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                      }}
+                    >
+                      <Image src={'/svgIcons/embedIcon.svg'}
+                        height={22} width={22} alt="*"
+                      />
+                    </button>
+
+                    <button
+                      style={{ paddingLeft: "3px" }}
+                      onClick={() => {
+                        handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                      }}
+                    >
+                      <Image src={'/svgIcons/webhook.svg'}
+                        height={22} width={22} alt="*"
+                      />
+                    </button>
+                  </div>
                 </div>
+
+
+
               </div>
 
               {/* Center Stats View  */}

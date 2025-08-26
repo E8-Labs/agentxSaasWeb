@@ -484,14 +484,14 @@ function CalendarModal(props) {
               fontSize: 15,
               fontWeight: '600'
             }}>
-              GHL Calendar <span className="text-gray-500 text-sm">(coming soon)</span>
+              GHL Calendar
             </p>
 
             {calenderLoader ? (
               <CircularProgress size={45} />
             ) : (
               <button
-                disabled={true}
+                // disabled={true}
                 onClick={() => {
                   // setShowAddNewGHLCalender(true);
                   startGHLAuthPopup();
