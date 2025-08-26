@@ -444,14 +444,14 @@ function DashboardPlans() {
                                                     {plansList.slice().reverse().map((item) => (
                                                         <div
                                                             key={item.id}
-                                                            style={{ cursor: "pointer" }}
+                                                            // style={{ cursor: "pointer" }}
                                                             className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
-                                                            onClick={() => {
-                                                                setmoreDropdown(
-                                                                    moreDropdown === item.id ? null : item.id
-                                                                );
-                                                                setSelectedPlan(selectedPlan === item ? null : item);
-                                                            }}
+                                                            // onClick={() => {
+                                                            //     setmoreDropdown(
+                                                            //         moreDropdown === item.id ? null : item.id
+                                                            //     );
+                                                            //     setSelectedPlan(selectedPlan === item ? null : item);
+                                                            // }}
                                                         >
                                                             <div
                                                                 className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"

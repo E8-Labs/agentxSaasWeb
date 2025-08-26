@@ -112,6 +112,10 @@ function AgencySubacount() {
           setShowSnackMessage("You'll need to add plans to create subaccounts ");
         } else if (xBarOptions.length === 0) {
           setShowSnackMessage("You'll need to add an XBar plan to create subaccounts");
+        } else if (!stripeStatus) {
+          setShowSnackMessage("You're Stripe account has not been connected.");
+        } else if (agencyData?.isTwilioConnected === false) {
+          setShowSnackMessage("Add your Twilio API Keys to create subaccounts.");
         }
       }
 
@@ -378,14 +382,22 @@ function AgencySubacount() {
                     key={item.id}
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer cursor-pointer"
-                    // onClick={() => {
-                    //   setUserData(item);
-                    //   setmoreDropdown(
-                    //     moreDropdown === item.id ? null : item.id
-                    //   );
-                    //   setSelectedItem(item);
-                    // }}
-                    onClick={(e) => handleTogglePopover(e, item)}
+                    // onClick={(e) => handleTogglePopover(e, item)}
+                    onClick={(event) => {
+                      if (activeAccount === item.id) {
+                        // same row clicked again → close
+                        setAnchorEl(null);
+                        setActiveAccount(null);
+                      } else {
+                        // open for this row
+                        setAnchorEl(event.currentTarget);
+                        setActiveAccount(item.id);
+                        setUserData(item);
+                        setSelectedItem(item);
+                        setmoreDropdown(item.id);
+                        setSelectedUser(item);
+                      }
+                    }}
                   >
                     <div
                       className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0">
@@ -654,9 +666,9 @@ function AgencySubacount() {
         {/* Code for subaccount modal */}
         <Modal
           open={selectedUser ? true : false}
-          onClose={() => {
-            setSelectedUser(null);
-          }}
+          // onClose={() => {
+          //   setSelectedUser(null);
+          // }}
           BackdropProps={{
             timeout: 200,
             sx: {

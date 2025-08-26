@@ -29,7 +29,8 @@ export const TwilioWarning = ({
     let data = localStorage.getItem("User");
     if (data) {
       const agencyData = JSON.parse(data)
-      if (agencyData.isTwilioConnected === false) {
+      // console.log("Agency data for checking twilio is", agencyData)
+      if (agencyData.user.isTwilioConnected === false) {
         setShowAddTwiliowarning(true);
         isTwilioAdded({ status: true });
       } else {

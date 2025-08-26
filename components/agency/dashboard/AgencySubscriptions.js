@@ -297,132 +297,125 @@ function AgencySubscriptions() {
   return (
     <div
       className="flex flex-col items-center justify-center w-full h-[88vh]"
-      style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "45rem" }}
+      style={{ overflow: "auto", scrollbarWidth: "none", paddingTop: "40rem" }}
     >
       <div className="flex flex-col items-start w-11/12 mt-10 gap-3">
 
-        <div className="flex flex-row gap-5 items-center w-full border">
-          <div style={{ fontSize: 48, fontWeight: "400", color: "#000" }}>
-            Subscription<span style={{ color: "#00000047" }}> Performance</span>
-          </div>
+        {/* Show filters here in a row*/}
+        {
+          showCustomRange &&
+          <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
+            style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
+          >
+            <div
+              className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+              style={{ fontWeight: "500", fontSize: 15 }}
+            >
+              {`${moment(subscriptionStartDate).format("MM-DD-YYYY")} - ${moment(subscriptionEndDate).format("MM-DD-YYYY")}`}
 
-          {/* Range date Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+              {/* Remove Filter Button */}
               <button
-                className="
-                  px-4 py-2 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
-                  flex flex-row items-center gap-1
-                "
+                className="outline-none"
+                onClick={() => {
+                  setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
+                  setSubscriptionStartDate("2025-01-01")
+                  setSelectedSubRange("All Time")
+                  getAdminAnalytics(false)
+                  setShowCustomRange(false)
+                }}
               >
-                <p>
-                  {selectedSubRange
-                    ? selectedSubRange
-                    : "Select Range"}
-                </p>
                 <Image
-                  src={"/svgIcons/downArrow.svg"}
+                  src={"/otherAssets/crossIcon.png"}
                   height={20}
-                  width={24}
-                  alt="*"
+                  width={20}
+                  alt="Remove Filter"
                 />
               </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className="bg-white border rounded-lg shadow-md"
-              style={{ minWidth: "8rem", width: "100%" }} // Match button width
-            >
-              <DropdownMenuGroup style={{ cursor: "pointer" }}>
-                <DropdownMenuItem
-                  className="hover:bg-gray-100 px-3"
-                  onClick={() => {
-                    setSubscriptionEndDate(
-                      moment(currantDate).format("YYYY-MM-DD")
-                    );
-                    setSubscriptionStartDate("2025-01-01");
-                    setSelectedSubRange("All Time");
-                    getAdminAnalytics(false);
-                    setShowCustomRange(false)
-
-                  }}
-                >
-                  All Time
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setShowCustomRangePopup("Subscription");
-                    setSelectedSubRange("Custom Range");
-                  }}
-                  className="hover:bg-gray-100 px-3"
-                >
-                  Custom Range
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Show filters here in a row*/}
-          {
-            showCustomRange &&
-            <div className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto"
-              style={{ scrollbarColor: "#00000000", scrollbarWidth: "none" }}
-            >
-              <div
-                className="px-4 py-2 bg-[#402FFF10] text-purple flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                style={{ fontWeight: "500", fontSize: 15 }}
-              >
-                {`${moment(subscriptionStartDate).format("MM-DD-YYYY")} - ${moment(subscriptionEndDate).format("MM-DD-YYYY")}`}
-
-                {/* Remove Filter Button */}
-                <button
-                  className="outline-none"
-                  onClick={() => {
-                    setSubscriptionEndDate(moment(currantDate).format("YYYY-MM-DD"))
-                    setSubscriptionStartDate("2025-01-01")
-                    setSelectedSubRange("All Time")
-                    getAdminAnalytics(false)
-                    setShowCustomRange(false)
-                  }}
-                >
-                  <Image
-                    src={"/otherAssets/crossIcon.png"}
-                    height={20}
-                    width={20}
-                    alt="Remove Filter"
-                  />
-                </button>
-              </div>
             </div>
-          }
+          </div>
+        }
 
-
-        </div>
-
-        <div className="flex w-full flex-row items-start gap-3 mt-4">
+        <div className="flex w-full flex-row items-start gap-3">
           <div className="flex flex-col w-8/12">
             <div
               style={{ border: "2px solid white" }}
               className="flex w-full flex-col items-center bg-[#ffffff68] rounded-lg p-4"
             >
               <div className="flex flex-col w-full items-start">
-                <div
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "700",
-                    color: "#0E0E0E",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  New Subscriptions{" "}
-                  <span
+                <div className="flex flex-row items-center gap-4 justify-start">
+                  <div
                     style={{
-                      fontSize: 13,
-                      fontWeight: "500",
-                      color: "#00000060",
+                      fontSize: 18,
+                      fontWeight: "700",
+                      color: "#0E0E0E",
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    Number of new paid users over a period of time
-                  </span>
+                    New Subscriptions{" "}
+                    <span
+                      style={{
+                        fontSize: 13,
+                        fontWeight: "500",
+                        color: "#00000060",
+                      }}
+                    >
+                      Number of new paid users over a period of time
+                    </span>
+                  </div>
+                  {/* Range date Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="
+                px-4 py-1 border border-[#EEE7FF] rounded-full text-sm font-medium text-gray-800 hover:bg-gray-100
+                flex flex-row items-center gap-1
+              "
+                      >
+                        <p>
+                          {selectedSubRange
+                            ? selectedSubRange
+                            : "Select Range"}
+                        </p>
+                        <Image
+                          src={"/svgIcons/downArrow.svg"}
+                          height={20}
+                          width={24}
+                          alt="*"
+                        />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="bg-white border rounded-lg shadow-md"
+                      style={{ minWidth: "8rem", width: "100%" }} // Match button width
+                    >
+                      <DropdownMenuGroup style={{ cursor: "pointer" }}>
+                        <DropdownMenuItem
+                          className="hover:bg-gray-100 px-3"
+                          onClick={() => {
+                            setSubscriptionEndDate(
+                              moment(currantDate).format("YYYY-MM-DD")
+                            );
+                            setSubscriptionStartDate("2025-01-01");
+                            setSelectedSubRange("All Time");
+                            getAdminAnalytics(false);
+                            setShowCustomRange(false)
+
+                          }}
+                        >
+                          All Time
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setShowCustomRangePopup("Subscription");
+                            setSelectedSubRange("Custom Range");
+                          }}
+                          className="hover:bg-gray-100 px-3"
+                        >
+                          Custom Range
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <div className="w-full flex flex-row items-start justify-between">
                   <div className="flex flex-col items-center">

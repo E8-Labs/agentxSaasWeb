@@ -65,6 +65,9 @@ const AddCardDetails = ({
   //agree terms
   const [agreeTerms, setAgreeTerms] = useState(true);
 
+  //disable continue btn after the card added
+  const [disableContinue, setDisableContinue] = useState(false);
+
   // Autofocus the first field when the component mounts
   useEffect(() => {
     // //console.log;
@@ -154,9 +157,10 @@ const AddCardDetails = ({
   //function to add card
   const handleAddCard = async (e) => {
     setAddCardLoader(true);
-
+    setDisableContinue(true);
     if (stop) {
       stop(false);
+      setDisableContinue(false);
     }
     if (e && e.preventDefault) {
       e.preventDefault();
@@ -167,6 +171,7 @@ const AddCardDetails = ({
     // //console.log;
     const AuthToken = D.token;
     if (!stripeReact || !elements) {
+      setDisableContinue(false);
       return;
     } else {
       ////console.log;
@@ -202,6 +207,7 @@ const AddCardDetails = ({
       setAddCardErrtxt(
         result.error.message || "Error confirming payment method"
       );
+      setDisableContinue(false);
       // setStatus(`Error: ${result.error.message}`);
     } else {
       // console.log("Result", JSON.stringify(result.setupIntent));
@@ -245,6 +251,7 @@ const AddCardDetails = ({
       } else {
         setAddCardFailure(true);
         setAddCardErrtxt(result2.message);
+        setDisableContinue(false);
       }
     }
   };

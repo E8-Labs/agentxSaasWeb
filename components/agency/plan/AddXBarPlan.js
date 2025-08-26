@@ -46,7 +46,10 @@ export default function AddXBarPlan({
       setTag(selectedPlan?.tag);
       setPlanDescription(selectedPlan?.planDescription);
       setOriginalPrice((selectedPlan?.discountedPrice / selectedPlan?.minutes).toFixed(2));
-      setDiscountedPrice(selectedPlan?.originalPrice);
+      const OriginalPrice = selectedPlan?.originalPrice
+      if (OriginalPrice > 0) {
+        setDiscountedPrice(OriginalPrice);
+      }
       setMinutes(selectedPlan?.minutes);
     }
   }, [selectedPlan]);
@@ -60,7 +63,7 @@ export default function AddXBarPlan({
         const cal = originalPrice * minutes;
         setMinCostErr(true);
         // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
-        setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)} or more than  ${originalPrice / agencyPlanCost.toFixed(2)}`);
+        setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)} or less than  ${originalPrice / agencyPlanCost.toFixed(2)}`);
         setSnackBannerMsgType(SnackbarTypes.Warning);
       } else if (P > agencyPlanCost) {
         setSnackBannerMsg(null);

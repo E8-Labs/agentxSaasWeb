@@ -60,8 +60,12 @@ export default function AddMonthlyPlan({
       setTitle(selectedPlan?.title);
       setTag(selectedPlan?.tag);
       setPlanDescription(selectedPlan?.planDescription);
-      setOriginalPrice(selectedPlan?.originalPrice);
-      setDiscountedPrice(selectedPlan?.discountedPrice?.toFixed(2) / selectedPlan?.minutes);
+      const OriginalPrice = selectedPlan?.originalPrice;
+      if (OriginalPrice > 0) {
+        setOriginalPrice(OriginalPrice);
+      }
+      const DiscountedPrice = (selectedPlan?.discountedPrice?.toFixed(2) / selectedPlan?.minutes).toFixed(2)
+      setDiscountedPrice(DiscountedPrice);
       setMinutes(selectedPlan?.minutes);
       if (selectedPlan?.trialValidForDays !== null) {
         setTrialValidForDays(selectedPlan?.trialValidForDays);
@@ -134,6 +138,7 @@ export default function AddMonthlyPlan({
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
+    setAllowTrial(false)
     setTrialValidForDays("")
   }
 
