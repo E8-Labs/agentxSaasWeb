@@ -184,6 +184,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     const [showSellSeatsModal, setShowSellSeatsModal] = useState(false);
     const [fullName, setFullName] = useState("");
     const [seats, setSeats] = useState("");
+    //stores smart refill
+    const [isSmartRefill, setIsSmartRefill] = useState(true);
 
     //show sell seats modal
     useEffect(() => {
@@ -236,6 +238,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setFullName("");
             setSeats("");
             setAlowSellSeats(false);
+            // setIsSmartRefill(false);
         }
         if (formData) {
             setSubAccountName(formData.subAccountName);
@@ -245,6 +248,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             setTeamMembers(formData.teamMembers);
             setFullName(formData.fullName);
             setSeats(formData.seats);
+            setIsSmartRefill(formData.isSmartRefill);
             setAlowSellSeats(false);
             setErrorMessage("");
             setValidEmail("");
@@ -526,7 +530,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             teamMembers: teamMembers,
             subAccountName: subAccountName,
             fullName: fullName,
-            seats: seats
+            seats: seats,
+            isSmartRefill: isSmartRefill
         }
 
         // console.log(fromData);
@@ -866,6 +871,79 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                 },
                             }}
                         />
+                    </div>
+                </div>
+
+                {/* Code for add smart refill
+                <div className='w-full flex flex-row items-center justify-between mt-4 py-1 px-4 bg-[#D9D9D92B] rounded-md'>
+                    <div style={styles.inputs}>
+                        Smart Refill
+                    </div>
+                    <div>
+                        <Switch
+                            checked={isSmartRefill}
+                            onChange={(e) => setIsSmartRefill(e.target.checked)}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
+                    </div>
+                </div> */}
+
+                <div className="w-full flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
+                    <div>
+                        <Switch
+                            checked={isSmartRefill}
+                            onChange={(e) => setIsSmartRefill(e.target.checked)}
+                            sx={{
+                                // ✅ Checked: green thumb, white track
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: '#01CB76',
+                                    '& + .MuiSwitch-track': {
+                                        backgroundColor: '#ffffff',
+                                        opacity: 1,
+                                    },
+                                },
+                                // ✅ Checked + focused: green thumb
+                                '& .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb': {
+                                    backgroundColor: '#01CB76',
+                                },
+
+                                // ✅ Unchecked: gray thumb, gray track
+                                '& .MuiSwitch-thumb': {
+                                    backgroundColor: '#9e9e9e',
+                                },
+                                '& .MuiSwitch-track': {
+                                    backgroundColor: '#bdbdbd',
+                                    opacity: 1,
+                                },
+
+                                // ✅ Focus ring (optional): remove default blue ring
+                                '& .Mui-focusVisible .MuiSwitch-thumb': {
+                                    outline: '2px solid #01CB76',
+                                },
+                            }}
+                        />
+
+                    </div>
+                    <div
+                        className="ms-4 w-2/12"
+                        style={{
+                            fontWeight: "700",
+                            fontSize: "15px"
+                        }}>
+                        Smart Refill
+                    </div>
+                    <div className="w-8/12 ms-2" style={{
+                        fontWeight: "500",
+                        fontSize: "15px"
+                    }}>
+                        Refill your AI mins when they run low. Keeps your calls going without interruption.
                     </div>
                 </div>
 

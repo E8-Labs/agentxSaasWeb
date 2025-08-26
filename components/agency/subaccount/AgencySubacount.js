@@ -258,6 +258,12 @@ function AgencySubacount() {
           Cancelled
         </div>
       )
+    } else if (status.profile_status === "pending") {
+      return (
+        <div className="text-grayclr75">
+          Pending
+        </div>
+      )
     }
   }
 
@@ -382,22 +388,22 @@ function AgencySubacount() {
                     key={item.id}
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer cursor-pointer"
-                    // onClick={(e) => handleTogglePopover(e, item)}
-                    onClick={(event) => {
-                      if (activeAccount === item.id) {
-                        // same row clicked again → close
-                        setAnchorEl(null);
-                        setActiveAccount(null);
-                      } else {
-                        // open for this row
-                        setAnchorEl(event.currentTarget);
-                        setActiveAccount(item.id);
-                        setUserData(item);
-                        setSelectedItem(item);
-                        setmoreDropdown(item.id);
-                        setSelectedUser(item);
-                      }
-                    }}
+                    onClick={(e) => handleTogglePopover(e, item)}
+                  // onClick={(event) => {
+                  //   if (activeAccount === item.id) {
+                  //     // same row clicked again → close
+                  //     setAnchorEl(null);
+                  //     setActiveAccount(null);
+                  //   } else {
+                  //     // open for this row
+                  //     setAnchorEl(event.currentTarget);
+                  //     setActiveAccount(item.id);
+                  //     setUserData(item);
+                  //     setSelectedItem(item);
+                  //     setmoreDropdown(item.id);
+                  //     setSelectedUser(item);
+                  //   }
+                  // }}
                   >
                     <div
                       className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0">
@@ -666,9 +672,9 @@ function AgencySubacount() {
         {/* Code for subaccount modal */}
         <Modal
           open={selectedUser ? true : false}
-          // onClose={() => {
-          //   setSelectedUser(null);
-          // }}
+          onClose={() => {
+            setSelectedUser(null);
+          }}
           BackdropProps={{
             timeout: 200,
             sx: {

@@ -117,10 +117,9 @@ export default function AddXBarPlan({
       formData.append("originalPrice", discountedPrice || 0);
       formData.append("discountedPrice", originalPrice * minutes);
       if (discountedPrice > 0) {
-        formData.append(
-          "percentageDiscount",
-          100 - (originalPrice / discountedPrice) * 100
-        );
+        const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
+          100).toFixed(2);
+        formData.append("percentageDiscount", percentage);
       } else {
         formData.append("percentageDiscount", 0)
       }
@@ -183,8 +182,10 @@ export default function AddXBarPlan({
       formData.append("tag", tag);
       formData.append("planDescription", planDescription);
       formData.append("originalPrice", discountedPrice || 0);
-      if (discountedPrice) {
-        formData.append("discountedPrice", originalPrice * minutes);
+      if (discountedPrice > 0) {
+        const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
+          100).toFixed(2);
+        formData.append("percentageDiscount", percentage);
       } else {
         formData.append("discountedPrice", 0);
       }

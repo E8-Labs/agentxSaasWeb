@@ -79,7 +79,8 @@ export default function SetXBarOptions({
                         email: item.email
                     })),
                 monthlyPlans: selectedMonthlyPlans,
-                xbarPlans: selectedXBarPlans
+                xbarPlans: selectedXBarPlans,
+                smartRefill: formData.isSmartRefill,
 
             }
 

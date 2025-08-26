@@ -158,10 +158,9 @@ export default function AddMonthlyPlan({
       formData.append("originalPrice", originalPrice);//replaced
       formData.append("discountedPrice", discountedPrice * minutes);
       if (originalPrice > 0) {
-        formData.append(
-          "percentageDiscount",
-          100 - (discountedPrice / originalPrice) * 100
-        );
+        const disCountPercentag = ((originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
+          100).toFixed(2);
+        formData.append("percentageDiscount", disCountPercentag);
       } else {
         formData.append(
           "percentageDiscount",
@@ -231,12 +230,13 @@ export default function AddMonthlyPlan({
       const formData = new FormData();
       formData.append("title", title);
       formData.append("planDescription", planDescription);
-      formData.append("originalPrice", originalPrice);//replaced
+      formData.append("originalPrice", originalPrice || 0);//replaced
       formData.append("discountedPrice", discountedPrice * minutes);
-      formData.append(
-        "percentageDiscount",
-        100 - (discountedPrice / originalPrice) * 100
-      );
+      if (originalPrice > 0) {
+        const disCountPercentag = ((originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
+          100).toFixed(2);
+        formData.append("percentageDiscount", disCountPercentag);
+      }
       formData.append("hasTrial", allowTrial);
       formData.append("trialValidForDays", trialValidForDays);
       formData.append("trialMinutes", "23");

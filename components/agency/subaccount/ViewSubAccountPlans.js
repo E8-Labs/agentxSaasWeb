@@ -5,6 +5,7 @@ import { AuthToken } from '../plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { getMonthlyPlan } from './GetPlansList';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 const ViewSubAccountPlans = ({
     showPlans,
@@ -18,6 +19,11 @@ const ViewSubAccountPlans = ({
     const [agencyPlans, setAgencyPlans] = useState([]);
     const [subAccountPlans, setSubAccountPlans] = useState([]);
     const [selectedPlans, setSelectedPlans] = useState([]);
+    //update agency plans loader
+    const [updatePlansLoader, setUpdatePlansLoader] = useState(false);
+    //snack bar msg
+    const [snackMsg, setSnackMsg] = useState(null);
+    const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error);
 
     useEffect(() => {
         if (subAccountPlans?.length > 0) {
@@ -97,6 +103,54 @@ const ViewSubAccountPlans = ({
         );
     };
 
+    //handle Update agency plans
+    const handleUpdateAgencyPlans = async () => {
+        try {
+            setUpdatePlansLoader(true);
+            const Token = AuthToken();
+            const ApiPath = Apis.updateSubAccountPlansFromAgency;
+            console.log("Selected user is", selectedUser)
+            const apiData = {
+                subaccountUserId: selectedUser.id,
+                monthlyPlans: selectedPlans
+            }
+            const response = await axios.post(ApiPath, apiData, {
+                headers: {
+                    "Authorization": "Bearer " + Token,
+                    "Content-Type": "application/json"
+                }
+            });
+            if (response) {
+                console.log("Response of update agency subaccount plans api is", response.data);
+                if (response.data.status === true) {
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Success);
+                    setUpdatePlansLoader(false);
+                } else {
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Error);
+                    setUpdatePlansLoader(false);
+                }
+            }
+        } catch (error) {
+            setUpdatePlansLoader(false);
+            console.log("Error occured in update agency plans api is", error)
+        }
+    }
+
+    //check if the selected plans equal to agency plans
+    // utility function to compare two arrays of IDs
+    const arraysEqual = (a, b) => {
+        if (a.length !== b.length) return false;
+        const sortedA = [...a].sort();
+        const sortedB = [...b].sort();
+        return sortedA.every((val, index) => val === sortedB[index]);
+        console.log("Agency plans passed are", a)
+        console.log("Selected palns passed are", b)
+        const comparing = a.map((item) => { return item }) === b.map((item) => { return item })
+        console.log("is cparing true or false", Boolean(comparing));
+    };
+
 
     return (
         <Modal
@@ -111,7 +165,15 @@ const ViewSubAccountPlans = ({
                 },
             }}
         >
-            <Box className="w-6/12 bg-white p-6" sx={subaccountstyles.modalsStyle}>
+            <Box className="w-6/12 bg-white p-6 h-[70vh]" sx={subaccountstyles.modalsStyle}>
+                <AgentSelectSnackMessage
+                    isVisible={snackMsg !== null}
+                    message={snackMsg}
+                    hide={() => {
+                        setSnackMsg(null);
+                    }}
+                    type={snackMsgType}
+                />
                 <div className='w-full flex flex-row items-center justify-between mb-6'>
                     <div style={{ fontWeight: "600", fontSize: 18 }}>
                         View Plans
@@ -133,110 +195,132 @@ const ViewSubAccountPlans = ({
                         </div>
                     ) : (
                         <div className="w-full">
-                            {agencyPlans.map((item, index) => (
-                                <button
-                                    key={index}
-                                    className="w-full mt-4 outline-none"
-                                    onClick={(e) => { handleTogglePlanClick(item.id); }}
-                                >
-                                    <div
-                                        className="px-4 py-1 pb-4"
-                                        style={{
-                                            ...styles.pricingBox,
-                                            border:
-                                                selectedPlans.includes(item.id)
-                                                    ? "2px solid #7902DF"
-                                                    : "1px solid #15151520",
-                                            backgroundColor: item.id === selectedUser?.plan?.planId ? "#402FFF05" : "",
-                                        }}
+                            <div className="h-[53vh] overflow-auto">
+                                {agencyPlans.map((item, index) => (
+                                    <button
+                                        key={index}
+                                        className="w-full mt-4 outline-none"
+                                        disabled={item.id === selectedUser?.plan?.planId}
+                                        onClick={(e) => { handleTogglePlanClick(item.id); }}
                                     >
                                         <div
-                                            style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
-                                        ></div>
-                                        <span style={styles.labelText}>{item.percentageDiscount?.toFixed(2)}%</span>
-                                        <div
-                                            className="flex flex-row items-start gap-3"
-                                            style={styles.content}
+                                            className="px-4 py-1 pb-4"
+                                            style={{
+                                                ...styles.pricingBox,
+                                                border:
+                                                    selectedPlans.includes(item.id)
+                                                        ? "2px solid #7902DF"
+                                                        : "1px solid #15151520",
+                                                backgroundColor: item.id === selectedUser?.plan?.planId ? "#402FFF05" : "",
+                                            }}
                                         >
-                                            <div className="mt-1">
-                                                <div>
-                                                    {item.id === selectedUser?.plan?.planId ? (
-                                                        <Image
-                                                            src={"/svgIcons/checkMark.svg"}
-                                                            height={24}
-                                                            width={24}
-                                                            alt="*"
-                                                        />
-                                                    ) : (
-                                                        <Image
-                                                            src={"/svgIcons/unCheck.svg"}
-                                                            height={24}
-                                                            width={24}
-                                                            alt="*"
-                                                        />
-                                                    )}
+                                            <div
+                                                style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                                            ></div>
+                                            <span style={styles.labelText}>{item.percentageDiscount?.toFixed(2)}%</span>
+                                            <div
+                                                className="flex flex-row items-start gap-3"
+                                                style={styles.content}
+                                            >
+                                                <div className="mt-1">
+                                                    <div>
+                                                        {item.id === selectedUser?.plan?.planId ? (
+                                                            <Image
+                                                                src={"/svgIcons/checkMark.svg"}
+                                                                height={24}
+                                                                width={24}
+                                                                alt="*"
+                                                            />
+                                                        ) : (
+                                                            <Image
+                                                                src={"/svgIcons/unCheck.svg"}
+                                                                height={24}
+                                                                width={24}
+                                                                alt="*"
+                                                            />
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="w-full">
-                                                {item.id === selectedUser?.plan?.planId && (
-                                                    <div
-                                                        className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
-                                                        style={{
-                                                            fontSize: 11.6,
-                                                            fontWeight: "500",
-                                                            width: "fit-content",
-                                                        }}
-                                                    >
-                                                        Current Plan
-                                                    </div>
-                                                )}
-
-                                                <div className="flex flex-row items-center gap-3">
-                                                    <div
-                                                        style={{
-                                                            color: "#151515",
-                                                            fontSize: 20,
-                                                            fontWeight: "600",
-                                                        }}
-                                                    >
-                                                        {item.title}
-                                                    </div>
-                                                    {item.status && (
+                                                <div className="w-full">
+                                                    {item.id === selectedUser?.plan?.planId && (
                                                         <div
-                                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                                            style={{ fontSize: 11.6, fontWeight: "500" }}
+                                                            className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
+                                                            style={{
+                                                                fontSize: 11.6,
+                                                                fontWeight: "500",
+                                                                width: "fit-content",
+                                                            }}
                                                         >
-                                                            {item.status}
+                                                            Current Plan
                                                         </div>
                                                     )}
-                                                </div>
-                                                <div className="flex flex-row items-center justify-between">
-                                                    <div
-                                                        className="mt-2"
-                                                        style={{
-                                                            color: "#15151590",
-                                                            fontSize: 12,
-                                                            width: "60%",
-                                                            fontWeight: "600",
-                                                        }}
-                                                    >
-                                                        {item.planDescription}
-                                                    </div>
-                                                    <div className="flex flex-row items-center">
 
-                                                        <div className="flex flex-row justify-start items-start ">
-                                                            <div style={styles.discountedPrice}>
-                                                                ${item.discountedPrice}
+                                                    <div className="flex flex-row items-center gap-3">
+                                                        <div
+                                                            style={{
+                                                                color: "#151515",
+                                                                fontSize: 20,
+                                                                fontWeight: "600",
+                                                            }}
+                                                        >
+                                                            {item.title}
+                                                        </div>
+                                                        {item.status && (
+                                                            <div
+                                                                className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                                                style={{ fontSize: 11.6, fontWeight: "500" }}
+                                                            >
+                                                                {item.status}
                                                             </div>
-                                                            <p style={{ color: "#15151580" }}>/mo*</p>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-row items-center justify-between">
+                                                        <div
+                                                            className="mt-2"
+                                                            style={{
+                                                                color: "#15151590",
+                                                                fontSize: 12,
+                                                                width: "60%",
+                                                                fontWeight: "600",
+                                                            }}
+                                                        >
+                                                            {item.planDescription}
+                                                        </div>
+                                                        <div className="flex flex-row items-center">
+
+                                                            <div className="flex flex-row justify-start items-start ">
+                                                                <div style={styles.discountedPrice}>
+                                                                    ${item.discountedPrice}
+                                                                </div>
+                                                                <p style={{ color: "#15151580" }}>/mo*</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </button>
-                            ))}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="mt-4 mt-2">
+                                {!arraysEqual(
+                                    subAccountPlans.map(plan => plan.id),
+                                    selectedPlans
+                                ) && (
+                                        <button
+                                            className="w-full text-center rounded-lg text-white bg-purple h-[49px]"
+                                            onClick={handleUpdateAgencyPlans}
+                                            disabled={updatePlansLoader}
+                                        >
+                                            {updatePlansLoader ? (
+                                                <CircularProgress size={25} sx={{ color: "white" }} />
+                                            ) : (
+                                                "Save"
+                                            )}
+                                        </button>
+                                    )}
+                            </div>
+
                         </div>
                     )
                 }

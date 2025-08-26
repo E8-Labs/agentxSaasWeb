@@ -184,6 +184,7 @@ const Apis = {
   //subaccount plan apis
   getSubAccountPlans: `${BasePath}api/agency/getPlansForSubaccount`,
   subAgencyAndSubAccountPlans: `${BasePath}api/agency/subscribeAgencyPlan`,
+  updateSubAccountPlansFromAgency: `${BasePath}api/agency/updateSubaccountPlans`,
 
   //add comment
   addComment: `${BasePath}api/leads/addCommentOnTranscript`,
