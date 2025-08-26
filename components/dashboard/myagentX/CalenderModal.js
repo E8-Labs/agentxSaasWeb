@@ -43,7 +43,7 @@ function CalendarModal(props) {
 
   const [googleAuthDetails, setGoogleAuthDetails] = useState(null);
 
-  console.log("Status of ghl loader is", gHLCalenderLoader);
+  console.log("Status of ghl loader ", gHLCalenderLoader);
 
   //code for adding ghl calendar
   const [status, setStatus] = useState(null);
