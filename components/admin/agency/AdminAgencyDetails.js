@@ -1,22 +1,27 @@
 import Apis from '@/components/apis/Apis';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
+import SelectedUserDetails from '../users/SelectedUserDetails';
+import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails';
 
 
 function AdminAgencyDetails() {
 
-  useEffect(()=>{
+  useEffect(() => {
     getAgencyDetails()
-  },[])
+  }, [])
 
-  const [loading,setLoading] = useState(false)
-  const [agencies,setAgencies] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [agencies, setAgencies] = useState([])
   const [hasMore, setHasMore] = useState(true);
   const LimitPerPage = 30;
+
+  //selected item
+  const [selectedUser, setSelectedUser] = useState(null);
 
 
   const getAgencyDetails = async (offset = 0, loading = true) => {
@@ -92,6 +97,7 @@ function AdminAgencyDetails() {
                 key={item.id}
                 className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                 style={{ cursor: "pointer" }}
+                onClick={() => { setSelectedUser(item) }}
               >
                 <div className="w-3/12 flex flex-row gap-2 items-center">
                   <div className="h-[40px] w-[40px] rounded-full bg-black text-white flex items-center justify-center">
@@ -124,6 +130,65 @@ function AdminAgencyDetails() {
           )}
         </InfiniteScroll>
       </div>
+
+      <Modal
+        open={selectedUser ? true : false}
+        onClose={() => {
+          setSelectedUser(null);
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+            zIndex: 1200, // Keep backdrop below Drawer
+          },
+        }}
+        sx={{
+          zIndex: 1300, // Keep Modal below the Drawer
+        }}
+
+      >
+        <Box
+          className="w-11/12  p-8 rounded-[15px]"
+          sx={{
+            ...styles.modalsStyle,
+            backgroundColor: "white",
+            position: "relative",
+            zIndex: 1301, // Keep modal content above its backdrop
+          }}
+        >
+          <SelectedAgencyDetails
+            selectedUser={selectedUser}
+            handleDel={() => {
+              setAgencies((prev) => prev.filter((u) =>
+                u.id != selectedUser.id
+              ));
+              setSelectedUser(null);
+            }}
+            handlePauseUser={(d) => {
+              console.log("User paused");
+
+              const updatedStatus = selectedUser.profile_status === "active" ? "paused" : "active";
+
+              const updatedUser = {
+                ...selectedUser,
+                profile_status: updatedStatus
+              };
+
+              // ✅ Update the user in the list
+              setAgencies((prev) =>
+                prev.map((u) =>
+                  u.id === updatedUser.id ? updatedUser : u
+                )
+              );
+
+              // ✅ Re-send updated user to child
+              setSelectedUser(updatedUser);
+            }}
+          />
+        </Box>
+      </Modal>
+
     </div>
   )
 }
@@ -143,5 +208,16 @@ const styles = {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+  },
+  modalsStyle: {
+    height: "auto",
+    bgcolor: "transparent",
+    p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-50%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
   },
 };
