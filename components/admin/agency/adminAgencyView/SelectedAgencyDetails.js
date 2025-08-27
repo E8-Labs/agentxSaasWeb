@@ -23,6 +23,7 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
 import DashboardPlans from '@/components/agency/plan/DashboardPlans'
 import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
+import AgencyIntegrations from '@/components/agency/dashboard/AgencyIntegrations'
 
 function SelectedAgencyDetails({
     selectedUser,
@@ -480,7 +481,7 @@ function SelectedAgencyDetails({
                                         <AgencyDashboard selectedAgency={selectedUser} />
                                     </div>
                                 ) : selectedManu.name == "Integrations" ? (
-                                    "Integrations"
+                                    <AgencyIntegrations selectedAgency={selectedUser} />
                                 ) : selectedManu.name == "Plans" ? (
                                     <div className='flex flex-col items-center w-full'>
                                         <DashboardPlans selectedAgency={selectedUser} />

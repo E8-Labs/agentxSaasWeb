@@ -7,7 +7,7 @@ import { CircularProgress, Switch } from '@mui/material'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-const Integrations = () => {
+const Integrations = ({ selectedAgency }) => {
 
     const [allowUpSellPhone, setAllowUpSellPhone] = useState(false);
     const [addUpSellPhone, setAddUpSellPhone] = useState(false);
@@ -99,7 +99,7 @@ const Integrations = () => {
                 }}
             />
 
-            
+
 
             <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-11/12 mt-6'>
                 <div className='flex flex-row item-center gap-2'>
@@ -210,6 +210,7 @@ const Integrations = () => {
                     setHotReloadTrustProducts={setHotReloadTrustProducts}
                     removeTrustHubData={removeTrustHubData}
                     setRemoveTrustHubData={setRemoveTrustHubData}
+                    selectedUser={selectedAgency}
                 />
             </div>
 
