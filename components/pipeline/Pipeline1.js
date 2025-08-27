@@ -305,6 +305,7 @@ const Pipeline1 = ({ handleContinue }) => {
           newRow.emailAccountId = templateData.emailAccountId;
         } else if (action === "sms") {
           newRow.templateId = templateData.templateId;
+          newRow.phone = templateData.phone
         }
       }
 

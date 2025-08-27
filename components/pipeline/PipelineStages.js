@@ -25,7 +25,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
-import { getTempletes } from "./TempleteServices";
+import { getA2PNumbers, getTempletes } from "./TempleteServices";
 import EmailTempletePopup from "./EmailTempletePopup";
 import SMSTempletePopup from "./SMSTempletePopup";
 import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
@@ -225,7 +225,7 @@ const PipelineStages = ({
 
   const getNumbers = async () => {
     setPhoneLoading(true)
-    let num = await getAvailabePhoneNumbers()
+    let num = await getA2PNumbers()
     if (num) {
       setPhoneNumbers(num)
     }

@@ -8,8 +8,8 @@ export const getTempletes = async (type) => {
         let token = AuthToken()
         // console.log('token', token)
         let path = Apis.templets
-        if(type){
-            path = path +  "?communicationType=" + type
+        if (type) {
+            path = path + "?communicationType=" + type
         }
         console.log('path', path)
 
@@ -21,6 +21,30 @@ export const getTempletes = async (type) => {
 
         if (response) {
             console.log('response of get templetes', response)
+            return response.data.data
+        }
+    } catch (e) {
+        console.log('error in get templetes', e)
+    }
+}
+
+
+export const getA2PNumbers = async() => {
+    try {
+        let token = AuthToken()
+        // console.log('token', token)
+        let path = Apis.a2pNumbers
+       
+        console.log('path', path)
+
+        const response = await axios.get(path, {
+            headers: {
+                "Authorization": "Bearer " + token,
+            }
+        })
+
+        if (response) {
+            console.log('response of get a2p verified numbers', response)
             return response.data.data
         }
     } catch (e) {
@@ -105,7 +129,7 @@ export const createTemplete = async (data) => {
 }
 
 
-export const updateTemplete = async (data,tempId) => {
+export const updateTemplete = async (data, tempId) => {
     try {
         let token = AuthToken()
         console.log('data', data)
@@ -217,7 +241,7 @@ export const connectGmailAccount = async (data) => {
             accessToken: data.access_token,
             refreshToken: data.refresh_token,
             scope: Scopes.join(" "),
-            expiryDate:  Date.now() + (data.expires_in * 1000)
+            expiryDate: Date.now() + (data.expires_in * 1000)
         }
 
         console.log('apiData', apiData)

@@ -39,7 +39,7 @@ function SMSTempletePopup({
     }, [open])
 
     // Check if save button should be disabled
-    const isSaveDisabled = !body?.trim() || saveSmsLoader
+    const isSaveDisabled = !body?.trim() || saveSmsLoader || !selectedPhone
 
 
     // Auto-fill form when editing
@@ -106,6 +106,7 @@ function SMSTempletePopup({
                     addRow({
                         templateId: createdTemplate.id,
                         communicationType: 'sms',
+                        phone:selectedPhone
                     });
                 }
 
@@ -183,7 +184,7 @@ function SMSTempletePopup({
                                     value={selectedPhone || ""}
                                     onChange={(event) => handleSelect(event.target.value)}
                                     displayEmpty // Enables placeholder
-                                    renderValue={(selected) => selected?.phoneNumber || <div style={{ color: "#aaa" }}>Select Number</div>}
+                                    renderValue={(selected) => selected || <div style={{ color: "#aaa" }}>Select Number</div>}
                                     sx={{
                                         ...styles.dropdownMenu,
                                         backgroundColor: "#FFFFFF",
@@ -212,7 +213,7 @@ function SMSTempletePopup({
                                                 <div className='flex flex-row items-center gap-2'>
 
                                                     <div className='text-[15] font-[500] w-48'>
-                                                        {item.phoneNumber}
+                                                        {item}
                                                     </div>
                                                 </div>
 

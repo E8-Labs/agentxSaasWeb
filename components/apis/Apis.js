@@ -233,6 +233,7 @@ const Apis = {
   templets : `${BasePath}api/templates`,
   gmailAccount :`${BasePath}api/mail/accounts`,
   connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
+  a2pNumbers :`${BasePath}api/agent/getA2PVerifiedNumbers`
 };
 
 export default Apis;
