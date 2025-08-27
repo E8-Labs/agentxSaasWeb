@@ -24,6 +24,7 @@ import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
 import DashboardPlans from '@/components/agency/plan/DashboardPlans'
 import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
 import AgencyIntegrations from '@/components/agency/dashboard/AgencyIntegrations'
+import Teams from '@/components/dashboard/teams/Teams'
 
 function SelectedAgencyDetails({
     selectedUser,
@@ -491,7 +492,7 @@ function SelectedAgencyDetails({
                                 ) : selectedManu.name == "Call Logs" ? (
                                     <AdminDashboardCallLogs selectedAgency={selectedUser} />
                                 ) : selectedManu.name == "Teams" ? (
-                                    "Teams"
+                                    <Teams agencyData={selectedAgency} selectedAgency={selectedUser} />
                                 ) : selectedManu.name == "Account" ? (
                                     "Account"
                                 ) : (

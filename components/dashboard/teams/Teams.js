@@ -24,7 +24,8 @@ import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Teams({
-  agencyData
+  agencyData,
+  selectedAgency
 }) {
   const timerRef = useRef(null);
   const router = useRouter();
@@ -139,6 +140,10 @@ function Teams({
 
         let path = Apis.getTeam;
         // //console.log
+        if (selectedAgency) {
+          path = path + `?userId=${selectedAgency.id}`
+        }
+        console.log("Api path for dashboard monthly plans api is", path)
 
         const response = await axios.get(path, {
           headers: {
@@ -207,6 +212,10 @@ function Teams({
         }
 
         let path = Apis.inviteTeamMember;
+        if (selectedAgency) {
+          path = path + `?userId=${selectedAgency.id}`
+        }
+        console.log("Api path for dashboard monthly plans api is", path);
 
         let apidata = {
           name: item.name,
@@ -394,6 +403,10 @@ function Teams({
 
         let path = Apis.deleteTeamMember;
         // //console.log;
+        if (selectedAgency) {
+          path = path + `?userId=${selectedAgency.id}`
+        }
+        console.log("Api path for dashboard monthly plans api is", path);
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: "Bearer " + u.token,
