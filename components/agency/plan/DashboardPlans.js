@@ -347,7 +347,7 @@ function DashboardPlans({
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Plans: {plansList.length ? plansList.length : 0}
+                        Total Plans: {plansList?.length ? plansList.length : 0}
                     </div>
 
                     <button
