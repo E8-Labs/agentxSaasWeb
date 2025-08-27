@@ -13,7 +13,9 @@ import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmation
 import { CheckStripe } from '../agencyServices/CheckAgencyData';
 
 
-function DashboardPlans() {
+function DashboardPlans({
+    selectedAgency
+}) {
 
     const [moreDropdown, setmoreDropdown] = useState(null);
 
@@ -184,7 +186,11 @@ function DashboardPlans() {
                 console.log("Plans list is", JSON.parse(localPlans));
             } //else {
             const Token = AuthToken();
-            const ApiPath = Apis.getMonthlyPlan
+            let ApiPath = Apis.getMonthlyPlan;
+            if (selectedAgency) {
+                ApiPath = ApiPath + `?useerId=${selectedAgency.id}`
+            }
+            console.log("Api path for dashboard monthly plans api is", ApiPath)
             const response = await axios.get(ApiPath,
                 {
                     headers: {
@@ -218,7 +224,11 @@ function DashboardPlans() {
                 setPlansList(JSON.parse(localXbarPlans));
             } //else {
             const Token = AuthToken();
-            const ApiPath = Apis.getXBarOptions
+            const ApiPath = Apis.getXBarOptions;
+            if (selectedAgency) {
+                ApiPath = ApiPath + `?useerId=${selectedAgency.id}`
+            }
+            console.log("Api path for dashboard monthly plans api is", ApiPath);
             const response = await axios.get(ApiPath,
                 {
                     headers: {
@@ -337,7 +347,7 @@ function DashboardPlans() {
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Plans: {plansList.length || 0}
+                        Total Plans: {plansList.length ? plansList.length : 0}
                     </div>
 
                     <button
@@ -446,12 +456,12 @@ function DashboardPlans() {
                                                             key={item.id}
                                                             // style={{ cursor: "pointer" }}
                                                             className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
-                                                            // onClick={() => {
-                                                            //     setmoreDropdown(
-                                                            //         moreDropdown === item.id ? null : item.id
-                                                            //     );
-                                                            //     setSelectedPlan(selectedPlan === item ? null : item);
-                                                            // }}
+                                                        // onClick={() => {
+                                                        //     setmoreDropdown(
+                                                        //         moreDropdown === item.id ? null : item.id
+                                                        //     );
+                                                        //     setSelectedPlan(selectedPlan === item ? null : item);
+                                                        // }}
                                                         >
                                                             <div
                                                                 className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"

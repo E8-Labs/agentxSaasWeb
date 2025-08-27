@@ -21,6 +21,7 @@ import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 import ResetTrial from '../../users/ResetTrial'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
+import DashboardPlans from '@/components/agency/plan/DashboardPlans'
 
 function SelectedAgencyDetails({
     selectedUser,
@@ -480,7 +481,9 @@ function SelectedAgencyDetails({
                                 ) : selectedManu.name == "Integrations" ? (
                                     "Integrations"
                                 ) : selectedManu.name == "Plans" ? (
-                                    "Plans"
+                                    <div className='flex flex-col items-center w-full'>
+                                        <DashboardPlans selectedAgency={selectedUser} />
+                                    </div>
                                 ) : selectedManu.name == "Sub Account" ? (
                                     "Sub Account"
                                 ) : selectedManu.name == "Call Logs" ? (
