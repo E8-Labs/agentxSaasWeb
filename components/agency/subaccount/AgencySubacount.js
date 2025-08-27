@@ -24,7 +24,9 @@ import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 import { CheckStripe } from "../agencyServices/CheckAgencyData";
 
 
-function AgencySubacount() {
+function AgencySubacount({
+  selectedAgency
+}) {
   const [subAccountList, setSubAccountsList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [moreDropdown, setmoreDropdown] = useState(null);
@@ -135,7 +137,11 @@ function AgencySubacount() {
     console.log("Trigered get subaccounts");
     try {
       setInitialLoader(true);
-      const ApiPAth = Apis.getAgencySubAccount;
+      let ApiPAth = Apis.getAgencySubAccount;
+      if (selectedAgency) {
+        ApiPAth = ApiPAth + `?userId=${selectedAgency.id}`
+      }
+      console.log("Api path for dashboard monthly plans api is", ApiPAth)
       const Token = AuthToken();
       // console.log(Token);
       const response = await axios.get(ApiPAth, {

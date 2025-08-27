@@ -188,7 +188,7 @@ function DashboardPlans({
             const Token = AuthToken();
             let ApiPath = Apis.getMonthlyPlan;
             if (selectedAgency) {
-                ApiPath = ApiPath + `?useerId=${selectedAgency.id}`
+                ApiPath = ApiPath + `?userId=${selectedAgency.id}`
             }
             console.log("Api path for dashboard monthly plans api is", ApiPath)
             const response = await axios.get(ApiPath,
@@ -226,7 +226,7 @@ function DashboardPlans({
             const Token = AuthToken();
             const ApiPath = Apis.getXBarOptions;
             if (selectedAgency) {
-                ApiPath = ApiPath + `?useerId=${selectedAgency.id}`
+                ApiPath = ApiPath + `?userId=${selectedAgency.id}`
             }
             console.log("Api path for dashboard monthly plans api is", ApiPath);
             const response = await axios.get(ApiPath,

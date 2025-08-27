@@ -22,6 +22,7 @@ import ResetTrial from '../../users/ResetTrial'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
 import DashboardPlans from '@/components/agency/plan/DashboardPlans'
+import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
 
 function SelectedAgencyDetails({
     selectedUser,
@@ -485,7 +486,7 @@ function SelectedAgencyDetails({
                                         <DashboardPlans selectedAgency={selectedUser} />
                                     </div>
                                 ) : selectedManu.name == "Sub Account" ? (
-                                    "Sub Account"
+                                    <AgencySubacount selectedAgency={selectedUser} />
                                 ) : selectedManu.name == "Call Logs" ? (
                                     "Call Logs"
                                 ) : selectedManu.name == "Teams" ? (
