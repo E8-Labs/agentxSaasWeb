@@ -66,6 +66,7 @@ function DashboardPlans({
             // setInitialLoader(true);
             getMonthlyPlan();
         } else if (planType === "Xbar") {
+            console.log("should triger xbar plaans api")
             getXBarOptions()
         }
     }, [planType]);
@@ -216,6 +217,7 @@ function DashboardPlans({
     //code to get the XBar Options
     const getXBarOptions = async () => {
         try {
+            console.log("trigered xbar plaans api")
             setInitialLoader(true);
             const localXbarPlans = localStorage.getItem("XBarOptions");
             if (localXbarPlans) {
@@ -223,8 +225,9 @@ function DashboardPlans({
                 console.log(d);
                 setPlansList(JSON.parse(localXbarPlans));
             } //else {
+            console.log("Passed here 1")
             const Token = AuthToken();
-            const ApiPath = Apis.getXBarOptions;
+            let ApiPath = Apis.getXBarOptions;
             if (selectedAgency) {
                 ApiPath = ApiPath + `?userId=${selectedAgency.id}`
             }
@@ -245,7 +248,7 @@ function DashboardPlans({
             // }
         } catch (error) {
             setInitialLoader(false);
-            console.error("Error occured in getting XBar Option is", error);
+            console.log("Error occured in getting XBar Option is", error.message);
         } finally {
             setInitialLoader(false);
             console.log("data recieved");
@@ -283,7 +286,10 @@ function DashboardPlans({
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
-                }
+                },
+                data: {
+                    userId: selectedAgency.id,
+                },
             });
 
             if (response) {
@@ -633,6 +639,7 @@ function DashboardPlans({
                             agencyPlanCost={agencyPlanCost}
                             isEditPlan={isEditPlan}
                             selectedPlan={selectedPlan}
+                            selectedAgency={selectedAgency}
                         /> :
                         <AddXBarPlan
                             open={open}

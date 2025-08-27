@@ -212,15 +212,13 @@ function Teams({
         }
 
         let path = Apis.inviteTeamMember;
-        if (selectedAgency) {
-          path = path + `?userId=${selectedAgency.id}`
-        }
         console.log("Api path for dashboard monthly plans api is", path);
 
         let apidata = {
           name: item.name,
           email: item.email,
           phone: item.phone,
+          userId: selectedAgency.id
         };
 
         // //console.log;
@@ -379,6 +377,13 @@ function Teams({
       phone: phoneNumber,
     };
 
+    if (selectedAgency) {
+      apidata = {
+        ...apidata,
+        userId: selectedAgency.id
+      }
+    }
+
     // //console.log;
     // return;
 
@@ -403,9 +408,6 @@ function Teams({
 
         let path = Apis.deleteTeamMember;
         // //console.log;
-        if (selectedAgency) {
-          path = path + `?userId=${selectedAgency.id}`
-        }
         console.log("Api path for dashboard monthly plans api is", path);
         const response = await axios.post(path, apidata, {
           headers: {
@@ -414,6 +416,7 @@ function Teams({
         });
 
         if (response) {
+          console.log("Response of add team api is", response);
           setInviteTeamLoader(false);
           if (response.data.status === true) {
             // Defensive: filter out team member by id, but handle possible null/undefined
