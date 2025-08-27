@@ -30,7 +30,9 @@ import axios from "axios";
 import Apis from "@/components/apis/Apis";
 import moment from "moment";
 
-function AgencySubscriptions() {
+function AgencySubscriptions({
+  selectedAgency
+}) {
   // const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   let manu = [
     {
@@ -209,7 +211,7 @@ function AgencySubscriptions() {
       if (data) {
         let u = JSON.parse(data);
 
-        console.log(u.token);
+        // console.log(u.token);
 
         let path = Apis.AdminAnalytics;
         if (customeRange) {
@@ -218,21 +220,9 @@ function AgencySubscriptions() {
             subscriptionStartDate +
             "&endDate=" +
             subscriptionEndDate
-
-
-          // "?subscriptionStartDate=" +
-          // subscriptionStartDate +
-          // "&subscriptionEndDate=" +
-          // subscriptionEndDate +
-          // "&planStartDate=" +
-          // planStartDate +
-          // "&planEndDate=" +
-          // planEndDate +
-          // subscriptionEndDate +
-          // "&subscriptionUpgradeStartDate=" +
-          // upgradeStartDate +
-          // "&subscriptionUpgradeEndDate=" +
-          // upgradeEndDate;
+        }
+        if (selectedAgency) {
+          path = path + `?userId=${selectedAgency.id}`
         }
 
         console.log("Api path is ", path);

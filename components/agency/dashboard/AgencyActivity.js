@@ -44,7 +44,10 @@ const data = [
   { name: "May", users: 6000 },
 ];
 
-function AgencyActivity({ user }) {
+function AgencyActivity({
+  user,
+  selectedAgency
+}) {
   const [stats, setStats] = useState(null);
   const [showAllVoices, setShowAllVoices] = useState(false);
   const [showAllUsersWithUniqueNumbers, setShowAllUsersWithUniqueNumbers] =
@@ -73,10 +76,16 @@ function AgencyActivity({ user }) {
   const fetchAdminStats = async () => {
     try {
       const token = user.token; // Extract JWT token
-
+      console.log("Agency id passed is", selectedAgency);
       // console.log('trying to get states',token)
+      let ApiPath = "/api/admin/stats"
+      if (selectedAgency) {
+        ApiPath = ApiPath + `userId=${selectedAgency.id}`
+      }
 
-      const response = await fetch("/api/admin/stats", {
+      console.log("Api path for get activity is", ApiPath);
+
+      const response = await fetch(ApiPath, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -85,6 +94,7 @@ function AgencyActivity({ user }) {
       });
 
       const data = await response.json();
+      console.log("Data of get activity api is", data)
 
       if (response.ok) {
         console.log(data.stats.data)
@@ -142,7 +152,7 @@ function AgencyActivity({ user }) {
               </div>
             )}
           {(
-             count == "" || 
+            count == "" ||
             percentage == "") && (
               <div className="cursor-pointer flex flex-col mr-2 items-end">
                 <h2
@@ -154,11 +164,11 @@ function AgencyActivity({ user }) {
                   }}
                 >
                   {count == "" ? percentage : count}
-                {count == "" ? "%" : ""}
+                  {count == "" ? "%" : ""}
                 </h2>
                 <p className="cursor-pointer text-gray-500 text-lg">
-                {percentage}%
-              </p>
+                  {percentage}%
+                </p>
               </div>
             )}
         </div>
@@ -263,7 +273,7 @@ function AgencyActivity({ user }) {
         onClose={() => {
           setShowAllUsersWithAgents(false);
         }}
-         from = "agency"
+        from="agency"
       />
 
       <UsersWithPipelines
@@ -272,7 +282,7 @@ function AgencyActivity({ user }) {
         onClose={() => {
           setShowAllUsersWithPipelines(false);
         }}
-         from = "agency"
+        from="agency"
       />
 
       <UsersWithTeam
@@ -281,7 +291,7 @@ function AgencyActivity({ user }) {
         onClose={() => {
           setShowAllUsersWithTeam(false);
         }}
-         from = "agency"
+        from="agency"
       />
 
       <UsersWithLeads
@@ -290,7 +300,7 @@ function AgencyActivity({ user }) {
         onClose={() => {
           setShowAllUsersWithLeads(false);
         }}
-        from = "agency"
+        from="agency"
       />
 
       <UsersWithCalender
@@ -299,7 +309,7 @@ function AgencyActivity({ user }) {
         onClose={() => {
           setShowAllUsersWithCalender(false);
         }}
-         from = "agency"
+        from="agency"
       />
 
       {/*  Voices  */}
@@ -315,7 +325,7 @@ function AgencyActivity({ user }) {
           onViewUniqueNumbers={() => {
             setShowAllUsersWithUniqueNumbers(true);
           }}
-           from = "agency"
+          from="agency"
         />
       </div>
       {/* </div> */}
@@ -441,7 +451,7 @@ function VoicesComponent({
   function GetVoiceCard(index = 0) {
     const voice = voiceIds?.[index];
 
-  if (!voice || !voice.voiceId) return null;
+    if (!voice || !voice.voiceId) return null;
 
     let color = "bg-green-500/80";
     if (index == 1) {
@@ -487,7 +497,7 @@ function VoicesComponent({
           <h2 className="cursor-pointer text-2xl font-regular">Voices</h2>
         </CardContent>
       </Card>
-      
+
       {GetVoiceCard(0)}
       {GetVoiceCard(1)}
       {GetVoiceCard(2)}

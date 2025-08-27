@@ -59,7 +59,7 @@ export default function AddXBarPlan({
     if (originalPrice && minutes) {
       const P = originalPrice / minutes;
       console.log("Calculated price is", P);
-      if (P <= agencyPlanCost) {
+      if (P < agencyPlanCost) {
         const cal = originalPrice * minutes;
         setMinCostErr(true);
         // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
