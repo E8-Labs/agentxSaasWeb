@@ -39,6 +39,8 @@ import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { checkCurrentUserRole } from "@/components/constants/constants";
+import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
+import DashboardSlider from "@/components/animations/DashboardSlider";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -175,6 +177,9 @@ const ProfileNav = () => {
   const [addPaymentPopUp, setAddPaymentPopup] = useState(false);
   const [showUpgradePlanBar, setShowUpgradePlanBar] = useState(false)
   const [showFailedPaymentBar, setShowFailedPaymentBar] = useState(false)
+  const [showAssignBanner, setShowAssignBanner] = useState(false)
+  const [bannerProgress, setBannerProgress] = useState(0);
+
 
   //walkthroughWatched popup
   // useEffect(() => {
@@ -282,6 +287,9 @@ const ProfileNav = () => {
       });
     }
   }, []);
+
+
+
 
 
   //useeffect that redirect the user back to the main screen for mobile view
@@ -431,6 +439,50 @@ const ProfileNav = () => {
 
     return () => {
       window.removeEventListener("UpdateProfile", handleUpdateProfile); // Clean up
+    };
+  }, []);
+
+
+  const simulateProgress = () => {
+    let progress = 0;
+    setBannerProgress(progress);
+
+    const interval = setInterval(() => {
+      progress += 5;
+
+      if (progress >= 90) {
+        clearInterval(interval); // stop auto increment at 90%
+        setBannerProgress(90);
+      } else {
+        setBannerProgress(progress);
+      }
+    }, 1000); // every 1 second
+  };
+
+  useEffect(() => {
+    const handleOpenBanner = (event) => {
+      setShowAssignBanner(true)
+      simulateProgress()
+    };
+
+    window.addEventListener(PersistanceKeys.AssigningLeads, handleOpenBanner);
+
+    return () => {
+      window.removeEventListener(PersistanceKeys.AssigningLeads, handleOpenBanner); // Clean up
+    };
+  }, []);
+
+
+  useEffect(() => {
+    const handleCloseBanner = (event) => {
+      setShowAssignBanner(false)
+      setBannerProgress(100)
+    };
+
+    window.addEventListener(PersistanceKeys.LeadsAssigned, handleCloseBanner);
+
+    return () => {
+      window.removeEventListener(PersistanceKeys.LeadsAssigned, handleCloseBanner); // Clean up
     };
   }, []);
 
@@ -1010,6 +1062,7 @@ const ProfileNav = () => {
                   Payment Method
                 </span>.
               */}
+
             </div>
           )
         }
@@ -1174,6 +1227,28 @@ const ProfileNav = () => {
                 </div>
               </div>
             </Link>
+
+
+            {
+              !showAssignBanner && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    bottom: 0
+                  }}>
+                  <DashboardSlider
+                    needHelp={false} />
+                </div>
+              )
+            }
+
+
+            <LeadProgressBanner
+              title="Assigning Leads"
+              uploading={showAssignBanner}
+              uploadProgress={bannerProgress}
+            />
           </div>
         </div>
 

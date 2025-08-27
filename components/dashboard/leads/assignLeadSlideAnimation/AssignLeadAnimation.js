@@ -9,6 +9,7 @@ import axios from "axios";
 import dayjs from "dayjs";
 import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -130,12 +131,7 @@ export default function AssignLeadAnimation({
             );
             // setSelectedDateTime(selectedDate);
         } else {
-            //console.log;
-            // setInvalidTimeMessage(
-            //   "Calls only between 7am-8:30pm"
-            //   // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
-            // );
-            // return;
+
         }
 
         // return;
@@ -210,12 +206,34 @@ export default function AssignLeadAnimation({
 
             // //console.log;
 
+            window.dispatchEvent(
+                new CustomEvent(PersistanceKeys.AssigningLeads, {
+                    detail: {
+                        uploading: true
+                    }
+                })
+            );
+            setTimeout(() => {
+                handleClose({
+                  status: false,
+                  showSnack: "Lead assigned",
+                  disSelectLeads: true,
+                });
+                resetValues();
+              }, 3000);
+
+            //   return
+            
+
             const response = await axios.post(ApiPath, Apidata, {
                 headers: {
                     Authorization: "Bearer " + AuthToken,
                     "Content-Type": "application/json",
                 },
+                timeout: 120000, //  Set timeout to 2 minutes (in milliseconds)
             });
+
+
 
             const endTime = Date.now(); // record end time
             const duration = endTime - startTime; // in milliseconds
@@ -247,6 +265,16 @@ export default function AssignLeadAnimation({
                 // //console.log;
                 setCurrentIndex(0);
                 if (response.data.status === true) {
+
+
+                    window.dispatchEvent(
+                        new CustomEvent(PersistanceKeys.LeadsAssigned, {
+                            detail: {
+                                uploading: true
+                            }
+                        })
+                    );
+
                     handleClose({
                         status: false,
                         showSnack: "Lead assigned",

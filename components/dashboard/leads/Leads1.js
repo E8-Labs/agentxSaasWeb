@@ -933,17 +933,17 @@ const Leads1 = () => {
         />
 
         {
-          !uploading && (
-            <div
-              style={{
-                position: "absolute",
-                right: 0,
-                bottom: 0
-              }}>
-              <DashboardSlider
-                needHelp={false} />
-            </div>
-          )
+          // !uploading && (
+            // <div
+            //   style={{
+            //     position: "absolute",
+            //     right: 0,
+            //     bottom: 0
+            //   }}>
+            //   <DashboardSlider
+            //     needHelp={false} />
+            // </div>
+          // )
         }
 
         {/* <EnrichConfirmModal /> */}
