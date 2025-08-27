@@ -19,7 +19,8 @@ export default function AddMonthlyPlan({
   canAddPlan,
   agencyPlanCost,
   isEditPlan,
-  selectedPlan
+  selectedPlan,
+  selectedAgency
 }) {
 
   //auto scroll to bottom
@@ -157,6 +158,9 @@ export default function AddMonthlyPlan({
       formData.append("planDescription", planDescription);
       formData.append("originalPrice", originalPrice);//replaced
       formData.append("discountedPrice", discountedPrice * minutes);
+      if (selectedAgency) {
+        formData.append("userId", selectedAgency.id);
+      }
       if (originalPrice > 0) {
         const disCountPercentag = ((originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
           100).toFixed(2);
@@ -242,7 +246,9 @@ export default function AddMonthlyPlan({
       formData.append("trialMinutes", "23");
       formData.append("tag", tag);
       formData.append("minutes", minutes);
-
+      if (selectedAgency) {
+        formData.append("userId", selectedAgency.id);
+      }
       for (let [key, value] of formData.entries()) {
         console.log(`${key} = ${value}`);
       }

@@ -102,6 +102,7 @@ function AgencySubacount({
   //code to check plans before creating subaccount
   const handleCheckPlans = async () => {
     try {
+      //pass the selectedAgency id to check the status
       const monthlyPlans = await getMonthlyPlan();
       const xBarOptions = await getXBarOptions();
       const stripeStatus = CheckStripe();

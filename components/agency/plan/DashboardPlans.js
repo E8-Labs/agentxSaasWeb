@@ -86,7 +86,13 @@ function DashboardPlans({
 
     //handle add new plan click
     const handleAddPlan = () => {
-        const getStripe = CheckStripe();
+        let getStripe = null;
+        if (selectedAgency) {
+            getStripe = selectedAgency?.canAcceptPaymentsAgencyccount
+        } else {
+            getStripe = CheckStripe();
+        }
+        console.log("Status of stripe is", getStripe);
         if (!getStripe) {
             console.log("Show stripe warning ⚠️");
             setSnackMsg("Stripe needs to be connected");
@@ -648,6 +654,7 @@ function DashboardPlans({
                             agencyPlanCost={agencyPlanCost}
                             isEditPlan={isEditPlan}
                             selectedPlan={selectedPlan}
+                            selectedAgency={selectedAgency}
                         />
                 }
 
