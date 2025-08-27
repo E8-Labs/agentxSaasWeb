@@ -214,15 +214,19 @@ function AgencySubscriptions({
         // console.log(u.token);
 
         let path = Apis.AdminAnalytics;
+        let seperator = "?"
         if (customeRange) {
           path =
-            path + "?startDate=" +
+            path +seperator+ "startDate=" +
             subscriptionStartDate +
             "&endDate=" +
-            subscriptionEndDate
+            subscriptionEndDate;
+
+             seperator = "&"
+           
         }
         if (selectedAgency) {
-          path = path + `?userId=${selectedAgency.id}`
+          path = path + seperator +`userId=${selectedAgency.id}`
         }
 
         console.log("Api path is ", path);

@@ -79,8 +79,10 @@ function AgencyActivity({
       console.log("Agency id passed is", selectedAgency);
       // console.log('trying to get states',token)
       let ApiPath = "/api/admin/stats"
+      let seperator = "?"
       if (selectedAgency) {
-        ApiPath = ApiPath + `userId=${selectedAgency.id}`
+        ApiPath = ApiPath + seperator+ `userId=${selectedAgency.id}`
+        seperator = "&"
       }
 
       console.log("Api path for get activity is", ApiPath);
