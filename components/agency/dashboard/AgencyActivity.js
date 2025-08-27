@@ -78,7 +78,7 @@ function AgencyActivity({
       const token = user.token; // Extract JWT token
       console.log("Agency id passed is", selectedAgency);
       // console.log('trying to get states',token)
-      let ApiPath = "/api/admin/stats"
+      let ApiPath = Apis.adminStats
       let seperator = "?"
       if (selectedAgency) {
         ApiPath = ApiPath + seperator+ `userId=${selectedAgency.id}`
@@ -87,21 +87,17 @@ function AgencyActivity({
 
       console.log("Api path for get activity is", ApiPath);
 
-      const response = await fetch(ApiPath, {
-        method: "GET",
+      const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
       });
 
-      const data = await response.json();
-      console.log("Data of get activity api is", data)
-
-      if (response.ok) {
-        console.log(data.stats.data)
-        setStats(data.stats.data);
-        console.log('stats data is', data.stats.data)
+      if (response.data) {
+        let data = response.data.data
+        console.log(data)
+        setStats(data);
+        console.log('stats data is', data)
       } else {
         console.error("Failed to fetch admin stats:", data.error);
       }
