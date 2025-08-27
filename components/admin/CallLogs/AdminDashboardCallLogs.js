@@ -32,7 +32,7 @@ import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
 import { PersistanceKeys } from "@/constants/Constants";
 
-function AdminDashboardCallLogs({ }) {
+function AdminDashboardCallLogs({ selectedAgency }) {
   const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");
@@ -146,7 +146,7 @@ function AdminDashboardCallLogs({ }) {
         if (C.length < LimitPerPage) {
           setHasMore(false);
         }
-      getCallLogs(0)
+        getCallLogs(0)
 
       }
       else {
@@ -300,7 +300,7 @@ function AdminDashboardCallLogs({ }) {
         } else {
           calls = [...callDetails, ...data];
         }
-        
+
         console.log('calls', calls)
         setCallDetails(calls);
         setFilteredCallDetails(calls);

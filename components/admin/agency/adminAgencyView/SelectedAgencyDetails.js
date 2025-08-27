@@ -488,7 +488,7 @@ function SelectedAgencyDetails({
                                 ) : selectedManu.name == "Sub Account" ? (
                                     <AgencySubacount selectedAgency={selectedUser} />
                                 ) : selectedManu.name == "Call Logs" ? (
-                                    "Call Logs"
+                                    <AdminDashboardCallLogs selectedAgency={selectedUser} />
                                 ) : selectedManu.name == "Teams" ? (
                                     "Teams"
                                 ) : selectedManu.name == "Account" ? (
