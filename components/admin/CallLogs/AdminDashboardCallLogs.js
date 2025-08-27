@@ -253,10 +253,15 @@ function AdminDashboardCallLogs({ selectedAgency }) {
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
+     
       if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
         ApiPath = `${Apis.adminCallLogs}?offset=${offset}`; //Apis.getCallLogs;
+      }
+
+      if(selectedAgency){
+        ApiPath = ApiPath+"&userId="+selectedAgency.id
       }
       if (searchValue && searchValue.length > 0) {
         ApiPath = `${ApiPath}&name=${searchValue}`;
@@ -272,7 +277,7 @@ function AdminDashboardCallLogs({ selectedAgency }) {
 
       // ApiPath = Apis.adminCallLogs
 
-      //console.log;
+      console.log("apiPath",ApiPath)
 
       //// //console.log;
       // return

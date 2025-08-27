@@ -25,6 +25,7 @@ import DashboardPlans from '@/components/agency/plan/DashboardPlans'
 import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
 import AgencyIntegrations from '@/components/agency/dashboard/AgencyIntegrations'
 import Teams from '@/components/dashboard/teams/Teams'
+import AdminDashboardCallLogs from '../../CallLogs/AdminDashboardCallLogs'
 
 function SelectedAgencyDetails({
     selectedUser,
