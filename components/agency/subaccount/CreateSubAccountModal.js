@@ -187,6 +187,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     //stores smart refill
     const [isSmartRefill, setIsSmartRefill] = useState(true);
 
+    const [allowTwillio,setAllowTwillio] =useState(false)
+
     //show sell seats modal
     useEffect(() => {
         console.log("trigered");
@@ -985,6 +987,23 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                     )
                 }
 
+                <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-medium">Allow Twillio</label>
+                    <Switch
+                        checked={allowTwillio}
+                        sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: 'white',
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: '#7902DF',
+                            },
+                        }}
+                        onChange={(e)=>{
+                            setAllowTwillio(e.target.checked)
+                        }}
+                    />
+                </div>
 
                 <div className="mb-4">
                     <p

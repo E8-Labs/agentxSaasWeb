@@ -27,6 +27,7 @@ export default function AddMonthlyPlan({
   const scrollContainerRef = useRef(null);
 
   const [allowTrial, setAllowTrial] = useState(false);
+  const [isDefault, setIsDefault] = useState(false);
   const [showTrailWarning, setShowTrailWarning] = useState(false);
 
   //for Hamza update the inout fields value storing
@@ -140,7 +141,9 @@ export default function AddMonthlyPlan({
     setSnackMsg(null)
     setSnackMsgType(null)
     setAllowTrial(false)
+    setIsDefault(false)
     setTrialValidForDays("")
+  
   }
 
   //code to create plan
@@ -172,6 +175,7 @@ export default function AddMonthlyPlan({
         );
       }
       formData.append("hasTrial", allowTrial);
+      formData.append("isDefault", isDefault);
       formData.append("trialValidForDays", trialValidForDays);
       formData.append("trialMinutes", "23");
       formData.append("tag", tag);
@@ -242,6 +246,7 @@ export default function AddMonthlyPlan({
         formData.append("percentageDiscount", disCountPercentag);
       }
       formData.append("hasTrial", allowTrial);
+      formData.append("isDefault", isDefault);
       formData.append("trialValidForDays", trialValidForDays);
       formData.append("trialMinutes", "23");
       formData.append("tag", tag);
@@ -298,7 +303,7 @@ export default function AddMonthlyPlan({
 
   //handle allow trial change
   const handleAllowTrialChange = (e) => {
-    if (canAddPlan) {
+    // if (canAddPlan) {
       setAllowTrial(e.target.checked);
       setShowTrailWarning(false);
 
@@ -313,9 +318,9 @@ export default function AddMonthlyPlan({
           }
         }, 100);
       }
-    } else {
-      setShowTrailWarning(true);
-    }
+    // } else {
+    //   setShowTrailWarning(true);
+    // }
   };
 
   // Keep only up to 2 fractional digits; always render as "0.xx"
@@ -695,17 +700,28 @@ export default function AddMonthlyPlan({
                       backgroundColor: '#7902DF',
                     },
                   }}
-                  // onChange={(e) => {
-                  //   if (canAddPlan) {
-                  //     setAllowTrial(e.target.checked);
-                  //     setShowTrailWarning(false);
-                  //   } else {
-                  //     setShowTrailWarning(true);
-                  //   }
-                  // }}
                   onChange={handleAllowTrialChange}
                 />
               </div>
+
+
+              <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium">Default Plan</label>
+              <Switch
+                checked={isDefault}
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: 'white',
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: '#7902DF',
+                  },
+                }}
+                onChange={(e)=>{
+                  setIsDefault(e.target.checked)
+                }}
+              />
+            </div>
 
               {allowTrial && (
                 <>

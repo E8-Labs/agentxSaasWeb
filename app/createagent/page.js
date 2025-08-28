@@ -1,5 +1,6 @@
 "use client";
 
+import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan.js";
 import ErrorBoundary from "@/components/ErrorBoundary.js";
 import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import { PersistanceKeys } from "@/constants/Constants.js";
@@ -51,6 +52,7 @@ const Page = () => {
   ]);
 
   const [windowSize, setWindowSize] = useState(null);
+  const [subAccount, setSubaccount] = useState(null)
 
   let CurrentComp = components[index];
 
@@ -109,29 +111,46 @@ const Page = () => {
           }
         } else {
           if (windowSize < 640) {
-            // setComponents([
-            //   <BuildAgentName />,
-            //   <BuildAgentTask />,
-            //   <BuildAgentObjective />,
-            //   <CreatAgent3 smallTerms={true} />, // pass value here
-            // ]);
-            setComponents([
-              BuildAgentName,
-              BuildAgentTask,
-              BuildAgentObjective,
-              CreatAgent3,
-              // CreateAgent4,
-              // CreateAgentVoice,
-            ]);
+            if (subAccount) {
+              setComponents([
+                BuildAgentName,
+                BuildAgentTask,
+                BuildAgentObjective,
+                SubAccountPlan,
+                // CreateAgent4,
+                // CreateAgentVoice,
+              ]);
+            } else {
+
+              setComponents([
+                BuildAgentName,
+                BuildAgentTask,
+                BuildAgentObjective,
+                CreatAgent3,
+                // CreateAgent4,
+                // CreateAgentVoice,
+              ]);
+            }
             // setIndex(3)
           } else {
-            setComponents([
-              CreateAgent1,
-              CreatAgent3,
-              CreateAgent4,
-              CreateAgentVoice,
-              // setIndex(3)
-            ]);
+            if (subAccount) {
+              setComponents([
+                CreateAgent1,
+                SubAccountPlan,
+                CreateAgent4,
+                CreateAgentVoice,
+                // setIndex(3)
+              ]);
+            }
+            else {
+              setComponents([
+                CreateAgent1,
+                CreatAgent3,
+                CreateAgent4,
+                CreateAgentVoice,
+                // setIndex(3)
+              ]);
+            }
           }
         }
       } else {
@@ -146,6 +165,19 @@ const Page = () => {
     }
 
   }, [windowSize]);
+
+
+  useEffect(() => {
+    checkIsFromOnboarding()
+  }, [])
+
+  const checkIsFromOnboarding = () => {
+    let data = localStorage.getItem(PersistanceKeys.SubaccoutDetails)
+    if (data) {
+      let subAcc = JSON.parse(data)
+      setSubaccount(subAcc)
+    }
+  }
 
   // Function to proceed to the next step
   const handleContinue = () => {

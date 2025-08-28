@@ -15,6 +15,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 import getProfileDetails from "@/components/apis/GetProfile";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
+import { PersistanceKeys } from "@/constants/Constants";
 
 //code for add card
 let stripePublickKey =
@@ -23,7 +24,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-const SubAccountPlan = () => {
+const SubAccountPlan = ({handleContinue}) => {
   const router = useRouter();
 
   const [initialLoader, setInitialLoader] = useState(true);
@@ -39,9 +40,20 @@ const SubAccountPlan = () => {
 
   const [planSubscribed, setPlanSubscribed] = useState(false);
 
+  const [subaccount, setSubaccount] = useState(null)
+
   useEffect(() => {
     getPlans();
+    checkIsFromOnboarding()
   }, []);
+
+  const checkIsFromOnboarding = () => {
+    let data = localStorage.getItem(PersistanceKeys.SubaccoutDetails)
+    if (data) {
+      let subAcc = JSON.parse(data)
+      setSubaccount(subAcc)
+    }
+  }
 
   //check if user can sub plan
   useEffect(() => {
@@ -91,9 +103,9 @@ const SubAccountPlan = () => {
       if (response) {
         console.log(
           "Response of get plans api is",
-          response.data.data.monthlyPlans
+          response
         );
-        setUserPlans(response.data.data.monthlyPlans);
+        setUserPlans(response.data?.data?.monthlyPlans);
         setInitialLoader(false);
       }
     } catch (error) {
@@ -149,8 +161,12 @@ const SubAccountPlan = () => {
           if (D) {
             localStorage.removeItem("fromDashboard");
           }
+          if (subaccount) {
+            handleContinue()
+          }else{
+            router.push("/dashboard");
 
-          router.push("/dashboard");
+          }
         } else if (response.data.status === false) {
           setErrorMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
@@ -287,7 +303,7 @@ const SubAccountPlan = () => {
               </div>
             ) : (
               <div className="max-height-[30vh] overflow-y-auto">
-                {userPlans.length > 0 ? (
+                {userPlans?.length > 0 ? (
                   <div className="mt-4">
                     {userPlans?.map((item) => (
                       <button

@@ -388,20 +388,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           let AT = { agentType, agentName };
           localStorage.setItem("agentType", JSON.stringify(AT));
 
-          // if (LocalDetails.plan) {
-          //    // //console.log
-          //     handleSkipAddPayment();
-          // } else {
-          //    // //console.log
-          // }
-          // window.dispatchEvent(
-          //   new CustomEvent("UpdateProfile", { detail: { update: true } })
-          // );
           const L = localStorage.getItem("isFromCheckList");
-          // if(L){
-          //   const D = JSON.parse(L);
-          //   window.close()
-          // }else{
+
           const localData = localStorage.getItem("User");
           if (localData) {
             let D = JSON.parse(localData);
