@@ -1,7 +1,7 @@
 import axios from "axios";
 import Apis from "./Apis";
 
-const getProfileDetails = async () => {
+const getProfileDetails = async (selectedAgency) => {
   try {
     let Authtoken = null;
     let localDetails = null;
@@ -16,7 +16,11 @@ const getProfileDetails = async () => {
 
     // //console.log;
 
-    const ApiPath = Apis.getProfileData;
+    let ApiPath = Apis.getProfileData;
+
+    // if (selectedAgency) {
+    //   ApiPath = ApiPath + `?userId=${selectedAgency.id}`
+    // }
 
     const response = await axios.get(ApiPath, {
       headers: {
@@ -30,7 +34,9 @@ const getProfileDetails = async () => {
       if (response?.data?.status === true) {
         localDetails.user = response.data.data;
         // console.log("Get profile response is", response.data.data);
-        localStorage.setItem("User", JSON.stringify(localDetails));
+        if (!selectedAgency) {
+          localStorage.setItem("User", JSON.stringify(localDetails));
+        }
         return response;
       }
     }

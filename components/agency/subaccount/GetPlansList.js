@@ -5,10 +5,13 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { AuthToken } from "../plan/AuthDetails";
 
-export const getMonthlyPlan = async () => {
+export const getMonthlyPlan = async (agencyId) => {
     try {
-        const localPlans = localStorage.getItem("agencyMonthlyPlans");
-        console.log("HCheck 1");
+        let localPlans = null;
+        if (!agencyId) {
+            localPlans = localStorage.getItem("agencyMonthlyPlans");
+        }
+        console.log("HCheck 1", agencyId);
         if (localPlans) {
             const P = JSON.parse(localPlans);
             console.log("HCheck 2");
@@ -17,7 +20,10 @@ export const getMonthlyPlan = async () => {
         } else {
             console.log("HCheck 3");
             const Token = AuthToken();
-            const ApiPath = Apis.getMonthlyPlan
+            let ApiPath = Apis.getMonthlyPlan;
+            if (agencyId) {
+                ApiPath = ApiPath + `?userId=${agencyId.id}`
+            }
             const response = await axios.get(ApiPath,
                 {
                     headers: {
@@ -45,21 +51,27 @@ export const getMonthlyPlan = async () => {
 }
 
 //code to get the XBar Options
-export const getXBarOptions = async () => {
+export const getXBarOptions = async (agencyId) => {
     // console.log('trying to get x bar plans')
     try {
         // setInitialLoader(true);
-        const localXbarPlans = localStorage.getItem("XBarOptions");
-        if ( 
-           false //localXbarPlans
+        let localXbarPlans = null;
+        if (!agencyId) {
+            localXbarPlans = localStorage.getItem("XBarOptions");
+        }
+        if (
+            false //localXbarPlans
         ) {
             const d = JSON.parse(localXbarPlans);
             console.log(d);
             return d;
         } else {
             const Token = AuthToken();
-            const ApiPath = Apis.getXBarOptions
-            // console.log('ApiPath', ApiPath)
+            let ApiPath = Apis.getXBarOptions;
+            if (agencyId) {
+                ApiPath = ApiPath + `?userId=${agencyId.id}`
+            }
+            console.log('ApiPath', ApiPath)
 
             const response = await axios.get(ApiPath,
                 {
