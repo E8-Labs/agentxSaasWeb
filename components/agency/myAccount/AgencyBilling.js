@@ -29,7 +29,9 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AgencyBilling() {
+function AgencyBilling({
+  selectedAgency
+}) {
   //stroes user cards list
   const [cards, setCards] = useState([]);
 
@@ -148,7 +150,10 @@ function AgencyBilling() {
     try {
       setInitialLoader(true);
       const Token = AuthToken();
-      const ApiPath = Apis.getPlansForAgency;
+      let ApiPath = Apis.getPlansForAgency;
+      if (selectedAgency) {
+        ApiPath = ApiPath + `?userId=${selectedAgency.id}`
+      }
       const response = await axios.get(ApiPath, {
         headers: {
           "Authorization": "Bearer " + Token,
@@ -193,7 +198,22 @@ function AgencyBilling() {
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
+      let response = null;
+      if (selectedAgency) {
+        const Token = AuthToken();
+        let ApiPath = Apis.getProfileFromId;
+        ApiPath = ApiPath + "?id=" + selectedAgency.id
+
+        //console.log
+
+        response = await axios.get(ApiPath, {
+          headers: {
+            Authorization: "Bearer " + Token,
+          },
+        });
+      } else {
+        response = await getProfileDetails();
+      }
       //console.log;
       if (response) {
         let plan = response?.data?.data?.plan;
@@ -266,7 +286,10 @@ function AgencyBilling() {
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      let ApiPath = Apis.getCardsList;
+      if (selectedAgency) {
+        ApiPath = ApiPath + `?userId=${selectedAgency.id}`
+      }
 
       // //console.log;
 
@@ -450,7 +473,10 @@ function AgencyBilling() {
         AuthToken = LocalDetails.token;
       }
 
-      const ApiPath = Apis.getPaymentHistory;
+      let ApiPath = Apis.getPaymentHistory;
+      if (selectedAgency) {
+        ApiPath = ApiPath + `?userId=${selectedAgency}`
+      }
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -871,8 +897,8 @@ function AgencyBilling() {
         )}
       </div>
 
-        {/* Code for smart refill */}
-        <SmartRefillCard />
+      {/* Code for smart refill */}
+      <SmartRefillCard />
 
       <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
         style={{

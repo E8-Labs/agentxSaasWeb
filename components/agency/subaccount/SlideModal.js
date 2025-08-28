@@ -25,7 +25,8 @@ const boxVariants = {
 
 export default function SlideModal({
     showModal,
-    handleClose
+    handleClose,
+    selectedAgency
 }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
@@ -103,6 +104,7 @@ export default function SlideModal({
                                             handleContinue(formData);
                                             setSubFormData(formData);
                                         }}
+                                        selectedAgency={selectedAgency}
                                     />
                                 </div>
                             </motion.div>
@@ -159,6 +161,7 @@ export default function SlideModal({
                                         setMonthlyPlans(monPlans);
                                     }}
                                     monPlans={monthlyPlans}
+                                    selectedAgency={selectedAgency}
                                 />
                             </motion.div>
                         )}
@@ -187,6 +190,7 @@ export default function SlideModal({
                                         handleCloseModal()
                                     }}
                                     selectedUserType={selectedUser}
+                                    selectedAgency={selectedAgency}
                                 />
                             </motion.div>
                         )}

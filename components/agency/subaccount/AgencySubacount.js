@@ -94,8 +94,11 @@ function AgencySubacount({
     let data = localStorage.getItem("User");
     if (data) {
       let u = JSON.parse(data);
-
-      setAgencyData(u.user);
+      if (selectedAgency) {
+        setAgencyData(selectedAgency);
+      } else {
+        setAgencyData(u.user);
+      }
     }
   };
 
@@ -103,9 +106,14 @@ function AgencySubacount({
   const handleCheckPlans = async () => {
     try {
       //pass the selectedAgency id to check the status
-      const monthlyPlans = await getMonthlyPlan();
-      const xBarOptions = await getXBarOptions();
-      const stripeStatus = CheckStripe();
+      const monthlyPlans = await getMonthlyPlan(selectedAgency);
+      const xBarOptions = await getXBarOptions(selectedAgency);
+      let stripeStatus = null;
+      if (selectedAgency) {
+        stripeStatus = selectedAgency.stripeConnected
+      } else {
+        stripeStatus = CheckStripe();
+      }
 
       if (stripeStatus && monthlyPlans.length > 0 && xBarOptions.length > 0 && agencyData?.isTwilioConnected === true) {
         setShowModal(true);
@@ -673,6 +681,7 @@ function AgencySubacount({
             getSubAccounts();
             setShowModal(false);
           }}
+          selectedAgency={selectedAgency}
         // handleCloseModal={() => { handleCloseModal() }}
         />
 

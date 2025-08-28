@@ -109,7 +109,7 @@ function AdminAgencyDetails() {
                 <div className="w-2/12">
                   <div style={styles.text2}>{item.subAccountsCount}</div>
                 </div>
-                <div className="w-1/12"><div style={styles.text2}>{item.plan}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{item.plan.title}</div></div>
                 <div className="w-1/12"><div style={styles.text2}>${item.totalSpent}</div></div>
                 <div className="w-1/12"><div style={styles.text2}>{item.minutesUsed} min</div></div>
                 <div className="w-1/12"><div style={styles.text2}>{item.renewal}</div></div>
@@ -134,6 +134,7 @@ function AdminAgencyDetails() {
       <Modal
         open={selectedUser ? true : false}
         onClose={() => {
+          localStorage.removeItem("AdminProfileData")
           setSelectedUser(null);
         }}
         BackdropProps={{
@@ -163,9 +164,13 @@ function AdminAgencyDetails() {
               setAgencies((prev) => prev.filter((u) =>
                 u.id != selectedUser.id
               ));
+              localStorage.removeItem("AdminProfileData")
               setSelectedUser(null);
             }}
-            handleClose={() => { setSelectedUser(null); }}
+            handleClose={() => {
+              localStorage.removeItem("AdminProfileData")
+              setSelectedUser(null);
+            }}
             handlePauseUser={(d) => {
               console.log("User paused");
 

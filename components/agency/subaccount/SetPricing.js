@@ -9,7 +9,7 @@ import Image from "next/image";
 
 
 export default function SetPricing({
-    onClose, onContinue, monPlans
+    onClose, onContinue, monPlans, selectedAgency
 }) {
 
     const [monthlyPlans, setMonthlyPlans] = useState([]);
@@ -45,7 +45,7 @@ export default function SetPricing({
     //function to get plans list
     const getPlansList = async () => {
         try {
-            const plans = await getMonthlyPlan();
+            const plans = await getMonthlyPlan(selectedAgency);
             console.log("Plans list recieved is", plans);
             setMonthlyPlans(plans);
         } catch (error) {

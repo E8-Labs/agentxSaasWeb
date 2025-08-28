@@ -10,7 +10,7 @@ import UserType from "@/components/onboarding/UserType";
 
 
 export default function SetXBarOptions({
-    onClose, selectedMonthlyPlans, xBars, formData, closeModal, selectedUserType
+    onClose, selectedMonthlyPlans, xBars, formData, closeModal, selectedUserType, selectedAgency
 }) {
 
     const [xBarPlans, setXBarPlans] = useState([]);
@@ -32,7 +32,7 @@ export default function SetXBarOptions({
     const getPlansList = async () => {
         try {
             setLoading(true)
-            const plans = await getXBarOptions();
+            const plans = await getXBarOptions(selectedAgency);
             setLoading(false)
             console.log("x bar Plans list recieved is", plans);
             setXBarPlans(plans);
@@ -64,7 +64,7 @@ export default function SetXBarOptions({
             }
 
 
-            const ApiData = {
+            let ApiData = {
                 name: formData.subAccountName,
                 phone: formData.userPhoneNumber,
                 email: formData.userEmail,
@@ -83,7 +83,12 @@ export default function SetXBarOptions({
                 smartRefill: formData.isSmartRefill,
 
             }
-
+            if (selectedAgency) {
+                ApiData = {
+                    ...ApiData,
+                    userId: selectedAgency.id
+                }
+            }
             console.log("Api data is", ApiData);
             // return
             const response = await axios.post(ApiPath, ApiData, {

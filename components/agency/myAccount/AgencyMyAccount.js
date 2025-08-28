@@ -19,7 +19,9 @@ import AgencyInviteAgentX from "./AgencyInviteAgentX";
 import AgencyBarServices from "./AgencyBarServices";
 import AgencyBasicInfo from "./AgencyBasicInfo";
 
-function AgencyMyAccount() {
+function AgencyMyAccount({
+  selectedAgency
+}) {
   let searchParams = useSearchParams();
   const router = useRouter();
 
@@ -38,7 +40,7 @@ function AgencyMyAccount() {
       subHeading: "Manage your billing and payment methods",
       icon: "/otherAssets/walletIcon.png",
     },
-    
+
     // {
     //   id: 3,
     //   heading: "Support",
@@ -95,10 +97,10 @@ function AgencyMyAccount() {
 
     switch (tabSelected) {
       case 1:
-        return <AgencyBasicInfo />;
+        return <AgencyBasicInfo selectedAgency={selectedAgency} />;
       case 2:
-        return <AgencyBilling />;
-     
+        return <AgencyBilling selectedAgency={selectedAgency} />;
+
       case 3:
         return <AgencySupport />;
       case 4:

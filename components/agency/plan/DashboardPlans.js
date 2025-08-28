@@ -49,12 +49,16 @@ function DashboardPlans({
             const u = JSON.parse(localData);
             const currentPlanId = u.user?.plan?.planId;
             const agencyPlansList = localStorage.getItem("agencyPlansList");
-            if (agencyPlansList) {
-                const u = JSON.parse(agencyPlansList);
-                const matchedPlan = u.find(plan => plan.id === currentPlanId);
-                console.log("Matched plan is", matchedPlan);
-                if (matchedPlan?.ratePerMin) {
-                    setAgencyPlanCost(matchedPlan?.ratePerMin);
+            if (selectedAgency) {
+                setAgencyPlanCost(selectedAgency.plan.ratePerMin);
+            } else {
+                if (agencyPlansList) {
+                    const u = JSON.parse(agencyPlansList);
+                    const matchedPlan = u.find(plan => plan.id === currentPlanId);
+                    console.log("Matched plan is", matchedPlan);
+                    if (matchedPlan?.ratePerMin) {
+                        setAgencyPlanCost(matchedPlan?.ratePerMin);
+                    }
                 }
             }
         }
@@ -88,7 +92,7 @@ function DashboardPlans({
     const handleAddPlan = () => {
         let getStripe = null;
         if (selectedAgency) {
-            getStripe = selectedAgency?.canAcceptPaymentsAgencyccount
+            getStripe = selectedAgency?.stripeConnected
         } else {
             getStripe = CheckStripe();
         }
