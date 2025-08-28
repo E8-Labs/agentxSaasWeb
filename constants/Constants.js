@@ -42,6 +42,8 @@ export const PersistanceKeys = {
   AssigningLeads:"AssigningLeads",
   LeadsAssigned:"LeadsAssigned",
 
+  SubaccoutDetails:"SubaccoutDetails",
+
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,
   GlobalConsultationUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,
   GlobalWebinarUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalWebinarUrl,

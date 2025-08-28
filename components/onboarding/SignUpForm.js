@@ -27,7 +27,7 @@ import { getLocalLocation } from "./services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 
-const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleShowRedirectPopup }) => {
+const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete, handleShowRedirectPopup }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
@@ -323,6 +323,7 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleS
         setResponse(result);
         setIsVisible(true);
         if (response.data.status === true) {
+
           console.log("[DEBUG] Registration successful, starting affiliate tracking...");
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
@@ -358,7 +359,18 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleS
             //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            router.push("/createagent")
+            let user = response.data.data.user
+            console.log('user', user)
+            // return
+            if (user.userRole === "AgencySubAccount") {
+              localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+                JSON.stringify(response.data.data)
+              )
+            }
+              // router.push("/subaccountInvite/subscribeSubAccountPlan")
+            // } else {
+              router.push("/createagent")
+            // }
           }
         }
       }
