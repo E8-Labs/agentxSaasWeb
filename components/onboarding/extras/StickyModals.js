@@ -255,9 +255,9 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selected
               className="border border-[#00000010] focus:border-purple outline-none rounded-md mt-2 w-full focus:ring-0 focus:outline-none"
             />
           </div>
-          <div className="w-full flex flex-row items-center justify-between mt-4">
+          <div className="w-full flex flex-row items-center justify-between mt-4 gap-2">
             <button
-              className="text-purple w-1/2"
+              className="text-purple w-1/2 p-2 border rounded-md"
               onClick={() => {
                 closeModal();
               }}

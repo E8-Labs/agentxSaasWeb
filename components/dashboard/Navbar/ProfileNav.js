@@ -1252,13 +1252,13 @@ const ProfileNav = () => {
           </div>
         </div>
 
-        {/*
+        {
           (showUpgradePlanBar || showFailedPaymentBar) && (
-            
+            <SnackBarForUpgradePlan
+            />
           )
-        */}
-        <SnackBarForUpgradePlan
-        />
+        }
+
 
       </div>
 
