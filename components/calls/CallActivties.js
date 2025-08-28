@@ -76,7 +76,7 @@ function SheduledCalls({ user }) {
     setAnchorEl(event.currentTarget);
     setSelectedAgent(agent);
     setSelectedItem(item);
-  
+
   };
 
   const handleClosePopup = () => {
@@ -123,9 +123,11 @@ function SheduledCalls({ user }) {
   };
 
   //code to get agents
-  const getScheduledOrOngoingActivityCalls = async () => {
+  const getScheduledOrOngoingActivityCalls = async (offset = 0) => {
     try {
-      setInitialLoader(true);
+      if (offset === 0) {
+        setInitialLoader(true);
+      }
 
       let AuthToken = null;
       const localData = localStorage.getItem("User");
@@ -160,9 +162,25 @@ function SheduledCalls({ user }) {
       if (response) {
         console.log("response is of gat active calls", response.data.data);
 
-        setFilteredAgentsList(response.data.data);
-        setCallDetails(response.data.data);
-        setAgentsList(response.data.data);
+        let newData = response.data.data
+
+        if (offset === 0) {
+
+          setFilteredAgentsList(response.data.data);
+          setCallDetails(response.data.data);
+          setAgentsList(response.data.data);
+        } else {
+          setFilteredAgentsList((prev) => [...prev, ...newData]);
+          setCallDetails((prev) => [...prev, ...newData]);
+          setAgentsList((prev) => [...prev, ...newData]);
+
+        }
+
+        if (newData.length < Limit) {
+          setHasMoreCalls(false);
+        } else {
+          setHasMoreCalls(true);
+        }
       }
     } catch (error) {
       // console.error("Error occured in get Agents api is :", error);
@@ -390,7 +408,7 @@ function SheduledCalls({ user }) {
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
       console.log(
         "Api Call Leads : ",
-       path
+        path
       );
       const response = await fetch(path,
         {
@@ -527,7 +545,7 @@ function SheduledCalls({ user }) {
     }
   }
 
- 
+
 
   // function getAgentNameForActiviti(agent) {
   //   const agents = agent.agents || [];
@@ -694,7 +712,7 @@ function SheduledCalls({ user }) {
               <button
                 className="text-start outline-none"
                 onClick={() => {
-                 handleShowLeads(SelectedAgent,SelectedItem)
+                  handleShowLeads(SelectedAgent, SelectedItem)
                 }}
               >
                 View Details
@@ -741,7 +759,7 @@ function SheduledCalls({ user }) {
             </div>
           </div>
 
-          
+
 
           <div>
             <div
@@ -750,90 +768,110 @@ function SheduledCalls({ user }) {
             >
               {filteredAgentsList.length > 0 ? (
                 <div>
-                  {filteredAgentsList.map((item, index) => {
-                    return (
-                      <div key={index}>
-                        {item.agents.map((agent, index) => {
-                          return (
-                            <div key={index}>
-                              <div
-                                className="w-full flex flex-row items-center justify-between mt-10 px-10"
-                                key={index}
-                              >
-                                <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  {getAgentImageWithMemoji(agent)}
+                  <InfiniteScroll
+                    dataLength={filteredAgentsList.length}
+                    next={() => {
+                      
+                      getScheduledOrOngoingActivityCalls(filteredAgentsList.length);
+                    }}
+                    hasMore={hasMoreCalls}
+                    loader={
+                      <div className="flex justify-center py-4">
+                        <CircularProgress size={30} sx={{ color: "#7902DF" }} />
+                      </div>
+                    }
+                    endMessage={
+                      <p style={{ textAlign: "center", padding: "10px", color: "#00000060" }}>
+                        You’re all caught up
+                      </p>
+                    }
+                    scrollableTarget="scrollableDivMain"
+                  >
+                    {filteredAgentsList.map((item, index) => {
+                      return (
+                        <div key={index}>
+                          {item.agents.map((agent, index) => {
+                            return (
+                              <div key={index}>
+                                <div
+                                  className="w-full flex flex-row items-center justify-between mt-10 px-10"
+                                  key={index}
+                                >
+                                  <div className="w-2/12 flex flex-row gap-4 items-center">
+                                    {getAgentImageWithMemoji(agent)}
 
-                                  <div style={styles.text2}>
-                                    {getAgentNameForActiviti(agent)}
+                                    <div style={styles.text2}>
+                                      {getAgentNameForActiviti(agent)}
+                                    </div>
+                                  </div>
+                                  <div className="w-2/12 ">
+                                    {user.user.userType ==
+                                      UserTypes.RealEstateAgent
+                                      ? `${ToUppercase(
+                                        agent?.agents[0]?.agentObjective
+                                      )}`
+                                      : `${agent?.agents[0]?.agentRole || "Other"
+                                      }`}
+                                  </div>
+                                  <div className="w-1/12">
+                                    <button
+                                      style={styles.text2}
+                                      className="text-purple underline outline-none"
+                                      onClick={(event) => {
+                                        handleShowPopup(event, item, agent);
+                                        // fetchLeadsInBatch(item);
+                                        handleShowLeads(agent, item);
+                                        // setShowDetailsModal(true);
+                                        // setHasMoreCalls(true);
+                                        // fetchCallsInBatch(SelectedItem);
+                                        // handleShowBatchCalls(item, agent, null);
+                                      }}
+                                    >
+                                      {item?.totalLeads}
+                                    </button>
+                                  </div>
+                                  <div className="w-1/12">
+                                    {item.Sheet?.sheetName || "-"}
+                                  </div>
+                                  <div className="w-2/12">
+                                    {item?.createdAt ? (
+                                      <div style={styles.text2}>
+                                        {GetFormattedDateString(
+                                          item?.createdAt,
+                                          true
+                                        )}
+                                      </div>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </div>
+                                  <div className="w-1/12">
+                                    {getReadableStatus(item.status)}
+                                  </div>
+                                  <div className="w-1/12">
+                                    <button
+                                      aria-describedby={id}
+                                      variant="contained"
+                                      onClick={(event) => {
+                                        handleShowPopup(event, item, agent);
+                                      }}
+                                    >
+                                      <Image
+                                        src={"/otherAssets/threeDotsIcon.png"}
+                                        height={24}
+                                        width={24}
+                                        alt="icon"
+                                      />
+                                    </button>
                                   </div>
                                 </div>
-                                <div className="w-2/12 ">
-                                  {user.user.userType ==
-                                    UserTypes.RealEstateAgent
-                                    ? `${ToUppercase(
-                                      agent?.agents[0]?.agentObjective
-                                    )}`
-                                    : `${agent?.agents[0]?.agentRole || "Other"
-                                    }`}
-                                </div>
-                                <div className="w-1/12">
-                                  <button
-                                    style={styles.text2}
-                                    className="text-purple underline outline-none"
-                                    onClick={(event) => {
-                                      handleShowPopup(event, item, agent);
-                                      // fetchLeadsInBatch(item);
-                                      handleShowLeads(agent, item);
-                                      // setShowDetailsModal(true);
-                                      // setHasMoreCalls(true);
-                                      // fetchCallsInBatch(SelectedItem);
-                                      // handleShowBatchCalls(item, agent, null);
-                                    }}
-                                  >
-                                    {item?.totalLeads}
-                                  </button>
-                                </div>
-                                <div className="w-1/12">
-                                  {item.Sheet?.sheetName || "-"}
-                                </div>
-                                <div className="w-2/12">
-                                  {item?.createdAt ? (
-                                    <div style={styles.text2}>
-                                      {GetFormattedDateString(
-                                        item?.createdAt,
-                                        true
-                                      )}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
-                                </div>
-                                <div className="w-1/12">
-                                  {getReadableStatus(item.status)}
-                                </div>
-                                <div className="w-1/12">
-                                  <button
-                                    aria-describedby={id}
-                                    variant="contained"
-                                    onClick={(event) => {
-                                      handleShowPopup(event, item, agent);
-                                    }}
-                                  >
-                                    <Image
-                                      src={"/otherAssets/threeDotsIcon.png"}
-                                      height={24}
-                                      width={24}
-                                      alt="icon"
-                                    />
-                                  </button>
-                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </InfiniteScroll>
                 </div>
               ) : (
                 <div
