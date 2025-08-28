@@ -310,7 +310,7 @@ function EmailTempletePopup({
                     />
                     <div className='flex flex-row items-center justify-between '>
                         <div className='text-xl font-semibold color-black'>
-                            {isEditing ? 'Edit Email Template' : 'Email'}
+                            {isEditing ? 'Edit Email' : 'Email'}
                         </div>
 
                         <FormControl>
@@ -601,7 +601,7 @@ function EmailTempletePopup({
                                     disabled={isSaveDisabled}
                                     onClick={saveEmail}
                                 >
-                                    {isEditing ? 'Update Template' : 'Save Email'}
+                                    {isEditing ? 'Update' : 'Save Email'}
                                 </button>
                             )
                         }

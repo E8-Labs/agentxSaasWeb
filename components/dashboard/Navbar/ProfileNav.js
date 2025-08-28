@@ -1021,8 +1021,8 @@ const ProfileNav = () => {
           height={24} width={24} alt="*"
         />
         {
-          showUpgradePlanBar ? (
-            <div style={{ fontSize: 13, fontWeight: '700', whiteSpace: 'nowrap', }}>
+          !showUpgradePlanBar ? (
+            <div style={{ fontSize: 13, fontWeight: '700', }}>
               {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
                 className="text-purple underline cursor-pointer"
                 onClick={() => {
@@ -1252,13 +1252,13 @@ const ProfileNav = () => {
           </div>
         </div>
 
-        {
+        {/*
           (showUpgradePlanBar || showFailedPaymentBar) && (
-            <SnackBarForUpgradePlan
-            />
+            
           )
-        }
-
+        */}
+        <SnackBarForUpgradePlan
+        />
 
       </div>
 
