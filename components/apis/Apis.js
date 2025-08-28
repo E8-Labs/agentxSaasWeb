@@ -228,6 +228,7 @@ const Apis = {
   handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
 
   getAdminAgencies: `${BasePath}api/admin/agencies`,
+  getAdminTransactions: `${BasePath}api/admin/transactions`,
 
 
   templets : `${BasePath}api/templates`,

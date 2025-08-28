@@ -13,6 +13,7 @@ import PhoneVerificationCodesList from "@/components/admin/verificationCodesList
 import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomingCharges";
 import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
 import AdminAgencyDetails from "./agency/AdminAgencyDetails";
+import AdminTransactions from "./agency/AdminTransactions";
 
 function AdminContainer() {
   const router = useRouter();
@@ -76,6 +77,14 @@ function AdminContainer() {
   const tabParam = searchParams.get("tab");
   const defaultTab = manuBar.find((item) => item.value === tabParam) || manuBar[0];
   const [selectedManu, setSelectedManu] = useState(defaultTab);
+  
+  // Agency submenu state
+  const [agencySubTab, setAgencySubTab] = useState('agencies');
+  
+  const agencySubMenus = [
+    { id: 1, name: "Agencies", value: 'agencies' },
+    { id: 2, name: "Transactions", value: 'transactions' }
+  ];
 
   return (
     
@@ -130,6 +139,32 @@ function AdminContainer() {
           ))}
         </div>
 
+        {/* Agency Submenu */}
+        {selectedManu.name === "Agency" && (
+          <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2 bg-gray-50">
+            {agencySubMenus.map((subItem) => (
+              <button
+                key={subItem.id}
+                onClick={() => setAgencySubTab(subItem.value)}
+                className={`flex flex-row items-center gap-3 p-2 items-center 
+                        ${agencySubTab === subItem.value &&
+                  "border-b-[2px] border-purple"
+                  }`}
+              >
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: agencySubTab === subItem.value ? "#7902df" : "#666",
+                  }}
+                >
+                  {subItem.name}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="w-full items-center h-full overflow-hidden flex-1">
           {selectedManu.name === "Users" ? (
             <AdminUsers />
@@ -144,7 +179,11 @@ function AdminContainer() {
           ) : selectedManu.name === "Payments Needing Refund" ? (
             <AdminPaymentsNeedingRefund />
           ): selectedManu.name === "Agency" ? (
-            <AdminAgencyDetails />
+            agencySubTab === 'agencies' ? (
+              <AdminAgencyDetails />
+            ) : (
+              <AdminTransactions />
+            )
           ) : (
             <div>
               <Dashboard />
