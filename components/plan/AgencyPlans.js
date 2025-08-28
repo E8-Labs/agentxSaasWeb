@@ -13,6 +13,7 @@ import { AuthToken } from '../agency/plan/AuthDetails';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 import { useRouter } from 'next/navigation';
 import SelectYearlypopup from './SelectYearlypopup';
+import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 
 //code for add card
 let stripePublickKey =
@@ -684,8 +685,13 @@ function AgencyPlans() {
                                                                     : selectedDuration.title === "Yearly"
                                                                         ? `$${(item.originalPrice / 12).toFixed(2)}`
                                             : ""*/}
-                                                            ${selectedDuration.title === "Monthly" && item.originalPrice} {selectedDuration.title === "Quarterly" && (item.originalPrice / 3).toFixed(2)} {selectedDuration.title === "Yearly" && (item.originalPrice / 12).toFixed(2)}
-
+                                                            ${selectedDuration.title === "Monthly"
+                                                                ? item.originalPrice
+                                                                : selectedDuration.title === "Quarterly (save 20%)"
+                                                                    ? (item.originalPrice / 3).toFixed(2)
+                                                                    : selectedDuration.title === "Yearly (save 30%)"
+                                                                        ? (item.originalPrice / 12).toFixed(2)
+                                                                        : "-"}
                                                         </div>
 
                                                         <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
@@ -870,32 +876,24 @@ function AgencyPlans() {
                         timeout: 100,
                         sx: {
                             backgroundColor: "#00000020",
-                            // //backdropFilter: "blur(20px)",
+                            backdropFilter: "blur(20px)",
                         },
                     }}
                 >
                     <Box
-                        className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+                        className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
                         sx={styles.paymentModal}
                     >
                         <div className="flex flex-row justify-center w-full ">
                             <div
-                                className="sm:w-7/12 w-full"
+                                className="w-full border-white"
                                 style={{
-                                    backgroundColor: "#ffffff",
+                                    backgroundColor: "#ffffff80",
                                     padding: 20,
                                     borderRadius: "13px",
                                 }}
                             >
-                                <div className="flex flex-row justify-between items-center">
-                                    <div
-                                        style={{
-                                            fontSize: 22,
-                                            fontWeight: "600",
-                                        }}
-                                    >
-                                        Payment Details
-                                    </div>
+                                <div className="flex flex-row justify-end w-full items-center">
                                     <button onClick={() => {
                                         setAddPaymentPopUp(false);
                                         setIsContinueMonthly(false);
@@ -909,8 +907,9 @@ function AgencyPlans() {
                                     </button>
                                 </div>
                                 <Elements stripe={stripePromise}>
-                                    <AddCardDetails
+                                    <AgencyAddCard
                                         handleClose={handleClose}
+                                        selectedPlan={selectedPlan}
                                     // togglePlan={togglePlan}
                                     />
                                 </Elements>
@@ -953,7 +952,7 @@ const styles = {
         // my: "50vh",
         // transform: "translateY(-50%)",
         borderRadius: 2,
-        border: "none",
+        // border: "none",
         outline: "none",
         height: "100svh",
     },

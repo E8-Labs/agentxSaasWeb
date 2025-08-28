@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 function AgencyIntegrations({ selectedAgency }) {
 
     const [currentTab, setCurrentTab] = useState(1);
+    const [linkCopied, setLinkCopied] = useState(false);
 
     //handle switch tab
     const handleTabSelection = (tab) => {
@@ -22,7 +23,40 @@ function AgencyIntegrations({ selectedAgency }) {
                     Integrations
                 </div>
 
-                <div>
+                <div className="flex flex-row items-center gap-2">
+                    <button
+                        className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
+                        style={{ fontSize: 15, fontWeight: "500" }}
+                        onClick={() => {
+                            // console.log("Agency uuid link copied trigering")
+                            const d = localStorage.getItem("User");
+                            const BasePath =
+                                process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+                                    ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
+                                    : "https://apimyagentx.com/agentxtest/";
+                            // console.log("Agency uuid link copied check 2", d)
+                            if (d) {
+                                console.log("Agency uuid link copied check 3")
+                                const Data = JSON.parse(d);
+                                // console.log("Agency uuid link copied check 4")
+                                const UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
+                                // console.log("Agency uuid link copied check 5")
+                                console.log("Agency uuid link copied is", UUIDLink);
+                                navigator.clipboard.writeText(UUIDLink)
+                                    .then(() => {
+                                        setLinkCopied(true);
+                                    })
+                                    .catch(err => {
+                                        console.error("Failed to copy: ", err);
+                                    });
+                                const timer = setTimeout(() => {
+                                    setLinkCopied(false)
+                                }, 500);
+                                return () => clearTimeout(timer);
+                            }
+                        }}>
+                        {linkCopied ? "Link Copied" : "Copy Link"}
+                    </button>
                     <NotficationsDrawer />
                 </div>
             </div>
