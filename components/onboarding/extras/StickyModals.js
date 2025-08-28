@@ -98,7 +98,7 @@ export const TwilioWarning = ({
   );
 };
 
-export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
+export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose, selectedAgency }) => {
   const [sid, setSid] = useState("");
   const [twilioAuthToken, setTwilioAuthToken] = useState("");
   const [canAddKey, setCanAddKey] = useState(false);
@@ -133,7 +133,14 @@ export const AddAgencyTwilioKeyModal = ({ showAddKeyModal, handleClose }) => {
         twilioAccountSid: sid,
         twilioAuthToken: twilioAuthToken
       }
+      if (selectedAgency) {
+        ApiData = {
+          ...ApiData,
+          userId: selectedAgency.id
+        }
+      }
 
+      console.log("Api data sending in add twilio api", ApiData);
       // for (let [key, value] of formData.entries()) {
       //   console.log(`${key} = ${value}`);
       // }

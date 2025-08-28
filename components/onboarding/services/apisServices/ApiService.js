@@ -215,13 +215,20 @@ export const getStripeLink = async (setLoader) => {
 export const handleDisconnectTwilio = async ({
   setDisConnectLoader,
   setShowSnackMessage,
-  setShowSnackType
+  setShowSnackType,
+  selectedAgency
 }) => {
   try {
     setDisConnectLoader(true);
     const token = AuthToken();
     const ApiPath = Apis.disconnectTwilio;
-    const response = await axios.post(ApiPath, {}, {
+    let ApiData = null;
+    if (selectedAgency) {
+      ApiData = {
+        userId: selectedAgency.id
+      }
+    }
+    const response = await axios.post(ApiPath, { ApiData }, {
       headers: {
         "Authorization": "Bearer " + token,
         // "Content-Type": "application/json"

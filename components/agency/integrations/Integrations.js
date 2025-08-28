@@ -78,6 +78,7 @@ const Integrations = ({ selectedAgency }) => {
                         setHotReloadTrustProducts(true);
                     }
                 }}
+                selectedAgency={selectedAgency}
             />
 
             {/* Code for Upsell phones */}
@@ -136,7 +137,8 @@ const Integrations = ({ selectedAgency }) => {
                                             const response = await handleDisconnectTwilio({
                                                 setDisConnectLoader,
                                                 setShowSnackMessage,
-                                                setShowSnackType
+                                                setShowSnackType,
+                                                selectedAgency
                                             });
                                             if (response) {
                                                 getLocalData();
