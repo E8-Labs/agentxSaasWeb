@@ -19,13 +19,21 @@ import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 import AdminGetProfileDetails from '../../AdminGetProfileDetails'
 // import ResetTrial from './ResetTrial'
 import ResetTrial from '../../users/ResetTrial'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
+import DashboardPlans from '@/components/agency/plan/DashboardPlans'
+import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
+import AgencyIntegrations from '@/components/agency/dashboard/AgencyIntegrations'
+import Teams from '@/components/dashboard/teams/Teams'
+import AdminDashboardCallLogs from '../../CallLogs/AdminDashboardCallLogs'
 
 function SelectedAgencyDetails({
     selectedUser,
     handleDel,
     from = "admin",
     handlePauseUser,
-    agencyUser = false
+    agencyUser = false,
+    handleClose
 }) {
 
     console.log("Selected user passed is", selectedUser)
@@ -105,7 +113,7 @@ function SelectedAgencyDetails({
 
     useEffect(() => {
         const getData = async () => {
-
+            console.log("Trying to get agency profile data");
             let d = await AdminGetProfileDetails(selectedUser.id)
 
             if (d) {
@@ -287,20 +295,20 @@ function SelectedAgencyDetails({
     }
 
     return (
-        <div className='w-full flex flex-col items-center justify-center bg-red'>
+        <div className='w-full flex flex-col items-center justify-center bg-white'>
             <AgentSelectSnackMessage isVisible={showSnackMessage != null ? true : false} hide={() => { setShowSnackMessage(null) }}
                 type={SnackbarTypes.Success} message={showSnackMessage}
             />
 
             <div className='flex flex-col items-center justify-center w-full'>
-                <div style={{ alignSelf: 'center' }} className={`w-full ${agencyUser ? "h-[100svh] overflow-hidden" : "h-[80vh]"} bg-white items-center justify-center`}>
+                <div className={`w-full ${agencyUser ? "h-[100svh] overflow-hidden" : "h-[80vh]"} bg-white`}>
                     <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
                         <div className='flex flex-row gap-2 items-center justify-start'>
                             <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
-                                {selectedUser?.name?.[0] || selectedUser?.agencyName?.[0] || "-"}
+                                {selectedUser?.agencyName?.[0] || "-"}
                             </div>
                             <h4>
-                                {selectedUser.name}
+                                {selectedUser.agencyName}
                             </h4>
 
                             {
@@ -398,7 +406,7 @@ function SelectedAgencyDetails({
                                 )
                             }
 
-                            {
+                            {/*
                                 (!agencyUser && from !== "subaccount") && (
                                     <button
                                         className="text-white bg-purple outline-none rounded-xl px-3"
@@ -410,7 +418,7 @@ function SelectedAgencyDetails({
                                         Add Minutes
                                     </button>
                                 )
-                            }
+                            */}
 
 
                             {
@@ -426,6 +434,8 @@ function SelectedAgencyDetails({
                                     </button>
                                 )
                             }
+
+                            <CloseBtn onClick={handleClose} />
 
                             {/* <div>
                                 <button>
@@ -466,39 +476,28 @@ function SelectedAgencyDetails({
 
                         </div>
 
-                        <div className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? "h-[95vh]" : "h-[70vh]"} overflow-auto w-10/12`}>
+                        <div className={`flex flex-col items-start justify-start px-4 pt-12 ${agencyUser ? "h-[95vh]" : "h-[70vh]"} overflow-auto w-10/12`}>
                             {
-                                selectedManu.name == "Leads" ? (
-                                    <AdminLeads1 selectedUser={selectedUser} />
+                                selectedManu.name == "Dashboard" ? (
+                                    <div className="w-full flex flex-col items-center h-[99%] overflow-hidden " >
+                                        <AgencyDashboard selectedAgency={selectedUser} />
+                                    </div>
+                                ) : selectedManu.name == "Integrations" ? (
+                                    <AgencyIntegrations selectedAgency={selectedUser} />
+                                ) : selectedManu.name == "Plans" ? (
+                                    <div className='flex flex-col items-center w-full'>
+                                        <DashboardPlans selectedAgency={selectedUser} />
+                                    </div>
+                                ) : selectedManu.name == "Sub Account" ? (
+                                    <AgencySubacount selectedAgency={selectedUser} />
+                                ) : selectedManu.name == "Call Logs" ? (
+                                    <AdminDashboardCallLogs selectedAgency={selectedUser} />
+                                ) : selectedManu.name == "Teams" ? (
+                                    <Teams agencyData={selectedUser} selectedAgency={selectedUser} />
+                                ) : selectedManu.name == "Account" ? (
+                                    "Account"
                                 ) : (
-                                    selectedManu.name == "Pipeline" ? (
-                                        <AdminPipeline1 selectedUser={selectedUser} />
-                                    ) : selectedManu.name == "Agents" ? (
-                                        <AdminAgentX
-                                            selectedUser={user && user}
-                                            from={from}
-                                            agencyUser={agencyUser}
-                                        />
-                                    ) : selectedManu.name == "Call Log" ? (
-                                        <AdminCallLogs selectedUser={selectedUser} />
-                                    ) : (
-                                        selectedManu.name == "Dashboard" ? (
-                                            <AdminDashboard selectedUser={selectedUser} />
-                                        ) : (
-                                            selectedManu.name == "Integration" ? (
-                                                <AdminIntegration selectedUser={selectedUser} />
-                                            ) : (
-                                                selectedManu.name == "Staff" ? (
-                                                    <AdminTeam selectedUser={selectedUser} />
-                                                ) : (
-                                                    selectedManu.name == "Account" ? (
-                                                        <AdminProfileData selectedUser={selectedUser} from={from} />
-                                                    ) : "Comming soon..."
-                                                )
-                                            )
-                                        )
-                                        //""
-                                    )
+                                    "Comming soon..."
                                 )
                             }
                         </div>

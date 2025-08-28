@@ -28,7 +28,9 @@ import { PersistanceKeys } from "@/constants/Constants";
 import AgencyActivity from "./AgencyActivity";
 import AgencySubscriptions from "./AgencySubscriptions";
 
-export default function AgencyDashboard() {
+export default function AgencyDashboard({
+  selectedAgency
+}) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -62,17 +64,17 @@ export default function AgencyDashboard() {
           </TabsList>
 
           <TabsContent value="user-activity">
-            <AgencyActivity user={user} />
+            <AgencyActivity user={user} selectedAgency={selectedAgency} />
           </TabsContent>
           {/* <TabsContent value="engagement">
             <AgenyEngagements />
           </TabsContent> */}
 
           <TabsContent value="subscription">
-            <AgencySubscriptions />
+            <AgencySubscriptions selectedAgency={selectedAgency} />
           </TabsContent>
         </Tabs>
-        
+
       </div>
     </div>
   );

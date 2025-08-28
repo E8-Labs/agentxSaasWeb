@@ -24,7 +24,8 @@ import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 
 function Teams({
-  agencyData
+  agencyData,
+  selectedAgency
 }) {
   const timerRef = useRef(null);
   const router = useRouter();
@@ -139,6 +140,10 @@ function Teams({
 
         let path = Apis.getTeam;
         // //console.log
+        if (selectedAgency) {
+          path = path + `?userId=${selectedAgency.id}`
+        }
+        console.log("Api path for dashboard monthly plans api is", path)
 
         const response = await axios.get(path, {
           headers: {
@@ -207,11 +212,13 @@ function Teams({
         }
 
         let path = Apis.inviteTeamMember;
+        console.log("Api path for dashboard monthly plans api is", path);
 
         let apidata = {
           name: item.name,
           email: item.email,
           phone: item.phone,
+          userId: selectedAgency.id
         };
 
         // //console.log;
@@ -370,6 +377,13 @@ function Teams({
       phone: phoneNumber,
     };
 
+    if (selectedAgency) {
+      apidata = {
+        ...apidata,
+        userId: selectedAgency.id
+      }
+    }
+
     // //console.log;
     // return;
 
@@ -394,6 +408,7 @@ function Teams({
 
         let path = Apis.deleteTeamMember;
         // //console.log;
+        console.log("Api path for dashboard monthly plans api is", path);
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: "Bearer " + u.token,
@@ -401,6 +416,7 @@ function Teams({
         });
 
         if (response) {
+          console.log("Response of add team api is", response);
           setInviteTeamLoader(false);
           if (response.data.status === true) {
             // Defensive: filter out team member by id, but handle possible null/undefined

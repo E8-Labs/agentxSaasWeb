@@ -13,7 +13,9 @@ import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmation
 import { CheckStripe } from '../agencyServices/CheckAgencyData';
 
 
-function DashboardPlans() {
+function DashboardPlans({
+    selectedAgency
+}) {
 
     const [moreDropdown, setmoreDropdown] = useState(null);
 
@@ -64,6 +66,7 @@ function DashboardPlans() {
             // setInitialLoader(true);
             getMonthlyPlan();
         } else if (planType === "Xbar") {
+            console.log("should triger xbar plaans api")
             getXBarOptions()
         }
     }, [planType]);
@@ -83,7 +86,13 @@ function DashboardPlans() {
 
     //handle add new plan click
     const handleAddPlan = () => {
-        const getStripe = CheckStripe();
+        let getStripe = null;
+        if (selectedAgency) {
+            getStripe = selectedAgency?.canAcceptPaymentsAgencyccount
+        } else {
+            getStripe = CheckStripe();
+        }
+        console.log("Status of stripe is", getStripe);
         if (!getStripe) {
             console.log("Show stripe warning ⚠️");
             setSnackMsg("Stripe needs to be connected");
@@ -184,7 +193,11 @@ function DashboardPlans() {
                 console.log("Plans list is", JSON.parse(localPlans));
             } //else {
             const Token = AuthToken();
-            const ApiPath = Apis.getMonthlyPlan
+            let ApiPath = Apis.getMonthlyPlan;
+            if (selectedAgency) {
+                ApiPath = ApiPath + `?userId=${selectedAgency.id}`
+            }
+            console.log("Api path for dashboard monthly plans api is", ApiPath)
             const response = await axios.get(ApiPath,
                 {
                     headers: {
@@ -210,6 +223,7 @@ function DashboardPlans() {
     //code to get the XBar Options
     const getXBarOptions = async () => {
         try {
+            console.log("trigered xbar plaans api")
             setInitialLoader(true);
             const localXbarPlans = localStorage.getItem("XBarOptions");
             if (localXbarPlans) {
@@ -217,8 +231,13 @@ function DashboardPlans() {
                 console.log(d);
                 setPlansList(JSON.parse(localXbarPlans));
             } //else {
+            console.log("Passed here 1")
             const Token = AuthToken();
-            const ApiPath = Apis.getXBarOptions
+            let ApiPath = Apis.getXBarOptions;
+            if (selectedAgency) {
+                ApiPath = ApiPath + `?userId=${selectedAgency.id}`
+            }
+            console.log("Api path for dashboard monthly plans api is", ApiPath);
             const response = await axios.get(ApiPath,
                 {
                     headers: {
@@ -235,7 +254,7 @@ function DashboardPlans() {
             // }
         } catch (error) {
             setInitialLoader(false);
-            console.error("Error occured in getting XBar Option is", error);
+            console.log("Error occured in getting XBar Option is", error.message);
         } finally {
             setInitialLoader(false);
             console.log("data recieved");
@@ -273,7 +292,10 @@ function DashboardPlans() {
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
-                }
+                },
+                data: {
+                    userId: selectedAgency.id,
+                },
             });
 
             if (response) {
@@ -337,7 +359,7 @@ function DashboardPlans() {
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Plans: {plansList.length || 0}
+                        Total Plans: {plansList?.length ? plansList.length : 0}
                     </div>
 
                     <button
@@ -446,12 +468,12 @@ function DashboardPlans() {
                                                             key={item.id}
                                                             // style={{ cursor: "pointer" }}
                                                             className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
-                                                            // onClick={() => {
-                                                            //     setmoreDropdown(
-                                                            //         moreDropdown === item.id ? null : item.id
-                                                            //     );
-                                                            //     setSelectedPlan(selectedPlan === item ? null : item);
-                                                            // }}
+                                                        // onClick={() => {
+                                                        //     setmoreDropdown(
+                                                        //         moreDropdown === item.id ? null : item.id
+                                                        //     );
+                                                        //     setSelectedPlan(selectedPlan === item ? null : item);
+                                                        // }}
                                                         >
                                                             <div
                                                                 className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
@@ -623,6 +645,7 @@ function DashboardPlans() {
                             agencyPlanCost={agencyPlanCost}
                             isEditPlan={isEditPlan}
                             selectedPlan={selectedPlan}
+                            selectedAgency={selectedAgency}
                         /> :
                         <AddXBarPlan
                             open={open}
@@ -631,6 +654,7 @@ function DashboardPlans() {
                             agencyPlanCost={agencyPlanCost}
                             isEditPlan={isEditPlan}
                             selectedPlan={selectedPlan}
+                            selectedAgency={selectedAgency}
                         />
                 }
 

@@ -32,7 +32,7 @@ import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
 import { PersistanceKeys } from "@/constants/Constants";
 
-function AdminDashboardCallLogs({ }) {
+function AdminDashboardCallLogs({ selectedAgency }) {
   const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");
@@ -146,7 +146,7 @@ function AdminDashboardCallLogs({ }) {
         if (C.length < LimitPerPage) {
           setHasMore(false);
         }
-      getCallLogs(0)
+        getCallLogs(0)
 
       }
       else {
@@ -253,10 +253,15 @@ function AdminDashboardCallLogs({ }) {
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
+     
       if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
         ApiPath = `${Apis.adminCallLogs}?offset=${offset}`; //Apis.getCallLogs;
+      }
+
+      if(selectedAgency){
+        ApiPath = ApiPath+"&userId="+selectedAgency.id
       }
       if (searchValue && searchValue.length > 0) {
         ApiPath = `${ApiPath}&name=${searchValue}`;
@@ -272,7 +277,7 @@ function AdminDashboardCallLogs({ }) {
 
       // ApiPath = Apis.adminCallLogs
 
-      //console.log;
+      console.log("apiPath",ApiPath)
 
       //// //console.log;
       // return
@@ -300,7 +305,7 @@ function AdminDashboardCallLogs({ }) {
         } else {
           calls = [...callDetails, ...data];
         }
-        
+
         console.log('calls', calls)
         setCallDetails(calls);
         setFilteredCallDetails(calls);

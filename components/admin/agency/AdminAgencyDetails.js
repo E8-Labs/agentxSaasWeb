@@ -165,6 +165,7 @@ function AdminAgencyDetails() {
               ));
               setSelectedUser(null);
             }}
+            handleClose={() => { setSelectedUser(null); }}
             handlePauseUser={(d) => {
               console.log("User paused");
 
