@@ -22,6 +22,7 @@ import SendVerificationCode from "../services/AuthVerification/AuthService";
 import SnackMessages from "../services/AuthVerification/SnackMessages";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 import { PersistanceKeys } from "@/constants/Constants";
 import { setCookie } from "@/utilities/cookies";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
@@ -278,6 +279,16 @@ const SalesDevAgent = ({
       if (campainee) {
         formData.append("campaignee", campainee);
       }
+
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      console.log('[DEBUG] Agency UUID from storage:', agencyUuid);
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+        console.log('[DEBUG] Added agencyUuid to formData:', agencyUuid);
+      } else {
+        console.log('[DEBUG] No agency UUID found, proceeding without it');
+      }
       // const formData = new FormData();
       formData.append("name", userName);
       formData.append("email", userEmail);
@@ -321,6 +332,12 @@ const SalesDevAgent = ({
           } catch (error) {
             //console.log;
           }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
+          }
+
           //console.log;
           let screenWidth = 1000;
           if (typeof window !== "undefined") {

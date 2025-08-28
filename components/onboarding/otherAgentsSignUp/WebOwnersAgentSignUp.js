@@ -23,6 +23,8 @@ import SendVerificationCode from "../services/AuthVerification/AuthService";
 import { getLocalLocation } from "../services/apisServices/ApiService";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { isValidUrl, PersistanceKeys } from "@/constants/Constants";
+import { setCookie } from "@/utilities/cookies";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
 const WebOwnersAgentSignUp = ({
@@ -294,6 +296,12 @@ const WebOwnersAgentSignUp = ({
       if (campainee) {
         formData.append("campaignee", campainee);
       }
+
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+      }
       // const formData = new FormData();
       formData.append("name", userName);
       formData.append("email", userEmail);
@@ -339,6 +347,11 @@ const WebOwnersAgentSignUp = ({
           //         JSON.stringify(response.data.data)
           //     )}; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
           // }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
+          }
 
           handleWaitList();
         }

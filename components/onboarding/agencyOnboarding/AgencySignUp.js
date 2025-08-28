@@ -28,6 +28,7 @@ import { getLocalLocation } from "@/components/onboarding/services/apisServices/
 import { PersistanceKeys } from "@/constants/Constants";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { color } from "framer-motion";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 
 const AgencySignUp = ({
   handleContinue,
@@ -308,6 +309,12 @@ const AgencySignUp = ({
         formData.append("campaignee", campainee);
       }
 
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+      }
+
       formData.append("name", userName);
       formData.append("email", userEmail);
       formData.append("phone", userPhoneNumber);
@@ -352,6 +359,11 @@ const AgencySignUp = ({
             window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
           } else {
             console.log("[DEBUG] agentxTrackSignup not available");
+          }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
           }
 
           let screenWidth = 1000;

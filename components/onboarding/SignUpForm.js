@@ -25,6 +25,7 @@ import { setCookie } from "@/utilities/cookies";
 import { GetCampaigneeNameIfAvailable } from "@/utilities/UserUtility";
 import { getLocalLocation } from "./services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
+import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 
 const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleShowRedirectPopup }) => {
   const verifyInputRef = useRef([]);
@@ -287,6 +288,12 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleS
         formData.append("campaignee", campainee);
       }
 
+      // Add agency UUID if present (for subaccount registration)
+      const agencyUuid = getAgencyUUIDForAPI();
+      if (agencyUuid) {
+        formData.append("agencyUuid", agencyUuid);
+      }
+
       formData.append("name", userName);
       formData.append("email", userEmail);
       formData.append("phone", userPhoneNumber);
@@ -331,6 +338,11 @@ const SignUpForm = ({ handleContinue, handleBack, length = 6, onComplete,handleS
             window.agentxTrackSignup(userEmail, userName, response.data.data.user?.id);
           } else {
             console.log("[DEBUG] agentxTrackSignup not available");
+          }
+
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
           }
 
           let screenWidth = 1000;

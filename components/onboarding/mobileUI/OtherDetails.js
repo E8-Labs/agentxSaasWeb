@@ -612,6 +612,11 @@ const OtherDetails = ({
             setCookie(response.data.data.user, document);
           }
 
+          // Clear agency UUID after successful registration
+          if (agencyUuid) {
+            clearAgencyUUID();
+          }
+
           // handleContinue();
 
           const screenWidth = window.innerWidth; // Get current screen width

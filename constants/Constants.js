@@ -6,6 +6,7 @@ export const PersistanceKeys = {
   LeadsInBatch: "LeadsInBatch",
   CallsInBatch: "CallsInBatch",
   LocalStorageCampaignee: "CampaigneeSaved",
+  AgencyUUID: "AgencyUUID",
   LocalStoragePipelines: "LocalStoragePipelines",
   RegisterDetails: "registerDetails",
   LocalStoredAgentsListMain: "localAgentDetails",
