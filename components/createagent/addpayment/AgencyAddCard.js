@@ -384,27 +384,35 @@ const AgencyAddCard = ({
                             Card Number
                         </div>
                         <div
-                            className="mt-2 px-3 py-1 border"
+                            className="mt-2 px-3 py-1 border relative flex items-center"
                             style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                         >
-                            <CardNumberElement
-                                options={elementOptions}
-                                autoFocus={true}
-                                onChange={(event) => {
-                                    handleFieldChange(event, cardExpiryRef);
-                                    if (event.complete) {
-                                        // //console.log;
-                                        setCardAdded(true);
-                                    } else {
-                                        setCardAdded(false);
-                                    }
-                                }}
-                                ref={cardNumberRef}
-                                onReady={(element) => {
-                                    cardNumberRef.current = element;
-                                    cardNumberRef.current.focus();
-                                }}
-                            />
+                            <div className="flex-1">
+                                <CardNumberElement
+                                    options={elementOptions}
+                                    autoFocus={true}
+                                    onChange={(event) => {
+                                        handleFieldChange(event, cardExpiryRef);
+                                        if (event.complete) {
+                                            // //console.log;
+                                            setCardAdded(true);
+                                        } else {
+                                            setCardAdded(false);
+                                        }
+                                    }}
+                                    ref={cardNumberRef}
+                                    onReady={(element) => {
+                                        cardNumberRef.current = element;
+                                        cardNumberRef.current.focus();
+                                    }}
+                                />
+                            </div>
+                            <div className="flex items-center gap-1 ml-2">
+                                <Image src="/svgIcons/Visa.svg" alt="Visa" width={32} height={20} />
+                                <Image src="/svgIcons/Mastercard.svg" alt="Mastercard" width={32} height={20} />
+                                <Image src="/svgIcons/Amex.svg" alt="American Express" width={32} height={20} />
+                                <Image src="/svgIcons/Discover.svg" alt="Discover" width={32} height={20} />
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-row gap-2 w-full mt-8">
@@ -609,8 +617,8 @@ const AgencyAddCard = ({
                     */}
                 </div>
                 </div>
-                <div className="w-[40%] flex flex-col justify-center items-center pe-4" style={{backgroundColor: 'transparent'}}>
-                    <div className="bg-white rounded-lg p-4 w-[80%]">
+                <div className="w-[40%] flex flex-col justify-center items-center pe-4 rounded-lg" style={{backgroundColor: 'transparent'}}>
+                    <div className=" rounded-lg p-4 w-[80%]" style={{backgroundColor: '#ffffffcc'}}>
                         <div style={{ fontSize: 22, fontWeight: "600" }}>Order Summary</div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
