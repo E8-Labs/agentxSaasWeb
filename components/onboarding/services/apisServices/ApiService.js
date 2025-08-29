@@ -173,7 +173,7 @@ export const getTeamsList = async () => {
 };
 
 //generate the link for add stripe
-export const getStripeLink = async (setLoader) => {
+export const getStripeLink = async (setLoader, popupWindow = null) => {
   try {
     setLoader(true);
     const data = await getProfileDetails();
@@ -192,7 +192,14 @@ export const getStripeLink = async (setLoader) => {
         if (response) {
           console.log("Route user to connect stripe");
           console.log("Payment link is", response.data.data.url);
-          window.open(response.data.data.url, "_blank");
+          
+          // If popup window was passed, redirect it to the Stripe URL
+          if (popupWindow && !popupWindow.closed) {
+            popupWindow.location.href = response.data.data.url;
+          } else {
+            // Fallback to opening in same tab if popup was blocked
+            window.location.href = response.data.data.url;
+          }
           setLoader(false);
         }
         // router.push("/agency/verify")
@@ -202,11 +209,23 @@ export const getStripeLink = async (setLoader) => {
           subPlan: false
         }
         localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
-        router.push("/agency/onboarding");
+        
+        // Close popup if it was opened
+        if (popupWindow && !popupWindow.closed) {
+          popupWindow.close();
+        }
+        
+        window.location.href = "/agency/onboarding";
       }
     }
   } catch (error) {
-    // setLoader(false);
+    setLoader(false);
+    
+    // Close popup on error
+    if (popupWindow && !popupWindow.closed) {
+      popupWindow.close();
+    }
+    
     console.error("Error occured  in getVerify link api is", error);
   }
 }

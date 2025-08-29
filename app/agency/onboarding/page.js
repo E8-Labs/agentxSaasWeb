@@ -11,18 +11,26 @@ function Page() {
 
   useEffect(() => {
     const D = localStorage.getItem("User");
+    const subPlanData = localStorage.getItem(PersistanceKeys.LocalStorageSubPlan);
+    
     if (D) {
       const Data = JSON.parse(D);
+      
+      // Check if user is here intentionally for onboarding (no plan)
+      const needsOnboarding = subPlanData && JSON.parse(subPlanData)?.subPlan === false;
+      
       if (Data.user.userType == "admin") {
         // router.push("/admin");
         window.location.href = "/admin";
-      } else if (Data.user.userRole == "Agency") {
+      } else if (Data.user.userRole == "Agency" && !needsOnboarding) {
+        // Only redirect if user doesn't need onboarding
         // router.push("/agency/dashboard");
         window.location.href = "/agency/dashboard";
-      } else {
+      } else if (Data.user.userRole !== "Agency") {
         // router.push("/dashboard");
         window.location.href = "/dashboard";
       }
+      // If userRole == "Agency" AND needsOnboarding is true, stay on onboarding page
     }
   }, []);
 

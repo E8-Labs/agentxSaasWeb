@@ -19,7 +19,7 @@ function AdminTransactions() {
     search: ''
   });
 
-  const typeOptions = ['all', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC'];
+  const typeOptions = ['all', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
   const statusOptions = ['all', 'pending', 'completed', 'failed', 'refunded'];
   const dateOptions = [
     { value: 'all', label: 'All Time' },
@@ -119,6 +119,7 @@ function AdminTransactions() {
       case 'Phone': return 'bg-green-100 text-green-800';
       case 'Enrichment': return 'bg-orange-100 text-orange-800';
       case 'DNC': return 'bg-red-100 text-red-800';
+      case 'Seat': return 'bg-indigo-100 text-indigo-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -204,12 +205,16 @@ function AdminTransactions() {
                   value={filters.startDate}
                   onChange={(e) => handleFilterChange('startDate', e.target.value)}
                   className="border rounded-lg px-3 py-2"
+                  placeholder="mm/dd/yyyy"
+                  pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
                 />
                 <input
                   type="date"
                   value={filters.endDate}
                   onChange={(e) => handleFilterChange('endDate', e.target.value)}
                   className="border rounded-lg px-3 py-2"
+                  placeholder="mm/dd/yyyy"
+                  pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
                 />
               </>
             )}
@@ -303,7 +308,7 @@ function AdminTransactions() {
 
               <div className="w-1/12">
                 <div style={styles.cell}>
-                  {moment(transaction.date).format("MMM DD, YYYY")}
+                  {moment(transaction.date).format("MM/DD/YYYY")}
                 </div>
               </div>
             </div>

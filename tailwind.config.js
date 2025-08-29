@@ -28,6 +28,35 @@ module.exports = {
         lightBlue: "#402fff10",
         brdColor: "#15151510",
         grayclr75: "#757575",
+        // Transaction type colors
+        blue: {
+          100: "#DBEAFE",
+          800: "#1E40AF",
+        },
+        purple: {
+          100: "#F3E8FF", 
+          800: "#6B21A8",
+        },
+        green: {
+          100: "#DCFCE7",
+          800: "#166534", 
+        },
+        orange: {
+          100: "#FED7AA",
+          800: "#9A3412",
+        },
+        red: {
+          100: "#FEE2E2", 
+          800: "#991B1B",
+        },
+        indigo: {
+          100: "#E0E7FF",
+          800: "#3730A3",
+        },
+        gray: {
+          100: "#F3F4F6",
+          800: "#1F2937",
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

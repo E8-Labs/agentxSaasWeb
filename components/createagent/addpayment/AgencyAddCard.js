@@ -318,12 +318,15 @@ const AgencyAddCard = ({
 
     const scalePlanValue = () => {
         console.log("Scale plan value passed is", selectedPlan);
+        if (!selectedPlan || !selectedPlan.originalPrice) {
+            return "-";
+        }
         if (selectedPlan.duration === "monthly") {
-            return 1 * item.originalPrice;
+            return "$" + (1 * selectedPlan.originalPrice);
         } else if (selectedPlan.duration === "quarterly") {
-            return 6 * (item.originalPrice / 3).toFixed(2);
+            return "$" + (3 * (selectedPlan.originalPrice / 3)).toFixed(2);
         } else if (selectedPlan.duration === "yearly") {
-            return 12 * (item.originalPrice / 12).toFixed(2);
+            return "$" + (12 * (selectedPlan.originalPrice / 12)).toFixed(2);
         } else {
             return "-";
         }

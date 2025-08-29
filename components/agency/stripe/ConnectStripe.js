@@ -31,7 +31,15 @@ const ConnectStripe = () => {
     }, [])
 
     const handleVerifyClick = async () => {
-        await getStripeLink(setLoader);
+        // Open popup immediately on user click to avoid popup blocker
+        const popupWindow = window.open('about:blank', '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+        
+        // Show loading message in popup
+        if (popupWindow) {
+            popupWindow.document.write('<html><body><div style="text-align:center;margin-top:50px;"><h2>Connecting to Stripe...</h2><p>Please wait while we redirect you to Stripe Connect.</p></div></body></html>');
+        }
+        
+        await getStripeLink(setLoader, popupWindow);
         // try {
         //     setLoader(true);
         //     const data = await getProfileDetails();

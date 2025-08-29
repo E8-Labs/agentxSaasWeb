@@ -76,7 +76,7 @@ export function middleware(request) {
     expectedPath = "/admin";
   } else if (user.userRole === "AgencySubAccount") {
     expectedPath = "/dashboard";
-  } else if (user.userRole === "Agency" || user.agencyTeammember === true) {
+  } else if (user.userRole === "Agency" || user.agencyTeamMember === true) {
     expectedPath = "/agency/dashboard";
   } else {
     expectedPath = "/dashboard";

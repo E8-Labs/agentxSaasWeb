@@ -14,6 +14,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/Agent
 import { useRouter } from 'next/navigation';
 import SelectYearlypopup from './SelectYearlypopup';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
+import { FalloutShelter } from '@phosphor-icons/react/dist/ssr';
 
 //code for add card
 let stripePublickKey =
@@ -363,6 +364,13 @@ function AgencyPlans() {
 
     //claim early access
     const handleClaimEarlyAccess = (item, index) => {
+        console.log("handleClaimEarlyAccess called with:", { item, index });
+        
+        if (!item) {
+            console.error("Item is undefined in handleClaimEarlyAccess");
+            return;
+        }
+        
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -461,56 +469,60 @@ function AgencyPlans() {
         console.log('trying to subscribe')
         // code for show plan add card popup
         const D = localStorage.getItem("User");
+        let isPaymentMethodAdded = false
         if (D) {
             const userData = JSON.parse(D);
             if (userData.user.cards.length > 0) {
                 console.log("Cards are available");
+                isPaymentMethodAdded = true
             } else {
                 setAddPaymentPopUp(true);
-                return
+                // return
             }
         }
 
 
 
-        try {
-            setSubPlanLoader(planId ? planId.id : togglePlan);
-            const Token = AuthToken();
-            const ApiPath = Apis.subAgencyAndSubAccountPlans;
-            const formData = new FormData();
-            formData.append("planId", planId ? planId.id : togglePlan);
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key} = ${value}`);
-            }
-
-            const response = await axios.post(ApiPath, formData, {
-                headers: {
-                    "Authorization": "Bearer " + Token
+        if(isPaymentMethodAdded){
+            try {
+                setSubPlanLoader(planId ? planId.id : togglePlan);
+                const Token = AuthToken();
+                const ApiPath = Apis.subAgencyAndSubAccountPlans;
+                const formData = new FormData();
+                formData.append("planId", planId ? planId.id : togglePlan);
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key} = ${value}`);
                 }
-            });
-
-            if (response) {
-                console.log("Response of subscribe subaccount plan is", response.data);
-                setSubPlanLoader(null);
-                if (response.data.status === true) {
-                    setErrorMsg(response.data.message);
-                    setSnackMsgType(SnackbarTypes.Success);
-                    localStorage.removeItem("subPlan");
-                    // router.push("/agency/dashboard");
-                    router.push("/agency/verify");
-
-                } else if (response.data.status === false) {
-                    setErrorMsg(response.data.message);
-                    setSnackMsgType(SnackbarTypes.Error);
-                    if (response.data.message === "No payment method added") {
-                        setAddPaymentPopUp(true);
+    
+                const response = await axios.post(ApiPath, formData, {
+                    headers: {
+                        "Authorization": "Bearer " + Token
+                    }
+                });
+    
+                if (response) {
+                    console.log("Response of subscribe subaccount plan is", response.data);
+                    setSubPlanLoader(null);
+                    if (response.data.status === true) {
+                        setErrorMsg(response.data.message);
+                        setSnackMsgType(SnackbarTypes.Success);
+                        localStorage.removeItem("subPlan");
+                        // router.push("/agency/dashboard");
+                        router.push("/agency/verify");
+    
+                    } else if (response.data.status === false) {
+                        setErrorMsg(response.data.message);
+                        setSnackMsgType(SnackbarTypes.Error);
+                        if (response.data.message === "No payment method added") {
+                            setAddPaymentPopUp(true);
+                        }
                     }
                 }
+    
+            } catch (error) {
+                console.error("Error occured in sub plan api is", error);
+                setSubPlanLoader(null);
             }
-
-        } catch (error) {
-            console.error("Error occured in sub plan api is", error);
-            setSubPlanLoader(null);
         }
     }
 
@@ -628,7 +640,7 @@ function AgencyPlans() {
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                getCurrentPlans().map((item, index) => (
+                                getCurrentPlans().length > 0 && getCurrentPlans().map((item, index) => item ? (
                                     <button
                                         key={item.id}
                                         onClick={() => handleTogglePlanClick(item, index)}
@@ -720,11 +732,20 @@ function AgencyPlans() {
                                                                         // color:  "#000000",
                                                                         alignSelf: 'center'
                                                                     }}
-                                                                    onClick={() => {
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        const currentItem = item;
+                                                                        const currentIndex = index;
                                                                         console.log("selected duration is", selectedDuration);
-                                                                        handleClaimEarlyAccess(item, index);
+                                                                        console.log("currentItem:", currentItem, "currentIndex:", currentIndex);
+                                                                        if (currentItem && currentItem.id) {
+                                                                            handleClaimEarlyAccess(currentItem, currentIndex);
+                                                                        } else {
+                                                                            console.error("Item or item.id is undefined:", currentItem);
+                                                                        }
                                                                     }}>
-                                                                    Claim Early Access
+                                                                    {selectedPlan?.id === item.id ? "Continue" : "Claim Early Access"}
                                                                 </button>
                                                             )}
                                                         </div>
@@ -733,8 +754,8 @@ function AgencyPlans() {
 
                                                             {/* Features */}
                                                             {
-                                                                planFeaturesAvailable[selectedDuration.id][index].map((label, index) => (
-                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-1">
+                                                                planFeaturesAvailable[selectedDuration.id][index].map((label, labelIndex) => (
+                                                                    <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
@@ -769,8 +790,8 @@ function AgencyPlans() {
 
 
                                                             {
-                                                                planFeaturesUnavailable[selectedDuration.id][index].map((label, index) => (
-                                                                    <div key={index} className="flex flex-row items-center gap-2 mt-1">
+                                                                planFeaturesUnavailable[selectedDuration.id][index].map((label, labelIndex) => (
+                                                                    <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
@@ -813,7 +834,7 @@ function AgencyPlans() {
                                         </div>
                                     </button>
 
-                                ))
+                                ) : null)
                             )
                         }
 
