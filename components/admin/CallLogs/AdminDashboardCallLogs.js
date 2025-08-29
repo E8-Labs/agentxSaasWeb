@@ -31,6 +31,8 @@ import { time } from "framer-motion";
 import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
 import { PersistanceKeys } from "@/constants/Constants";
+import { copyAgencyOnboardingLink } from "@/components/constants/constants";
+import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 
 function AdminDashboardCallLogs({ selectedAgency }) {
   const LimitPerPage = 30;
@@ -70,6 +72,8 @@ function AdminDashboardCallLogs({ selectedAgency }) {
   const requestVersion = useRef(0);
 
   const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false);
+const [linkCopied, setLinkCopied] = useState(false);
+
 
 
   const filterRef = useRef(null);
@@ -253,15 +257,15 @@ function AdminDashboardCallLogs({ selectedAgency }) {
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
-     
+
       if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
         ApiPath = `${Apis.adminCallLogs}?offset=${offset}`; //Apis.getCallLogs;
       }
 
-      if(selectedAgency){
-        ApiPath = ApiPath+"&userId="+selectedAgency.id
+      if (selectedAgency) {
+        ApiPath = ApiPath + "&userId=" + selectedAgency.id
       }
       if (searchValue && searchValue.length > 0) {
         ApiPath = `${ApiPath}&name=${searchValue}`;
@@ -277,7 +281,7 @@ function AdminDashboardCallLogs({ selectedAgency }) {
 
       // ApiPath = Apis.adminCallLogs
 
-      console.log("apiPath",ApiPath)
+      console.log("apiPath", ApiPath)
 
       //// //console.log;
       // return
@@ -355,11 +359,28 @@ function AdminDashboardCallLogs({ selectedAgency }) {
 
   return (
     <div className="w-full items-start">
-      <div
-        className="w-full pl-10 mt-5"
-        style={{ fontSize: 24, fontWeight: "600" }}
-      >
-        Call Logs
+      <div className="flex flex-row items-center justify-between w-full">
+        <div
+          className="pl-10 mt-5"
+          style={{ fontSize: 24, fontWeight: "600" }}
+        >
+          Call Logs
+        </div>
+        {
+          !selectedAgency && (
+            <div className="flex flex-row items-center gap-2">
+              <button
+                className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
+                style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
+                onClick={() => {
+                  copyAgencyOnboardingLink({setLinkCopied})
+                }}>
+                {linkCopied ? "Link Copied" : "Copy Link"}
+              </button>
+              <NotficationsDrawer />
+            </div>
+          )
+        }
       </div>
 
       <div className="flex w-full pl-10 flex-row items-center gap-3">

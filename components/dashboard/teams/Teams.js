@@ -22,6 +22,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 
 function Teams({
   agencyData,
@@ -62,6 +63,9 @@ function Teams({
 
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
+
+const [linkCopied, setLinkCopied] = useState(false);
+
 
   const handleClick = (event) => {
     setOpenTeamDropdown(true);
@@ -584,18 +588,31 @@ function Teams({
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Team</div>
-        <div className="flex flex-row items-center">
+
+        <div className="flex flex-row items-center gap-2">
+          {
+            agencyData && (
+              <button
+                className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
+                style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
+                onClick={() => {
+                  copyAgencyOnboardingLink({setLinkCopied})
+                }}>
+                {linkCopied ? "Link Copied" : "Copy Link"}
+              </button>
+            )
+          }
           <NotficationsDrawer />
-          <div
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 0
-            }}>
-            <DashboardSlider
-              needHelp={false} />
-          </div>
         </div>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider
+          needHelp={false} />
       </div>
 
       <div

@@ -22,6 +22,7 @@ import ViewSubAccountPlans from "./ViewSubAccountPlans";
 import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 import { CheckStripe } from "../agencyServices/CheckAgencyData";
+import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 
 
 function AgencySubacount({
@@ -60,6 +61,9 @@ function AgencySubacount({
   // state variables for dropdown
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeAccount, setActiveAccount] = useState(null);
+
+  const [linkCopied, setLinkCopied] = useState(false);
+
 
   useEffect(() => {
     getLocalData();
@@ -307,7 +311,17 @@ function AgencySubacount({
 
         </div>
 
-        <div>
+        <div className="flex flex-row items-center gap-2">
+          <button
+            className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
+            style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
+            onClick={() => {
+              copyAgencyOnboardingLink(
+                setLinkCopied = { setLinkCopied }
+              )
+            }}>
+            {linkCopied ? "Link Copied" : "Copy Link"}
+          </button>
           <NotficationsDrawer />
         </div>
       </div>
