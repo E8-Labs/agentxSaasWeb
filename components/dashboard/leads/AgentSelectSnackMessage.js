@@ -31,7 +31,8 @@ export default function AgentSelectSnackMessage({
     }
     if (type == SnackbarTypes.Loading) {
       // return "";///assets/salmanassets/danger_conflict.svg
-      console.log("Loading snack")
+      console.log("Loading snack");
+      return
     }
 
     return "/assets/salmanassets/danger_conflict.svg";
