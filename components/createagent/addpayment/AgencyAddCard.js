@@ -596,8 +596,8 @@ const AgencyAddCard = ({
                                     {CardAdded && CardExpiry && CVC && agreeTerms ? (
                                         <button
                                             onClick={handleAddCard}
-                                            className="bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3"
-                                            style={{ fontWeight: "600", fontSize: 17 }}
+                                            className="w-full h-[50px] rounded-xl px-8 text-white py-3"
+                                            style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
                                         >
                                             Continue
                                         </button>
@@ -669,8 +669,8 @@ const AgencyAddCard = ({
                                     {CardAdded && CardExpiry && CVC ? (
                                         <button
                                             onClick={handleAddCard}
-                                            className="bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3"
-                                            style={{ fontWeight: "600", fontSize: 17 }}
+                                            className="w-full h-[50px] rounded-xl px-8 text-white py-3"
+                                            style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
                                         >
                                             Continue
                                         </button>
@@ -699,9 +699,8 @@ const AgencyAddCard = ({
                                 By continuing you agree to our
                             </div>
                             <a
-                                className="text-purple"
                                 href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                                style={{ textDecoration: "underline" }} // Underline and color styling
+                                style={{ textDecoration: "underline", color: "#7902DF" }} // Underline and color styling
                                 target="_blank" // Opens in a new tab (optional)
                                 rel="noopener noreferrer" // Security for external links
                             >
