@@ -154,7 +154,6 @@ const SubAccountPlan = ({handleContinue}) => {
         console.log("Response of subscribe subaccount plan is", response.data);
         setSubPlanLoader(false);
         if (response.data.status === true) {
-          setPlanSubscribed(true);
           setErrorMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
           const D = localStorage.getItem("fromDashboard");
@@ -164,6 +163,7 @@ const SubAccountPlan = ({handleContinue}) => {
           if (subaccount) {
             handleContinue()
           }else{
+          setPlanSubscribed(true);
             router.push("/dashboard");
 
           }
@@ -252,7 +252,7 @@ const SubAccountPlan = ({handleContinue}) => {
   };
 
   return (
-    <div className="w-full flex flex-row justify-center">
+    <div className="w-full flex flex-row justify-center bg-white h-full">
       <div className="w-10/12">
         <AgentSelectSnackMessage
           isVisible={errorMsg !== null}
@@ -286,7 +286,7 @@ const SubAccountPlan = ({handleContinue}) => {
           </div>
         </div>
 
-        <div className="w-full flex flex-row items-center px-4 h-[90%]">
+        <div className="w-full flex flex-row items-center px-4 h-[90%] overflow-y-auto">
           <div className="w-6/12">
             <div
               className="mt-12"
@@ -298,11 +298,11 @@ const SubAccountPlan = ({handleContinue}) => {
               Select a Plan
             </div>
             {initialLoader ? (
-              <div className="mt-6 flex flex-row justify-center w-full">
+              <div className="mt-6 h-[50vh] flex flex-row justify-center w-full">
                 <CircularProgress size={35} />
               </div>
             ) : (
-              <div className="max-height-[30vh] overflow-y-auto">
+              <div className="h-[50vh] overflow-y-auto">
                 {userPlans?.length > 0 ? (
                   <div className="mt-4">
                     {userPlans?.map((item) => (

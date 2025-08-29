@@ -1,8 +1,10 @@
 import Apis from '@/components/apis/Apis';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
+import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails';
+import SelectedUserDetails from '../users/SelectedUserDetails';
 
 function AdminTransactions() {
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,9 @@ function AdminTransactions() {
     { value: 'last30Days', label: 'Last 30 Days' },
     { value: 'customRange', label: 'Custom Range' }
   ];
+
+  const [selectedAgency,setSelectedAgency] = useState(null)
+  const [selectedSubAccount,setSelectedSubAccount] = useState(null)
 
   useEffect(() => {
     getTransactions();
@@ -252,7 +257,7 @@ function AdminTransactions() {
                   style={styles.cellLink}
                   className="cursor-pointer hover:text-blue-600"
                   onClick={() => {
-                    // TODO: Redirect to agency details
+                    setSelectedAgency(transaction)
                     console.log('Navigate to agency:', transaction.agencyId);
                   }}
                 >
@@ -267,6 +272,7 @@ function AdminTransactions() {
                   onClick={() => {
                     // TODO: Redirect to subaccount details
                     console.log('Navigate to subaccount:', transaction.subaccountId);
+                    setSelectedSubAccount(transaction)
                   }}
                 >
                   {transaction.subaccountName}
@@ -336,6 +342,131 @@ function AdminTransactions() {
           </div>
         )}
       </div>
+
+
+
+      <Modal
+        open={selectedAgency ? true : false}
+        onClose={() => {
+          // localStorage.removeItem("AdminProfileData")
+          setSelectedAgency(null);
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+            zIndex: 1200, // Keep backdrop below Drawer
+          },
+        }}
+        sx={{
+          zIndex: 1300, // Keep Modal below the Drawer
+        }}
+
+      >
+        <Box
+          className="w-11/12  p-8 rounded-[15px]"
+          sx={{
+            ...styles.modalsStyle,
+            backgroundColor: "white",
+            position: "relative",
+            zIndex: 1301, // Keep modal content above its backdrop
+          }}
+        >
+          <SelectedAgencyDetails
+            selectedUser={selectedAgency}
+            handleDel={() => {
+              setTransactions((prev) => prev.filter((u) =>
+                u.id != selectedUser.id
+              ));
+              localStorage.removeItem("AdminProfileData")
+              setSelectedAgency(null);
+            }}
+            handleClose={() => {
+              localStorage.removeItem("AdminProfileData")
+              setSelectedAgency(null);
+            }}
+            handlePauseUser={(d) => {
+              console.log("User paused");
+
+              const updatedStatus = selectedAgency.profile_status === "active" ? "paused" : "active";
+
+              const updatedUser = {
+                ...selectedAgency,
+                profile_status: updatedStatus
+              };
+
+              // ✅ Update the user in the list
+              setTransactions((prev) =>
+                prev.map((u) =>
+                  u.id === updatedUser.id ? updatedUser : u
+                )
+              );
+
+              // ✅ Re-send updated user to child
+              setSelectedAgency(updatedUser);
+            }}
+          />
+        </Box>
+      </Modal>
+
+      <Modal
+        open={selectedSubAccount ? true : false}
+        onClose={() => {
+          selectedSubAccount(null);
+        }}
+        BackdropProps={{
+          timeout: 200,
+          sx: {
+            backgroundColor: "#00000020",
+            zIndex: 1200, // Keep backdrop below Drawer
+          },
+        }}
+        sx={{
+          zIndex: 1300, // Keep Modal below the Drawer
+        }}
+
+      >
+        <Box
+          className="w-11/12  p-8 rounded-[15px]"
+          sx={{
+            ...styles.modalsStyle,
+            backgroundColor: "white",
+            position: "relative",
+            zIndex: 1301, // Keep modal content above its backdrop
+          }}
+
+        >
+          <SelectedUserDetails
+            selectedUser={selectedSubAccount}
+            handleDel={() => {
+              setTransactions((prev) => prev.filter((u) =>
+                u.id != selectedUser.id
+              ));
+              setSelectedSubAccount(null);
+            }}
+            handlePauseUser={(d) => {
+              console.log("User paused");
+
+              const updatedStatus = transactions.profile_status === "active" ? "paused" : "active";
+
+              const updatedUser = {
+                ...selectedUser,
+                profile_status: updatedStatus
+              };
+
+              // ✅ Update the user in the list
+              setSelectedSubAccount((prev) =>
+                prev.map((u) =>
+                  u.id === updatedUser.id ? updatedUser : u
+                )
+              );
+
+              // ✅ Re-send updated user to child
+              setSelectedSubAccount(updatedUser);
+            }}
+          />
+        </Box>
+      </Modal>
     </div>
   );
 }
