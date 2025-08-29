@@ -84,6 +84,15 @@ const AgencyNavBar = () => {
   const [canAcceptPaymentsAgencyccount, setCanAcceptPaymentsAgencyccount] = useState(false);
   const [navigatingTo, setNavigatingTo] = useState(null);
 
+  //check the stripe
+  const [checkStripeStatus, setCheckStripeStatus] = useState(false);
+
+  //check stripe
+  useEffect(() => {
+    const stripeStatus = !CheckStripe();
+    setCheckStripeStatus(stripeStatus);
+  }, [])
+
   //reset navigation loader
   useEffect(() => {
     // checkCurrentUserRole();
@@ -365,7 +374,7 @@ const AgencyNavBar = () => {
       {/* Sticky Modal */}
 
       {
-        !CheckStripe() && (
+        checkStripeStatus && (
           <div style={{ position: "absolute", bottom: 10, right: 10 }}>
             <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
               <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
@@ -430,13 +439,13 @@ const AgencyNavBar = () => {
                 <Link
                   sx={{ cursor: "pointer", textDecoration: "none" }}
                   href={item.href}
-                  // onClick={() => {
-                  //   router.prefetch(item.href);
-                  //   if (pathname !== item.href) {
-                  //     setNavigatingTo(item.href);
-                  //     router.push(item.href);
-                  //   }
-                  // }}
+                // onClick={() => {
+                //   router.prefetch(item.href);
+                //   if (pathname !== item.href) {
+                //     setNavigatingTo(item.href);
+                //     router.push(item.href);
+                //   }
+                // }}
                 >
                   <div
                     className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
