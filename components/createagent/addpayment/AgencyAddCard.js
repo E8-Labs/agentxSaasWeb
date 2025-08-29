@@ -367,7 +367,7 @@ const AgencyAddCard = ({
                         height={320} width={320}
                     />
                 </div>
-                <div className="mb-12 LeftInnerDiv2" style={{width: '75%', marginLeft: '-50px'}}>
+                <div className="mb-12 LeftInnerDiv2" style={{width: '75%', marginLeft: '-100px'}}>
                     <div// className="mt-8"
                     >
                         <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
@@ -385,7 +385,7 @@ const AgencyAddCard = ({
                         </div>
                         <div
                             className="mt-2 px-3 py-1 border"
-                            style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
+                            style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                         >
                             <CardNumberElement
                                 options={elementOptions}
@@ -421,7 +421,7 @@ const AgencyAddCard = ({
                             </div>
                             <div
                                 className="mt-2 px-3 py-1 border"
-                                style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
+                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                             >
                                 <CardExpiryElement
                                     options={elementOptions}
@@ -462,7 +462,7 @@ const AgencyAddCard = ({
                             </div>
                             <div
                                 className="mt-2 px-3 py-1 border"
-                                style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
+                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                             >
                                 <CardCvcElement
                                     options={elementOptions}
@@ -515,7 +515,7 @@ const AgencyAddCard = ({
                             className="outline-none focus:ring-0 w-full h-[50px]"
                             style={{
                                 color: "#000000",
-                                backgroundColor: "#fff",
+                                backgroundColor: "rgba(255, 255, 255, 0.8)",
                                 borderRadius: "8px",
                                 border: "1px solid #00000020",
                                 fontSize: 15,

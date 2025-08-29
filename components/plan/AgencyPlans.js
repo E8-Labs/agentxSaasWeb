@@ -897,7 +897,7 @@ function AgencyPlans() {
                         timeout: 100,
                         sx: {
                             backgroundColor: "#00000020",
-                            backdropFilter: "blur(20px)",
+                            backdropFilter: "blur(15px)",
                         },
                     }}
                 >
