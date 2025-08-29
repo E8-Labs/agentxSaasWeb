@@ -36,6 +36,7 @@ function AdminTransactions() {
   useEffect(() => {
     getTransactions();
   }, [filters, page]);
+  
 
   const getTransactions = async (resetData = false) => {
     try {
