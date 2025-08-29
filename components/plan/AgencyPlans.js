@@ -910,7 +910,7 @@ function AgencyPlans() {
                                 className="w-full border-white"
                                 style={{
                                     backgroundColor: "#ffffff80",
-                                    padding: 20,
+                                    padding: 0,
                                     borderRadius: "13px",
                                 }}
                             >
@@ -970,12 +970,12 @@ const styles = {
         bgcolor: "transparent",
         // p: 2,
         mx: "auto",
-        // my: "50vh",
-        // transform: "translateY(-50%)",
+        my: "50vh",
+        transform: "translateY(-50%)",
         borderRadius: 2,
         // border: "none",
         outline: "none",
-        height: "100svh",
+        height: "60svh",
     },
     cardStyles: {
         fontSize: "14",

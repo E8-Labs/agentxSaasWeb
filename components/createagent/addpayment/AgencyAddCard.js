@@ -358,15 +358,16 @@ const AgencyAddCard = ({
                 message={"Card added successfully"}
             />
 
-            <div className="w-full flex flex-row items-end">
-                <div className="w-[30%]">
+            <div className="w-full flex flex-row items-center "  style={{backgroundColor: 'transparent'}}>
+                <div className="flex w-[60%] flex-row items-center LeftDiv"  style={{backgroundColor: 'transparent'}}>
+                <div className="LeftInnerDiv1" style={{backgroundColor: 'transparent', flexShrink: 0}}>
                     <Image
                         alt="*"
                         src={"/otherAssets/paymentCircle.png"}
-                        height={620} width={620}
+                        height={320} width={320}
                     />
                 </div>
-                <div className="w-[35%] mb-12">
+                <div className="mb-12 LeftInnerDiv2" style={{width: '75%', marginLeft: '-50px'}}>
                     <div// className="mt-8"
                     >
                         <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
@@ -607,8 +608,9 @@ const AgencyAddCard = ({
                         </div>
                     */}
                 </div>
-                <div className="w-[35%] h-[100%] w-full flex flex-col justify-end ps-4">
-                    <div className="bg-white rounded-lg p-4">
+                </div>
+                <div className="w-[40%] flex flex-col justify-center items-center pe-4" style={{backgroundColor: 'transparent'}}>
+                    <div className="bg-white rounded-lg p-4 w-[80%]">
                         <div style={{ fontSize: 22, fontWeight: "600" }}>Order Summary</div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
