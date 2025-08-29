@@ -48,11 +48,12 @@ function Page() {
     setCurrentIndex((prev) => prev + 1);
   };
   return (
-    <div className="flex flex-col w-full items-center justify-center p-5 overflow-hidden">
-      <div className="flex w-full flex-row items-center justify-center gap-2 mt-4">
-        <Image src={"/assets/agentX.png"} height={30} width={130} alt="*" />
+    <div className="flex flex-col w-full items-center justify-center py-5 overflow-hidden">
+      <div className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12"
+      style={{backgroundColor: ''}}>
+        <Image src={"/assets/agentX.png"} height={30} width={130} alt="*"  style={{backgroundColor: ''}}/>
 
-        <div className="w-[80%]">
+        <div className="w-[100%]">
           <ProgressBar value={currentIndex > 0 ? 100 : 50} />
         </div>
       </div>

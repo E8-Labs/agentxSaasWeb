@@ -501,7 +501,8 @@ const AgencySignUp = ({
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+      style={{backgroundColor: ''}}>
         <div className="w-full flex flex-row items-center justify-start gap-2 mt-4">
           <div className="w-6/12">
             <div className="flex flex-col items-start w-full h-[90%]">
