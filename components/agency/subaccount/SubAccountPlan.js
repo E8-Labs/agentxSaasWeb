@@ -24,7 +24,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-const SubAccountPlan = ({handleContinue}) => {
+const SubAccountPlan = ({ handleContinue }) => {
   const router = useRouter();
 
   const [initialLoader, setInitialLoader] = useState(true);
@@ -163,7 +163,7 @@ const SubAccountPlan = ({handleContinue}) => {
           }
           if (subaccount) {
             handleContinue()
-          }else{
+          } else {
             router.push("/dashboard");
 
           }
@@ -356,7 +356,7 @@ const SubAccountPlan = ({handleContinue}) => {
                             }}
                           ></div>
                           <span style={styles.labelText}>
-                            {item?.percentageDiscount?.toFixed(2)}%
+                            {item?.percentageDiscount ? item?.percentageDiscount.toFixed(2) : 0 }%
                           </span>
                           <div
                             className="flex flex-row items-start gap-3"
