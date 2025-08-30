@@ -21,9 +21,9 @@ module.exports = {
         purple10: "#7902DF10",
         purple60: "#7902DF60",
         "violet-blue": "#5B0EFF",
-        green: "#01CB76",
+        // green: "#01CB76",
         lightGreen: "#01CB7610",
-        red: "#FF4E4E",
+        // red: "#FF4E4E",
         purple2: "#1C55FF",
         lightBlue: "#402fff10",
         brdColor: "#15151510",
@@ -39,6 +39,7 @@ module.exports = {
           800: "#6B21A8",
         },
         green: {
+          DEFAULT: "#01CB76",
           100: "#DCFCE7",
           800: "#166534", 
         },
@@ -47,6 +48,7 @@ module.exports = {
           800: "#9A3412",
         },
         red: {
+          DEFAULT: "#FF4E4E",
           100: "#FEE2E2", 
           800: "#991B1B",
         },
