@@ -203,8 +203,29 @@ const ViewSubAccountPlans = ({
                                         disabled={item.id === selectedUser?.plan?.planId}
                                         onClick={(e) => { handleTogglePlanClick(item.id); }}
                                     >
+                                        {item.hasTrial && (
+                                            <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                                                <div className="flex flex-row items-center gap-2">
+                                                    <Image
+                                                        src={"/otherAssets/batchIcon.png"}
+                                                        alt="*"
+                                                        height={24}
+                                                        width={24}
+                                                    />
+                                                    <div
+                                                        style={{
+                                                            fontWeight: "600",
+                                                            fontSize: 18,
+                                                            color: "white",
+                                                        }}
+                                                    >
+                                                        First {item.hasTrial == true && (`| ${item.trialValidForDays}`)} Days Free
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div
-                                            className="px-4 py-1 pb-4"
+                                            className={`px-4 py-1 pb-4 ${item.hasTrial ? "rounded-b-lg" : "rounded-lg"}`}
                                             style={{
                                                 ...styles.pricingBox,
                                                 border:
@@ -215,7 +236,7 @@ const ViewSubAccountPlans = ({
                                             }}
                                         >
                                             <div
-                                                style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
+                                                style={{ ...styles.triangleLabel, borderTopRightRadius: item.hasTrial ? "0px" : "7px" }}
                                             ></div>
                                             <span style={styles.labelText}>{item.percentageDiscount?.toFixed(2)}%</span>
                                             <div
@@ -256,14 +277,21 @@ const ViewSubAccountPlans = ({
                                                     )}
 
                                                     <div className="flex flex-row items-center gap-3">
-                                                        <div
-                                                            style={{
-                                                                color: "#151515",
-                                                                fontSize: 20,
-                                                                fontWeight: "600",
-                                                            }}
-                                                        >
-                                                            {item.title}
+                                                        <div className="flex flex-row items-center gap-4">
+                                                            <div
+                                                                style={{
+                                                                    color: "#151515",
+                                                                    fontSize: 20,
+                                                                    fontWeight: "600",
+                                                                }}
+                                                            >
+                                                                {item.title}
+                                                            </div>
+                                                            {item.tag &&
+                                                                <div className="bg-purple text-white px-2 py-1 rounded-full">
+                                                                    {item.tag}
+                                                                </div>
+                                                            }
                                                         </div>
                                                         {item.status && (
                                                             <div
@@ -290,7 +318,7 @@ const ViewSubAccountPlans = ({
 
                                                             <div className="flex flex-row justify-start items-start ">
                                                                 <div style={styles.discountedPrice}>
-                                                                    ${item.discountedPrice}
+                                                                    ${item.discountedPrice?.toFixed(2)}
                                                                 </div>
                                                                 <p style={{ color: "#15151580" }}>/mo*</p>
                                                             </div>
@@ -393,7 +421,7 @@ const styles = {
     pricingBox: {
         position: "relative",
         // padding: '10px',
-        borderRadius: "10px",
+        // borderRadius: "10px",
         // backgroundColor: '#f9f9ff',
         display: "inline-block",
         width: "100%",

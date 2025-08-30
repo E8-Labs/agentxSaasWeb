@@ -146,7 +146,7 @@ function AgencyPlans() {
                 { main: "Lead Source", sub: "(Upsell)" },
                 { main: "AI Powered iMessage", sub: "(coming soon)" },
                 { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Dedicated Slack Support", sub: "" }
+                { main: "Slack Support", sub: "" }
             ],
             [ // Column 3
                 { main: "Unlimited Minutes", sub: "" },
@@ -162,8 +162,8 @@ function AgencyPlans() {
                 { main: "Lead Source", sub: "(Upsell)" },
                 { main: "AI Powered iMessage", sub: "(coming soon)" },
                 { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Dedicated Slack Support", sub: "" },
-                { main: "Dedicated Zoom Support", sub: "" }
+                { main: "Slack Support", sub: "" },
+                { main: "Zoom Support", sub: "" }
             ]
         ],
         2: [ // Quarterly
@@ -224,11 +224,10 @@ function AgencyPlans() {
     const planFeaturesUnavailable = {
         1: [ // Monthly
             [
-                { main: "Dedicated Slack Support", sub: "" },
-                { main: "Dedicated Zoom Support", sub: "" }
+                { main: "Slack Support", sub: "" },
             ],
             [
-                { main: "Dedicated Zoom Support", sub: "" }
+                { main: "Zoom Support", sub: "" }
             ],
             [
                 // No unavailable features
@@ -756,7 +755,7 @@ function AgencyPlans() {
                                                             {
                                                                 planFeaturesAvailable[selectedDuration.id][index].map((label, labelIndex) => (
                                                                     <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
-                                                                        <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                                        <Image src="/otherAssets/selectedTickBtn.png" height={16} width={16} alt="✓" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
                                                                             style={{
@@ -914,7 +913,7 @@ function AgencyPlans() {
                                     borderRadius: "13px",
                                 }}
                             >
-                                <div className="flex flex-row justify-end w-full items-center">
+                                <div className="flex flex-row justify-end w-full items-center pe-4 pt-4">
                                     <button onClick={() => {
                                         setAddPaymentPopUp(false);
                                         setIsContinueMonthly(false);

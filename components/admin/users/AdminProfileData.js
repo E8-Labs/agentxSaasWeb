@@ -11,6 +11,7 @@ import AdminSendFeedback from "./AdminSendFeedback";
 import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAccountBilling";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
+import SubAccountBarServices from "@/components/dashboard/subaccount/myAccount/SubAccountBarServices";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -82,7 +83,11 @@ function AdminProfileData({ selectedUser, from }) {
             case 3:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 5:
-                return <AdminXbarServices selectedUser={selectedUser} />;
+                if (from === "subaccount") {
+                    return <SubAccountBarServices selectedUser={selectedUser} />;
+                } else {
+                    return <AdminXbarServices selectedUser={selectedUser} />;
+                }
             case 4:
                 return <TwilioTrustHub selectedUser={selectedUser} />
 
@@ -117,7 +122,7 @@ function AdminProfileData({ selectedUser, from }) {
             </div>
             <div className="w-full flex flex-row item-center pl-4">
                 <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[90%] overflow-auto"
-                    style={{scrollbarWidth:'none'}}
+                    style={{ scrollbarWidth: 'none' }}
                 >
                     {manuBar.map((item, index) => (
                         <div key={item.id} className="w-full">

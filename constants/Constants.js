@@ -104,7 +104,7 @@ export const XBarPlans = [
     type: "Enterprise",
     PlanTitle: "Scale | 1500 mins",
     details: [
-      "Dedicated Success Manager",
+      "Success Manager",
       `6 AgentX AI | 6hrs of Support`,
       `Unlimited External Integration | Calendar Integration`,
     ],

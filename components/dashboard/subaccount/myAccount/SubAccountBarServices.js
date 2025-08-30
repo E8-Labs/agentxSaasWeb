@@ -101,7 +101,11 @@ function SubAccountBarServices({
     try {
       setGetPlansLoader(true);
       const Token = AuthToken();
-      const ApiPath = Apis.getSubAccountPlans
+      let ApiPath = Apis.getSubAccountPlans;
+      if (selectedUser) {
+        ApiPath = ApiPath + `?userId=${selectedUser.id}`
+      }
+      console.log("Apipath of get plans api is", ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           "Authorization": "Bearer " + Token,
@@ -126,24 +130,29 @@ function SubAccountBarServices({
       const localData = localStorage.getItem("User");
       let response = await getProfileDetails();
       //console.log;
-      if (response) {
-        let togglePlan = response?.data?.data?.supportPlan;
-        // let togglePlan = plan?.type;
-        // let planType = null;
-        // // if (plan.status == "active") {
-        // if (togglePlan === "Starter") {
-        //   planType = 1;
-        // } else if (togglePlan === "Professional") {
-        //   planType = 2;
-        // } else if (togglePlan === "Enterprise") {
-        //   planType = 3;
-        // }
-        // }
-        setUserLocalData(response?.data?.data);
-        console.log("Plan id is", togglePlan);
-        setTogglePlan(togglePlan);
-        setCurrentPlan(togglePlan);
+      let togglePlan = null;
+      if (selectedUser) {
+        togglePlan = selectedUser.supportPlan
+      } else {
+        if (response) {
+          togglePlan = response?.data?.data?.supportPlan;
+          // let togglePlan = plan?.type;
+          // let planType = null;
+          // // if (plan.status == "active") {
+          // if (togglePlan === "Starter") {
+          //   planType = 1;
+          // } else if (togglePlan === "Professional") {
+          //   planType = 2;
+          // } else if (togglePlan === "Enterprise") {
+          //   planType = 3;
+          // }
+          // }
+          setUserLocalData(response?.data?.data);
+        }
       }
+      console.log("Plan id is", togglePlan);
+      setTogglePlan(togglePlan);
+      setCurrentPlan(togglePlan);
     } catch (error) {
       // console.error("Error in getprofile api is", error);
     }
@@ -194,6 +203,9 @@ function SubAccountBarServices({
 
       const formData = new FormData();
       formData.append("supportPlan", togglePlan);
+      if (selectedUser) {
+        formData.append("userId", selectedUser.id);
+      }
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key}: ${value}`);
@@ -278,7 +290,10 @@ function SubAccountBarServices({
 
       //Talabat road
 
-      const ApiPath = Apis.getCardsList;
+      let ApiPath = Apis.getCardsList;
+      if (selectedUser) {
+        ApiPath = ApiPath + `?userId=${selectedUser.id}`
+      }
 
       // //console.log;
 

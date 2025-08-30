@@ -144,7 +144,7 @@ function AgencySubscriptions({
   // Transform data into required format
   const planChartData = Object.keys(analyticData?.subscription?.activePlans || {}).map(
     (planName, index) => ({
-      name: planName,
+      name: planName || "",
       value: analyticData.subscription.activePlans[planName] || 0,
       color: colors[index % colors.length],
     })
@@ -154,7 +154,7 @@ function AgencySubscriptions({
 
   const reActivationChartData = Object.keys(analyticData?.subscription?.cancellations || {}).map(
     (planName, index) => ({
-      name: planName,
+      name: planName || "",
       value: analyticData.subscription.cancellations[planName] || 0,
       color: colors[index % colors.length],
     })

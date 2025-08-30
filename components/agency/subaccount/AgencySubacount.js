@@ -283,6 +283,12 @@ function AgencySubacount({
           Pending
         </div>
       )
+    } else if (status.profile_status === "cancelled") {
+      return (
+        <div className="text-red-800">
+          Cancelled
+        </div>
+      )
     }
   }
 
@@ -417,7 +423,7 @@ function AgencySubacount({
                     key={item.id}
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2 cursor-pointer cursor-pointer"
-                    onClick={(e) => handleTogglePopover(e, item)}
+                  // onClick={(e) => handleTogglePopover(e, item)}
                   // onClick={(event) => {
                   //   if (activeAccount === item.id) {
                   //     // same row clicked again → close
@@ -435,7 +441,7 @@ function AgencySubacount({
                   // }}
                   >
                     <div
-                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0">
+                      className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0" onClick={() => { setSelectedUser(item); }}>
                       {item.thumb_profile_image ? (
                         <Image
                           src={item.thumb_profile_image}
@@ -459,41 +465,42 @@ function AgencySubacount({
                         {item.name}
                       </div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>{item?.profile_status ? <div>{getProfileStatus(item)}</div> : "-"}</div>
                     </div>
-                    <div className=" w-2/12">
+                    <div className=" w-2/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
                         {item.plan?.title || "No Plan"}
                       </div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       {/* (item.LeadModel?.phone) */}
                       <div style={styles.text2}>${item.amountSpent || 0}</div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
                         {convertSecondsToMinDuration(
                           item.totalSecondsAvailable || 0
                         )}
                       </div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>{item.totalLeads}</div>
                     </div>
-                    <div className="w-2/12">
+                    <div className="w-2/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
                         {item.nextChargeDate
                           ? moment(item.nextChargeDate).format("MMMM DD,YYYY")
                           : "-"}
                       </div>
                     </div>
-                    <div className="w-1/12">{item.teamMembers}</div>
+                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>{item.teamMembers}</div>
 
                     <div className="w-1/12 relative">
                       <button
                         disabled={twililoConectedStatus}
                         id={`account-popover-toggle-${item.id}`}
+                        onClick={(e) => handleTogglePopover(e, item)}
                       // onClick={() => {
                       //   setUserData(item);
                       //   setmoreDropdown(
@@ -524,7 +531,7 @@ function AgencySubacount({
                       }}
                       transformOrigin={{
                         vertical: "top",
-                        horizontal: "right",
+                        horizontal: "center",
                       }}
                       PaperProps={{
                         elevation: 6,
