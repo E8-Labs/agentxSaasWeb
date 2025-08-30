@@ -41,6 +41,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { checkCurrentUserRole } from "@/components/constants/constants";
 import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import PlansService from "@/utilities/PlansService";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -48,102 +49,12 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-let plansWithoutTrial = [
-  {
-    id: 1,
-    mints: 30,
-    calls: 125,
-    details: "Great for trying out AI sales agents.",
-    originalPrice: "",
-    discountPrice: "45",
-    planStatus: "",
-    status: "",
-  },
-  {
-    id: 2,
-    mints: 120,
-    calls: "500",
-    details: "Perfect for lead updates and engagement.",
-    originalPrice: "165",
-    discountPrice: "99",
-    planStatus: "40%",
-    status: "",
-  },
-  {
-    id: 3,
-    mints: 360,
-    calls: "1500",
-    details: "Perfect for lead reactivation and prospecting.",
-    originalPrice: "540",
-    discountPrice: "299",
-    planStatus: "50%",
-    status: "Popular",
-  },
-  {
-    id: 4,
-    mints: 720,
-    calls: "5k",
-    details: "Ideal for teams and reaching new GCI goals.  ",
-    originalPrice: "1200",
-    discountPrice: "599",
-    planStatus: "50%",
-    status: "Best Value",
-  },
-];
-
-let plansWitTrial = [
-  {
-    id: 1,
-    startFreeLabel: "Free",
-    mints: 30,
-    calls: 125,
-    isTrial: true,
-    trial: "7 Day Trial",
-    details: "Perfect to start for free, then $45 to continue.",
-    originalPrice: "45",
-    discountPrice: "Free Trial",
-    planStatus: "Free",
-    status: "",
-  },
-  {
-    id: 2,
-    mints: 120,
-    isTrial: false,
-    calls: "500",
-    details: "Perfect for lead updates and engagement.", // "Perfect for lead updates and engagement.",
-    originalPrice: "165",
-    discountPrice: "99",
-    planStatus: "40%",
-    status: "",
-  },
-  {
-    id: 3,
-    mints: 360,
-    isTrial: false,
-    calls: "1500",
-    details: "Perfect for lead reactivation and prospecting.",
-    originalPrice: "540",
-    discountPrice: "299",
-    planStatus: "50%",
-    status: "Popular",
-  },
-  {
-    id: 4,
-    mints: 720,
-    isTrial: false,
-    calls: "5k",
-    details: "Ideal for teams and reaching new GCI goals.  ",
-    originalPrice: "1200",
-    discountPrice: "599",
-    planStatus: "50%",
-    status: "Best Value",
-  },
-];
+// Plans will now be loaded dynamically from API
 //banner
 const ProfileNav = () => {
   // const [user, setUser] = useState(null)
 
-  const [plans, setPlans] = useState(plansWithoutTrial);
+  const [plans, setPlans] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -392,6 +303,27 @@ const ProfileNav = () => {
     }
   }
 
+  // Function to load plans dynamically
+  const loadPlans = async (includeTrial = false) => {
+    try {
+      const context = 'default';
+      const cacheKey = includeTrial ? 'plans_with_trial_profile_nav' : 'plans_without_trial_profile_nav';
+      
+      const plansData = await PlansService.getCachedPlans(
+        cacheKey,
+        'regular',
+        includeTrial ? 'onboarding' : context,
+        includeTrial
+      );
+      
+      setPlans(plansData);
+    } catch (error) {
+      console.error('Error loading plans in ProfileNav:', error);
+      // Set fallback plans if API fails
+      setPlans(PlansService.getFallbackPlans(includeTrial ? 'onboarding' : 'default', includeTrial));
+    }
+  };
+
   const getUserProfile = async () => {
     await getProfile();
     const data = localStorage.getItem("User");
@@ -410,8 +342,11 @@ const ProfileNav = () => {
       }
       setUserDetails(LocalData);
       if (LocalData.user.plan == null) {
-        // user haven't subscribed to any plan
-        setPlans(plansWitTrial);
+        // user haven't subscribed to any plan - load plans with trial
+        await loadPlans(true);
+      } else {
+        // user has a plan - load regular plans
+        await loadPlans(false);
       }
 
       if (LocalData.user.needsChargeConfirmation) {
