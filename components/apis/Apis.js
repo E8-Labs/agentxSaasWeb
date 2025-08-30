@@ -1,10 +1,14 @@
 // const BasePath = process.env.NEXT_PUBLIC_REACT_APP_BASE_URL;
 
 // //console.log;
-const BasePath =
+let BasePath =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
     ? "https://apimyagentx.com/agentx/" //"https://www.blindcircle.com/agentx/"
     : "https://apimyagentx.com/agentxtest/"; //https://www.blindcircle.com
+
+// Plans API Base URL (temporary ngrok URL)
+// BasePath = "https://65ea59dbae33.ngrok-free.app/";
+
 
 console.log(
   "Current environment is",
@@ -237,7 +241,15 @@ const Apis = {
   connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
   a2pNumbers :`${BasePath}api/agent/getA2PVerifiedNumbers`,
 
-  agencyActivityData: `${BasePath}/api/admin/stats`
+  agencyActivityData: `${BasePath}api/admin/stats`,
+
+  // New Dynamic Plans API Endpoints
+  getPlans: `${BasePath}api/plans`,
+  getPlanById: `${BasePath}api/plans`,
+  createPlan: `${BasePath}api/plans`,
+  updatePlan: `${BasePath}api/plans`,
+  togglePlanStatus: `${BasePath}api/plans`,
+  getAllPlansAdmin: `${BasePath}api/plans/admin/all`,
 
 };
 

@@ -24,6 +24,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
+import PlansService from "@/utilities/PlansService";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -83,51 +84,29 @@ function Billing() {
     }
     // //console.log;
     setScreenWidth(screenWidth);
+    
+    // Load plans for billing
+    loadPlansForBilling();
   }, []);
 
-  //array of plans
-  const plans = [
-    {
-      id: 1,
-      mints: 30,
-      calls: 125,
-      details: "Great for trying out AI sales agents.",
-      // originalPrice: "45",
-      discountPrice: "45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals. ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
+  // Function to load plans for billing context
+  const loadPlansForBilling = async () => {
+    try {
+      const plansData = await PlansService.getCachedPlans(
+        'billing_plans',
+        'regular',
+        'billing',
+        false
+      );
+      setPlans(plansData);
+    } catch (error) {
+      console.error('Error loading billing plans:', error);
+      setPlans(PlansService.getFallbackPlans('billing', false));
+    }
+  };
+
+  //array of plans - now loaded dynamically
+  const [plans, setPlans] = useState([]);
 
   //cancel plan reasons
   const cancelPlanReasons = [

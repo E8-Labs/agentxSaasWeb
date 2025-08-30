@@ -14,6 +14,7 @@ import Apis from "../apis/Apis";
 import axios from "axios";
 import CycleArray from "../onboarding/extras/CycleArray";
 import { PersistanceKeys } from "@/constants/Constants";
+import PlansService from "@/utilities/PlansService";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -45,6 +46,39 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
       setShouldContinue(false);
     }
   }, [togglePlan, agreeTerms]);
+
+  // Load plans on component mount
+  useEffect(() => {
+    loadOnboardingPlans();
+  }, []);
+
+  // Function to load plans for onboarding context
+  const loadOnboardingPlans = async () => {
+    try {
+      // Load main plans with trial
+      const mainPlansData = await PlansService.getCachedPlans(
+        'onboarding_plans_main',
+        'regular',
+        'onboarding',
+        true
+      );
+      setPlans(mainPlansData);
+
+      // Load secondary plans 
+      const secondaryPlansData = await PlansService.getCachedPlans(
+        'onboarding_plans_secondary',
+        'regular',
+        'default',
+        false
+      );
+      setPlans2(secondaryPlansData);
+    } catch (error) {
+      console.error('Error loading onboarding plans:', error);
+      // Set fallback plans
+      setPlans(PlansService.getFallbackPlans('onboarding', true));
+      setPlans2(PlansService.getFallbackPlans('default', false));
+    }
+  };
 
 
   useEffect(() => {
@@ -218,101 +252,9 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
     },
   ];
 
-  const plans = [
-    {
-      id: 1,
-      startFreeLabel: "Free",
-      mints: 30,
-      calls: 125,
-      isTrial: true,
-      trial: "7 Day Trial",
-      details: "Perfect to start for free, then $45 to continue.",
-      originalPrice: "45",
-      discountPrice: "Free Trial",
-      planStatus: "Free",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      isTrial: false,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.", // "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      isTrial: false,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      isTrial: false,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals.  ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
-
-  const plans2 = [
-    {
-      id: 1,
-      mints: 30,
-      isTrial: true,
-      calls: 125,
-      details: "Great for trying out AI sales agents",
-      originalPrice: "",
-      discountPrice: "$45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      isTrial: false,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      isTrial: false,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      isTrial: false,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals.  ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
+  // Plans will be loaded dynamically from API
+  const [plans, setPlans] = useState([]);
+  const [plans2, setPlans2] = useState([]);
 
   const styles = {
     headingStyle: {

@@ -8,6 +8,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { AuthToken } from "../agency/plan/AuthDetails";
+import PlansService from "@/utilities/PlansService";
 
 function InviteAgentX({ isSubAccount }) {
   const [userDetails, setUserDetails] = useState(null);
@@ -27,8 +28,7 @@ function InviteAgentX({ isSubAccount }) {
     if (isSubAccount) {
       getPlans();
     } else {
-      setPlans(defaultPlans);
-      setInitialLoader(false);
+      loadDefaultPlans();
     }
 
     const localData = localStorage.getItem("User");
@@ -41,48 +41,25 @@ function InviteAgentX({ isSubAccount }) {
     }
   }, []);
 
-  const defaultPlans = [
-    {
-      id: 1,
-      mints: 30,
-      calls: 125,
-      details: "Great for trying out AI sales agents.",
-      originalPrice: "",
-      discountPrice: "45",
-      planStatus: "",
-      status: "",
-    },
-    {
-      id: 2,
-      mints: 120,
-      calls: "500",
-      details: "Perfect for lead updates and engagement.",
-      originalPrice: "165",
-      discountPrice: "99",
-      planStatus: "40%",
-      status: "",
-    },
-    {
-      id: 3,
-      mints: 360,
-      calls: "1500",
-      details: "Perfect for lead reactivation and prospecting.",
-      originalPrice: "540",
-      discountPrice: "299",
-      planStatus: "50%",
-      status: "Popular",
-    },
-    {
-      id: 4,
-      mints: 720,
-      calls: "5k",
-      details: "Ideal for teams and reaching new GCI goals.  ",
-      originalPrice: "1200",
-      discountPrice: "599",
-      planStatus: "50%",
-      status: "Best Value",
-    },
-  ];
+  // Function to load default plans
+  const loadDefaultPlans = async () => {
+    try {
+      const plansData = await PlansService.getCachedPlans(
+        'invite_agentx_plans',
+        'regular',
+        'default',
+        false
+      );
+      setPlans(plansData);
+      setInitialLoader(false);
+    } catch (error) {
+      console.error('Error loading InviteAgentX plans:', error);
+      setPlans(PlansService.getFallbackPlans('default', false));
+      setInitialLoader(false);
+    }
+  };
+
+  // Plans will be loaded dynamically
 
   //select the plan
   const handleTogglePlanClick = (item) => {
