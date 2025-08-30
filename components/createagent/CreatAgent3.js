@@ -568,7 +568,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                             </div>
                             <div className="flex flex-row items-center justify-end space-x-1 ">
                               <div className="line-through text-gray-500 text-sm">
-                                ${item.originalPrice}
+                                {item?.originalPrice ? `$${item.originalPrice}` : ""}
                               </div>
                               <div
                                 className="flex flex-row justify-start items-start "
@@ -829,7 +829,7 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                 </div>
 
                 {selectedPlan?.id > 1 ? (
-                  <div  style={{
+                  <div style={{
                     // fontSize: 16,
                     // fontWeight: "600",
                     color: "#00000060",
@@ -840,16 +840,16 @@ const CreatAgent3 = ({ handleContinue, smallTerms, user, handleBack, screenWidth
                     {selectedPlan?.mints} mins
                   </div>
                 ) : (
-                <div
-                  className="text-center text-[14px] font-[400] mt-4 sm:text-[17px] sm:font-[500]"
-                  style={{
-                    // fontSize: 16,
-                    // fontWeight: "600",
-                    color: "#00000060",
-                  }}
-                >
-                  Payment starts after 7 days trial
-                </div>
+                  <div
+                    className="text-center text-[14px] font-[400] mt-4 sm:text-[17px] sm:font-[500]"
+                    style={{
+                      // fontSize: 16,
+                      // fontWeight: "600",
+                      color: "#00000060",
+                    }}
+                  >
+                    Payment starts after 7 days trial
+                  </div>
                 )}
 
                 <Elements stripe={stripePromise}>

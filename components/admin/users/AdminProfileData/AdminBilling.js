@@ -23,6 +23,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
+import PlansService from "@/utilities/PlansService";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -77,7 +78,7 @@ function AdminBilling({ selectedUser, from }) {
       status: "Best Value",
     },
   ];
-  const [plans, setPlans] = useState(defaultPlans);
+  const [plans, setPlans] = useState([]);
 
   //userlocal data
   const [userLocalData, setUserLocalData] = useState(null);
@@ -130,6 +131,8 @@ function AdminBilling({ selectedUser, from }) {
   useEffect(() => {
     if (from === "subaccount") {
       getPlans();
+    } else {
+      loadPlansForBilling();
     }
   }, [selectedUser])
 
@@ -191,6 +194,22 @@ function AdminBilling({ selectedUser, from }) {
       console.error("Error occured in getting plans", error);
     }
   }
+
+  // Function to load plans for billing context
+  const loadPlansForBilling = async () => {
+    try {
+      const plansData = await PlansService.getCachedPlans(
+        'billing_plans',
+        'regular',
+        'billing',
+        false
+      );
+      setPlans(plansData);
+    } catch (error) {
+      console.error('Error loading billing plans:', error);
+      setPlans(PlansService.getFallbackPlans('billing', false));
+    }
+  };
 
   const getProfile = async () => {
     try {
@@ -737,7 +756,7 @@ function AdminBilling({ selectedUser, from }) {
         */}
       </div>
 
-      <SmartRefillCard selectedUser = {selectedUser} />
+      <SmartRefillCard selectedUser={selectedUser} />
 
       {/* code for current plans available */}
 

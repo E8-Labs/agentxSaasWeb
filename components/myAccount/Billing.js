@@ -76,6 +76,8 @@ function Billing() {
   //confirmation popup for update plan
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
+  //array of plans - now loaded dynamically
+  const [plans, setPlans] = useState([]);
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -104,9 +106,6 @@ function Billing() {
       setPlans(PlansService.getFallbackPlans('billing', false));
     }
   };
-
-  //array of plans - now loaded dynamically
-  const [plans, setPlans] = useState([]);
 
   //cancel plan reasons
   const cancelPlanReasons = [

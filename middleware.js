@@ -83,6 +83,14 @@ export function middleware(request) {
     expectedPath = "/dashboard";
   }
 
+  // ✅ UPDATE: Skip redirect enforcement for certain paths
+  if (
+    pathname.startsWith("/createagent") ||
+    pathname.startsWith("/pipeline")
+  ) {
+    return NextResponse.next();
+  }
+
   // ---- Prevent redirect loops ----
   if (
     pathname !== expectedPath && // exact base mismatch
