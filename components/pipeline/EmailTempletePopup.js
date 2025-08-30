@@ -5,12 +5,16 @@ import Image from 'next/image';
 import React, { useState, useEffect, useRef } from 'react'
 import { createTemplete, deleteTemplete, getGmailAccounts, getTempleteDetails, getTempletes, updateTemplete } from './TempleteServices';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
+import { PromptTagInput } from './tagInputs/PromptTagInput';
+import { getUniquesColumn } from '../globalExtras/GetUniqueColumns';
+import { Plus } from 'lucide-react';
+import { GoogleOAuth } from '../auth/socialllogins/AuthServices';
 
 function EmailTempletePopup({
     open,
     onClose,
-    templetes,
-    setTempletes,
+    // templetes,
+    // setTempletes,
     communicationType,
     addRow,
     isEditing = false,
@@ -23,7 +27,7 @@ function EmailTempletePopup({
 
     const bodyRef = useRef(null);
 
- 
+
 
 
     const [subject, setSubject] = useState("")
@@ -37,6 +41,8 @@ function EmailTempletePopup({
     const [detailsLoader, setDetailsLoader] = useState(null)
 
     const [delTempLoader, setDelTempLoader] = useState(null)
+    const [templetes, setTempletes] = useState([])
+    const [loginLoader, setLoginLoader] = useState(false)
 
     // above return
     // disable save if any field is missing or while saving
@@ -51,18 +57,38 @@ function EmailTempletePopup({
 
     const [googleAccounts, setGoogleAccounts] = useState([])
     const [googleAccountLoader, setGoogleAccountLoader] = useState([])
+    const [uniqueColumns, setUniqueColumns] = useState([])
 
+    useEffect(() => {
+        getColumns()
+        templatesForSelectedType()
+    }, [open])
+
+    const templatesForSelectedType = async () => {
+        let temp = await getTempletes("email")
+        setTempletes(temp)
+    }
+
+    const getColumns = async () => {
+        let res = await getUniquesColumn()
+        // console.log('res', res)
+        if (res) {
+            setUniqueColumns(res)
+        }
+    }
 
     useEffect(() => {
         if (bodyRef.current && body) {
-          bodyRef.current.innerHTML = body;
+            bodyRef.current.innerHTML = body;
         }
-      }, [open, body]);
+    }, [open, body]);
 
     // Auto-fill form when editing
     useEffect(() => {
+        console.log("trying to edit", isEditing, editingRow)
         if (isEditing && editingRow && open) {
-            // Load template details if templateId exists
+            // Load template details if templateId existstest
+
             if (editingRow.templateId) {
                 loadTemplateDetails(editingRow);
             }
@@ -142,6 +168,12 @@ function EmailTempletePopup({
                 emailAccountId: selectedGoogleAccount?.id,
                 communicationType: 'email',
             });
+        } else {
+            onUpdateRow(editingRow.id, {
+                templateId: t.id,
+                emailAccountId: selectedGoogleAccount?.id,
+                communicationType: 'email',
+            })
         }
         onClose();
         // getTempDetailsHandler(t)
@@ -200,8 +232,8 @@ function EmailTempletePopup({
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         // only pdf
-        const pdfs = files.filter((f) => f.type === "application/pdf");
-        setAttachments((prev) => [...prev, ...pdfs]);
+        // const pdfs = files.filter((f) => f.type === "application/pdf");
+        setAttachments((prev) => [...prev, ...files]);
     };
 
     const removeAttachment = (index) => {
@@ -218,6 +250,8 @@ function EmailTempletePopup({
             attachments: attachments,
             templateName: tempName
         }
+
+        // console.log('attechments', attachments)
         let response = null
         if (isEditing) {
             response = await updateTemplete(data, editingRow.templateId)
@@ -226,10 +260,7 @@ function EmailTempletePopup({
         }
 
         if (response.data.status === true) {
-            setShowSnackBar({
-                message: response.data.message,
-                type: SnackbarTypes.Success,
-            })
+
             const createdTemplate = response?.data?.data
             if (createdTemplate) {
                 setTempletes((prev) => (Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate]))
@@ -285,6 +316,24 @@ function EmailTempletePopup({
     }
 
 
+    const addNewAccount = async () => {
+        let response = await GoogleOAuth({
+            setLoginLoader,
+            setShowSnackBar
+        })
+
+        if (response) {
+            console.log('response', response);
+
+            setGoogleAccounts((prev) => [...prev, response]);
+
+            setSelectedGoogleAccount(response);
+
+            setShowChangeManu(null);
+        }
+    }
+
+
     return (
         <Modal
             open={open}
@@ -295,7 +344,7 @@ function EmailTempletePopup({
                 sx={{ ...styles.modalsStyle, }}
             >
                 <div className='flex flex-col w-5/12  px-8 py-6 bg-white max-h-[80vh] rounded-2xl gap-2 overflow-y-auto'
-                    style={{scrollbarWidth:'none'}}
+                    style={{ scrollbarWidth: 'none' }}
                 >
 
                     <AgentSelectSnackMessage
@@ -348,14 +397,10 @@ function EmailTempletePopup({
                             >
                                 {
                                     templetes?.length > 0 ? (
-
-
                                         templetes?.map((item, index) => (
-
                                             detailsLoader?.id === item.id ? (
-                                                <CircularProgress key={item.id}  size={20} />
+                                                <CircularProgress key={item.id} size={20} />
                                             ) :
-
                                                 <MenuItem key={index}
                                                     // className="hover:bg-[#402FFF10]"
                                                     value={item}
@@ -417,7 +462,7 @@ function EmailTempletePopup({
 
                             {
                                 googleAccountLoader ? (
-                                    <div className="w-[10vw]">
+                                    <div className="w-[10vw] ml-2">
                                         <CircularProgress size={20} />
                                     </div>
                                 ) :
@@ -442,7 +487,25 @@ function EmailTempletePopup({
                                             </div>
                                         </MenuItem>
 
-                                    ))}
+                                    ))
+                            }
+
+                            <MenuItem
+                                onClick={addNewAccount}
+                                // key={a.id}
+                                sx={{
+                                    '&:hover .action-icon': {
+                                        display: 'none',
+                                    },
+                                    '&:hover .action-icon-hover': {
+                                        display: 'block',
+                                    },
+                                }}>
+                                <div className='flex flex-row gap-2 text-purple'>
+                                    <Plus weight="bold" size={22} className='text-purple' />
+                                    Add new Account
+                                </div>
+                            </MenuItem>
                         </Menu>
 
                     </div>
@@ -466,36 +529,40 @@ function EmailTempletePopup({
                         onChange={(event) => { setTempName(event.target.value) }}
                     />
 
-                    <input
-                        className='w-full h-12 px-[10px] py-7 mt-3 border-2 rounded-lg border-[#00000010]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
-                        placeholder='Subject'
-                        value={subject}
-                        onChange={(event) => { setSubject(event.target.value) }}
-                    />
 
+                    <div className=' mt-4'>
+                        <PromptTagInput
+                            promptTag={subject}
+                            isSubject={true}
+                            placeholder="Subject"
+                            // kycsList={kycsData}
+                            uniqueColumns={uniqueColumns}
+                            tagValue={setSubject}
+                            showSaveChangesBtn={subject}
+                            // from={"Template"}
+                            saveUpdates={async () => {
 
-                    <div
-                    id="bodyInput"
-                    contentEditable
-                    suppressContentEditableWarning
-                    onInput={handleBodyInput}
-                    // dangerouslySetInnerHTML={{ __html: body }}
-                    className="outline-none bg-transparent w-full h-[15vh] mt-3 p-2"
-                    style={{
-                      border: "1px solid #00000020",
-                      borderTopRightRadius: 10,
-                      borderTopLeftRadius: 10,
-                      overflowY: "auto",
-                      whiteSpace: "pre-wrap",
-                      textAlign: "left",
-                      direction: "ltr",         // 👈 force left-to-right
-                      unicodeBidi: "plaintext", // 👈 prevent auto-RTL flipping
-                      minHeight:'20vh'
-                    }}
-                    dir="ltr"
-                  />
+                            }}
+                            limit={343}
+                        />
+                    </div>
 
-                    <div className="flex gap-2 p-2 -mt-2"
+                    <div className=' mt-4'>
+                        <PromptTagInput
+                            promptTag={body}
+                            // kycsList={kycsData}
+                            uniqueColumns={uniqueColumns}
+                            tagValue={setBody}
+                            showSaveChangesBtn={body}
+                            // from={"Template"}
+                            saveUpdates={async () => {
+
+                            }}
+                            limit={343}
+                        />
+                    </div>
+
+                    {/* <div className="flex gap-2 p-2 -mt-2"
                         style={{ border: "1px solid #00000020", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}
                     >
                         <button
@@ -541,7 +608,7 @@ function EmailTempletePopup({
                                 onChange={handleFileChange}
                             />
                         </label>
-                    </div>
+                    </div> */}
 
 
 
@@ -559,7 +626,12 @@ function EmailTempletePopup({
                             />
                             <input
                                 type="file"
-                                accept="application/pdf"
+                                accept="
+                                image/*,
+                                application/pdf,
+                                application/msword,
+                                application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                              "
                                 multiple
                                 className="hidden"
                                 onChange={handleFileChange}
@@ -569,17 +641,11 @@ function EmailTempletePopup({
 
                     <div className="mt-2 flex flex-col gap-1">
                         {attachments?.map((file, idx) => (
-                            <div
-                                key={idx}
-                                className="flex flex-row gap-4 items-center p-2 text-sm"
-                            >
-                                <span>{file.name}</span>
-                                <button
-                                    onClick={() => removeAttachment(idx)}
-                                >
-                                    <Image src={'/assets/cross.png'}
-                                        height={14} width={14} alt='*'
-                                    />
+                            <div key={idx} className="flex flex-row gap-4 items-center p-2 text-sm">
+
+                                <span>{file.name || file.originalName}</span>
+                                <button onClick={() => removeAttachment(idx)}>
+                                    <Image src={'/assets/cross.png'} height={14} width={14} alt="remove" />
                                 </button>
                             </div>
                         ))}

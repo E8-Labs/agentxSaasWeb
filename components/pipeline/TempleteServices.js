@@ -29,12 +29,12 @@ export const getTempletes = async (type) => {
 }
 
 
-export const getA2PNumbers = async() => {
+export const getA2PNumbers = async () => {
     try {
         let token = AuthToken()
         // console.log('token', token)
         let path = Apis.a2pNumbers
-       
+
         console.log('path', path)
 
         const response = await axios.get(path, {
@@ -95,6 +95,17 @@ export const createTemplete = async (data) => {
         // }
         // if(data.content){
         formdata.append("content", data.content)
+
+        // If data.attachments is an array of files
+        if (data.attachments && Array.isArray(data.attachments)) {
+            data.attachments.forEach(file => {
+                formdata.append("attachments", file)
+            })
+        } else if (data.attachments) {
+            // If it's a single file
+            formdata.append("attachments", data.attachments)
+        }
+
         // }
         if (data.ccEmails && Array.isArray(data.ccEmails)) {
             // Ensure it's a proper JSON array string
@@ -147,6 +158,14 @@ export const updateTemplete = async (data, tempId) => {
         // }
         // if(data.content){
         formdata.append("content", data.content)
+        if (data.attachments && Array.isArray(data.attachments)) {
+            data.attachments.forEach(file => {
+                formdata.append("attachments", file)
+            })
+        } else if (data.attachments) {
+            // If it's a single file
+            formdata.append("attachments", data.attachments)
+        }
         // }
         if (data.ccEmails && Array.isArray(data.ccEmails)) {
             // Ensure it's a proper JSON array string
