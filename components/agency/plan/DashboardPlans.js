@@ -328,7 +328,7 @@ function DashboardPlans({
             }
 
         } catch (error) {
-            console.log("Error occured in del plan api is", error)
+            console.log("Error found in del plan api is", error)
         }
         finally {
             setDelLoading(false);
