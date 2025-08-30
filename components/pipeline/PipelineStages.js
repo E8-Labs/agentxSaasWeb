@@ -168,29 +168,41 @@ const PipelineStages = ({
       }
       // }
     } else {
-      addRow(stageIndex, value);
+      if (isEditing) {
+        closeAddMenu(stageIndex);
+      } else {
+        addRow(stageIndex, value);
+      }
     }
     closeAddMenu(stageIndex);
   };
 
-  const handleEditRow = async (stageIndex, row) => {
+  const handleEditRow = async (stageIndex, row, e) => {
+    if (!row.communicationType) {
+      openAddMenu(stageIndex, e)
+    }
     console.log('row for edit', row)
     setIsEditing(true);
     setEditingRow(row);
     setEditingStageIndex(stageIndex);
-    setSelectedType(row.action);
+    setSelectedType(row.action ? row.action : 'call');
     setSelectedIndex(stageIndex);
 
-    if (row.action === "email") {
+    if (row.communicationType === "email") {
       setShowEmailTempPopup(true);
-    } else if (row.action === "sms") {
+    } else if (row.communicationType === "sms") {
       setShowSmsTempPopup(true);
     }
   };
 
   const handleUpdateRow = (rowId, updatedData) => {
+    console.log('rowId', rowId)
+    console.log('updateData', updatedData)
+
     // Update the specific row in the pipeline using the updateRow prop
+
     if (editingStageIndex !== null && updateRow) {
+      console.log('update row', editingStageIndex)
       updateRow(editingStageIndex, rowId, updatedData);
     }
 
@@ -967,23 +979,24 @@ const PipelineStages = ({
                                               , then{" "}
                                             </div>
                                             <div className="ml-2" style={{ fontWeight: "600" }}>
-                                              {(row.action === "email" || row.action === "sms") ? (
-                                                <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
-                                                  <div className="text-purple text-[10px]">
-                                                    Send {actionLabel(row.action)}
-                                                  </div>
-                                                  <button onClick={() => handleEditRow(index, row)}>
-                                                    <Image src={'/svgIcons/editIconPurple.svg'}
-                                                      height={16} width={16} alt="*"
-                                                    />
-                                                  </button>
-                                                </div>
-                                              ) : (
-                                                `Make ${actionLabel(row.action || "call")}`
-                                              )
-                                                // actionLabel(row.action || "call")
+                                              <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
+                                                <div className="text-purple text-[12px]">
+                                                  {
+                                                    (row.communicationType && row.communicationTyp != "call") ? (
+                                                      `Send ${actionLabel(row.communicationType)}`
+                                                    ) : (
+                                                      `Make Call`
+                                                    )
+                                                  }
 
-                                              }
+                                                </div>
+                                                <button onClick={(e) => handleEditRow(index, row, e)}>
+                                                  <Image src={'/svgIcons/editIconPurple.svg'}
+                                                    height={16} width={16} alt="*"
+                                                  />
+                                                </button>
+                                              </div>
+
                                             </div>
                                           </div>
                                         </div>
@@ -1017,12 +1030,12 @@ const PipelineStages = ({
                                   anchorEl={addMenuAnchor[index] || null}
                                   open={Boolean(addMenuAnchor[index])}
                                   onClose={() => closeAddMenu(index)}
-                                PaperProps={{
-                                  style: {
-                                    boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
-                                    borderRadius: "12px",
-                                  },
-                                }}
+                                  PaperProps={{
+                                    style: {
+                                      boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
+                                      borderRadius: "12px",
+                                    },
+                                  }}
                                 >
                                   {ACTIONS.map((a) => (
                                     <Tooltip key={a.id}
@@ -1648,7 +1661,7 @@ const PipelineStages = ({
               onUpdateRow={handleUpdateRow}
             />
             <SMSTempletePopup
-            
+
               open={showSmsTemPopup}
               onClose={() => setShowSmsTempPopup(false)}
               phoneNumbers={phoneNumbers}
