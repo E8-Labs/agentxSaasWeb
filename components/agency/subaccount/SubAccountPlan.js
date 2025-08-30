@@ -356,7 +356,7 @@ const SubAccountPlan = ({handleContinue}) => {
                             }}
                           ></div>
                           <span style={styles.labelText}>
-                            {item?.percentageDiscount.toFixed(2)}%
+                            {item?.percentageDiscount?.toFixed(2)}%
                           </span>
                           <div
                             className="flex flex-row items-start gap-3"
