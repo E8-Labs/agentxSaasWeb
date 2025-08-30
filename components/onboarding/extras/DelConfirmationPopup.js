@@ -68,7 +68,15 @@ const DelConfirmationPopup = ({
                         </div>
 
                         <div className="mt-4 flex flex-row items-center gap-4 mt-6">
-                            <button onClick={handleClose} className="w-1/2">
+                            <button
+                                onClick={handleClose}
+                                className="outline-none w-1/2 border"
+                                style={{
+                                    height: "50px",
+                                    borderRadius: "10px",
+                                    fontWeight: 600,
+                                    fontSize: "20",
+                                }}>
                                 Cancel
                             </button>
                             <div className="w-1/2">

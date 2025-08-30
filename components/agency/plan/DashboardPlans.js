@@ -69,14 +69,17 @@ function DashboardPlans({
 
     //auto get the data
     useEffect(() => {
+        getPlanApiTrigerer();
+    }, [planType]);
+
+    const getPlanApiTrigerer = () => {
         if (planType === "monthly") {
             // setInitialLoader(true);
             getMonthlyPlan();
         } else if (planType === "Xbar") {
-            console.log("should triger xbar plaans api")
             getXBarOptions()
         }
-    }, [planType]);
+    }
 
     //check if plan has already trial true
     useEffect(() => {
@@ -279,7 +282,9 @@ function DashboardPlans({
         if (mesg) {
             setSnackMsg(mesg);
             setSnackMsgType(SnackbarTypes.Success);
+            getPlanApiTrigerer();
         }
+        setmoreDropdown(null);
     }
 
     //code to del plan
@@ -308,12 +313,13 @@ function DashboardPlans({
             if (response) {
                 console.log("Response of add plans api is", response.data);
                 if (response.data.status === true) {
-                    if (planType === "monthly") {
-                        // setInitialLoader(true);
-                        getMonthlyPlan();
-                    } else if (planType === "Xbar") {
-                        getXBarOptions()
-                    }
+                    // if (planType === "monthly") {
+                    //     // setInitialLoader(true);
+                    //     getMonthlyPlan();
+                    // } else if (planType === "Xbar") {
+                    //     getXBarOptions()
+                    // }
+                    getPlanApiTrigerer();
                     setmoreDropdown(null);
                     setShowDeleteModal(false);
                 }
@@ -351,7 +357,7 @@ function DashboardPlans({
                         className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
                         style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
                         onClick={() => {
-                            copyAgencyOnboardingLink({setLinkCopied})
+                            copyAgencyOnboardingLink({ setLinkCopied })
                         }}>
                         {linkCopied ? "Link Copied" : "Copy Link"}
                     </button>

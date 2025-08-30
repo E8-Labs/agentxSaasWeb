@@ -35,7 +35,7 @@ export default function AgentSelectSnackMessage({
       return
     }
 
-    return "/assets/salmanassets/danger_conflict.svg";
+    // return "/assets/salmanassets/danger_conflict.svg";
   }
 
   //code to hide after timer

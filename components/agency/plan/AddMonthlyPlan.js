@@ -60,7 +60,8 @@ export default function AddMonthlyPlan({
       setPlanPassed(selectedPlan);
       console.log("Value of selected plan passed is", selectedPlan);
       setTitle(selectedPlan?.title);
-      setTag(selectedPlan?.tag);
+      setIsDefault(selectedPlan?.isDefault);
+      setTag(selectedPlan?.tag ?? "");
       setPlanDescription(selectedPlan?.planDescription);
       const OriginalPrice = selectedPlan?.originalPrice;
       if (OriginalPrice > 0) {
@@ -73,6 +74,7 @@ export default function AddMonthlyPlan({
         setTrialValidForDays(selectedPlan?.trialValidForDays);
       }
       setAllowTrial(selectedPlan?.hasTrial);
+      setTrialValidForDays(selectedPlan?.trialValidForDays);
     }
   }, [selectedPlan])
 

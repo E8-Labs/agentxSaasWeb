@@ -43,7 +43,7 @@ export default function AddXBarPlan({
       setPlanPassed(selectedPlan);
       console.log("Value of selected plan passed is", selectedPlan);
       setTitle(selectedPlan?.title);
-      setTag(selectedPlan?.tag);
+      setTag(selectedPlan?.tag ?? "");
       setPlanDescription(selectedPlan?.planDescription);
       setOriginalPrice((selectedPlan?.discountedPrice / selectedPlan?.minutes).toFixed(2));
       const OriginalPrice = selectedPlan?.originalPrice
