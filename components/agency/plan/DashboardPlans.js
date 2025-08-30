@@ -285,6 +285,7 @@ function DashboardPlans({
             getPlanApiTrigerer();
         }
         setmoreDropdown(null);
+        setSelectedPlan(null);
     }
 
     //code to del plan
@@ -321,6 +322,7 @@ function DashboardPlans({
                     // }
                     getPlanApiTrigerer();
                     setmoreDropdown(null);
+                    setSelectedPlan(null);
                     setShowDeleteModal(false);
                 }
             }
@@ -524,7 +526,7 @@ function DashboardPlans({
                                                             </div>
                                                             <div className="w-2/12">
                                                                 <div style={styles.text2}>
-                                                                    {item.accounts || 0}
+                                                                    {item.subscriberCount || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-1/12">
