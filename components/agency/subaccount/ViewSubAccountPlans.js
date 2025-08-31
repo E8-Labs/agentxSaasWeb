@@ -6,6 +6,7 @@ import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { getMonthlyPlan } from './GetPlansList';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import { formatDecimalValue } from '../agencyServices/CheckAgencyData';
 
 const ViewSubAccountPlans = ({
     showPlans,
@@ -200,7 +201,7 @@ const ViewSubAccountPlans = ({
                                     <button
                                         key={index}
                                         className="w-full mt-4 outline-none"
-                                        disabled={item.id === selectedUser?.plan?.planId}
+                                        disabled={item.id === selectedUser?.plan?.id}
                                         onClick={(e) => { handleTogglePlanClick(item.id); }}
                                     >
                                         {item.hasTrial && (
@@ -232,20 +233,20 @@ const ViewSubAccountPlans = ({
                                                     selectedPlans.includes(item.id)
                                                         ? "2px solid #7902DF"
                                                         : "1px solid #15151520",
-                                                backgroundColor: item.id === selectedUser?.plan?.planId ? "#402FFF05" : "",
+                                                backgroundColor: item.id === selectedUser?.plan?.id ? "#402FFF05" : "",
                                             }}
                                         >
                                             <div
                                                 style={{ ...styles.triangleLabel, borderTopRightRadius: item.hasTrial ? "0px" : "7px" }}
                                             ></div>
-                                            <span style={styles.labelText}>{item.percentageDiscount?.toFixed(2)}%</span>
+                                            <span style={styles.labelText}>{formatDecimalValue(item.percentageDiscount)}%</span>
                                             <div
                                                 className="flex flex-row items-start gap-3"
                                                 style={styles.content}
                                             >
                                                 <div className="mt-1">
                                                     <div>
-                                                        {item.id === selectedUser?.plan?.planId ? (
+                                                        {item.id === selectedUser?.plan?.id ? (
                                                             <Image
                                                                 src={"/svgIcons/checkMark.svg"}
                                                                 height={24}
@@ -263,7 +264,7 @@ const ViewSubAccountPlans = ({
                                                     </div>
                                                 </div>
                                                 <div className="w-full">
-                                                    {item.id === selectedUser?.plan?.planId && (
+                                                    {item.id === selectedUser?.plan?.id && (
                                                         <div
                                                             className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                                                             style={{
@@ -318,7 +319,7 @@ const ViewSubAccountPlans = ({
 
                                                             <div className="flex flex-row justify-start items-start ">
                                                                 <div style={styles.discountedPrice}>
-                                                                    ${item.discountedPrice?.toFixed(2)}
+                                                                    ${formatDecimalValue(item.discountedPrice)}
                                                                 </div>
                                                                 <p style={{ color: "#15151580" }}>/mo*</p>
                                                             </div>

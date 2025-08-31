@@ -10,7 +10,7 @@ import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
-import { CheckStripe } from '../agencyServices/CheckAgencyData';
+import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyData';
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
 
 
@@ -92,7 +92,7 @@ function DashboardPlans({
             }
         }
 
-    }, [plansList])
+    }, [plansList]);
 
     //handle add new plan click
     const handleAddPlan = () => {
@@ -516,12 +516,12 @@ function DashboardPlans({
                                                             <div className="w-1/12">
                                                                 {/* (item.LeadModel?.phone) */}
                                                                 <div style={styles.text2}>
-                                                                    {item.tag}
+                                                                    {item.tag || "-"}
                                                                 </div>
                                                             </div>
                                                             <div className="w-1/12">
                                                                 <div style={styles.text2}>
-                                                                    ${item.discountedPrice || 0}
+                                                                    ${formatDecimalValue(item.discountedPrice) || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-2/12">

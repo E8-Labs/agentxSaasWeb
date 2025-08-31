@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import SelectYearlypopup from './SelectYearlypopup';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { FalloutShelter } from '@phosphor-icons/react/dist/ssr';
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 
 //code for add card
 let stripePublickKey =
@@ -364,12 +365,12 @@ function AgencyPlans() {
     //claim early access
     const handleClaimEarlyAccess = (item, index) => {
         console.log("handleClaimEarlyAccess called with:", { item, index });
-        
+
         if (!item) {
             console.error("Item is undefined in handleClaimEarlyAccess");
             return;
         }
-        
+
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -482,7 +483,7 @@ function AgencyPlans() {
 
 
 
-        if(isPaymentMethodAdded){
+        if (isPaymentMethodAdded) {
             try {
                 setSubPlanLoader(planId ? planId.id : togglePlan);
                 const Token = AuthToken();
@@ -492,13 +493,13 @@ function AgencyPlans() {
                 for (let [key, value] of formData.entries()) {
                     console.log(`${key} = ${value}`);
                 }
-    
+
                 const response = await axios.post(ApiPath, formData, {
                     headers: {
                         "Authorization": "Bearer " + Token
                     }
                 });
-    
+
                 if (response) {
                     console.log("Response of subscribe subaccount plan is", response.data);
                     setSubPlanLoader(null);
@@ -508,7 +509,7 @@ function AgencyPlans() {
                         localStorage.removeItem("subPlan");
                         // router.push("/agency/dashboard");
                         router.push("/agency/verify");
-    
+
                     } else if (response.data.status === false) {
                         setErrorMsg(response.data.message);
                         setSnackMsgType(SnackbarTypes.Error);
@@ -517,7 +518,7 @@ function AgencyPlans() {
                         }
                     }
                 }
-    
+
             } catch (error) {
                 console.error("Error occured in sub plan api is", error);
                 setSubPlanLoader(null);
@@ -692,16 +693,16 @@ function AgencyPlans() {
                                                             {/*selectedDuration.title === "Monthly"
                                                                 ? `$${item.originalPrice}`
                                                                 : selectedDuration.title === "Quarterly"
-                                                                    ? `$${(item.originalPrice / 3).toFixed(2)}`
+                                                                    ? `$${formatDecimalValue(item.originalPrice / 3)}`
                                                                     : selectedDuration.title === "Yearly"
-                                                                        ? `$${(item.originalPrice / 12).toFixed(2)}`
+                                                                        ? `$${formatDecimalValue(item.originalPrice / 12)}`
                                             : ""*/}
                                                             ${selectedDuration.title === "Monthly"
                                                                 ? item.originalPrice
                                                                 : selectedDuration.title === "Quarterly (save 20%)"
-                                                                    ? (item.originalPrice / 3).toFixed(2)
+                                                                    ? formatDecimalValue(item.originalPrice / 3)
                                                                     : selectedDuration.title === "Yearly (save 30%)"
-                                                                        ? (item.originalPrice / 12).toFixed(2)
+                                                                        ? formatDecimalValue(item.originalPrice / 12)
                                                                         : "-"}
                                                         </div>
 
@@ -710,7 +711,7 @@ function AgencyPlans() {
                                                         </div>
 
                                                         <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${item.ratePerMin.toFixed(2)} per min
+                                                            ${formatDecimalValue(item.ratePerMin)} per min
                                                         </div>
 
                                                         <div className="mt-3 mb-3">

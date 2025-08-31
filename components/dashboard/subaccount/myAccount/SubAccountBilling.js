@@ -24,6 +24,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { RemoveSmartRefillApi, SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1084,7 +1085,7 @@ function SubAccountBilling({
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                  <div style={styles.text2}>${formatDecimalValue(item.price)}</div>
                 </div>
                 <div className="w-2/12 items-start">
                   <div

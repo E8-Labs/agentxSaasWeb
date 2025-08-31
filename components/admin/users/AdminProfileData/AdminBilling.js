@@ -24,6 +24,7 @@ import AdminGetProfileDetails from "../../AdminGetProfileDetails";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
 import PlansService from "@/utilities/PlansService";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1016,7 +1017,7 @@ function AdminBilling({ selectedUser, from }) {
                   </div>
                 </div>
                 <div className="w-3/12">
-                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                  <div style={styles.text2}>${formatDecimalValue(item.price)}</div>
                 </div>
                 <div className="w-3/12 items-start">
                   <div

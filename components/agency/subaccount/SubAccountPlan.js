@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import getProfileDetails from "@/components/apis/GetProfile";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import { PersistanceKeys } from "@/constants/Constants";
+import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 
 //code for add card
 let stripePublickKey =
@@ -356,7 +357,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                             }}
                           ></div>
                           <span style={styles.labelText}>
-                            {item?.percentageDiscount ? item?.percentageDiscount.toFixed(2) : 0 }%
+                            {item?.percentageDiscount ? formatDecimalValue(item?.percentageDiscount) : 0 }%
                           </span>
                           <div
                             className="flex flex-row items-start gap-3"

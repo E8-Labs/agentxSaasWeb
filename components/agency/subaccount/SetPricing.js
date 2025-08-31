@@ -5,6 +5,7 @@ import SetXBarOptions from "./SetXBarOptions";
 import { getMonthlyPlan } from "./GetPlansList";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import Image from "next/image";
+import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 
 
 
@@ -130,7 +131,7 @@ export default function SetPricing({
                                 </h3>
                                 <p className="text-sm text-gray-500">{plan.planDescription}</p>
                                 <p className="mt-1 font-medium text-lg text-gray-800">
-                                    <span className="line-through text-[#00000090]">${plan.originalPrice?.toFixed(2)}</span> ${plan.discountedPrice?.toFixed(2)}/<span className="text-sm text-gray-400">Mo*</span>
+                                    <span className="line-through text-[#00000090]">${formatDecimalValue(plan.originalPrice)}</span> ${plan.discountedPrice?.toFixed(2)}/<span className="text-sm text-gray-400">Mo*</span>
                                 </p>
                             </div>
 

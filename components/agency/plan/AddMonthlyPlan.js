@@ -8,7 +8,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { useEffect } from "react";
 import Image from "next/image";
-import { handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
+import { formatDecimalValue, handlePricePerMinInputValue } from "../agencyServices/CheckAgencyData";
 
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
@@ -67,8 +67,8 @@ export default function AddMonthlyPlan({
       if (OriginalPrice > 0) {
         setOriginalPrice(OriginalPrice);
       }
-      const DiscountedPrice = (selectedPlan?.discountedPrice?.toFixed(2) / selectedPlan?.minutes).toFixed(2)
-      setDiscountedPrice(DiscountedPrice);
+      const DiscountedPrice = selectedPlan?.discountedPrice / selectedPlan?.minutes
+      setDiscountedPrice(formatDecimalValue(DiscountedPrice));
       setMinutes(selectedPlan?.minutes);
       if (selectedPlan?.trialValidForDays !== null) {
         setTrialValidForDays(selectedPlan?.trialValidForDays);
@@ -94,14 +94,6 @@ export default function AddMonthlyPlan({
     if (discountedPrice && minutes) {
       const P = (discountedPrice * 100) / minutes;
       console.log("Calculated price is", P);
-      // if (P < agencyPlanCost) {
-      //   const cal = discountedPrice * minutes;
-      //   // setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)} or more than ${cal.toFixed(2)}`);
-      //   setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)} or more than ${cal.toFixed(2)}`);
-      //   setSnackBannerMsgType(SnackbarTypes.Warning);
-      // } else if (P >= 0.20) {
-      //   setSnackBannerMsg(null);
-      // }
     }
   }, [minutes, discountedPrice]);
 
@@ -145,7 +137,7 @@ export default function AddMonthlyPlan({
     setAllowTrial(false)
     setIsDefault(false)
     setTrialValidForDays("")
-  
+
   }
 
   //code to create plan
@@ -306,20 +298,20 @@ export default function AddMonthlyPlan({
   //handle allow trial change
   const handleAllowTrialChange = (e) => {
     // if (canAddPlan) {
-      setAllowTrial(e.target.checked);
-      setShowTrailWarning(false);
+    setAllowTrial(e.target.checked);
+    setShowTrailWarning(false);
 
-      if (e.target.checked) {
-        // Wait for the DOM to render trial inputs, then scroll
-        setTimeout(() => {
-          if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTo({
-              top: scrollContainerRef.current.scrollHeight,
-              behavior: "smooth",
-            });
-          }
-        }, 100);
-      }
+    if (e.target.checked) {
+      // Wait for the DOM to render trial inputs, then scroll
+      setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTo({
+            top: scrollContainerRef.current.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      }, 100);
+    }
     // } else {
     //   setShowTrailWarning(true);
     // }
@@ -611,7 +603,7 @@ export default function AddMonthlyPlan({
                     <div>${discountedPrice}/ min</div>
                     {
                       discountedPrice && minutes && (
-                        <div>${(discountedPrice * minutes).toFixed(2)}</div>
+                        <div>${formatDecimalValue(discountedPrice * minutes)}</div>
                       )
                     }
                   </div>
@@ -620,10 +612,10 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Cost</div>
-                    <div>{agencyPlanCost && `$${(agencyPlanCost).toFixed(2)}`}/ min</div>
+                    <div>{agencyPlanCost && `$${formatDecimalValue(agencyPlanCost)}`}/ min</div>
                     {
                       discountedPrice && minutes && (
-                        <div>${(agencyPlanCost * minutes).toFixed(2)}</div>
+                        <div>${formatDecimalValue(agencyPlanCost * minutes)}</div>
                       )
                     }
                   </div>
@@ -635,24 +627,17 @@ export default function AddMonthlyPlan({
                       >
                         <div>Your Profit</div>
                         <div>
-                          ${(discountedPrice - agencyPlanCost).toFixed(2)}/ min
+                          ${formatDecimalValue(discountedPrice - agencyPlanCost)}/ min
                         </div>
                         <div>
-                          $
-                          {((discountedPrice - agencyPlanCost) * minutes).toFixed(
-                            2
-                          )}
+                          ${formatDecimalValue((discountedPrice - agencyPlanCost) * minutes)}
                         </div>
                       </div>
                       <div
                         className="text-end w-full mt-2"
                         style={{ color: getClr() }}
                       >
-                        {(
-                          ((discountedPrice - agencyPlanCost) / agencyPlanCost) *
-                          100
-                        ).toFixed(2)}
-                        %
+                        {formatDecimalValue(((discountedPrice - agencyPlanCost) / agencyPlanCost) * 100)}%
                       </div>
                     </div>
                   )}
@@ -708,22 +693,22 @@ export default function AddMonthlyPlan({
 
 
               <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium">Default Plan</label>
-              <Switch
-                checked={isDefault}
-                sx={{
-                  '& .MuiSwitch-switchBase.Mui-checked': {
-                    color: 'white',
-                  },
-                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                    backgroundColor: '#7902DF',
-                  },
-                }}
-                onChange={(e)=>{
-                  setIsDefault(e.target.checked)
-                }}
-              />
-            </div>
+                <label className="text-sm font-medium">Default Plan</label>
+                <Switch
+                  checked={isDefault}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'white',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#7902DF',
+                    },
+                  }}
+                  onChange={(e) => {
+                    setIsDefault(e.target.checked)
+                  }}
+                />
+              </div>
 
               {allowTrial && (
                 <>
@@ -846,11 +831,11 @@ export default function AddMonthlyPlan({
                     originalPrice > 0 && minutes && ( //replaced
                       <span style={styles.labelText}>
                         {checkCalulations()}
-                        {(
+                        {formatDecimalValue(
                           // (originalPrice / originalPrice) * //replaced
                           (originalPrice - (discountedPrice * minutes)) / originalPrice * //replaced
                           100
-                        ).toFixed(0) || "-"}
+                        ) || "-"}
                         %
                       </span>
                     )
@@ -908,7 +893,7 @@ export default function AddMonthlyPlan({
                           {discountedPrice && minutes && (
                             <div className="flex flex-row justify-start items-start ">
                               <div style={styles.discountedPrice}>
-                                ${(discountedPrice * minutes).toFixed(2)}
+                                ${formatDecimalValue(discountedPrice * minutes)}
                               </div>
                               <p style={{ color: "#15151580" }}></p>
                             </div>
