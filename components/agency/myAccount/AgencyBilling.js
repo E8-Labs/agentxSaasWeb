@@ -901,24 +901,23 @@ function AgencyBilling({
       {/* Code for smart refill */}
       <SmartRefillCard />
 
-      <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
-        style={{
-          alignSelf: 'flex-end'
-        }}
-      >
-        {
-          duration.map((item) => (
-            <button key={item.id}
-              className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
-              onClick={() => {
-                setSelectedDuration(item);
-                getCurrentPlans();
-              }}
-            >
-              {item.title}
-            </button>
-          ))
-        }
+      <div className="w-9/12 flex flex-row justify-end">
+        <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+        >
+          {
+            duration.map((item) => (
+              <button key={item.id}
+                className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                onClick={() => {
+                  setSelectedDuration(item);
+                  getCurrentPlans();
+                }}
+              >
+                {item.title}
+              </button>
+            ))
+          }
+        </div>
       </div>
 
       {/* code for current plans available */}

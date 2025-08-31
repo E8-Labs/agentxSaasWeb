@@ -128,27 +128,39 @@ function SubAccountBarServices({
   const getProfile = async () => {
     try {
       const localData = localStorage.getItem("User");
-      let response = await getProfileDetails();
+      let response = null;
       //console.log;
       let togglePlan = null;
       if (selectedUser) {
-        togglePlan = selectedUser.supportPlan
+        const Token = AuthToken();
+        let ApiPath = Apis.getProfileFromId;
+        ApiPath = ApiPath + "?id=" + selectedUser.id
+
+        //console.log
+
+        response = await axios.get(ApiPath, {
+          headers: {
+            Authorization: "Bearer " + Token,
+          },
+        });
       } else {
-        if (response) {
-          togglePlan = response?.data?.data?.supportPlan;
-          // let togglePlan = plan?.type;
-          // let planType = null;
-          // // if (plan.status == "active") {
-          // if (togglePlan === "Starter") {
-          //   planType = 1;
-          // } else if (togglePlan === "Professional") {
-          //   planType = 2;
-          // } else if (togglePlan === "Enterprise") {
-          //   planType = 3;
-          // }
-          // }
-          setUserLocalData(response?.data?.data);
-        }
+        response = await getProfileDetails();
+      }
+      if (response) {
+        console.log("Respone for setting xbar plan", response)
+        togglePlan = response?.data?.data?.supportPlan;
+        // let togglePlan = plan?.type;
+        // let planType = null;
+        // // if (plan.status == "active") {
+        // if (togglePlan === "Starter") {
+        //   planType = 1;
+        // } else if (togglePlan === "Professional") {
+        //   planType = 2;
+        // } else if (togglePlan === "Enterprise") {
+        //   planType = 3;
+        // }
+        // }
+        setUserLocalData(response?.data?.data);
       }
       console.log("Plan id is", togglePlan);
       setTogglePlan(togglePlan);

@@ -503,7 +503,7 @@ function EmailTempletePopup({
                                 }}>
                                 <div className='flex flex-row gap-2 text-purple'>
                                     <Plus weight="bold" size={22} className='text-purple' />
-                                    Add new Account
+                                    Change Account
                                 </div>
                             </MenuItem>
                         </Menu>

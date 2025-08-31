@@ -30,6 +30,9 @@ function Teams({
 }) {
   const timerRef = useRef(null);
   const router = useRouter();
+  //stores local data
+  const [userLocalData, setUserLocalData] = useState(null);
+
   const [teamDropdown, setteamDropdown] = useState(null);
   const [openTeamDropdown, setOpenTeamDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(null);
@@ -66,6 +69,14 @@ function Teams({
 
   const [linkCopied, setLinkCopied] = useState(false);
 
+  //get local Data
+  useEffect(() => {
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const D = JSON.parse(localData)
+      setUserLocalData(D.user);
+    }
+  }, []);
 
   const handleClick = (event) => {
     setOpenTeamDropdown(true);
@@ -769,14 +780,34 @@ function Teams({
               </div>
             ) : (
               <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
-                <div>
-                  <Image
-                    src={"/svgIcons/noTeamIcon2.png"}
-                    height={400}
-                    width={400}
-                    alt="*"
-                  />
-                </div>
+                <Image
+                  src={"/otherAssets/noTemView.png"}
+                  height={280}
+                  width={240}
+                  alt="*"
+                />
+                {agencyData?.sellSeats || userLocalData?.sellSeats ? (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Add Team ($5/mo)
+                    </div>
+                    <div style={{ fontWeight: "400", fontSize: 15 }}>
+                      Add Seats With Full Access
+                    </div>
+                    <div className="text-center" style={{ fontWeight: "400", fontSize: 15, width: "700px" }}>
+                      Unlock full access for your team by adding an extra seat to your account. <span className="text-purple">For just $5 per additional user</span>, per month. Your team member will have complete access to all features, allowing seamless collaboration, lead management, and AI agent usage. Empower your team to work smarter—add a seat and scale your success effortlessly.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Add Your Team
+                    </div>
+                    <div style={{ fontWeight: "400", fontSize: 15 }}>
+                      Add team member to better manage your leads
+                    </div>
+                  </div>
+                )}
                 <div className="">
                   <button
                     className="rounded-lg text-white bg-purple mt-8"
@@ -1068,7 +1099,7 @@ function Teams({
                           : "#ffffff",
                     }}
                   >
-                    {agencyData?.sellSeats ? "Add Team $5/mo" : "Send Invite"}
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? "Add Team $5/mo" : "Send Invite"}
                   </div>
                 </button>
               )}

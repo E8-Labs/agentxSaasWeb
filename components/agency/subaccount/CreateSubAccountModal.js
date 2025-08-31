@@ -787,23 +787,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
 
                 {/* Code for allow sell seats */}
-                <div className='flex flex-row items-center gap-3  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-
-                    <div className='flex flex-row items-center gap-4'>
-
-                        <Switch
-                            checked={alowSellSeats}
-                            onChange={(e) => setAlowSellSeats(e.target.checked)}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: 'white',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
-                                },
-                            }}
-                        />
-                    </div>
+                <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
 
                     <div className="flex flex-row items-center gap-2">
                         <div style={styles.inputs}>
@@ -856,6 +840,21 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </Tooltip>
                     </div>
 
+                    <div className='flex flex-row items-center gap-4'>
+
+                        <Switch
+                            checked={alowSellSeats}
+                            onChange={(e) => setAlowSellSeats(e.target.checked)}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
+                    </div>
 
                 </div>
 
@@ -885,21 +884,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
 
 
-                <div className='flex flex-row items-center gap-3 w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-                    <Switch
-                        checked={allowTwillio}
-                        sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                            },
-                        }}
-                        onChange={(e) => {
-                            setAllowTwillio(e.target.checked)
-                        }}
-                    />
+                <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
                     <div className="flex flex-row items-center gap-2">
                         <label className="text-sm font-medium">Twilio Trust Hub</label>
 
@@ -938,25 +923,24 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             </div>
                         </Tooltip>
                     </div>
+                    <Switch
+                        checked={allowTwillio}
+                        sx={{
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                color: 'white',
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                backgroundColor: '#7902DF',
+                            },
+                        }}
+                        onChange={(e) => {
+                            setAllowTwillio(e.target.checked)
+                        }}
+                    />
 
                 </div>
 
-                <div className='flex flex-row items-center gap-3  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-                    <div>
-                        <Switch
-                            checked={isSmartRefill}
-                            onChange={(e) => setIsSmartRefill(e.target.checked)}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: 'white',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
-                                },
-                            }}
-                        />
-
-                    </div>
+                <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
                     <div className="flex flex-row items-center gap-2">
                         <div
                             className=""
@@ -1000,6 +984,21 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </Tooltip>
                     </div>
 
+                    <div>
+                        <Switch
+                            checked={isSmartRefill}
+                            onChange={(e) => setIsSmartRefill(e.target.checked)}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
+
+                    </div>
                 </div>
 
 

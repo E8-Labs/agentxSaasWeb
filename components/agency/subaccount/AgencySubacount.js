@@ -292,6 +292,15 @@ function AgencySubacount({
     }
   }
 
+  //get the subaccpunt plans status
+  const getPlanStatus = (item) => {
+    if (item.planStatus && item.planStatus.status === "cancelled") {
+      return "Cancelled"
+    } else {
+      return "No Plan"
+    }
+  }
+
   return (
     <div className="w-full flex flex-col items-center ">
       <AgentSelectSnackMessage
@@ -470,7 +479,7 @@ function AgencySubacount({
                     </div>
                     <div className=" w-2/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
-                        {item.plan?.title || "No Plan"}
+                        {item.plan?.name || getPlanStatus(item)}
                       </div>
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
