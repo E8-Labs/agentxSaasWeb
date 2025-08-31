@@ -64,7 +64,7 @@ function Teams({
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
 
-const [linkCopied, setLinkCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
 
   const handleClick = (event) => {
@@ -222,8 +222,13 @@ const [linkCopied, setLinkCopied] = useState(false);
           name: item.name,
           email: item.email,
           phone: item.phone,
-          userId: selectedAgency.id
         };
+        if (selectedAgency) {
+          apidata = {
+            ...apidata,
+            userId: selectedAgency.id
+          }
+        }
 
         // //console.log;
 
@@ -565,7 +570,7 @@ const [linkCopied, setLinkCopied] = useState(false);
         }
       }
       //console.log;
-      if (user?.userRole == "AgentX") {
+      if (user?.userRole == "AgentX" || user?.userRole == "Agency") {
         //console.log
         return true;
       }
@@ -596,7 +601,7 @@ const [linkCopied, setLinkCopied] = useState(false);
                 className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
                 style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
                 onClick={() => {
-                  copyAgencyOnboardingLink({setLinkCopied})
+                  copyAgencyOnboardingLink({ setLinkCopied })
                 }}>
                 {linkCopied ? "Link Copied" : "Copy Link"}
               </button>
