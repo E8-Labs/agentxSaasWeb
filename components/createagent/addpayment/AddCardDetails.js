@@ -554,7 +554,8 @@ const AddCardDetails = ({
             {CardAdded && CardExpiry && CVC && agreeTerms ? (
               <button
                 onClick={handleAddCard}
-                className="bg-purple w-full h-[50px] rounded-xl px-8 text-white py-3"
+                disabled={disableContinue}
+                className={`${disableContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"} w-full h-[50px] rounded-xl px-8 py-3`}
                 style={{ fontWeight: "600", fontSize: 17 }}
               >
                 Continue

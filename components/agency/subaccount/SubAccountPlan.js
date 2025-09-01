@@ -41,7 +41,9 @@ const SubAccountPlan = ({ handleContinue }) => {
 
   const [planSubscribed, setPlanSubscribed] = useState(false);
 
-  const [subaccount, setSubaccount] = useState(null)
+  const [subaccount, setSubaccount] = useState(null);
+
+  const [disableContinue, setDisableContinue] = useState(false);
 
   useEffect(() => {
     getPlans();
@@ -77,15 +79,21 @@ const SubAccountPlan = ({ handleContinue }) => {
 
   //close add card popup
   const handleCardAddedClose = async (data) => {
-    await getProfileDetails();
-    console.log("Card added details are here", data);
-    if (data) {
-      console.log("try to close popup");
-      setAddPaymentPopUp(false);
-      if (togglePlan) {
-        console.log("trying to suubscribe");
-        await subscribePlanClick();
+    try {
+      setDisableContinue(true);
+      await getProfileDetails();
+      console.log("Card added details are here", data);
+      if (data) {
+        console.log("try to close popup");
+        setAddPaymentPopUp(false);
+        if (togglePlan) {
+          console.log("trying to suubscribe");
+          await subscribePlanClick();
+        }
       }
+    } catch (err) {
+      console.log("Error occrued", err);
+      setDisableContinue(false);
     }
   };
   //get plans apis
@@ -131,6 +139,8 @@ const SubAccountPlan = ({ handleContinue }) => {
 
   //subscribe plan
   const subscribePlanClick = async () => {
+    setDisableContinue(true);
+    // return
     if (isCardsAvailable() === false) {
       setAddPaymentPopUp(true);
       return;
@@ -164,13 +174,14 @@ const SubAccountPlan = ({ handleContinue }) => {
           if (subaccount) {
             handleContinue()
           } else {
-          setPlanSubscribed(true);
+            setPlanSubscribed(true);
             router.push("/dashboard");
 
           }
         } else if (response.data.status === false) {
           setErrorMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
+          setDisableContinue(false);
           if (response.data.message === "No payment method added") {
             // setAddPaymentPopUp(true);
           }
@@ -179,6 +190,7 @@ const SubAccountPlan = ({ handleContinue }) => {
     } catch (error) {
       console.error("Error occured in sub plan api is", error);
       setSubPlanLoader(false);
+      setDisableContinue(false);
     }
   };
 
@@ -357,7 +369,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                             }}
                           ></div>
                           <span style={styles.labelText}>
-                            {item?.percentageDiscount ? formatDecimalValue(item?.percentageDiscount) : 0 }%
+                            {item?.percentageDiscount ? formatDecimalValue(item?.percentageDiscount) : 0}%
                           </span>
                           <div
                             className="flex flex-row items-start gap-3"
@@ -471,12 +483,14 @@ const SubAccountPlan = ({ handleContinue }) => {
             </div>
 
             <button
-              className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan
-                ? "bg-purple text-white"
-                : "bg-[#00000030] text-black"
+              className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${!canSubPlan || disableContinue
+                ?
+                "bg-[#00000030] text-black"
+                :
+                "bg-purple text-white"
                 }`}
               onClick={subscribePlanClick}
-              disabled={!canSubPlan}
+              disabled={!canSubPlan || disableContinue}
             >
               Continue
             </button>
