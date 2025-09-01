@@ -286,7 +286,7 @@ const UserCalender = ({
         // formData.append("title", calendar.title);
         formData.append("calendarType", "google");
         // formData.append("mainAgentId", "");
-        formData.append("agentId", selectedAgent?.id);
+        // formData.append("agentId", selectedAgent?.id);
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
         formData.append("scope", Scopes.join(" "));//"openid email profile https://www.googleapis.com/auth/calendar"
@@ -314,14 +314,6 @@ const UserCalender = ({
           console.log("Sending calendar id ", selectGHLCalendar?.id);
         }
         // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
-
-
-        if (selectedUser) {
-          formData.append("userId", selectedUser?.id);
-        }
-        if (selectedAgent) {
-          formData.append("agentId", selectedAgent?.id);
-        }
       } else {
         formData.append("apiKey", calendar?.apiKey || calenderApiKey);
         formData.append("title", calendar?.title || calenderTitle);
@@ -334,20 +326,25 @@ const UserCalender = ({
         formData.append("eventId", calendar?.eventId || eventId); //|| eventId
 
 
-        if (selectedUser) {
-          formData.append("userId", selectedUser?.id);
-        }
-        if (selectedAgent) {
-          formData.append("agentId", selectedAgent?.id);
-        }
+        // if (selectedUser) {
+        //   formData.append("userId", selectedUser?.id);
+        // }
+        // if (selectedAgent) {
+        //   formData.append("agentId", selectedAgent?.id);
+        // }
       }
 
-
+      if (selectedUser) {
+        formData.append("userId", selectedUser?.id);
+      }
+      if (selectedAgent) {
+        formData.append("agentId", selectedAgent?.id);
+      }
 
       for (let [key, value] of formData.entries()) {
         console.log(`${key} ===== ${value}`);
       }
-
+      // setGoogleCalenderLoader(false);
       // return;
 
       const response = await axios.post(ApiPath, formData, {
