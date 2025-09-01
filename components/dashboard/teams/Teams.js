@@ -653,7 +653,7 @@ function Teams({
                   }}
                   onClick={() => setOpenInvitePopup(true)}
                 >
-                  + Invite Team
+                  {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                 </button>
               </div>
             )}
@@ -789,13 +789,13 @@ function Teams({
                 {agencyData?.sellSeats || userLocalData?.sellSeats ? (
                   <div className="w-full flex flex-col items-center -mt-12 gap-4">
                     <div style={{ fontWeight: "700", fontSize: 22 }}>
-                      Add Team ($5/mo)
+                      Add Team (${userLocalData.costPerSeat}/mo)
                     </div>
                     <div style={{ fontWeight: "400", fontSize: 15 }}>
                       Add Seats With Full Access
                     </div>
                     <div className="text-center" style={{ fontWeight: "400", fontSize: 15, width: "700px" }}>
-                      Unlock full access for your team by adding an extra seat to your account. <span className="text-purple">For just $5 per additional user</span>, per month. Your team member will have complete access to all features, allowing seamless collaboration, lead management, and AI agent usage. Empower your team to work smarter—add a seat and scale your success effortlessly.
+                      Unlock full access for your team by adding an extra seat to your account. <span className="text-purple">For just ${userLocalData.costPerSeat} per additional user</span>, per month. Your team member will have complete access to all features, allowing seamless collaboration, lead management, and AI agent usage. Empower your team to work smarter—add a seat and scale your success effortlessly.
                     </div>
                   </div>
                 ) : (
@@ -819,7 +819,7 @@ function Teams({
                     }}
                     onClick={() => setOpenInvitePopup(true)}
                   >
-                    + Invite Team
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
               </div>
@@ -1099,7 +1099,7 @@ function Teams({
                           : "#ffffff",
                     }}
                   >
-                    {agencyData?.sellSeats || userLocalData?.sellSeats ? "Add Team $5/mo" : "Send Invite"}
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? "Add Team $${userLocalData.costPerSeat}/mo" : "Send Invite"}
                   </div>
                 </button>
               )}

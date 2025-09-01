@@ -137,7 +137,7 @@ export default function AddMonthlyPlan({
     setAllowTrial(false)
     setIsDefault(false)
     setTrialValidForDays("")
-
+    setCreatePlanLoader(false);
   }
 
   //code to create plan
@@ -428,10 +428,10 @@ export default function AddMonthlyPlan({
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleResetValues();
-        handleClose("");
-      }}
+    // onClose={() => {
+    //   handleResetValues();
+    //   handleClose("");
+    // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
       <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -739,6 +739,7 @@ export default function AddMonthlyPlan({
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <button
+                disabled={createPlanLoader}
                 onClick={() => {
                   handleClose("");
                   handleResetValues();
@@ -777,6 +778,7 @@ export default function AddMonthlyPlan({
             <div className="p-6 flex flex-col items-center h-[100%]">
               <div className="flex justify-end w-full items-center h-[5%]">
                 <button
+                  // disabled={createPlanLoader}
                   onClick={() => {
                     handleClose("");
                     handleResetValues();

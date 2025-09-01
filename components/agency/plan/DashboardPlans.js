@@ -12,6 +12,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
 import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyData';
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
+import SupportFile from './SupportFile';
 
 
 function DashboardPlans({
@@ -682,6 +683,10 @@ function DashboardPlans({
                 }
 
             </div>
+
+            {/*
+                <SupportFile />
+            */}
 
         </div >
     )

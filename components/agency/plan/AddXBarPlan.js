@@ -99,6 +99,7 @@ export default function AddXBarPlan({
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
+    setAddPlanLoader(false);
   }
 
   //code to add plan
@@ -327,10 +328,10 @@ export default function AddXBarPlan({
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleResetValues();
-        handleClose("");
-      }}
+    // onClose={() => {
+    //   handleResetValues();
+    //   handleClose("");
+    // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
       <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
@@ -509,6 +510,7 @@ export default function AddXBarPlan({
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <button
+                disabled={addPlanLoader}
                 onClick={() => {
                   handleResetValues();
                   handleClose("");
@@ -549,6 +551,7 @@ export default function AddXBarPlan({
             <div className="p-6 flex flex-col items-center h-[100%]">
               <div className="flex justify-end w-full items-center h-[5%]">
                 <button
+                  // disabled={addPlanLoader}
                   onClick={() => {
                     handleResetValues();
                     handleClose("");

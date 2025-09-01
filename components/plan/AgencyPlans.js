@@ -600,7 +600,7 @@ function AgencyPlans() {
 
                     <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] px-2 py-1 rounded-full'>
                         {
-                            duration.map((item) => (
+                            duration?.map((item) => (
                                 <button key={item.id}
                                     className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
@@ -640,7 +640,7 @@ function AgencyPlans() {
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                getCurrentPlans().length > 0 && getCurrentPlans().map((item, index) => item ? (
+                                getCurrentPlans().length > 0 && getCurrentPlans()?.map((item, index) => item ? (
                                     <button
                                         key={item.id}
                                         onClick={() => handleTogglePlanClick(item, index)}
@@ -754,7 +754,7 @@ function AgencyPlans() {
 
                                                             {/* Features */}
                                                             {
-                                                                planFeaturesAvailable[selectedDuration.id][index].map((label, labelIndex) => (
+                                                                planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
                                                                     <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/otherAssets/selectedTickBtn.png" height={16} width={16} alt="✓" />
                                                                         <div
@@ -790,7 +790,7 @@ function AgencyPlans() {
 
 
                                                             {
-                                                                planFeaturesUnavailable[selectedDuration.id][index].map((label, labelIndex) => (
+                                                                planFeaturesUnavailable[selectedDuration.id][index]?.map((label, labelIndex) => (
                                                                     <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
                                                                         <div
