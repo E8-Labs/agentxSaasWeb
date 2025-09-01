@@ -81,14 +81,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
 
   let baseUrl =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://ai.myagentx.com/"
-    : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? "https://ai.myagentx.com/"
+      : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
 
-let demoBaseUrl =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? "https://apimyagentx.com/agentx/"
-    : "https://apimyagentx.com/agentxtest/";
+  let demoBaseUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? "https://apimyagentx.com/agentx/"
+      : "https://apimyagentx.com/agentxtest/";
 
 
   const voiceExpressivenessList = [
@@ -454,72 +454,72 @@ let demoBaseUrl =
     setShowModelLoader(false);
     setOpenGptManu(null);
   };
-    //handle duplicate agent
-    const handleDuplicate = async () => {
-      console.log("Duplicate agent clicked");
-      setDuplicateLoader(true);
-      setShowDuplicateConfirmationPopup(false);
-      try {
-        const data = localStorage.getItem("User");
-  
-        if (data) {
-          const userData = JSON.parse(data);
-          const AuthToken = userData.token;
-          // const ApiPath = Apis.duplicateAgent;
-          const ApiPath = `${Apis.duplicateAgent}?userId=${selectedUser.id}`;
-          console.log("Api path for admin copy agent", ApiPath);
-          let apidata = {
-            agentId: showDrawerSelectedAgent.id,
-          };
-  
-          const response = await axios.post(ApiPath, apidata, {
-            headers: {
-              Authorization: "Bearer " + AuthToken,
-            },
-          });
-  
-          if (response) {
-            setDuplicateLoader(false);
-            console.log("Responseof duplicate agent is", response);
-            if (response.data.status === true) {
-              console.log("duplicate agent data ", response);
-  
-              setShowSuccessSnack("Agent duplicated successfully");
-              setIsVisibleSnack(true);
-              const localAgentsList = localStorage.getItem(
-                PersistanceKeys.LocalStoredAgentsListMain
+  //handle duplicate agent
+  const handleDuplicate = async () => {
+    console.log("Duplicate agent clicked");
+    setDuplicateLoader(true);
+    setShowDuplicateConfirmationPopup(false);
+    try {
+      const data = localStorage.getItem("User");
+
+      if (data) {
+        const userData = JSON.parse(data);
+        const AuthToken = userData.token;
+        // const ApiPath = Apis.duplicateAgent;
+        const ApiPath = `${Apis.duplicateAgent}?userId=${selectedUser.id}`;
+        console.log("Api path for admin copy agent", ApiPath);
+        let apidata = {
+          agentId: showDrawerSelectedAgent.id,
+        };
+
+        const response = await axios.post(ApiPath, apidata, {
+          headers: {
+            Authorization: "Bearer " + AuthToken,
+          },
+        });
+
+        if (response) {
+          setDuplicateLoader(false);
+          console.log("Responseof duplicate agent is", response);
+          if (response.data.status === true) {
+            console.log("duplicate agent data ", response);
+
+            setShowSuccessSnack("Agent duplicated successfully");
+            setIsVisibleSnack(true);
+            const localAgentsList = localStorage.getItem(
+              PersistanceKeys.LocalStoredAgentsListMain
+            );
+
+            if (localAgentsList) {
+              const agentsList = JSON.parse(localAgentsList);
+              // agentsListDetails = agentsList;
+
+              const updatedArray = [response.data.data, ...agentsList];
+              localStorage.setItem(
+                PersistanceKeys.LocalStoredAgentsListMain,
+                JSON.stringify(updatedArray)
               );
-  
-              if (localAgentsList) {
-                const agentsList = JSON.parse(localAgentsList);
-                // agentsListDetails = agentsList;
-  
-                const updatedArray = [response.data.data, ...agentsList];
-                localStorage.setItem(
-                  PersistanceKeys.LocalStoredAgentsListMain,
-                  JSON.stringify(updatedArray)
-                );
-                setMainAgentsList(updatedArray);
-              }
-            } else {
-              setShowErrorSnack(response.data.message);
-              setIsVisibleSnack2(true);
+              setMainAgentsList(updatedArray);
             }
+          } else {
+            setShowErrorSnack(response.data.message);
+            setIsVisibleSnack2(true);
           }
         }
-      } catch (error) {
-        setDuplicateLoader(false);
-        // console.error("Error occured in duplicate agent api is", error);
-        // setShowErrorSnack("Error occured while duplicating agent");
-        const errorMessage =
-          error?.response?.data?.message || error?.message || error.toString();
-  
-        console.error("Error occurred in duplicate agent API:", errorMessage);
-        setShowErrorSnack(`Error: ${errorMessage}`);
-        setIsVisibleSnack2(true);
       }
-    };
-  
+    } catch (error) {
+      setDuplicateLoader(false);
+      // console.error("Error occured in duplicate agent api is", error);
+      // setShowErrorSnack("Error occured while duplicating agent");
+      const errorMessage =
+        error?.response?.data?.message || error?.message || error.toString();
+
+      console.error("Error occurred in duplicate agent API:", errorMessage);
+      setShowErrorSnack(`Error: ${errorMessage}`);
+      setIsVisibleSnack2(true);
+    }
+  };
+
 
   const handleCopy = (assistantId, baseUrl) => {
     const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
@@ -542,7 +542,7 @@ let demoBaseUrl =
 
 
 
-    const handleWebhookClick = (assistantId, baseUrl) => {
+  const handleWebhookClick = (assistantId, baseUrl) => {
     let url = baseUrl + "api/agent/demoAi/" + assistantId
     navigator.clipboard
       .writeText(url)
@@ -4236,6 +4236,7 @@ let demoBaseUrl =
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
+                    setSelectedAgent={setShowDrawerSelectedAgent}
                   />
                 </div>
               ) : activeTab === "Pipeline" ? (
