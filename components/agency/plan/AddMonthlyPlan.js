@@ -534,7 +534,7 @@ export default function AddMonthlyPlan({
                         // setDiscountedPrice(formatFractional2(e.target.value)); // no more repeated "0."
                         const value = e.target.value;
                         if (value && value < agencyPlanCost) {
-                          setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)}`);
+                          setSnackBannerMsg(`Price/Min cannot be less than ${agencyPlanCost.toFixed(2)}$`);
                           setSnackBannerMsgType(SnackbarTypes.Warning);
                         } else {
                           setSnackBannerMsg(null);
