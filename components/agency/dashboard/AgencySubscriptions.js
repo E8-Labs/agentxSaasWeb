@@ -217,16 +217,16 @@ function AgencySubscriptions({
         let seperator = "?"
         if (customeRange) {
           path =
-            path +seperator+ "startDate=" +
+            path + seperator + "startDate=" +
             subscriptionStartDate +
             "&endDate=" +
             subscriptionEndDate;
 
-             seperator = "&"
-           
+          seperator = "&"
+
         }
         if (selectedAgency) {
-          path = path + seperator +`userId=${selectedAgency.id}`
+          path = path + seperator + `userId=${selectedAgency.id}`
         }
 
         console.log("Api path is ", path);
@@ -482,16 +482,32 @@ function AgencySubscriptions({
                     labelStyle={{ color: "#6b7280" }}
                   />
 
-                  {Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
+                  {Object.keys(analyticData?.planSubscriptionStats || {}).length > 0 ? (
+                    Object.keys(analyticData?.planSubscriptionStats || {}).map((planName, index) => (
+                      <Line
+                        key={planName}
+                        type="monotone"
+                        dataKey={planName}
+                        stroke={colors[index % colors.length] || "#000"}
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    ))
+                  ) : (
                     <Line
-                      key={planName}
                       type="monotone"
-                      dataKey={planName}
-                      stroke={colors[index % colors.length] || "#000"}
+                      dataKey="fallback"
+                      stroke="#ccc"
                       strokeWidth={2}
                       dot={false}
+                      isAnimationActive={false}
+                      data={[
+                        { month: moment().subtract(1, "month").format("MMM DD"), fallback: 0 },
+                        { month: moment().format("MMM DD"), fallback: 0 }
+                      ]}
                     />
-                  ))}
+                  )}
+
                 </LineChart>
               </div>
 
@@ -561,13 +577,29 @@ function AgencySubscriptions({
                     />
 
                     {/* Bars */}
-                    <Bar
-                      zIndex={1}
-                      dataKey="value"
-                      fill="#7902DF"
-                      radius={[4, 4, 0, 0]}
-                      barSize={20}
-                    />
+                    {planChartData.length > 0 ? (
+                      <Bar
+                        zIndex={1}
+                        dataKey="value"
+                        fill="#7902DF"
+                        isAnimationActive={true}
+                        radius={[4, 4, 0, 0]}
+                        barSize={20}
+                      />
+                    ) : (
+                      <Bar
+                        dataKey="fallback"
+                        fill="#ccc"
+                        radius={[4, 4, 0, 0]}
+                        barSize={20}
+                        isAnimationActive={false}
+                        data={[
+                          { name: "No Plan", fallback: 2 },
+                          { name: "No Plan", fallback: 3 }
+                        ]}
+                      />
+                    )}
+
                   </BarChart>
                 </div>
               </div>
@@ -648,13 +680,30 @@ function AgencySubscriptions({
                     />
 
                     {/* Bars */}
-                    <Bar
-                      zIndex={1}
-                      dataKey="value"
-                      fill="#7902DF"
-                      radius={[4, 4, 0, 0]}
-                      barSize={20}
-                    />
+                    {
+                      reActivationChartData.length > 0 ? (
+                        <Bar
+                          zIndex={1}
+                          dataKey="value"
+                          fill="#7902DF"
+                          radius={[4, 4, 0, 0]}
+                          barSize={20}
+                        />
+                      ) : (
+                        <Bar
+                          dataKey="fallback"
+                          fill="#ccc"
+                          radius={[4, 4, 0, 0]}
+                          barSize={20}
+                          isAnimationActive={false}
+                          data={[
+                            { name: "No User", fallback: 2 },
+                            { name: "No User", fallback: 1 }
+                          ]}
+                        />
+                      )
+                    }
+
                   </BarChart>
                 </div>
               </div>
