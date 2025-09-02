@@ -330,6 +330,7 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
       });
 
       if (response) {
+        await getProfileDetails();
         console.log("Response of add upsell phone api is", response);
         handleClose(response.data);
         setSaveLoader(false);

@@ -94,7 +94,7 @@ const Integrations = ({ selectedAgency }) => {
                             setAddUpSellPhone(false);
                         }
                         if (d.status === true) {
-                            getProfileDetails();
+                            getLocalData();
                             setShowSnackMessage(d.message);
                             setShowSnackType(SnackbarTypes.Success);
                         }

@@ -315,7 +315,7 @@ function DashboardPlans({
             });
 
             if (response) {
-                console.log("Response of add plans api is", response.data);
+                console.log("Response of del plans api is", response.data);
                 if (response.data.status === true) {
                     // if (planType === "monthly") {
                     //     // setInitialLoader(true);
@@ -323,12 +323,14 @@ function DashboardPlans({
                     // } else if (planType === "Xbar") {
                     //     getXBarOptions()
                     // }
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Success);
                     getPlanApiTrigerer();
                     setmoreDropdown(null);
                     setSelectedPlan(null);
                     setShowDeleteModal(false);
-                } else if (response.data.data.status === false) {
-                    setSnackMsg(response.data.data.message);
+                } else if (response.data.status === false) {
+                    setSnackMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Error);
                 }
             }
