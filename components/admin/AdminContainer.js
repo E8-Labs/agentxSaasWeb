@@ -15,6 +15,7 @@ import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund
 import AdminAgencyDetails from "./agency/AdminAgencyDetails";
 import AdminTransactions from "./agency/AdminTransactions";
 import AdminActiveCalls from "./activeCalls/AdminActiveCalls";
+import AdminPaymentCharges from "./paymentCharges/AdminPaymentCharges";
 
 function AdminContainer() {
   const router = useRouter();
@@ -86,7 +87,7 @@ function AdminContainer() {
   
   const billingSubMenus = [
     { id: 1, name: "Upcoming Charges", value: 'upcoming-charges' },
-    { id: 2, name: "Payments Needing Refund", value: 'payments-needing-refund' },
+    { id: 2, name: "Payment Charges", value: 'payment-charges' },
     { id: 3, name: "Active Calls", value: 'active-calls' }
   ];
 
@@ -207,8 +208,8 @@ function AdminContainer() {
           ) : selectedManu.name === "Billing" ? (
             billingSubTab === 'upcoming-charges' ? (
               <AdminUpcomingCharges />
-            ) : billingSubTab === 'payments-needing-refund' ? (
-              <AdminPaymentsNeedingRefund />
+            ) : billingSubTab === 'payment-charges' ? (
+              <AdminPaymentCharges />
             ) : (
               <AdminActiveCalls />
             )

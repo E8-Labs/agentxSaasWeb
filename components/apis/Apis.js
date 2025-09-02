@@ -253,6 +253,9 @@ const Apis = {
 
   // Call Analytics API
   getCallAnalytics: `${BasePath}api/admin/call-analytics`,
+  
+  // Payment Charges API
+  getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 
 };
 
