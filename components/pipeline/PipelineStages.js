@@ -180,10 +180,9 @@ const PipelineStages = ({
   const handleEditRow = async (stageIndex, row, e) => {
     if (!row.communicationType) {
       openAddMenu(stageIndex, e)
-    } else {
-      setIsEditing(true);
     }
     console.log('row for edit', row)
+    setIsEditing(true);
     setEditingRow(row);
     setEditingStageIndex(stageIndex);
     setSelectedType(row.action ? row.action : 'call');
@@ -1600,8 +1599,23 @@ const PipelineStages = ({
                         </Box>
                       </Modal>
                     </div>
+
+                    <SMSTempletePopup
+
+                      open={showSmsTemPopup}
+                      onClose={() => setShowSmsTempPopup(false)}
+                      phoneNumbers={phoneNumbers}
+                      phoneLoading={phoneLoading}
+                      addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+                      communicationType={selectedType}
+                      onUpdateRow={handleUpdateRow}
+                      isEditing={isEditing}
+                      editingRow={editingRow}
+                    />
                   </div>
                 )}
+
+
               </Draggable>
             ))}
             {provided.placeholder}
@@ -1661,18 +1675,7 @@ const PipelineStages = ({
               editingRow={editingRow}
               onUpdateRow={handleUpdateRow}
             />
-            <SMSTempletePopup
 
-              open={showSmsTemPopup}
-              onClose={() => setShowSmsTempPopup(false)}
-              phoneNumbers={phoneNumbers}
-              phoneLoading={phoneLoading}
-              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
-              communicationType={selectedType}
-              onUpdateRow={handleUpdateRow}
-              isEditing={isEditing}
-              editingRow={editingRow}
-            />
 
 
 

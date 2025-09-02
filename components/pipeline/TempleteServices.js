@@ -175,7 +175,7 @@ export const updateTemplete = async (data, tempId) => {
             console.log(pair[0] + ":", pair[1]);
         }
 
-        let path = `${Apis.templets}/${tempId}`
+        let path = `${Apis.templets}/${tempId||""}`
         console.log('path', path)
 
         const response = await axios.put(path, formdata, {

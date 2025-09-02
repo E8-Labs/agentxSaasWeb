@@ -9,6 +9,7 @@ import { PromptTagInput } from './tagInputs/PromptTagInput';
 import { getUniquesColumn } from '../globalExtras/GetUniqueColumns';
 import { Plus } from 'lucide-react';
 import { GoogleOAuth } from '../auth/socialllogins/AuthServices';
+import { GreetingTagInput } from './tagInputs/GreetingTagInput';
 
 function EmailTempletePopup({
     open,
@@ -34,6 +35,14 @@ function EmailTempletePopup({
     const [body, setBody] = useState("")
     const [ccEmails, setccEmails] = useState([])
     const [attachments, setAttachments] = useState([]);
+    const [subjectChanged, setSubjectChanged] = useState(false)
+    const [bodyChanged, setBodyChanged] = useState(false)
+    const [ccEmailsChanged, setccEmailsChanged] = useState(false)
+    const [attachmentsChanged, setAttachmentsChanged] = useState(false);
+    const [accountChanged, setAccountChanged] = useState(false);
+    const [tempNameChanged,setTempNameChanged] = useState(false)
+    
+
 
     const [selectedTemp, setSelectedTemp] = useState(null)
     const [saveEmailLoader, setSaveEmailLoader] = useState(false)
@@ -43,6 +52,11 @@ function EmailTempletePopup({
     const [delTempLoader, setDelTempLoader] = useState(null)
     const [templetes, setTempletes] = useState([])
     const [loginLoader, setLoginLoader] = useState(false)
+
+    const [scrollOffset, setScrollOffset] = useState({
+        scrollTop: 0,
+        scrollLeft: 0,
+      });
 
     // above return
     // disable save if any field is missing or while saving
@@ -58,6 +72,8 @@ function EmailTempletePopup({
     const [googleAccounts, setGoogleAccounts] = useState([])
     const [googleAccountLoader, setGoogleAccountLoader] = useState([])
     const [uniqueColumns, setUniqueColumns] = useState([])
+
+    const [shouldUpdate,setShouldUpdate] = useState(false)
 
     useEffect(() => {
         getColumns()
@@ -162,20 +178,27 @@ function EmailTempletePopup({
 
     const handleSelect = (t) => {
         setSelectedTemp(t)
-        if (!isEditing && addRow) {
-            addRow({
-                templateId: t.id,
-                emailAccountId: selectedGoogleAccount?.id,
-                communicationType: 'email',
-            });
-        } else {
-            onUpdateRow(editingRow.id, {
-                templateId: t.id,
-                emailAccountId: selectedGoogleAccount?.id,
-                communicationType: 'email',
-            })
-        }
-        onClose();
+        setTempName(t.templateName || "");
+        setSubject(t.subject || "");
+        setBody(t.content || "");
+        setccEmails(t.ccEmails || []);
+        setAttachments(t.attachments || []);
+
+        
+        // if (!isEditing && addRow) {
+        //     addRow({
+        //         templateId: t.id,
+        //         emailAccountId: selectedGoogleAccount?.id,
+        //         communicationType: 'email',
+        //     });
+        // } else {
+        //     onUpdateRow(editingRow.id, {
+        //         templateId: t.id,
+        //         emailAccountId: selectedGoogleAccount?.id,
+        //         communicationType: 'email',
+        //     })
+        // }
+        // onClose();
         // getTempDetailsHandler(t)
         // onClose();
     };
@@ -234,13 +257,28 @@ function EmailTempletePopup({
         // only pdf
         // const pdfs = files.filter((f) => f.type === "application/pdf");
         setAttachments((prev) => [...prev, ...files]);
+        setAttachmentsChanged(true)
     };
 
     const removeAttachment = (index) => {
         setAttachments(attachments.filter((_, i) => i !== index));
+        setAttachmentsChanged(true)
     };
 
+
+    useEffect(() => {
+        if(selectedTemp){
+            setShouldUpdate(true)
+        }
+    },[tempNameChanged,subjectChanged,bodyChanged,ccEmailsChanged,attachmentsChanged,accountChanged])
+
+
+
     const saveEmail = async () => {
+        if(!shouldUpdate){
+            onClose()
+            return
+        }
         setSaveEmailLoader(true)
         let data = {
             communicationType: communicationType,
@@ -254,7 +292,15 @@ function EmailTempletePopup({
         // console.log('attechments', attachments)
         let response = null
         if (isEditing) {
-            response = await updateTemplete(data, editingRow.templateId)
+            let id
+            if(selectedTemp){
+               id= selectedTemp.id
+            }else{
+                id=editingRow.templateId
+            }
+
+            console.log('id', selectedTemp)
+            response = await updateTemplete(data,id )
         } else {
             response = await createTemplete(data)
         }
@@ -266,7 +312,7 @@ function EmailTempletePopup({
                 setTempletes((prev) => (Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate]))
             }
 
-            if (isEditing && onUpdateRow && editingRow) {
+            if ((isEditing && onUpdateRow && editingRow)||selectedTemp) {
                 // Update existing row with new template data
                 onUpdateRow(editingRow.id, {
                     templateId: createdTemplate.id,
@@ -275,6 +321,7 @@ function EmailTempletePopup({
                     content: body,
                     ccEmails: ccEmails,
                     attachments: attachments,
+                    communicationType: 'email',
                 });
             } else {
                 // Add new row
@@ -300,12 +347,6 @@ function EmailTempletePopup({
         }
         setSaveEmailLoader(false)
     }
-
-    const handleBodyInput = (e) => {
-        // setBodyHtml(e.currentTarget.innerHTML); // with tags
-        setBody(e.currentTarget.innerHTML); // plain text
-    };
-
 
     const getAccounts = async () => {
         setGoogleAccountLoader(true)
@@ -359,7 +400,7 @@ function EmailTempletePopup({
                     />
                     <div className='flex flex-row items-center justify-between '>
                         <div className='text-xl font-semibold color-black'>
-                            {isEditing ? 'Edit Email' : 'Email'}
+                            {(isEditing || selectedTemp) ? 'Edit Email' : 'Email'}
                         </div>
 
                         <FormControl>
@@ -478,6 +519,7 @@ function EmailTempletePopup({
                                                 },
                                             }}
                                             onClick={() => {
+                                                setAccountChanged(true)
                                                 setSelectedGoogleAccount(a)
                                                 setShowChangeManu(null)
                                             }}
@@ -512,7 +554,10 @@ function EmailTempletePopup({
 
                     <div className="h-12 mt-2 rounded-[5px] px-[10px] py-7 border-2 rounded-lg border-[#00000010] flex flex-row items-center">
                         <div className="text-[#00000070] text-[15px] font-normal">CC:</div>
-                        <ChipInput ccEmails={ccEmails} setccEmails={setccEmails} />
+                        <ChipInput ccEmails={ccEmails} setccEmails={(text)=>{
+                            setccEmails(text)
+                            setccEmailsChanged(true)
+                        }} />
                     </div>
 
                     {invalidEmails.length > 0 && (
@@ -526,25 +571,37 @@ function EmailTempletePopup({
                         className='w-full h-12 px-[10px] py-7 mt-3 border-2 rounded-lg border-[#00000010]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
                         placeholder='Template Name'
                         value={tempName}
-                        onChange={(event) => { setTempName(event.target.value) }}
+                        onChange={(event) => { setTempName(event.target.value)
+                            setTempNameChanged(true)
+                        }}
                     />
 
 
                     <div className=' mt-4'>
-                        <PromptTagInput
-                            promptTag={subject}
-                            isSubject={true}
-                            placeholder="Subject"
-                            // kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={setSubject}
-                            showSaveChangesBtn={subject}
-                            // from={"Template"}
-                            saveUpdates={async () => {
+                   <GreetingTagInput
+                    // promptTag={subject}
+                    // isSubject={true}
+                    // placeholder="Subject"
+                    // // kycsList={kycsData}
+                    // uniqueColumns={uniqueColumns}
+                    // tagValue={setSubject}
+                    // showSaveChangesBtn={subject}
+                    // // from={"Template"}
+                    // saveUpdates={async () => {
 
-                            }}
-                            limit={343}
-                        />
+                    // }}
+                    // limit={343}
+                    greetTag={subject}
+                    // kycsList={kycsData}
+                    uniqueColumns={uniqueColumns}
+                    tagValue={(text) => {
+                        setSubject(text);
+                        setSubjectChanged(true)
+                    }}
+                    scrollOffset={scrollOffset}
+                    placeholder="Subject"
+                    limit={343}
+                />
                     </div>
 
                     <div className=' mt-4'>
@@ -552,7 +609,10 @@ function EmailTempletePopup({
                             promptTag={body}
                             // kycsList={kycsData}
                             uniqueColumns={uniqueColumns}
-                            tagValue={setBody}
+                            tagValue={(t)=>{
+                                setBody(t);
+                                setBodyChanged(true)
+                            }}
                             showSaveChangesBtn={body}
                             // from={"Template"}
                             saveUpdates={async () => {
@@ -561,57 +621,6 @@ function EmailTempletePopup({
                             limit={343}
                         />
                     </div>
-
-                    {/* <div className="flex gap-2 p-2 -mt-2"
-                        style={{ border: "1px solid #00000020", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}
-                    >
-                        <button
-                            className={`text-[15px] font-[ ${selectedFormats.bold ? "bg-gray-200" : ""} rounded transition-colors`}
-                            style={selectedFormats.bold ? { background: "#e5e7eb" } : {}}
-                            onClick={() => handleFormatClick("bold")}
-                            type="button"
-                        >
-                            <Image src={"/otherAssets/boldIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                        </button>
-                        <button
-                            className={`text-[15px] font-[ ${selectedFormats.italic ? "bg-gray-200" : ""} rounded transition-colors`}
-                            style={selectedFormats.italic ? { background: "#e5e7eb" } : {}}
-                            onClick={() => handleFormatClick("italic")}
-                            type="button"
-                        >
-                            <Image src={"/otherAssets/italicIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                        </button>
-                        <button
-                            className={`text-[15px] font-[ ${selectedFormats.underline ? "bg-gray-200" : ""} rounded transition-colors`}
-                            style={selectedFormats.underline ? { background: "#e5e7eb" } : {}}
-                            onClick={() => handleFormatClick("underline")}
-                            type="button"
-                        >
-                            <Image src={"/otherAssets/underLineIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                        </button>
-
-                        <label className="cursor-pointer">
-                            <Image src={"/otherAssets/attechmentIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                            <input
-                                type="file"
-                                accept="application/pdf"
-                                multiple
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
-                        </label>
-                    </div> */}
-
-
-
 
                     <div className="mt-3">
                         <label className="flex flex-row items-center gap-2 cursor-pointer">

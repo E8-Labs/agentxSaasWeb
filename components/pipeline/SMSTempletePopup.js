@@ -149,6 +149,15 @@ function SMSTempletePopup({
         <Modal
             open={open}
             onClose={onClose}
+            BackdropProps={{
+                timeout: 500,
+                sx: {
+                    backgroundColor: "#00000020",
+                    // //backdropFilter: "blur(20px)",
+                    padding: 0,
+                    margin: 0,
+                  },
+              }}
         >
             <Box
                 className="w-full h-full py-4 flex items-center justify-center"
