@@ -207,8 +207,8 @@ const UserAddCard = ({
             setAddCardLoader(false);
             if (result2.status) {
                 setAddCardSuccess(true);
-                if (!togglePlan) handleClose(result);
-                if (togglePlan) handleSubscribePlan();
+                if (!selectedPlan) handleClose(result);
+                if (selectedPlan) handleSubscribePlan();
             } else {
                 setAddCardFailure(true);
                 setAddCardErrtxt(result2.message);
@@ -220,21 +220,8 @@ const UserAddCard = ({
     //function to subscribe plan
     const handleSubscribePlan = async () => {
         try {
-            let planType = null;
+            let planType = selectedPlan?.planType;
 
-            //// //console.log;
-
-            if (togglePlan === 1) {
-                planType = "Plan30";
-            } else if (togglePlan === 2) {
-                planType = "Plan120";
-            } else if (togglePlan === 3) {
-                planType = "Plan360";
-            } else if (togglePlan === 4) {
-                planType = "Plan720";
-            }
-
-            // //console.log;
 
             setAddCardLoader(true);
             let AuthToken = null;

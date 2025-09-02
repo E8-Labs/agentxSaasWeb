@@ -16,6 +16,9 @@ const CreateAgent2 = dynamic(() =>
 const CreatAgent3 = dynamic(() =>
   import("../../components/createagent/CreatAgent3.js")
 );
+const UserPlans = dynamic(() =>
+  import("../../components/userPlans/UserPlans.js")
+);
 const CreateAgent4 = dynamic(() =>
   import("../../components/createagent/CreateAgent4.js")
 );
@@ -126,7 +129,7 @@ const Page = () => {
                 BuildAgentName,
                 BuildAgentTask,
                 BuildAgentObjective,
-                CreatAgent3,
+                UserPlans,
                 // CreateAgent4,
                 // CreateAgentVoice,
               ]);
@@ -145,7 +148,7 @@ const Page = () => {
             else {
               setComponents([
                 CreateAgent1,
-                CreatAgent3,
+                UserPlans,
                 CreateAgent4,
                 CreateAgentVoice,
                 // setIndex(3)

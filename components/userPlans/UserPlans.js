@@ -7,8 +7,9 @@ import { Elements } from '@stripe/react-stripe-js';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { loadStripe } from '@stripe/stripe-js';
 import UserAddCard from './UserAddCardModal';
+import UpgradePlan from './UpgradePlan';
 
-function UserPlans() {
+function UserPlans({handleContinue,handleBack}) {
 
 
     let stripePublickKey =
@@ -46,6 +47,8 @@ function UserPlans() {
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(null)
     const [addPaymentPopUp, setAddPaymentPopUp] = useState(false)
 
+    const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+
 
 
     useEffect(() => {
@@ -53,10 +56,11 @@ function UserPlans() {
     }, [])
 
     const handleClose = async (data) => {
-        // console.log("Card added details are here", data);
-        // if (data) {
-        //     const userProfile = await getProfileDetails();
-        // }
+        console.log("Card added details are here", data);
+        if (data) {
+            // const userProfile = await getProfileDetails();
+            handleContinue()
+        }
         setAddPaymentPopUp(false);
         // handleSubscribePlan()
     };
@@ -121,7 +125,7 @@ function UserPlans() {
 
 
     return (
-        <div className='flex flex-col items-center w-full h-[100vh] overflow-hidden'>
+        <div className='flex flex-col items-center w-full h-[100vh] overflow-hidden bg-white'>
             <div className='flex flex-col items-center w-[90%] h-full'>
 
                 <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
@@ -142,7 +146,7 @@ function UserPlans() {
                             {`Grow Your Business`}
                         </div>
 
-                        <div className='text-base font-medium mt-1'
+                        <div className='text-base font-medium mt-1 text-[#00000060]'
                         >
                             {`AI Agents from just $1.50 per day — gets more done than coffee. Cheaper too. 😉`}
                         </div>
@@ -194,7 +198,7 @@ function UserPlans() {
 
                 <div className='flex flex-row gap-5 w-full h-[70%] mt-4'>
                     {
-                        getCurrentPlans().map((item,index) => (
+                        getCurrentPlans().map((item, index) => (
                             <button
                                 key={item.id}
                                 onClick={() => handleTogglePlanClick(item, index)}
@@ -257,8 +261,11 @@ function UserPlans() {
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 e.stopPropagation();
-                                                handleTogglePlanClick(item,index);
-                                                setAddPaymentPopUp(true)
+                                                handleTogglePlanClick(item, index);
+                                                if (item.isFree) {
+                                                    setShowUpgradePlanPopup(true)
+                                                } else
+                                                    setAddPaymentPopUp(true)
                                             }}
                                         >
                                             Get Started
@@ -280,7 +287,7 @@ function UserPlans() {
                                                         >
                                                             <div className='text-base font-normal'>
                                                                 {feature.text} <span class="text-Gray text-xs font-normal font-['Inter'] leading-tight">
-                                                                    {feature.subText}
+                                                                    {feature.subtext}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -297,6 +304,15 @@ function UserPlans() {
 
                 </div>
             </div>
+            <Elements stripe={stripePromise}>
+                <UpgradePlan
+                    open={showUpgradePlanPopup}
+                    handleClose={() => {
+                        setShowUpgradePlanPopup(false)
+                    }}
+
+                />
+            </Elements>
 
             <Modal
                 open={addPaymentPopUp}
