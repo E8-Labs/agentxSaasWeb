@@ -34,7 +34,7 @@ function AgencySubacount({
   const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(false);
-  const [agencyData, setAgencyData] = useState("");
+  const [agencyData, setAgencyData] = useState(null);
   const [twililoConectedStatus, setTwilioConnectedStatus] = useState(false);
 
   //code for invite team popup
