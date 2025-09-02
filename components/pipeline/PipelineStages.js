@@ -180,9 +180,10 @@ const PipelineStages = ({
   const handleEditRow = async (stageIndex, row, e) => {
     if (!row.communicationType) {
       openAddMenu(stageIndex, e)
+    } else {
+      setIsEditing(true);
     }
     console.log('row for edit', row)
-    setIsEditing(true);
     setEditingRow(row);
     setEditingStageIndex(stageIndex);
     setSelectedType(row.action ? row.action : 'call');
