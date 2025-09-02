@@ -62,6 +62,7 @@ function SMSTempletePopup({
             console.log('details', details)
             if (details) {
                 setBody(details.content || "");
+                
 
             }
         } catch (error) {
@@ -81,19 +82,20 @@ function SMSTempletePopup({
                 communicationType: communicationType,
                 templateName: "Sms temp",
                 content: body,
+                phone:selectedPhone.phone
             }
             let response = null
             if (isEditing) {
-                response = await updateTemplete(data)
+                response = await updateTemplete(data,editingRow.templateId)
             } else {
                 response = await createTemplete(data)
             }
 
             if (response.data.status === true) {
-                setShowSnackBar({
-                    message: response.data.message,
-                    type: SnackbarTypes.Success,
-                })
+                // setShowSnackBar({
+                //     message: response.data.message,
+                //     type: SnackbarTypes.Success,
+                // })
                 const createdTemplate = response?.data?.data
 
                 if (isEditing && onUpdateRow && editingRow) {
@@ -193,7 +195,7 @@ function SMSTempletePopup({
                                     value={selectedPhone || ""}
                                     onChange={(event) => handleSelect(event.target.value)}
                                     displayEmpty // Enables placeholder
-                                    renderValue={(selected) => selected || <div style={{ color: "#aaa" }}>Select Number</div>}
+                                    renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
                                     sx={{
                                         ...styles.dropdownMenu,
                                         backgroundColor: "#FFFFFF",
@@ -222,7 +224,7 @@ function SMSTempletePopup({
                                                 <div className='flex flex-row items-center gap-2'>
 
                                                     <div className='text-[15] font-[500] w-48'>
-                                                        {item}
+                                                        {item.phone}
                                                     </div>
                                                 </div>
 

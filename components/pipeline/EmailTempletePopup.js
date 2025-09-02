@@ -10,6 +10,7 @@ import { getUniquesColumn } from '../globalExtras/GetUniqueColumns';
 import { Plus } from 'lucide-react';
 import { GoogleOAuth } from '../auth/socialllogins/AuthServices';
 import { GreetingTagInput } from './tagInputs/GreetingTagInput';
+import { PersistanceKeys } from '@/constants/Constants';
 
 function EmailTempletePopup({
     open,
@@ -275,10 +276,7 @@ function EmailTempletePopup({
 
 
     const saveEmail = async () => {
-        if(!shouldUpdate){
-            onClose()
-            return
-        }
+       
         setSaveEmailLoader(true)
         let data = {
             communicationType: communicationType,
@@ -291,7 +289,14 @@ function EmailTempletePopup({
 
         // console.log('attechments', attachments)
         let response = null
-        if (isEditing) {
+
+        let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
+
+        // if(IsdefaultCadence){
+            console.log('IsdefaultCadence', IsdefaultCadence)
+        // }
+        // return
+        if (isEditing &&!IsdefaultCadence) {
             let id
             if(selectedTemp){
                id= selectedTemp.id
@@ -312,7 +317,7 @@ function EmailTempletePopup({
                 setTempletes((prev) => (Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate]))
             }
 
-            if ((isEditing && onUpdateRow && editingRow)||selectedTemp) {
+            if ((isEditing && onUpdateRow && editingRow)) {
                 // Update existing row with new template data
                 onUpdateRow(editingRow.id, {
                     templateId: createdTemplate.id,

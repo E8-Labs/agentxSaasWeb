@@ -30,6 +30,7 @@ import EmailTempletePopup from "./EmailTempletePopup";
 import SMSTempletePopup from "./SMSTempletePopup";
 import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
 import AuthSelectionPopup from "./AuthSelectionPopup";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const PipelineStages = ({
   stages,
@@ -152,7 +153,10 @@ const PipelineStages = ({
   };
 
   const closeAddMenu = (stageIndex) => {
+    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+console.log('is default cadence removed from local')
     setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }));
+
   };
 
   const handleSelectAdd = async (stageIndex, value) => {
@@ -174,11 +178,13 @@ const PipelineStages = ({
         addRow(stageIndex, value);
       }
     }
-    closeAddMenu(stageIndex);
+    // closeAddMenu(stageIndex);
   };
 
   const handleEditRow = async (stageIndex, row, e) => {
     if (!row.communicationType) {
+      console.log('default cadence editing')
+      localStorage.setItem(PersistanceKeys.isDefaultCadenceEditing,JSON.stringify({isdefault:true}))
       openAddMenu(stageIndex, e)
     }
     console.log('row for edit', row)
@@ -228,10 +234,10 @@ const PipelineStages = ({
   }, [showEmailTemPopup])
 
   const getTemp = async () => {
-    setTempLoader(selectedType)
+    // setTempLoader(selectedType)
     let temp = await getTempletes(selectedType)
     setTempletes(temp)
-    setTempLoader(null)
+    // setTempLoader(null)
     setShowEmailTempPopup(true)
   }
 
@@ -1029,7 +1035,10 @@ const PipelineStages = ({
                                 <Menu
                                   anchorEl={addMenuAnchor[index] || null}
                                   open={Boolean(addMenuAnchor[index])}
-                                  onClose={() => closeAddMenu(index)}
+                                  onClose={() => {
+                                    closeAddMenu(index)
+                                    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+                                  }}
                                   PaperProps={{
                                     style: {
                                       boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
@@ -1603,7 +1612,10 @@ const PipelineStages = ({
                     <SMSTempletePopup
 
                       open={showSmsTemPopup}
-                      onClose={() => setShowSmsTempPopup(false)}
+                      onClose={() => {
+                        setShowSmsTempPopup(false)
+                        closeAddMenu(selectedIndex)
+                      }}
                       phoneNumbers={phoneNumbers}
                       phoneLoading={phoneLoading}
                       addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
@@ -1663,6 +1675,7 @@ const PipelineStages = ({
               setIsEditing(false);
               setEditingRow(null);
               setEditingStageIndex(null);
+              closeAddMenu(selectedIndex)
             }}
               setSelectedGoogleAccount={setSelectedGoogleAccount}
               selectedGoogleAccount={selectedGoogleAccount}

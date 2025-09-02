@@ -25,6 +25,7 @@ export const PersistanceKeys = {
   adminDashboardData: 'aadminDashboardData',
   SelectedAgent:'SelectedAgent',
   CalendarAddedByGoogle:"CalendarAddedByGoogle",
+  isDefaultCadenceEditing : "isDefaultCadenceEditing",
   
   //vapi-widget call popup
   showVapiModal: "showVapiModal",
