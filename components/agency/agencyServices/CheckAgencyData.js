@@ -4,9 +4,11 @@ export const getAgencyLocalData = () => {
     try {
         const ld = window.localStorage.getItem("User");
         if (!ld) return null;
+        if (ld) {
+            const data = JSON.parse(ld);
+            return data?.user ?? null;
+        }
 
-        const data = JSON.parse(ld);
-        return data?.user ?? null;
     } catch (err) {
         console.error("Failed to read/parse localStorage 'User':", err);
         return null;

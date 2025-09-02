@@ -89,8 +89,16 @@ const AgencyNavBar = () => {
 
   //check stripe
   useEffect(() => {
-    const stripeStatus = !CheckStripe();
-    setCheckStripeStatus(stripeStatus);
+    // 
+    // setCheckStripeStatus(stripeStatus);
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const Data = JSON.parse(localData);
+      const stripeStatus = Data?.user?.canAcceptPaymentsAgencyccount
+      setCheckStripeStatus(!stripeStatus);
+    } else {
+      setCheckStripeStatus(false);
+    }
   }, [])
 
   //reset navigation loader

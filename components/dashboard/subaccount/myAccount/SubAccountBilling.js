@@ -920,7 +920,7 @@ function SubAccountBilling({
                         fontWeight: "600",
                       }}
                     >
-                      {item.title}
+                      {item.title} | {item.minutes} mins
                     </div>
                     {item.tag && (
                       <div className="bg-purple text-white px-4 py-1 rounded-full">

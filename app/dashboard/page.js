@@ -291,15 +291,15 @@ const Page = () => {
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
 
-      {/* Slider code */}
-      <div
+      {/* Slider code<div
         style={{
           position: "absolute",
           right: 0,
           bottom: 0
         }}>
         <DashboardSlider />
-      </div>
+      </div> */}
+      
 
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (

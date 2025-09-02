@@ -606,18 +606,6 @@ function Teams({
         <div style={{ fontSize: 24, fontWeight: "600" }}>Team</div>
 
         <div className="flex flex-row items-center gap-2">
-          {
-            agencyData && (
-              <button
-                className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
-                style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
-                onClick={() => {
-                  copyAgencyOnboardingLink({ setLinkCopied })
-                }}>
-                {linkCopied ? "Link Copied" : "Copy Link"}
-              </button>
-            )
-          }
           <NotficationsDrawer />
         </div>
       </div>
@@ -1099,7 +1087,7 @@ function Teams({
                           : "#ffffff",
                     }}
                   >
-                    {agencyData?.sellSeats || userLocalData?.sellSeats ? "Add Team $${userLocalData.costPerSeat}/mo" : "Send Invite"}
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "Send Invite"}
                   </div>
                 </button>
               )}

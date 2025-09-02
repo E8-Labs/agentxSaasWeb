@@ -25,31 +25,33 @@ function AgencyIntegrations({ selectedAgency }) {
                 </div>
 
                 <div className="flex flex-row items-center gap-2">
-                    <button
-                        className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
-                        style={{ fontSize: 15, fontWeight: "500",whiteSpace:'nowrap' }}
-                        onClick={() => {
-                            copyAgencyOnboardingLink({setLinkCopied})
-                        }}>
-                        {linkCopied ? "Link Copied" : "Copy Link"}
-                    </button>
                     <NotficationsDrawer />
                 </div>
             </div>
 
-            <div className='w-full flex flex-row justify-center items-start'>
-                <div className="flex flex-row items-center gap-4 w-11/12 pt-6">
+            <div className='w-full flex flex-row justify-center items-center'>
+                <div className="w-11/12 flex flex-row items-center justify-between  pt-6">
+                    <div className="flex flex-row items-center gap-4">
+                        <button
+                            className={`${currentTab === 1 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
+                            onClick={() => { handleTabSelection(1) }}
+                        >
+                            Twillio
+                        </button>
+                        <button
+                            className={`${currentTab === 2 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
+                            onClick={() => { handleTabSelection(2) }}
+                        >
+                            Stripe
+                        </button>
+                    </div>
                     <button
-                        className={`${currentTab === 1 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
-                        onClick={() => { handleTabSelection(1) }}
-                    >
-                        Twillio
-                    </button>
-                    <button
-                        className={`${currentTab === 2 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
-                        onClick={() => { handleTabSelection(2) }}
-                    >
-                        Stripe
+                        className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
+                        style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
+                        onClick={() => {
+                            copyAgencyOnboardingLink({ setLinkCopied })
+                        }}>
+                        {linkCopied ? "Link Copied" : "Copy Link"}
                     </button>
                 </div>
             </div>

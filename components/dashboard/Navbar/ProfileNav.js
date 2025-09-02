@@ -91,6 +91,16 @@ const ProfileNav = () => {
   const [showAssignBanner, setShowAssignBanner] = useState(false)
   const [bannerProgress, setBannerProgress] = useState(0);
 
+  const [showHelpModal, setShowHelpModal] = useState(false);
+
+  useEffect(() => {
+    console.log("Search url is", pathname);
+    if (pathname === '/dashboard') {
+      setShowHelpModal(true);
+    } else {
+      setShowHelpModal(false);
+    }
+  }, [pathname])
 
   //walkthroughWatched popup
   // useEffect(() => {
@@ -308,14 +318,14 @@ const ProfileNav = () => {
     try {
       const context = 'default';
       const cacheKey = includeTrial ? 'plans_with_trial_profile_nav' : 'plans_without_trial_profile_nav';
-      
+
       const plansData = await PlansService.getCachedPlans(
         cacheKey,
         'regular',
         includeTrial ? 'onboarding' : context,
         includeTrial
       );
-      
+
       setPlans(plansData);
     } catch (error) {
       console.error('Error loading plans in ProfileNav:', error);
@@ -1173,7 +1183,7 @@ const ProfileNav = () => {
                     bottom: 0
                   }}>
                   <DashboardSlider
-                    needHelp={false} />
+                    needHelp={showHelpModal} />
                 </div>
               )
             }
