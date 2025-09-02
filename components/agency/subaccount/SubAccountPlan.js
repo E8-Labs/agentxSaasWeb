@@ -416,7 +416,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                                 }}
                                 className="flex flex-row items-center gap-1"
                               >
-                                {item.title}{" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
+                                {item.title} | {item.minutes} mins {" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
                               </div>
                               <div className="flex flex-row items-center justify-between">
                                 <div

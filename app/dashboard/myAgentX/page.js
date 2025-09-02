@@ -2598,7 +2598,9 @@ function Page() {
               bottom: 0,
             }}
           >
-            <DashboardSlider needHelp={false} />
+            {/*
+              <DashboardSlider needHelp={false} />
+            */}
           </div>
         </div>
       </div>

@@ -38,6 +38,7 @@ const DashboardSlider = ({
 
   useEffect(() => {
     if (needHelp) {
+      setShowIcon(false);
       setVisible(true);
     } else {
       setVisible(false);

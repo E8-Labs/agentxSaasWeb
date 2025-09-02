@@ -676,23 +676,6 @@ export default function AddMonthlyPlan({
 
               {/* Allow Trial */}
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium">Allow Trial</label>
-                <Switch
-                  checked={allowTrial}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: 'white',
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: '#7902DF',
-                    },
-                  }}
-                  onChange={handleAllowTrialChange}
-                />
-              </div>
-
-
-              <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium">Default Plan</label>
                 <Switch
                   checked={isDefault}
@@ -707,6 +690,22 @@ export default function AddMonthlyPlan({
                   onChange={(e) => {
                     setIsDefault(e.target.checked)
                   }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">Allow Trial</label>
+                <Switch
+                  checked={allowTrial}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'white',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: '#7902DF',
+                    },
+                  }}
+                  onChange={handleAllowTrialChange}
                 />
               </div>
 
