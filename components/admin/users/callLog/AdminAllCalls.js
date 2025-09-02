@@ -615,9 +615,12 @@ function AdminAllCalls({ selectedUser }) {
 
       <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
         <div className="w-2/12">
-          <div style={styles.text}>Name</div>
+          <div style={styles.text}>Account Name</div>
         </div>
-        <div className="w-2/12 ">
+        <div className="w-1/12 ">
+          <div style={styles.text}>Agent Name</div>
+        </div>
+        <div className="w-1/12 ">
           <div style={styles.text}>Pipeline</div>
         </div>
         <div className="w-2/12">
@@ -700,7 +703,16 @@ function AdminAllCalls({ selectedUser }) {
                         {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                       </div>
                     </div>
-                    <div className="w-2/12 ">
+                    <div className="w-1/12 ">
+                      <div style={styles.text2}>
+                        {item.pipeline ? (
+                          <div>{item.agent?.name || "-"}</div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                    </div>
+                    <div className="w-1/12 ">
                       <div style={styles.text2}>
                         {item.pipeline ? (
                           <div>{item.pipeline?.title}</div>
