@@ -251,6 +251,9 @@ const Apis = {
   togglePlanStatus: `${BasePath}api/plans`,
   getAllPlansAdmin: `${BasePath}api/plans/admin/all`,
 
+  // Call Analytics API
+  getCallAnalytics: `${BasePath}api/admin/call-analytics`,
+
 };
 
 export default Apis;

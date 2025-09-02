@@ -162,6 +162,22 @@ export const models = [
     model: "gpt-4.1-mini", //'gpt-4.1-nano',
   },
   {
+    name: 'GPT-5',
+    provider: 'openai',
+    model: 'gpt-5',
+    value: "gpt-5",
+    icon: "/svgIcons/chatgptIcon.svg",
+    disabled: false,
+  },
+  {
+    name: 'GPT-5 Mini',
+    provider: 'openai',
+    model: 'gpt-5-mini',
+    value: "gpt-5-mini",
+    icon: "/svgIcons/chatgptIcon.svg",
+    disabled: false,
+  },
+  {
     name: "GPT-4o",
     provider: "openai",
     value: "gpt-4o-mini",
