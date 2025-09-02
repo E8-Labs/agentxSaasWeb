@@ -1,3 +1,4 @@
+import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import TwilioTrustHub from '@/components/myAccount/TwilioTrustHub'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
@@ -93,6 +94,7 @@ const Integrations = ({ selectedAgency }) => {
                             setAddUpSellPhone(false);
                         }
                         if (d.status === true) {
+                            getProfileDetails();
                             setShowSnackMessage(d.message);
                             setShowSnackType(SnackbarTypes.Success);
                         }

@@ -406,7 +406,7 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
           {/* Buttons */}
           <div className="w-full flex flex-row items-center justify-between mt-12">
             <button
-              className="h-[50px] w-[170px] rounded-md border-none outline-none text-center text-purple"
+              className="h-[50px] w-[170px] rounded-md border outline-none text-center text-purple"
               style={{ fontWeight: "600", fontSize: 17 }}
               onClick={() => {
                 handleClose({ message: "notAdded" });
