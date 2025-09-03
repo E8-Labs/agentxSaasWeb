@@ -637,7 +637,7 @@ function EmailTempletePopup({
                                 saveUpdates={async () => {
 
                                 }}
-                                editTitle={(isEditing || selectedTemp) ? 'Edit Email' : 'Create Email'}
+                                editTitle={(isEditing || selectedTemp) ? 'Edit Email Body' : 'Create Email Body'}
                                 limit={160}
                                 from={"CreateEmail"}
                             />
