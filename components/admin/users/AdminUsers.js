@@ -7,6 +7,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { GetFormattedDateString } from "@/utilities/utility";
 import SelectedUserDetails from "./SelectedUserDetails";
 import { UserFilterModal } from "./UserFilterModal";
+import UserActionModal from "./UserActionModal";
+import UserActivityLogs from "./UserActivityLogs";
 import { Box, CircularProgress, Modal } from '@mui/material'
 
 import moment from "moment";
@@ -24,6 +26,8 @@ function AdminUsers() {
   const [search, setSearch] = useState("");
   const filterRef = useRef(null);
   const [showUserDetails, setShowUserDetails] = useState(false);
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [showActivityLogs, setShowActivityLogs] = useState(false);
 
   const [leadsSort, setLeadsSort] = useState(false);
   const [minsSort, setMinsSort] = useState(false);
@@ -460,9 +464,9 @@ function AdminUsers() {
                       className={`hover:bg-gray-50 text-sm text-gray-900 border-b cursor-pointer ${index % 2 == 0 ? "bg-gray-100" : ""
                         }`}
                       onClick={() => {
-                        console.log("Selectec user on  users screen", item);
+                        console.log("Selected user on users screen", item);
                         setSelectedUser(item);
-                        // setShowUserDetails(true)
+                        setShowActionModal(true);
                       }}
                     >
                       <td className="px-4 py-2">
@@ -607,6 +611,27 @@ function AdminUsers() {
           />
         </Box>
       </Modal>
+
+      {/* User Action Modal */}
+      <UserActionModal
+        open={showActionModal}
+        onClose={() => setShowActionModal(false)}
+        selectedUser={selectedUser}
+        onViewDetail={() => {
+          setShowUserDetails(true);
+        }}
+        onViewLogs={() => {
+          setShowActivityLogs(true);
+        }}
+      />
+
+      {/* User Activity Logs Modal */}
+      <UserActivityLogs
+        open={showActivityLogs}
+        onClose={() => setShowActivityLogs(false)}
+        userId={selectedUser?.id}
+        userName={selectedUser?.name}
+      />
     </div>
   );
 }
