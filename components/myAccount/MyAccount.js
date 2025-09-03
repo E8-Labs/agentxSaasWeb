@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import BarServices from "./BarServices";
 import { CancellationAndRefundUrl, privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
 import TwilioTrustHub from "./TwilioTrustHub";
+import NewBilling from "./NewBilling";
 
 function MyAccount() {
   let searchParams = useSearchParams();
@@ -127,7 +128,7 @@ function MyAccount() {
       case 1:
         return <BasicInfo />;
       case 2:
-        return <Billing />;
+        return <NewBilling />;
       case 3:
         return <BarServices />;
       case 4:

@@ -250,6 +250,18 @@ const Apis = {
   updatePlan: `${BasePath}api/plans`,
   togglePlanStatus: `${BasePath}api/plans`,
   getAllPlansAdmin: `${BasePath}api/plans/admin/all`,
+   
+  
+  initiateCancelation : `${BasePath}api/user/cancellation/initiate`,
+  pauseSubscription:`${BasePath}api/user/cancellation/pause`,
+  continueToGift :`${BasePath}api/user/cancellation/continue-to-gift`,
+  claimGiftMins :`${BasePath}api/user/cancellation/claim-gift`,
+  continueToDiscount :`${BasePath}api/user/cancellation/continue-to-discount`,
+  purchaseDiscountedMins :`${BasePath}api/user/cancellation/purchase-discount`,
+  completeCancelatiton :`${BasePath}api/user/cancellation/complete`,
+
+
+
 
   // Call Analytics API
   getCallAnalytics: `${BasePath}api/admin/call-analytics`,

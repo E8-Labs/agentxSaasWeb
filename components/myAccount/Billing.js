@@ -285,14 +285,6 @@ function Billing() {
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    // if (togglePlan) {
-    //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    // } else {
-    //     setSelectedPlan(prevId => (prevId === item ? null : item));
-    //     setAddPaymentPopUp(true);
-    // }
-    // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
     setTogglePlan(item.id);
     setSelectedPlan((prevId) => (prevId === item ? null : item));
     // setTogglePlan(prevId => (prevId === id ? null : id));
