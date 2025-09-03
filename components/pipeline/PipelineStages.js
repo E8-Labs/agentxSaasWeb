@@ -174,6 +174,7 @@ const PipelineStages = ({
         setShowAuthSelectionPopup(true)
       } else {
         setShowSmsTempPopup(true)
+       
       }
       // }
     } else {
@@ -181,6 +182,8 @@ const PipelineStages = ({
         closeAddMenu(stageIndex);
       } else {
         addRow(stageIndex, value);
+        closeAddMenu(stageIndex);
+        
       }
     }
     // closeAddMenu(stageIndex);
