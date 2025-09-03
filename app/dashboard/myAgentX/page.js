@@ -83,6 +83,8 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import dynamic from "next/dynamic";
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
 import TestEmbed from "@/app/test-embed/page";
+import UpgradeModal from "@/constants/UpgradeModal";
+import UpgardView from "@/constants/UpgardView";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -255,6 +257,8 @@ function Page() {
 
   const [user, setUser] = useState(null);
 
+  // console.log('user', user)
+
   const [showRenameAgentPopup, setShowRenameAgentPopup] = useState(false);
   const [renameAgent, setRenameAgent] = useState("");
   const [selectedRenameAgent, setSelectedRenameAgent] = useState("");
@@ -299,6 +303,8 @@ function Page() {
   const [showDuplicateConfirmationPopup, setShowDuplicateConfirmationPopup] = useState(false);
 
   const [showEmbed, setShowEmbed] = useState(false);
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   const playVoice = (url) => {
     if (audio) {
@@ -376,6 +382,20 @@ function Page() {
         }
       }
     }
+  }, [])
+
+
+  useEffect(() => {
+    const setUserData = () => {
+      console.log('clotryin to set data')
+      const data = localStorage.getItem("User")
+      if (data) {
+        let u = JSON.parse(data)
+        console.log('data from local ', u)
+        setUser(u)
+      }
+    }
+    setUserData()
   }, [])
   // get selected agent from local if calendar added by google
 
@@ -527,6 +547,8 @@ function Page() {
       return "100%";
     }
   };
+
+  // console.log('user?.plan?.price', user)
 
   // function findLLMModel(value) {
   //   let model = null;
@@ -2181,6 +2203,10 @@ function Page() {
   //function to add new agent
   const handleAddNewAgent = (event) => {
     event.preventDefault();
+    if (user?.user?.plan?.price == 0) {
+      setShowUpgradeModal(true)
+      return
+    }
     const data = {
       status: true,
     };
@@ -3016,6 +3042,17 @@ function Page() {
           </div>
         </Box>
       </Modal>
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false)
+        }}
+
+        title={"Unlock More Agents"}
+        subTitle={"Upgrade to add more agents to your team and scale your calling power"}
+        buttonTitle={"No Thanks"}
+      />
 
       {/* Error snack bar message */}
 
@@ -4425,27 +4462,35 @@ function Page() {
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              <div>
-                <div
-                  className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-                  style={
-                    {
-                      // backgroundColor: "red"
+              user?.user?.plan?.price == 0 ? (
+                <div className="w-full">
+                  <UpgardView
+                    title={"Unlock Actions"}
+                    subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                  />
+                </div>
+              ) :
+                <div>
+                  <div
+                    className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                    style={
+                      {
+                        // backgroundColor: "red"
+                      }
                     }
-                  }
-                ></div>
+                  ></div>
 
-                <UserCalender
-                  calendarDetails={calendarDetails}
-                  setUserDetails={setMainAgentsList}
-                  selectedAgent={showDrawerSelectedAgent}
-                  setSelectedAgent={setShowDrawerSelectedAgent}
-                  mainAgentId={MainAgentId}
-                  previousCalenders={previousCalenders}
-                  updateVariableData={updateAfterAddCalendar}
-                />
+                  <UserCalender
+                    calendarDetails={calendarDetails}
+                    setUserDetails={setMainAgentsList}
+                    selectedAgent={showDrawerSelectedAgent}
+                    setSelectedAgent={setShowDrawerSelectedAgent}
+                    mainAgentId={MainAgentId}
+                    previousCalenders={previousCalenders}
+                    updateVariableData={updateAfterAddCalendar}
+                  />
 
-              </div>
+                </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
                 <PiepelineAdnStage
@@ -4455,19 +4500,36 @@ function Page() {
                 />
               </div>
             ) : activeTab === "Knowledge" ? (
-              <div className="flex flex-col gap-4">
-                <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
-              </div>
+              user?.user?.plan?.price == 0 ? (
+                <div className="w-full">
+                  <UpgardView
+                    title={"Add Knowledge Base"}
+                    subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+                  />
+                </div>
+              ) :
+                <div className="flex flex-col gap-4">
+                  <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
+                </div>
             ) : activeTab === "Voicemail" ? (
-              <div className="flex flex-col gap-4 w-full">
-                <VoiceMailTab
-                  setMainAgentsList={setMainAgentsList}
-                  agent={showDrawerSelectedAgent}
-                  setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                  kycsData={kycsData}
-                  uniqueColumns={uniqueColumns}
-                />
-              </div>
+              user?.user?.plan?.price == 0 ? (
+                <div className="w-full">
+                  <UpgardView
+                    title={"Enable Voicemail"}
+                    subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4 w-full">
+                  <VoiceMailTab
+                    setMainAgentsList={setMainAgentsList}
+                    agent={showDrawerSelectedAgent}
+                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                    kycsData={kycsData}
+                    uniqueColumns={uniqueColumns}
+                  />
+                </div>
+              )
             ) : (
               ""
             )}
@@ -4516,15 +4578,16 @@ function Page() {
               </div>
             </button>
           </div>
-        </div>
-      </Drawer>
+        </div >
+      </Drawer >
 
       {/* Code to del agent */}
-      <Modal
+      < Modal
         open={delAgentModal}
         onClose={() => {
           setDelAgentModal(false);
-        }}
+        }
+        }
         BackdropProps={{
           timeout: 200,
           sx: {
@@ -4612,7 +4675,7 @@ function Page() {
             </div>
           </div>
         </Box>
-      </Modal>
+      </Modal >
 
       {/*  Test comment */}
       {/* Code for the confirmation of reassign button */}
@@ -5216,18 +5279,20 @@ function Page() {
         videoUrl={HowtoVideos.Calendar}
       />
 
-      {showClaimPopup && (
-        <ClaimNumber
-          showClaimPopup={showClaimPopup}
-          handleCloseClaimPopup={handleCloseClaimPopup}
-          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-          setSelectNumber={setAssignNumber}
-          setPreviousNumber={setPreviousNumber}
-          previousNumber={previousNumber}
-          AssignNumber={AssignNumber}
-        />
-      )}
-    </div>
+      {
+        showClaimPopup && (
+          <ClaimNumber
+            showClaimPopup={showClaimPopup}
+            handleCloseClaimPopup={handleCloseClaimPopup}
+            setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+            setSelectNumber={setAssignNumber}
+            setPreviousNumber={setPreviousNumber}
+            previousNumber={previousNumber}
+            AssignNumber={AssignNumber}
+          />
+        )
+      }
+    </div >
   );
 }
 

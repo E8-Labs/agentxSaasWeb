@@ -153,7 +153,7 @@ const DashboardSlider = ({
       setShouldStartCall(true);
     } else if (item.id == 2) {
 
-      if (!userDetails?.plan?.trialUsed) {
+      if (userDetails?.plan?.price == 0) {
         console.log('open')
         setOpenUpgradePlan(true)
       } else {
