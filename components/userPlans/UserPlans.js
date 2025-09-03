@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react'
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import Image from 'next/image';
 import { getUserPlans } from './UserPlanServices';
-import { Modal, Box } from '@mui/material';
+import { Modal, Box, Tooltip } from '@mui/material';
 import { Elements } from '@stripe/react-stripe-js';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { loadStripe } from '@stripe/stripe-js';
 import UserAddCard from './UserAddCardModal';
 import UpgradePlan from './UpgradePlan';
 
-function UserPlans({handleContinue,handleBack}) {
+function UserPlans({ handleContinue, handleBack }) {
 
 
     let stripePublickKey =
@@ -125,7 +125,7 @@ function UserPlans({handleContinue,handleBack}) {
 
 
     return (
-        <div className='flex flex-col items-center w-full h-[100vh] overflow-hidden bg-white'>
+        <div className='flex flex-col items-center w-full h-[100vh] overflow-y-hidden bg-white'>
             <div className='flex flex-col items-center w-[90%] h-full'>
 
                 <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
@@ -196,7 +196,7 @@ function UserPlans({handleContinue,handleBack}) {
 
 
 
-                <div className='flex flex-row gap-5 w-full h-[70%] mt-4'>
+                <div className='flex flex-row gap-5 w-full h-[100vh] overflow-y-auto border mt-4'>
                     {
                         getCurrentPlans().map((item, index) => (
                             <button
@@ -205,7 +205,7 @@ function UserPlans({handleContinue,handleBack}) {
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
 
-                                className={`flex flex-col items-center h-full w-3/12 rounded-lg  hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
+                                className={`mb-5 flex flex-col items-center h-[115vh] w-3/12 rounded-lg  hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to[#C73BFF] p-2" : "border p-2"}
                                 `}
                             >
@@ -241,7 +241,7 @@ function UserPlans({handleContinue,handleBack}) {
                                         }
                                     </div>
 
-                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white h-[64vh] w-full'>
+                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white h-[107vh] w-full'>
                                         <div className='text-3xl font-semibold mt-2'>
                                             {item.name}
                                         </div>
@@ -262,15 +262,12 @@ function UserPlans({handleContinue,handleBack}) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                                 handleTogglePlanClick(item, index);
-                                                if (item.isFree) {
-                                                    setShowUpgradePlanPopup(true)
-                                                } else
-                                                    setAddPaymentPopUp(true)
+                                                setAddPaymentPopUp(true)
                                             }}
                                         >
                                             Get Started
                                         </div>
-                                        <div className='flex flex-col items-start w-[95%] h-[55%] overflow-y-auto'>
+                                        <div className='flex flex-col items-start w-[95%]'>
                                             {
                                                 item.features.map((feature) => (
                                                     <div key={feature.text} className="flex flex-row items-center gap-2 mt-1">
@@ -286,10 +283,39 @@ function UserPlans({handleContinue,handleBack}) {
                                                             }}
                                                         >
                                                             <div className='text-base font-normal'>
-                                                                {feature.text} <span class="text-Gray text-xs font-normal font-['Inter'] leading-tight">
-                                                                    {feature.subtext}
-                                                                </span>
+                                                                {feature.text}
                                                             </div>
+                                                            {
+                                                                feature.subtext &&
+                                                                <Tooltip
+                                                                    title={feature.subtext}
+                                                                    arrow
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                backgroundColor: "#ffffff", // Ensure white background
+                                                                                color: "#333", // Dark text color
+                                                                                fontSize: "14px",
+                                                                                padding: "10px 15px",
+                                                                                borderRadius: "8px",
+                                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                            },
+                                                                        },
+                                                                        arrow: {
+                                                                            sx: {
+                                                                                color: "#ffffff", // Match tooltip background
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+
+                                                                    <Image
+                                                                        alt='*'
+                                                                        src={"/agencyIcons/InfoIcon.jpg"}
+                                                                        height={15} width={15}
+                                                                    />
+                                                                </Tooltip>
+                                                            }
                                                         </div>
                                                     </div>
                                                 ))

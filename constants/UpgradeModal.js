@@ -1,8 +1,14 @@
 import { Box, Modal, Slider } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from "@mui/material/styles";
 import Image from 'next/image';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
+import UpgradePlan from '@/components/userPlans/UpgradePlan';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import Apis from '@/components/apis/Apis';
+import axios from 'axios';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 const UpgradeModal = ({
     title,
@@ -11,6 +17,15 @@ const UpgradeModal = ({
     open,
     handleClose,
 }) => {
+
+
+    let stripePublickKey =
+        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+            ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+            : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+    const stripePromise = loadStripe(stripePublickKey);
+
+
 
     const benifits1 = [
         { id: 1, title: "More Mins of AI Credits", subTitle: "" },
@@ -34,11 +49,14 @@ const UpgradeModal = ({
         { id: 8, title: "Tech Support", subTitle: "" },
     ];
 
+    const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+
+
     return (
         <div className='w-full'>
             <Modal
                 open={open}
-                // onClose={handleClose()}
+            // onClose={handleClose()}
             //     handleResetValues();
             //     handleClose("");
             // }}
@@ -136,7 +154,11 @@ const UpgradeModal = ({
                         >
                             <button
                                 className="h-[54px] w-[20vw] rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
-                                style={{ fontSize: "15px", fontWeight: "500" }}>
+                                style={{ fontSize: "15px", fontWeight: "500" }}
+                                onClick={() => {
+                                    setShowUpgradePlanPopup(true)
+                                }}
+                            >
                                 Upgrade
                             </button>
 
@@ -150,6 +172,18 @@ const UpgradeModal = ({
                     </div>
                 </Box>
             </Modal>
+
+
+            <Elements stripe={stripePromise}>
+                <UpgradePlan
+                    open={showUpgradePlanPopup}
+                    handleClose={() => {
+                        setShowUpgradePlanPopup(false)
+                    }}
+
+
+                />
+            </Elements>
         </div>
     )
 }

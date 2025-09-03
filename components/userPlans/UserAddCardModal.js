@@ -25,6 +25,7 @@ import Apis from "@/components/apis/Apis";
 import AgentSelectSnackMessage, {
     SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { calculatePlanPrice } from "./UserPlanServices";
 // import Apis from '../Apis/Apis';
 
 const UserAddCard = ({
@@ -262,22 +263,6 @@ const UserAddCard = ({
             setAddCardLoader(false);
         }
     };
-
-    const scalePlanValue = () => {
-        console.log("Scale plan value passed is", selectedPlan);
-        if (!selectedPlan) {
-            return "-";
-        }
-        if ((selectedPlan.duration || selectedPlan.billingCycle) === "monthly") {
-            return "$" + (1 * (selectedPlan.discountPrice || selectedPlan.originalPrice));
-        } else if ((selectedPlan.duration || selectedPlan.billingCycle) === "quarterly") {
-            return "$" + (3 * ((selectedPlan.discountPrice || selectedPlan.originalPrice) / 3)).toFixed(2);
-        } else if ((selectedPlan.duration || selectedPlan.billingCycle) === "yearly") {
-            return "$" + (12 * ((selectedPlan.discountPrice || selectedPlan.originalPrice) / 12)).toFixed(2);
-        } else {
-            return "-";
-        }
-    }
 
     const PayAsYouGoPlanTypes = {
         Plan30Min: "Plan30",
@@ -570,11 +555,11 @@ const UserAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Scale Plan
+                                    {selectedPlan.name}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan.billingCycle} subscription</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${selectedPlan.discountPrice}`}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>{calculatePlanPrice(selectedPlan)}</div>
                         </div>
                         {/*
                          <div className="flex flex-row items-start justify-between w-full mt-6">
@@ -594,14 +579,14 @@ const UserAddCard = ({
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${selectedPlan.discountPrice}`}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>{calculatePlanPrice(selectedPlan)}</div>
                         </div>
                         <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    ${selectedPlan.discountPrice}
+                                {calculatePlanPrice(selectedPlan)}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>

@@ -194,3 +194,20 @@ export const purchaseMins = async (mins) => {
     }
 }
 
+
+export const calculatePlanPrice = (selectedPlan) => {
+    console.log("Scale plan value passed is", selectedPlan);
+    if (!selectedPlan) {
+        return "-";
+    }
+    if (selectedPlan.billingCycle === "monthly") {
+        return "$" + (1 * selectedPlan.discountPrice);
+    } else if (selectedPlan.billingCycle === "quarterly") {
+        return "$" + (3 * ( selectedPlan.discountPrice)).toFixed(2);
+    } else if (selectedPlan.billingCycle === "yearly") {
+        return "$" + (12 * ( selectedPlan.discountPrice)).toFixed(2);
+    } else {
+        return "-";
+    }
+}
+

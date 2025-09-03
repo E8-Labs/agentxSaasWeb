@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { getUserPlans } from './UserPlanServices'
+import { calculatePlanPrice, getUserPlans } from './UserPlanServices'
 import Apis from '../apis/Apis'
 import axios from 'axios'
 import { AuthToken } from '../agency/plan/AuthDetails'
@@ -58,7 +58,7 @@ function UpgradePlan({
     const [selectedPlan, setSelectedPlan] = useState(null)
     const [hoverPlan, setHoverPlan] = useState(null);
     const [togglePlan, setTogglePlan] = useState(null);
-    const [selectedPlanIndex, setSelectedPlanIndex] = useState(null)
+    const [selectedPlanIndex, setSelectedPlanIndex] = useState(0)
     const [cards, setCards] = useState([])
     const [selectedCard, setSelectedCard] = useState(cards[0]);
 
@@ -138,6 +138,9 @@ function UpgradePlan({
                 quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
                 yearly.unshift({ ...freePlan, billingCycle: "yearly" });
             }
+
+            setSelectedPlan(freePlan);
+            setTogglePlan(freePlan.id);
 
 
             setMonthlyPlans(monthly);
@@ -314,7 +317,7 @@ function UpgradePlan({
         try {
             let planType = selectedPlan?.planType;
 
-            setAddCardLoader(true);
+            setsubscribeLoader(true);
             let AuthToken = null;
             const localData = localStorage.getItem("User");
             if (localData) {
@@ -342,15 +345,13 @@ function UpgradePlan({
 
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
-                if (response.data.status === true) {
-                    handleClose(response.data);
-                    if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true);
-                }
+                setsubscribeLoader
+                handleClose()
             }
         } catch (error) {
             // console.error("Error occured in api is:", error);
         } finally {
-            setAddCardLoader(false);
+            setsubscribeLoader(false);
         }
     };
 
@@ -503,9 +504,9 @@ function UpgradePlan({
                                 >
                                     {
                                         getCurrentPlans().map((item, index) => (
-                                            <button className={`w-3/12 flex flex-col items-start border-2 p-3 rounded-lg text-left
-                                                hover:border-purple ${selectedPlan?.id === item.id ? "border-purple" : ""}}
-                                                `}
+                                            <button
+                                                className={`w-3/12 flex flex-col items-start border-2 p-3 rounded-lg text-left 
+                                                    hover:border-purple ${selectedPlan?.id === item.id ? "border-purple" : "border-gray-200"}`}
                                                 key={item.id}
                                                 onClick={() => handleTogglePlanClick(item, index)}
                                             >
@@ -522,8 +523,8 @@ function UpgradePlan({
                                                 </div>
 
 
-                                                <div className='py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg bg-purple text-white text-base font-semibold'>
-                                                    Select Plan
+                                                <div className={`py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg ${item.isFree ? "bg-[#00000050]" : "bg-purple"} text-white text-base font-semibold `}>
+                                                    {item.isFree ? "Current Plan" : "Select Plan"}
                                                 </div>
 
                                             </button>
@@ -602,24 +603,24 @@ function UpgradePlan({
                                                     </button>
                                                 </div>
                                             ))}
+
+                                            {
+                                                !showAddCard &&
+                                                <button
+                                                    onClick={() => {
+                                                        setShowAddCard(!showAddCard)
+                                                    }}
+                                                    className='text-xs font-medium mt-4 text-left w-full self-start'
+                                                >
+                                                    + Add Payment
+                                                </button>
+                                            }
+
                                         </div>
 
                                         {
-                                            !showAddCard &&
-                                            <button
-                                                onClick={() => {
-                                                    setShowAddCard(!showAddCard)
-                                                }}
-                                                className='text-xs font-medium mt-4'
-                                            >
-                                                + Add Payment
-                                            </button>
-                                        }
-
-
-                                        {
                                             showAddCard && (
-                                                <div className='flex flex-col mt-4 items-start w-full'>
+                                                <div className='flex flex-col items-start w-full'>
 
                                                     <div className='text-xl font-semibold'>
                                                         Add Payment Details
@@ -842,6 +843,10 @@ function UpgradePlan({
                                                             className='w-1/2 flex flex-col items-center justify-center 
                                                             h-[53px] border-2 rounded-lg text-lg font-semibold
                                                             '
+
+                                                            onClick={() => {
+                                                                setShowAddCard(false)
+                                                            }}
                                                         >
                                                             Cancel
                                                         </button>
@@ -857,7 +862,7 @@ function UpgradePlan({
                                                             '
                                                                 onClick={handleAddCard}
                                                             >
-                                                                Continue
+                                                                Add Payment
                                                             </button>
                                                         )}
                                                     </div>
@@ -884,18 +889,20 @@ function UpgradePlan({
                                                 </div>
                                             </div>
                                             <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {`$${selectedPlan?.discountPrice}`}
+                                                {calculatePlanPrice(selectedPlan)}
                                             </div>
                                         </div>
 
                                         <div className="flex flex-row items-start justify-between w-full mt-6">
                                             <div>
                                                 <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    Total Billed {selectedPlan?.billingCycle}
+                                                    {` Total Billed $${selectedPlan?.billingCycle}`}
                                                 </div>
                                                 <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
                                             </div>
-                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>{`${selectedPlan?.discountPrice}`}</div>
+                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                {calculatePlanPrice(selectedPlan)}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -909,7 +916,7 @@ function UpgradePlan({
 
 
                                         <div className=" text-3xl font-semibold text-[#8a8a8a] ">
-                                            {`$${selectedPlan?.discountPrice}`}
+                                            {calculatePlanPrice(selectedPlan)}
                                         </div>
                                     </div>
                                 </div>
@@ -917,18 +924,23 @@ function UpgradePlan({
 
                                 <div className='flex flex-row items-center gap-5 w-full mt-8 mb-10 '>
                                     <button
-                                        className='w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-lg font-semibold
-                                                            '
+                                        className='w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-lg font-semibold'
+                                        onClick={handleClose}
                                     >
                                         Cancel
                                     </button>
-
-                                    <button
-                                        className='w-1/2 flex flex-col items-center justify-center h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold
-                                                            '
-                                    >
-                                        Upgrade
-                                    </button>
+                                    {
+                                        subscribeLoader ? (
+                                            <CircularProgress />
+                                        ) : (
+                                            <button
+                                                className='w-1/2 flex flex-col items-center justify-center h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold'
+                                                onClick={handleSubscribePlan}
+                                            >
+                                                Upgrade
+                                            </button>
+                                        )
+                                    }
                                 </div>
 
 
