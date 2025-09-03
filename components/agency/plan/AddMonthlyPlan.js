@@ -55,7 +55,7 @@ export default function AddMonthlyPlan({
 
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
-    console.log("Test log")
+    console.log("Test log monthlyplan ")
     if (selectedPlan) {
       setPlanPassed(selectedPlan);
       console.log("Value of selected plan passed is", selectedPlan);

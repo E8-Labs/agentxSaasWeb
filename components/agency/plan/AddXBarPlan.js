@@ -171,7 +171,7 @@ export default function AddXBarPlan({
   const handleUpdatePlanClick = async () => {
     try {
       setAddPlanLoader(true);
-      console.log("Working");
+      console.log("Working and the passed plan item is", planPassed);
 
       // const ApiPath = Apis.addXBarOptions; //vincecamuto
       const url = `${Apis.updateAgencyXBar}/${planPassed.id}`;
@@ -227,7 +227,7 @@ export default function AddXBarPlan({
       }
     } catch (error) {
       setAddPlanLoader(false);
-      console.error("Error is", error);
+      console.error("Error is", error.message);
     } finally {
       setAddPlanLoader(false);
     }
