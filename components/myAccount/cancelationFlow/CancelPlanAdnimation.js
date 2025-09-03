@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import PauseSubscription from "./PauseSubscription";
 import ClaimGift from "./ClaimGift";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import ObtainOffer from "./ObtainOfer";
+import CancelConfirmation from "./CancelConfirmation";
+import CancelationFinalStep from "./CancelationFinalStep";
+import CancelationCompleted from "./CancelationCompleted";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -37,10 +41,12 @@ export default function CancelPlanAnimation({
     const [xBarOptions, setXBarOptions] = useState([]);
 
     const handleContinue = (nextAction) => {
+        console.log('currentIndex', currentIndex)
         if (nextAction) {
             console.log(nextAction);
             if (nextAction === "closeModel") {
                 handleClose()
+                setCurrentIndex(0)
             } else if (nextAction == "claimGift") {
                 if (
                     userLocalData?.isTrial === false &&
@@ -50,10 +56,27 @@ export default function CancelPlanAnimation({
                     setCurrentIndex((prevIndex) => prevIndex + 1);
                 } else {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 2);
+                    setCurrentIndex((prevIndex) => prevIndex + 3);//incriment of three to jump on cancel confirmation
                 }
 
+            } else if (nextAction === "obtainOffer") {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 1);
+            } else if (nextAction === "cancelConfirmationFromGift") {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 2);
+            } else if (nextAction === "cancelConfirmationFromDeal") {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 1);
+            } else if (nextAction === "finalStep") {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 1);
+            } else if (nextAction === "completeCancelation") {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 1);
             }
+
+
         }
     }
 
@@ -100,13 +123,16 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[100%] bg-white p-6 border-none outline-none"
+                                className="rounded-lg w-[70%] bg-white p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="w-full">
                                     <div className="flex flex-row justify-end">
                                         <CloseBtn
-                                            onClick={handleClose}
+                                            onClick={() => {
+                                                handleClose()
+                                                setCurrentIndex(0)
+                                            }}
                                         />
                                     </div>
                                     <PauseSubscription handleContinue={handleContinue} />
@@ -123,13 +149,16 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[80%] bg-white p-6 border-none outline-none"
+                                className="rounded-lg w-[70%]   bg-white p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
                                     <div className="flex flex-row justify-end">
                                         <CloseBtn
-                                            onClick={handleClose}
+                                            onClick={() => {
+                                                handleClose()
+                                                setCurrentIndex(0)
+                                            }}
                                         />
                                     </div>
                                     <ClaimGift
@@ -138,6 +167,124 @@ export default function CancelPlanAnimation({
                                 </div>
                             </motion.div>
                         )}
+
+
+                        {currentIndex === 2 && (
+                            <motion.div
+                                key="box2"
+                                custom={direction}
+                                variants={boxVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{ duration: 0 }}
+                                className="rounded-lg w-[70%]  bg-white p-6 border-none outline-none"
+                            // style={styles.motionDiv}
+                            >
+                                <div className="">
+                                    <div className="flex flex-row justify-end">
+                                        <CloseBtn
+                                            onClick={() => {
+                                                handleClose()
+                                                setCurrentIndex(0)
+                                            }}
+                                        />
+                                    </div>
+                                    <ObtainOffer
+                                        handleContinue={handleContinue}
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
+
+
+                        {currentIndex === 3 && (
+                            <motion.div
+                                key="box2"
+                                custom={direction}
+                                variants={boxVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{ duration: 0 }}
+                                className="rounded-lg w-[70%] bg-white h-[90vh] p-6 border-none outline-none"
+                            // style={styles.motionDiv}
+                            >
+                                <div className="">
+                                    <div className="flex flex-row justify-end">
+                                        <CloseBtn
+                                            onClick={() => {
+                                                handleClose()
+                                                setCurrentIndex(0)
+                                            }}
+                                        />
+                                    </div>
+                                    <CancelConfirmation
+                                        handleContinue={handleContinue}
+                                    />
+
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {currentIndex === 4 && (
+                            <motion.div
+                                key="box2"
+                                custom={direction}
+                                variants={boxVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{ duration: 0 }}
+                                className="rounded-lg w-[70%] bg-white h-[90vh] p-6 border-none outline-none"
+                            // style={styles.motionDiv}
+                            >
+                                <div className="">
+                                    <div className="flex flex-row justify-end">
+                                        <CloseBtn
+                                            onClick={() => {
+                                                handleClose()
+                                                setCurrentIndex(0)
+                                            }}
+                                        />
+                                    </div>
+                                    <CancelationFinalStep
+                                        handleContinue={handleContinue}
+                                    />
+
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {currentIndex === 5 && (
+                            <motion.div
+                                key="box2"
+                                custom={direction}
+                                variants={boxVariants}
+                                initial="enter"
+                                animate="center"
+                                exit="exit"
+                                transition={{ duration: 0 }}
+                                className="rounded-lg w-[70%] h-[40vh] bg-white p-6 border-none outline-none"
+                            // style={styles.motionDiv}
+                            >
+                                <div className="">
+                                    <div className="flex flex-row justify-end">
+                                        <CloseBtn
+                                            onClick={() => {
+                                                handleClose()
+                                                setCurrentIndex(0)
+                                            }}
+                                        />
+                                    </div>
+                                    <CancelationCompleted
+                                        handleContinue={handleContinue}
+                                    />
+
+                                </div>
+                            </motion.div>
+                        )}
+
 
                     </AnimatePresence>
                 </div>

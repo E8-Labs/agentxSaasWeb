@@ -5,6 +5,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { SupportWidget } from "../askSky/support-widget";
 import { Box, Modal } from "@mui/material";
 import VapiChatWidget from "../askSky/VapiChatWidget";
+import UpgradeModal from "@/constants/UpgradeModal";
 
 const DashboardSlider = ({
   onTop = false,
@@ -23,6 +24,7 @@ const DashboardSlider = ({
 
   const [showAskSkyConfirmation, setShowAskSkyConfirmation] = useState(false);
   const [showVapiChatWidget, setShowVapiChatWidget] = useState(false);
+  const [openUpgradePlan, setOpenUpgradePlan] = useState(false)
 
   //fetch local details
   useEffect(() => {
@@ -142,18 +144,34 @@ const DashboardSlider = ({
     },
   ];
 
-  const handleOnClick = (item, index) => {
-    // handleClose()
+  console.log('openUpgradePlan', openUpgradePlan)
+
+  const handleOnClick = (item) => {
     if (item.id === 3) {
-      // setShowAskSkyConfirmation(true);
+
       setShowAskSkyModal(true);
       setShouldStartCall(true);
+    } else if (item.id == 2) {
+
+      if (!userDetails?.plan?.trialUsed) {
+        console.log('open')
+        setOpenUpgradePlan(true)
+      } else {
+        if (typeof window !== "undefined" && item.url) {
+          window.open(item.url, "_blank");
+        }
+      }
     } else {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && item.url) {
         window.open(item.url, "_blank");
       }
     }
-  };
+  }
+
+  const handleCloseUpgrade = ()=>{
+    setOpenUpgradePlan(false)
+  }
+
 
 
   const renderViews = () => {
@@ -323,7 +341,7 @@ const DashboardSlider = ({
               outline: "none",
             }}
           >
-           <GetHelpBtn handleReopen={handleReopen} />
+            <GetHelpBtn handleReopen={handleReopen} />
 
           </motion.div>
         )}
@@ -341,6 +359,14 @@ const DashboardSlider = ({
         />
 
       </Modal>
+
+      <UpgradeModal
+        title={"Unlock Live Support Webinar"}
+        subTitle={"Upgrade to join live support webinars and get pro tips from our team"}
+        buttonTitle={"No Thanks. Continue on free plan"}
+        open={openUpgradePlan}
+        handleClose={handleCloseUpgrade}
+      />
 
 
 

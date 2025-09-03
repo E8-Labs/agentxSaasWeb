@@ -1,4 +1,5 @@
 import { pauseSubscription } from '@/components/userPlans/UserPlanServices';
+import { next30Days } from '@/constants/Constants';
 import { CircularProgress } from '@mui/material';
 import moment from 'moment';
 import Image from 'next/image';
@@ -8,7 +9,7 @@ function PauseSubscription({
     handleContinue,
 }) {
 
-    const next30Days = moment().add(30, "days").format("MM/DD/YYYY");
+   
 
     const [pauseLoading, setPuaseLoading] = useState(false)
 
@@ -23,7 +24,7 @@ function PauseSubscription({
     return (
         <div className='w-full flex flex-col items-center gap-2'>
 
-            <Image src={'/otherAssets/pauseIcon.png'}
+            <Image className='' src={'/otherAssets/pauseIcon.png'}
                 height={72} width={72} alt="*"
             />
 

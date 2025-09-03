@@ -1,4 +1,4 @@
-import { claimGift } from '@/components/userPlans/UserPlanServices';
+import { claimGift, getDiscount } from '@/components/userPlans/UserPlanServices';
 import { CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
@@ -7,6 +7,7 @@ import React, { useState } from 'react'
 function ClaimGift({ handleContinue }) {
 
     const [claimLoader, setClaimLoader] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const handleClaimMins = async () => {
         setClaimLoader(true)
@@ -19,10 +20,22 @@ function ClaimGift({ handleContinue }) {
     }
 
 
-    const handleContinueCancel = () => {
-        let nextAction = "obtainOffer"
+    const handleContinueCancel = async () => {
+        setLoading(true)
+        let data = await getDiscount()
 
-        handleContinue(nextAction)
+        console.log('data', data)
+        if (data?.discountOffer?.alreadyUsed === false) {
+            let nextAction = "obtainOffer"
+            handleContinue(nextAction)
+        }else{
+            let nextAction = "cancelConfirmationFromGift"
+            handleContinue(nextAction)
+        }
+
+        setLoading(false)
+
+
     }
 
     return (
@@ -49,7 +62,7 @@ function ClaimGift({ handleContinue }) {
             <div className="flex flex-col items-center px-4 w-full">
                 <div
                     className={`flex flex-row items-center gap-2 text-purple text-base font-semibold mt-4 bg-[#402FFF10] py-2 px-4 rounded-full`}
-                   
+
                 >
                     <Image
                         src={"/svgIcons/gift.svg"}
@@ -111,7 +124,7 @@ function ClaimGift({ handleContinue }) {
                     <button
                         className="rounded-lg w-full text-white bg-purple outline-none"
                         style={{
-                            fontWeight: "700",
+                            fontWeight: "400",
                             fontSize: "16",
                             height: "50px",
                         }}
@@ -121,20 +134,25 @@ function ClaimGift({ handleContinue }) {
                     </button>
                 )}
 
-
-                <button
-                    className="rounded-lg border w-full outline-none mt-3"
-                    style={{
-                        fontWeight: "700",
-                        fontSize: "16",
-                        height: "50px",
-                    }}
-                    onClick={() => {
-                        handleContinueCancel()
-                    }}
-                >
-                    Continue to Cancel Subscription
-                </button>
+                {
+                    loading ? (
+                        <CircularProgress className='mt-3' />
+                    ) : (
+                        <button
+                            className="rounded-lg border w-full outline-none mt-3"
+                            style={{
+                                fontWeight: "400",
+                                fontSize: "16",
+                                height: "50px",
+                            }}
+                            onClick={() => {
+                                handleContinueCancel()
+                            }}
+                        >
+                            Continue to Cancel Subscription
+                        </button>
+                    )
+                }
             </div>
         </div >
     )

@@ -111,6 +111,9 @@ function NewBilling() {
     const [quaterlyPlans, setQuaterlyPlans] = useState([]);
     const [yearlyPlans, setYearlyPlans] = useState([]);
 
+    const [currentFullPlan, setCurrentFullPlan] = useState(null)
+    const [toggleFullPlan, setToggleFullPlan] = useState(null)
+
 
     useEffect(() => {
         let screenWidth = 1000;
@@ -210,6 +213,11 @@ function NewBilling() {
         getCardsList();
     }, []);
 
+
+
+    console.log('togglePlan', togglePlan)
+    console.log('currentPlan', currentPlan)
+
     const getProfile = async () => {
         try {
             const localData = localStorage.getItem("User");
@@ -217,23 +225,28 @@ function NewBilling() {
             //console.log;
             if (response) {
                 let plan = response?.data?.data?.plan;
-                let togglePlan = plan?.type;
-                let planType = null;
-                if (plan.status == "active") {
-                    if (togglePlan === "Plan30") {
-                        planType = 1;
-                    } else if (togglePlan === "Plan120") {
-                        planType = 2;
-                    } else if (togglePlan === "Plan360") {
-                        planType = 3;
-                    } else if (togglePlan === "Plan720") {
-                        planType = 4;
-                    }
-                }
+                let togglePlan = plan?.planId;
+                setCurrentFullPlan(plan)
+                setToggleFullPlan(plan)
+                let planType = togglePlan;
+                // if (plan.status == "active") {
+                //     if (togglePlan === "Plan30") {
+                //         planType = 1;
+                //     } else if (togglePlan === "Plan120") {
+                //         planType = 2;
+                //     } else if (togglePlan === "Plan360") {
+                //         planType = 3;
+                //     } else if (togglePlan === "Plan720") {
+                //         planType = 4;
+                //     }
+                // }
                 setUserLocalData(response?.data?.data);
-                // console.log("User get profile data is", response?.data?.data);
+                console.log("User get profile data is", response?.data?.data);
                 setTogglePlan(planType);
                 setCurrentPlan(planType);
+                console.log('setTogglePlan', planType)
+                // console.log('plan', plan)
+
             }
         } catch (error) {
             // console.error("Error in getprofile api is", error);
@@ -353,6 +366,8 @@ function NewBilling() {
     //functions for selecting plans
     const handleTogglePlanClick = (item) => {
         setTogglePlan(item.id);
+        setToggleFullPlan(item)
+
         setSelectedPlan((prevId) => (prevId === item ? null : item));
         // setTogglePlan(prevId => (prevId === id ? null : id));
     };
@@ -360,21 +375,10 @@ function NewBilling() {
     //function to subscribe plan
     const handleSubscribePlan = async () => {
         try {
-            let planType = null;
+            let planType = selectedPlan.planType;
 
             //// //console.log;
 
-            if (togglePlan === 1) {
-                planType = "Plan30";
-            } else if (togglePlan === 2) {
-                planType = "Plan120";
-            } else if (togglePlan === 3) {
-                planType = "Plan360";
-            } else if (togglePlan === 4) {
-                planType = "Plan720";
-            }
-
-            // //console.log;
 
             setSubscribePlanLoader(true);
             let AuthToken = null;
@@ -399,7 +403,7 @@ function NewBilling() {
                 payNow: true,
             };
 
-            // //console.log;
+            console.log(ApiData)
 
             const ApiPath = Apis.subscribePlan;
             // //console.log;
@@ -430,19 +434,13 @@ function NewBilling() {
                     setUserLocalData(user)
                     let response2 = await getProfileDetails();
                     if (response2) {
-                        let togglePlan = response2?.data?.data?.plan?.type;
+                        let togglePlan = response2?.data?.data?.plan?.planId;
                         let planType = null;
-                        if (togglePlan === "Plan30") {
-                            planType = 1;
-                        } else if (togglePlan === "Plan120") {
-                            planType = 2;
-                        } else if (togglePlan === "Plan360") {
-                            planType = 3;
-                        } else if (togglePlan === "Plan720") {
-                            planType = 4;
-                        }
+
                         setTogglePlan(planType);
                         setCurrentPlan(planType);
+                        setToggleFullPlan(response2?.data?.data?.plan)
+                        setCurrentFullPlan(response2?.data?.data?.plan)
                     }
                     // localStorage.setItem("User", JSON.stringify(localDetails));
                     setSuccessSnack("Your plan successfully updated");
@@ -1084,7 +1082,7 @@ function NewBilling() {
                 <div className="w-1/2">
                     {
                         cancelInitiateLoader ? (
-                            <CircularProgress size={20}/>
+                            <CircularProgress size={20} />
                         ) : (
                             <button
                                 className="w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border"
@@ -1122,7 +1120,7 @@ function NewBilling() {
                                 setShowConfirmationModal(true);
                             }}
                         >
-                            Continue
+                            {`${currentPlan <= togglePlan ? "Upgrade Plan" : "Downgrade Plan"}`}
                         </button>
                     )}
                 </div>
@@ -1232,7 +1230,7 @@ function NewBilling() {
                 handleClose={() => {
                     setShowCancelPoup(false)
                 }}
-                userLocalData = {userLocalData}
+                userLocalData={userLocalData}
             />
 
 

@@ -42,6 +42,7 @@ import { checkCurrentUserRole } from "@/components/constants/constants";
 import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import PlansService from "@/utilities/PlansService";
+import UpgradeModal from "@/constants/UpgradeModal";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"

@@ -108,3 +108,89 @@ export const claimGift = async () => {
         console.log('error claimGiftMins api', error)
     }
 }
+
+
+export const getDiscount = async () => {
+    try {
+        let token = AuthToken()
+
+        console.log('trying to obtain offer')
+
+        const response = await axios.post(Apis.continueToDiscount,{}, {
+            headers: {
+                "Authorization": 'Bearer ' + token,
+                "Content-Type":'application/json'
+            }
+        })
+
+        if (response) {
+            console.log('response of discount', response.data)
+            if (response.data.status == true) {
+                return response.data.data
+            } else {
+                return null
+            }
+        }
+
+    } catch (error) {
+        console.log('error discount api', error)
+    }
+}
+
+export const completeCancelation = async () => {
+    try {
+        let token = AuthToken()
+
+        console.log('trying to obtain offer')
+
+        const response = await axios.post(Apis.completeCancelatiton,{}, {
+            headers: {
+                "Authorization": 'Bearer ' + token,
+                "Content-Type":'application/json'
+            }
+        })
+
+        if (response) {
+            console.log('response of completeCancelatiton', response.data)
+            if (response.data.status == true) {
+                return response.data
+            } else {
+                return response.data
+            }
+        }
+
+    } catch (error) {
+        console.log('error completeCancelatiton api', error)
+    }
+}
+
+
+export const purchaseMins = async (mins) => {
+    try {
+        let token = AuthToken()
+
+        console.log('trying to obtain offer')
+
+        const response = await axios.post(Apis.purchaseDiscountedMins,{
+            requestedMinutes:mins
+        }, {
+            headers: {
+                "Authorization": 'Bearer ' + token,
+                "Content-Type":'application/json'
+            }
+        })
+
+        if (response) {
+            console.log('response of completeCancelatiton', response.data)
+            if (response.data.status == true) {
+                return response.data
+            } else {
+                return response.data
+            }
+        }
+
+    } catch (error) {
+        console.log('error completeCancelatiton api', error)
+    }
+}
+

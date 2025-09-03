@@ -255,10 +255,10 @@ const Apis = {
   initiateCancelation : `${BasePath}api/user/cancellation/initiate`,
   pauseSubscription:`${BasePath}api/user/cancellation/pause`,
   continueToGift :`${BasePath}api/user/cancellation/continue-to-gift`,
-  claimGiftMins :`${BasePath}api/cancellation/claim-gift`,
-  continueToDiscount :`${BasePath}api/cancellation/continue-to-discount`,
+  claimGiftMins :`${BasePath}api/user/cancellation/claim-gift`,
+  continueToDiscount :`${BasePath}api/user/cancellation/continue-to-discount`,
   purchaseDiscountedMins :`${BasePath}api/user/cancellation/purchase-discount`,
-  completeCancelatiton :`${BasePath}api/cancellation/complete`,
+  completeCancelatiton :`${BasePath}api/user/cancellation/complete`,
 
 
 
