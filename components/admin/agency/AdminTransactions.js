@@ -5,6 +5,11 @@ import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails';
 import SelectedUserDetails from '../users/SelectedUserDetails';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { CalendarIcon } from 'lucide-react';
 
 function AdminTransactions() {
   const [loading, setLoading] = useState(false);
@@ -51,6 +56,14 @@ function AdminTransactions() {
         limit: 50,
         ...filters
       });
+
+      // Convert MM/DD/YYYY dates to YYYY-MM-DD for API
+      if (filters.startDate) {
+        params.set('startDate', moment(filters.startDate, 'MM/DD/YYYY').format('YYYY-MM-DD'));
+      }
+      if (filters.endDate) {
+        params.set('endDate', moment(filters.endDate, 'MM/DD/YYYY').format('YYYY-MM-DD'));
+      }
 
       // Remove empty values
       Object.keys(filters).forEach(key => {
@@ -206,32 +219,61 @@ function AdminTransactions() {
             {/* Custom Date Range */}
             {filters.dateFilter === 'customRange' && (
               <>
-                <input
-                  type="date"
-                  value={filters.startDate}
-                  onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                  className="border rounded-lg px-3 py-2"
-                  placeholder="mm/dd/yyyy"
-                  pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
-                />
-                <input
-                  type="date"
-                  value={filters.endDate}
-                  onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                  className="border rounded-lg px-3 py-2"
-                  placeholder="mm/dd/yyyy"
-                  pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filters.startDate ? filters.startDate : "Start date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filters.startDate ? moment(filters.startDate, 'MM/DD/YYYY').toDate() : undefined}
+                      onSelect={(date) => {
+                        const formattedDate = date ? moment(date).format('MM/DD/YYYY') : '';
+                        handleFilterChange('startDate', formattedDate);
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {filters.endDate ? filters.endDate : "End date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={filters.endDate ? moment(filters.endDate, 'MM/DD/YYYY').toDate() : undefined}
+                      onSelect={(date) => {
+                        const formattedDate = date ? moment(date).format('MM/DD/YYYY') : '';
+                        handleFilterChange('endDate', formattedDate);
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </>
             )}
 
             {/* Search */}
-            <input
+            <Input
               type="text"
               placeholder="Search agency or subaccount..."
               value={filters.search}
               onChange={(e) => handleFilterChange('search', e.target.value)}
-              className="border rounded-lg px-3 py-2 col-span-2"
+              className="col-span-2"
             />
           </div>
         </div>

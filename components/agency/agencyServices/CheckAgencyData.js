@@ -66,9 +66,9 @@ export function formatDecimalValue(price) {
         return ""; // or return "0", depending on what you want
     }
 
-    const decimalPart = num.toFixed(2).split(".")[1]; // get "01" from 12.01
-    if (decimalPart.startsWith("0")) {
-        return Math.floor(num); // drop decimals
-    }
+    // const decimalPart = num.toFixed(2).split(".")[1]; // get "01" from 12.01
+    // if (decimalPart.startsWith("0")) {
+    //     return Math.floor(num); // drop decimals
+    // }
     return num.toFixed(2); // keep 2 decimals
 }
