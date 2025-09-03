@@ -9,6 +9,7 @@ import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
 import { getUniquesColumn } from '../globalExtras/GetUniqueColumns';
 import { PromptTagInput } from './tagInputs/PromptTagInput';
 import { createTemplete, getTempleteDetails, updateTemplete } from './TempleteServices';
+import { PersistanceKeys } from '@/constants/Constants';
 
 function SMSTempletePopup({
     open,
@@ -52,6 +53,7 @@ function SMSTempletePopup({
         } else if (!isEditing) {
             // Reset form when not editing
             setBody("");
+            setSelectedPhone(null)
         }
     }, [isEditing, editingRow, open]);
 
@@ -85,7 +87,8 @@ function SMSTempletePopup({
                 phone:selectedPhone.phone
             }
             let response = null
-            if (isEditing) {
+            let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
+            if (isEditing &&!IsdefaultCadence) {
                 response = await updateTemplete(data,editingRow.templateId)
             } else {
                 response = await createTemplete(data)
@@ -103,6 +106,7 @@ function SMSTempletePopup({
                     onUpdateRow(editingRow.id, {
                         templateId: createdTemplate.id,
                         content: body,
+                        communicationType: 'sms',
                     });
                 } else {
                     addRow({
@@ -312,9 +316,8 @@ function SMSTempletePopup({
                             showSaveChangesBtn={body}
                             from={"Template"}
                             saveUpdates={async () => {
-
                             }}
-                            limit={343}
+                            limit={160}
                         />
                     </div>
 

@@ -330,7 +330,7 @@ function EmailTempletePopup({
                 });
             } else {
                 // Add new row
-                setTimeout(() => {
+               
                     if (addRow) {
                         addRow({
                             templateId: createdTemplate.id,
@@ -338,12 +338,12 @@ function EmailTempletePopup({
                             communicationType: 'email',
                         });
                     }
-                }, 500);
+               
             }
 
-            setTimeout(() => {
+          
                 onClose();
-            }, 500);
+           
         } else {
             setShowSnackBar({
                 message: response.data.message,

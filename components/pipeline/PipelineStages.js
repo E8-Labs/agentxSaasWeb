@@ -154,8 +154,13 @@ const PipelineStages = ({
 
   const closeAddMenu = (stageIndex) => {
     localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
-console.log('is default cadence removed from local')
+    console.log('is default cadence removed from local')
     setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }));
+    setIsEditing(false);
+    setEditingRow(null);
+    setEditingStageIndex(null);
+    setSelectedType(null);
+    setSelectedIndex(null);
 
   };
 
@@ -184,7 +189,7 @@ console.log('is default cadence removed from local')
   const handleEditRow = async (stageIndex, row, e) => {
     if (!row.communicationType) {
       console.log('default cadence editing')
-      localStorage.setItem(PersistanceKeys.isDefaultCadenceEditing,JSON.stringify({isdefault:true}))
+      localStorage.setItem(PersistanceKeys.isDefaultCadenceEditing, JSON.stringify({ isdefault: true }))
       openAddMenu(stageIndex, e)
     }
     console.log('row for edit', row)
