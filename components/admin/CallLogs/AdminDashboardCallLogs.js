@@ -227,22 +227,39 @@ const [linkCopied, setLinkCopied] = useState(false);
 
   //code for getting call log details
   const getCallLogs = async (offset = null) => {
+    console.log("Getting call logs with offset:", offset);
 
+    // First, try to load from cache if this is the initial load and no filters are applied
+    const hasFilters = selectedFromDate || selectedToDate || selectedAgency || searchValue || selectedStatus.length > 0;
+    
+    if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
+      const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
+      if (cachedData) {
+        try {
+          const parsedCachedData = JSON.parse(cachedData);
+          console.log("Loading call logs from cache:", parsedCachedData.length, "items");
+          setCallDetails(parsedCachedData);
+          setFilteredCallDetails(parsedCachedData);
+          setIsLocalCallsAvailable(true);
+          setHasFetchedFromAPIOnce(true);
+        } catch (err) {
+          console.warn("Error parsing cached call logs data", err);
+          localStorage.removeItem(PersistanceKeys.LocalAllCalls);
+        }
+      }
+    }
 
-
-    console.log("check 1");
     try {
       setLoading(true);
       setInitialLoader(true);
-      // //console.log;
+      
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const Data = JSON.parse(localData);
-        // //console.log;
         AuthToken = Data.token;
       }
-      // //console.log;
+
       let startDate = "";
       let endDate = "";
 
@@ -251,9 +268,7 @@ const [linkCopied, setLinkCopied] = useState(false);
         endDate = moment(selectedToDate).format("MM-DD-YYYY");
       }
 
-      // //console.log;
       let ApiPath = null;
-      //   // //console.log;
       if (offset == null) {
         offset = filteredCallDetails.length;
       }
@@ -261,7 +276,7 @@ const [linkCopied, setLinkCopied] = useState(false);
       if (selectedFromDate && selectedToDate) {
         ApiPath = `${Apis.adminCallLogs}?startDate=${startDate}&endDate=${endDate}&offset=${offset}`;
       } else {
-        ApiPath = `${Apis.adminCallLogs}?offset=${offset}`; //Apis.getCallLogs;
+        ApiPath = `${Apis.adminCallLogs}?offset=${offset}`;
       }
 
       if (selectedAgency) {
@@ -279,12 +294,8 @@ const [linkCopied, setLinkCopied] = useState(false);
         ApiPath += `&status=${selectedStatus.join(",")}`;
       }
 
-      // ApiPath = Apis.adminCallLogs
+      console.log("API Path:", ApiPath);
 
-      console.log("apiPath", ApiPath)
-
-      //// //console.log;
-      // return
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + AuthToken,
@@ -293,14 +304,9 @@ const [linkCopied, setLinkCopied] = useState(false);
       });
       setLoading(false);
 
-
       if (response) {
-        //console.log;
-        // setCallDetails(response.data.data);
-        // setFilteredCallDetails(response.data.data);
-
         const data = response.data.data;
-        localStorage.setItem("callDetails", response.data.data);
+        console.log("Fetched call logs from API:", data.length, "items");
 
         // If offset is 0, replace the calls completely, otherwise append
         let calls;
@@ -310,25 +316,39 @@ const [linkCopied, setLinkCopied] = useState(false);
           calls = [...callDetails, ...data];
         }
 
-        console.log('calls', calls)
+        console.log('Updated calls:', calls.length, 'total items');
         setCallDetails(calls);
         setFilteredCallDetails(calls);
         setHasFetchedFromAPIOnce(true);
-        console.log("Length storing localstorage", calls.length);
 
-        // Save to localStorage
-        if (offset === 0) {
+        // Save to localStorage only if no filters are applied
+        if (offset === 0 && !hasFilters) {
           localStorage.setItem(PersistanceKeys.LocalAllCalls, JSON.stringify(calls));
+          console.log("Saved call logs to cache:", calls.length, "items");
         }
 
-        setIsLocalCallsAvailable(false)
+        setIsLocalCallsAvailable(false);
 
         if (data.length < LimitPerPage) {
           setHasMore(false);
         }
       }
     } catch (error) {
-      console.error("Error occured in gtting calls log api is:", error);
+      console.error("Error occurred in getting calls log API:", error);
+      // If API fails and we have cached data, keep showing cached data
+      if (!hasFetchedFromAPIOnce && !hasFilters) {
+        const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
+        if (cachedData) {
+          try {
+            const parsedCachedData = JSON.parse(cachedData);
+            setCallDetails(parsedCachedData);
+            setFilteredCallDetails(parsedCachedData);
+            setIsLocalCallsAvailable(true);
+          } catch (err) {
+            console.warn("Error parsing cached data after API failure", err);
+          }
+        }
+      }
     } finally {
       setInitialLoader(false);
     }
@@ -487,7 +507,13 @@ const [linkCopied, setLinkCopied] = useState(false);
           <div>
             <div className="w-full flex flex-row justify-between mt-2 px-10 mt-4">
               <div className="w-2/12">
-                <div style={styles.text}>Name</div>
+                <div style={styles.text}>Agency Name</div>
+              </div>
+              <div className="w-2/12">
+                <div style={styles.text}>Account Name</div>
+              </div>
+              <div className="w-2/12">
+                <div style={styles.text}>Agent Name</div>
               </div>
               <div className="w-2/12 ">
                 <div style={styles.text}>Agent Number</div>
@@ -564,12 +590,26 @@ const [linkCopied, setLinkCopied] = useState(false);
                           style={{ cursor: "pointer" }}
                           className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                         >
+                          <div className="w-2/12">
+                            <div style={styles.text2}>
+                              {item.agency?.name || "AgentX Main Admin"}
+                            </div>
+                          </div>
                           <div className="w-2/12 flex flex-row gap-2 items-center">
                             <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                               {item.user?.name.slice(0, 1).toUpperCase()}
                             </div>
                             <div style={styles.text2}>
                               {item.user?.name}
+                            </div>
+                          </div>
+                          <div className="w-2/12">
+                            <div style={styles.text2}>
+                              {item.agent?.name ? (
+                                <div>{item.agent.name}</div>
+                              ) : (
+                                "-"
+                              )}
                             </div>
                           </div>
                           <div className="w-2/12 ">
