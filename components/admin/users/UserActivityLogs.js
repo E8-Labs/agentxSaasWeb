@@ -42,9 +42,9 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         setCache({});
         setCacheTimestamp(0);
         setActivityLogs([]);
-        setOffset(0);
+        setOffset(1);
         setHasMore(true);
-        fetchActivityLogs(0);
+        fetchActivityLogs(1);
       }
     }
     
@@ -54,7 +54,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
       setCache({});
       setCacheTimestamp(0);
       setActivityLogs([]);
-      setOffset(0);
+      setOffset(1);
       setHasMore(true);
     }
   }, [open, userId]);
@@ -88,22 +88,22 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
     }
   }, [hasMore, loading, offset]);
 
-  const fetchActivityLogs = async (currentOffset = 0) => {
+  const fetchActivityLogs = async (currentPage = 1) => {
     try {
-      console.log('fetchActivityLogs called with offset:', currentOffset);
+      console.log('fetchActivityLogs called with page:', currentPage);
       setLoading(true);
       
       // Add a timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
-        console.log('API call timeout after 30 seconds');
+        console.log('API call timeout after 2 minutes');
         setLoading(false);
-      }, 30000);
+      }, 120000);
+      
       const data = localStorage.getItem("User");
       if (data) {
         let u = JSON.parse(data);
-        // Construct the API path for user activity logs
-        // Try both offset and page parameters to see which one works
-        const apiPath = `${Apis.getUsers.replace('/users', '/user-activity-logs')}?userId=${userId}&page=${Math.floor(currentOffset / limitPerLoad) + 1}&limit=${limitPerLoad}`;
+        // Use page parameter as the API expects it
+        const apiPath = `${Apis.getUsers.replace('/users', '/user-activity-logs')}?userId=${userId}&page=${currentPage}&limit=${limitPerLoad}`;
         console.log('API Path:', apiPath);
         
         const response = await axios.get(apiPath, {
@@ -115,41 +115,42 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         console.log('API Response:', response.data);
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers);
-
+        setLoading(false);
         if (response.data?.status) {
           const newLogs = response.data.data.activities || [];
           const newPagination = response.data.data.pagination || {};
           
-          console.log('New logs received:', newLogs.length, 'Current offset:', currentOffset);
+          console.log('New logs received:', newLogs.length, 'Current page:', currentPage);
           console.log('Response structure:', response.data.data);
           
-          if (currentOffset === 0) {
+          if (currentPage === 1) {
             // First load - replace all data
             setActivityLogs(newLogs);
-            setOffset(limitPerLoad);
+            setOffset(2); // Next page to load
           } else {
             // Append new data
             setActivityLogs(prev => [...prev, ...newLogs]);
-            setOffset(prev => prev + limitPerLoad);
+            setOffset(currentPage + 1); // Next page to load
           }
           
           setPagination(newPagination);
-          // Check if we have more data based on the response
-          const hasMoreData = newLogs.length === limitPerLoad;
+          // Use hasNextPage from the API response
+          const hasMoreData = newPagination.hasNextPage || false;
           setHasMore(hasMoreData);
           
           console.log('Updated state:', { 
             hasMore: hasMoreData, 
-            newOffset: currentOffset === 0 ? limitPerLoad : offset + limitPerLoad,
-            totalItems: newPagination.totalItems || 0
+            currentPage: currentPage,
+            totalItems: newPagination.totalItems || 0,
+            hasNextPage: newPagination.hasNextPage
           });
           
           // Cache the data
           const cacheData = {
-            logs: currentOffset === 0 ? newLogs : [...(cache[userId]?.logs || []), ...newLogs],
+            logs: currentPage === 1 ? newLogs : [...(cache[userId]?.logs || []), ...newLogs],
             pagination: newPagination,
             hasMore: hasMoreData,
-            offset: currentOffset === 0 ? limitPerLoad : offset + limitPerLoad
+            offset: currentPage + 1
           };
           
           setCache(prev => ({
@@ -178,7 +179,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
   const loadMore = () => {
     console.log('loadMore called:', { loading, hasMore, offset, currentLength: activityLogs.length });
     if (!loading && hasMore) {
-      console.log('Calling fetchActivityLogs with offset:', offset);
+      console.log('Calling fetchActivityLogs with page:', offset);
       fetchActivityLogs(offset);
     } else {
       console.log('loadMore blocked:', { loading, hasMore });
@@ -247,15 +248,15 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
               </p>
             )}
           </div>
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <button
               onClick={() => {
                 setCache({});
                 setCacheTimestamp(0);
                 setActivityLogs([]);
-                setOffset(0);
+                setOffset(1);
                 setHasMore(true);
-                fetchActivityLogs(0);
+                fetchActivityLogs(1);
               }}
               className="px-3 py-1 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
               title="Refresh data (clear cache)"
@@ -310,7 +311,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                 }));
                 setActivityLogs(initialData);
                 setHasMore(true);
-                setOffset(100);
+                setOffset(2); // Next page to load
                 console.log('Added initial data, should now be able to scroll');
               }}
               className="px-3 py-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-md transition-colors"
@@ -358,7 +359,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
             >
               ×
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Summary Cards */}
