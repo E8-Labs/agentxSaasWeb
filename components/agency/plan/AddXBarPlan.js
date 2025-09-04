@@ -63,7 +63,7 @@ export default function AddXBarPlan({
         const cal = originalPrice * minutes;
         setMinCostErr(true);
         // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
-        setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)} or less than  ${originalPrice / agencyPlanCost.toFixed(2)}`);
+        setSnackBannerMsg(`Price/Min should be ${agencyPlanCost.toFixed(2)}$ or less than  ${originalPrice / agencyPlanCost.toFixed(2)}`);
         setSnackBannerMsgType(SnackbarTypes.Warning);
       } else if (P > agencyPlanCost) {
         setSnackBannerMsg(null);
@@ -99,6 +99,7 @@ export default function AddXBarPlan({
     setMinCostErr(false)
     setSnackMsg(null)
     setSnackMsgType(null)
+    setAddPlanLoader(false);
   }
 
   //code to add plan
@@ -170,7 +171,7 @@ export default function AddXBarPlan({
   const handleUpdatePlanClick = async () => {
     try {
       setAddPlanLoader(true);
-      console.log("Working");
+      console.log("Working and the passed plan item is", planPassed);
 
       // const ApiPath = Apis.addXBarOptions; //vincecamuto
       const url = `${Apis.updateAgencyXBar}/${planPassed.id}`;
@@ -226,7 +227,7 @@ export default function AddXBarPlan({
       }
     } catch (error) {
       setAddPlanLoader(false);
-      console.error("Error is", error);
+      console.error("Error is", error.message);
     } finally {
       setAddPlanLoader(false);
     }
@@ -327,10 +328,10 @@ export default function AddXBarPlan({
   return (
     <Modal
       open={open}
-      onClose={() => {
-        handleResetValues();
-        handleClose("");
-      }}
+    // onClose={() => {
+    //   handleResetValues();
+    //   handleClose("");
+    // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
       <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
@@ -509,6 +510,7 @@ export default function AddXBarPlan({
             {/* Action Buttons */}
             <div className="flex justify-between mt-6">
               <button
+                disabled={addPlanLoader}
                 onClick={() => {
                   handleResetValues();
                   handleClose("");
@@ -549,6 +551,7 @@ export default function AddXBarPlan({
             <div className="p-6 flex flex-col items-center h-[100%]">
               <div className="flex justify-end w-full items-center h-[5%]">
                 <button
+                  // disabled={addPlanLoader}
                   onClick={() => {
                     handleResetValues();
                     handleClose("");

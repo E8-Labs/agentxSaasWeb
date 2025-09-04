@@ -187,7 +187,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     //stores smart refill
     const [isSmartRefill, setIsSmartRefill] = useState(true);
 
-    const [allowTwillio,setAllowTwillio] =useState(false)
+    const [allowTwillio, setAllowTwillio] = useState(false)
 
     //show sell seats modal
     useEffect(() => {
@@ -506,26 +506,6 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
         console.log('selectedtype', selectedUserType)
 
-        // return
-
-        // if (!subAccountName) {
-        //     setShowErrorSnack("Enter SubAccount Name")
-        //     return
-        // }
-
-        // if (!userEmail) {
-        //     setShowErrorSnack("Enter SubAccount Email")
-        //     return
-        // }
-        // if (!userPhoneNumber) {
-        //     setShowErrorSnack("Enter SubAccount Phone Number")
-        //     return
-        // }
-        // if (!selectedUserType) {
-        //     setShowErrorSnack("Select SubAccount Agent Type")
-        //     return
-        // }
-
         const fromData = {
             userEmail: userEmail,
             userPhoneNumber: userPhoneNumber,
@@ -533,7 +513,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             subAccountName: subAccountName,
             fullName: fullName,
             seats: seats,
-            isSmartRefill: isSmartRefill
+            isSmartRefill: isSmartRefill,
+            allowSubaccountTwilio: allowTwillio
         }
 
         // console.log(fromData);
@@ -806,7 +787,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
 
                 {/* Code for allow sell seats */}
-                <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
 
                     <div className="flex flex-row items-center gap-2">
                         <div style={styles.inputs}>
@@ -874,95 +855,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             }}
                         />
                     </div>
+
                 </div>
 
-                {/* Code for add smart refill
-                <div className='w-full flex flex-row items-center justify-between mt-4 py-1 px-4 bg-[#D9D9D92B] rounded-md'>
-                    <div style={styles.inputs}>
-                        Smart Refill
-                    </div>
-                    <div>
-                        <Switch
-                            checked={isSmartRefill}
-                            onChange={(e) => setIsSmartRefill(e.target.checked)}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: 'white',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
-                                },
-                            }}
-                        />
-                    </div>
-                </div> */}
-
-                <div className="w-full flex flex-row items-center mt-4 bg-purple p-2 rounded-md text-white">
-                    <div>
-                        <Switch
-                            checked={isSmartRefill}
-                            onChange={(e) => setIsSmartRefill(e.target.checked)}
-                            sx={{
-                                // ✅ Checked: green thumb, white track
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: '#01CB76',
-                                    '& + .MuiSwitch-track': {
-                                        backgroundColor: '#ffffff',
-                                        opacity: 1,
-                                    },
-                                },
-                                // ✅ Checked + focused: green thumb
-                                '& .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb': {
-                                    backgroundColor: '#01CB76',
-                                },
-
-                                // ✅ Unchecked: gray thumb, gray track
-                                '& .MuiSwitch-thumb': {
-                                    backgroundColor: '#9e9e9e',
-                                },
-                                '& .MuiSwitch-track': {
-                                    backgroundColor: '#bdbdbd',
-                                    opacity: 1,
-                                },
-
-                                // ✅ Focus ring (optional): remove default blue ring
-                                '& .Mui-focusVisible .MuiSwitch-thumb': {
-                                    outline: '2px solid #01CB76',
-                                },
-                            }}
-                        />
-
-                    </div>
-                    <div
-                        className="ms-4 w-2/12"
-                        style={{
-                            fontWeight: "700",
-                            fontSize: "15px"
-                        }}>
-                        Smart Refill
-                    </div>
-                    <div className="w-8/12 ms-2" style={{
-                        fontWeight: "500",
-                        fontSize: "15px"
-                    }}>
-                        Refill your AI mins when they run low. Keeps your calls going without interruption.
-                    </div>
-                </div>
-
-                {/* Sell Seats Modal
-                        <SellSeatsModal
-                            seats={seats}
-                            showModal={showSellSeatsModal}
-                            closeModal={(d) => {
-                                if (d) {
-                                    setShowSellSeatsModal(false);
-                                    setSeats(d);
-                                } else {
-                                    setShowSellSeatsModal(false);
-                                    setAlowSellSeats(false);
-                                }
-                            }}
-                        /> */}
                 {
                     showSellSeatsModal && (
                         <div>
@@ -987,8 +882,47 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                     )
                 }
 
-                <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium">Allow Twillio</label>
+
+
+                <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                    <div className="flex flex-row items-center gap-2">
+                        <label className="text-sm font-medium">Twilio Trust Hub</label>
+
+                        <Tooltip
+                            title="Enable Twilio for this subaccount to register their own numbers."
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#ffffff", // Ensure white background
+                                        color: "#333", // Dark text color
+                                        fontSize: "14px",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                    },
+                                },
+                                arrow: {
+                                    sx: {
+                                        color: "#ffffff", // Match tooltip background
+                                    },
+                                },
+                            }}
+                        >
+                            <div
+                                style={{
+                                    fontSize: 12,
+                                    fontWeight: "600",
+                                    color: "#000000",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                // onClick={() => setIntroVideoModal2(true)}
+                                />
+                            </div>
+                        </Tooltip>
+                    </div>
                     <Switch
                         checked={allowTwillio}
                         sx={{
@@ -999,11 +933,76 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                 backgroundColor: '#7902DF',
                             },
                         }}
-                        onChange={(e)=>{
+                        onChange={(e) => {
                             setAllowTwillio(e.target.checked)
                         }}
                     />
+
                 </div>
+
+                <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                    <div className="flex flex-row items-center gap-2">
+                        <div
+                            className=""
+                            style={styles.inputs}>
+                            Smart Refill
+                        </div>
+
+                        <Tooltip
+                            title="Automatically refill minutes when they run low. Keeps your sub-account calls going without interruption."
+                            arrow
+                            componentsProps={{
+                                tooltip: {
+                                    sx: {
+                                        backgroundColor: "#ffffff", // Ensure white background
+                                        color: "#333", // Dark text color
+                                        fontSize: "14px",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                    },
+                                },
+                                arrow: {
+                                    sx: {
+                                        color: "#ffffff", // Match tooltip background
+                                    },
+                                },
+                            }}
+                        >
+                            <div
+                                style={{
+                                    fontSize: 12,
+                                    fontWeight: "600",
+                                    color: "#000000",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                // onClick={() => setIntroVideoModal2(true)}
+                                />
+                            </div>
+                        </Tooltip>
+                    </div>
+
+                    <div>
+                        <Switch
+                            checked={isSmartRefill}
+                            onChange={(e) => setIsSmartRefill(e.target.checked)}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
+
+                    </div>
+                </div>
+
+
+
 
                 <div className="mb-4">
                     <p

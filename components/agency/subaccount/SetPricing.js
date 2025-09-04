@@ -5,6 +5,7 @@ import SetXBarOptions from "./SetXBarOptions";
 import { getMonthlyPlan } from "./GetPlansList";
 import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import Image from "next/image";
+import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 
 
 
@@ -89,10 +90,13 @@ export default function SetPricing({
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide"
-                sx={{
-                    '&::-webkit-scrollbar': { display: 'none' },
+                style={{
+                    // '&::-webkit-scrollbar': { display: 'none' },
                     scrollbarWidth: 'none',
-                    msOverflowStyle: 'none'
+                    msOverflowStyle: 'none',
+                    transform: "translateZ(0)",      // force GPU compositing
+                    willChange: "transform",         // hint browser about scrolling
+                    contain: "paint layout"
                 }}>
                 {monthlyPlans.map((plan, index) => (
                     <div
@@ -101,13 +105,14 @@ export default function SetPricing({
                         className="cursor-pointer"
                     >
                         {plan.hasTrial && (
-                            <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                            <div className="w-full overflow-hidden rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
                                 <div className="flex flex-row items-center gap-2">
                                     <Image
                                         src={"/otherAssets/batchIcon.png"}
                                         alt="*"
                                         height={24}
                                         width={24}
+                                        loading="eager"
                                     />
                                     <div
                                         style={{
@@ -130,7 +135,7 @@ export default function SetPricing({
                                 </h3>
                                 <p className="text-sm text-gray-500">{plan.planDescription}</p>
                                 <p className="mt-1 font-medium text-lg text-gray-800">
-                                    <span className="line-through text-[#00000090]">${plan.originalPrice?.toFixed(2)}</span> ${plan.discountedPrice?.toFixed(2)}/<span className="text-sm text-gray-400">Mo*</span>
+                                    <span className="line-through text-[#00000090]">${formatDecimalValue(plan.originalPrice)}</span> ${plan.discountedPrice?.toFixed(2)}/<span className="text-sm text-gray-400">Mo*</span>
                                 </p>
                             </div>
 

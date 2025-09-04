@@ -2624,7 +2624,9 @@ function Page() {
               bottom: 0,
             }}
           >
-            <DashboardSlider needHelp={false} />
+            {/*
+              <DashboardSlider needHelp={false} />
+            */}
           </div>
         </div>
       </div>
@@ -3309,7 +3311,7 @@ function Page() {
                             "& .MuiPaper-root": {
                               borderRadius: "12px",
                               padding: "8px",
-                              minWidth: "180px",
+                              minWidth: "220px",
                             },
                           }}
                         >
@@ -3321,6 +3323,7 @@ function Page() {
                               sx={{
                                 display: "flex",
                                 alignItems: "center",
+                                justifyContent: "space-between",
                                 gap: "10px",
                                 padding: "8px 12px",
                                 borderRadius: "8px",
@@ -3333,11 +3336,28 @@ function Page() {
                                 opacity: model.disabled ? 0.6 : 1,
                               }}
                             >
-                              <Avatar
-                                src={model.icon}
-                                sx={{ width: 24, height: 24 }}
-                              />
-                              {model.name}
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <Avatar
+                                  src={model.icon}
+                                  sx={{ width: 24, height: 24 }}
+                                />
+                                <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                                  {model.name}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  backgroundColor: "#7902DF05",
+                                  color: "#7902DF",
+                                  padding: "4px 8px",
+                                  borderRadius: "12px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  minWidth: "fit-content",
+                                }}
+                              >
+                                {model.responseTime}
+                              </div>
                             </MenuItem>
                           ))}
                         </Menu>

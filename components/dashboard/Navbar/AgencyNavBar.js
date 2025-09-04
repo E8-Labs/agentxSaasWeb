@@ -86,11 +86,13 @@ const AgencyNavBar = () => {
 
   //check the stripe
   const [checkStripeStatus, setCheckStripeStatus] = useState(false);
+  const [checkStripeStatusLoader, setCheckStripeStatusLoader] = useState(false);
 
   //check stripe
   useEffect(() => {
-    const stripeStatus = !CheckStripe();
-    setCheckStripeStatus(stripeStatus);
+    // 
+    // setCheckStripeStatus(stripeStatus);
+    checkStripe();
   }, [])
 
   //reset navigation loader
@@ -139,6 +141,20 @@ const AgencyNavBar = () => {
   //     router.prefetch(link.href);
   //   });
   // }, []);
+
+  //check stripe
+  const checkStripe = async () => {
+    try {
+      setCheckStripeStatusLoader(true);
+      const agencyProfile = await getProfileDetails();
+      const stripeStatus = agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount;
+      setCheckStripeStatus(!stripeStatus);
+      setCheckStripeStatusLoader(false);
+    } catch (error) {
+      setCheckStripeStatusLoader(false);
+      console.log("Eror in gettin stripe status", error)
+    }
+  }
 
 
   //get agency plans list
@@ -374,30 +390,41 @@ const AgencyNavBar = () => {
       {/* Sticky Modal */}
 
       {
-        checkStripeStatus && (
+        checkStripeStatusLoader ? (
           <div style={{ position: "absolute", bottom: 10, right: 10 }}>
             <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
-              <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
+              <CircularProgress size={20} />
               <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
-                {`You're Stripe account has not been connected.`}
+                {`Checking Stripe status...`}
               </div>
-              {
-                loader ? (
-                  <CircularProgress size={20} />
-                ) : (
-
-                  <button style={{ fontSize: 12, fontWeight: 500 }}
-                    className="bg-purple text-white rounded-md p-2 outline-none border-none"
-                    onClick={() => {
-                      handleVerifyClick()
-                    }}
-                  >
-                    Connect Now
-                  </button>
-                )
-              }
             </div>
           </div>
+        ) : (
+          checkStripeStatus && (
+            <div style={{ position: "absolute", bottom: 10, right: 10 }}>
+              <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
+                <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
+                <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
+                  {`You're Stripe account has not been connected.`}
+                </div>
+                {
+                  loader ? (
+                    <CircularProgress size={20} />
+                  ) : (
+
+                    <button style={{ fontSize: 12, fontWeight: 500 }}
+                      className="bg-purple text-white rounded-md p-2 outline-none border-none"
+                      onClick={() => {
+                        handleVerifyClick()
+                      }}
+                    >
+                      Connect Now
+                    </button>
+                  )
+                }
+              </div>
+            </div>
+          )
         )
       }
 

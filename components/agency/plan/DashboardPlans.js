@@ -10,8 +10,9 @@ import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
-import { CheckStripe } from '../agencyServices/CheckAgencyData';
+import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyData';
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
+import SupportFile from './SupportFile';
 
 
 function DashboardPlans({
@@ -92,7 +93,7 @@ function DashboardPlans({
             }
         }
 
-    }, [plansList])
+    }, [plansList]);
 
     //handle add new plan click
     const handleAddPlan = () => {
@@ -301,18 +302,20 @@ function DashboardPlans({
             }
             console.log("api path is", ApiPath)
             // return
+            let delData = {}
+            if (selectedAgency) {
+                delData = { userId: selectedAgency.id, }
+            }
             const response = await axios.delete(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + token,
                     "Content-Type": "application/json",
                 },
-                data: {
-                    userId: selectedAgency.id,
-                },
+                data: delData
             });
 
             if (response) {
-                console.log("Response of add plans api is", response.data);
+                console.log("Response of del plans api is", response.data);
                 if (response.data.status === true) {
                     // if (planType === "monthly") {
                     //     // setInitialLoader(true);
@@ -320,10 +323,15 @@ function DashboardPlans({
                     // } else if (planType === "Xbar") {
                     //     getXBarOptions()
                     // }
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Success);
                     getPlanApiTrigerer();
                     setmoreDropdown(null);
                     setSelectedPlan(null);
                     setShowDeleteModal(false);
+                } else if (response.data.status === false) {
+                    setSnackMsg(response.data.message);
+                    setSnackMsgType(SnackbarTypes.Error);
                 }
             }
 
@@ -352,17 +360,10 @@ function DashboardPlans({
                     fontSize: 22, fontWeight: '700'
                 }}>
                     {/* AgencyName */}
+                    Plans
                 </div>
 
                 <div className="flex flex-row items-center gap-2">
-                    <button
-                        className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
-                        style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
-                        onClick={() => {
-                            copyAgencyOnboardingLink({ setLinkCopied })
-                        }}>
-                        {linkCopied ? "Link Copied" : "Copy Link"}
-                    </button>
                     <NotficationsDrawer />
                 </div>
             </div>
@@ -516,12 +517,12 @@ function DashboardPlans({
                                                             <div className="w-1/12">
                                                                 {/* (item.LeadModel?.phone) */}
                                                                 <div style={styles.text2}>
-                                                                    {item.tag}
+                                                                    {item.tag || "-"}
                                                                 </div>
                                                             </div>
                                                             <div className="w-1/12">
                                                                 <div style={styles.text2}>
-                                                                    ${item.discountedPrice || 0}
+                                                                    ${formatDecimalValue(item.discountedPrice) || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-2/12">
@@ -682,6 +683,10 @@ function DashboardPlans({
                 }
 
             </div>
+
+            {/*
+                <SupportFile />
+            */}
 
         </div >
     )

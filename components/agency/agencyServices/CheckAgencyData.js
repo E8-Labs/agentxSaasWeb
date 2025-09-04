@@ -4,9 +4,11 @@ export const getAgencyLocalData = () => {
     try {
         const ld = window.localStorage.getItem("User");
         if (!ld) return null;
+        if (ld) {
+            const data = JSON.parse(ld);
+            return data?.user ?? null;
+        }
 
-        const data = JSON.parse(ld);
-        return data?.user ?? null;
     } catch (err) {
         console.error("Failed to read/parse localStorage 'User':", err);
         return null;
@@ -52,4 +54,21 @@ export const handlePricePerMinInputValue = (value) => {
     return normalized;
 };
 
+//function handling the .toFixed after point value
+export function formatDecimalValue(price) {
+    if (price == null || price === undefined) {
+        return ""; // or return 0, or whatever default you want
+    }
+    //convert string in to number
+    const num = Number(price);
+    // Handle invalid, null, undefined, or non-numeric values
+    if (isNaN(num)) {
+        return ""; // or return "0", depending on what you want
+    }
 
+    // const decimalPart = num.toFixed(2).split(".")[1]; // get "01" from 12.01
+    // if (decimalPart.startsWith("0")) {
+    //     return Math.floor(num); // drop decimals
+    // }
+    return num.toFixed(2); // keep 2 decimals
+}

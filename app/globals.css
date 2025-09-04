@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Force MM/DD/YYYY format for date inputs */
+input[type="date"] {
+  position: relative;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field {
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field {
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:after {
+  content: "/";
+  color: #000;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field:after {
+  content: "/";
+  color: #000;
+}
+
+/* Firefox date input formatting */
+input[type="date"]::-moz-datetime-edit-text {
+  color: transparent;
+}
+
+input[type="date"]::-moz-datetime-edit-month-field {
+  color: #000;
+}
+
+input[type="date"]::-moz-datetime-edit-day-field {
+  color: #000;
+}
+
+input[type="date"]::-moz-datetime-edit-year-field {
+  color: #000;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

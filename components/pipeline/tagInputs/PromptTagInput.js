@@ -16,8 +16,8 @@ export const PromptTagInput = ({
   isEdit = true,
   limit,
   isSubject = false,
-  placeholder = "Type here..."
-
+  placeholder = "Type here...",
+  editTitle
 }) => {
   //// //console.log
   const [popupVisible, setPopupVisible] = useState(false);
@@ -549,24 +549,50 @@ export const PromptTagInput = ({
                   </button>
                 </div>
 
-                <div
-                  className="text-start sm:font-24 font-16"
-                  style={{ fontWeight: "700" }}
-                >
-                  {isEdit ? "Edit" : "Add"} {from}
+                <div className="flex flex-row items-center justify-between">
+                  {
+                    from === "CreateEmail" ? (
+                      < div
+                        className="text-start sm:font-24 font-16"
+                        style={{ fontWeight: "700" }}
+                      >
+                        {editTitle}
+                      </div>
+                    ) : (
+                      <div
+                        className="text-start sm:font-24 font-16"
+                        style={{ fontWeight: "700" }}
+                      >
+                        {isEdit ? "Edit" : "Add"} {from}
+                      </div>
+                    )
+                  }
+
+                  {
+                    from === "Voicemail" && (
+                      <div>
+                        <div style={{
+                          fontSize: 14, fontWeight: '500', color: '#00000060'
+                        }}>
+                          {text?.length}/200
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  {
+                    from === "CreateEmail" && (
+                      <div>
+                        <div style={{
+                          fontSize: 14, fontWeight: '500', color: '#00000060'
+                        }}>
+                          {text?.length}/160
+                        </div>
+                      </div>
+                    )
+                  }
                 </div>
 
-                {
-                  from === "Voicemail" && (
-                    <div className="w-full flex flex-col  items-end jutstify-end">
-                      <div style={{
-                        fontSize: 14, fontWeight: '500', color: '#00000060'
-                      }}>
-                        {text?.length}/200
-                      </div>
-                    </div>
-                  )
-                }
               </div>
 
               <div style={{ position: "relative", height: "80%" }}>
@@ -689,6 +715,6 @@ export const PromptTagInput = ({
           </div>
         </Box>
       </Modal>
-    </div>
+    </div >
   );
 };

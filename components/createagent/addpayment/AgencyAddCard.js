@@ -358,22 +358,154 @@ const AgencyAddCard = ({
                 message={"Card added successfully"}
             />
 
-            <div className="w-full flex flex-row items-center "  style={{backgroundColor: 'transparent'}}>
-                <div className="flex w-[60%] flex-row items-center LeftDiv"  style={{backgroundColor: 'transparent'}}>
-                <div className="LeftInnerDiv1" style={{backgroundColor: 'transparent', flexShrink: 0}}>
-                    <Image
-                        alt="*"
-                        src={"/otherAssets/paymentCircle.png"}
-                        height={320} width={320}
-                    />
-                </div>
-                <div className="mb-12 LeftInnerDiv2" style={{width: '75%', marginLeft: '-100px'}}>
-                    <div// className="mt-8"
-                    >
-                        <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
-                        <div className="mt-2" style={{ fontWeight: "400", fontSize: 15 }}>Enter your payment details to continue</div>
-                        <div className="mt-4" style={{ fontWeight: "600", fontSize: 22 }}>Add Payment Details</div>
+            <div className="w-full flex flex-row items-center " style={{ backgroundColor: 'transparent' }}>
+                <div className="flex w-[55%] flex-row items-center LeftDiv" style={{ backgroundColor: 'transparent' }}>
+                    <div className="LeftInnerDiv1" style={{ backgroundColor: 'transparent', flexShrink: 0 }}>
+                        <Image
+                            alt="*"
+                            src={"/otherAssets/paymentCircle.png"}
+                            height={320} width={320}
+                        />
+                    </div>
+                    <div className="mb-12 LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
+                        <div// className="mt-8"
+                        >
+                            <div className="mb-10">
+                                <div style={{ fontWeight: "600", fontSize: 28 }}>Continue to Payment</div>
+                                <div className="mt-2" style={{ fontWeight: "400", fontSize: 15 }}>Enter your payment details to continue</div>
+                            </div>
+                            <div className="mt-4" style={{ fontWeight: "600", fontSize: 22 }}>Add Payment Details</div>
+                            <div
+                                style={{
+                                    fontWeight: "400",
+
+                                    fontSize: 14,
+                                    color: "#4F5B76",
+                                }}
+                            >
+                                Card Number
+                            </div>
+                            <div
+                                className="mt-2 px-3 py-1 border relative flex items-center"
+                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
+                            >
+                                <div className="flex-1">
+                                    <CardNumberElement
+                                        options={elementOptions}
+                                        autoFocus={true}
+                                        onChange={(event) => {
+                                            handleFieldChange(event, cardExpiryRef);
+                                            if (event.complete) {
+                                                // //console.log;
+                                                setCardAdded(true);
+                                            } else {
+                                                setCardAdded(false);
+                                            }
+                                        }}
+                                        ref={cardNumberRef}
+                                        onReady={(element) => {
+                                            cardNumberRef.current = element;
+                                            cardNumberRef.current.focus();
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-1 ml-2">
+                                    <Image src="/svgIcons/Visa.svg" alt="Visa" width={32} height={20} />
+                                    <Image src="/svgIcons/Mastercard.svg" alt="Mastercard" width={32} height={20} />
+                                    <Image src="/svgIcons/Amex.svg" alt="American Express" width={32} height={20} />
+                                    <Image src="/svgIcons/Discover.svg" alt="Discover" width={32} height={20} />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-row gap-2 w-full mt-8">
+                            <div className="w-6/12">
+                                <div
+                                    style={{
+                                        fontWeight: "400",
+
+                                        fontSize: 14,
+                                        color: "#4F5B76",
+                                    }}
+                                >
+                                    Exp
+                                </div>
+                                <div
+                                    className="mt-2 px-3 py-1 border"
+                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
+                                >
+                                    <CardExpiryElement
+                                        options={elementOptions}
+                                        style={{
+                                            width: "100%",
+                                            padding: "8px",
+                                            color: "white",
+                                            fontSize: "22px",
+                                            border: "1px solid blue",
+                                            borderRadius: "4px",
+                                        }}
+                                        onChange={(event) => {
+                                            handleFieldChange(event, cardCvcRef);
+                                            if (event.complete) {
+                                                // //console.log;
+                                                setCardExpiry(true);
+                                            } else {
+                                                setCardExpiry(false);
+                                            }
+                                        }}
+                                        ref={cardExpiryRef}
+                                        onReady={(element) => {
+                                            cardExpiryRef.current = element;
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="w-6/12">
+                                <div
+                                    style={{
+                                        fontWeight: "400",
+
+                                        fontSize: 14,
+                                        color: "#4F5B76",
+                                    }}
+                                >
+                                    CVC
+                                </div>
+                                <div
+                                    className="mt-2 px-3 py-1 border"
+                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
+                                >
+                                    <CardCvcElement
+                                        options={elementOptions}
+                                        style={{
+                                            width: "100%",
+                                            padding: "8px",
+                                            color: "white",
+                                            fontSize: "22px",
+                                            border: "1px solid blue",
+                                            borderRadius: "4px",
+                                        }}
+                                        ref={cardCvcRef}
+                                        onReady={(element) => {
+                                            cardCvcRef.current = element;
+                                        }}
+                                        onChange={(event) => {
+                                            // handleFieldChange(event, cardCvcRef);
+                                            if (event.complete) {
+                                                // //console.log;
+                                                setCVC(true);
+                                            } else {
+                                                setCVC(false);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Optional input field for agent x invite code */}
+
                         <div
+                            className="mt-8"
                             style={{
                                 fontWeight: "400",
 
@@ -381,166 +513,36 @@ const AgencyAddCard = ({
                                 color: "#4F5B76",
                             }}
                         >
-                            Card Number
+                            {`Referral Code (optional)`}
                         </div>
-                        <div
-                            className="mt-2 px-3 py-1 border relative flex items-center"
-                            style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                        >
-                            <div className="flex-1">
-                                <CardNumberElement
-                                    options={elementOptions}
-                                    autoFocus={true}
-                                    onChange={(event) => {
-                                        handleFieldChange(event, cardExpiryRef);
-                                        if (event.complete) {
-                                            // //console.log;
-                                            setCardAdded(true);
-                                        } else {
-                                            setCardAdded(false);
-                                        }
-                                    }}
-                                    ref={cardNumberRef}
-                                    onReady={(element) => {
-                                        cardNumberRef.current = element;
-                                        cardNumberRef.current.focus();
-                                    }}
-                                />
-                            </div>
-                            <div className="flex items-center gap-1 ml-2">
-                                <Image src="/svgIcons/Visa.svg" alt="Visa" width={32} height={20} />
-                                <Image src="/svgIcons/Mastercard.svg" alt="Mastercard" width={32} height={20} />
-                                <Image src="/svgIcons/Amex.svg" alt="American Express" width={32} height={20} />
-                                <Image src="/svgIcons/Discover.svg" alt="Discover" width={32} height={20} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-row gap-2 w-full mt-8">
-                        <div className="w-6/12">
-                            <div
-                                style={{
-                                    fontWeight: "400",
 
-                                    fontSize: 14,
-                                    color: "#4F5B76",
+                        <div className="mt-4">
+                            <input
+                                value={inviteCode}
+                                onChange={(e) => {
+                                    setInviteCode(e.target.value);
                                 }}
-                            >
-                                Exp
-                            </div>
-                            <div
-                                className="mt-2 px-3 py-1 border"
-                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                            >
-                                <CardExpiryElement
-                                    options={elementOptions}
-                                    style={{
-                                        width: "100%",
-                                        padding: "8px",
-                                        color: "white",
-                                        fontSize: "22px",
-                                        border: "1px solid blue",
-                                        borderRadius: "4px",
-                                    }}
-                                    onChange={(event) => {
-                                        handleFieldChange(event, cardCvcRef);
-                                        if (event.complete) {
-                                            // //console.log;
-                                            setCardExpiry(true);
-                                        } else {
-                                            setCardExpiry(false);
-                                        }
-                                    }}
-                                    ref={cardExpiryRef}
-                                    onReady={(element) => {
-                                        cardExpiryRef.current = element;
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        <div className="w-6/12">
-                            <div
+                                className="outline-none focus:ring-0 w-full h-[50px]"
                                 style={{
-                                    fontWeight: "400",
-
-                                    fontSize: 14,
-                                    color: "#4F5B76",
+                                    color: "#000000",
+                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                    borderRadius: "8px",
+                                    border: "1px solid #00000020",
+                                    fontSize: 15,
+                                    fontWeight: "500",
                                 }}
-                            >
-                                CVC
-                            </div>
-                            <div
-                                className="mt-2 px-3 py-1 border"
-                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                            >
-                                <CardCvcElement
-                                    options={elementOptions}
-                                    style={{
-                                        width: "100%",
-                                        padding: "8px",
-                                        color: "white",
-                                        fontSize: "22px",
-                                        border: "1px solid blue",
-                                        borderRadius: "4px",
-                                    }}
-                                    ref={cardCvcRef}
-                                    onReady={(element) => {
-                                        cardCvcRef.current = element;
-                                    }}
-                                    onChange={(event) => {
-                                        // handleFieldChange(event, cardCvcRef);
-                                        if (event.complete) {
-                                            // //console.log;
-                                            setCVC(true);
-                                        } else {
-                                            setCVC(false);
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Optional input field for agent x invite code */}
-
-                    <div
-                        className="mt-8"
-                        style={{
-                            fontWeight: "400",
-
-                            fontSize: 14,
-                            color: "#4F5B76",
-                        }}
-                    >
-                        {`Referral Code (optional)`}
-                    </div>
-
-                    <div className="mt-4">
-                        <input
-                            value={inviteCode}
-                            onChange={(e) => {
-                                setInviteCode(e.target.value);
-                            }}
-                            className="outline-none focus:ring-0 w-full h-[50px]"
-                            style={{
-                                color: "#000000",
-                                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                borderRadius: "8px",
-                                border: "1px solid #00000020",
-                                fontSize: 15,
-                                fontWeight: "500",
-                            }}
-                            placeholder="Enter Referral code"
-                        />
-                        <style jsx>{`
+                                placeholder="Enter Referral code"
+                            />
+                            <style jsx>{`
           input::placeholder {
             color: #00000050; /* Set placeholder text color to red */
           }
         `}</style>
-                    </div>
+                        </div>
 
-                    {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
+                        {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
 
-                    {/*
+                        {/*
                         <div className="mt-4 w-full flex flex-row items-center gap-4">
                             <button
                                 className="outline-none border-none"
@@ -585,7 +587,7 @@ const AgencyAddCard = ({
                         </div>
                     */}
 
-                    {/*
+                        {/*
                         <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
                             {addCardLoader ? (
                                 <div className="flex flex-row justify-center items-center mt-8 w-full">
@@ -615,10 +617,10 @@ const AgencyAddCard = ({
                             <p className="text-[#15151580]">{textBelowContinue}</p>
                         </div>
                     */}
+                    </div>
                 </div>
-                </div>
-                <div className="w-[40%] flex flex-col justify-center items-center pe-4 rounded-lg" style={{backgroundColor: 'transparent'}}>
-                    <div className=" rounded-lg p-4 w-[80%]" style={{backgroundColor: '#ffffffcc'}}>
+                <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg" style={{ backgroundColor: 'transparent' }}>
+                    <div className=" rounded-lg p-4 w-[85%]" style={{ backgroundColor: '#ffffffcc' }}>
                         <div style={{ fontSize: 22, fontWeight: "600" }}>Order Summary</div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>

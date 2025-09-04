@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import SelectYearlypopup from './SelectYearlypopup';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { FalloutShelter } from '@phosphor-icons/react/dist/ssr';
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 
 //code for add card
 let stripePublickKey =
@@ -146,7 +147,7 @@ function AgencyPlans() {
                 { main: "Lead Source", sub: "(Upsell)" },
                 { main: "AI Powered iMessage", sub: "(coming soon)" },
                 { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Dedicated Slack Support", sub: "" }
+                { main: "Slack Support", sub: "" }
             ],
             [ // Column 3
                 { main: "Unlimited Minutes", sub: "" },
@@ -162,8 +163,8 @@ function AgencyPlans() {
                 { main: "Lead Source", sub: "(Upsell)" },
                 { main: "AI Powered iMessage", sub: "(coming soon)" },
                 { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Dedicated Slack Support", sub: "" },
-                { main: "Dedicated Zoom Support", sub: "" }
+                { main: "Slack Support", sub: "" },
+                { main: "Zoom Support", sub: "" }
             ]
         ],
         2: [ // Quarterly
@@ -224,11 +225,10 @@ function AgencyPlans() {
     const planFeaturesUnavailable = {
         1: [ // Monthly
             [
-                { main: "Dedicated Slack Support", sub: "" },
-                { main: "Dedicated Zoom Support", sub: "" }
+                { main: "Slack Support", sub: "" },
             ],
             [
-                { main: "Dedicated Zoom Support", sub: "" }
+                { main: "Zoom Support", sub: "" }
             ],
             [
                 // No unavailable features
@@ -365,12 +365,12 @@ function AgencyPlans() {
     //claim early access
     const handleClaimEarlyAccess = (item, index) => {
         console.log("handleClaimEarlyAccess called with:", { item, index });
-        
+
         if (!item) {
             console.error("Item is undefined in handleClaimEarlyAccess");
             return;
         }
-        
+
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -483,7 +483,7 @@ function AgencyPlans() {
 
 
 
-        if(isPaymentMethodAdded){
+        if (isPaymentMethodAdded) {
             try {
                 setSubPlanLoader(planId ? planId.id : togglePlan);
                 const Token = AuthToken();
@@ -493,13 +493,13 @@ function AgencyPlans() {
                 for (let [key, value] of formData.entries()) {
                     console.log(`${key} = ${value}`);
                 }
-    
+
                 const response = await axios.post(ApiPath, formData, {
                     headers: {
                         "Authorization": "Bearer " + Token
                     }
                 });
-    
+
                 if (response) {
                     console.log("Response of subscribe subaccount plan is", response.data);
                     setSubPlanLoader(null);
@@ -509,7 +509,7 @@ function AgencyPlans() {
                         localStorage.removeItem("subPlan");
                         // router.push("/agency/dashboard");
                         router.push("/agency/verify");
-    
+
                     } else if (response.data.status === false) {
                         setErrorMsg(response.data.message);
                         setSnackMsgType(SnackbarTypes.Error);
@@ -518,7 +518,7 @@ function AgencyPlans() {
                         }
                     }
                 }
-    
+
             } catch (error) {
                 console.error("Error occured in sub plan api is", error);
                 setSubPlanLoader(null);
@@ -600,7 +600,7 @@ function AgencyPlans() {
 
                     <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] px-2 py-1 rounded-full'>
                         {
-                            duration.map((item) => (
+                            duration?.map((item) => (
                                 <button key={item.id}
                                     className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
@@ -640,7 +640,7 @@ function AgencyPlans() {
                                     <CircularProgress size={35} />
                                 </div>
                             ) : (
-                                getCurrentPlans().length > 0 && getCurrentPlans().map((item, index) => item ? (
+                                getCurrentPlans().length > 0 && getCurrentPlans()?.map((item, index) => item ? (
                                     <button
                                         key={item.id}
                                         onClick={() => handleTogglePlanClick(item, index)}
@@ -693,16 +693,16 @@ function AgencyPlans() {
                                                             {/*selectedDuration.title === "Monthly"
                                                                 ? `$${item.originalPrice}`
                                                                 : selectedDuration.title === "Quarterly"
-                                                                    ? `$${(item.originalPrice / 3).toFixed(2)}`
+                                                                    ? `$${formatDecimalValue(item.originalPrice / 3)}`
                                                                     : selectedDuration.title === "Yearly"
-                                                                        ? `$${(item.originalPrice / 12).toFixed(2)}`
+                                                                        ? `$${formatDecimalValue(item.originalPrice / 12)}`
                                             : ""*/}
                                                             ${selectedDuration.title === "Monthly"
                                                                 ? item.originalPrice
                                                                 : selectedDuration.title === "Quarterly (save 20%)"
-                                                                    ? (item.originalPrice / 3).toFixed(2)
+                                                                    ? formatDecimalValue(item.originalPrice / 3)
                                                                     : selectedDuration.title === "Yearly (save 30%)"
-                                                                        ? (item.originalPrice / 12).toFixed(2)
+                                                                        ? formatDecimalValue(item.originalPrice / 12)
                                                                         : "-"}
                                                         </div>
 
@@ -711,7 +711,7 @@ function AgencyPlans() {
                                                         </div>
 
                                                         <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${item.ratePerMin.toFixed(2)} per min
+                                                            ${formatDecimalValue(item.ratePerMin)} per min
                                                         </div>
 
                                                         <div className="mt-3 mb-3">
@@ -754,9 +754,9 @@ function AgencyPlans() {
 
                                                             {/* Features */}
                                                             {
-                                                                planFeaturesAvailable[selectedDuration.id][index].map((label, labelIndex) => (
+                                                                planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
                                                                     <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
-                                                                        <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                                        <Image src="/otherAssets/selectedTickBtn.png" height={16} width={16} alt="✓" />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
                                                                             style={{
@@ -790,7 +790,7 @@ function AgencyPlans() {
 
 
                                                             {
-                                                                planFeaturesUnavailable[selectedDuration.id][index].map((label, labelIndex) => (
+                                                                planFeaturesUnavailable[selectedDuration.id][index]?.map((label, labelIndex) => (
                                                                     <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
                                                                         <div
@@ -914,7 +914,7 @@ function AgencyPlans() {
                                     borderRadius: "13px",
                                 }}
                             >
-                                <div className="flex flex-row justify-end w-full items-center">
+                                <div className="flex flex-row justify-end w-full items-center pe-4 pt-4">
                                     <button onClick={() => {
                                         setAddPaymentPopUp(false);
                                         setIsContinueMonthly(false);

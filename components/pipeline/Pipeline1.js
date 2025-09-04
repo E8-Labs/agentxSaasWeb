@@ -284,6 +284,12 @@ const Pipeline1 = ({ handleContinue }) => {
   };
 
   const addRow = (index, action = "call", templateData = null) => {
+    console.log('addRow called with:', {
+      index,
+      action,
+      templateData
+    });
+    
     setRowsByIndex((prev) => {
       const list = prev[index] ?? [];
       const nextId = list.length ? list[list.length - 1].id + 1 : 1;
@@ -297,17 +303,27 @@ const Pipeline1 = ({ handleContinue }) => {
         communicationType: action, // Set communicationType to match action
       };
 
+      console.log('Base newRow before template data:', newRow);
+
       // Add template information for email and SMS actions
       if (templateData) {
-        // Add additional template-specific data
-        if (action === "email") {
-          newRow.templateId = templateData.templateId;
-          newRow.emailAccountId = templateData.emailAccountId;
-        } else if (action === "sms") {
-          newRow.templateId = templateData.templateId;
-          newRow.phone = templateData.phone
-        }
+        console.log('Adding template data for action:', action);
+        console.log('templateData received:', templateData);
+        
+        // Add all template data to the row
+        Object.keys(templateData).forEach(key => {
+          if (templateData[key] !== undefined) {
+            newRow[key] = templateData[key];
+            console.log(`Setting newRow.${key} = ${templateData[key]}`);
+          }
+        });
+        
+        console.log('newRow after adding template data:', newRow);
+      } else {
+        console.log('No template data provided');
       }
+
+      console.log('Final newRow:', newRow);
 
       return {
         ...prev,
@@ -327,12 +343,24 @@ const Pipeline1 = ({ handleContinue }) => {
   };
 
   const updateRow = (leadIndex, rowId, updatedData) => {
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
-        row.id === rowId ? { ...row, ...updatedData } : row
-      ),
-    }));
+    console.log(`Updating row ${rowId} in stage ${leadIndex} with data:`, updatedData);
+    
+    setRowsByIndex((prev) => {
+      const updatedRows = {
+        ...prev,
+        [leadIndex]: (prev[leadIndex] ?? []).map((row) => {
+          if (row.id === rowId) {
+            const updatedRow = { ...row, ...updatedData };
+            console.log('Updated row result:', updatedRow);
+            return updatedRow;
+          }
+          return row;
+        }),
+      };
+      
+      console.log('Updated rowsByIndex state:', updatedRows);
+      return updatedRows;
+    });
   };
 
   const printAssignedLeadsData = async () => {

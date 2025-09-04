@@ -122,9 +122,10 @@ module.exports = {
   plugins: [
     require("tailwind-scrollbar")({ nocompatible: true }), //scrollbar plugin
     require("@tailwindcss/aspect-ratio"),
+    require("tailwind-scrollbar-hide"), 
     require("@tailwindcss/forms"),
     require("@tailwindcss/typography"),
-    require("tailwind-scrollbar"),
+    // require("tailwind-scrollbar"),
     require("tailwindcss-animate"),
   ],
   variants: {

@@ -286,7 +286,9 @@ const UserCalender = ({
         // formData.append("title", calendar.title);
         formData.append("calendarType", "google");
         // formData.append("mainAgentId", "");
-        formData.append("agentId", selectedAgent?.id);
+        if (selectedAgent) {
+          formData.append("agentId", selectedAgent?.id);
+        }
         formData.append("accessToken", calendar.accessToken);
         formData.append("refreshToken", calendar.refreshToken);
         formData.append("scope", Scopes.join(" "));//"openid email profile https://www.googleapis.com/auth/calendar"
@@ -297,6 +299,9 @@ const UserCalender = ({
         formData.append("title", calendar.calenderTitle);
         formData.append("timeZone", calendar.selectTimeZone);
         formData.append("eventId", calendar?.eventId || selectedTimeDurationLocal); //|| eventId
+        if (selectedUser) {
+          formData.append("userId", selectedUser?.id);
+        }
       } else if (calendar?.isFromAddGHLCal) {
         formData.append("calendarType", "ghl");
         // formData.append("GHLapikey", calendar?.apiKey || calenderApiKey);

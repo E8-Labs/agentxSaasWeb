@@ -594,9 +594,11 @@ function AdminActiveCalls({ selectedUser }) {
         <div className="w-3/12">
           <div style={styles.text}>Agent</div>
         </div>
-        <div className="w-2/12 ">
-          <div style={styles.text}>Objective</div>
-        </div>
+        {/*
+          <div className="w-2/12 ">
+            <div style={styles.text}>Objective</div>
+          </div>
+        */}
         <div className="w-1/12">
           <div style={styles.text}>Leads</div>
         </div>
@@ -638,15 +640,17 @@ function AdminActiveCalls({ selectedUser }) {
                             
                               <div style={styles.text2}>{agent.name}</div>
                             </div>
-                            <div className="w-2/12 ">
-                              {agent?.agents[0]?.agentObjective ? (
-                                <div style={styles.text2}>
-                                  {agent.agents[0]?.agentObjective}
-                                </div>
-                              ) : (
-                                "-"
-                              )}
-                            </div>
+                            {/*
+                              <div className="w-2/12 ">
+                                {agent?.agents[0]?.agentObjective ? (
+                                  <div style={styles.text2}>
+                                    {agent.agents[0]?.agentObjective}
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                            */}
                             <div className="w-1/12">
                               <button
                                 style={styles.text2}

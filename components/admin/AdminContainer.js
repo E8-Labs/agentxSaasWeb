@@ -14,6 +14,8 @@ import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomi
 import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
 import AdminAgencyDetails from "./agency/AdminAgencyDetails";
 import AdminTransactions from "./agency/AdminTransactions";
+import AdminActiveCalls from "./activeCalls/AdminActiveCalls";
+import AdminPaymentCharges from "./paymentCharges/AdminPaymentCharges";
 
 function AdminContainer() {
   const router = useRouter();
@@ -57,14 +59,8 @@ function AdminContainer() {
     },
     {
       id: 6,
-      name: "Upcoming Charges",
-      value: 'upcoming-charges',
-
-    },
-    {
-      id: 7,
-      name: "Payments Needing Refund",
-      value: 'payments-needing-refund',
+      name: "Billing",
+      value: 'billing',
 
     },
     {
@@ -84,6 +80,15 @@ function AdminContainer() {
   const agencySubMenus = [
     { id: 1, name: "Agencies", value: 'agencies' },
     { id: 2, name: "Transactions", value: 'transactions' }
+  ];
+
+  // Billing submenu state
+  const [billingSubTab, setBillingSubTab] = useState('upcoming-charges');
+  
+  const billingSubMenus = [
+    { id: 1, name: "Upcoming Charges", value: 'upcoming-charges' },
+    { id: 2, name: "Payment Charges", value: 'payment-charges' },
+    { id: 3, name: "Active Calls", value: 'active-calls' }
   ];
 
   return (
@@ -165,6 +170,32 @@ function AdminContainer() {
           </div>
         )}
 
+        {/* Billing Submenu */}
+        {selectedManu.name === "Billing" && (
+          <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2 bg-gray-50">
+            {billingSubMenus.map((subItem) => (
+              <button
+                key={subItem.id}
+                onClick={() => setBillingSubTab(subItem.value)}
+                className={`flex flex-row items-center gap-3 p-2 items-center 
+                        ${billingSubTab === subItem.value &&
+                  "border-b-[2px] border-purple"
+                  }`}
+              >
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: billingSubTab === subItem.value ? "#7902df" : "#666",
+                  }}
+                >
+                  {subItem.name}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="w-full items-center h-full overflow-hidden flex-1">
           {selectedManu.name === "Users" ? (
             <AdminUsers />
@@ -174,10 +205,14 @@ function AdminContainer() {
             <AdminDashboardCallLogs />
           ) : selectedManu.name === "Phone Verification Codes" ? (
             <PhoneVerificationCodesList />
-          ) : selectedManu.name === "Upcoming Charges" ? (
-            <AdminUpcomingCharges />
-          ) : selectedManu.name === "Payments Needing Refund" ? (
-            <AdminPaymentsNeedingRefund />
+          ) : selectedManu.name === "Billing" ? (
+            billingSubTab === 'upcoming-charges' ? (
+              <AdminUpcomingCharges />
+            ) : billingSubTab === 'payment-charges' ? (
+              <AdminPaymentCharges />
+            ) : (
+              <AdminActiveCalls />
+            )
           ): selectedManu.name === "Agency" ? (
             agencySubTab === 'agencies' ? (
               <AdminAgencyDetails />

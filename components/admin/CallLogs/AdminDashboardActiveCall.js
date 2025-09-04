@@ -125,19 +125,25 @@ function AdminDashboardActiveCall({ }) {
   const getAgents = async (passedData) => {
     console.log("Data passed is", passedData);
 
-    const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
-
-    if (cache && !passedData.length && !passedData.sortData) {
-      try {
-        const parsed = JSON.parse(cache);
-        console.log("Loaded agents from cache", parsed);
-        setFilteredAgentsList(parsed);
-        setCallDetails(parsed);
-        setAgentsList(parsed);
-        return; // ✅ Skip network call if cached
-      } catch (err) {
-        console.warn("Error parsing cached agent data", err);
-        localStorage.removeItem(PersistanceKeys.LocalActiveCalls); // Corrupted cache fallback
+    // Check if we should load from cache (initial load with no pagination or sorting)
+    const shouldLoadFromCache = !passedData?.length && !passedData?.sortData && !passedData?.isPagination;
+    
+    if (shouldLoadFromCache) {
+      const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
+      if (cache) {
+        try {
+          const parsed = JSON.parse(cache);
+          console.log("Loading call activities from cache:", parsed.length, "items");
+          setFilteredAgentsList(parsed);
+          setCallDetails(parsed);
+          setAgentsList(parsed);
+          setInitialLoader(false);
+        } catch (err) {
+          console.warn("Error parsing cached call activities data", err);
+          localStorage.removeItem(PersistanceKeys.LocalActiveCalls);
+        }
+      } else {
+        console.log("No cached data found for call activities");
       }
     }
 
@@ -149,7 +155,7 @@ function AdminDashboardActiveCall({ }) {
 
       const token = AuthToken();
       if (!token) return;
-      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}`
+      let ApiPath = `${Apis.getAdminSheduledCallLogs}?offset=${passedData?.length ? passedData?.length : 0}&limit=${LimitPerPage}&scheduled=false`
       if (passedData?.sortData) {
         ApiPath += `&sortBy=${passedData?.sortData?.sort}&sortOrder=${passedData?.sortData?.sortOrder}`;
       }
@@ -164,28 +170,40 @@ function AdminDashboardActiveCall({ }) {
 
       if (response?.data?.data) {
         const agents = response.data.data;
-        console.log("Response of paginated api is", agents);
-        if (passedData?.isPagination === false) {
-          setFilteredAgentsList(agents);
-          setCallDetails(agents);
-          setAgentsList(agents);
+        console.log("Fetched call activities from API:", agents.length, "items");
+        console.log("Sample data structure:", agents[0]);
+        
+        // Handle pagination vs initial load differently
+        if (passedData?.isPagination) {
+          // For pagination, append to existing data
+          const updatedAgents = [...filteredAgentsList, ...agents];
+          console.log("Appending paginated data. Total items now:", updatedAgents.length);
+          setFilteredAgentsList(updatedAgents);
+          setCallDetails(updatedAgents);
+          setAgentsList(updatedAgents);
         } else {
-          // Show API response data instead of appending to existing array
+          // For initial load, replace all data
+          console.log("Replacing all data with fresh API data");
           setFilteredAgentsList(agents);
           setCallDetails(agents);
           setAgentsList(agents);
         }
 
-        console.log("Data is set in variables");
+        console.log("Updated call activities data in UI");
         setInitialLoader(false);
         setLoading(false);
-        //stoped temporarily
-        if (!passedData?.length && !passedData?.sortData) {
-          localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents)); // ✅ Save to cache
+        
+        // Save to cache only for initial load (no pagination, sorting, or filters)
+        if (shouldLoadFromCache) {
+          localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents));
+          console.log("Saved call activities to cache:", agents.length, "items");
         }
+        
         if (agents.length < LimitPerPage) {
           setHasMore(false);
         }
+      } else {
+        console.log("No data received from API:", response?.data);
       }
     } catch (error) {
       console.error("Failed to fetch agents", error);
@@ -624,13 +642,13 @@ function AdminDashboardActiveCall({ }) {
 
       <div className="w-full flex flex-row justify-between mt-2 px-10">
         <div className="w-2/12">
-          <div style={styles.text}>User</div>
+          <div style={styles.text}>Agency Name</div>
+        </div>
+        <div className="w-2/12">
+          <div style={styles.text}>Account Name</div>
         </div>
         <div className="w-2/12">
           <div style={styles.text}>Agent</div>
-        </div>
-        <div className="w-2/12 ">
-          <div style={styles.text}>Objective</div>
         </div>
         <div className="w-1/12">
 
@@ -784,6 +802,12 @@ function AdminDashboardActiveCall({ }) {
                                 className="w-full flex flex-row items-center justify-between mt-10 px-10"
                                 key={index}
                               >
+                                <div className="w-2/12">
+                                  <div style={styles.text2}>
+                                    {item.agency?.name || "AgentX Main Admin"}
+                                  </div>
+                                </div>
+
                                 <button className="w-2/12 flex flex-row gap-3 items-center"
                                   onClick={() => {
                                     if (item?.user?.id) {
@@ -830,15 +854,6 @@ function AdminDashboardActiveCall({ }) {
                                       agent?.agents[1]?.name
                                     )
                                   }</div>
-                                </div>
-                                <div className="w-2/12 ">
-                                  {agent?.agents[0]?.agentObjective ? (
-                                    <div style={styles.text2}>
-                                      {agent.agents[0]?.agentObjective}
-                                    </div>
-                                  ) : (
-                                    "-"
-                                  )}
                                 </div>
                                 <div className="w-1/12">
                                   <button

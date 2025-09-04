@@ -30,6 +30,7 @@ import EmailTempletePopup from "./EmailTempletePopup";
 import SMSTempletePopup from "./SMSTempletePopup";
 import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
 import AuthSelectionPopup from "./AuthSelectionPopup";
+import { PersistanceKeys } from "@/constants/Constants";
 
 const PipelineStages = ({
   stages,
@@ -152,7 +153,15 @@ const PipelineStages = ({
   };
 
   const closeAddMenu = (stageIndex) => {
+    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+    console.log('is default cadence removed from local')
     setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }));
+    setIsEditing(false);
+    setEditingRow(null);
+    setEditingStageIndex(null);
+    setSelectedType(null);
+    setSelectedIndex(null);
+
   };
 
   const handleSelectAdd = async (stageIndex, value) => {
@@ -165,6 +174,7 @@ const PipelineStages = ({
         setShowAuthSelectionPopup(true)
       } else {
         setShowSmsTempPopup(true)
+       
       }
       // }
     } else {
@@ -172,13 +182,17 @@ const PipelineStages = ({
         closeAddMenu(stageIndex);
       } else {
         addRow(stageIndex, value);
+        closeAddMenu(stageIndex);
+        
       }
     }
-    closeAddMenu(stageIndex);
+    // closeAddMenu(stageIndex);
   };
 
   const handleEditRow = async (stageIndex, row, e) => {
     if (!row.communicationType) {
+      console.log('default cadence editing')
+      localStorage.setItem(PersistanceKeys.isDefaultCadenceEditing, JSON.stringify({ isdefault: true }))
       openAddMenu(stageIndex, e)
     }
     console.log('row for edit', row)
@@ -228,10 +242,10 @@ const PipelineStages = ({
   }, [showEmailTemPopup])
 
   const getTemp = async () => {
-    setTempLoader(selectedType)
+    // setTempLoader(selectedType)
     let temp = await getTempletes(selectedType)
     setTempletes(temp)
-    setTempLoader(null)
+    // setTempLoader(null)
     setShowEmailTempPopup(true)
   }
 
@@ -1029,7 +1043,10 @@ const PipelineStages = ({
                                 <Menu
                                   anchorEl={addMenuAnchor[index] || null}
                                   open={Boolean(addMenuAnchor[index])}
-                                  onClose={() => closeAddMenu(index)}
+                                  onClose={() => {
+                                    closeAddMenu(index)
+                                    localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
+                                  }}
                                   PaperProps={{
                                     style: {
                                       boxShadow: "0px_-2px_25.600000381469727px_1px_rgba(0,0,0,0.05)", // custom purple shadow
@@ -1599,8 +1616,26 @@ const PipelineStages = ({
                         </Box>
                       </Modal>
                     </div>
+
+                    <SMSTempletePopup
+
+                      open={showSmsTemPopup}
+                      onClose={() => {
+                        setShowSmsTempPopup(false)
+                        closeAddMenu(selectedIndex)
+                      }}
+                      phoneNumbers={phoneNumbers}
+                      phoneLoading={phoneLoading}
+                      addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+                      communicationType={selectedType}
+                      onUpdateRow={handleUpdateRow}
+                      isEditing={isEditing}
+                      editingRow={editingRow}
+                    />
                   </div>
                 )}
+
+
               </Draggable>
             ))}
             {provided.placeholder}
@@ -1639,7 +1674,10 @@ const PipelineStages = ({
               onClose={() => setShowAuthSelectionPopup(false)}
               showEmailTemPopup={showEmailTemPopup}
               setShowEmailTempPopup={setShowEmailTempPopup}
-              setSelectedGoogleAccount={setSelectedGoogleAccount}
+              setSelectedGoogleAccount={(account)=> {
+                console.log('PipelineStages: setSelectedGoogleAccount called with:', account)
+                setSelectedGoogleAccount(account)
+              }}
 
             />
 
@@ -1648,30 +1686,33 @@ const PipelineStages = ({
               setIsEditing(false);
               setEditingRow(null);
               setEditingStageIndex(null);
+              closeAddMenu(selectedIndex)
             }}
-              setSelectedGoogleAccount={setSelectedGoogleAccount}
+              setSelectedGoogleAccount={(account)=> {
+                console.log(`PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`)
+                setSelectedGoogleAccount(account)
+              }}
               selectedGoogleAccount={selectedGoogleAccount}
-              onGoogleAccountChange={setSelectedGoogleAccount}
+              onGoogleAccountChange={(account)=>{
+                console.log(`PipelineStages: onGoogleAccountChange called with: ${account}`)
+                setSelectedGoogleAccount(account)
+              }}
               templetes={templates}
               setTempletes={setTempletes}
               communicationType={selectedType} // in this varable i have stored selected option value like email or sms
-              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+              addRow={(templateData) => {
+                console.log('PipelineStages: addRow called with:', {
+                  selectedIndex,
+                  selectedType,
+                  templateData
+                });
+                addRow(selectedIndex, selectedType, templateData)
+              }}
               isEditing={isEditing}
               editingRow={editingRow}
               onUpdateRow={handleUpdateRow}
             />
-            <SMSTempletePopup
 
-              open={showSmsTemPopup}
-              onClose={() => setShowSmsTempPopup(false)}
-              phoneNumbers={phoneNumbers}
-              phoneLoading={phoneLoading}
-              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
-              communicationType={selectedType}
-              onUpdateRow={handleUpdateRow}
-              isEditing={isEditing}
-              editingRow={editingRow}
-            />
 
 
 

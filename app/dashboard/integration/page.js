@@ -376,8 +376,10 @@ function Page() {
               right: 0,
               bottom: 0
             }}>
-            <DashboardSlider
-              needHelp={false} />
+           {/*
+             <DashboardSlider
+               needHelp={false} />
+           */}
           </div>
         </div>
       </div>

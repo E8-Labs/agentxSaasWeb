@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import getProfileDetails from "@/components/apis/GetProfile";
 import LoaderAnimation from "@/components/animations/LoaderAnimation";
 import { PersistanceKeys } from "@/constants/Constants";
+import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 
 //code for add card
 let stripePublickKey =
@@ -40,7 +41,9 @@ const SubAccountPlan = ({ handleContinue }) => {
 
   const [planSubscribed, setPlanSubscribed] = useState(false);
 
-  const [subaccount, setSubaccount] = useState(null)
+  const [subaccount, setSubaccount] = useState(null);
+
+  const [disableContinue, setDisableContinue] = useState(false);
 
   useEffect(() => {
     getPlans();
@@ -76,15 +79,21 @@ const SubAccountPlan = ({ handleContinue }) => {
 
   //close add card popup
   const handleCardAddedClose = async (data) => {
-    await getProfileDetails();
-    console.log("Card added details are here", data);
-    if (data) {
-      console.log("try to close popup");
-      setAddPaymentPopUp(false);
-      if (togglePlan) {
-        console.log("trying to suubscribe");
-        await subscribePlanClick();
+    try {
+      setDisableContinue(true);
+      await getProfileDetails();
+      console.log("Card added details are here", data);
+      if (data) {
+        console.log("try to close popup");
+        setAddPaymentPopUp(false);
+        if (togglePlan) {
+          console.log("trying to suubscribe");
+          await subscribePlanClick();
+        }
       }
+    } catch (err) {
+      console.log("Error occrued", err);
+      setDisableContinue(false);
     }
   };
   //get plans apis
@@ -130,6 +139,8 @@ const SubAccountPlan = ({ handleContinue }) => {
 
   //subscribe plan
   const subscribePlanClick = async () => {
+    setDisableContinue(true);
+    // return
     if (isCardsAvailable() === false) {
       setAddPaymentPopUp(true);
       return;
@@ -154,7 +165,6 @@ const SubAccountPlan = ({ handleContinue }) => {
         console.log("Response of subscribe subaccount plan is", response.data);
         setSubPlanLoader(false);
         if (response.data.status === true) {
-          setPlanSubscribed(true);
           setErrorMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Success);
           const D = localStorage.getItem("fromDashboard");
@@ -164,12 +174,14 @@ const SubAccountPlan = ({ handleContinue }) => {
           if (subaccount) {
             handleContinue()
           } else {
+            setPlanSubscribed(true);
             router.push("/dashboard");
 
           }
         } else if (response.data.status === false) {
           setErrorMsg(response.data.message);
           setSnackMsgType(SnackbarTypes.Error);
+          setDisableContinue(false);
           if (response.data.message === "No payment method added") {
             // setAddPaymentPopUp(true);
           }
@@ -178,6 +190,7 @@ const SubAccountPlan = ({ handleContinue }) => {
     } catch (error) {
       console.error("Error occured in sub plan api is", error);
       setSubPlanLoader(false);
+      setDisableContinue(false);
     }
   };
 
@@ -252,7 +265,7 @@ const SubAccountPlan = ({ handleContinue }) => {
   };
 
   return (
-    <div className="w-full flex flex-row justify-center">
+    <div className="w-full flex flex-row justify-center bg-white h-full">
       <div className="w-10/12">
         <AgentSelectSnackMessage
           isVisible={errorMsg !== null}
@@ -286,7 +299,7 @@ const SubAccountPlan = ({ handleContinue }) => {
           </div>
         </div>
 
-        <div className="w-full flex flex-row items-center px-4 h-[90%]">
+        <div className="w-full flex flex-row items-center px-4 h-[90%] overflow-y-auto">
           <div className="w-6/12">
             <div
               className="mt-12"
@@ -298,11 +311,11 @@ const SubAccountPlan = ({ handleContinue }) => {
               Select a Plan
             </div>
             {initialLoader ? (
-              <div className="mt-6 flex flex-row justify-center w-full">
+              <div className="mt-6 h-[50vh] flex flex-row justify-center w-full">
                 <CircularProgress size={35} />
               </div>
             ) : (
-              <div className="max-height-[30vh] overflow-y-auto">
+              <div className="h-[50vh] overflow-y-auto">
                 {userPlans?.length > 0 ? (
                   <div className="mt-4">
                     {userPlans?.map((item) => (
@@ -356,7 +369,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                             }}
                           ></div>
                           <span style={styles.labelText}>
-                            {item?.percentageDiscount ? item?.percentageDiscount.toFixed(2) : 0 }%
+                            {item?.percentageDiscount ? formatDecimalValue(item?.percentageDiscount) : 0}%
                           </span>
                           <div
                             className="flex flex-row items-start gap-3"
@@ -403,7 +416,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                                 }}
                                 className="flex flex-row items-center gap-1"
                               >
-                                {item.title}{" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
+                                {item.title} | {item.minutes} mins {" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
                               </div>
                               <div className="flex flex-row items-center justify-between">
                                 <div
@@ -470,12 +483,14 @@ const SubAccountPlan = ({ handleContinue }) => {
             </div>
 
             <button
-              className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${canSubPlan
-                ? "bg-purple text-white"
-                : "bg-[#00000030] text-black"
+              className={`border-none outline-none w-full mt-4 rounded-md h-[50px] ${!canSubPlan || disableContinue
+                ?
+                "bg-[#00000030] text-black"
+                :
+                "bg-purple text-white"
                 }`}
               onClick={subscribePlanClick}
-              disabled={!canSubPlan}
+              disabled={!canSubPlan || disableContinue}
             >
               Continue
             </button>

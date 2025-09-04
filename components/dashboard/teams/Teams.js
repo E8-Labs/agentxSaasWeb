@@ -30,6 +30,9 @@ function Teams({
 }) {
   const timerRef = useRef(null);
   const router = useRouter();
+  //stores local data
+  const [userLocalData, setUserLocalData] = useState(null);
+
   const [teamDropdown, setteamDropdown] = useState(null);
   const [openTeamDropdown, setOpenTeamDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(null);
@@ -64,8 +67,16 @@ function Teams({
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
 
-const [linkCopied, setLinkCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
+  //get local Data
+  useEffect(() => {
+    const localData = localStorage.getItem("User");
+    if (localData) {
+      const D = JSON.parse(localData)
+      setUserLocalData(D.user);
+    }
+  }, []);
 
   const handleClick = (event) => {
     setOpenTeamDropdown(true);
@@ -222,8 +233,13 @@ const [linkCopied, setLinkCopied] = useState(false);
           name: item.name,
           email: item.email,
           phone: item.phone,
-          userId: selectedAgency.id
         };
+        if (selectedAgency) {
+          apidata = {
+            ...apidata,
+            userId: selectedAgency.id
+          }
+        }
 
         // //console.log;
 
@@ -565,7 +581,7 @@ const [linkCopied, setLinkCopied] = useState(false);
         }
       }
       //console.log;
-      if (user?.userRole == "AgentX") {
+      if (user?.userRole == "AgentX" || user?.userRole == "Agency") {
         //console.log
         return true;
       }
@@ -590,18 +606,6 @@ const [linkCopied, setLinkCopied] = useState(false);
         <div style={{ fontSize: 24, fontWeight: "600" }}>Team</div>
 
         <div className="flex flex-row items-center gap-2">
-          {
-            agencyData && (
-              <button
-                className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
-                style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
-                onClick={() => {
-                  copyAgencyOnboardingLink({setLinkCopied})
-                }}>
-                {linkCopied ? "Link Copied" : "Copy Link"}
-              </button>
-            )
-          }
           <NotficationsDrawer />
         </div>
       </div>
@@ -637,7 +641,7 @@ const [linkCopied, setLinkCopied] = useState(false);
                   }}
                   onClick={() => setOpenInvitePopup(true)}
                 >
-                  + Invite Team
+                  {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                 </button>
               </div>
             )}
@@ -764,14 +768,34 @@ const [linkCopied, setLinkCopied] = useState(false);
               </div>
             ) : (
               <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
-                <div>
-                  <Image
-                    src={"/svgIcons/noTeamIcon2.png"}
-                    height={400}
-                    width={400}
-                    alt="*"
-                  />
-                </div>
+                <Image
+                  src={"/otherAssets/noTemView.png"}
+                  height={280}
+                  width={240}
+                  alt="*"
+                />
+                {agencyData?.sellSeats || userLocalData?.sellSeats ? (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Add Team (${userLocalData.costPerSeat}/mo)
+                    </div>
+                    <div style={{ fontWeight: "400", fontSize: 15 }}>
+                      Add Seats With Full Access
+                    </div>
+                    <div className="text-center" style={{ fontWeight: "400", fontSize: 15, width: "700px" }}>
+                      Unlock full access for your team by adding an extra seat to your account. <span className="text-purple">For just ${userLocalData.costPerSeat} per additional user</span>, per month. Your team member will have complete access to all features, allowing seamless collaboration, lead management, and AI agent usage. Empower your team to work smarter—add a seat and scale your success effortlessly.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                    <div style={{ fontWeight: "700", fontSize: 22 }}>
+                      Add Your Team
+                    </div>
+                    <div style={{ fontWeight: "400", fontSize: 15 }}>
+                      Add team member to better manage your leads
+                    </div>
+                  </div>
+                )}
                 <div className="">
                   <button
                     className="rounded-lg text-white bg-purple mt-8"
@@ -783,7 +807,7 @@ const [linkCopied, setLinkCopied] = useState(false);
                     }}
                     onClick={() => setOpenInvitePopup(true)}
                   >
-                    + Invite Team
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
               </div>
@@ -1063,7 +1087,7 @@ const [linkCopied, setLinkCopied] = useState(false);
                           : "#ffffff",
                     }}
                   >
-                    {agencyData?.sellSeats ? "Add Team $5/mo" : "Send Invite"}
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "Send Invite"}
                   </div>
                 </button>
               )}

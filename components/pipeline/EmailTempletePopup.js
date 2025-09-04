@@ -9,6 +9,8 @@ import { PromptTagInput } from './tagInputs/PromptTagInput';
 import { getUniquesColumn } from '../globalExtras/GetUniqueColumns';
 import { Plus } from 'lucide-react';
 import { GoogleOAuth } from '../auth/socialllogins/AuthServices';
+import { GreetingTagInput } from './tagInputs/GreetingTagInput';
+import { PersistanceKeys } from '@/constants/Constants';
 
 function EmailTempletePopup({
     open,
@@ -28,12 +30,27 @@ function EmailTempletePopup({
     const bodyRef = useRef(null);
 
 
-
+    console.log('EmailTempletePopup: addRow called with:', {
+        communicationType,
+        addRow,
+        isEditing,
+        editingRow,
+        selectedGoogleAccount,
+        addRow
+    })
 
     const [subject, setSubject] = useState("")
     const [body, setBody] = useState("")
     const [ccEmails, setccEmails] = useState([])
     const [attachments, setAttachments] = useState([]);
+    const [subjectChanged, setSubjectChanged] = useState(false)
+    const [bodyChanged, setBodyChanged] = useState(false)
+    const [ccEmailsChanged, setccEmailsChanged] = useState(false)
+    const [attachmentsChanged, setAttachmentsChanged] = useState(false);
+    const [accountChanged, setAccountChanged] = useState(false);
+    const [tempNameChanged, setTempNameChanged] = useState(false)
+
+
 
     const [selectedTemp, setSelectedTemp] = useState(null)
     const [saveEmailLoader, setSaveEmailLoader] = useState(false)
@@ -43,6 +60,11 @@ function EmailTempletePopup({
     const [delTempLoader, setDelTempLoader] = useState(null)
     const [templetes, setTempletes] = useState([])
     const [loginLoader, setLoginLoader] = useState(false)
+
+    const [scrollOffset, setScrollOffset] = useState({
+        scrollTop: 0,
+        scrollLeft: 0,
+    });
 
     // above return
     // disable save if any field is missing or while saving
@@ -58,6 +80,8 @@ function EmailTempletePopup({
     const [googleAccounts, setGoogleAccounts] = useState([])
     const [googleAccountLoader, setGoogleAccountLoader] = useState([])
     const [uniqueColumns, setUniqueColumns] = useState([])
+
+    const [shouldUpdate, setShouldUpdate] = useState(false)
 
     useEffect(() => {
         getColumns()
@@ -87,11 +111,15 @@ function EmailTempletePopup({
     useEffect(() => {
         console.log("trying to edit", isEditing, editingRow)
         if (isEditing && editingRow && open) {
-            // Load template details if templateId existstest
-
+            // Load template details if templateId exists
             if (editingRow.templateId) {
                 loadTemplateDetails(editingRow);
             }
+            
+            // Always load accounts when editing email templates
+            console.log('Loading accounts for editing. editingRow emailAccountId:', editingRow.emailAccountId);
+            getAccounts(); // Always load accounts regardless of existing emailAccountId
+            
         } else if (!isEditing) {
             // Reset form when not editing
             setTempName("");
@@ -100,6 +128,7 @@ function EmailTempletePopup({
             setccEmails([]);
             setAttachments([]);
             setSelectedTemp(null);
+            // setSelectedGoogleAccount(null); // Reset selected account too
         }
     }, [isEditing, editingRow, open]);
 
@@ -145,6 +174,36 @@ function EmailTempletePopup({
 
     }, [showChangeManu])
 
+    // Restore selected account when editing and accounts are loaded
+    useEffect(() => {
+        console.log('Account restoration check:', {
+            isEditing,
+            editingRowEmailAccountId: editingRow?.emailAccountId,
+            googleAccountsLength: googleAccounts.length,
+            currentSelectedAccountId: selectedGoogleAccount?.id
+        });
+        
+        if (isEditing && googleAccounts.length > 0 && !selectedGoogleAccount?.id) {
+            if (editingRow?.emailAccountId) {
+                // Try to restore the existing account
+                const matchingAccount = googleAccounts.find(account => account.id === editingRow.emailAccountId);
+                if (matchingAccount) {
+                    console.log('Restoring selected account for editing:', matchingAccount);
+                    setSelectedGoogleAccount(matchingAccount);
+                } else {
+                    console.warn('Could not find matching account for emailAccountId:', editingRow.emailAccountId);
+                    console.warn('Available accounts:', googleAccounts.map(acc => ({ id: acc.id, email: acc.email })));
+                    // Fallback to first account if existing account not found
+                    setSelectedGoogleAccount(googleAccounts[0]);
+                }
+            } else {
+                // No existing emailAccountId, use the first available account
+                console.log('No existing emailAccountId, selecting first available account:', googleAccounts[0]);
+                setSelectedGoogleAccount(googleAccounts[0]);
+            }
+        }
+    }, [isEditing, editingRow?.emailAccountId, googleAccounts, selectedGoogleAccount?.id])
+
 
     const handleDeleteTemplate = async (template) => {
         console.log('template to delete', template)
@@ -162,20 +221,27 @@ function EmailTempletePopup({
 
     const handleSelect = (t) => {
         setSelectedTemp(t)
-        if (!isEditing && addRow) {
-            addRow({
-                templateId: t.id,
-                emailAccountId: selectedGoogleAccount?.id,
-                communicationType: 'email',
-            });
-        } else {
-            onUpdateRow(editingRow.id, {
-                templateId: t.id,
-                emailAccountId: selectedGoogleAccount?.id,
-                communicationType: 'email',
-            })
-        }
-        onClose();
+        setTempName(t.templateName || "");
+        setSubject(t.subject || "");
+        setBody(t.content || "");
+        setccEmails(t.ccEmails || []);
+        setAttachments(t.attachments || []);
+
+
+        // if (!isEditing && addRow) {
+        //     addRow({
+        //         templateId: t.id,
+        //         emailAccountId: selectedGoogleAccount?.id,
+        //         communicationType: 'email',
+        //     });
+        // } else {
+        //     onUpdateRow(editingRow.id, {
+        //         templateId: t.id,
+        //         emailAccountId: selectedGoogleAccount?.id,
+        //         communicationType: 'email',
+        //     })
+        // }
+        // onClose();
         // getTempDetailsHandler(t)
         // onClose();
     };
@@ -234,13 +300,25 @@ function EmailTempletePopup({
         // only pdf
         // const pdfs = files.filter((f) => f.type === "application/pdf");
         setAttachments((prev) => [...prev, ...files]);
+        setAttachmentsChanged(true)
     };
 
     const removeAttachment = (index) => {
         setAttachments(attachments.filter((_, i) => i !== index));
+        setAttachmentsChanged(true)
     };
 
+
+    useEffect(() => {
+        if (selectedTemp) {
+            setShouldUpdate(true)
+        }
+    }, [tempNameChanged, subjectChanged, bodyChanged, ccEmailsChanged, attachmentsChanged, accountChanged])
+
+
+
     const saveEmail = async () => {
+
         setSaveEmailLoader(true)
         let data = {
             communicationType: communicationType,
@@ -251,47 +329,145 @@ function EmailTempletePopup({
             templateName: tempName
         }
 
-        // console.log('attechments', attachments)
+        // Check if template content has been modified from the selected template
+        const hasTemplateChanges = selectedTemp && (
+            selectedTemp.templateName !== tempName ||
+            selectedTemp.subject !== subject ||
+            selectedTemp.content !== body ||
+            JSON.stringify(selectedTemp.ccEmails || []) !== JSON.stringify(ccEmails) ||
+            JSON.stringify(selectedTemp.attachments || []) !== JSON.stringify(attachments)
+        );
+
+        console.log('Template selection state:', {
+            selectedTemp: selectedTemp?.id,
+            isEditing,
+            hasTemplateChanges,
+            selectedTempName: selectedTemp?.templateName,
+            currentTempName: tempName
+        });
+
         let response = null
-        if (isEditing) {
-            response = await updateTemplete(data, editingRow.templateId)
+        let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
+
+        console.log('IsdefaultCadence', IsdefaultCadence)
+
+        if (selectedTemp && !hasTemplateChanges && !isEditing) {
+            // Use existing template without modification - no API call needed
+            console.log('Using existing template without changes:', selectedTemp);
+            response = {
+                data: {
+                    status: true,
+                    data: selectedTemp // Use the existing template
+                }
+            };
+        } else if (selectedTemp && hasTemplateChanges && !isEditing) {
+            // Selected existing template but made changes - UPDATE the existing template
+            console.log('Updating selected template with changes. Template ID:', selectedTemp.id);
+            response = await updateTemplete(data, selectedTemp.id)
+        } else if (isEditing && !IsdefaultCadence) {
+            // Editing existing row's template
+            let id
+            if (selectedTemp) {
+                id = selectedTemp.id
+            } else {
+                id = editingRow.templateId
+            }
+
+            console.log('Updating existing template from editing row with id:', id)
+            response = await updateTemplete(data, id)
         } else {
+            // Create new template (no template selected and creating new)
+            console.log('Creating new template')
             response = await createTemplete(data)
         }
 
         if (response.data.status === true) {
 
             const createdTemplate = response?.data?.data
+            
+            // Handle template list updates based on the operation performed
             if (createdTemplate) {
-                setTempletes((prev) => (Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate]))
+                if (selectedTemp && !hasTemplateChanges && !isEditing) {
+                    // Just using existing template - no list update needed
+                    console.log('No template list update needed - using existing template');
+                } else {
+                    // Either created new template or updated existing one
+                    setTempletes((prev) => {
+                        const existingIndex = prev.findIndex(t => t.id === createdTemplate.id);
+                        if (existingIndex >= 0) {
+                            // Update existing template in the list
+                            console.log('Updating existing template in list:', createdTemplate.id);
+                            const updated = [...prev];
+                            updated[existingIndex] = createdTemplate;
+                            return updated;
+                        } else {
+                            // Add new template to the list
+                            console.log('Adding new template to list:', createdTemplate.id);
+                            return Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate];
+                        }
+                    });
+                }
             }
 
-            if (isEditing && onUpdateRow && editingRow) {
+            if ((isEditing && onUpdateRow && editingRow)) {
+                // Ensure we have a selected account, use first available if none selected
+                let accountId = selectedGoogleAccount?.id;
+                if (!accountId && googleAccounts.length > 0) {
+                    console.log('No selected account, using first available account');
+                    accountId = googleAccounts[0].id;
+                    setSelectedGoogleAccount(googleAccounts[0]);
+                }
+                
                 // Update existing row with new template data
-                onUpdateRow(editingRow.id, {
+                const updateData = {
                     templateId: createdTemplate.id,
                     templateName: tempName,
                     subject: subject,
                     content: body,
                     ccEmails: ccEmails,
                     attachments: attachments,
-                });
+                    communicationType: 'email',
+                    emailAccountId: accountId,
+                };
+                console.log('Updating row with data:', updateData);
+                console.log('Selected Google Account:', selectedGoogleAccount);
+                console.log('Using Account ID:', accountId);
+                console.log('Editing Row:', editingRow);
+                
+                // Validate that emailAccountId exists
+                if (!accountId) {
+                    console.error('CRITICAL: emailAccountId is still missing during update!');
+                    console.error('Available accounts:', googleAccounts);
+                }
+                
+                onUpdateRow(editingRow.id, updateData);
             } else {
                 // Add new row
-                setTimeout(() => {
-                    if (addRow) {
-                        addRow({
-                            templateId: createdTemplate.id,
-                            emailAccountId: selectedGoogleAccount?.id,
-                            communicationType: 'email',
-                        });
-                    }
-                }, 500);
+                
+                // Ensure we have a selected account, use first available if none selected
+                let accountId = selectedGoogleAccount?.id;
+                if (!accountId && googleAccounts.length > 0) {
+                    console.log('No selected account for new row, using first available account');
+                    accountId = googleAccounts[0].id;
+                    setSelectedGoogleAccount(googleAccounts[0]);
+                }
+
+                if (addRow) {
+                    const templateDataForNewRow = {
+                        templateId: createdTemplate.id,
+                        emailAccountId: accountId,
+                        communicationType: 'email',
+                    };
+                    console.log('Adding new row with templateData:', templateDataForNewRow);
+                    console.log('addRow function type:', typeof addRow);
+                    addRow(templateDataForNewRow);
+                }
+
             }
 
-            setTimeout(() => {
-                onClose();
-            }, 500);
+
+            onClose();
+
         } else {
             setShowSnackBar({
                 message: response.data.message,
@@ -300,12 +476,6 @@ function EmailTempletePopup({
         }
         setSaveEmailLoader(false)
     }
-
-    const handleBodyInput = (e) => {
-        // setBodyHtml(e.currentTarget.innerHTML); // with tags
-        setBody(e.currentTarget.innerHTML); // plain text
-    };
-
 
     const getAccounts = async () => {
         setGoogleAccountLoader(true)
@@ -343,316 +513,300 @@ function EmailTempletePopup({
                 className="w-full h-[100vh] py-4 flex flex-col items-center justify-center"
                 sx={{ ...styles.modalsStyle, }}
             >
-                <div className='flex flex-col w-5/12  px-8 py-6 bg-white max-h-[80vh] rounded-2xl gap-2 overflow-y-auto'
-                    style={{ scrollbarWidth: 'none' }}
+                <div
+                    className='flex flex-col justify-between w-5/12  px-8 py-6 bg-white max-h-[80svh] rounded-2xl gap-2 overflow-y-hidden'
                 >
-
-                    <AgentSelectSnackMessage
-                        isVisible={showSnackBar.message}
-                        message={showSnackBar.message}
-                        type={showSnackBar.type}
-                        hide={() => {
-                            setShowSnackBar({
-                                message: ""
-                            })
-                        }}
-                    />
-                    <div className='flex flex-row items-center justify-between '>
-                        <div className='text-xl font-semibold color-black'>
-                            {isEditing ? 'Edit Email' : 'Email'}
-                        </div>
-
-                        <FormControl>
-                            <Select
-                                Select
-                                value={selectedTemp || ""}
-                                onChange={(e) => handleSelect(e.target.value)}
-                                displayEmpty
-                                renderValue={(selected) => selected?.templateName || <div style={{ color: "#aaa" }}>Select from Template</div>}
-                                sx={{
-                                    border: "none", // Default border
-                                    "&:hover": {
-                                        border: "none", // Same border on hover
-                                    },
-                                    "& .MuiOutlinedInput-notchedOutline": {
-                                        border: "none", // Remove the default outline
-                                    },
-                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                        border: "none", // Remove outline on focus
-                                    },
-                                    "&.MuiSelect-select": {
-                                        py: 0, // Optional padding adjustments
-                                    },
-                                }}
-                                MenuProps={{
-                                    PaperProps: {
-                                        style: {
-                                            maxHeight: "30vh", // Limit dropdown height
-                                            overflow: "auto", // Enable scrolling in dropdown
-                                            scrollbarWidth: "none",
-                                            // borderRadius: "10px"
-                                        },
-                                    },
-                                }}
-                            >
-                                {
-                                    templetes?.length > 0 ? (
-                                        templetes?.map((item, index) => (
-                                            detailsLoader?.id === item.id ? (
-                                                <CircularProgress key={item.id} size={20} />
-                                            ) :
-                                                <MenuItem key={index}
-                                                    // className="hover:bg-[#402FFF10]"
-                                                    value={item}
-                                                >
-                                                    <div className='flex flex-row items-center gap-2'>
-
-                                                        <div className='text-[15] font-[500] w-64'>
-                                                            {item.templateName}
-                                                        </div>
-                                                        {
-                                                            delTempLoader?.id === item.id ? (
-                                                                <CircularProgress size={20} />
-                                                            ) : (
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault()
-                                                                        handleDelete(e, item)
-                                                                    }}
-                                                                >
-                                                                    <Image src={'/otherAssets/delIcon.png'} alt='*'
-                                                                        height={16} width={16}
-                                                                    />
-                                                                </button>
-                                                            )
-                                                        }
-                                                    </div>
-
-                                                </MenuItem>
-                                        ))
-                                    ) : (
-                                        <div className='ml-2'>
-                                            No template found
-                                        </div>
-                                    )
-                                }
-                            </Select>
-                        </FormControl>
-                    </div>
-
-                    <div className='flex flex-row items-center justify-between '>
-                        <div className="text-[15px] font-[400] text-[#00000080] mt-4">
-                            From: <span className="text-[#00000050] ml-2">
-                                {selectedGoogleAccount?.email}
-                            </span>
-                        </div>
-
-                        <button
-                            onClick={(event) => setShowChangeManu(event.currentTarget)}
-                        >
-                            <div className='text-15 font-[700] underline text-purple'>
-                                Change
-                            </div>
-                        </button>
-                        <Menu
-                            anchorEl={showChangeManu}
-                            open={Boolean(showChangeManu)}
-                            onClose={() => setShowChangeManu(null)}
-                        >
-
-                            {
-                                googleAccountLoader ? (
-                                    <div className="w-[10vw] ml-2">
-                                        <CircularProgress size={20} />
-                                    </div>
-                                ) :
-                                    googleAccounts.map((a) => (
-                                        <MenuItem
-                                            key={a.id}
-                                            sx={{
-                                                '&:hover .action-icon': {
-                                                    display: 'none',
-                                                },
-                                                '&:hover .action-icon-hover': {
-                                                    display: 'block',
-                                                },
-                                            }}
-                                            onClick={() => {
-                                                setSelectedGoogleAccount(a)
-                                                setShowChangeManu(null)
-                                            }}
-                                        >
-                                            <div className='text-[15] font-[500]'>
-                                                {a.email}
-                                            </div>
-                                        </MenuItem>
-
-                                    ))
-                            }
-
-                            <MenuItem
-                                onClick={addNewAccount}
-                                // key={a.id}
-                                sx={{
-                                    '&:hover .action-icon': {
-                                        display: 'none',
-                                    },
-                                    '&:hover .action-icon-hover': {
-                                        display: 'block',
-                                    },
-                                }}>
-                                <div className='flex flex-row gap-2 text-purple'>
-                                    <Plus weight="bold" size={22} className='text-purple' />
-                                    Add new Account
-                                </div>
-                            </MenuItem>
-                        </Menu>
-
-                    </div>
-
-                    <div className="h-12 mt-2 rounded-[5px] px-[10px] py-7 border-2 rounded-lg border-[#00000010] flex flex-row items-center">
-                        <div className="text-[#00000070] text-[15px] font-normal">CC:</div>
-                        <ChipInput ccEmails={ccEmails} setccEmails={setccEmails} />
-                    </div>
-
-                    {invalidEmails.length > 0 && (
-                        <div className="mt-1 text-red text-xs">
-                            Invalid email {/* {invalidEmails.length > 1 ? 's' : ''}: {invalidEmails.join(', ')}*/}
-                        </div>
-                    )}
-
-
-                    <input
-                        className='w-full h-12 px-[10px] py-7 mt-3 border-2 rounded-lg border-[#00000010]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
-                        placeholder='Template Name'
-                        value={tempName}
-                        onChange={(event) => { setTempName(event.target.value) }}
-                    />
-
-
-                    <div className=' mt-4'>
-                        <PromptTagInput
-                            promptTag={subject}
-                            isSubject={true}
-                            placeholder="Subject"
-                            // kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={setSubject}
-                            showSaveChangesBtn={subject}
-                            // from={"Template"}
-                            saveUpdates={async () => {
-
-                            }}
-                            limit={343}
-                        />
-                    </div>
-
-                    <div className=' mt-4'>
-                        <PromptTagInput
-                            promptTag={body}
-                            // kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={setBody}
-                            showSaveChangesBtn={body}
-                            // from={"Template"}
-                            saveUpdates={async () => {
-
-                            }}
-                            limit={343}
-                        />
-                    </div>
-
-                    {/* <div className="flex gap-2 p-2 -mt-2"
-                        style={{ border: "1px solid #00000020", borderBottomLeftRadius: 10, borderBottomRightRadius: 10 }}
+                    <div
+                        className='flex flex-col w-full h-[80%] gap-2 overflow-y-auto'
+                        style={{ scrollbarWidth: 'none' }}
                     >
-                        <button
-                            className={`text-[15px] font-[ ${selectedFormats.bold ? "bg-gray-200" : ""} rounded transition-colors`}
-                            style={selectedFormats.bold ? { background: "#e5e7eb" } : {}}
-                            onClick={() => handleFormatClick("bold")}
-                            type="button"
-                        >
-                            <Image src={"/otherAssets/boldIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                        </button>
-                        <button
-                            className={`text-[15px] font-[ ${selectedFormats.italic ? "bg-gray-200" : ""} rounded transition-colors`}
-                            style={selectedFormats.italic ? { background: "#e5e7eb" } : {}}
-                            onClick={() => handleFormatClick("italic")}
-                            type="button"
-                        >
-                            <Image src={"/otherAssets/italicIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                        </button>
-                        <button
-                            className={`text-[15px] font-[ ${selectedFormats.underline ? "bg-gray-200" : ""} rounded transition-colors`}
-                            style={selectedFormats.underline ? { background: "#e5e7eb" } : {}}
-                            onClick={() => handleFormatClick("underline")}
-                            type="button"
-                        >
-                            <Image src={"/otherAssets/underLineIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                        </button>
 
-                        <label className="cursor-pointer">
-                            <Image src={"/otherAssets/attechmentIcon.png"} alt='*'
-                                height={28} width={28}
-                            />
-                            <input
-                                type="file"
-                                accept="application/pdf"
-                                multiple
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
-                        </label>
-                    </div> */}
-
-
-
-
-                    <div className="mt-3">
-                        <label className="flex flex-row items-center gap-2 cursor-pointer">
-                            <div className="text-[15px] font-[500] text-purple underline">
-                                Add Attachments
+                        <AgentSelectSnackMessage
+                            isVisible={showSnackBar.message}
+                            message={showSnackBar.message}
+                            type={showSnackBar.type}
+                            hide={() => {
+                                setShowSnackBar({
+                                    message: ""
+                                })
+                            }}
+                        />
+                        <div className='flex flex-row items-center justify-between '>
+                            <div className='text-xl font-semibold color-black'>
+                                {(isEditing || selectedTemp) ? 'Edit Email' : 'Create Email'}
                             </div>
-                            <Image
-                                src={"/otherAssets/blueAttechmentIcon.png"}
-                                alt="*"
-                                height={24}
-                                width={24}
+
+                            <FormControl>
+                                <Select
+                                    Select
+                                    value={selectedTemp || ""}
+                                    onChange={(e) => handleSelect(e.target.value)}
+                                    displayEmpty
+                                    renderValue={(selected) => selected?.templateName || <div style={{ color: "#aaa" }}>Select Template</div>}
+                                    sx={{
+                                        border: "none", // Default border
+                                        "&:hover": {
+                                            border: "none", // Same border on hover
+                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            border: "none", // Remove the default outline
+                                        },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                            border: "none", // Remove outline on focus
+                                        },
+                                        "&.MuiSelect-select": {
+                                            py: 0, // Optional padding adjustments
+                                        },
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            style: {
+                                                maxHeight: "30vh", // Limit dropdown height
+                                                overflow: "auto", // Enable scrolling in dropdown
+                                                scrollbarWidth: "none",
+                                                // borderRadius: "10px"
+                                            },
+                                        },
+                                    }}
+                                >
+                                    {
+                                        templetes?.length > 0 ? (
+                                            templetes?.map((item, index) => (
+                                                detailsLoader?.id === item.id ? (
+                                                    <CircularProgress key={item.id} size={20} />
+                                                ) :
+                                                    <MenuItem key={index}
+                                                        // className="hover:bg-[#402FFF10]"
+                                                        value={item}
+                                                    >
+                                                        <div className='flex flex-row items-center gap-2'>
+
+                                                            <div className='text-[15] font-[500] w-64'>
+                                                                {item.templateName}
+                                                            </div>
+                                                            {
+                                                                delTempLoader?.id === item.id ? (
+                                                                    <CircularProgress size={20} />
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault()
+                                                                            handleDelete(e, item)
+                                                                        }}
+                                                                    >
+                                                                        <Image src={'/otherAssets/delIcon.png'} alt='*'
+                                                                            height={16} width={16}
+                                                                        />
+                                                                    </button>
+                                                                )
+                                                            }
+                                                        </div>
+
+                                                    </MenuItem>
+                                            ))
+                                        ) : (
+                                            <div className='ml-2'>
+                                                No template found
+                                            </div>
+                                        )
+                                    }
+                                </Select>
+                            </FormControl>
+                        </div>
+
+                        <div className='flex flex-row items-center justify-between '>
+                            <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                                From: <span className="text-[#00000050] ml-2">
+                                    {selectedGoogleAccount?.email}
+                                </span>
+                            </div>
+
+                            <button
+                                onClick={(event) => setShowChangeManu(event.currentTarget)}
+                            >
+                                <div className='text-15 font-[700] underline text-purple'>
+                                    Change Account
+                                </div>
+                            </button>
+                            <Menu
+                                anchorEl={showChangeManu}
+                                open={Boolean(showChangeManu)}
+                                onClose={() => setShowChangeManu(null)}
+                            >
+
+                                {
+                                    googleAccountLoader ? (
+                                        <div className="w-[10vw] ml-2">
+                                            <CircularProgress size={20} />
+                                        </div>
+                                    ) :
+                                        googleAccounts.map((a) => (
+                                            <MenuItem
+                                                key={a.id}
+                                                sx={{
+                                                    '&:hover .action-icon': {
+                                                        display: 'none',
+                                                    },
+                                                    '&:hover .action-icon-hover': {
+                                                        display: 'block',
+                                                    },
+                                                }}
+                                                onClick={() => {
+                                                    setAccountChanged(true)
+                                                    setSelectedGoogleAccount(a)
+                                                    setShowChangeManu(null)
+                                                }}
+                                            >
+                                                <div className='text-[15] font-[500]'>
+                                                    {a.email}
+                                                </div>
+                                            </MenuItem>
+
+                                        ))
+                                }
+
+                                <MenuItem
+                                    onClick={addNewAccount}
+                                    // key={a.id}
+                                    sx={{
+                                        '&:hover .action-icon': {
+                                            display: 'none',
+                                        },
+                                        '&:hover .action-icon-hover': {
+                                            display: 'block',
+                                        },
+                                    }}>
+                                    <div className='flex flex-row gap-2 text-purple'>
+                                        <Plus weight="bold" size={22} className='text-purple' />
+                                        Change Account
+                                    </div>
+                                </MenuItem>
+                            </Menu>
+
+                        </div>
+
+                        <div className="h-12 mt-2 rounded-[5px] px-[10px] py-7 border-2 rounded-lg border-[#00000010] flex flex-row items-center">
+                            <div className="text-[#00000070] text-[15px] font-normal">CC:</div>
+                            <ChipInput ccEmails={ccEmails} setccEmails={(text) => {
+                                setccEmails(text)
+                                setccEmailsChanged(true)
+                            }} />
+                        </div>
+
+                        {invalidEmails.length > 0 && (
+                            <div className="mt-1 text-red text-xs">
+                                Invalid email {/* {invalidEmails.length > 1 ? 's' : ''}: {invalidEmails.join(', ')}*/}
+                            </div>
+                        )}
+
+                        <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                            Template Name
+                        </div>
+
+                        <input
+                            className='w-full h-12 px-[10px] py-7 mt-2 border-2 rounded-lg border-[#00000010]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
+                            placeholder='Template Name'
+                            value={tempName}
+                            onChange={(event) => {
+                                setTempName(event.target.value)
+                                setTempNameChanged(true)
+                            }}
+                        />
+
+                        <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                            Subject
+                        </div>
+
+                        <div className=' mt-2'>
+                            <GreetingTagInput
+                                // promptTag={subject}
+                                // isSubject={true}
+                                // placeholder="Subject"
+                                // // kycsList={kycsData}
+                                // uniqueColumns={uniqueColumns}
+                                // tagValue={setSubject}
+                                // showSaveChangesBtn={subject}
+                                // // from={"Template"}
+                                // saveUpdates={async () => {
+
+                                // }}
+                                // limit={343}
+                                greetTag={subject}
+                                // kycsList={kycsData}
+                                uniqueColumns={uniqueColumns}
+                                tagValue={(text) => {
+                                    setSubject(text);
+                                    setSubjectChanged(true)
+                                }}
+                                scrollOffset={scrollOffset}
+                                placeholder="Subject"
                             />
-                            <input
-                                type="file"
-                                accept="
+                        </div>
+
+                        <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                            Body
+                        </div>
+
+                        <div className=' mt-2'>
+                            <PromptTagInput
+                                promptTag={body}
+                                // kycsList={kycsData}
+                                uniqueColumns={uniqueColumns}
+                                tagValue={(t) => {
+                                    setBody(t);
+                                    setBodyChanged(true)
+                                }}
+                                showSaveChangesBtn={body}
+                                // from={"Template"}
+                                saveUpdates={async () => {
+
+                                }}
+                                editTitle={(isEditing || selectedTemp) ? 'Edit Email Body' : 'Create Email Body'}
+                                limit={160}
+                                from={"CreateEmail"}
+                            />
+                        </div>
+
+                        <div className="mt-3">
+                            <label className="flex flex-row items-center gap-2 cursor-pointer">
+                                <div className="text-[15px] font-[500] text-purple underline">
+                                    Add Attachments
+                                </div>
+                                <Image
+                                    src={"/otherAssets/blueAttechmentIcon.png"}
+                                    alt="*"
+                                    height={24}
+                                    width={24}
+                                />
+                                <input
+                                    type="file"
+                                    accept="
                                 image/*,
                                 application/pdf,
                                 application/msword,
                                 application/vnd.openxmlformats-officedocument.wordprocessingml.document
                               "
-                                multiple
-                                className="hidden"
-                                onChange={handleFileChange}
-                            />
-                        </label>
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleFileChange}
+                                />
+                            </label>
+                        </div>
+
+                        <div className="mt-2 flex flex-col gap-1">
+                            {attachments?.map((file, idx) => (
+                                <div key={idx} className="flex flex-row gap-4 items-center p-2 text-sm">
+
+                                    <span>{file.name || file.originalName}</span>
+                                    <button onClick={() => removeAttachment(idx)}>
+                                        <Image src={'/assets/cross.png'} height={14} width={14} alt="remove" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
                     </div>
-
-                    <div className="mt-2 flex flex-col gap-1">
-                        {attachments?.map((file, idx) => (
-                            <div key={idx} className="flex flex-row gap-4 items-center p-2 text-sm">
-
-                                <span>{file.name || file.originalName}</span>
-                                <button onClick={() => removeAttachment(idx)}>
-                                    <Image src={'/assets/cross.png'} height={14} width={14} alt="remove" />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-
-
-                    <div className='w-full flex flex-row items-center w-full gap-6 mt-4'>
+                    <div className='w-full flex flex-row items-center w-full gap-6 mt-4 h-[20%]'>
                         <button className='w-1/2 h-[53px] border rounded-lg text-[15px] font-[700]'
                             onClick={onClose}
                         >
@@ -672,7 +826,6 @@ function EmailTempletePopup({
                             )
                         }
                     </div>
-
                 </div>
             </Box>
         </Modal >

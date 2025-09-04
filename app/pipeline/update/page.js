@@ -79,6 +79,8 @@ const Page = () => {
         mainAgentId: mainAgentId,
         cadence: cadence.cadenceDetails,
       };
+      console.log("ApiData is ", ApiData);
+      // return
 
       const ApiPath = Apis.createPipeLineCadence;
       //////console.log;
@@ -112,6 +114,7 @@ const Page = () => {
       }
     } catch (error) {
       console.error("Error occured in api is :", error);
+      //show snackbar we created with error message here
       //   setLoader(false);
     } finally {
     }

@@ -8,6 +8,7 @@ import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { loadStripe } from '@stripe/stripe-js';
 import UserAddCard from './UserAddCardModal';
 import UpgradePlan from './UpgradePlan';
+import YearlyPlanModal from './YearlyPlanModal';
 
 function UserPlans({ handleContinue, handleBack }) {
 
@@ -48,6 +49,8 @@ function UserPlans({ handleContinue, handleBack }) {
     const [addPaymentPopUp, setAddPaymentPopUp] = useState(false)
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+    const [showYearlyPlanModal, setShowYearlyPlanModal] = useState(false)
+    const [selectedMonthlyPlan, setSelectedMonthlyPlan] = useState(null)
 
 
 
@@ -123,10 +126,39 @@ function UserPlans({ handleContinue, handleBack }) {
         setSelectedPlan(item);
     };
 
+    const handleContinueYearly = () => {
+        // Switch to yearly billing and find matching plan
+        setSelectedDuration(duration[2]); // Switch to yearly
+        
+        // Find the matching plan in yearly billing
+        if (selectedMonthlyPlan && yearlyPlans.length > 0) {
+            const matchingYearlyPlan = yearlyPlans.find(plan => 
+                plan.name === selectedMonthlyPlan.name || 
+                plan.planType === selectedMonthlyPlan.planType
+            );
+            
+            if (matchingYearlyPlan) {
+                const planIndex = yearlyPlans.findIndex(plan => plan.id === matchingYearlyPlan.id);
+                setSelectedPlan(matchingYearlyPlan);
+                setSelectedPlanIndex(planIndex);
+                setTogglePlan(matchingYearlyPlan.id);
+            }
+        }
+        
+        setShowYearlyPlanModal(false);
+        setAddPaymentPopUp(true);
+    };
+
+    const handleContinueMonthly = () => {
+        // Proceed with monthly plan
+        setShowYearlyPlanModal(false);
+        setAddPaymentPopUp(true);
+    };
+
 
     return (
-        <div className='flex flex-col items-center w-full h-[100vh] overflow-y-hidden bg-white'>
-            <div className='flex flex-col items-center w-[90%] h-full'>
+        <div className='flex flex-col items-center w-full min-h-[100vh] bg-white'>
+            <div className='flex flex-col items-center w-[90%] min-h-full'>
 
                 <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
                     style={{ backgroundColor: '' }}>
@@ -196,7 +228,7 @@ function UserPlans({ handleContinue, handleBack }) {
 
 
 
-                <div className='flex flex-row gap-5 w-full h-[100vh] overflow-y-auto border mt-4'>
+                <div className='flex flex-row gap-5 w-full mt-4 pb-8'>
                     {
                         getCurrentPlans().map((item, index) => (
                             <button
@@ -205,11 +237,12 @@ function UserPlans({ handleContinue, handleBack }) {
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
 
-                                className={`mb-5 flex flex-col items-center h-[115vh] w-3/12 rounded-lg  hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
+                                className={`flex flex-col items-center w-3/12 rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to[#C73BFF] p-2" : "border p-2"}
                                 `}
+                                style={{ height: '70vh', minHeight: '600px' }}
                             >
-                                <div className='flex flex-col items-center w-full'>
+                                <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>
                                         {
                                             item.status ? (
@@ -241,7 +274,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                         }
                                     </div>
 
-                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white h-[107vh] w-full'>
+                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white w-full flex-1'>
                                         <div className='text-3xl font-semibold mt-2'>
                                             {item.name}
                                         </div>
@@ -262,65 +295,55 @@ function UserPlans({ handleContinue, handleBack }) {
                                                 e.preventDefault();
                                                 e.stopPropagation();
                                                 handleTogglePlanClick(item, index);
-                                                setAddPaymentPopUp(true)
+                                                if (item.isFree) {
+                                                    setShowUpgradePlanPopup(true)
+                                                } else if (selectedDuration.id === 1) {
+                                                    // Monthly plan selected - show yearly plan modal
+                                                    setSelectedMonthlyPlan(item);
+                                                    setShowYearlyPlanModal(true);
+                                                } else {
+                                                    // Quarterly or Yearly plan - proceed directly
+                                                    setAddPaymentPopUp(true)
+                                                }
                                             }}
                                         >
                                             Get Started
                                         </div>
-                                        <div className='flex flex-col items-start w-[95%]'>
-                                            {
-                                                item.features.map((feature) => (
-                                                    <div key={feature.text} className="flex flex-row items-center gap-2 mt-1">
-                                                        <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
-                                                        <div
-                                                            className='flex flex-row items-center gap-2'
-                                                            style={{
-                                                                whiteSpace: 'nowrap',
-                                                                width: '100%',
-                                                                borderWidth: 0,
-                                                                overflow: 'hidden',
-                                                                textOverflow: 'ellipsis',
-                                                            }}
-                                                        >
-                                                            <div className='text-base font-normal'>
-                                                                {feature.text}
-                                                            </div>
-                                                            {
-                                                                feature.subtext &&
-                                                                <Tooltip
-                                                                    title={feature.subtext}
-                                                                    arrow
-                                                                    componentsProps={{
-                                                                        tooltip: {
-                                                                            sx: {
-                                                                                backgroundColor: "#ffffff", // Ensure white background
-                                                                                color: "#333", // Dark text color
-                                                                                fontSize: "14px",
-                                                                                padding: "10px 15px",
-                                                                                borderRadius: "8px",
-                                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                                                            },
-                                                                        },
-                                                                        arrow: {
-                                                                            sx: {
-                                                                                color: "#ffffff", // Match tooltip background
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                >
-
-                                                                    <Image
-                                                                        alt='*'
-                                                                        src={"/agencyIcons/InfoIcon.jpg"}
-                                                                        height={15} width={15}
-                                                                    />
-                                                                </Tooltip>
-                                                            }
-                                                        </div>
+                                        <div className='flex flex-col items-start w-[95%] flex-1 mt-4 overflow-hidden'>
+                                            {/* Previous plan heading */}
+                                            {index > 0 && (
+                                                <div className="w-full mb-4">
+                                                    <div className="text-sm font-semibold text-black mb-2 text-left">
+                                                        Everything in {getCurrentPlans()[index - 1]?.name}, and:
                                                     </div>
-                                                ))
-                                            }
-
+                                                </div>
+                                            )}
+                                            
+                                            <div className='flex flex-col items-start w-full flex-1'>
+                                                {
+                                                    item.features.map((feature, featureIndex) => (
+                                                        <div key={feature.text} className="flex flex-row items-center gap-3 mt-2">
+                                                            <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
+                                                            <div
+                                                                className='flex flex-row items-center gap-2'
+                                                                style={{
+                                                                    whiteSpace: 'nowrap',
+                                                                    width: '100%',
+                                                                    borderWidth: 0,
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis',
+                                                                }}
+                                                            >
+                                                                <div className='text-sm font-normal'>
+                                                                    {feature.text} <span class="text-Gray text-xs font-normal font-['Inter'] leading-tight">
+                                                                        {feature.subtext}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -339,6 +362,13 @@ function UserPlans({ handleContinue, handleBack }) {
 
                 />
             </Elements>
+
+            <YearlyPlanModal
+                open={showYearlyPlanModal}
+                handleClose={() => setShowYearlyPlanModal(false)}
+                onContinueYearly={handleContinueYearly}
+                onContinueMonthly={handleContinueMonthly}
+            />
 
             <Modal
                 open={addPaymentPopUp}

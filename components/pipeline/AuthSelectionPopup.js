@@ -42,6 +42,7 @@ function AuthSelectionPopup({
         setAccountLoader(true)
         let response = await getGmailAccounts()
         if (response) {
+            console.log("Gmail acounts list is", response);
             setGmailAccounts(response)
         }
         setAccountLoader(false)
@@ -213,9 +214,15 @@ function AuthSelectionPopup({
                                             >
                                                 <div className='flex w-full flex-row items-center justify-between'>
 
-                                                    <div className='text-[15] font-[500] w-[20vw]'>
-                                                        {item.displayName}
+                                                    <div className="flex flex-row items-center gap-2 max-w-[80%]">
+                                                        <div className='text-[15] font-[500]'>
+                                                            {item.displayName}
+                                                        </div>
+                                                        <div className='text-[13] font-[500]  text-[#00000070]'>
+                                                            {`(${item.email})`}
+                                                        </div>
                                                     </div>
+
                                                     {
                                                         delLoader?.id === item.id ? (
                                                             <CircularProgress size={20} />
