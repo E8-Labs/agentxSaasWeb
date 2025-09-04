@@ -290,7 +290,7 @@ const UserAddCard = ({
             return 0;
         }
         
-        const price = selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
+        const price = selectedPlan.discountedPrice || selectedPlan.originalPrice || 0;
         const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
         
         if (billingCycle === "monthly") {
@@ -309,8 +309,11 @@ const UserAddCard = ({
             return 0;
         }
         
-        const price = selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
+        const price = selectedPlan.discountedPrice || selectedPlan.originalPrice || 0;
         const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
+
+
+        console.log("selected plan in monthly plan func is",selectedPlan)
         
         if (billingCycle === "monthly") {
             return price;

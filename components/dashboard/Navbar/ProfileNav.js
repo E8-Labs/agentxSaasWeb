@@ -96,6 +96,7 @@ const ProfileNav = () => {
 
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
+  const [showLowMinsModal, setShowLowMinsModal] = useState(false)
 
   useEffect(() => {
     console.log("Search url is", pathname);
@@ -614,7 +615,7 @@ const ProfileNav = () => {
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
 
-      
+
 
       console.log(
         "Available seconds are Profile Nav",
@@ -630,6 +631,8 @@ const ProfileNav = () => {
           const user = response?.data?.data;
           const isBalanceLow = user.totalSecondsAvailable < 120;
 
+
+
           if (response?.data?.data.userType != "admin") {
             console.log('User is not an admin', userPlan)
             // if (
@@ -637,71 +640,73 @@ const ProfileNav = () => {
             //   (Data?.plan == null ||
             //     (Data?.plan && Data?.plan?.status !== "active"))
             // )
-            if(userPlan.price <= 0 && isBalanceLow){
-              console.log('User is on a free plan')
-              setShowPlansPopup(true);
-
-            }else if (
-              Data?.userRole === "AgencySubAccount" &&
-              (Data?.plan == null ||
-                (Data?.plan &&
-                  Data?.plan?.status !== "active" &&
-                  isBalanceLow)
-                ||
-                (Data?.plan &&
-                  Data?.plan?.status === "active" &&
-                  isBalanceLow))
-            ) {
-              const fromDashboard = { fromDashboard: true };
-              localStorage.setItem(
-                "fromDashboard",
-                JSON.stringify(fromDashboard)
-              );
-              router.push("/subaccountInvite/subscribeSubAccountPlan");
-            } else if (Data?.userRole !== "AgencySubAccount") {
-              if (
-                (Data.cards.length === 0) &&
-                (Data.needsChargeConfirmation === false) &&
-                (!Data.callsPausedUntilSubscription)
-              ) {
-                // if user comes first time then show plans popup
+            if (userPlan.availableMinutes <= 20) {
+              setShowLowMinsModal(true)
+            } else if (userPlan.price <= 0 && isBalanceLow) {
+                console.log('User is on a free plan')
                 setShowPlansPopup(true);
-              } else if (
-
-                (Data?.paymentFailed === true)
-                && (Data.needsChargeConfirmation === false) &&
-                (!Data.callsPausedUntilSubscription)
-              ) {
-                setShowFailedPaymentBar(true)
 
               } else if (
-
-                // Data?.plan == null ||
-                // (Data?.plan &&
-                //   Data?.plan?.status !== "active" &&
-                isBalanceLow //||
-                //   (Data?.plan &&
-                //     Data?.plan?.status === "active" &&
-                //     Data?.totalSecondsAvailable <= 120)
-                // )
-                // && (Data.needsChargeConfirmation === false) &&
-                // (!Data.callsPausedUntilSubscription)
+                Data?.userRole === "AgencySubAccount" &&
+                (Data?.plan == null ||
+                  (Data?.plan &&
+                    Data?.plan?.status !== "active" &&
+                    isBalanceLow)
+                  ||
+                  (Data?.plan &&
+                    Data?.plan?.status === "active" &&
+                    isBalanceLow))
               ) {
-                //if user have less then 2 minuts show upgrade plan bar
-                setShowUpgradePlanBar(true)
+                const fromDashboard = { fromDashboard: true };
+                localStorage.setItem(
+                  "fromDashboard",
+                  JSON.stringify(fromDashboard)
+                );
+                router.push("/subaccountInvite/subscribeSubAccountPlan");
+              } else if (Data?.userRole !== "AgencySubAccount") {
+                if (
+                  (Data.cards.length === 0) &&
+                  (Data.needsChargeConfirmation === false) &&
+                  (!Data.callsPausedUntilSubscription)
+                ) {
+                  // if user comes first time then show plans popup
+                  setShowPlansPopup(true);
+                } else if (
+
+                  (Data?.paymentFailed === true)
+                  && (Data.needsChargeConfirmation === false) &&
+                  (!Data.callsPausedUntilSubscription)
+                ) {
+                  setShowFailedPaymentBar(true)
+
+                } else if (
+
+                  // Data?.plan == null ||
+                  // (Data?.plan &&
+                  //   Data?.plan?.status !== "active" &&
+                  isBalanceLow //||
+                  //   (Data?.plan &&
+                  //     Data?.plan?.status === "active" &&
+                  //     Data?.totalSecondsAvailable <= 120)
+                  // )
+                  // && (Data.needsChargeConfirmation === false) &&
+                  // (!Data.callsPausedUntilSubscription)
+                ) {
+                  //if user have less then 2 minuts show upgrade plan bar
+                  setShowUpgradePlanBar(true)
+                } else {
+                  console.log('no plans condition is true')
+                  setShowPlansPopup(false);
+                  setShowUpgradePlanBar(false)
+                  setShowFailedPaymentBar(false)
+                }
+
               } else {
-                console.log('no plans condition is true')
+                console.log('no condition is true')
                 setShowPlansPopup(false);
                 setShowUpgradePlanBar(false)
                 setShowFailedPaymentBar(false)
               }
-
-            } else {
-              console.log('no condition is true')
-              setShowPlansPopup(false);
-              setShowUpgradePlanBar(false)
-              setShowFailedPaymentBar(false)
-            }
 
             let plan = response?.data?.data?.plan;
             let togglePlan = plan?.type;
@@ -1260,10 +1265,10 @@ const ProfileNav = () => {
               setShowUpgradePlanModal(true);
             }} cancelAction={() => {
               setShowPlansPopup(false)
-            }} 
-            metadata={{
-              renewal: userDetails?.user?.nextChargeDate || ''
-            }}/>
+            }}
+              metadata={{
+                renewal: userDetails?.user?.nextChargeDate || ''
+              }} />
             {/* <div
               className="flex flex-row justify-center w-full"
               style={{
@@ -1560,7 +1565,7 @@ const ProfileNav = () => {
 
         {/* UpgradePlan Modal */}
         <Elements stripe={stripePromise}>
-          <UpgradePlan 
+          <UpgradePlan
             open={showUpgradePlanModal}
             handleClose={() => setShowUpgradePlanModal(false)}
           />

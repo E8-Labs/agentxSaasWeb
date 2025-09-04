@@ -29,6 +29,7 @@ import { getUserPlans, initiateCancellation } from "../userPlans/UserPlanService
 import CloseBtn from "../globalExtras/CloseBtn";
 import PauseSubscription from "./cancelationFlow/PauseSubscription";
 import CancelPlanAnimation from "./cancelationFlow/CancelPlanAdnimation";
+import { getBusinessProfile } from "@/apiservicescomponent/twilioapis/GetBusinessProfile";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -179,21 +180,21 @@ function NewBilling() {
     // Function to determine billing cycle from current plan
     const getBillingCycleFromPlan = (plan) => {
         if (!plan) return "monthly"; // Default to monthly for free plans
-        
+
         console.log('Analyzing plan for billing cycle:', plan);
-        
+
         // Check if plan has billingCycle property
         if (plan.billingCycle) {
             console.log('Found billingCycle property:', plan.billingCycle);
             return plan.billingCycle;
         }
-        
+
         // Check if plan has billing_cycle property (alternative naming)
         if (plan.billing_cycle) {
             console.log('Found billing_cycle property:', plan.billing_cycle);
             return plan.billing_cycle;
         }
-        
+
         // Check plan type for legacy plans
         if (plan.planType) {
             console.log('Found planType:', plan.planType);
@@ -206,7 +207,7 @@ function NewBilling() {
                 return "monthly";
             }
         }
-        
+
         // Check plan name for billing cycle indicators
         if (plan.name) {
             console.log('Checking plan name:', plan.name);
@@ -218,13 +219,13 @@ function NewBilling() {
                 return "monthly";
             }
         }
-        
+
         // Check if it's a free plan (default to monthly)
         if (plan.isFree || plan.price <= 0) {
             console.log('Detected free plan, defaulting to monthly');
             return "monthly";
         }
-        
+
         console.log('No billing cycle detected, defaulting to monthly');
         // Default to monthly
         return "monthly";
@@ -236,17 +237,17 @@ function NewBilling() {
             console.log('findMatchingPlan: Missing plan or plansList');
             return null;
         }
-        
+
         console.log('findMatchingPlan: Looking for plan:', plan);
         console.log('findMatchingPlan: In plans list:', plansList);
-        
+
         // First try to match by name
         let matchingPlan = plansList.find(p => p.name === plan.name);
         if (matchingPlan) {
             console.log('findMatchingPlan: Found match by name:', matchingPlan);
             return matchingPlan;
         }
-        
+
         // Then try to match by planType
         if (plan.planType) {
             matchingPlan = plansList.find(p => p.planType === plan.planType);
@@ -255,7 +256,7 @@ function NewBilling() {
                 return matchingPlan;
             }
         }
-        
+
         // For free plans, find the free plan in the list
         if (plan.price <= 0 || plan.isFree) {
             matchingPlan = plansList.find(p => p.isFree || p.price <= 0);
@@ -264,7 +265,7 @@ function NewBilling() {
                 return matchingPlan;
             }
         }
-        
+
         // Try to match by similar characteristics (same tier but different billing)
         if (plan.name) {
             // Look for plans with similar names but different billing cycles
@@ -279,7 +280,7 @@ function NewBilling() {
                 return matchingPlan;
             }
         }
-        
+
         console.log('findMatchingPlan: No matching plan found');
         return null;
     };
@@ -328,12 +329,12 @@ function NewBilling() {
         console.log('monthlyPlans length:', monthlyPlans.length);
         console.log('quaterlyPlans length:', quaterlyPlans.length);
         console.log('yearlyPlans length:', yearlyPlans.length);
-        
+
         if (currentFullPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
             const billingCycle = getBillingCycleFromPlan(currentFullPlan);
             console.log('Detected billing cycle from plan:', billingCycle);
             console.log('Current plan details:', currentFullPlan);
-            
+
             // Set the appropriate duration based on billing cycle
             let targetDuration = duration[0]; // Default to monthly
             if (billingCycle === "quarterly") {
@@ -345,9 +346,9 @@ function NewBilling() {
             } else {
                 console.log('Setting monthly duration (default)');
             }
-            
+
             setSelectedDuration(targetDuration);
-            
+
             // Find and select the matching plan in the target billing cycle
             let currentPlans = [];
             if (billingCycle === "monthly") {
@@ -357,11 +358,11 @@ function NewBilling() {
             } else if (billingCycle === "yearly") {
                 currentPlans = yearlyPlans;
             }
-            
+
             console.log('Target plans for billing cycle:', currentPlans);
             const matchingPlan = findMatchingPlan(currentFullPlan, currentPlans);
             console.log('Found matching plan:', matchingPlan);
-            
+
             if (matchingPlan) {
                 console.log('Auto-selecting plan:', matchingPlan.name);
                 setTogglePlan(matchingPlan.id);
@@ -813,6 +814,11 @@ function NewBilling() {
         }
     };
 
+    const handleCloseCancelation = () => {
+        setShowCancelPoup(false)
+        getProfile()
+    }
+
     //del reason api
     const handleDelReason = async () => {
         if (!otherReasonInput || selectReason)
@@ -1131,7 +1137,7 @@ function NewBilling() {
                                     className={`px-2 py-[3px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-s shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
                                         setSelectedDuration(item);
-                                        
+
                                         // Auto-select matching plan when switching billing cycles
                                         if (currentFullPlan) {
                                             let targetPlans = [];
@@ -1142,7 +1148,7 @@ function NewBilling() {
                                             } else if (item.id === 3) {
                                                 targetPlans = yearlyPlans;
                                             }
-                                            
+
                                             const matchingPlan = findMatchingPlan(currentFullPlan, targetPlans);
                                             if (matchingPlan) {
                                                 setTogglePlan(matchingPlan.id);
@@ -1181,7 +1187,7 @@ function NewBilling() {
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
-                            className="px-4 py-3 pb-4 h-[25vh] flex flex-col gap-2"
+                            className="px-4 py-3 pb-4  flex flex-col gap-2"
                             style={{
                                 ...styles.pricingBox,
                                 border:
@@ -1191,7 +1197,7 @@ function NewBilling() {
                                 backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
                             }}
                         >
-                            <div className="flex flex-col items-start h-full justify-between">
+                            <div className="flex flex-col items-start h-[26vh] justify-between">
                                 <div>
                                     <div>
                                         {item.id === togglePlan ? (
@@ -1223,9 +1229,8 @@ function NewBilling() {
 
                                     <div
                                         className="text-lg font-semibold text-left mt-3"
-
                                     >
-                                        {`$${item.discountPrice}/mo`}
+                                        {`${item.discountPrice||"$0"}/mo`}
                                     </div>
 
                                     <div className="text-xs font-normal text-[#8a8a8a] text-left ">
@@ -1407,9 +1412,7 @@ function NewBilling() {
 
             <CancelPlanAnimation
                 showModal={showCancelPopup}
-                handleClose={() => {
-                    setShowCancelPoup(false)
-                }}
+                handleClose={handleCloseCancelation}
                 userLocalData={userLocalData}
             />
 

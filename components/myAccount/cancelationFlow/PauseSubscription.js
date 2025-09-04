@@ -3,15 +3,36 @@ import { next30Days } from '@/constants/Constants';
 import { CircularProgress } from '@mui/material';
 import moment from 'moment';
 import Image from 'next/image';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 function PauseSubscription({
     handleContinue,
 }) {
 
-   
+
 
     const [pauseLoading, setPuaseLoading] = useState(false)
+    const [nxtCharge, setNxtChage] = useState(null)
+
+
+    useEffect(() => {
+        getUserData()
+    }, [])
+
+
+    const getUserData = () => {
+        let data = localStorage.getItem("User")
+
+        if (data) {
+            let u = JSON.parse(data)
+            let date = u.user.nextChargeDate
+
+
+            date = moment(date).format("MM/DD/YYYY")
+            setNxtChage(date)
+            console.log('date', date)
+        }
+    }
 
     const handlePause = async () => {
         setPuaseLoading(true)
@@ -19,6 +40,12 @@ function PauseSubscription({
         let nextAction = "closeModel"
         handleContinue(nextAction)
         setPuaseLoading(false)
+    }
+
+    const handleContinueCancel = () => {
+        
+        let nextAction = "claimGift"
+        handleContinue(nextAction)
     }
 
     return (
@@ -34,7 +61,7 @@ function PauseSubscription({
 
             <div className='text-base font-normal text-center'>
                 Need some time off? No problem. You can take a short break instead or end your subscription now. Your data is safe, your billing’s on hold, and your account will automatically resume
-                in 30 days on <span className='font-bold'>{`[${next30Days}]`}.</span>
+                in 30 days on <span className='font-bold'>{`[${nxtCharge}]`}.</span>
             </div>
             <div className=' flex flex-col px-6 w-full mt-8'>
                 {
@@ -51,9 +78,8 @@ function PauseSubscription({
 
 
                 <button className='flex flex-col items-center justify-center h-[50px] w-full border rounded-lg text-base font-normal mt-4'
-                    onClick={()=>{
-                        let nextAction = "claimGift"
-                        handleContinue(nextAction)
+                    onClick={() => {
+                        handleContinueCancel()
                     }}
                 >
                     Continue to Cancel

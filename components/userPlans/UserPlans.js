@@ -174,7 +174,7 @@ function UserPlans({ handleContinue, handleBack }) {
 
                     <div className='flex flex-col items-start'>
                         <div className='text-4xl font-semibold'
-                            onClick={getPlans}
+                            // onClick={getPlans}
                         >
                             {`Grow Your Business`}
                         </div>

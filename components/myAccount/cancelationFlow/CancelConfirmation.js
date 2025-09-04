@@ -1,6 +1,7 @@
 import { next30Days } from '@/constants/Constants'
+import moment from 'moment';
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 function CancelConfirmation({
     handleContinue
@@ -27,6 +28,26 @@ function CancelConfirmation({
         { id: 16, title: 'Tech Support' }
     ];
 
+    const [nxtCharge,setNxtChage] = useState(null)
+
+
+    useEffect(()=>{
+        getUserData()
+    },[])
+
+
+    const getUserData = () =>{
+        let data = localStorage.getItem("User")
+
+        if(data){
+            let u = JSON.parse(data)
+            let date = u.user.nextChargeDate
+
+            date = moment(date).format("MM/DD/YYYY")
+            setNxtChage(date)
+        }
+    }
+
 
     return (
         <div className='flex flex-col items-center gap-2 h-full py-4'>
@@ -46,7 +67,7 @@ function CancelConfirmation({
                 <div
                     className="text-center text-base font-normal"
                 >
-                    {`Canceling means you’ll lose access to the features below starting [${next30Days}]. Still want to move forward?`}
+                    {`Canceling means you’ll lose access to the features below starting [${nxtCharge||""}]. Still want to move forward?`}
                 </div>
 
                 <div

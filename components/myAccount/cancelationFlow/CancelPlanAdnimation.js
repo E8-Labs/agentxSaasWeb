@@ -9,6 +9,7 @@ import ObtainOffer from "./ObtainOfer";
 import CancelConfirmation from "./CancelConfirmation";
 import CancelationFinalStep from "./CancelationFinalStep";
 import CancelationCompleted from "./CancelationCompleted";
+import { getDiscount } from "@/components/userPlans/UserPlanServices";
 
 const boxVariants = {
     enter: (direction) => ({
@@ -40,7 +41,7 @@ export default function CancelPlanAnimation({
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [xBarOptions, setXBarOptions] = useState([]);
 
-    const handleContinue = (nextAction) => {
+    const handleContinue = async (nextAction) => {
         console.log('currentIndex', currentIndex)
         if (nextAction) {
             console.log(nextAction);
@@ -55,16 +56,34 @@ export default function CancelPlanAnimation({
                     setDirection(1);
                     setCurrentIndex((prevIndex) => prevIndex + 1);
                 } else {
-                    setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 3);//incriment of three to jump on cancel confirmation
+                    let data = await getDiscount()
+
+                    console.log('data', data)
+                    if (data?.discountOffer?.alreadyUsed === false) {
+                        setDirection(1);
+                        setCurrentIndex((prevIndex) => prevIndex + 2);
+                    } else {
+                        setDirection(1);
+                        setCurrentIndex((prevIndex) => prevIndex + 3);
+                    }
+
+
                 }
 
             } else if (nextAction === "obtainOffer") {
                 setDirection(1);
                 setCurrentIndex((prevIndex) => prevIndex + 1);
             } else if (nextAction === "cancelConfirmationFromGift") {
-                setDirection(1);
-                setCurrentIndex((prevIndex) => prevIndex + 2);
+                let data = await getDiscount()
+
+                console.log('data', data)
+                if (data?.discountOffer?.alreadyUsed === false) {
+                    setDirection(1);
+                    setCurrentIndex((prevIndex) => prevIndex + 1);
+                } else {
+                    setDirection(1);
+                    setCurrentIndex((prevIndex) => prevIndex + 2);
+                }
             } else if (nextAction === "cancelConfirmationFromDeal") {
                 setDirection(1);
                 setCurrentIndex((prevIndex) => prevIndex + 1);
