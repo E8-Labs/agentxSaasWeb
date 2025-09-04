@@ -107,6 +107,17 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
     }
   };
 
+
+  const decideTextToShowForCadenceType = (cadence) => {
+    if(cadence.communicationType === "call") {
+      return "thenMake Call"
+    } else if(cadence.communicationType === "email") {
+      return "then Send Email"
+    } else if(cadence.communicationType === "sms") {
+      return "then Send SMS"
+    }
+  }
+
   const styles = {
     paragraph: {
       fontWeight: "500",
@@ -304,7 +315,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
                                     {item.waitTimeMinutes}
                                   </div>
                                 </div>
-                                <div>, then Make Call</div>
+                                <div>, {decideTextToShowForCadenceType(item)}</div>
                               </div>
                             </div>
                           );

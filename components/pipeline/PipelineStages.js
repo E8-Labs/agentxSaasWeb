@@ -1674,7 +1674,10 @@ const PipelineStages = ({
               onClose={() => setShowAuthSelectionPopup(false)}
               showEmailTemPopup={showEmailTemPopup}
               setShowEmailTempPopup={setShowEmailTempPopup}
-              setSelectedGoogleAccount={setSelectedGoogleAccount}
+              setSelectedGoogleAccount={(account)=> {
+                console.log('PipelineStages: setSelectedGoogleAccount called with:', account)
+                setSelectedGoogleAccount(account)
+              }}
 
             />
 
@@ -1685,13 +1688,26 @@ const PipelineStages = ({
               setEditingStageIndex(null);
               closeAddMenu(selectedIndex)
             }}
-              setSelectedGoogleAccount={setSelectedGoogleAccount}
+              setSelectedGoogleAccount={(account)=> {
+                console.log(`PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`)
+                setSelectedGoogleAccount(account)
+              }}
               selectedGoogleAccount={selectedGoogleAccount}
-              onGoogleAccountChange={setSelectedGoogleAccount}
+              onGoogleAccountChange={(account)=>{
+                console.log(`PipelineStages: onGoogleAccountChange called with: ${account}`)
+                setSelectedGoogleAccount(account)
+              }}
               templetes={templates}
               setTempletes={setTempletes}
               communicationType={selectedType} // in this varable i have stored selected option value like email or sms
-              addRow={(templateData) => addRow(selectedIndex, selectedType, templateData)}
+              addRow={(templateData) => {
+                console.log('PipelineStages: addRow called with:', {
+                  selectedIndex,
+                  selectedType,
+                  templateData
+                });
+                addRow(selectedIndex, selectedType, templateData)
+              }}
               isEditing={isEditing}
               editingRow={editingRow}
               onUpdateRow={handleUpdateRow}

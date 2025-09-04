@@ -30,7 +30,14 @@ function EmailTempletePopup({
     const bodyRef = useRef(null);
 
 
-
+    console.log('EmailTempletePopup: addRow called with:', {
+        communicationType,
+        addRow,
+        isEditing,
+        editingRow,
+        selectedGoogleAccount,
+        addRow
+    })
 
     const [subject, setSubject] = useState("")
     const [body, setBody] = useState("")
@@ -104,11 +111,15 @@ function EmailTempletePopup({
     useEffect(() => {
         console.log("trying to edit", isEditing, editingRow)
         if (isEditing && editingRow && open) {
-            // Load template details if templateId existstest
-
+            // Load template details if templateId exists
             if (editingRow.templateId) {
                 loadTemplateDetails(editingRow);
             }
+            
+            // Always load accounts when editing email templates
+            console.log('Loading accounts for editing. editingRow emailAccountId:', editingRow.emailAccountId);
+            getAccounts(); // Always load accounts regardless of existing emailAccountId
+            
         } else if (!isEditing) {
             // Reset form when not editing
             setTempName("");
@@ -117,6 +128,7 @@ function EmailTempletePopup({
             setccEmails([]);
             setAttachments([]);
             setSelectedTemp(null);
+            // setSelectedGoogleAccount(null); // Reset selected account too
         }
     }, [isEditing, editingRow, open]);
 
@@ -161,6 +173,36 @@ function EmailTempletePopup({
             getAccounts()
 
     }, [showChangeManu])
+
+    // Restore selected account when editing and accounts are loaded
+    useEffect(() => {
+        console.log('Account restoration check:', {
+            isEditing,
+            editingRowEmailAccountId: editingRow?.emailAccountId,
+            googleAccountsLength: googleAccounts.length,
+            currentSelectedAccountId: selectedGoogleAccount?.id
+        });
+        
+        if (isEditing && googleAccounts.length > 0 && !selectedGoogleAccount?.id) {
+            if (editingRow?.emailAccountId) {
+                // Try to restore the existing account
+                const matchingAccount = googleAccounts.find(account => account.id === editingRow.emailAccountId);
+                if (matchingAccount) {
+                    console.log('Restoring selected account for editing:', matchingAccount);
+                    setSelectedGoogleAccount(matchingAccount);
+                } else {
+                    console.warn('Could not find matching account for emailAccountId:', editingRow.emailAccountId);
+                    console.warn('Available accounts:', googleAccounts.map(acc => ({ id: acc.id, email: acc.email })));
+                    // Fallback to first account if existing account not found
+                    setSelectedGoogleAccount(googleAccounts[0]);
+                }
+            } else {
+                // No existing emailAccountId, use the first available account
+                console.log('No existing emailAccountId, selecting first available account:', googleAccounts[0]);
+                setSelectedGoogleAccount(googleAccounts[0]);
+            }
+        }
+    }, [isEditing, editingRow?.emailAccountId, googleAccounts, selectedGoogleAccount?.id])
 
 
     const handleDeleteTemplate = async (template) => {
@@ -287,16 +329,43 @@ function EmailTempletePopup({
             templateName: tempName
         }
 
-        // console.log('attechments', attachments)
-        let response = null
+        // Check if template content has been modified from the selected template
+        const hasTemplateChanges = selectedTemp && (
+            selectedTemp.templateName !== tempName ||
+            selectedTemp.subject !== subject ||
+            selectedTemp.content !== body ||
+            JSON.stringify(selectedTemp.ccEmails || []) !== JSON.stringify(ccEmails) ||
+            JSON.stringify(selectedTemp.attachments || []) !== JSON.stringify(attachments)
+        );
 
+        console.log('Template selection state:', {
+            selectedTemp: selectedTemp?.id,
+            isEditing,
+            hasTemplateChanges,
+            selectedTempName: selectedTemp?.templateName,
+            currentTempName: tempName
+        });
+
+        let response = null
         let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
 
-        // if(IsdefaultCadence){
         console.log('IsdefaultCadence', IsdefaultCadence)
-        // }
-        // return
-        if (isEditing && !IsdefaultCadence) {
+
+        if (selectedTemp && !hasTemplateChanges && !isEditing) {
+            // Use existing template without modification - no API call needed
+            console.log('Using existing template without changes:', selectedTemp);
+            response = {
+                data: {
+                    status: true,
+                    data: selectedTemp // Use the existing template
+                }
+            };
+        } else if (selectedTemp && hasTemplateChanges && !isEditing) {
+            // Selected existing template but made changes - UPDATE the existing template
+            console.log('Updating selected template with changes. Template ID:', selectedTemp.id);
+            response = await updateTemplete(data, selectedTemp.id)
+        } else if (isEditing && !IsdefaultCadence) {
+            // Editing existing row's template
             let id
             if (selectedTemp) {
                 id = selectedTemp.id
@@ -304,22 +373,53 @@ function EmailTempletePopup({
                 id = editingRow.templateId
             }
 
-            console.log('id', selectedTemp)
+            console.log('Updating existing template from editing row with id:', id)
             response = await updateTemplete(data, id)
         } else {
+            // Create new template (no template selected and creating new)
+            console.log('Creating new template')
             response = await createTemplete(data)
         }
 
         if (response.data.status === true) {
 
             const createdTemplate = response?.data?.data
+            
+            // Handle template list updates based on the operation performed
             if (createdTemplate) {
-                setTempletes((prev) => (Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate]))
+                if (selectedTemp && !hasTemplateChanges && !isEditing) {
+                    // Just using existing template - no list update needed
+                    console.log('No template list update needed - using existing template');
+                } else {
+                    // Either created new template or updated existing one
+                    setTempletes((prev) => {
+                        const existingIndex = prev.findIndex(t => t.id === createdTemplate.id);
+                        if (existingIndex >= 0) {
+                            // Update existing template in the list
+                            console.log('Updating existing template in list:', createdTemplate.id);
+                            const updated = [...prev];
+                            updated[existingIndex] = createdTemplate;
+                            return updated;
+                        } else {
+                            // Add new template to the list
+                            console.log('Adding new template to list:', createdTemplate.id);
+                            return Array.isArray(prev) ? [...prev, createdTemplate] : [createdTemplate];
+                        }
+                    });
+                }
             }
 
             if ((isEditing && onUpdateRow && editingRow)) {
+                // Ensure we have a selected account, use first available if none selected
+                let accountId = selectedGoogleAccount?.id;
+                if (!accountId && googleAccounts.length > 0) {
+                    console.log('No selected account, using first available account');
+                    accountId = googleAccounts[0].id;
+                    setSelectedGoogleAccount(googleAccounts[0]);
+                }
+                
                 // Update existing row with new template data
-                onUpdateRow(editingRow.id, {
+                const updateData = {
                     templateId: createdTemplate.id,
                     templateName: tempName,
                     subject: subject,
@@ -327,16 +427,40 @@ function EmailTempletePopup({
                     ccEmails: ccEmails,
                     attachments: attachments,
                     communicationType: 'email',
-                });
+                    emailAccountId: accountId,
+                };
+                console.log('Updating row with data:', updateData);
+                console.log('Selected Google Account:', selectedGoogleAccount);
+                console.log('Using Account ID:', accountId);
+                console.log('Editing Row:', editingRow);
+                
+                // Validate that emailAccountId exists
+                if (!accountId) {
+                    console.error('CRITICAL: emailAccountId is still missing during update!');
+                    console.error('Available accounts:', googleAccounts);
+                }
+                
+                onUpdateRow(editingRow.id, updateData);
             } else {
                 // Add new row
+                
+                // Ensure we have a selected account, use first available if none selected
+                let accountId = selectedGoogleAccount?.id;
+                if (!accountId && googleAccounts.length > 0) {
+                    console.log('No selected account for new row, using first available account');
+                    accountId = googleAccounts[0].id;
+                    setSelectedGoogleAccount(googleAccounts[0]);
+                }
 
                 if (addRow) {
-                    addRow({
+                    const templateDataForNewRow = {
                         templateId: createdTemplate.id,
-                        emailAccountId: selectedGoogleAccount?.id,
+                        emailAccountId: accountId,
                         communicationType: 'email',
-                    });
+                    };
+                    console.log('Adding new row with templateData:', templateDataForNewRow);
+                    console.log('addRow function type:', typeof addRow);
+                    addRow(templateDataForNewRow);
                 }
 
             }
