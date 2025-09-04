@@ -42,7 +42,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/dax.png",
     status: "Popular",
-    Dialect: "Assertive, Energetic,  Mid 30s | Flordian",
+    Dialect: "Assertive, Energetic,  Mid 30s | Floridian",
   },
   {
     voice_id: "C3x1TEM7scV4p2AXJyrp", //"8iKM7M97Poa57n6zNwYk",//qZVyogWNtPPM0VPTPQQb
@@ -127,7 +127,7 @@ const voicesList = [
     workspace: "1711297163700x954223200313016300",
     img: "/otherAssets/xen.png",
     status: "",
-    Dialect: "Thoughtful, Empathetic, Late 20s | Flordian",
+    Dialect: "Thoughtful, Empathetic, Late 20s | Floridian",
   },
   {
     voice_id: "8sZxD42zKDvoEXNxBTdX", //"8sZxD42zKDv•EXNxBTdX",
