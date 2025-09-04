@@ -241,7 +241,7 @@ function Teams({
           }
         }
 
-        // //console.log;
+        console.log("Data sending in inviteteamapi is", apidata);
 
         const response = await axios.post(path, apidata, {
           headers: {
