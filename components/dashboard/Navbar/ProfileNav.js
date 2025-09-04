@@ -627,6 +627,8 @@ const ProfileNav = () => {
           console.log("Response of get profile api is", response);
           setUserType(response?.data?.data.userType);
           let userPlan = response?.data?.data?.plan;
+          const user = response?.data?.data;
+          const isBalanceLow = user.totalSecondsAvailable < 120;
 
           if (response?.data?.data.userType != "admin") {
             console.log('User is not an admin', userPlan)
@@ -635,7 +637,7 @@ const ProfileNav = () => {
             //   (Data?.plan == null ||
             //     (Data?.plan && Data?.plan?.status !== "active"))
             // )
-            if(userPlan.price <= 0){
+            if(userPlan.price <= 0 && isBalanceLow){
               console.log('User is on a free plan')
               setShowPlansPopup(true);
 
@@ -644,11 +646,11 @@ const ProfileNav = () => {
               (Data?.plan == null ||
                 (Data?.plan &&
                   Data?.plan?.status !== "active" &&
-                  Data?.totalSecondsAvailable <= 120)
+                  isBalanceLow)
                 ||
                 (Data?.plan &&
                   Data?.plan?.status === "active" &&
-                  Data?.totalSecondsAvailable <= 120))
+                  isBalanceLow))
             ) {
               const fromDashboard = { fromDashboard: true };
               localStorage.setItem(
@@ -677,7 +679,7 @@ const ProfileNav = () => {
                 // Data?.plan == null ||
                 // (Data?.plan &&
                 //   Data?.plan?.status !== "active" &&
-                Data?.totalSecondsAvailable <= 120 //||
+                isBalanceLow //||
                 //   (Data?.plan &&
                 //     Data?.plan?.status === "active" &&
                 //     Data?.totalSecondsAvailable <= 120)

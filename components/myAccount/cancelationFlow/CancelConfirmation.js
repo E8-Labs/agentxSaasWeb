@@ -29,7 +29,7 @@ function CancelConfirmation({
 
 
     return (
-        <div className='flex flex-col items-center gap-2 h-full'>
+        <div className='flex flex-col items-center gap-2 h-full py-4'>
 
             <Image className='-mt-5'
                 src={"/otherAssets/IconAccount.png"}

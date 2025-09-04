@@ -207,7 +207,7 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[70%] bg-white h-[90vh] p-6 border-none outline-none"
+                                className="rounded-lg w-[70%] bg-white h-[auto] p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">

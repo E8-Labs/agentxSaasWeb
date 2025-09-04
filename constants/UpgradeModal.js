@@ -44,8 +44,8 @@ const UpgradeModal = ({
             // }}
             >
                 {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-                <Box className="bg-white m-h-[90svh] overflow-auto rounded-xl w-7/12 border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-full">
+                <Box className="bg-white m-h-[90svh] overflow-auto rounded-xl w-11/12 sm:w-10/12 md:w-8/12 lg:w-5/12 xl:w-5/12 2xl:w-4/12 border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-full ">
                         <div className='w-full flex flex-col items-center justify-center px-8 pt-4'>
                             <div className='w-full flex flex-row items-start justify-end'>
                                 <CloseBtn
@@ -69,7 +69,7 @@ const UpgradeModal = ({
                                 />
                             </div>
                             <div
-                                className="mt-4"
+                                className=""
                                 style={{ fontSize: "13px", fontWeight: "400", color: "#00000050" }}>
                                 {subTitle}
                             </div>

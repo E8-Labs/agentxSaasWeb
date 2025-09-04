@@ -163,6 +163,7 @@ export const models = [
     icon: "/agentXOrb.gif",
     disabled: false,
     model: "gpt-4.1-mini", //'gpt-4.1-nano',
+    responseTime: "750 ms",
   },
   {
     name: 'GPT-5',
@@ -171,6 +172,7 @@ export const models = [
     value: "gpt-5",
     icon: "/svgIcons/chatgptIcon.svg",
     disabled: false,
+    responseTime: "1550 ms",
   },
   {
     name: 'GPT-5 Mini',
@@ -179,6 +181,7 @@ export const models = [
     value: "gpt-5-mini",
     icon: "/svgIcons/chatgptIcon.svg",
     disabled: false,
+    responseTime: "1450 ms",
   },
   {
     name: "GPT-4o",
@@ -187,6 +190,7 @@ export const models = [
     icon: "/svgIcons/chatgptIcon.svg",
     disabled: false,
     model: "gpt-4o-mini",
+    responseTime: "390 ms",
   },
   {
     name: "GPT-4 Mini",
@@ -195,6 +199,7 @@ export const models = [
     icon: "/svgIcons/chatgptIcon.svg",
     disabled: false,
     model: "gpt-4.1-nano",
+    responseTime: "770 ms",
   },
   // {
   //   name: "Grok",
@@ -209,6 +214,7 @@ export const models = [
     icon: "/svgIcons/llamaIcon.svg",
     disabled: false,
     model: "compound-beta",
+    responseTime: "550 ms",
   },
   {
     name: "XAI",
@@ -217,6 +223,7 @@ export const models = [
     icon: "/svgIcons/geminiIcon.svg",
     disabled: false,
     model: "compound-beta-mini",
+    responseTime: "400 ms",
   },
   {
     name: "DeepSeek",
@@ -225,6 +232,7 @@ export const models = [
     icon: "/svgIcons/deepseekIcon.svg",
     model: "deepseek-chat",
     disabled: false,
+    responseTime: "400 ms",
   },
 ];
 
