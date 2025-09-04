@@ -263,19 +263,62 @@ const UserAddCard = ({
         }
     };
 
-    const scalePlanValue = () => {
-        console.log("Scale plan value passed is", selectedPlan);
+    const getMonthsCount = () => {
+        
         if (!selectedPlan) {
-            return "-";
+            return 1;
         }
-        if ((selectedPlan.duration || selectedPlan.billingCycle) === "monthly") {
-            return "$" + (1 * (selectedPlan.discountPrice || selectedPlan.originalPrice));
-        } else if ((selectedPlan.duration || selectedPlan.billingCycle) === "quarterly") {
-            return "$" + (3 * ((selectedPlan.discountPrice || selectedPlan.originalPrice) / 3)).toFixed(2);
-        } else if ((selectedPlan.duration || selectedPlan.billingCycle) === "yearly") {
-            return "$" + (12 * ((selectedPlan.discountPrice || selectedPlan.originalPrice) / 12)).toFixed(2);
+        
+        
+        const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
+        
+        if (billingCycle === "monthly") {
+            return 1;
+        } else if (billingCycle === "quarterly") {
+            return 3;
+        } else if (billingCycle === "yearly") {
+            return 12;
         } else {
-            return "-";
+            return 1;
+        }
+    }
+
+    const getTotalPrice = () => {
+        console.log("Selected plan for pricing:", selectedPlan);
+        if (!selectedPlan) {
+            return 0;
+        }
+        
+        const price = selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
+        const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
+        
+        if (billingCycle === "monthly") {
+            return price;
+        } else if (billingCycle === "quarterly") {
+            return price * 3;
+        } else if (billingCycle === "yearly") {
+            return price * 12;
+        } else {
+            return price;
+        }
+    }
+
+    const getMonthlyPrice = () => {
+        if (!selectedPlan) {
+            return 0;
+        }
+        
+        const price = selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
+        const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
+        
+        if (billingCycle === "monthly") {
+            return price;
+        } else if (billingCycle === "quarterly") {
+            return (price * 3) / 3; // Price per month for quarterly
+        } else if (billingCycle === "yearly") {
+            return (price * 12) / 12; // Price per month for yearly
+        } else {
+            return price;
         }
     }
 
@@ -570,11 +613,11 @@ const UserAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Scale Plan
+                                    {selectedPlan?.name || 'Plan'}
                                 </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan.billingCycle} subscription</div>
+                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} subscription</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${selectedPlan.discountPrice}`}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice()}`}</div>
                         </div>
                         {/*
                          <div className="flex flex-row items-start justify-between w-full mt-6">
@@ -590,18 +633,18 @@ const UserAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Total Billed {selectedPlan.billingCycle}
+                                    Total Billed {selectedPlan?.billingCycle || selectedPlan?.duration}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${selectedPlan.discountPrice}`}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice()}`}</div>
                         </div>
                         <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    ${selectedPlan.discountPrice}
+                                    ${getTotalPrice()}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>
