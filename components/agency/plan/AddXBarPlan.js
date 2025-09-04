@@ -187,6 +187,7 @@ export default function AddXBarPlan({
         const percentage = (((discountedPrice - originalPrice) / discountedPrice) *
           100).toFixed(2);
         formData.append("percentageDiscount", percentage);
+        formData.append("discountedPrice", originalPrice * minutes);
       } else {
         formData.append("discountedPrice", 0);
       }
