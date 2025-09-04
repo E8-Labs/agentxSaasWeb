@@ -81,7 +81,7 @@ function UserPlans({ handleContinue, handleBack }) {
                 switch (plan.billingCycle) {
                     case "monthly":
                         monthly.push(plan);
-                        if (plan.isFree) {
+                        if (!plan.discountPrice) {
                             freePlan = plan;
                         }
                         break;
@@ -174,6 +174,7 @@ function UserPlans({ handleContinue, handleBack }) {
 
                     <div className='flex flex-col items-start'>
                         <div className='text-4xl font-semibold'
+                            onClick={getPlans}
                         >
                             {`Grow Your Business`}
                         </div>
@@ -280,7 +281,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                         </div>
 
                                         <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                            ${item.discountPrice}
+                                            {item.discountPrice||"$0"}
                                         </div>
                                         <div className='text-base font-normal'>
                                             {item.calls} Calls* Per Month
