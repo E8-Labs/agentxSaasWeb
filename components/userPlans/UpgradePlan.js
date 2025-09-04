@@ -153,7 +153,7 @@ function UpgradePlan({
             }
 
             setSelectedPlan(freePlan);
-            setTogglePlan(freePlan.id);
+            setTogglePlan(freePlan?.id);
 
 
             setMonthlyPlans(monthly);
@@ -417,6 +417,8 @@ function UpgradePlan({
             setsubscribeLoader(false);
         }
     };
+
+    console.log('price is ',(selectedPlan?.discountPrice))
 
 
     return (
@@ -701,8 +703,6 @@ function UpgradePlan({
                                             </>
                                         ) : null}
 
-
-
                                         {
                                             isAddingCard && (
                                                 <div className='flex flex-col mt-4 items-start w-full max-h-[40vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
@@ -971,19 +971,19 @@ function UpgradePlan({
                                                 </div>
                                             </div>
                                             <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x $${selectedPlan?.discountPrice}` : "$0"}
+                                                {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x ${selectedPlan?.discountPrice}` : "$0"}
                                             </div>
                                         </div>
 
                                         <div className="flex flex-row items-start justify-between w-full mt-6">
                                             <div>
                                                 <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    {` Total Billed $${selectedPlan?.billingCycle}`}
+                                                    {` Total Billed ${selectedPlan?.billingCycle}`}
                                                 </div>
                                                 <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
                                             </div>
                                             <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * selectedPlan?.discountPrice}` : "$0"}
+                                                {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * (selectedPlan?.discountPrice)}` : "$0"}
                                             </div>
                                         </div>
                                     </div>
