@@ -81,6 +81,7 @@ export default function SetXBarOptions({
                 monthlyPlans: selectedMonthlyPlans,
                 xbarPlans: selectedXBarPlans,
                 smartRefill: formData.isSmartRefill,
+                allowSubaccountTwilio: formData.allowSubaccountTwilio,
 
             }
             if (selectedAgency) {

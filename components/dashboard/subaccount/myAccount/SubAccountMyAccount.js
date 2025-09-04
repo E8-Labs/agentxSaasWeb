@@ -160,7 +160,7 @@ function SubAccountMyAccount() {
       const Data = JSON.parse(localData);
       const D = Data.user
       console.log(`user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`)
-      if (D.userRole === "AgencySubAccount" || D.allowSubaccountTwilio === false) {
+      if (D.userRole === "AgencySubAccount" && D.allowSubaccountTwilio === false) {
         setNavBar(manuBar2);
       } else {
         setNavBar(manuBar);
