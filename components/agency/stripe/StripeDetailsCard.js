@@ -26,7 +26,11 @@ export default function StripeDetailsCard({
                     </div>
                     <div className="flex justify-between">
                         <span className="font-medium">Email:</span>
-                        <span>hamzatestagency@gmail.com</span>
+                        <span>{stripeData?.email || "-"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="font-medium">Bank Routing:</span>
+                        <span>****{stripeData?.external_accounts?.data[0]?.last4}</span>
                     </div>
                 </div>
             </div>
