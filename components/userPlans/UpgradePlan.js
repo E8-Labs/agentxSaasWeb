@@ -59,6 +59,9 @@ function UpgradePlan({
     const [hoverPlan, setHoverPlan] = useState(null);
     const [togglePlan, setTogglePlan] = useState(null);
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(null)
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [isAddingCard, setIsAddingCard] = useState(false);
+    const [currentUserPlan, setCurrentUserPlan] = useState(null);
     const [cards, setCards] = useState([])
     const [selectedCard, setSelectedCard] = useState(cards[0]);
 
@@ -67,7 +70,6 @@ function UpgradePlan({
     const [CardAdded, setCardAdded] = useState(false);
     const [CardExpiry, setCardExpiry] = useState(false);
     const [inviteCode, setInviteCode] = useState("");
-    const [agreeTerms, setAgreeTerms] = useState(true);
 
     const [addCardLoader, setAddCardLoader] = useState(false);
     const [credentialsErr, setCredentialsErr] = useState(false);
@@ -105,7 +107,18 @@ function UpgradePlan({
     useEffect(() => {
         getPlans()
         getCardsList()
+        getCurrentUserPlan()
     }, [])
+
+    const getCurrentUserPlan = () => {
+        const localData = localStorage.getItem("User");
+        if (localData) {
+            const userData = JSON.parse(localData);
+            const plan = userData.user?.plan;
+            console.log('Current user plan:', plan);
+            setCurrentUserPlan(plan);
+        }
+    }
 
     const getPlans = async () => {
         let plansList = await getUserPlans()
@@ -156,14 +169,57 @@ function UpgradePlan({
         return [];
     };
 
+    // Auto-select plan when switching billing cycles
+    useEffect(() => {
+        const currentPlans = getCurrentPlans();
+        if (currentPlans.length > 0 && selectedPlan) {
+            // Find the plan with the same name in the new billing cycle
+            const matchingPlan = currentPlans.find(plan => plan.name === selectedPlan.name);
+            if (matchingPlan) {
+                const planIndex = currentPlans.findIndex(plan => plan.name === selectedPlan.name);
+                setSelectedPlan(matchingPlan);
+                setSelectedPlanIndex(planIndex);
+                setTogglePlan(matchingPlan.id);
+            } else {
+                // If no matching plan found, select the first plan
+                setSelectedPlan(currentPlans[0]);
+                setSelectedPlanIndex(0);
+                setTogglePlan(currentPlans[0].id);
+            }
+        }
+    }, [selectedDuration]);
+
 
 
 
     const handleTogglePlanClick = (item, index) => {
+        // Don't allow selection of current plan
+        const isCurrentPlan = isPlanCurrent(item);
+        if (isCurrentPlan) {
+            console.log("Cannot select current plan:", item.name);
+            return;
+        }
         console.log("Selected plan index is", index, item);
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         setSelectedPlan(item);
+    };
+
+    const isPlanCurrent = (item) => {
+        if (!currentUserPlan) return false;
+        
+        // Handle free plan case
+        if (item.isFree && (!currentUserPlan.planType || currentUserPlan.price <= 0)) {
+            return true;
+        }
+        
+        // Handle paid plans
+        if (item.planType && currentUserPlan.planType) {
+            return item.planType === currentUserPlan.planType;
+        }
+        
+        // Fallback comparison by name
+        return item.name === currentUserPlan.name;
     };
 
     const getCardImage = (item) => {
@@ -179,6 +235,13 @@ function UpgradePlan({
             return "/svgIcons/DinersClub.svg";
         }
     };
+
+    const GetMonthCountFronBillingCycle = (billingCycle) => {
+        if (billingCycle === "monthly") return 1;
+        if (billingCycle === "quarterly") return 3;
+        if (billingCycle === "yearly") return 12;
+        return 1;
+    }
 
     //functiion to get cards list
     const getCardsList = async () => {
@@ -390,12 +453,12 @@ function UpgradePlan({
                         message={"Card added successfully"}
                     />
                     <div
-                        className="w-full flex flex-col border-white h-[90vh] overflow-y-auto"
+                        className="w-full flex flex-col border-white h-[90vh]"
                         style={{
                             backgroundColor: "#ffffff",
                             padding: 0,
                             borderRadius: "13px",
-                            scrollbarWidth: 'none'
+                            overflow: "hidden"
                         }}
                     >
                         <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
@@ -496,38 +559,49 @@ function UpgradePlan({
                                 </div>
 
                                 <div
-                                    className='w-full flex flex-row gap-3 overflow-x-auto mt-3'
+                                    className='w-full flex flex-row gap-3 mt-3'
                                     style={{
                                         scrollbarWidth: 'none'
                                     }}
                                 >
                                     {
-                                        getCurrentPlans().map((item, index) => (
-                                            <button className={`w-3/12 flex flex-col items-start border-2 p-3 rounded-lg text-left
-                                                hover:border-purple ${selectedPlan?.id === item.id ? "border-purple" : ""}}
-                                                `}
-                                                key={item.id}
-                                                onClick={() => handleTogglePlanClick(item, index)}
-                                            >
-                                                <div className='text-lg font-semibold'>
-                                                    {item.name}
-                                                </div>
+                                        getCurrentPlans().map((item, index) => {
+                                            const isCurrentPlan = isPlanCurrent(item);
+                                            return (
+                                                <button 
+                                                    className={`w-3/12 flex flex-col items-start border-2 p-3 rounded-lg text-left transition-all duration-300
+                                                        ${isCurrentPlan 
+                                                            ? "border-gray-300 cursor-not-allowed opacity-60" 
+                                                            : selectedPlan?.id === item.id 
+                                                                ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100" 
+                                                                : "border-gray-200 hover:border-purple hover:shadow-md"
+                                                        }`}
+                                                    key={item.id}
+                                                    onClick={() => handleTogglePlanClick(item, index)}
+                                                    disabled={isCurrentPlan}
+                                                >
+                                                    <div className='text-lg font-semibold'>
+                                                        {item.name}
+                                                    </div>
 
-                                                <div className='text-base font-normal mt-1'>
-                                                    {item.mints} Mins | {item.calls} Calls* per month
-                                                </div>
+                                                    <div className='text-base font-normal mt-1'>
+                                                        {item.mints} Mins | {item.calls} Calls* per month
+                                                    </div>
 
-                                                <div className='text-4xl font-semibold mt-2'>
-                                                    {`$${item.discountPrice}`}
-                                                </div>
+                                                    <div className='text-4xl font-semibold mt-2'>
+                                                        {`$${item.discountPrice}`}
+                                                    </div>
 
-
-                                                <div className='py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg bg-purple text-white text-base font-semibold'>
-                                                    Select Plan
-                                                </div>
-
-                                            </button>
-                                        ))
+                                                    <div className={`py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-base font-semibold
+                                                        ${isCurrentPlan 
+                                                            ? "bg-gray-400 text-white cursor-not-allowed" 
+                                                            : "bg-purple text-white"
+                                                        }`}>
+                                                        {isCurrentPlan ? "Current Plan" : "Select Plan"}
+                                                    </div>
+                                                </button>
+                                            );
+                                        })
                                     }
 
                                 </div>
@@ -537,89 +611,99 @@ function UpgradePlan({
                                     <div
                                         className='w-[50%] flex flex-col items-start'
                                     >
-                                        <div className='text-xl font-semibold'>
+                                        <div className='text-xl font-semibold flex flex-row items-center justify-between'>
                                             Payment
+                                            {isAddingCard && (
+                                                <button
+                                                    onClick={() => {
+                                                        setIsAddingCard(false);
+                                                        setShowAddCard(false);
+                                                    }}
+                                                    className='text-sm font-medium text-purple hover:text-purple-700'
+                                                >
+                                                    ← Back to Cards
+                                                </button>
+                                            )}
                                         </div>
 
-                                        <div className='flex flex-col gap-2 mt-2 items-center h-[20vh] w-full overflow-y-auto'>
-                                            {cards.map((item) => (
-                                                <div className="w-full" key={item.id}>
-                                                    <button
-                                                        className="w-full outline-none"
-                                                    >
-                                                        <div
-                                                            className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
-                                                            style={{
-                                                                backgroundColor:
-                                                                    item.isDefault || selectedCard?.id === item.id
-                                                                        ? "#4011FA05"
-                                                                        : "transparent",
-                                                                borderColor:
-                                                                    item.isDefault || selectedCard?.id === item.id
-                                                                        ? "#7902DF"
-                                                                        : "#15151510",
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center gap-2">
+                                        {!isAddingCard ? (
+                                            <>
+                                                <div className='flex flex-col gap-2 mt-2 items-center h-[20vh] w-full overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
+                                                    {cards.map((item) => (
+                                                        <div className="w-full" key={item.id}>
+                                                            <button
+                                                                className="w-full outline-none"
+                                                            >
                                                                 <div
-                                                                    className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`} //border-[#2548FD]
+                                                                    className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
                                                                     style={{
-                                                                        borderWidth:
+                                                                        backgroundColor:
                                                                             item.isDefault || selectedCard?.id === item.id
-                                                                                ? 3
-                                                                                : 1,
+                                                                                ? "#4011FA05"
+                                                                                : "transparent",
+                                                                        borderColor:
+                                                                            item.isDefault || selectedCard?.id === item.id
+                                                                                ? "#7902DF"
+                                                                                : "#15151510",
                                                                     }}
-                                                                ></div>
-
-                                                                <Image
-                                                                    src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                                                                    alt="Card Logo"
-                                                                    width={50}
-                                                                    height={50}
-                                                                />
-
-                                                                <div className='text-xs font-normal '
                                                                 >
-                                                                    ****{item.last4} {
-                                                                        item.isDefault && (
-                                                                            <span>{`(default)`}</span>
-                                                                        )}
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div
+                                                                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
+                                                                            style={{
+                                                                                borderWidth:
+                                                                                    item.isDefault || selectedCard?.id === item.id
+                                                                                        ? 3
+                                                                                        : 1,
+                                                                            }}
+                                                                        ></div>
+
+                                                                        <Image
+                                                                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                                                                            alt="Card Logo"
+                                                                            width={50}
+                                                                            height={50}
+                                                                        />
+
+                                                                        <div className='text-xs font-normal'>
+                                                                            ****{item.last4} {
+                                                                                item.isDefault && (
+                                                                                    <span>{`(default)`}</span>
+                                                                                )}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className='flex flex-row items-center justify-center'>
+                                                                        <button className='text-xs font-normal'>
+                                                                            {" Edit | "}
+                                                                        </button>
+
+                                                                        <button className='text-xs font-normal ml-1'>
+                                                                            {" Delete"}
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
-
-
-                                                            </div>
-
-                                                            <div className='flex flex-row items-center justify-center'>
-                                                                <button className='text-xs font-normal'>
-                                                                    {" Edit | "}
-                                                                </button>
-
-                                                                <button className='text-xs font-normal ml-1'>
-                                                                    {" Delete"}
-                                                                </button>
-                                                            </div>
+                                                            </button>
                                                         </div>
-                                                    </button>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
 
-                                        {
-                                            !showAddCard &&
-                                            <button
-                                                onClick={() => {
-                                                    setShowAddCard(!showAddCard)
-                                                }}
-                                                className='text-xs font-medium mt-4'
-                                            >
-                                                + Add Payment
-                                            </button>
-                                        }
+                                                <button
+                                                    onClick={() => {
+                                                        setIsAddingCard(true);
+                                                        setShowAddCard(true);
+                                                    }}
+                                                    className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
+                                                >
+                                                    + Add Payment
+                                                </button>
+                                            </>
+                                        ) : null}
 
 
                                         {
-                                            showAddCard && (
-                                                <div className='flex flex-col mt-4 items-start w-full'>
+                                            isAddingCard && (
+                                                <div className='flex flex-col mt-4 items-start w-full max-h-[40vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
 
                                                     <div className='text-xl font-semibold'>
                                                         Add Payment Details
@@ -841,7 +925,11 @@ function UpgradePlan({
                                                         <button
                                                             className='w-1/2 flex flex-col items-center justify-center 
                                                             h-[53px] border-2 rounded-lg text-lg font-semibold
-                                                            '
+                                                            hover:bg-gray-50 transition-colors duration-200'
+                                                            onClick={() => {
+                                                                setIsAddingCard(false);
+                                                                setShowAddCard(false);
+                                                            }}
                                                         >
                                                             Cancel
                                                         </button>
@@ -877,14 +965,14 @@ function UpgradePlan({
                                         <div className="flex flex-row items-start justify-between w-full mt-6">
                                             <div>
                                                 <div className='text-[#8a8a8a] text-lg font-semibold'>
-                                                    {selectedPlan?.name} Plan
+                                                    {selectedPlan ? `${selectedPlan?.name} Plan` : "No Plan Selected"}
                                                 </div>
                                                 <div className='text-[#8a8a8a] text-xs font-regular '>
-                                                    {selectedPlan?.billingCycle} subscription
+                                                    {selectedPlan ? `${selectedPlan?.billingCycle} subscription` : ""}
                                                 </div>
                                             </div>
                                             <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {`$${selectedPlan?.discountPrice}`}
+                                                {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x $${selectedPlan?.discountPrice}` : "$0"}
                                             </div>
                                         </div>
 
@@ -895,7 +983,9 @@ function UpgradePlan({
                                                 </div>
                                                 <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
                                             </div>
-                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>{`${selectedPlan?.discountPrice}`}</div>
+                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * selectedPlan?.discountPrice}` : "$0"}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -909,27 +999,88 @@ function UpgradePlan({
 
 
                                         <div className=" text-3xl font-semibold text-[#8a8a8a] ">
-                                            {`$${selectedPlan?.discountPrice}`}
+                                            {selectedPlan ? `$${selectedPlan?.discountPrice}` : "$0"}
                                         </div>
                                     </div>
                                 </div>
 
 
-                                <div className='flex flex-row items-center gap-5 w-full mt-8 mb-10 '>
-                                    <button
-                                        className='w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-lg font-semibold
-                                                            '
-                                    >
-                                        Cancel
-                                    </button>
+                                {/* Terms and Conditions - Only show when not adding card */}
+                                {!isAddingCard && (
+                                    <>
+                                        <div className="w-full mt-6 mb-4 flex flex-row items-center gap-3">
+                                            <button
+                                                className="outline-none border-none"
+                                                onClick={() => setAgreeTerms(!agreeTerms)}
+                                            >
+                                                {agreeTerms ? (
+                                                    <div
+                                                        className="bg-purple flex flex-row items-center justify-center rounded"
+                                                        style={{ height: "24px", width: "24px" }}
+                                                    >
+                                                        <Image
+                                                            src={"/assets/whiteTick.png"}
+                                                            height={8}
+                                                            width={10}
+                                                            alt="*"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
+                                                        style={{ height: "24px", width: "24px" }}
+                                                    ></div>
+                                                )}
+                                            </button>
 
-                                    <button
-                                        className='w-1/2 flex flex-col items-center justify-center h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold
-                                                            '
-                                    >
-                                        Upgrade
-                                    </button>
-                                </div>
+                                            <div
+                                                className="flex flex-row items-center gap-2"
+                                                style={{
+                                                    fontWeight: "500",
+                                                    fontSize: 15
+                                                }}
+                                            >
+                                                <div>
+                                                    I agree to
+                                                </div>
+                                                <a
+                                                    href={"https://www.myagentx.com/terms-and-condition"}
+                                                    style={{ textDecoration: "underline", color: "#7902DF" }}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="hover:text-purple-700 transition-colors duration-200"
+                                                >
+                                                    Terms & Conditions
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-5 w-full mt-4 mb-10'>
+                                            <button
+                                                className='w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-50 transition-colors duration-200'
+                                                onClick={() => handleClose()}
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                className={`w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                    ${agreeTerms && selectedPlan && !isPlanCurrent(selectedPlan)
+                                                        ? "text-white bg-purple hover:bg-purple-700" 
+                                                        : "text-gray-400 bg-gray-200 cursor-not-allowed"
+                                                    }`}
+                                                disabled={!agreeTerms || !selectedPlan || isPlanCurrent(selectedPlan)}
+                                                onClick={() => {
+                                                    if (agreeTerms && selectedPlan) {
+                                                        handleSubscribePlan();
+                                                    }
+                                                }}
+                                            >
+                                                Upgrade
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
 
 
                             </div>

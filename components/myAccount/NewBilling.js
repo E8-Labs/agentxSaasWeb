@@ -176,6 +176,114 @@ function NewBilling() {
         return [];
     };
 
+    // Function to determine billing cycle from current plan
+    const getBillingCycleFromPlan = (plan) => {
+        if (!plan) return "monthly"; // Default to monthly for free plans
+        
+        console.log('Analyzing plan for billing cycle:', plan);
+        
+        // Check if plan has billingCycle property
+        if (plan.billingCycle) {
+            console.log('Found billingCycle property:', plan.billingCycle);
+            return plan.billingCycle;
+        }
+        
+        // Check if plan has billing_cycle property (alternative naming)
+        if (plan.billing_cycle) {
+            console.log('Found billing_cycle property:', plan.billing_cycle);
+            return plan.billing_cycle;
+        }
+        
+        // Check plan type for legacy plans
+        if (plan.planType) {
+            console.log('Found planType:', plan.planType);
+            // Map planType to billing cycle based on common patterns
+            if (plan.planType.toLowerCase().includes('yearly') || plan.planType.toLowerCase().includes('year')) {
+                return "yearly";
+            } else if (plan.planType.toLowerCase().includes('quarterly') || plan.planType.toLowerCase().includes('quarter')) {
+                return "quarterly";
+            } else if (plan.planType.toLowerCase().includes('monthly') || plan.planType.toLowerCase().includes('month')) {
+                return "monthly";
+            }
+        }
+        
+        // Check plan name for billing cycle indicators
+        if (plan.name) {
+            console.log('Checking plan name:', plan.name);
+            if (plan.name.toLowerCase().includes('yearly') || plan.name.toLowerCase().includes('year')) {
+                return "yearly";
+            } else if (plan.name.toLowerCase().includes('quarterly') || plan.name.toLowerCase().includes('quarter')) {
+                return "quarterly";
+            } else if (plan.name.toLowerCase().includes('monthly') || plan.name.toLowerCase().includes('month')) {
+                return "monthly";
+            }
+        }
+        
+        // Check if it's a free plan (default to monthly)
+        if (plan.isFree || plan.price <= 0) {
+            console.log('Detected free plan, defaulting to monthly');
+            return "monthly";
+        }
+        
+        console.log('No billing cycle detected, defaulting to monthly');
+        // Default to monthly
+        return "monthly";
+    };
+
+    // Function to find matching plan in different billing cycles
+    const findMatchingPlan = (plan, plansList) => {
+        if (!plan || !plansList) {
+            console.log('findMatchingPlan: Missing plan or plansList');
+            return null;
+        }
+        
+        console.log('findMatchingPlan: Looking for plan:', plan);
+        console.log('findMatchingPlan: In plans list:', plansList);
+        
+        // First try to match by name
+        let matchingPlan = plansList.find(p => p.name === plan.name);
+        if (matchingPlan) {
+            console.log('findMatchingPlan: Found match by name:', matchingPlan);
+            return matchingPlan;
+        }
+        
+        // Then try to match by planType
+        if (plan.planType) {
+            matchingPlan = plansList.find(p => p.planType === plan.planType);
+            if (matchingPlan) {
+                console.log('findMatchingPlan: Found match by planType:', matchingPlan);
+                return matchingPlan;
+            }
+        }
+        
+        // For free plans, find the free plan in the list
+        if (plan.price <= 0 || plan.isFree) {
+            matchingPlan = plansList.find(p => p.isFree || p.price <= 0);
+            if (matchingPlan) {
+                console.log('findMatchingPlan: Found match for free plan:', matchingPlan);
+                return matchingPlan;
+            }
+        }
+        
+        // Try to match by similar characteristics (same tier but different billing)
+        if (plan.name) {
+            // Look for plans with similar names but different billing cycles
+            matchingPlan = plansList.find(p => {
+                // Check if the plan names are similar (e.g., "Starter" matches "Starter")
+                const planNameWords = plan.name.toLowerCase().split(' ');
+                const pNameWords = p.name.toLowerCase().split(' ');
+                return planNameWords.some(word => pNameWords.includes(word));
+            });
+            if (matchingPlan) {
+                console.log('findMatchingPlan: Found match by similar name:', matchingPlan);
+                return matchingPlan;
+            }
+        }
+        
+        console.log('findMatchingPlan: No matching plan found');
+        return null;
+    };
+
 
     //cancel plan reasons
     const cancelPlanReasons = [
@@ -212,6 +320,60 @@ function NewBilling() {
         getPaymentHistory();
         getCardsList();
     }, []);
+
+    // Auto-select billing cycle and plan based on current user plan
+    useEffect(() => {
+        console.log('Auto-select useEffect triggered');
+        console.log('currentFullPlan:', currentFullPlan);
+        console.log('monthlyPlans length:', monthlyPlans.length);
+        console.log('quaterlyPlans length:', quaterlyPlans.length);
+        console.log('yearlyPlans length:', yearlyPlans.length);
+        
+        if (currentFullPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
+            const billingCycle = getBillingCycleFromPlan(currentFullPlan);
+            console.log('Detected billing cycle from plan:', billingCycle);
+            console.log('Current plan details:', currentFullPlan);
+            
+            // Set the appropriate duration based on billing cycle
+            let targetDuration = duration[0]; // Default to monthly
+            if (billingCycle === "quarterly") {
+                targetDuration = duration[1];
+                console.log('Setting quarterly duration');
+            } else if (billingCycle === "yearly") {
+                targetDuration = duration[2];
+                console.log('Setting yearly duration');
+            } else {
+                console.log('Setting monthly duration (default)');
+            }
+            
+            setSelectedDuration(targetDuration);
+            
+            // Find and select the matching plan in the target billing cycle
+            let currentPlans = [];
+            if (billingCycle === "monthly") {
+                currentPlans = monthlyPlans;
+            } else if (billingCycle === "quarterly") {
+                currentPlans = quaterlyPlans;
+            } else if (billingCycle === "yearly") {
+                currentPlans = yearlyPlans;
+            }
+            
+            console.log('Target plans for billing cycle:', currentPlans);
+            const matchingPlan = findMatchingPlan(currentFullPlan, currentPlans);
+            console.log('Found matching plan:', matchingPlan);
+            
+            if (matchingPlan) {
+                console.log('Auto-selecting plan:', matchingPlan.name);
+                setTogglePlan(matchingPlan.id);
+                setToggleFullPlan(matchingPlan);
+                setSelectedPlan(matchingPlan);
+            } else {
+                console.log('No matching plan found');
+            }
+        } else {
+            console.log('Conditions not met for auto-selection');
+        }
+    }, [currentFullPlan, monthlyPlans, quaterlyPlans, yearlyPlans]);
 
 
 
@@ -969,7 +1131,25 @@ function NewBilling() {
                                     className={`px-2 py-[3px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-s shadow-purple rounded-full" : "text-black"}`}
                                     onClick={() => {
                                         setSelectedDuration(item);
-                                        // getCurrentPlans();
+                                        
+                                        // Auto-select matching plan when switching billing cycles
+                                        if (currentFullPlan) {
+                                            let targetPlans = [];
+                                            if (item.id === 1) {
+                                                targetPlans = monthlyPlans;
+                                            } else if (item.id === 2) {
+                                                targetPlans = quaterlyPlans;
+                                            } else if (item.id === 3) {
+                                                targetPlans = yearlyPlans;
+                                            }
+                                            
+                                            const matchingPlan = findMatchingPlan(currentFullPlan, targetPlans);
+                                            if (matchingPlan) {
+                                                setTogglePlan(matchingPlan.id);
+                                                setToggleFullPlan(matchingPlan);
+                                                setSelectedPlan(matchingPlan);
+                                            }
+                                        }
                                     }}
                                 >
                                     {item.title}
@@ -1001,7 +1181,7 @@ function NewBilling() {
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
-                            className="px-4 py-3 pb-4 h-[30vh] flex flex-col gap-2"
+                            className="px-4 py-3 pb-4 h-[25vh] flex flex-col gap-2"
                             style={{
                                 ...styles.pricingBox,
                                 border:

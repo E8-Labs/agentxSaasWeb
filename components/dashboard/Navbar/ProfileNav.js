@@ -43,6 +43,8 @@ import { LeadProgressBanner } from "../leads/extras/LeadProgressBanner";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import PlansService from "@/utilities/PlansService";
 import UpgradeModal from "@/constants/UpgradeModal";
+import SupportFile from "@/components/agency/plan/SupportFile";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -93,6 +95,7 @@ const ProfileNav = () => {
   const [bannerProgress, setBannerProgress] = useState(0);
 
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
 
   useEffect(() => {
     console.log("Search url is", pathname);
@@ -611,6 +614,8 @@ const ProfileNav = () => {
       let Data = response?.data?.data;
       // Data.totalSecondsAvailable  = 100
 
+      
+
       console.log(
         "Available seconds are Profile Nav",
         Data?.totalSecondsAvailable
@@ -621,13 +626,20 @@ const ProfileNav = () => {
         if (response?.data) {
           console.log("Response of get profile api is", response);
           setUserType(response?.data?.data.userType);
+          let userPlan = response?.data?.data?.plan;
+
           if (response?.data?.data.userType != "admin") {
+            console.log('User is not an admin', userPlan)
             // if (
             //   Data?.userRole === "AgencySubAccount" &&
             //   (Data?.plan == null ||
             //     (Data?.plan && Data?.plan?.status !== "active"))
             // )
-            if (
+            if(userPlan.price <= 0){
+              console.log('User is on a free plan')
+              setShowPlansPopup(true);
+
+            }else if (
               Data?.userRole === "AgencySubAccount" &&
               (Data?.plan == null ||
                 (Data?.plan &&
@@ -1241,7 +1253,16 @@ const ProfileNav = () => {
               height: "100vh", // Full viewport height
             }}
           >
-            <div
+            <SupportFile upgardeAction={() => {
+              setShowPlansPopup(false);
+              setShowUpgradePlanModal(true);
+            }} cancelAction={() => {
+              setShowPlansPopup(false)
+            }} 
+            metadata={{
+              renewal: userDetails?.user?.nextChargeDate || ''
+            }}/>
+            {/* <div
               className="flex flex-row justify-center w-full"
               style={{
                 maxHeight: "90vh", // Restrict modal height to 90% of the viewport
@@ -1470,7 +1491,7 @@ const ProfileNav = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> */}
           </Box>
         </Modal>
 
@@ -1534,6 +1555,14 @@ const ProfileNav = () => {
             </div>
           </Box>
         </Modal>
+
+        {/* UpgradePlan Modal */}
+        <Elements stripe={stripePromise}>
+          <UpgradePlan 
+            open={showUpgradePlanModal}
+            handleClose={() => setShowUpgradePlanModal(false)}
+          />
+        </Elements>
       </div>
     </div>
   );
