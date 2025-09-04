@@ -129,14 +129,14 @@ function UserPlans({ handleContinue, handleBack }) {
     const handleContinueYearly = () => {
         // Switch to yearly billing and find matching plan
         setSelectedDuration(duration[2]); // Switch to yearly
-        
+
         // Find the matching plan in yearly billing
         if (selectedMonthlyPlan && yearlyPlans.length > 0) {
-            const matchingYearlyPlan = yearlyPlans.find(plan => 
-                plan.name === selectedMonthlyPlan.name || 
+            const matchingYearlyPlan = yearlyPlans.find(plan =>
+                plan.name === selectedMonthlyPlan.name ||
                 plan.planType === selectedMonthlyPlan.planType
             );
-            
+
             if (matchingYearlyPlan) {
                 const planIndex = yearlyPlans.findIndex(plan => plan.id === matchingYearlyPlan.id);
                 setSelectedPlan(matchingYearlyPlan);
@@ -144,7 +144,7 @@ function UserPlans({ handleContinue, handleBack }) {
                 setTogglePlan(matchingYearlyPlan.id);
             }
         }
-        
+
         setShowYearlyPlanModal(false);
         setAddPaymentPopUp(true);
     };
@@ -174,7 +174,7 @@ function UserPlans({ handleContinue, handleBack }) {
 
                     <div className='flex flex-col items-start'>
                         <div className='text-4xl font-semibold'
-                            // onClick={getPlans}
+                        // onClick={getPlans}
                         >
                             {`Grow Your Business`}
                         </div>
@@ -281,7 +281,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                         </div>
 
                                         <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                            {item.discountPrice||"$0"}
+                                            ${item.discountPrice || 0}
                                         </div>
                                         <div className='text-base font-normal'>
                                             {item.calls} Calls* Per Month
@@ -319,7 +319,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                                     </div>
                                                 </div>
                                             )}
-                                            
+
                                             <div className='flex flex-col items-start w-full flex-1'>
                                                 {
                                                     item.features.map((feature, featureIndex) => (

@@ -6,7 +6,9 @@ export const getUserPlans = async () => {
     try {
         let token = AuthToken()
 
-        const response = await axios.get(Apis.getPlans, {
+        let path = Apis.getPlans
+        console.log('path of get plans', path)
+        const response = await axios.get(path, {
             headers: {
                 "Authorization": 'Bearer ' + token
             }
@@ -210,4 +212,48 @@ export const calculatePlanPrice = (selectedPlan) => {
         return "-";
     }
 }
+
+
+export const getMonthlyPrice = (selectedPlan) => {
+    if (!selectedPlan) {
+        return 0;
+    }
+    
+    const price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice ||  0;
+    const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
+
+
+    console.log("selected plan in monthly plan func is",selectedPlan)
+    
+    if (billingCycle === "monthly") {
+        return price;
+    } else if (billingCycle === "quarterly") {
+        return (price * 3) / 3; // Price per month for quarterly
+    } else if (billingCycle === "yearly") {
+        return (price * 12) / 12; // Price per month for yearly
+    } else {
+        return price;
+    }
+}
+
+export const getTotalPrice = (selectedPlan) => {
+    console.log("Selected plan for pricing:", selectedPlan);
+    if (!selectedPlan) {
+        return 0;
+    }
+    
+    const price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
+    const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
+    
+    if (billingCycle === "monthly") {
+        return price;
+    } else if (billingCycle === "quarterly") {
+        return price * 3;
+    } else if (billingCycle === "yearly") {
+        return price * 12;
+    } else {
+        return price;
+    }
+}
+
 

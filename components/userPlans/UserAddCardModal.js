@@ -25,7 +25,7 @@ import Apis from "@/components/apis/Apis";
 import AgentSelectSnackMessage, {
     SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { calculatePlanPrice } from "./UserPlanServices";
+import { calculatePlanPrice, getMonthlyPrice, getTotalPrice } from "./UserPlanServices";
 // import Apis from '../Apis/Apis';
 
 const UserAddCard = ({
@@ -284,47 +284,8 @@ const UserAddCard = ({
         }
     }
 
-    const getTotalPrice = () => {
-        console.log("Selected plan for pricing:", selectedPlan);
-        if (!selectedPlan) {
-            return 0;
-        }
-        
-        const price = selectedPlan.discountedPrice || selectedPlan.originalPrice || 0;
-        const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
-        
-        if (billingCycle === "monthly") {
-            return price;
-        } else if (billingCycle === "quarterly") {
-            return price * 3;
-        } else if (billingCycle === "yearly") {
-            return price * 12;
-        } else {
-            return price;
-        }
-    }
+  
 
-    const getMonthlyPrice = () => {
-        if (!selectedPlan) {
-            return 0;
-        }
-        
-        const price = selectedPlan.discountedPrice || selectedPlan.originalPrice || 0;
-        const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
-
-
-        console.log("selected plan in monthly plan func is",selectedPlan)
-        
-        if (billingCycle === "monthly") {
-            return price;
-        } else if (billingCycle === "quarterly") {
-            return (price * 3) / 3; // Price per month for quarterly
-        } else if (billingCycle === "yearly") {
-            return (price * 12) / 12; // Price per month for yearly
-        } else {
-            return price;
-        }
-    }
 
     const PayAsYouGoPlanTypes = {
         Plan30Min: "Plan30",
@@ -621,7 +582,7 @@ const UserAddCard = ({
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} subscription</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice()}`}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice(selectedPlan)}`}</div>
                         </div>
                         {/*
                          <div className="flex flex-row items-start justify-between w-full mt-6">
@@ -641,14 +602,14 @@ const UserAddCard = ({
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice()}`}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice(selectedPlan)}`}</div>
                         </div>
                         <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    ${getTotalPrice()}
+                                    ${getTotalPrice(selectedPlan)}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>

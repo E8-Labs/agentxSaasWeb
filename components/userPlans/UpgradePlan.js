@@ -108,7 +108,7 @@ function UpgradePlan({
         getPlans()
         getCardsList()
         getCurrentUserPlan()
-    }, [])
+    }, [open])
 
     const getCurrentUserPlan = () => {
         const localData = localStorage.getItem("User");
@@ -132,7 +132,7 @@ function UpgradePlan({
                 switch (plan.billingCycle) {
                     case "monthly":
                         monthly.push(plan);
-                        if (plan.isFree) {
+                        if (!plan.discountPrice) {
                             freePlan = plan;
                         }
                         break;
@@ -456,12 +456,12 @@ function UpgradePlan({
                         message={"Card added successfully"}
                     />
                     <div
-                        className="w-full flex flex-col border-white h-[90vh]"
+                        className="w-full flex flex-col border-white h-[90vh] "
                         style={{
                             backgroundColor: "#ffffff",
                             padding: 0,
                             borderRadius: "13px",
-                            overflow: "hidden"
+                            // overflow: "hidden"
                         }}
                     >
                         <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
@@ -502,12 +502,12 @@ function UpgradePlan({
                                 />
                             </div>
 
-                            <div className='flex flex-col w-[75%] items-start h-full'>
-                                <div className='text-4xl font-semibold '>
+                            <div className='flex flex-col w-[75%] items-start h-[85%] overflow-y-auto -mt-5'>
+                                <div className='text-2xl font-[600] '>
                                     Upgrade Your Plan
                                 </div>
 
-                                <div className='text-lg font-semibold '>
+                                <div className='text-[16px] font-semibold '>
                                     Upgrade for premium features and support
                                 </div>
 
@@ -583,7 +583,7 @@ function UpgradePlan({
                                                     onClick={() => handleTogglePlanClick(item, index)}
                                                     disabled={isCurrentPlan}
                                                 >
-                                                    <div className='text-lg font-semibold'>
+                                                    <div className='text-medium font-semibold'>
                                                         {item.name}
                                                     </div>
 
@@ -591,7 +591,7 @@ function UpgradePlan({
                                                         {item.mints} Mins | {item.calls} Calls* per month
                                                     </div>
 
-                                                    <div className='text-4xl font-semibold mt-2'>
+                                                    <div className='text-2xl font-semibold mt-2'>
                                                         {`$${item.discountPrice}`}
                                                     </div>
 
@@ -1007,7 +1007,7 @@ function UpgradePlan({
                                 {/* Terms and Conditions - Only show when not adding card */}
                                 {!isAddingCard && (
                                     <>
-                                        <div className="w-full mt-6 mb-4 flex flex-row items-center gap-3">
+                                        <div className="w-full mt-3 mb-4 flex flex-row items-center gap-3">
                                             <button
                                                 className="outline-none border-none"
                                                 onClick={() => setAgreeTerms(!agreeTerms)}
@@ -1066,7 +1066,7 @@ function UpgradePlan({
                                                 className={`w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
                                                     ${agreeTerms && selectedPlan && !isPlanCurrent(selectedPlan)
                                                         ? "text-white bg-purple hover:bg-purple-700"
-                                                        : "text-gray-400 bg-gray-200 cursor-not-allowed"
+                                                        : "text-black bg-[#00000050] cursor-not-allowed"
                                                     }`}
                                                 disabled={!agreeTerms || !selectedPlan || isPlanCurrent(selectedPlan)}
                                                 onClick={() => {
