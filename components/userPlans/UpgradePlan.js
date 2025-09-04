@@ -701,394 +701,392 @@ function UpgradePlan({
                                             </>
                                         ) : null}
 
-                                    </div>
 
-                                    {
-                                        isAddingCard && (
-                                            <div className='flex flex-col mt-4 items-start w-full max-h-[40vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
 
-                                                <div className='text-xl font-semibold'>
-                                                    Add Payment Details
-                                                </div>
-                                                <Elements stripe={stripePromise}>
-                                                    <div className='w-full'>
+                                        {
+                                            isAddingCard && (
+                                                <div className='flex flex-col mt-4 items-start w-full max-h-[40vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
+
+                                                    <div className='text-xl font-semibold'>
+                                                        Add Payment Details
+                                                    </div>
+                                                    <Elements stripe={stripePromise}>
+                                                        <div className='w-full'>
+                                                            <div
+                                                                style={{
+                                                                    fontWeight: "400",
+                                                                    fontSize: 14,
+                                                                    color: "#4F5B76",
+                                                                }}
+                                                            >
+                                                                Card Number
+                                                            </div>
+                                                            <div
+                                                                className="mt-2 px-3 py-1 border relative flex items-center"
+                                                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
+                                                            >
+                                                                <div className="flex-1 w-full">
+                                                                    <CardNumberElement
+                                                                        options={elementOptions}
+                                                                        autoFocus={true}
+                                                                        onChange={(event) => {
+                                                                            handleFieldChange(event, cardExpiryRef);
+                                                                            if (event.complete) {
+                                                                                // //console.log;
+                                                                                setCardAdded(true);
+                                                                            } else {
+                                                                                setCardAdded(false);
+                                                                            }
+                                                                        }}
+                                                                        ref={cardNumberRef}
+                                                                        onReady={(element) => {
+                                                                            cardNumberRef.current = element;
+                                                                            cardNumberRef.current.focus();
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                                <div className="flex items-center gap-1 ml-2">
+                                                                    <Image src="/svgIcons/Visa.svg" alt="Visa" width={32} height={20} />
+                                                                    <Image src="/svgIcons/Mastercard.svg" alt="Mastercard" width={32} height={20} />
+                                                                    <Image src="/svgIcons/Amex.svg" alt="American Express" width={32} height={20} />
+                                                                    <Image src="/svgIcons/Discover.svg" alt="Discover" width={32} height={20} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex flex-row gap-2 w-full mt-8">
+                                                            <div className="w-6/12">
+                                                                <div
+                                                                    style={{
+                                                                        fontWeight: "400",
+
+                                                                        fontSize: 14,
+                                                                        color: "#4F5B76",
+                                                                    }}
+                                                                >
+                                                                    Exp
+                                                                </div>
+                                                                <div
+                                                                    className="mt-2 px-3 py-1 border"
+                                                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
+                                                                >
+                                                                    <CardExpiryElement
+                                                                        options={elementOptions}
+                                                                        style={{
+                                                                            width: "100%",
+                                                                            padding: "8px",
+                                                                            color: "white",
+                                                                            fontSize: "22px",
+                                                                            border: "1px solid blue",
+                                                                            borderRadius: "4px",
+                                                                        }}
+                                                                        onChange={(event) => {
+                                                                            handleFieldChange(event, cardCvcRef);
+                                                                            if (event.complete) {
+                                                                                // //console.log;
+                                                                                setCardExpiry(true);
+                                                                            } else {
+                                                                                setCardExpiry(false);
+                                                                            }
+                                                                        }}
+                                                                        ref={cardExpiryRef}
+                                                                        onReady={(element) => {
+                                                                            cardExpiryRef.current = element;
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-6/12">
+                                                                <div
+                                                                    style={{
+                                                                        fontWeight: "400",
+
+                                                                        fontSize: 14,
+                                                                        color: "#4F5B76",
+                                                                    }}
+                                                                >
+                                                                    CVC
+                                                                </div>
+                                                                <div
+                                                                    className="mt-2 px-3 py-1 border"
+                                                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
+                                                                >
+                                                                    <CardCvcElement
+                                                                        options={elementOptions}
+                                                                        style={{
+                                                                            width: "100%",
+                                                                            padding: "8px",
+                                                                            color: "white",
+                                                                            fontSize: "22px",
+                                                                            border: "1px solid blue",
+                                                                            borderRadius: "4px",
+                                                                        }}
+                                                                        ref={cardCvcRef}
+                                                                        onReady={(element) => {
+                                                                            cardCvcRef.current = element;
+                                                                        }}
+                                                                        onChange={(event) => {
+                                                                            // handleFieldChange(event, cardCvcRef);
+                                                                            if (event.complete) {
+                                                                                // //console.log;
+                                                                                setCVC(true);
+                                                                            } else {
+                                                                                setCVC(false);
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Optional input field for agent x invite code */}
+
                                                         <div
+                                                            className="mt-8"
                                                             style={{
                                                                 fontWeight: "400",
+
                                                                 fontSize: 14,
                                                                 color: "#4F5B76",
                                                             }}
                                                         >
-                                                            Card Number
+                                                            {`Referral Code (optional)`}
                                                         </div>
-                                                        <div
-                                                            className="mt-2 px-3 py-1 border relative flex items-center"
-                                                            style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                                                        >
-                                                            <div className="flex-1 w-full">
-                                                                <CardNumberElement
-                                                                    options={elementOptions}
-                                                                    autoFocus={true}
-                                                                    onChange={(event) => {
-                                                                        handleFieldChange(event, cardExpiryRef);
-                                                                        if (event.complete) {
-                                                                            // //console.log;
-                                                                            setCardAdded(true);
-                                                                        } else {
-                                                                            setCardAdded(false);
-                                                                        }
-                                                                    }}
-                                                                    ref={cardNumberRef}
-                                                                    onReady={(element) => {
-                                                                        cardNumberRef.current = element;
-                                                                        cardNumberRef.current.focus();
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                            <div className="flex items-center gap-1 ml-2">
-                                                                <Image src="/svgIcons/Visa.svg" alt="Visa" width={32} height={20} />
-                                                                <Image src="/svgIcons/Mastercard.svg" alt="Mastercard" width={32} height={20} />
-                                                                <Image src="/svgIcons/Amex.svg" alt="American Express" width={32} height={20} />
-                                                                <Image src="/svgIcons/Discover.svg" alt="Discover" width={32} height={20} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex flex-row gap-2 w-full mt-8">
-                                                        <div className="w-6/12">
-                                                            <div
-                                                                style={{
-                                                                    fontWeight: "400",
 
-                                                                    fontSize: 14,
-                                                                    color: "#4F5B76",
+                                                        <div className="mt-4">
+                                                            <input
+                                                                value={inviteCode}
+                                                                onChange={(e) => {
+                                                                    setInviteCode(e.target.value);
                                                                 }}
-                                                            >
-                                                                Exp
-                                                            </div>
-                                                            <div
-                                                                className="mt-2 px-3 py-1 border"
-                                                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                                                            >
-                                                                <CardExpiryElement
-                                                                    options={elementOptions}
-                                                                    style={{
-                                                                        width: "100%",
-                                                                        padding: "8px",
-                                                                        color: "white",
-                                                                        fontSize: "22px",
-                                                                        border: "1px solid blue",
-                                                                        borderRadius: "4px",
-                                                                    }}
-                                                                    onChange={(event) => {
-                                                                        handleFieldChange(event, cardCvcRef);
-                                                                        if (event.complete) {
-                                                                            // //console.log;
-                                                                            setCardExpiry(true);
-                                                                        } else {
-                                                                            setCardExpiry(false);
-                                                                        }
-                                                                    }}
-                                                                    ref={cardExpiryRef}
-                                                                    onReady={(element) => {
-                                                                        cardExpiryRef.current = element;
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div className="w-6/12">
-                                                            <div
+                                                                className="outline-none focus:ring-0 w-full h-[50px]"
                                                                 style={{
-                                                                    fontWeight: "400",
-
-                                                                    fontSize: 14,
-                                                                    color: "#4F5B76",
+                                                                    color: "#000000",
+                                                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                                                                    borderRadius: "8px",
+                                                                    border: "1px solid #00000020",
+                                                                    fontSize: 15,
+                                                                    fontWeight: "500",
                                                                 }}
-                                                            >
-                                                                CVC
-                                                            </div>
-                                                            <div
-                                                                className="mt-2 px-3 py-1 border"
-                                                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                                                            >
-                                                                <CardCvcElement
-                                                                    options={elementOptions}
-                                                                    style={{
-                                                                        width: "100%",
-                                                                        padding: "8px",
-                                                                        color: "white",
-                                                                        fontSize: "22px",
-                                                                        border: "1px solid blue",
-                                                                        borderRadius: "4px",
-                                                                    }}
-                                                                    ref={cardCvcRef}
-                                                                    onReady={(element) => {
-                                                                        cardCvcRef.current = element;
-                                                                    }}
-                                                                    onChange={(event) => {
-                                                                        // handleFieldChange(event, cardCvcRef);
-                                                                        if (event.complete) {
-                                                                            // //console.log;
-                                                                            setCVC(true);
-                                                                        } else {
-                                                                            setCVC(false);
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Optional input field for agent x invite code */}
-
-                                                    <div
-                                                        className="mt-8"
-                                                        style={{
-                                                            fontWeight: "400",
-
-                                                            fontSize: 14,
-                                                            color: "#4F5B76",
-                                                        }}
-                                                    >
-                                                        {`Referral Code (optional)`}
-                                                    </div>
-
-                                                    <div className="mt-4">
-                                                        <input
-                                                            value={inviteCode}
-                                                            onChange={(e) => {
-                                                                setInviteCode(e.target.value);
-                                                            }}
-                                                            className="outline-none focus:ring-0 w-full h-[50px]"
-                                                            style={{
-                                                                color: "#000000",
-                                                                backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                                                borderRadius: "8px",
-                                                                border: "1px solid #00000020",
-                                                                fontSize: 15,
-                                                                fontWeight: "500",
-                                                            }}
-                                                            placeholder="Enter Referral code"
-                                                        />
-                                                        <style jsx>{`
+                                                                placeholder="Enter Referral code"
+                                                            />
+                                                            <style jsx>{`
                                                     input::placeholder {
                                                         color: #00000050; /* Set placeholder text color to red */
                                                     }
                                                     `}</style>
-                                                    </div>
-                                                </Elements>
+                                                        </div>
+                                                    </Elements>
 
-                                                <div className="mt-4 w-full flex flex-row items-center gap-4">
-                                                    <button
-                                                        className="outline-none border-none"
-                                                        onClick={() => { setAgreeTerms(!agreeTerms) }}>
+                                                    <div className="mt-4 w-full flex flex-row items-center gap-4">
+                                                        <button
+                                                            className="outline-none border-none"
+                                                            onClick={() => { setAgreeTerms(!agreeTerms) }}>
 
-                                                        {agreeTerms ? (
-                                                            <div
-                                                                className="bg-purple flex flex-row items-center justify-center rounded"
-                                                                style={{ height: "24px", width: "24px" }}
-                                                            >
-                                                                <Image
-                                                                    src={"/assets/whiteTick.png"}
-                                                                    height={8}
-                                                                    width={10}
-                                                                    alt="*"
-                                                                />
+                                                            {agreeTerms ? (
+                                                                <div
+                                                                    className="bg-purple flex flex-row items-center justify-center rounded"
+                                                                    style={{ height: "24px", width: "24px" }}
+                                                                >
+                                                                    <Image
+                                                                        src={"/assets/whiteTick.png"}
+                                                                        height={8}
+                                                                        width={10}
+                                                                        alt="*"
+                                                                    />
+                                                                </div>
+                                                            ) : (
+                                                                <div
+                                                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                                                    style={{ height: "24px", width: "24px" }}
+                                                                ></div>
+                                                            )}
+                                                        </button>
+
+                                                        <div
+                                                            className="flex flex-row items-center gap-2"
+                                                            style={{
+                                                                fontWeight: "500",
+                                                                fontSize: 15
+                                                            }}>
+                                                            <div>
+                                                                I agree to
                                                             </div>
-                                                        ) : (
-                                                            <div
-                                                                className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                                                style={{ height: "24px", width: "24px" }}
-                                                            ></div>
-                                                        )}
-                                                    </button>
-
-                                                    <div
-                                                        className="flex flex-row items-center gap-2"
-                                                        style={{
-                                                            fontWeight: "500",
-                                                            fontSize: 15
-                                                        }}>
-                                                        <div>
-                                                            I agree to
+                                                            <a
+                                                                href={"https://www.myagentx.com/terms-and-condition"} // Replace with the actual URL
+                                                                style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
+                                                                target="_blank" // Opens in a new tab (optional)
+                                                                rel="noopener noreferrer" // Security for external links
+                                                            >
+                                                                Terms & Conditions
+                                                            </a>
                                                         </div>
-                                                        <a
-                                                            href={"https://www.myagentx.com/terms-and-condition"} // Replace with the actual URL
-                                                            style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
-                                                            target="_blank" // Opens in a new tab (optional)
-                                                            rel="noopener noreferrer" // Security for external links
-                                                        >
-                                                            Terms & Conditions
-                                                        </a>
+
                                                     </div>
 
-                                                </div>
-
-                                                <div className='flex flex-row items-center gap-5 w-full mt-8'>
-                                                    <button
-                                                        className='w-1/2 flex flex-col items-center justify-center 
-                                                            h-[53px] border-2 rounded-lg text-lg font-semibold
-                                                            hover:bg-gray-50 transition-colors duration-200'
-                                                        onClick={() => {
-                                                            setIsAddingCard(false);
-                                                            setShowAddCard(false);
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </button>
-
-                                                    {addCardLoader ? (
-                                                        <div className="flex flex-row justify-center items-center mt-8 w-full">
-                                                            <CircularProgress size={30} />
-                                                        </div>
-                                                    ) : (
+                                                    <div className='flex flex-row items-center gap-5 w-full mt-8'>
                                                         <button
                                                             className='w-1/2 flex flex-col items-center justify-center 
+                                                            h-[53px] border-2 rounded-lg text-lg font-semibold
+                                                            hover:bg-gray-50 transition-colors duration-200'
+                                                            onClick={() => {
+                                                                setIsAddingCard(false);
+                                                                setShowAddCard(false);
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+
+                                                        {addCardLoader ? (
+                                                            <div className="flex flex-row justify-center items-center mt-8 w-full">
+                                                                <CircularProgress size={30} />
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                className='w-1/2 flex flex-col items-center justify-center 
                                                             h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold
                                                             '
-                                                            onClick={handleAddCard}
-                                                        >
-                                                            Add Payment
-                                                        </button>
-                                                    )}
+                                                                onClick={handleAddCard}
+                                                            >
+                                                                Add Payment
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        )
-                                    }
-
-
-                                </div>
-
-
-
-                                <div className='w-[50%] flex flex-col items-start'>
-                                    <div className='text-[#8a8a8a] text-xl font-semibold '>
-                                        Order Summary
+                                            )
+                                        }
                                     </div>
-                                    <div className="flex flex-row items-start justify-between w-full mt-6">
-                                        <div>
-                                            <div className='text-[#8a8a8a] text-lg font-semibold'>
-                                                {selectedPlan ? `${selectedPlan?.name} Plan` : "No Plan Selected"}
-                                            </div>
-                                            <div className='text-[#8a8a8a] text-xs font-regular '>
-                                                {selectedPlan ? `${selectedPlan?.billingCycle} subscription` : ""}
-                                            </div>
+
+
+                                    <div className='w-[50%] flex flex-col items-start'>
+                                        <div className='text-[#8a8a8a] text-xl font-semibold '>
+                                            Order Summary
                                         </div>
-                                        <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                            {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x $${selectedPlan?.discountPrice}` : "$0"}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-row items-start justify-between w-full mt-6">
-                                        <div>
-                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {` Total Billed $${selectedPlan?.billingCycle}`}
-                                            </div>
-                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
-                                        </div>
-                                        <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
-                                            {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * selectedPlan?.discountPrice}` : "$0"}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className='flex flex-row w-full justify-between items-center mt-3'>
-                                <div className='w-1/2'></div>
-                                <div className='flex flex-row items-center justify-between w-1/2'>
-                                    <div className=" text-3xl font-semibold text-[#8a8a8a] ">
-                                        Total:
-                                    </div>
-
-
-                                    <div className=" text-3xl font-semibold text-[#8a8a8a] ">
-                                        {selectedPlan ? `$${selectedPlan?.discountPrice}` : "$0"}
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            {/* Terms and Conditions - Only show when not adding card */}
-                            {!isAddingCard && (
-                                <>
-                                    <div className="w-full mt-6 mb-4 flex flex-row items-center gap-3">
-                                        <button
-                                            className="outline-none border-none"
-                                            onClick={() => setAgreeTerms(!agreeTerms)}
-                                        >
-                                            {agreeTerms ? (
-                                                <div
-                                                    className="bg-purple flex flex-row items-center justify-center rounded"
-                                                    style={{ height: "24px", width: "24px" }}
-                                                >
-                                                    <Image
-                                                        src={"/assets/whiteTick.png"}
-                                                        height={8}
-                                                        width={10}
-                                                        alt="*"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div
-                                                    className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
-                                                    style={{ height: "24px", width: "24px" }}
-                                                ></div>
-                                            )}
-                                        </button>
-
-                                        <div
-                                            className="flex flex-row items-center gap-2"
-                                            style={{
-                                                fontWeight: "500",
-                                                fontSize: 15
-                                            }}
-                                        >
+                                        <div className="flex flex-row items-start justify-between w-full mt-6">
                                             <div>
-                                                I agree to
+                                                <div className='text-[#8a8a8a] text-lg font-semibold'>
+                                                    {selectedPlan ? `${selectedPlan?.name} Plan` : "No Plan Selected"}
+                                                </div>
+                                                <div className='text-[#8a8a8a] text-xs font-regular '>
+                                                    {selectedPlan ? `${selectedPlan?.billingCycle} subscription` : ""}
+                                                </div>
                                             </div>
-                                            <a
-                                                href={"https://www.myagentx.com/terms-and-condition"}
-                                                style={{ textDecoration: "underline", color: "#7902DF" }}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="hover:text-purple-700 transition-colors duration-200"
-                                            >
-                                                Terms & Conditions
-                                            </a>
+                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x $${selectedPlan?.discountPrice}` : "$0"}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-row items-start justify-between w-full mt-6">
+                                            <div>
+                                                <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                    {` Total Billed $${selectedPlan?.billingCycle}`}
+                                                </div>
+                                                <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
+                                            </div>
+                                            <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * selectedPlan?.discountPrice}` : "$0"}
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-5 w-full mt-4 mb-10'>
-                                        <button
-                                            className='w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-50 transition-colors duration-200'
-                                            onClick={() => handleClose()}
-                                        >
-                                            Cancel
-                                        </button>
+                                <div className='flex flex-row w-full justify-between items-center mt-3'>
+                                    <div className='w-1/2'></div>
+                                    <div className='flex flex-row items-center justify-between w-1/2'>
+                                        <div className=" text-3xl font-semibold text-[#8a8a8a] ">
+                                            Total:
+                                        </div>
 
-                                        <button
-                                            className={`w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${agreeTerms && selectedPlan && !isPlanCurrent(selectedPlan)
-                                                    ? "text-white bg-purple hover:bg-purple-700"
-                                                    : "text-gray-400 bg-gray-200 cursor-not-allowed"
-                                                }`}
-                                            disabled={!agreeTerms || !selectedPlan || isPlanCurrent(selectedPlan)}
-                                            onClick={() => {
-                                                if (agreeTerms && selectedPlan) {
-                                                    handleSubscribePlan();
-                                                }
-                                            }}
-                                        >
-                                            Upgrade
-                                        </button>
+
+                                        <div className=" text-3xl font-semibold text-[#8a8a8a] ">
+                                            {selectedPlan ? `$${selectedPlan?.discountPrice}` : "$0"}
+                                        </div>
                                     </div>
-                                </>
-                            )}
+                                </div>
 
 
+                                {/* Terms and Conditions - Only show when not adding card */}
+                                {!isAddingCard && (
+                                    <>
+                                        <div className="w-full mt-6 mb-4 flex flex-row items-center gap-3">
+                                            <button
+                                                className="outline-none border-none"
+                                                onClick={() => setAgreeTerms(!agreeTerms)}
+                                            >
+                                                {agreeTerms ? (
+                                                    <div
+                                                        className="bg-purple flex flex-row items-center justify-center rounded"
+                                                        style={{ height: "24px", width: "24px" }}
+                                                    >
+                                                        <Image
+                                                            src={"/assets/whiteTick.png"}
+                                                            height={8}
+                                                            width={10}
+                                                            alt="*"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div
+                                                        className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
+                                                        style={{ height: "24px", width: "24px" }}
+                                                    ></div>
+                                                )}
+                                            </button>
+
+                                            <div
+                                                className="flex flex-row items-center gap-2"
+                                                style={{
+                                                    fontWeight: "500",
+                                                    fontSize: 15
+                                                }}
+                                            >
+                                                <div>
+                                                    I agree to
+                                                </div>
+                                                <a
+                                                    href={"https://www.myagentx.com/terms-and-condition"}
+                                                    style={{ textDecoration: "underline", color: "#7902DF" }}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="hover:text-purple-700 transition-colors duration-200"
+                                                >
+                                                    Terms & Conditions
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-5 w-full mt-4 mb-10'>
+                                            <button
+                                                className='w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-50 transition-colors duration-200'
+                                                onClick={() => handleClose()}
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                className={`w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                    ${agreeTerms && selectedPlan && !isPlanCurrent(selectedPlan)
+                                                        ? "text-white bg-purple hover:bg-purple-700"
+                                                        : "text-gray-400 bg-gray-200 cursor-not-allowed"
+                                                    }`}
+                                                disabled={!agreeTerms || !selectedPlan || isPlanCurrent(selectedPlan)}
+                                                onClick={() => {
+                                                    if (agreeTerms && selectedPlan) {
+                                                        handleSubscribePlan();
+                                                    }
+                                                }}
+                                            >
+                                                Upgrade
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+
+
+                            </div>
                         </div>
+
+
                     </div>
-
-
                 </div>
             </Box>
         </Modal >
