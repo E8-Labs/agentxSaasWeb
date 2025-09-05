@@ -171,14 +171,16 @@ export function TranscriptViewer({ callId }) {
       let isDuplicate = false;
       for (let j = 0; j < result.length; j++) {
         if (areMessagesEqual(current, result[j])) {
-          console.warn("🔁 Duplicate/loop detected at index", i);
+          console.warn("🔁 Duplicate/loop detected at index", i, "- skipping duplicate message");
           isDuplicate = true;
           break;
         }
       }
   
-      if (isDuplicate) break;
-      result.push(current);
+      // Only skip the current duplicate message, continue processing others
+      if (!isDuplicate) {
+        result.push(current);
+      }
     }
   
     return result;
@@ -203,10 +205,10 @@ export function TranscriptViewer({ callId }) {
         console.log("Response of get call transcript is", response.data);
         if (response.data.status === true) {
           console.log('call transcript is', response.data.data);
+          const filteredMessages = getMessagesWithLoopCheck(response.data.data);
+          console.log(`Filtered Transcript is `, filteredMessages)
           // const parsedMessages = parseTranscript(response.data.data.transcript);
-
-          let fileteredMsgs = getMessagesWithLoopCheck(response.data.data)
-          setMessages(fileteredMsgs);
+          setMessages(filteredMessages);
         }
       }
 
