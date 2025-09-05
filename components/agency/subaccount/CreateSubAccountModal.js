@@ -549,9 +549,13 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
             <div className='overflow-y-auto h-[92%] scrollbar-hide'
                 style={{
-                    scrollbarWidth: 'none',
-                    msOverflowStyle: 'none',
-                }}>
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
+                    transform: "translateZ(0)",
+                    willChange: "transform",
+                    contain: "paint layout"
+                }}
+            >
 
                 <AgentSelectSnackMessage
                     isVisible={showErrorSnack != null ? true : false}
