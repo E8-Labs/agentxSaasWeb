@@ -44,7 +44,7 @@ export  function getReadableStatus(status) {
   }
 
   if (status === BatchStatus.PausedForNoPhoneNumber) {
-    return "Paused - No Phone";
+    return "Paused - No Number";
   }
 
 
