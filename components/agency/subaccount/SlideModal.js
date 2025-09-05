@@ -39,7 +39,7 @@ export default function SlideModal({
 
     const handleContinue = (formData) => {
         if (formData) {
-            console.log(formData);
+            console.log("form data passed is",formData);
         }
         setDirection(1);
         setCurrentIndex((prevIndex) => prevIndex + 1);
