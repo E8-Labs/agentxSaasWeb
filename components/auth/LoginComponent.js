@@ -106,7 +106,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
       if (d.user.userType == "admin") {
         router.push("/admin");
-      } else if (d.user.userRole == "Agency" || d.user.agencyTeamMember === true) {
+      } else if (d.user.userRole == "Agency" || d.user.agencyTeammember === true) {
         router.push("/agency/dashboard");
       } else if (d.user.userRole == "AgencySubAccount") {
         if (d.user.plan) {
@@ -114,7 +114,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         } else {
           router.push("/subaccountInvite/subscribeSubAccountPlan");
         }
-      }else {
+      } else {
         router.push("/dashboard");
       }
     }
@@ -495,11 +495,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     } else {
                       router.push("/subaccountInvite/subscribeSubAccountPlan");
                     }
-                  } else if (response.data.data.user.userRole == "Agency" || response.data.data.user.agencyTeamMember === true) {
+                  } else if (response.data.data.user.userRole == "Agency" || response.data.data.user.agencyTeammember === true) {
                     router.push("/agency/dashboard");
                   } else {
                     router.push("/dashboard/myAgentX");
                   }
+                  return
                   // if (data.data.user.userType == "admin") {
                   //   router.push("/admin");
                   // } 

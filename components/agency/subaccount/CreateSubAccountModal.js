@@ -585,7 +585,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 </div>
 
                 <div className='w-full flex flex-row items-center gap-2'>
-                    <div className='w-4/12'>
+                    <div className="flex-1">
                         <div style={styles.inputs}>
                             Full Name
                         </div>
@@ -601,7 +601,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                     </div>
                     {/* Sub Acc Email */}
-                    <div className='w-4/12'>
+                    <div className="flex-1">
                         <div className="flex flex-row items-center w-full justify-between">
                             <div style={styles.inputs}>
                                 Email
@@ -681,7 +681,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
                     </div>
                     {/* Sub Acc Phone */}
-                    <div className='w-4/12'>
+                    <div className="flex-1">
                         <div className='flex flex-row items-center justify-between'>
                             <div style={styles.inputs}>
                                 Phone Number
@@ -1020,15 +1020,15 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         {`Members invited in the list below won’t pay for seats.`}
                     </p>
                     <div className='flex fex-row ites-center w-full mb-2'>
-                        <div className="w-4/12"
+                        <div className="flex-1"
                             style={styles.inputs}>
                             Full Name
                         </div>
-                        <div className="w-4/12"
+                        <div className="flex-1"
                             style={styles.inputs}>
                             Email Address
                         </div>
-                        <div className="w-4/12"
+                        <div className="flex-1"
                             style={styles.inputs}>
                             Phone Number
                         </div>
@@ -1043,13 +1043,13 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                 <input
                                     type="text"
                                     placeholder="Full Name"
-                                    className="px-3 py-2 border border-gray-300 rounded-lg w-4/12 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                    className="px-3 py-2 border border-gray-300 rounded-lg flex-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
                                     value={member.name}
                                     onChange={(e) => handleChange(index, 'name', e.target.value)}
                                     style={styles.inputs}
                                 />
 
-                                <div className='w-4/12'>
+                                <div className='flex-1'>
                                     <input
                                         type="email"
                                         placeholder="Email"
@@ -1073,7 +1073,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     </div>
                                 </div>
 
-                                <div className="flex flex-row items-center overflow-hidden w-4/12">
+                                <div className="flex flex-row items-center overflow-hidden flex-1">
                                     <div className='w-[90%] flex flex-row items-center'>
                                         <div className="w-full">
                                             <PhoneInput

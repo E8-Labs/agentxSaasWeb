@@ -57,18 +57,17 @@ export const handlePricePerMinInputValue = (value) => {
 //function handling the .toFixed after point value
 export function formatDecimalValue(price) {
     if (price == null || price === undefined) {
-        return ""; // or return 0, or whatever default you want
-    }
-    //convert string in to number
-    const num = Number(price);
-    // Handle invalid, null, undefined, or non-numeric values
-    if (isNaN(num)) {
-        return ""; // or return "0", depending on what you want
+        return "";
     }
 
-    // const decimalPart = num.toFixed(2).split(".")[1]; // get "01" from 12.01
-    // if (decimalPart.startsWith("0")) {
-    //     return Math.floor(num); // drop decimals
-    // }
-    return num.toFixed(2); // keep 2 decimals
+    const num = Number(price);
+
+    if (isNaN(num)) {
+        return "";
+    }
+
+    // Always round to nearest whole number and format with commas
+    return Math.round(num).toLocaleString("en-US");
 }
+
+

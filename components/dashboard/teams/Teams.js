@@ -890,40 +890,43 @@ function Teams({
                 }}
               />
 
-              <div className="pt-5" style={styles.headingStyle}>
-                Email Address
-              </div>
-              <div className="text-end">
-                {emailLoader ? (
-                  <p style={{ ...styles.errmsg, color: "black" }}>
-                    Checking ...
-                  </p>
-                ) : (
-                  <div>
-                    {email && emailCheckResponse ? (
-                      <p
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            emailCheckResponse?.status === true
-                              ? "green"
-                              : "red",
-                        }}
-                      >
-                        {emailCheckResponse?.message
-                          ?.slice(0, 1)
-                          .toUpperCase() +
-                          emailCheckResponse?.message?.slice(1)}
-                      </p>
-                    ) : (
-                      <div />
-                    )}
+              <div className="pt-5 w-full flex flex-row items-center justify-between">
+                <div style={styles.headingStyle}>
+                  Email Address
+                </div>
+                <div>
+                  {emailLoader ? (
+                    <p style={{ ...styles.errmsg, color: "black" }}>
+                      Checking ...
+                    </p>
+                  ) : (
+                    <div>
+                      {email && emailCheckResponse ? (
+                        <p
+                          style={{
+                            ...styles.errmsg,
+                            color:
+                              emailCheckResponse?.status === true
+                                ? "green"
+                                : "red",
+                          }}
+                        >
+                          {emailCheckResponse?.message
+                            ?.slice(0, 1)
+                            .toUpperCase() +
+                            emailCheckResponse?.message?.slice(1)}
+                        </p>
+                      ) : (
+                        <div />
+                      )}
+                    </div>
+                  )}
+                  <div style={{ ...styles.errmsg, color: "red" }}>
+                    {validEmail}
                   </div>
-                )}
-                <div style={{ ...styles.errmsg, color: "red" }}>
-                  {validEmail}
                 </div>
               </div>
+
               <input
                 placeholder="Type here"
                 className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
@@ -964,34 +967,36 @@ function Teams({
                 }}
               />
 
-              <div className="pt-5" style={styles.headingStyle}>
-                Phone Number
-              </div>
-              {/* Code for error messages */}
-              <div className="w-full mt-2">
-                <div>
-                  {errorMessage && (
-                    <div
-                      className={`text-end text-red`}
-                      style={{
-                        ...styles.errmsg,
-                        color:
-                          checkPhoneResponse?.status === true ? "green" : "red",
-                      }}
-                    >
-                      {errorMessage}
-                    </div>
-                  )}
+              <div className="pt-5 flex flex-row items-center justify-between w-full">
+                <div style={styles.headingStyle}>
+                  Phone Number
                 </div>
+                {/* Code for error messages */}
                 <div>
-                  {checkPhoneLoader && (
-                    <div
-                      className={`text-end text-red`}
-                      style={{ ...styles.errmsg }}
-                    >
-                      {checkPhoneLoader}
-                    </div>
-                  )}
+                  <div>
+                    {errorMessage && (
+                      <div
+                        className={`text-red`}
+                        style={{
+                          ...styles.errmsg,
+                          color:
+                            checkPhoneResponse?.status === true ? "green" : "red",
+                        }}
+                      >
+                        {errorMessage}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    {checkPhoneLoader && (
+                      <div
+                        className={`text-red`}
+                        style={{ ...styles.errmsg }}
+                      >
+                        {checkPhoneLoader}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
