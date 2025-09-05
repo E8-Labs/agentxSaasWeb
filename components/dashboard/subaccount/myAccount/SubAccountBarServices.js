@@ -483,7 +483,7 @@ function SubAccountBarServices({
                     <div
                       style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
                     ></div>
-                    <span style={styles.labelText}>{item.percentageDiscount.toFixed(2)}%</span>
+                    <span style={styles.labelText}>{item?.percentageDiscount?.toFixed(2)}%</span>
                     <div
                       className="flex flex-row items-start gap-3"
                       style={styles.content}

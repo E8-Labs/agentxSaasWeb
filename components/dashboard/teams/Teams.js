@@ -1,4 +1,4 @@
-import { Button, CircularProgress, colors, Fab } from "@mui/material";
+import { Button, CircularProgress, colors, Fab, Popover } from "@mui/material";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import Menu from "@mui/material/Menu";
@@ -69,6 +69,14 @@ function Teams({
 
   const [linkCopied, setLinkCopied] = useState(false);
 
+  //variables for popover
+  // instead of storing just item.id, store the element anchor + team data
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [popoverTeam, setPopoverTeam] = useState(null);
+
+  const open = Boolean(anchorEl);
+
+
   //get local Data
   useEffect(() => {
     const localData = localStorage.getItem("User");
@@ -78,20 +86,6 @@ function Teams({
     }
   }, []);
 
-  const handleClick = (event) => {
-    setOpenTeamDropdown(true);
-    setteamDropdown(event.currentTarget);
-  };
-
-  const handleClose = (event) => {
-    setSelectedItem(event.target.textContent);
-    setOpenTeamDropdown(false);
-  };
-
-  const handleMoreClose = (event) => {
-    // setSelectedItem(event.target.textContent)
-    setOpenMoreDropdown(false);
-  };
 
   const data = [
     {
@@ -130,6 +124,17 @@ function Teams({
       getMyteam();
     }
   }, []);
+
+  //functions handling popover
+  const handlePopoverOpen = (event, team) => {
+    setAnchorEl(event.currentTarget);
+    setPopoverTeam(team);
+  };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+    setPopoverTeam(null);
+  };
 
   //function to get team mebers api
   const getMyteam = async () => {
@@ -716,11 +721,7 @@ function Teams({
                         {canShowMenuDots(item) && (
                           <button
                             id={`dropdown-toggle-${item.id}`}
-                            onClick={() =>
-                              setMoreDropdown(
-                                moreDropdown === item.id ? null : item.id
-                              )
-                            }
+                            onClick={(e) => handlePopoverOpen(e, item)}
                             className="relative"
                           >
                             <img
@@ -733,7 +734,7 @@ function Teams({
                         )}
                       </div>
 
-                      {/* Custom Dropdown */}
+                      {/* Custom Dropdown
                       {moreDropdown === item.id && (
                         <div
                           className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
@@ -761,7 +762,50 @@ function Teams({
                             Delete
                           </div>
                         </div>
-                      )}
+                      )} */}
+
+                      <Popover
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handlePopoverClose}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "right",
+                        }}
+                        PaperProps={{
+                          sx: {
+                            boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
+                            border: "none", // optional: add a light border instead
+                          },
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          {popoverTeam && canShowResendOption(popoverTeam) && (
+                            <MenuItem
+                              onClick={() => {
+                                handleResendInvite(popoverTeam);
+                                handlePopoverClose();
+                              }}
+                            >
+                              Resend Invite
+                            </MenuItem>
+                          )}
+                          <MenuItem
+                            sx={{ color: "red" }}
+                            onClick={() => {
+                              DeleteTeamMember(popoverTeam);
+                              handlePopoverClose();
+                            }}
+                          >
+                            Delete
+                          </MenuItem>
+                        </div>
+                      </Popover>
+
                     </div>
                   );
                 })}
