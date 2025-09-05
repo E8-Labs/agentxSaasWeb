@@ -1033,7 +1033,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             Phone Number
                         </div>
                     </div>
-                    <div className="max-h-60 overflow-y-auto pr-2 space-y-4">
+                    <div className="max-h-60 overflow-y-auto w-full pr-2 space-y-4">
                         {teamMembers.map((member, index) => (
                             <div
                                 key={index}
@@ -1043,13 +1043,13 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                 <input
                                     type="text"
                                     placeholder="Full Name"
-                                    className="px-3 py-2 border border-gray-300 rounded-lg flex-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                    className="px-3 py-2 border border-gray-300 rounded-lg w-1/3 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
                                     value={member.name}
                                     onChange={(e) => handleChange(index, 'name', e.target.value)}
                                     style={styles.inputs}
                                 />
 
-                                <div className='flex-1'>
+                                <div className='w-1/3'>
                                     <input
                                         type="email"
                                         placeholder="Email"
@@ -1073,7 +1073,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     </div>
                                 </div>
 
-                                <div className="flex flex-row items-center overflow-hidden flex-1">
+                                <div className="flex flex-row items-center overflow-hidden w-1/3">
                                     <div className='w-[90%] flex flex-row items-center'>
                                         <div className="w-full">
                                             <PhoneInput
