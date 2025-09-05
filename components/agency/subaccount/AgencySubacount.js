@@ -478,9 +478,10 @@ function AgencySubacount({
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>
-                        {convertSecondsToMinDuration(
+                        {/*convertSecondsToMinDuration(
                           item.totalSecondsAvailable || 0
-                        )}
+                        )*/}
+                        {item?.plan?.minutes || 0} Min
                       </div>
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
