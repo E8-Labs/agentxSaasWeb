@@ -75,6 +75,8 @@ function AdminAllCalls({ selectedUser }) {
   const requestVersion = useRef(0);
 
   const filterRef = useRef(null);
+  const fromCalendarRef = useRef(null);
+  const toCalendarRef = useRef(null);
 
 
   const statusList = [
@@ -1105,7 +1107,9 @@ function AdminAllCalls({ selectedUser }) {
                     setSelectedFromDate(null);
                     setSelectedToDate(null);
                     setSelectedStageIds([]);
-                    getLeads()
+                    setSelectedStatus([]);
+                    setSelectedPipeline("");
+                    setFiltersChanged(prev => !prev);
                     setShowFilterModal(false)
                     // if (typeof window !== "undefined") {
                     //   window.location.reload();
