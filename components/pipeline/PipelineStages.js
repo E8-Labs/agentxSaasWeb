@@ -31,6 +31,7 @@ import SMSTempletePopup from "./SMSTempletePopup";
 import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
 import AuthSelectionPopup from "./AuthSelectionPopup";
 import { PersistanceKeys } from "@/constants/Constants";
+import { getUserLocalData, UpgradeTag } from "../constants/constants";
 
 const PipelineStages = ({
   stages,
@@ -135,6 +136,8 @@ const PipelineStages = ({
 
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
 
+  const [user, setUser] = useState(null)
+
   const ACTIONS = [
     { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
     { value: "sms", label: "Text", icon: '/otherAssets/smsIcon.png', focusedIcon: '/otherAssets/blueSmsIcon.png' },
@@ -165,7 +168,9 @@ const PipelineStages = ({
   };
 
   const handleSelectAdd = async (stageIndex, value) => {
-
+    if (user?.planCapabilities.allowTextMessages === false && value == "sms") {
+      return
+    }
     if (value != "call") {
       setSelectedIndex(stageIndex)
       setSelectedType(value)
@@ -174,7 +179,7 @@ const PipelineStages = ({
         setShowAuthSelectionPopup(true)
       } else {
         setShowSmsTempPopup(true)
-       
+
       }
       // }
     } else {
@@ -183,7 +188,7 @@ const PipelineStages = ({
       } else {
         addRow(stageIndex, value);
         closeAddMenu(stageIndex);
-        
+
       }
     }
     // closeAddMenu(stageIndex);
@@ -229,7 +234,14 @@ const PipelineStages = ({
 
 
 
+
+
+
   useEffect(() => {
+
+    let data = getUserLocalData()
+    console.log('user local data', data)
+    setUser(data.user)
     getMyTeam();
     getNumbers()
   }, []);
@@ -250,8 +262,16 @@ const PipelineStages = ({
   }
 
   const getNumbers = async () => {
+
+    let data = localStorage.getItem("selectedUser")
+    let selectedUser  = null
+    if(data){
+       selectedUser = JSON.parse(data)
+      console.log("selected user data from local",selectedUser)
+    }
     setPhoneLoading(true)
-    let num = await getA2PNumbers()
+    let id = selectedUser?.id
+    let num = await getA2PNumbers(id)
     if (num) {
       setPhoneNumbers(num)
     }
@@ -646,7 +666,7 @@ const PipelineStages = ({
 
 
   const shouldDisable = (item) => {
-    if (item.value == "sms" && phoneNumbers.length === 0) {// 
+    if (item.value == "sms" && (phoneNumbers.length === 0)) {// 
       return true
     } else {
       return false
@@ -1004,13 +1024,14 @@ const PipelineStages = ({
                                                   }
 
                                                 </div>
+
+
                                                 <button onClick={(e) => handleEditRow(index, row, e)}>
                                                   <Image src={'/svgIcons/editIconPurple.svg'}
                                                     height={16} width={16} alt="*"
                                                   />
                                                 </button>
                                               </div>
-
                                             </div>
                                           </div>
                                         </div>
@@ -1121,6 +1142,13 @@ const PipelineStages = ({
                                                   />
 
                                                   <div style={{ fontSize: 15, fontWeight: '400' }}>{a.label}</div>
+                                                  {
+                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
+
+                                                    <button className="ml-2">
+                                                      <UpgradeTag />
+                                                    </button>
+                                                  }
 
                                                 </div>
                                                 {
@@ -1674,7 +1702,7 @@ const PipelineStages = ({
               onClose={() => setShowAuthSelectionPopup(false)}
               showEmailTemPopup={showEmailTemPopup}
               setShowEmailTempPopup={setShowEmailTempPopup}
-              setSelectedGoogleAccount={(account)=> {
+              setSelectedGoogleAccount={(account) => {
                 console.log('PipelineStages: setSelectedGoogleAccount called with:', account)
                 setSelectedGoogleAccount(account)
               }}
@@ -1688,12 +1716,12 @@ const PipelineStages = ({
               setEditingStageIndex(null);
               closeAddMenu(selectedIndex)
             }}
-              setSelectedGoogleAccount={(account)=> {
+              setSelectedGoogleAccount={(account) => {
                 console.log(`PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`)
                 setSelectedGoogleAccount(account)
               }}
               selectedGoogleAccount={selectedGoogleAccount}
-              onGoogleAccountChange={(account)=>{
+              onGoogleAccountChange={(account) => {
                 console.log(`PipelineStages: onGoogleAccountChange called with: ${account}`)
                 setSelectedGoogleAccount(account)
               }}

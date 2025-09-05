@@ -25,7 +25,7 @@ export default function ChipInput({
       {ccEmails?.map((chip, index) => (
         <div
           key={index}
-          className="px-3 py-2 bg-[#F9F9F9] rounded-full border border-[#00000010] flex flex-row items-center gap-2 flex-shrink-0"
+          className="px-3 py-2 bg-[#F9F9F9] rounded-full border border-[#00000020] flex flex-row items-center gap-2 flex-shrink-0"
         >
           <div className="h-[20px] w-[20px] rounded-full bg-black flex flex-row items-center justify-center text-white text-[12px] font-medium">
             {chip.charAt(0).toUpperCase()}

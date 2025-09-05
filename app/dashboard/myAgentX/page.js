@@ -85,6 +85,7 @@ import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/Duplicat
 import TestEmbed from "@/app/test-embed/page";
 import UpgradeModal from "@/constants/UpgradeModal";
 import UpgardView from "@/constants/UpgardView";
+import { UpgradeTag } from "@/components/constants/constants";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -4420,33 +4421,38 @@ function Page() {
                         Call transfer number
                       </div>
                     </div>
-
-                    <div className="flex flex-row items-center justify-between gap-2">
-                      <div>
-                        {showDrawerSelectedAgent?.liveTransferNumber ? (
+                    {
+                      user?.user.planCapabilities.allowLiveCallTransfer ? (
+                        <div className="flex flex-row items-center justify-between gap-2">
                           <div>
-                            {showDrawerSelectedAgent?.liveTransferNumber}
+                            {showDrawerSelectedAgent?.liveTransferNumber ? (
+                              <div>
+                                {showDrawerSelectedAgent?.liveTransferNumber}
+                              </div>
+                            ) : (
+                              "-"
+                            )}
                           </div>
-                        ) : (
-                          "-"
-                        )}
-                      </div>
-                      <button
-                        onClick={() => {
-                          setShowEditNumberPopup(
-                            showDrawerSelectedAgent?.liveTransferNumber
-                          );
-                          setSelectedNumber("Calltransfer");
-                        }}
-                      >
-                        <Image
-                          src={"/svgIcons/editIcon2.svg"}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      </button>
-                    </div>
+                          <button
+                            onClick={() => {
+                              setShowEditNumberPopup(
+                                showDrawerSelectedAgent?.liveTransferNumber
+                              );
+                              setSelectedNumber("Calltransfer");
+                            }}
+                          >
+                            <Image
+                              src={"/svgIcons/editIcon2.svg"}
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          </button>
+                        </div>
+                      ) : (
+                        <UpgradeTag />
+                      )
+                    }
                   </div>
                 </div>
 

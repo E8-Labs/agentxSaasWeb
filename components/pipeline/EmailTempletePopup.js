@@ -685,7 +685,7 @@ function EmailTempletePopup({
 
                         </div>
 
-                        <div className="h-12 mt-2 rounded-[5px] px-[10px] py-7 border-2 rounded-lg border-[#00000010] flex flex-row items-center">
+                        <div className="h-12 mt-2 rounded-xl px-[10px] py-7 border rounded-lg border-[#00000020] flex flex-row items-center">
                             <div className="text-[#00000070] text-[15px] font-normal">CC:</div>
                             <ChipInput ccEmails={ccEmails} setccEmails={(text) => {
                                 setccEmails(text)
@@ -704,7 +704,7 @@ function EmailTempletePopup({
                         </div>
 
                         <input
-                            className='w-full h-12 px-[10px] py-7 mt-2 border-2 rounded-lg border-[#00000010]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
+                            className='w-full h-12 px-[10px] py-7 mt-2 border-1 rounded-xl border-[#00000020]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
                             placeholder='Template Name'
                             value={tempName}
                             onChange={(event) => {

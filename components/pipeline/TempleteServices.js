@@ -29,11 +29,14 @@ export const getTempletes = async (type) => {
 }
 
 
-export const getA2PNumbers = async () => {
+export const getA2PNumbers = async (id) => {
     try {
         let token = AuthToken()
         // console.log('token', token)
         let path = Apis.a2pNumbers
+        if(id){
+            path = path+"?userId="+id
+        }
 
         console.log('path', path)
 

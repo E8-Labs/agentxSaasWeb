@@ -51,6 +51,9 @@ export function SupportWidget({
     try {
       const agent = await getAgentByVapiId();
       const displayName = agent?.name || "Sky";
+      if (displayName.length > 10) {
+        displayName = displayName.slice(0, 10) + "...";
+      }
       setloadingMessage(`${displayName} is booting up...`);
 
       // follow-up beat after 3s
