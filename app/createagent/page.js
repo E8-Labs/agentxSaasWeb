@@ -106,9 +106,9 @@ const Page = () => {
             ]);
           } else {
             setComponents([
-              // CreateAgent1,
+              CreateAgent1,
               // CreatAgent3,
-              UserPlans,
+              // UserPlans,
               CreateAgent4,
               CreateAgentVoice,
             ]);
