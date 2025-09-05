@@ -206,6 +206,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
             showConfirmationPopuup={showConfirmationPopup}
             setShowConfirmationPopup={setShowConfirmationPopup}
             onContinue={() => {
+              localStorage.setItem("selectedUser",JSON.stringify(selectedUser))
               setShowConfirmationPopup(false);
               console.log("selectedAgent.id", selectedAgent.id);
               console.log(

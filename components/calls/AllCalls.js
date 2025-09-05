@@ -292,9 +292,9 @@ function AllCalls({ user }) {
   }, []);
 
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log('setFilteredCallDetails', filteredCallDetails)
-  },[filteredCallDetails])
+  }, [filteredCallDetails])
 
   //function for getting pipelines
   const getPipelines = async () => {
@@ -635,14 +635,20 @@ function AllCalls({ user }) {
           </div>
 
           <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
+
             <div className="w-2/12">
               <div style={styles.text}>Name</div>
             </div>
-            <div className="w-2/12 ">
-              <div style={styles.text}>Pipeline</div>
+
+            <div className="w-2/12">
+              <div style={styles.text}>Agent</div>
             </div>
+
             <div className="w-2/12">
               <div style={styles.text}>Contact Number</div>
+            </div>
+            <div className="w-2/12 ">
+              <div style={styles.text}>Pipeline</div>
             </div>
             <div className="w-1/12">
               <div style={styles.text}>Stage</div>
@@ -721,15 +727,14 @@ function AllCalls({ user }) {
                           {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                         </div>
                       </div>
-                      <div className="w-2/12 ">
-                        <div style={styles.text2}>
-                          {item.pipeline ? (
-                            <div>{item.pipeline?.title}</div>
-                          ) : (
-                            "-"
-                          )}
+                      <div
+                        className="w-2/12 flex flex-row gap-2 items-center flex-shrink-0"
+                      >
+                        <div style={{ ...styles.text2, }}>
+                          {item.agent?.name}
                         </div>
                       </div>
+
                       <div className="w-2/12">
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
@@ -737,6 +742,16 @@ function AllCalls({ user }) {
                             <div>
                               {formatPhoneNumber(item?.LeadModel?.phone)}
                             </div>
+                          ) : (
+                            "-"
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="w-2/12 ">
+                        <div style={styles.text2}>
+                          {item.pipeline ? (
+                            <div>{item.pipeline?.title}</div>
                           ) : (
                             "-"
                           )}
@@ -984,9 +999,9 @@ function AllCalls({ user }) {
                                 border: "none", // Remove the default outline
                               },
                               "&.Mui-focused .MuiOutlinedInput-notchedOutline":
-                                {
-                                  border: "none", // Remove outline on focus
-                                },
+                              {
+                                border: "none", // Remove outline on focus
+                              },
                               "&.MuiSelect-select": {
                                 py: 0, // Optional padding adjustments
                               },
@@ -1040,18 +1055,16 @@ function AllCalls({ user }) {
                               onClick={() => {
                                 handleSelectStage(item);
                               }}
-                              className={`p-2 border border-[#00000020] ${
-                                selectedStageIds.includes(item.id)
-                                  ? `bg-purple`
-                                  : "bg-transparent"
-                              } px-6
-                                                                ${
-                                                                  selectedStageIds.includes(
-                                                                    item.id
-                                                                  )
-                                                                    ? `text-white`
-                                                                    : "text-black"
-                                                                } rounded-2xl`}
+                              className={`p-2 border border-[#00000020] ${selectedStageIds.includes(item.id)
+                                ? `bg-purple`
+                                : "bg-transparent"
+                                } px-6
+                                                                ${selectedStageIds.includes(
+                                  item.id
+                                )
+                                  ? `text-white`
+                                  : "text-black"
+                                } rounded-2xl`}
                             >
                               {item.stageTitle}
                             </button>
@@ -1132,8 +1145,8 @@ function AllCalls({ user }) {
                           fontWeight: "600",
                           backgroundColor:
                             (selectedFromDate && selectedToDate) ||
-                            selectedStageIds.length > 0 ||
-                            selectedStatus.length > 0
+                              selectedStageIds.length > 0 ||
+                              selectedStatus.length > 0
                               ? ""
                               : "#00000050",
                         }}

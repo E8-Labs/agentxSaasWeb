@@ -114,32 +114,50 @@ export const checkCurrentUserRole = () => {
 export const copyAgencyOnboardingLink = ({
   setLinkCopied,
 
-}) =>{
-    // console.log("Agency uuid link copied trigering")
-    const d = localStorage.getItem("User");
-    const BasePath =
-        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-            ? "https://ai.myagentx.com/" //"https://www.blindcircle.com/agentx/"
-            : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
-    // console.log("Agency uuid link copied check 2", d)
-    if (d) {
-        console.log("Agency uuid link copied check 3")
-        const Data = JSON.parse(d);
-        // console.log("Agency uuid link copied check 4")
-        const UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
-        // console.log("Agency uuid link copied check 5")
-        console.log("Agency uuid link copied is", UUIDLink);
-        navigator.clipboard.writeText(UUIDLink)
-            .then(() => {
-                setLinkCopied(true);
-            })
-            .catch(err => {
-                console.error("Failed to copy: ", err);
-            });
-        const timer = setTimeout(() => {
-            setLinkCopied(false)
-        }, 500);
-        return () => clearTimeout(timer);
-    }
+}) => {
+  // console.log("Agency uuid link copied trigering")
+  const d = localStorage.getItem("User");
+  const BasePath =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? "https://ai.myagentx.com/" //"https://www.blindcircle.com/agentx/"
+      : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+  // console.log("Agency uuid link copied check 2", d)
+  if (d) {
+    console.log("Agency uuid link copied check 3")
+    const Data = JSON.parse(d);
+    // console.log("Agency uuid link copied check 4")
+    const UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
+    // console.log("Agency uuid link copied check 5")
+    console.log("Agency uuid link copied is", UUIDLink);
+    navigator.clipboard.writeText(UUIDLink)
+      .then(() => {
+        setLinkCopied(true);
+      })
+      .catch(err => {
+        console.error("Failed to copy: ", err);
+      });
+    const timer = setTimeout(() => {
+      setLinkCopied(false)
+    }, 500);
+    return () => clearTimeout(timer);
+  }
 }
 
+
+export const getUserLocalData = () =>{
+  let data = localStorage.getItem("User")
+  if(data){
+    let u = JSON.parse(data)
+
+    return  u
+  }
+}
+
+
+export const UpgradeTag = () => {
+  return (
+    <div className="bg-[#7902df10] items-cetner gap-2 p-2 rounded-lg text-purple text-[12px]">
+      Upgrade
+    </div >
+  )
+}

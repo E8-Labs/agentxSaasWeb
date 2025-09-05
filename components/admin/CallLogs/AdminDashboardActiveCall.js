@@ -127,7 +127,7 @@ function AdminDashboardActiveCall({ }) {
 
     // Check if we should load from cache (initial load with no pagination or sorting)
     const shouldLoadFromCache = !passedData?.length && !passedData?.sortData && !passedData?.isPagination;
-    
+
     if (shouldLoadFromCache) {
       const cache = localStorage.getItem(PersistanceKeys.LocalActiveCalls);
       if (cache) {
@@ -172,7 +172,7 @@ function AdminDashboardActiveCall({ }) {
         const agents = response.data.data;
         console.log("Fetched call activities from API:", agents.length, "items");
         console.log("Sample data structure:", agents[0]);
-        
+
         // Handle pagination vs initial load differently
         if (passedData?.isPagination) {
           // For pagination, append to existing data
@@ -192,13 +192,13 @@ function AdminDashboardActiveCall({ }) {
         console.log("Updated call activities data in UI");
         setInitialLoader(false);
         setLoading(false);
-        
+
         // Save to cache only for initial load (no pagination, sorting, or filters)
         if (shouldLoadFromCache) {
           localStorage.setItem(PersistanceKeys.LocalActiveCalls, JSON.stringify(agents));
           console.log("Saved call activities to cache:", agents.length, "items");
         }
-        
+
         if (agents.length < LimitPerPage) {
           setHasMore(false);
         }
@@ -841,11 +841,6 @@ function AdminDashboardActiveCall({ }) {
                                 </button>
 
                                 <div className="w-2/12 flex flex-row gap-4 items-center">
-                                  
-
-                                  <div>
-                                    {getAgentsListImage(agent?.agents[0])}
-                                  </div>
 
                                   <div style={styles.text2}>{
                                     agent?.agents[0].agentType === "outbound" ? (
@@ -1121,7 +1116,7 @@ function AdminDashboardActiveCall({ }) {
                                     )}
                                   </div>
                                   <div className="w-2/12 truncate">
-                                    {item?.PipelineStages?.stageTitle|| "-"}
+                                    {item?.PipelineStages?.stageTitle || "-"}
                                   </div>
                                 </div>
                               </div>
@@ -1143,7 +1138,10 @@ function AdminDashboardActiveCall({ }) {
       {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
-        onClose={() => setShowLeadDetailsModal(false)}
+        onClose={() => {
+          setShowLeadDetailsModal(false)
+          setFilteredSelectedLeadsList([])
+        }}
         closeAfterTransition
         BackdropProps={{
           timeout: 100,
@@ -1180,6 +1178,8 @@ function AdminDashboardActiveCall({ }) {
                 <button
                   onClick={() => {
                     setShowLeadDetailsModal(false);
+                    setFilteredSelectedLeadsList([])
+
                   }}
                 >
                   <Image

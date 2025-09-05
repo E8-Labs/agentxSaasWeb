@@ -11,6 +11,7 @@ import { PromptTagInput } from './tagInputs/PromptTagInput';
 import { createTemplete, getTempleteDetails, updateTemplete } from './TempleteServices';
 import { PersistanceKeys } from '@/constants/Constants';
 import { Plus } from '@phosphor-icons/react';
+import { getUserLocalData } from '../constants/constants';
 
 function SMSTempletePopup({
     open,
@@ -37,8 +38,11 @@ function SMSTempletePopup({
     const [showManu, setShowMenu] = useState(null);
 
     const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
+    const [user,setUser] = useState(null)
 
     useEffect(() => {
+        let data = getUserLocalData()
+        setUser(data.user)
         getColumns()
     }, [open])
 
@@ -378,8 +382,8 @@ function SMSTempletePopup({
                         <div className='text-[10px] font-[500] w-full mt-2' style={{
                             textAlign: 'end'
                         }}>
-                            {body.length} Characters <br />
-                            1 credit used out of <span className="text-purple"> 500</span>
+                            {body.length}/160<br/>
+                            10 text messages equal 1 credit. Balance:<span className="text-purple"> {user?.totalSecondsAvailable/60}</span>
                         </div>
 
                     </div>
