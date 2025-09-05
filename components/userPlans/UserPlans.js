@@ -239,9 +239,9 @@ function UserPlans({ handleContinue, handleBack }) {
                                 onMouseLeave={() => { setHoverPlan(null) }}
 
                                 className={`flex flex-col items-center w-3/12 rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
-                                 ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to[#C73BFF] p-2" : "border p-2"}
+                                 ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
                                 `}
-                                style={{ height: '70vh', minHeight: '600px' }}
+                                style={{ height: 'auto', minHeight: '600px' }}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>
@@ -275,70 +275,83 @@ function UserPlans({ handleContinue, handleBack }) {
                                         }
                                     </div>
 
-                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white w-full flex-1'>
-                                        <div className='text-3xl font-semibold mt-2'>
-                                            {item.name}
-                                        </div>
+                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full overflow-hidden'>
+                                        {/* Header section - fixed height */}
+                                        <div className='flex flex-col items-center w-full flex-shrink-0'>
+                                            <div className='text-3xl font-semibold mt-2'>
+                                                {item.name}
+                                            </div>
 
-                                        <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                            ${item.discountPrice || 0}
-                                        </div>
-                                        <div className='text-base font-normal'>
-                                            {item.calls} Calls* Per Month
-                                        </div>
-                                        <div className='text-[14px] font-normal text-black/50 '>
-                                            {item.details}
-                                        </div>
+                                            <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
+                                                ${item.discountPrice || 0}
+                                            </div>
+                                            <div className='text-base font-normal'>
+                                                {item.calls} Calls* Per Month
+                                            </div>
+                                            <div className='text-[14px] font-normal text-black/50 '>
+                                                {item.details}
+                                            </div>
 
-                                        <div
-                                            className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white text-base font-normal cursor-pointer"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleTogglePlanClick(item, index);
-                                                if (item.isFree) {
-                                                    setShowUpgradePlanPopup(true)
-                                                } else if (selectedDuration.id === 1) {
-                                                    // Monthly plan selected - show yearly plan modal
-                                                    setSelectedMonthlyPlan(item);
-                                                    setShowYearlyPlanModal(true);
-                                                } else {
-                                                    // Quarterly or Yearly plan - proceed directly
-                                                    setAddPaymentPopUp(true)
-                                                }
-                                            }}
-                                        >
-                                            Get Started
+                                            <div
+                                                className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white text-base font-normal cursor-pointer"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleTogglePlanClick(item, index);
+                                                    if (item.isFree) {
+                                                        setShowUpgradePlanPopup(true)
+                                                    } else if (selectedDuration.id === 1) {
+                                                        // Monthly plan selected - show yearly plan modal
+                                                        setSelectedMonthlyPlan(item);
+                                                        setShowYearlyPlanModal(true);
+                                                    } else {
+                                                        // Quarterly or Yearly plan - proceed directly
+                                                        setAddPaymentPopUp(true)
+                                                    }
+                                                }}
+                                            >
+                                                Get Started
+                                            </div>
                                         </div>
-                                        <div className='flex flex-col items-start w-[95%] flex-1 mt-4 overflow-hidden'>
+                                        
+                                        {/* Features container - scrollable */}
+                                        <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
                                             {index > 0 && (
-                                                <div className="w-full mb-4">
+                                                <div className="w-full mb-3 flex-shrink-0">
                                                     <div className="text-sm font-semibold text-black mb-2 text-left">
                                                         Everything in {getCurrentPlans()[index - 1]?.name}, and:
                                                     </div>
                                                 </div>
                                             )}
 
-                                            <div className='flex flex-col items-start w-full flex-1'>
+                                            <div className='flex flex-col items-start w-full flex-1 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2'>
                                                 {
                                                     item.features.map((feature, featureIndex) => (
-                                                        <div key={feature.text} className="flex flex-row items-center gap-3 mt-2">
-                                                            <Image src="/svgIcons/greenTick.svg" height={16} width={16} alt="✓" />
-                                                            <div
-                                                                className='flex flex-row items-center gap-2'
-                                                                style={{
-                                                                    whiteSpace: 'nowrap',
-                                                                    width: '100%',
-                                                                    borderWidth: 0,
-                                                                    overflow: 'hidden',
-                                                                    textOverflow: 'ellipsis',
-                                                                }}
-                                                            >
-                                                                <div className='text-sm font-normal'>
-                                                                    {feature.text} <span class="text-Gray text-xs font-normal font-['Inter'] leading-tight">
-                                                                        {feature.subtext}
-                                                                    </span>
+                                                        <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
+                                                            <Image src="/svgIcons/greenTick.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
+                                                            <div className='flex flex-col items-start gap-1 w-full min-w-0'>
+                                                                <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
+                                                                    <span>{feature.text}</span>
+                                                                    {feature.subtext && (
+                                                                        <Tooltip 
+                                                                            title={feature.subtext} 
+                                                                            arrow
+                                                                            placement="top"
+                                                                            sx={{
+                                                                                '& .MuiTooltip-tooltip': {
+                                                                                    fontSize: '12px',
+                                                                                    backgroundColor: '#333',
+                                                                                    color: '#fff',
+                                                                                    maxWidth: '200px'
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            <span className="w-3 h-3 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs cursor-pointer hover:bg-gray-500 flex-shrink-0">
+                                                                                i
+                                                                            </span>
+                                                                        </Tooltip>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         </div>

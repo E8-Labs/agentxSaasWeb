@@ -4,6 +4,7 @@ import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan.js";
 import ErrorBoundary from "@/components/ErrorBoundary.js";
 import BackgroundVideo from "@/components/general/BackgroundVideo.js";
 import { PersistanceKeys } from "@/constants/Constants.js";
+import { User } from "lucide-react";
 import dynamic from "next/dynamic.js";
 import { useEffect, useState } from "react";
 
@@ -105,8 +106,9 @@ const Page = () => {
             ]);
           } else {
             setComponents([
-              CreateAgent1,
+              // CreateAgent1,
               // CreatAgent3,
+              UserPlans,
               CreateAgent4,
               CreateAgentVoice,
             ]);
