@@ -45,7 +45,7 @@ export default function AddXBarPlan({
       setTitle(selectedPlan?.title);
       setTag(selectedPlan?.tag ?? "");
       setPlanDescription(selectedPlan?.planDescription);
-      setOriginalPrice((selectedPlan?.discountedPrice / selectedPlan?.minutes).toFixed(2));
+      setOriginalPrice((selectedPlan?.discountedPrice).toFixed(2));
       const OriginalPrice = selectedPlan?.originalPrice
       if (OriginalPrice > 0) {
         setDiscountedPrice(OriginalPrice);
