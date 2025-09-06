@@ -421,7 +421,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           handleContinue();
           // }
         } else if (response.data.status === false) {
-          setSnackMessage("Agent creation failed!");
+          // setSnackMessage("Agent creation failed!");
+          setSnackMessage(response?.data?.message ? response.data.message : "Agent creation failed!");
           setMsgType(SnackbarTypes.Error);
           setBuildAgentLoader(false);
         }
