@@ -11,6 +11,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import { PersistanceKeys } from "@/constants/Constants";
 import LeadLoading from "@/components/dashboard/leads/LeadLoading";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import moment from "moment";
 
 function Page() {
   // //console.log;
@@ -54,7 +55,7 @@ function Page() {
       </div>
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
+        {["All Calls", "Call Activities"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}

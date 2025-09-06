@@ -560,6 +560,21 @@ function AdminDashboardActiveCall({ }) {
     }
   }
 
+  function getCallStatusWithSchedule(item) {
+    const currentTime = moment();
+    const startTime = moment(item.startTime);
+    
+    // Check if the call is scheduled in the future
+    if (item.startTime && startTime.isAfter(currentTime)) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD');
+      return `Scheduled - ${formattedDate}`;
+    }
+    
+    // Return the regular readable status for past or current calls
+    return getReadableStatus(item.status);
+  }
+
   return (
     <div className="w-full items-start overflow-hidden">
       <Popover
@@ -871,7 +886,7 @@ function AdminDashboardActiveCall({ }) {
                                     "-"
                                   )}
                                 </div>
-                                <div className="w-2/12">{item.status}</div>
+                                <div className="w-2/12">{getCallStatusWithSchedule(item)}</div>
                                 <div className="w-1/12">
                                   <button
                                     aria-describedby={id}

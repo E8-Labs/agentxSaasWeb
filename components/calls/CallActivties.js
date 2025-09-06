@@ -651,6 +651,22 @@ function SheduledCalls({ user }) {
     return name.length > 0 ? name?.slice(0, 1).toUpperCase() : "";
   }
 
+  // Function to get call status with scheduled date if applicable
+  function getCallStatusWithSchedule(item) {
+    const currentTime = moment();
+    const startTime = moment(item.startTime);
+    
+    // Check if the call is scheduled in the future
+    if (item.startTime && startTime.isAfter(currentTime)) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD');
+      return `Scheduled - ${formattedDate}`;
+    }
+    
+    // Return the regular readable status for past or current calls
+    return getReadableStatus(item.status);
+  }
+
   return (
     <div className="w-full items-start overflow-hidden">
       {initialLoader ? (
@@ -846,7 +862,7 @@ function SheduledCalls({ user }) {
                                     )}
                                   </div>
                                   <div className="w-1/12">
-                                    {getReadableStatus(item.status)}
+                                    {getCallStatusWithSchedule(item)}
                                   </div>
                                   <div className="w-1/12">
                                     <button
