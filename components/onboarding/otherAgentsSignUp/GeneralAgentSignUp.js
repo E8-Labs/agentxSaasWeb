@@ -26,7 +26,7 @@ import { getLocalLocation } from "../services/apisServices/ApiService";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
 
-const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete,handleShowRedirectPopup }) => {
+const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete, handleShowRedirectPopup }) => {
   const verifyInputRef = useRef([]);
   const timerRef = useRef(null);
 
@@ -94,7 +94,7 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
       userEmail &&
       userPhoneNumber &&
       userFarm &&
-     company &&
+      company &&
       emailCheckResponse?.status === true &&
       checkPhoneResponse?.status === true
     ) {
@@ -345,6 +345,13 @@ const GeneralAgentSignUp = ({ handleContinue, handleBack, length = 6, onComplete
             screenWidth = window.innerWidth; // Get current screen width
           }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
           //console.log;
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);

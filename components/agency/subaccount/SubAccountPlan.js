@@ -439,7 +439,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                                   <div className="flex flex-row justify-start items-start">
                                     <div style={styles.discountedPrice}>
                                       {/*item.hasTrial ? "" : "$"*/}$
-                                      {item.discountedPrice}
+                                      {item?.discountedPrice ? formatDecimalValue(item?.discountedPrice) : 0}
                                     </div>
                                     <p style={{ color: "#15151580" }}>/mo*</p>
                                   </div>

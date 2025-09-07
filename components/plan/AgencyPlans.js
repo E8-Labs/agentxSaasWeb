@@ -711,7 +711,7 @@ function AgencyPlans() {
                                                         </div>
 
                                                         <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${formatDecimalValue(item.ratePerMin)} per min
+                                                            ${item.ratePerMin} per min
                                                         </div>
 
                                                         <div className="mt-3 mb-3">

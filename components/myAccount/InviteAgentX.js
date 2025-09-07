@@ -9,6 +9,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import PlansService from "@/utilities/PlansService";
+import { formatDecimalValue } from "../agency/agencyServices/CheckAgencyData";
 
 function InviteAgentX({ isSubAccount }) {
   const [userDetails, setUserDetails] = useState(null);
@@ -83,15 +84,20 @@ function InviteAgentX({ isSubAccount }) {
 
       //// //console.log;
 
-      if (togglePlan === 1) {
-        planType = "Plan30";
-      } else if (togglePlan === 2) {
-        planType = "Plan120";
-      } else if (togglePlan === 3) {
-        planType = "Plan360";
-      } else if (togglePlan === 4) {
-        planType = "Plan720";
+      if (isSubAccount) {
+        planType = togglePlan
+      } else {
+        if (togglePlan === 1) {
+          planType = "Plan30";
+        } else if (togglePlan === 2) {
+          planType = "Plan120";
+        } else if (togglePlan === 3) {
+          planType = "Plan360";
+        } else if (togglePlan === 4) {
+          planType = "Plan720";
+        }
       }
+
 
       // //console.log;
 
@@ -105,15 +111,27 @@ function InviteAgentX({ isSubAccount }) {
 
       // //console.log;
 
-      const ApiData = {
+      let ApiData = {
         plan: planType,
         payNow: true,
       };
 
+      const formData = new FormData();
+
       // //console.log;
 
-      const ApiPath = Apis.subscribePlan;
-      // //console.log;
+      let ApiPath = Apis.subscribePlan;
+      if (isSubAccount) {
+        formData.append("planId", togglePlan);
+        ApiPath = Apis.subAgencyAndSubAccountPlans;
+        ApiData = formData;
+      }
+
+      if (isSubAccount) {
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key} = ${value}`);
+        }
+      }
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -356,105 +374,242 @@ function InviteAgentX({ isSubAccount }) {
                 <CircularProgress size={30} />
               </div>
             ) : (
-              <div className="w-full flex flex-col items-center">
-                {plans.map((item, index) => (
-                  <button
-                    key={item.id}
-                    className="w-10/12 mt-4"
-                    onClick={(e) => handleTogglePlanClick(item)}
-                  >
-                    <div
-                      className="px-4 py-1 pb-4"
-                      style={{
-                        ...styles.pricingBox,
-                        border:
-                          item.id === togglePlan
-                            ? "2px solid #7902DF"
-                            : "1px solid #15151520",
-                        backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-                      }}
+              isSubAccount ? (
+                <div className="w-full flex flex-col items-center">
+                  {plans.map((item, index) => (
+                    <button
+                      key={item.id}
+                      className="w-10/12 mt-4"
+                      onClick={(e) => handleTogglePlanClick(item)}
                     >
-                      <div
-                        style={{
-                          ...styles.triangleLabel,
-                          borderTopRightRadius: "7px",
-                        }}
-                      ></div>
-                      <span style={styles.labelText}>{item.planStatus}</span>
-                      <div
-                        className="flex flex-row items-start gap-3"
-                        style={styles.content}
-                      >
-                        <div className="mt-1">
-                          <div>
-                            {item.id === togglePlan ? (
-                              <Image
-                                src={"/svgIcons/checkMark.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            ) : (
-                              <Image
-                                src={"/svgIcons/unCheck.svg"}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            )}
+                      {item.hasTrial && (
+                        <div className="w-full rounded-t-lg bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2">
+                          <div className="flex flex-row items-center gap-2">
+                            <Image
+                              src={"/otherAssets/batchIcon.png"}
+                              alt="*"
+                              height={24}
+                              width={24}
+                            />
+                            <div
+                              style={{
+                                fontWeight: "600",
+                                fontSize: 18,
+                                color: "white",
+                              }}
+                            >
+                              First {item.hasTrial == true && (`| ${item.trialValidForDays}`)} Days Free
+                            </div>
                           </div>
                         </div>
-                        <div className="w-full">
-                          <div
-                            className="flex flex-row items-center gap-2"
-                            style={{
-                              color: "#151515",
-                              fontSize: 20,
-                              fontWeight: "600",
-                            }}
-                          >
-                            {item.mints}mins | {item.calls} Calls*
+                      )}
+                      <div
+                        className="px-4 py-1 pb-4"
+                        style={{
+                          ...styles.pricingBox,
+                          border:
+                            item.id === togglePlan
+                              ? "2px solid #7902DF"
+                              : "1px solid #15151520",
+                          backgroundColor:
+                            item.id === togglePlan ? "#402FFF05" : "",
+                          // borderRadius: item.hasTrial == true ? "" : "10px",
+                          borderTopLeftRadius: item.hasTrial == true ? "" : "10px",
+                          borderTopRightRadius: item.hasTrial == true ? "" : "10px",
+                          borderBottomLeftRadius: "10px",
+                          borderBottomRightRadius: "10px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            ...styles.triangleLabel,
+                            borderTopRightRadius: item.hasTrial == true ? "" : "7px",
+                          }}
+                        ></div>
+                        <span style={styles.labelText}>
+                          {item?.percentageDiscount ? formatDecimalValue(item?.percentageDiscount) : 0}%
+                        </span>
+                        <div
+                          className="flex flex-row items-start gap-3"
+                          style={styles.content}
+                        >
+                          <div className="mt-1">
+                            <div>
+                              {item.id === togglePlan ? (
+                                <Image
+                                  src={"/svgIcons/checkMark.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              ) : (
+                                <Image
+                                  src={"/svgIcons/unCheck.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <div className="w-full">
+
                             {item.status && (
                               <div
-                                className="flex px-2 py-1 bg-purple rounded-full text-white"
-                                style={{ fontSize: 11.6, fontWeight: "500" }}
+                                className="-mt-[27px] sm:hidden px-2 py-1 bg-purple rounded-full text-white"
+                                style={{
+                                  fontSize: 11.6,
+                                  fontWeight: "500",
+                                  width: "fit-content",
+                                }}
                               >
                                 {item.status}
                               </div>
                             )}
-                          </div>
-                          <div className="flex flex-row items-center justify-between">
                             <div
-                              className="mt-2"
                               style={{
-                                color: "#15151590",
-                                fontSize: 12,
-                                width: "80%",
+                                color: "#151515",
+                                fontSize: 20,
                                 fontWeight: "600",
                               }}
+                              className="flex flex-row items-center gap-1"
                             >
-                              {item.details}
+                              {item.title} | {item.minutes} mins {" "}<span className="px-2 py-1 bg-purple ms-2 rounded-full text-white" style={{ fontSize: "14px", fontWeight: "500" }}>{item.tag}</span>
                             </div>
-                            <div className="flex flex-row items-center">
-                              {item.originalPrice && (
-                                <div style={styles.originalPrice}>
-                                  ${item.originalPrice}
+                            <div className="flex flex-row items-center justify-between">
+                              <div
+                                className="mt-2"
+                                style={{
+                                  color: "#15151590",
+                                  fontSize: 12,
+                                  width: "80%",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {item.planDescription}
+                              </div>
+                              <div className="flex flex-row items-center">
+                                {item.originalPrice && (
+                                  <div style={styles.originalPrice}>
+                                    ${item.originalPrice}
+                                  </div>
+                                )}
+                                <div className="flex flex-row justify-start items-start">
+                                  <div style={styles.discountedPrice}>
+                                    {/*item.hasTrial ? "" : "$"*/}$
+                                    {item?.discountedPrice ? formatDecimalValue(item?.discountedPrice) : 0}
+                                  </div>
+                                  <p style={{ color: "#15151580" }}>/mo*</p>
                                 </div>
-                              )}
-                              <div className="flex flex-row justify-start items-start ">
-                                <div style={styles.discountedPrice}>
-                                  ${item.discountPrice}
-                                </div>
-                                <p style={{ color: "#15151580" }}>/mo*</p>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="w-full flex flex-col items-center">
+                  {plans.map((item, index) => (
+                    <button
+                      key={item.id}
+                      className="w-10/12 mt-4"
+                      onClick={(e) => handleTogglePlanClick(item)}
+                    >
+                      <div
+                        className="px-4 py-1 pb-4"
+                        style={{
+                          ...styles.pricingBox,
+                          border:
+                            item.id === togglePlan
+                              ? "2px solid #7902DF"
+                              : "1px solid #15151520",
+                          backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                        }}
+                      >
+                        <div
+                          style={{
+                            ...styles.triangleLabel,
+                            borderTopRightRadius: "7px",
+                          }}
+                        ></div>
+                        <span style={styles.labelText}>{item.planStatus}</span>
+                        <div
+                          className="flex flex-row items-start gap-3"
+                          style={styles.content}
+                        >
+                          <div className="mt-1">
+                            <div>
+                              {item.id === togglePlan ? (
+                                <Image
+                                  src={"/svgIcons/checkMark.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              ) : (
+                                <Image
+                                  src={"/svgIcons/unCheck.svg"}
+                                  height={24}
+                                  width={24}
+                                  alt="*"
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <div className="w-full">
+                            <div
+                              className="flex flex-row items-center gap-2"
+                              style={{
+                                color: "#151515",
+                                fontSize: 20,
+                                fontWeight: "600",
+                              }}
+                            >
+                              {item.mints}mins | {item.calls} Calls*
+                              {item.status && (
+                                <div
+                                  className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                  style={{ fontSize: 11.6, fontWeight: "500" }}
+                                >
+                                  {item.status}
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex flex-row items-center justify-between">
+                              <div
+                                className="mt-2"
+                                style={{
+                                  color: "#15151590",
+                                  fontSize: 12,
+                                  width: "80%",
+                                  fontWeight: "600",
+                                }}
+                              >
+                                {item.details}
+                              </div>
+                              <div className="flex flex-row items-center">
+                                {item.originalPrice && (
+                                  <div style={styles.originalPrice}>
+                                    ${item.originalPrice}
+                                  </div>
+                                )}
+                                <div className="flex flex-row justify-start items-start ">
+                                  <div style={styles.discountedPrice}>
+                                    ${item.discountPrice}
+                                  </div>
+                                  <p style={{ color: "#15151580" }}>/mo*</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )
             )
           }
 
@@ -525,8 +680,9 @@ function InviteAgentX({ isSubAccount }) {
             </div>
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }
 
