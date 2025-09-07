@@ -327,6 +327,13 @@ const BasicDetails = ({
         setIsVisible(true);
         if (response.data.status === true) {
           // //console.log;
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
           localStorage.removeItem(PersistanceKeys.RegisterDetails);
           localStorage.setItem("User", JSON.stringify(response.data.data));
           //set cokie on locastorage to run middle ware
@@ -726,7 +733,7 @@ const BasicDetails = ({
                     paddingLeft: "60px",
                     paddingTop: "20px",
                     paddingBottom: "20px",
-                    fontSize: 15 
+                    fontSize: 15
                   }}
                   buttonStyle={{
                     border: "none",

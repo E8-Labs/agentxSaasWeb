@@ -261,8 +261,8 @@ const OtherDetails = ({
         }
       }
 
-    }else if (userData?.userTypeTitle === UserTypes.General ||userData?.userTypeTitle === UserTypes.Reception ) {
-      if (companyName  && userFarm) {
+    } else if (userData?.userTypeTitle === UserTypes.General || userData?.userTypeTitle === UserTypes.Reception) {
+      if (companyName && userFarm) {
         setShouldContinue(false);
       } else if (!companyName || !userFarm) {
         {
@@ -621,6 +621,13 @@ const OtherDetails = ({
 
           const screenWidth = window.innerWidth; // Get current screen width
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setShowVerifyPopup(false)
@@ -729,7 +736,7 @@ const OtherDetails = ({
           />
         )
       }
-      if (userData?.userTypeTitle === UserTypes.General 
+      if (userData?.userTypeTitle === UserTypes.General
         || userData.userTypeTitle == UserTypes.Reception
       ) {
         return (
@@ -1182,18 +1189,18 @@ const OtherDetails = ({
                             window.open("/embedCalendar", "_blank");
                             // window.close();
                           }}
-                          // onClick={() => {
-                          //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
-                          //   handleShowRedirectPopup();
-                          //   if (newTab && typeof newTab.document !== 'undefined') {
-                          //     newTab.document.write(`
-                          //     <script>
-                          //       window.opener && window.opener.close();  // Step 2: close current tab
-                          //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
-                          //     </script>
-                          //   `);
-                          //   }
-                          // }}
+                        // onClick={() => {
+                        //   const newTab = window.open('', '_blank'); // Step 1: open a blank tab
+                        //   handleShowRedirectPopup();
+                        //   if (newTab && typeof newTab.document !== 'undefined') {
+                        //     newTab.document.write(`
+                        //     <script>
+                        //       window.opener && window.opener.close();  // Step 2: close current tab
+                        //       window.location.href = '/embedCalendar'; // Step 3: go to desired page
+                        //     </script>
+                        //   `);
+                        //   }
+                        // }}
                         >
                           Get Started
                         </button>

@@ -421,6 +421,13 @@ const DebtCollectorAgentSignUp = ({
             //console.log;
             // handleContinue();
             handleShowRedirectPopup()
+            let user = response.data.data.user
+            // return
+            if (user.userRole === "AgencySubAccount") {
+              localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+                JSON.stringify(response.data.data)
+              )
+            }
             router.push("/createagent")
 
             // setCongratsPopup(true);

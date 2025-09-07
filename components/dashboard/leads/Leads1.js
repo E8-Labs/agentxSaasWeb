@@ -350,8 +350,8 @@ const Leads1 = () => {
             // Check if this default column is already mapped to another sheet column
             // We need to check the current state, not the old state
             const alreadyExists = NewColumnsObtained.some(
-              (existingItem) => 
-                existingItem.ColumnNameInSheet !== item.ColumnNameInSheet && 
+              (existingItem) =>
+                existingItem.ColumnNameInSheet !== item.ColumnNameInSheet &&
                 existingItem?.matchedColumn?.dbName === matchedColumnKey
             );
 
@@ -366,11 +366,11 @@ const Leads1 = () => {
             if (alreadyExists) {
               // Default column already used, treat this as custom column instead
               console.log(`Default column ${matchedColumnKey} already used, treating "${UpdatedColumnName}" as custom column`);
-              
+
               // Check if custom name already exists
               const customNameExists = NewColumnsObtained.some(
-                (existingItem) => 
-                  existingItem.ColumnNameInSheet !== item.ColumnNameInSheet && 
+                (existingItem) =>
+                  existingItem.ColumnNameInSheet !== item.ColumnNameInSheet &&
                   existingItem?.UserFacingName?.toLowerCase() === UpdatedColumnName.toLowerCase()
               );
 
@@ -394,8 +394,8 @@ const Leads1 = () => {
           } else {
             // No default column matches, check if custom name already exists
             const customNameExists = NewColumnsObtained.some(
-              (existingItem) => 
-                existingItem.ColumnNameInSheet !== item.ColumnNameInSheet && 
+              (existingItem) =>
+                existingItem.ColumnNameInSheet !== item.ColumnNameInSheet &&
                 existingItem?.UserFacingName?.toLowerCase() === UpdatedColumnName.toLowerCase()
             );
 
@@ -744,6 +744,10 @@ const Leads1 = () => {
       }
     });
 
+    window.dispatchEvent(
+      new CustomEvent("UpdateCheckList", { detail: { update: true } })
+    );
+
   };
 
 
@@ -934,15 +938,15 @@ const Leads1 = () => {
 
         {
           // !uploading && (
-            // <div
-            //   style={{
-            //     position: "absolute",
-            //     right: 0,
-            //     bottom: 0
-            //   }}>
-            //   <DashboardSlider
-            //     needHelp={false} />
-            // </div>
+          // <div
+          //   style={{
+          //     position: "absolute",
+          //     right: 0,
+          //     bottom: 0
+          //   }}>
+          //   <DashboardSlider
+          //     needHelp={false} />
+          // </div>
           // )
         }
 

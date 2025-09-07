@@ -581,6 +581,7 @@ function DashboardPlans({
                                                                                         // console.log('planType', planType)
                                                                                         handleDeletePlan()
                                                                                     }}
+                                                                                    selectedPlan={selectedPlan}
                                                                                 />
                                                                             )
                                                                         }

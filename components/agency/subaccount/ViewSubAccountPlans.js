@@ -317,7 +317,10 @@ const ViewSubAccountPlans = ({
                                                         </div>
                                                         <div className="flex flex-row items-center">
 
-                                                            <div className="flex flex-row justify-start items-start ">
+                                                            <div className="flex flex-row justify-start items-center">
+                                                                <div style={styles.originalPrice}>
+                                                                    ${formatDecimalValue(item.originalPrice)}
+                                                                </div>
                                                                 <div style={styles.discountedPrice}>
                                                                     ${formatDecimalValue(item.discountedPrice)}
                                                                 </div>
@@ -451,8 +454,8 @@ const styles = {
     },
     originalPrice: {
         textDecoration: "line-through",
-        color: "#7902DF65",
-        fontSize: 18,
+        color: "black",
+        fontSize: 15,
         fontWeight: "600",
     },
     discountedPrice: {

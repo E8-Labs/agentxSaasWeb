@@ -390,6 +390,13 @@ const SolarRepAgentSignUp = ({
             screenWidth = window.innerWidth; // Get current screen width
           }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);
@@ -709,11 +716,11 @@ const SolarRepAgentSignUp = ({
               <div style={{ marginTop: "8px" }}>
                 <PhoneInput
                   className="border outline-none bg-white"
-country={"us"} // restrict to US only
-                    onlyCountries={["us"]}
-                    disableDropdown={true}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}                  value={userPhoneNumber}
+                  country={"us"} // restrict to US only
+                  onlyCountries={["us"]}
+                  disableDropdown={true}
+                  countryCodeEditable={false}
+                  disableCountryCode={false} value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
                     locationLoader

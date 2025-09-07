@@ -343,6 +343,13 @@ const MarketerAgentSignUp = ({
             screenWidth = window.innerWidth; // Get current screen width
           }
           const SM_SCREEN_SIZE = 640; // Tailwind's sm breakpoint is typically 640px
+          let user = response.data.data.user
+          // return
+          if (user.userRole === "AgencySubAccount") {
+            localStorage.setItem(PersistanceKeys.SubaccoutDetails,
+              JSON.stringify(response.data.data)
+            )
+          }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
             setCongratsPopup(true);

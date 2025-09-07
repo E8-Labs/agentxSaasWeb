@@ -7,7 +7,8 @@ const DelConfirmationPopup = ({
     showDeleteModal,
     handleClose,
     handleDelete,
-    delLoading
+    delLoading,
+    selectedPlan
 }) => {
 
 
@@ -60,9 +61,20 @@ const DelConfirmationPopup = ({
 
                             <div className="mt-6">
 
-                                <div style={{ fontWeight: "500", fontSize: 15 }}>
-                                    This plan is currently assigned to active customers. <br />
-                                    Delete are you sure and this cannot be undone
+                                <div>
+                                    {
+                                        selectedPlan.subscriberCount > 0 ? (
+                                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                Cannot delete plan with active subscriptions. Please cancel or migrate subscribers before deleting this plan.
+                                                {/*Delete are you sure and this cannot be undone*/}
+                                            </div>
+                                        ) : (
+                                            <div style={{ fontWeight: "500", fontSize: 15 }}>
+                                                Are you sure to delete {selectedPlan.title} plan. <br />
+                                                This cannot be undone.
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -86,9 +98,9 @@ const DelConfirmationPopup = ({
                                     </div>
                                 ) : (
                                     <button
-                                        className="outline-none bg-red"
+                                        className={`outline-none ${selectedPlan.subscriberCount > 0 ? "bg-btngray" : "bg-red"}`}
                                         style={{
-                                            color: "white",
+                                            color: selectedPlan.subscriberCount > 0 ? "black" : "white",
                                             height: "50px",
                                             borderRadius: "10px",
                                             width: "100%",
@@ -96,6 +108,7 @@ const DelConfirmationPopup = ({
                                             fontSize: "20",
                                         }}
                                         onClick={handleDelete}
+                                        disabled={selectedPlan.subscriberCount > 0}
                                     >
                                         Yes! Delete Plan
                                     </button>
