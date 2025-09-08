@@ -24,6 +24,7 @@ import XBarConfirmationModal from "@/components/myAccount/XBarConfirmationModal"
 import { PersistanceKeys } from "@/constants/Constants";
 import { getMonthlyPlan, getXBarOptions } from "@/components/agency/subaccount/GetPlansList";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -484,7 +485,7 @@ function SubAccountBarServices({
                     <div
                       style={{ ...styles.triangleLabel, borderTopRightRadius: "7px" }}
                     ></div>
-                    <span style={styles.labelText}>{item?.percentageDiscount?.toFixed(2)}%</span>
+                    <span style={styles.labelText}>{formatDecimalValue(item?.percentageDiscount)}%</span>
                     <div
                       className="flex flex-row items-start gap-3"
                       style={styles.content}
@@ -582,15 +583,15 @@ function SubAccountBarServices({
           ) : (
             <button
               className="rounded-xl w-9/12 mt-8"
-              disabled={togglePlan === currentPlan}
+              disabled={Number(currentPlan) === Number(togglePlan)}
               style={{
                 height: "50px",
                 fontSize: 16,
                 fontWeight: "700",
                 flexShrink: 0,
                 backgroundColor:
-                  togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                color: togglePlan === currentPlan ? "#000000" : "#ffffff",
+                  Number(currentPlan) === Number(togglePlan) ? "#00000020" : "#7902DF",
+                color: Number(currentPlan) === Number(togglePlan) ? "#000000" : "#ffffff",
               }}
               onClick={() => {
                 setShowConfirmationModal(true);
