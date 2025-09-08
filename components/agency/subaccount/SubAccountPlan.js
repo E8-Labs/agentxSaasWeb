@@ -102,6 +102,7 @@ const SubAccountPlan = ({ handleContinue }) => {
       setInitialLoader(true);
       const Token = AuthToken();
       const ApiPath = Apis.getSubAccountPlans;
+      console.log("Api path for ge tplans api is", ApiPath);
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: "Bearer " + Token,
