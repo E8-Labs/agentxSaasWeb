@@ -466,7 +466,7 @@ function SubAccountBarServices({
                 <button
                   key={item.id}
                   className="w-9/12 mt-4 outline-none"
-                  disabled={togglePlan === currentPlan}
+                  disabled={Number(item.id) === Number(togglePlan)}
                   onClick={(e) => handleTogglePlanClick(item)}
                 >
                   <div
