@@ -466,6 +466,7 @@ function SubAccountBarServices({
                 <button
                   key={item.id}
                   className="w-9/12 mt-4 outline-none"
+                  disabled={togglePlan === currentPlan}
                   onClick={(e) => handleTogglePlanClick(item)}
                 >
                   <div
@@ -558,7 +559,7 @@ function SubAccountBarServices({
                             </div>
                             <div className="flex flex-row justify-start items-start ">
                               <div style={styles.discountedPrice}>
-                                ${item.originalPrice}
+                                ${item.discountedPrice}
                               </div>
                               <p style={{ color: "#15151580" }}>/mo*</p>
                             </div>

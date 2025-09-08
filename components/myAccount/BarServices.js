@@ -453,6 +453,7 @@ function BarServices() {
               key={item.id}
               className="w-full mt-4 outline-none"
               onClick={(e) => handleTogglePlanClick(item)}
+              disabled={togglePlan === currentPlan}
             >
               <div
                 className="px-4 py-1 pb-4"

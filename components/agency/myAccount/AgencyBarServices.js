@@ -432,6 +432,7 @@ function AgencyBarServices() {
             key={item.id}
             className="w-9/12 mt-4 outline-none"
             onClick={(e) => handleTogglePlanClick(item)}
+            disabled={togglePlan === currentPlan}
           >
             <div
               className="px-4 py-1 pb-4"

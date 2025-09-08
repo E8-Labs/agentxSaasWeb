@@ -151,7 +151,7 @@ function AdminXbarServices({ selectedUser }) {
       let response = await AdminGetProfileDetails(selectedUser.id);
       //console.log;
       if (response) {
-        console.log("Response of get profile apis is",response)
+        console.log("Response of get profile apis is", response)
         setRole(response?.userRole)
         let togglePlan = response?.supportPlan;
         // let togglePlan = plan?.type;
@@ -479,6 +479,7 @@ function AdminXbarServices({ selectedUser }) {
                   key={item.id}
                   className="w-9/12 mt-4 outline-none"
                   onClick={(e) => handleTogglePlanClick(item)}
+                  disabled={togglePlan === currentPlan}
                 >
                   <div
                     className="px-4 py-1 pb-4"
@@ -540,7 +541,7 @@ function AdminXbarServices({ selectedUser }) {
                               fontWeight: "600",
                             }}
                           >
-                            {role === "Agency" || selectedUser.agencyTeamMember === true?item.title:item.PlanTitle}
+                            {role === "Agency" || selectedUser.agencyTeamMember === true ? item.title : item.PlanTitle}
                           </div>
                           {item.status && (
                             <div
