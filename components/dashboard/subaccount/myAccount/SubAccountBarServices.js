@@ -510,7 +510,7 @@ function SubAccountBarServices({
                         </div>
                       </div>
                       <div className="w-full">
-                        {item.id === currentPlan && (
+                        {Number(item.id) === Number(currentPlan) && (
                           <div
                             className="-mt-[27px] flex px-2 py-1 bg-purple rounded-full text-white"
                             style={{
