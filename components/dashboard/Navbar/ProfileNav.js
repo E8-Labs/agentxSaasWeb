@@ -645,7 +645,7 @@ const ProfileNav = () => {
             if ((userPlan && userPlan.price <= 0 && isBalanceLow) || (!userPlan && isBalanceLow)) {
               console.log('User is on a free plan')
               // setShowPlansPopup(true);
-              showUpgradePlanModal(true)
+              setShowUpgradePlanModal(true)
 
             } else if (
               Data?.userRole === "AgencySubAccount" &&
@@ -672,7 +672,7 @@ const ProfileNav = () => {
               ) {
                 // if user comes first time then show plans popup
                 // setShowPlansPopup(true);
-                showUpgradePlanModal(true)
+                setShowUpgradePlanModal(true)
 
               } else if (
 
@@ -700,7 +700,7 @@ const ProfileNav = () => {
               } else {
                 console.log('no plans condition is true')
                 setShowPlansPopup(false);
-                showUpgradePlanModal(false)
+                setShowUpgradePlanModal(false)
 
                 setShowUpgradePlanBar(false)
                 setShowFailedPaymentBar(false)
@@ -709,7 +709,7 @@ const ProfileNav = () => {
             } else {
               console.log('no condition is true')
               setShowPlansPopup(false);
-              showUpgradePlanModal(false)
+              setShowUpgradePlanModal(false)
 
               setShowUpgradePlanBar(false)
               setShowFailedPaymentBar(false)

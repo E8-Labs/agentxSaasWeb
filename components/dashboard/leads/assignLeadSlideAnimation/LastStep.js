@@ -15,6 +15,8 @@ import { getAgentImage } from "@/utilities/agentUtilities";
 import DncConfirmationPopup from "../DncConfirmationPopup";
 import { RemoveSmartRefillApi, SmartRefillApi } from '@/components/onboarding/extras/SmartRefillapi';
 import { userLocalData } from '@/components/agency/plan/AuthDetails';
+import UpgradeModal from '@/constants/UpgradeModal';
+import { getUserLocalData } from '@/components/constants/constants';
 
 const LastStep = ({
   selectedLead,
@@ -55,13 +57,12 @@ const LastStep = ({
   const [showRefillToogle, setShwRefillToogle] = useState(false);
 
   const [userLocalDetails, setUserLocalDetails] = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   useEffect(() => {
-    const localData = userLocalData();
-    if (localData) {
-      console.log("Local data", localData);
-      setUserLocalDetails(localData);
-    }
+    const localData = getUserLocalData()
+      setUserLocalDetails(localData.user);
+    
   }, []);
 
   useEffect(() => {
@@ -381,9 +382,13 @@ const LastStep = ({
                   // color="#7902DF"
                   // exclusive
                   onChange={(event) => {
-                    setIsDncChecked(event.target.checked);
-                    if (event.target.checked) {
-                      setShowDncConfirmationPopup(true);
+                    if (userLocalDetails?.planCapabilities.maxDNCChecks >= userLocalDetails.currentUsage.maxDNCChecks) {
+                      setIsDncChecked(event.target.checked);
+                      if (event.target.checked) {
+                        setShowDncConfirmationPopup(true);
+                      } else {
+                        setShowUpgradeModal(true)
+                      }
                     }
                   }}
                   sx={{
@@ -872,6 +877,17 @@ const LastStep = ({
                   Continue
                 </button>
               )}
+
+              <UpgradeModal
+              open={showUpgradeModal}
+              handleClose={() => {
+                setShowUpgradeModal(false)
+              }}
+        
+              title={"You've Hit Your DNC Limit"}
+              subTitle={"Upgrade to add more DNC lists"}
+              buttonTitle={"No Thanks"}
+            />
             </div>
           )}
 

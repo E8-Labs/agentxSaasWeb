@@ -30,6 +30,9 @@ import MCPView from "./mcp/MCPView";
 import { MUICustomIcon } from "@/components/globalExtras/MUICustomIcon";
 import { MenuItemHoverStyles } from "@/components/globalExtras/MenuItemHoverStyles";
 import { Scopes } from "./Scopes";
+import { getUserLocalData } from "@/components/constants/constants";
+import UpgradeModal from "@/constants/UpgradeModal";
+import getProfileDetails from "@/components/apis/GetProfile";
 
 const UserCalender = ({
   calendarDetails,
@@ -40,12 +43,12 @@ const UserCalender = ({
   selectedUser,
   loadingCalenders = false,
   setSelectedAgent,
-  setShowDrawerSelectedAgent
+  setShowDrawerSelectedAgent,
 }) => {
 
   const justLoggedIn = useRef(false);
 
-  console.log("calender passed is", selectedAgent);
+  // console.log("calender passed is", selectedAgent);
 
 
 
@@ -107,6 +110,18 @@ const UserCalender = ({
   const [mcpName, setMcpName] = useState("");
   const [mcpUrl, setMcpUrl] = useState("");
   const [mcpDescription, setMcpDescription] = useState("");
+
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  },[])
+
 
 
   useEffect(() => {
@@ -544,7 +559,13 @@ const UserCalender = ({
 
           </div>
           {allCalendars.length > 0 &&
-            <button className="text-[13px] font-[500] text-purple" onClick={() => setShowCalendarConfirmation(true)}>
+            <button className="text-[13px] font-[500] text-purple" onClick={() => {
+              if (user?.currentUsage.maxCalendars < user?.planCapabilities.maxCalendars) {
+                setShowUpgradeModal(true)
+              } else {
+                setShowCalendarConfirmation(true)
+              }
+            }}>
               + Add Calendar
             </button>
           }
@@ -568,7 +589,7 @@ const UserCalender = ({
                     displayEmpty // Enables placeholder
                     // IconComponent={MUICustomIcon}
                     renderValue={(selected) => {
-                      console.log("Selected Render ", selected);
+                      // console.log("Selected Render ", selected);
                       if (!selected) {
                         return <div style={{ color: "#aaa" }}>Select</div>; // Placeholder style
                       }
@@ -731,6 +752,17 @@ const UserCalender = ({
               )}
             </div>
 
+            <UpgradeModal
+              open={showUpgradeModal}
+              handleClose={() => {
+                setShowUpgradeModal(false)
+              }}
+
+              title={"You've Hit Your Calendar Limit"}
+              subTitle={"Upgrade to add more Calendars"}
+              buttonTitle={"No Thanks"}
+            />
+
           </div>
         ) : (
           <NoCalendarView
@@ -741,6 +773,8 @@ const UserCalender = ({
             }}
           />
         )}
+
+
 
 
         <MCPView selectedAgent={selectedAgent}

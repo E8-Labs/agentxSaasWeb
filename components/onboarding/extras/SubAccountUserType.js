@@ -141,17 +141,27 @@ const SubAccountUserType = ({
             areaOfFocusTitle: "What type of loans do you primarily work with?",
             userType: "LoanOfficerAgent",
             roundedImage: false,
-        },
-
-        {
-            id: 100,
+        },{
+            id: 14,
+            title: "Reception Agent",
+            agentType: "Reception Agent",
+            // icon: "/usertype/avt2.png",
+            icon: "/agencyIcons/agentsView/receptionAgent.jpg",
+            areaOfFocusTitle: "What area do you focus on?",
+            userType: "ReceptionAgent",
+            roundedImage: false,
+          },
+          {
+            id: 15,
             title: "General Agent",
             agentType: "General Agent",
-            icon: "/agentXOrb.gif", //"/usertype/avt7.png",
-            areaOfFocusTitle: "How would you use AgentX?",
-            userType: "GenralAgent",
-            roundedImage: true,
-        },
+            // icon: "/usertype/avt2.png",
+            icon: "/agencyIcons/agentsView/generalAgent.jpg",
+            areaOfFocusTitle: "What area do you focus on?",
+            userType: "GeneralAgent",
+            roundedImage: false,
+          },
+
     ];
 
     return (

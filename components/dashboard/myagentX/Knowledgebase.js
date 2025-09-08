@@ -6,12 +6,16 @@ import KnowledgeBaseList from "@/components/admin/dashboard/KnowledgebaseList";
 import Apis from "@/components/apis/Apis";
 import { Plus } from "lucide-react";
 import axios from "axios";
+import UpgradeModal from "@/constants/UpgradeModal";
+import UpgardView from "@/constants/UpgardView";
 
-function Knowledgebase({ user, agent }) {
+function Knowledgebase({ user, agent
+}) {
   const [kb, setKb] = useState([]);
   const [showKbPopup, setShowKbPopup] = useState(false);
   const [kbDelLoader, setKbDelLoader] = useState(null);
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   useEffect(() => {
     GetKnowledgebase();
@@ -54,38 +58,53 @@ function Knowledgebase({ user, agent }) {
   }
 
   function GetNoKbView() {
-    return (
-      <div className="flex flex-col items-center justify-center mt-5   p-8 ">
-        <div className="flex flex-col w-[100%] items-center justify-center mt-2 gap-4 p-2 rounded-lg">
-          <img
-            src={"/assets/nokb.png"}
-            className=" object-fill "
-            style={{ height: 97, width: 130 }}
-            alt="No Knowledgebase"
-          />
+    if (user?.user.planCapabilities.allowKnowledgeBases === false) {
+      return (
+        <UpgardView
+          title={"Add Knowledge Base"}
+          subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+        />
+      )
+    } else
+      return (
+        <div className="flex flex-col items-center justify-center mt-5   p-8 ">
+          <div className="flex flex-col w-[100%] items-center justify-center mt-2 gap-4 p-2 rounded-lg">
+            <img
+              src={"/assets/nokb.png"}
+              className=" object-fill "
+              style={{ height: 97, width: 130 }}
+              alt="No Knowledgebase"
+            />
 
-          <div
-            className="text-lg font-semibold text-gray-900 italic"
-            style={{}}
-          >
-            No knowledge base added
-          </div>
-
-          <button
-            className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
-            onClick={() => addKnowledgebase()}
-          >
-            <Plus color="white"></Plus>
             <div
-              className="flex items-center justify-center  text-black text-white font-medium"
-              // Fixed typo
+              className="text-lg font-semibold text-gray-900 italic"
+              style={{}}
             >
-              Add New
+              No knowledge base added
             </div>
-          </button>
+
+            <button
+              className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
+              onClick={() => {
+                if (user?.user.planCapabilities.maxKnowledgeBases > user?.user.currentUsage.maxKnowledgeBases) {
+                  addKnowledgebase()
+                } else {
+                  setShowUpgradeModal(true)
+                }
+
+              }}
+            >
+              <Plus color="white"></Plus>
+              <div
+                className="flex items-center justify-center  text-black text-white font-medium"
+              // Fixed typo
+              >
+                Add New
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
   }
 
   async function handleDeleteKb(item) {
@@ -128,9 +147,16 @@ function Knowledgebase({ user, agent }) {
         // agent={agent}
         kbList={kb}
         onDelete={(item) => {
-          handleDeleteKb(item);
-        }}
+
+          if (user?.user.planCapabilities.maxKnowledgeBases > user?.user.currentUsage.maxKnowledgeBases) {
+            handleDeleteKb(item);
+          } else {
+            setShowUpgradeModal(true)
+          }
+        }
+        }
         onAddKnowledge={() => {
+
           setShowKbPopup(true);
         }}
         isLoading={kbDelLoader}
@@ -155,6 +181,17 @@ function Knowledgebase({ user, agent }) {
         onClose={() => setShowKbPopup(false)}
       />
       {GetViewToRender()}
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false)
+        }}
+
+        title={"You've Hit Your knowledgebase Limit"}
+        subTitle={"Upgrade to add more knowledgebase"}
+        buttonTitle={"No Thanks"}
+      />
     </div>
   );
 }

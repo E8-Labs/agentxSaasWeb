@@ -85,7 +85,9 @@ import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/Duplicat
 import TestEmbed from "@/app/test-embed/page";
 import UpgradeModal from "@/constants/UpgradeModal";
 import UpgardView from "@/constants/UpgardView";
-import { UpgradeTag } from "@/components/constants/constants";
+import { getUserLocalData, UpgradeTag } from "@/components/constants/constants";
+import AskToUpgrade from "@/constants/AskToUpgrade";
+import getProfileDetails from "@/components/apis/GetProfile";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -307,6 +309,8 @@ function Page() {
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
+  const [showAskToUpgradeModal, setShowAskToUPgradeModal] = useState(false)
+
   const playVoice = (url) => {
     if (audio) {
       audio.pause();
@@ -387,16 +391,8 @@ function Page() {
 
 
   useEffect(() => {
-    const setUserData = () => {
-      console.log('clotryin to set data')
-      const data = localStorage.getItem("User")
-      if (data) {
-        let u = JSON.parse(data)
-        console.log('data from local ', u)
-        setUser(u)
-      }
-    }
-    setUserData()
+    let data = getProfileDetails()
+    setUser(data)
   }, [])
   // get selected agent from local if calendar added by google
 
@@ -465,7 +461,7 @@ function Page() {
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
     scriptKeys.forEach((key) => {
-      if (flatExtraColumns.hasOwnProperty(key)) {
+      if (flatExtraColumns?.hasOwnProperty(key)) {
         updatedInputValues[key] = flatExtraColumns[key];
       }
     });
@@ -2204,7 +2200,7 @@ function Page() {
   //function to add new agent
   const handleAddNewAgent = (event) => {
     event.preventDefault();
-    if (user?.user?.plan?.price == 0) {
+    if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
       setShowUpgradeModal(true)
       return
     }
@@ -3055,6 +3051,13 @@ function Page() {
         title={"Unlock More Agents"}
         subTitle={"Upgrade to add more agents to your team and scale your calling power"}
         buttonTitle={"No Thanks"}
+      />
+
+      <AskToUpgrade
+        open={showAskToUpgradeModal}
+        handleClose={() => {
+          setShowAskToUPgradeModal(false)
+        }}
       />
 
       {/* Error snack bar message */}
@@ -4488,13 +4491,11 @@ function Page() {
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              user?.user?.plan?.price == 0 ? (
-                <div className="w-full">
-                  <UpgardView
-                    title={"Unlock Actions"}
-                    subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
-                  />
-                </div>
+              user?.user.planCapabilities.allowToolsAndActions === false ? (
+                <UpgardView
+                  title={"Unlock Actions"}
+                  subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                />
               ) :
                 <div>
                   <div
@@ -4514,6 +4515,7 @@ function Page() {
                     mainAgentId={MainAgentId}
                     previousCalenders={previousCalenders}
                     updateVariableData={updateAfterAddCalendar}
+                    setShowUpgradeModal={setShowUpgradeModal}
                   />
 
                 </div>
@@ -4526,36 +4528,22 @@ function Page() {
                 />
               </div>
             ) : activeTab === "Knowledge" ? (
-              user?.user?.plan?.price == 0 ? (
-                <div className="w-full">
-                  <UpgardView
-                    title={"Add Knowledge Base"}
-                    subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
-                  />
-                </div>
-              ) :
-                <div className="flex flex-col gap-4">
-                  <Knowledgebase user={user} agent={showDrawerSelectedAgent} />
-                </div>
+              <div className="flex flex-col gap-4">
+                <Knowledgebase user={user} agent={showDrawerSelectedAgent}
+                  setShowUpgradeModal={setShowUpgradeModal}
+                />
+              </div>
             ) : activeTab === "Voicemail" ? (
-              user?.user?.plan?.price == 0 ? (
-                <div className="w-full">
-                  <UpgardView
-                    title={"Enable Voicemail"}
-                    subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
-                  />
-                </div>
-              ) : (
-                <div className="flex flex-col gap-4 w-full">
-                  <VoiceMailTab
-                    setMainAgentsList={setMainAgentsList}
-                    agent={showDrawerSelectedAgent}
-                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                    kycsData={kycsData}
-                    uniqueColumns={uniqueColumns}
-                  />
-                </div>
-              )
+
+              <div className="flex flex-col gap-4 w-full">
+                <VoiceMailTab
+                  setMainAgentsList={setMainAgentsList}
+                  agent={showDrawerSelectedAgent}
+                  setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                  kycsData={kycsData}
+                  uniqueColumns={uniqueColumns}
+                />
+              </div>
             ) : (
               ""
             )}

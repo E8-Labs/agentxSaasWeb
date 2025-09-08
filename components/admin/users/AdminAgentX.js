@@ -349,7 +349,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
     scriptKeys.forEach((key) => {
-      if (flatExtraColumns.hasOwnProperty(key)) {
+      if (flatExtraColumns?.hasOwnProperty(key)) {
         updatedInputValues[key] = flatExtraColumns[key];
       }
     });

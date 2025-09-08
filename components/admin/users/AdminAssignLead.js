@@ -31,6 +31,7 @@ import DncConfirmationPopup from "@/components/dashboard/leads/DncConfirmationPo
 import Tooltip from "@mui/material/Tooltip";
 import AllowSmartRefillPopup from "@/components/dashboard/leads/AllowSmartRefillPopup";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import { GetTimezone } from "@/utilities/utility";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -123,7 +124,7 @@ const AdminAssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id+"&agentType=outbound";
+      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id + "&agentType=outbound";
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -270,7 +271,7 @@ const AdminAssignLead = ({
 
   const handleAssignLead = async () => {
     console.log('enter in function')
-    let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+    let userTimeZone = GetTimezone();
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
     const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
@@ -293,7 +294,7 @@ const AdminAssignLead = ({
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
-    console.log('wrrong time')
+      console.log('wrrong time')
 
       setInvalidTimeMessage(
         "Calls only between 7am-8:30pm"
@@ -340,7 +341,7 @@ const AdminAssignLead = ({
         batchSize: batchSize,
         selectedAll: selectedAll,
         dncCheck: isDncChecked ? true : false,
-        userId : userProfile.id
+        userId: userProfile.id
 
       };
 

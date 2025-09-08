@@ -12,6 +12,11 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { MenuItemHoverStyles } from '@/components/globalExtras/MenuItemHoverStyles';
 import IntroVideoModal from '@/components/createagent/IntroVideoModal';
 import { HowtoVideos } from '@/constants/Constants';
+import { getUserLocalData } from '@/components/constants/constants';
+import UpgradeModal from '@/constants/UpgradeModal';
+import UpgradePlanView from '@/components/callPausedPoupup/UpgradePlanView';
+import UpgardView from '@/constants/UpgardView';
+import getProfileDetails from '@/components/apis/GetProfile';
 
 
 
@@ -20,7 +25,8 @@ function MCPView({
     setType,
     setMessage,
     setIsVisible,
-    selectedUser
+    selectedUser,
+
 }) {
 
     const [mcpTools, setMcpTools] = useState([]);
@@ -54,6 +60,20 @@ function MCPView({
         message: "",
         isVisible: false
     });
+
+
+    const [user, setUser] = useState(null)
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+    useEffect(() => {
+        let data = getUserLocalData()
+        console.log('data', data)
+        setUser(data.user)
+    }, [setIsVisible])
+
+
 
     useEffect(() => {
         getMcps();
@@ -416,7 +436,11 @@ function MCPView({
                     </div>
                     {
                         mcpTools.length > 0 && (
-                            <button className="text-[13px] font-[500] text-purple" onClick={() => setShowAddMcpPopup(true)}>
+                            <button className="text-[13px] font-[500] text-purple" onClick={() => {
+
+                                setShowAddMcpPopup(true)
+
+                            }}>
                                 + Add Tool
                             </button>
                         )
@@ -632,54 +656,70 @@ function MCPView({
     const noMcpView = ({
         setShowAddMcpPopup
     }) => {
-        return (
+            return (
 
-            <div className="flex flex-col items-center justify-center h-[20] ">
-                {/* Icon Section */}
-                <div className="flex items-center justify-center w-24 h-24   rounded-lg">
-                    <img
-                        src="/otherAssets/noMCPIcon.jpg"
-                        alt="No Calendar Icon"
-                        className="w-12 h-12"
-                    />
-                </div>
+                <div className="flex flex-col items-center justify-center h-[20] ">
+                    {/* Icon Section */}
+                    <div className="flex items-center justify-center w-24 h-24   rounded-lg">
+                        <img
+                            src="/otherAssets/noMCPIcon.jpg"
+                            alt="No Calendar Icon"
+                            className="w-12 h-12"
+                        />
+                    </div>
 
-                {/* Text Section */}
-                <div className="-mt-2 text-center">
-                    <h3 className="text-[15] font-[400] text-gray-900 italic">
-                        No Tools added
-                    </h3>
-                    {/* <p className="mt-1 text-sm text-gray-500">
+                    {/* Text Section */}
+                    <div className="-mt-2 text-center">
+                        <h3 className="text-[15] font-[400] text-gray-900 italic">
+                            No Tools added
+                        </h3>
+                        {/* <p className="mt-1 text-sm text-gray-500">
                 Please add a calendar to lorem ipsum dolor miset.
               </p> */}
-                </div>
+                    </div>
 
-                {/* Button Section */}
-                <button
-                    className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
-                    onClick={() => {
-                        setShowAddMcpPopup(true)
-                    }}
-                >
-
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 mr-2"
-                        fill="#"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
+                    {/* Button Section */}
+                    <button
+                        className="mt-2 flex items-center px-6 py-3 bg-[#7902DF] font-semibold text-white rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        onClick={() => {
+                            if (user?.planCapabilities?.allowToolsAndActions === false) {
+                                setShowUpgradeModal(true)
+                            } else {
+                                setShowAddMcpPopup(true)
+                            }
+                        }}
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 4v16m8-8H4"
-                        />
-                    </svg>
-                    Add Tools
-                </button>
-            </div>
-        )
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5 mr-2"
+                            fill="#"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 4v16m8-8H4"
+                            />
+                        </svg>
+                        Add Tools
+                    </button>
+
+
+                    <UpgradeModal
+                        open={showUpgradeModal}
+                        handleClose={() => {
+                            setShowUpgradeModal(false)
+                        }}
+
+                        title={"Unlock Tools"}
+                        subTitle={"Upgrade to unlock Tools"}
+                        buttonTitle={"No Thanks"}
+                    />
+                </div>
+            )
     }
 
 

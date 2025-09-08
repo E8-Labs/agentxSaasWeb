@@ -58,6 +58,8 @@ import PipelineLoading from "./PipelineLoading";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import DashboardSlider from "../animations/DashboardSlider";
 import ConfigurePopup from "./ConfigurePopup";
+import { getUserLocalData } from "../constants/constants";
+import UpgradeModal from "@/constants/UpgradeModal";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -297,6 +299,17 @@ const Pipeline1 = () => {
   //variables for getting woorthy call logs
   const [importantCalls, setImportantCalls] = useState([]);
   const [selectedCall, setSelectedCall] = useState("");
+
+
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  }, [])
 
   useEffect(() => {
     getImportantCalls();
@@ -1962,7 +1975,13 @@ const Pipeline1 = () => {
                       <button
                         className="flex flex-row items-center gap-4"
                         onClick={() => {
-                          setCreatePipeline(true);
+
+                          if (user?.planCapabilities.maxPipelines > user?.currentUsage.maxPipelines) {
+                            setCreatePipeline(true);
+                          } else {
+                            setShowUpgradeModal(true)
+                          }
+
                         }}
                       >
                         <Plus size={17} weight="bold" />{" "}
@@ -2050,7 +2069,7 @@ const Pipeline1 = () => {
                 <div className="flex fex-row items-center gap-3">
                   <div
                     className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2 rounded-full"
-                    // style={{ borderRadius: "50px" }}
+                  // style={{ borderRadius: "50px" }}
                   >
                     <input
                       style={{ MozOutline: "none" }}
@@ -3999,6 +4018,18 @@ const Pipeline1 = () => {
               </div>
             </Box>
           </Modal>
+
+
+          <UpgradeModal
+            open={showUpgradeModal}
+            handleClose={() => {
+              setShowUpgradeModal(false)
+            }}
+
+            title={"You've Hit Your pipeline Limit"}
+            subTitle={"Upgrade to add more pipelines"}
+            buttonTitle={"No Thanks"}
+          />
           {/* Modal for lead details */}
           {showDetailsModal && (
             <LeadDetails

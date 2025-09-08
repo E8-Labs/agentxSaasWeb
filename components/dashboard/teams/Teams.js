@@ -23,6 +23,8 @@ import { logout } from "@/utilities/UserUtility";
 import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
+import UpgradeModal from "@/constants/UpgradeModal";
+
 
 function Teams({
   agencyData,
@@ -75,6 +77,10 @@ function Teams({
   const [popoverTeam, setPopoverTeam] = useState(null);
 
   const open = Boolean(anchorEl);
+
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
 
 
   //get local Data
@@ -644,7 +650,17 @@ function Teams({
                     height: "50px",
                     width: "173px",
                   }}
-                  onClick={() => setOpenInvitePopup(true)}
+
+
+
+
+                  onClick={() => {
+                    if (userLocalData?.planCapabilities.maxTeamMembers >= user?.currentUsage.maxTeamMembers) {
+                      setOpenInvitePopup(true)
+                    } else {
+                      setShowUpgradeModal(true)
+                    }
+                  }}
                 >
                   {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                 </button>
@@ -849,11 +865,31 @@ function Teams({
                       height: "50px",
                       width: "173px",
                     }}
-                    onClick={() => setOpenInvitePopup(true)}
+
+                    onClick={() => {
+                      if (userLocalData?.planCapabilities.maxTeamMembers > userLocalData?.currentUsage.maxTeamMembers) {
+                        setOpenInvitePopup(true)
+                      } else {
+                        setShowUpgradeModal(true)
+                      }
+                    }}
+
                   >
                     {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
+
+
+                <UpgradeModal
+                  open={showUpgradeModal}
+                  handleClose={() => {
+                    setShowUpgradeModal(false)
+                  }}
+
+                  title={"You've Hit Your Members Limit"}
+                  subTitle={"Upgrade to add more team members"}
+                  buttonTitle={"No Thanks"}
+                />
               </div>
             )}
           </div>

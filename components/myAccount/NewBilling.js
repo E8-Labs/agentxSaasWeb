@@ -1336,11 +1336,11 @@ function NewBilling() {
                 My Billing History
             </div>
 
-            <div className="w-full flex flex-row justify-between mt-10 px-10">
+            <div className="w-full flex flex-row justify-between mt-10 px-10 gap-3">
                 <div className="w-5/12">
                     <div style={styles.text}>Name</div>
                 </div>
-                <div className="w-2/12">
+                <div className="w-1/12">
                     <div style={styles.text}>Amount</div>
                 </div>
                 <div className="w-2/12">
@@ -1361,14 +1361,14 @@ function NewBilling() {
                         {PaymentHistoryData.map((item) => (
                             <div
                                 key={item.id}
-                                className="w-full flex flex-row justify-between mt-10 px-10"
+                                className="w-full flex flex-row gap-3 mt-10 px-10"
                             >
                                 <div className="w-5/12 flex flex-row gap-2">
                                     <div className="truncate" style={styles.text2}>
                                         {item.title}
                                     </div>
                                 </div>
-                                <div className="w-2/12">
+                                <div className="w-1/12">
                                     <div style={styles.text2}>${item.price.toFixed(2)}</div>
                                 </div>
                                 <div className="w-2/12 items-start">

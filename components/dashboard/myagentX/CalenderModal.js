@@ -43,7 +43,7 @@ function CalendarModal(props) {
 
   const [googleAuthDetails, setGoogleAuthDetails] = useState(null);
 
-  console.log("Status of ghl loader is", gHLCalenderLoader);
+  // console.log("Status of ghl loader is", gHLCalenderLoader);
 
   //code for adding ghl calendar
   const [status, setStatus] = useState(null);
@@ -57,7 +57,7 @@ function CalendarModal(props) {
     isVisible: false
   });
 
-  console.log("Props passed in calendar modal are", props);
+  // console.log("Props passed in calendar modal are", props);
 
   // If we are the popup landing back at "/" with ?code=..., send it to the opener, then close.
   useEffect(() => {

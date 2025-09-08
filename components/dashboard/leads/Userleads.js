@@ -50,6 +50,8 @@ import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { userLocalData } from "@/components/agency/plan/AuthDetails";
+import UpgradeModal from "@/constants/UpgradeModal";
+import { getUserLocalData } from "@/components/constants/constants";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -211,6 +213,16 @@ const Userleads = ({
   // const [selectedPipeline, setSelectedPipeline] = useState("");
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const filterRef = useRef(null);
+
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    setUser(data.user)
+  },[])
 
   const handleChange = (event) => {
     const selectedValue = event.target.value;
@@ -2083,7 +2095,12 @@ const Userleads = ({
                   style={styles.paragraph}
                   // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
-                    handleShowAddLeadModal(true);
+                    if (user?.planCapabilities.maxLeads > user?.currentUsage.maxLeads) {
+
+                      handleShowAddLeadModal(true);
+                    } else {
+                      setShowUpgradeModal(true)
+                    }
                   }}
                 >
                   <Plus size={15} color="#7902DF" weight="bold" />
@@ -2197,6 +2214,18 @@ const Userleads = ({
                 </div>
               )}
 
+
+
+              <UpgradeModal
+                open={showUpgradeModal}
+                handleClose={() => {
+                  setShowUpgradeModal(false)
+                }}
+
+                title={"You've Hit Your Leads Limit"}
+                subTitle={"Upgrade to add more Leads"}
+                buttonTitle={"No Thanks"}
+              />
               <Modal
                 open={showFilterModal}
                 closeAfterTransition

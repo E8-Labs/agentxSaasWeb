@@ -33,6 +33,7 @@ import AuthSelectionPopup from "./AuthSelectionPopup";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getUserLocalData, UpgradeTag } from "../constants/constants";
 
+
 const PipelineStages = ({
   stages,
   onUpdateOrder,
@@ -240,7 +241,7 @@ const PipelineStages = ({
   useEffect(() => {
 
     let data = getUserLocalData()
-    console.log('user local data', data)
+    // console.log('user local data', data)
     setUser(data.user)
     getMyTeam();
     getNumbers()
@@ -1143,7 +1144,7 @@ const PipelineStages = ({
 
                                                   <div style={{ fontSize: 15, fontWeight: '400' }}>{a.label}</div>
                                                   {
-                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
+                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" && !shouldDisable(a) &&
 
                                                     <button className="ml-2">
                                                       <UpgradeTag />

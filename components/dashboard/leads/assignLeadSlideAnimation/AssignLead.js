@@ -32,6 +32,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { GetTimezone } from "@/utilities/utility";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -369,7 +370,7 @@ const AssignLead = ({
   };
 
   const handleAssignLead = async () => {
-    let userTimeZone = userProfile.timeZone || "America/Los_Angeles";
+    let userTimeZone =GetTimezone() //userProfile.timeZone || "America/Los_Angeles";
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
     const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
@@ -380,21 +381,21 @@ const AssignLead = ({
 
     const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
     const isBeforeEndTime =
-      currentHour < 20 || (currentHour === 20 && currentMinute <= 30); // Before 8:30 PM
+      currentHour < 21 || (currentHour === 21 && currentMinute <= 0); // Before 9:00 PM
     if (
       isAfterStartTime && // After 7:00 AM
-      isBeforeEndTime // Before 8:30 PM
+      isBeforeEndTime // Before 9:00 PM
     ) {
       console.log(
-        "✅ Selected time is between 7 AM and 8:30 PM.",
+        "✅ Selected time is between 7 AM and 9 PM.",
         selectedDate.format()
       );
       // setSelectedDateTime(selectedDate);
     } else {
       //console.log;
       // setInvalidTimeMessage(
-      //   "Calls only between 7am-8:30pm"
-      //   // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
+      //   "Calls only between 7am-9pm"
+      //   // "Calling is only available between 7AM and 9PM in " + userTimeZone
       // );
       // return;
     }

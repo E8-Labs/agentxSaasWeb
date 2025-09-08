@@ -33,7 +33,7 @@ const getProfileDetails = async (selectedAgency) => {
       // //console.log;
       if (response?.data?.status === true) {
         localDetails.user = response.data.data;
-        // console.log("Get profile response is", response.data.data);
+        console.log("Get profile response is", response.data.data);
         if (!selectedAgency) {
           localStorage.setItem("User", JSON.stringify(localDetails));
         }
