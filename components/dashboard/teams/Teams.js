@@ -895,18 +895,7 @@ function Teams({
                     New Invite
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setOpenInvitePopup(false);
-                  }}
-                >
-                  <Image
-                    src={"/otherAssets/crossIcon.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
-                </button>
+                <CloseBtn onClick={() => { setOpenInvitePopup(false); }} />
               </div>
 
               <div

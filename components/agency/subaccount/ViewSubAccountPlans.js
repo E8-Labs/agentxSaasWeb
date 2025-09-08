@@ -7,6 +7,7 @@ import axios from 'axios';
 import { getMonthlyPlan } from './GetPlansList';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { formatDecimalValue } from '../agencyServices/CheckAgencyData';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const ViewSubAccountPlans = ({
     showPlans,
@@ -179,14 +180,7 @@ const ViewSubAccountPlans = ({
                     <div style={{ fontWeight: "600", fontSize: 18 }}>
                         View Plans
                     </div>
-                    <button onClick={hidePlans}>
-                        <Image
-                            src={"/assets/cross.png"}
-                            alt='*'
-                            height={14}
-                            width={20}
-                        />
-                    </button>
+                    <CloseBtn onClick={hidePlans} />
                 </div>
                 {/*selectedUser.plan.map((plan, index) => ())*/}
                 {

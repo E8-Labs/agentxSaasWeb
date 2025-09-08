@@ -9,6 +9,7 @@ import "react-phone-input-2/lib/style.css";
 import Image from 'next/image';
 import parsePhoneNumberFromString from 'libphonenumber-js';
 import { checkPhoneNumber, getLocalLocation } from '@/components/onboarding/services/apisServices/ApiService';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const NewInviteTeamModal = ({
     openInvitePopup,
@@ -291,16 +292,7 @@ const NewInviteTeamModal = ({
                                     >
                                         Invite Team
                                     </div>
-                                    <button
-                                        onClick={handleCloseInviteTeam}
-                                    >
-                                        <Image
-                                            src={"/otherAssets/crossIcon.png"}
-                                            height={24}
-                                            width={24}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn onClick={handleCloseInviteTeam} />
                                 </div>
 
                                 <div className="mb-4">

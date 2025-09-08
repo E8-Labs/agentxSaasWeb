@@ -1,3 +1,4 @@
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
@@ -59,17 +60,7 @@ const DelAdminUser = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
-                                        onClick={handleClose}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn onClick={handleClose} />
                                 </div>
                             </div>
 
@@ -155,17 +146,7 @@ const DelAdminUser = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
-                                        onClick={handleClosePauseModal}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn onClick={handleClosePauseModal} />
                                 </div>
                             </div>
 
