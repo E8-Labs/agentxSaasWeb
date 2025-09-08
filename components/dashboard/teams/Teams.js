@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import UpgradeModal from "@/constants/UpgradeModal";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 
 function Teams({
