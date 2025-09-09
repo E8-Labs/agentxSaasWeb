@@ -21,7 +21,7 @@ import NewInviteTeamModal from "./NewInviteTeamModal";
 import ViewSubAccountPlans from "./ViewSubAccountPlans";
 import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
-import { CheckStripe } from "../agencyServices/CheckAgencyData";
+import { CheckStripe, convertTime } from "../agencyServices/CheckAgencyData";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 
 
@@ -481,7 +481,7 @@ function AgencySubacount({
                         {/*convertSecondsToMinDuration(
                           item.totalSecondsAvailable || 0
                         )*/}
-                        {item?.plan?.minutes || 0} Min
+                        {convertTime(item?.totalSecondsAvailable) || 0}
                       </div>
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>

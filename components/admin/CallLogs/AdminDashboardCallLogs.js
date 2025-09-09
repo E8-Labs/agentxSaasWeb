@@ -72,7 +72,7 @@ function AdminDashboardCallLogs({ selectedAgency }) {
   const requestVersion = useRef(0);
 
   const [hasFetchedFromAPIOnce, setHasFetchedFromAPIOnce] = useState(false);
-const [linkCopied, setLinkCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
 
 
@@ -231,13 +231,13 @@ const [linkCopied, setLinkCopied] = useState(false);
 
     // First, try to load from cache if this is the initial load and no filters are applied
     const hasFilters = selectedFromDate || selectedToDate || selectedAgency || searchValue || selectedStatus.length > 0;
-    
+
     if ((offset === 0 || offset === null) && !hasFetchedFromAPIOnce && !hasFilters) {
       const cachedData = localStorage.getItem(PersistanceKeys.LocalAllCalls);
       if (cachedData) {
         try {
           const parsedCachedData = JSON.parse(cachedData);
-          console.log("Loading call logs from cache:", parsedCachedData.length, "items");
+          console.log("Loading call logs from cache:", parsedCachedData);
           setCallDetails(parsedCachedData);
           setFilteredCallDetails(parsedCachedData);
           setIsLocalCallsAvailable(true);
@@ -252,7 +252,7 @@ const [linkCopied, setLinkCopied] = useState(false);
     try {
       setLoading(true);
       setInitialLoader(true);
-      
+
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -306,7 +306,7 @@ const [linkCopied, setLinkCopied] = useState(false);
 
       if (response) {
         const data = response.data.data;
-        console.log("Fetched call logs from API:", data.length, "items");
+        console.log("Fetched call logs from API:", data);
 
         // If offset is 0, replace the calls completely, otherwise append
         let calls;
@@ -395,8 +395,8 @@ const [linkCopied, setLinkCopied] = useState(false);
         }
       </div>
 
-      <div className="flex w-full pl-10 flex-row items-center gap-3">
-        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2 mt-4">
+      <div className="flex w-full pl-10 flex-row items-center gap-3 mt-4">
+        <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border rounded-full pe-2">
           <input
             style={{ fontSize: 15 }}
             type="text"
@@ -476,7 +476,7 @@ const [linkCopied, setLinkCopied] = useState(false);
               </div>
             </div>
           ))}
-        </div>here
+        </div>
       </div>
 
 
@@ -504,181 +504,193 @@ const [linkCopied, setLinkCopied] = useState(false);
           <AdminDashboardScheduledCalls />
         ) : (
 
-          <div>
-            <div className="w-full flex flex-row justify-between mt-2 px-10 mt-4">
-              <div className="w-2/12">
-                <div style={styles.text}>Agency Name</div>
-              </div>
-              <div className="w-2/12">
-                <div style={styles.text}>Account Name</div>
-              </div>
-              <div className="w-2/12">
-                <div style={styles.text}>Agent Name</div>
-              </div>
-              <div className="w-2/12 ">
-                <div style={styles.text}>Agent Number</div>
-              </div>
-              <div className="w-2/12">
-                <div style={styles.text}>Contact Number</div>
-              </div>
-
-              <div className="w-1/12">
-                <div style={styles.text}>Status</div>
-              </div>
-              <div className="w-2/12">
-                <div style={styles.text}>Date</div>
-              </div>
-              <div className="w-1/12">
-                <div style={styles.text}>Time</div>
-              </div>
-              <div className="w-1/12">
-                <div style={styles.text}>More</div>
-              </div>
-            </div>
-
-            {initialLoader && filteredCallDetails.length == 0 && !isLocalCallsAvailable ? (
-              <div
-                className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
-              >
-                <CircularProgress size={35} thickness={2} />
-              </div>
-            ) : (
-              <div
-                className={`h-[67vh] border overflow-auto`}
-                id="scrollableDiv1"
-                style={{ scrollbarWidth: "none" }}
-              >
-                <InfiniteScroll
-                  className="lg:flex hidden flex-col w-full"
-                  endMessage={
-                    <p
-                      style={{
-                        textAlign: "center",
-                        paddingTop: "10px",
-                        fontWeight: "400",
-                        fontFamily: "inter",
-                        fontSize: 16,
-                        color: "#00000060",
-                      }}
-                    >
-                      {`You're all caught up`}
-                    </p>
+          <div clasSName="w-full">
+            <div
+              className={`h-[67vh] border overflow-y-auto w-full`}
+              id="scrollableDiv1"
+              style={{ scrollbarWidth: "none" }}
+            >
+              <InfiniteScroll
+                className="lg:flex hidden flex-col w-full"
+                endMessage={
+                  <p
+                    style={{
+                      textAlign: "center",
+                      paddingTop: "10px",
+                      fontWeight: "400",
+                      fontFamily: "inter",
+                      fontSize: 16,
+                      color: "#00000060",
+                    }}
+                  >
+                    {`You're all caught up`}
+                  </p>
+                }
+                scrollableTarget="scrollableDiv1"
+                dataLength={filteredCallDetails.length}
+                next={() => {
+                  //console.log;
+                  if (!loading && hasMore) {
+                    getCallLogs(filteredCallDetails.length);
                   }
-                  scrollableTarget="scrollableDiv1"
-                  dataLength={filteredCallDetails.length}
-                  next={() => {
-                    //console.log;
-                    if (!loading && hasMore) {
-                      getCallLogs(filteredCallDetails.length);
-                    }
 
-                  }} // Fetch more when scrolled
-                  hasMore={hasMore} // Check if there's more data
-                  loader={
+                }} // Fetch more when scrolled
+                hasMore={hasMore} // Check if there's more data
+                loader={
 
-                    <div className="w-full flex flex-row justify-center mt-8">
-                      <CircularProgress size={35} />
+                  <div className="w-full flex flex-row justify-center mt-8">
+                    <CircularProgress size={35} />
+                  </div>
+                }
+                style={{ overflow: "unset" }}
+              >
+                {initialLoader && filteredCallDetails.length == 0 && !isLocalCallsAvailable ? (
+                  <div
+                    className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
+                  >
+                    <CircularProgress size={35} thickness={2} />
+                  </div>
+                ) : (
+                  <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
+                    <div className="w-full flex flex-row mt-2 px-10 mt-4">
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Agency Name</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Account Name</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Agent Name</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0 ">
+                        <div style={styles.text}>Agent Number</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Contact Number</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Type</div>
+                      </div>
+
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Status</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Date</div>
+                      </div>
+                      <div className="min-w-[200px] flex-shrink-0">
+                        <div style={styles.text}>Time</div>
+                      </div>
+                      <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
+                        <div style={styles.text}>More</div>
+                      </div>
                     </div>
-                  }
-                  style={{ overflow: "unset" }}
-                >
-                  {filteredCallDetails?.length > 0 ? (
-                    <div>
-                      {filteredCallDetails.map((item, index) => (
-                        <div
-                          key={index}
-                          style={{ cursor: "pointer" }}
-                          className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
-                        >
-                          <div className="w-2/12">
-                            <div style={styles.text2}>
-                              {item.agency?.name || "AgentX Main Admin"}
-                            </div>
-                          </div>
-                          <div className="w-2/12 flex flex-row gap-2 items-center">
-                            <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                              {item.user?.name.slice(0, 1).toUpperCase()}
-                            </div>
-                            <div style={styles.text2}>
-                              {item.user?.name}
-                            </div>
-                          </div>
-                          <div className="w-2/12">
-                            <div style={styles.text2}>
-                              {item.agent?.name ? (
-                                <div>{item.agent.name}</div>
-                              ) : (
-                                "-"
-                              )}
-                            </div>
-                          </div>
-                          <div className="w-2/12 ">
-                            <div style={styles.text2}>
-                              {item.agent?.phoneNumber ? (
-                                <div>{item.agent.phoneNumber}</div>
-                              ) : (
-                                "-"
-                              )}
-                            </div>
-                          </div>
-                          <div className="w-2/12">
-                            {/* (item.LeadModel?.phone) */}
-                            <div style={styles.text2}>
-                              {item.LeadModel?.phone ? (
-                                <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
-                              ) : (
-                                "-"
-                              )}
-                            </div>
-                          </div>
 
-                          <div className="w-1/12">
-                            <div style={styles.text2}>
-                              {item?.callOutcome ? item?.callOutcome : "Ongoing"}
+
+
+                    {filteredCallDetails?.length > 0 ? (
+                      <div>
+                        {filteredCallDetails.map((item, index) => (
+                          <div
+                            key={index}
+                            style={{ cursor: "pointer" }}
+                            className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                          >
+                            <div className="min-w-[200px] flex-shrink-0">
+                              <div style={styles.text2}>
+                                {item.agency?.name || "AgentX Main Admin"}
+                              </div>
                             </div>
-                          </div>
-                          <div className="w-2/12">
-                            <div style={styles.text2}>
-                              {GetFormattedDateString(item?.createdAt)}
+                            <div className="min-w-[200px] flex-shrink-0 flex flex-row gap-2 items-center">
+                              <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                                {item.user?.name.slice(0, 1).toUpperCase()}
+                              </div>
+                              <div style={styles.text2}>
+                                {item.user?.name}
+                              </div>
                             </div>
-                          </div>
-                          <div className="w-1/12">
-                            <div style={styles.text2}>
-                              {GetFormattedTimeString(item?.createdAt)}
+                            <div className="min-w-[200px] flex-shrink-0">
+                              <div style={styles.text2}>
+                                {item.agent?.name ? (
+                                  <div>{item.agent.name}</div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
                             </div>
-                          </div>
-                          <div className="w-1/12">
-                            <button
-                              onClick={() => {
-                                setselectedLeadsDetails(item);
-                                setShowDetailsModal(true);
-                              }}
-                            >
-                              <div
-                                style={{
-                                  fontSize: 12,
-                                  color: "#7902DF",
-                                  textDecorationLine: "underline",
+                            <div className="min-w-[200px] flex-shrink-0 ">
+                              <div style={styles.text2}>
+                                {item.agent?.phoneNumber ? (
+                                  <div>{item.agent.phoneNumber}</div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                            </div>
+                            <div className="min-w-[200px] flex-shrink-0">
+                              {/* (item.LeadModel?.phone) */}
+                              <div style={styles.text2}>
+                                {item.LeadModel?.phone ? (
+                                  <div>{formatPhoneNumber(item?.LeadModel?.phone)}</div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="min-w-[200px] flex-shrink-0">
+                              <div style={styles.text2}>
+                                {item?.communicationType ? item?.communicationType : "-"}
+                              </div>
+                            </div>
+                            <div className="min-w-[200px] flex-shrink-0">
+                              <div style={styles.text2}>
+                                {item?.callOutcome ? item?.callOutcome : "Ongoing"}
+                              </div>
+                            </div>
+                            <div className="min-w-[200px] flex-shrink-0">
+                              <div style={styles.text2}>
+                                {GetFormattedDateString(item?.createdAt)}
+                              </div>
+                            </div>
+                            <div className="min-w-[200px] flex-shrink-0">
+                              <div style={styles.text2}>
+                                {GetFormattedTimeString(item?.createdAt)}
+                              </div>
+                            </div>
+                            <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
+                              <button
+                                onClick={() => {
+                                  setselectedLeadsDetails(item);
+                                  setShowDetailsModal(true);
                                 }}
                               >
-                                Details
-                              </div>
-                            </button>
+                                <div
+                                  style={{
+                                    fontSize: 12,
+                                    color: "#7902DF",
+                                    textDecorationLine: "underline",
+                                  }}
+                                >
+                                  Details
+                                </div>
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div
-                      className="text-center mt-4"
-                      style={{ fontWeight: "bold", fontSize: 20 }}
-                    >
-                      No call log found
-                    </div>
-                  )}
-                </InfiniteScroll>
-              </div>
-            )}
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className="text-center mt-4"
+                        style={{ fontWeight: "bold", fontSize: 20 }}
+                      >
+                        No call log found
+                      </div>
+                    )}
+                  </div>
+                )}
+              </InfiniteScroll>
+            </div>
 
             {/* Code for filter modal */}
             <div>

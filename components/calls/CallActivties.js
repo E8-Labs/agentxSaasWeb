@@ -655,14 +655,14 @@ function SheduledCalls({ user }) {
   function getCallStatusWithSchedule(item) {
     const currentTime = moment();
     const startTime = moment(item.startTime);
-    
+
     // Check if the call is scheduled in the future
     if (item.startTime && startTime.isAfter(currentTime)) {
       // Format the date as "Scheduled - Sep 05" or similar
       const formattedDate = startTime.format('MMM DD');
       return `Scheduled - ${formattedDate}`;
     }
-    
+
     // Return the regular readable status for past or current calls
     return getReadableStatus(item.status);
   }
@@ -699,6 +699,8 @@ function SheduledCalls({ user }) {
               className="p-2 flex flex-col gap-2"
               style={{ fontWeight: "500", fontSize: 15 }}
             >
+              {
+                SelectedItem?.status !== "Completed" && (
               <div>
                 {PauseLoader ? (
                   <CircularProgress size={18} />
@@ -719,11 +721,14 @@ function SheduledCalls({ user }) {
                     }}
                   >
                     {SelectedItem?.status == "Paused"
-                      ? "Run Calls"
-                      : "Pause Calls"}
+                      ? "Run Calls" :
+                      SelectedItem?.status == "Completed" ? ""
+                        : "Pause Calls"}
                   </button>
                 )}
               </div>
+              )
+            }
 
               <button
                 className="text-start outline-none"
@@ -787,7 +792,7 @@ function SheduledCalls({ user }) {
                   <InfiniteScroll
                     dataLength={filteredAgentsList.length}
                     next={() => {
-                      
+
                       getScheduledOrOngoingActivityCalls(filteredAgentsList.length);
                     }}
                     hasMore={hasMoreCalls}

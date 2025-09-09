@@ -9,6 +9,7 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
+import { getReadableStatus } from "@/utilities/UserUtility";
 
 function AdminDashboardActiveCall({ }) {
   const Limit = 30;
@@ -563,14 +564,14 @@ function AdminDashboardActiveCall({ }) {
   function getCallStatusWithSchedule(item) {
     const currentTime = moment();
     const startTime = moment(item.startTime);
-    
+
     // Check if the call is scheduled in the future
     if (item.startTime && startTime.isAfter(currentTime)) {
       // Format the date as "Scheduled - Sep 05" or similar
       const formattedDate = startTime.format('MMM DD');
       return `Scheduled - ${formattedDate}`;
     }
-    
+
     // Return the regular readable status for past or current calls
     return getReadableStatus(item.status);
   }
@@ -603,30 +604,33 @@ function AdminDashboardActiveCall({ }) {
           className="p-2 flex flex-col gap-2"
           style={{ fontWeight: "500", fontSize: 15 }}
         >
-          <div>
-            {PauseLoader ? (
-              <CircularProgress size={18} />
-            ) : (
-              <button
-                className="text-start outline-none"
-                onClick={() => {
-                  if (SelectedItem?.status == "Paused") {
-                    //// //console.log
-                    setColor(true);
-                    setShowConfirmationPopup("resume Calls");
-                  } else {
-                    //// //console.log
-                    setShowConfirmationPopup("pause Calls");
-                    setColor(false);
-                  }
-                  // //console.log
-                }}
-              >
-                {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
-              </button>
-            )}
-          </div>
-
+          {
+            SelectedItem?.status !== "Completed" && (
+              <div>
+                {PauseLoader ? (
+                  <CircularProgress size={18} />
+                ) : (
+                  <button
+                    className="text-start outline-none"
+                    onClick={() => {
+                      if (SelectedItem?.status == "Paused") {
+                        //// //console.log
+                        setColor(true);
+                        setShowConfirmationPopup("resume Calls");
+                      } else {
+                        //// //console.log
+                        setShowConfirmationPopup("pause Calls");
+                        setColor(false);
+                      }
+                      // //console.log
+                    }}
+                  >
+                    {SelectedItem?.status == "Paused" ? "Run Calls" : "Pause Calls"}
+                  </button>
+                )}
+              </div>
+            )
+          }
           <button
             className="text-start outline-none"
             onClick={() => {
@@ -749,7 +753,7 @@ function AdminDashboardActiveCall({ }) {
         <div className="w-2/12">
           <div style={styles.text}>Call Status</div>
         </div>
-        <div className="w-1/12">
+        <div className="w-1/12 sticky right-0 z-10">
           <div style={styles.text}>Action</div>
         </div>
       </div>
@@ -887,7 +891,7 @@ function AdminDashboardActiveCall({ }) {
                                   )}
                                 </div>
                                 <div className="w-2/12">{getCallStatusWithSchedule(item)}</div>
-                                <div className="w-1/12">
+                                <div className="w-1/12 sticky right-0 z-10">
                                   <button
                                     aria-describedby={id}
                                     variant="contained"
@@ -1001,6 +1005,7 @@ function AdminDashboardActiveCall({ }) {
                         />
                       </div>
                     </div>
+                    <div>Text Case</div>
                     <div
                       className="overflow-auto pb-4 flex-grow max-h-[74vh]"
                       id="scrollableDiv1"
