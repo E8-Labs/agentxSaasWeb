@@ -2,6 +2,7 @@ import { Box, CircularProgress, Modal, Slider } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { styled } from "@mui/material/styles";
 import { getDiscount, purchaseMins } from '@/components/userPlans/UserPlanServices';
+import Image from 'next/image';
 
 const ObtainOffer = ({
     handleContinue
@@ -64,6 +65,7 @@ const ObtainOffer = ({
     const [offerData, setOfferData] = useState(null)
     const [mins, setMins] = useState(200)
     const [loading, setLoading] = useState(false)
+    const [showDeleteAgentsModal, setShowDeleteAgentsModal] = useState(false)
 
     let totalCost = (offerData?.discountOffer?.discount?.discountedCostPerMinute * mins).toFixed(2)
 
@@ -88,6 +90,37 @@ const ObtainOffer = ({
 
         handleContinue(nextAction)
         
+    }
+
+    // Function to check if user has more than 1 agent
+    const checkUserAgents = () => {
+        try {
+            const userData = localStorage.getItem('User');
+            if (userData) {
+                const parsedUser = JSON.parse(userData);
+                const maxAgents = parsedUser?.user?.currentUsage?.maxAgents || 0;
+                return maxAgents > 1;
+            }
+        } catch (error) {
+            console.error('Error checking user agents:', error);
+        }
+        return false;
+    }
+
+    // Function to handle cancel subscription
+    const handleCancelSubscription = () => {
+        if (checkUserAgents()) {
+            setShowDeleteAgentsModal(true);
+        } else {
+            let nextAction = "cancelConfirmationFromDeal";
+            handleContinue(nextAction);
+        }
+    }
+
+    // Function to handle delete agents and redirect
+    const handleDeleteAgents = () => {
+        setShowDeleteAgentsModal(false);
+        window.location.href = 'http://localhost:3000/dashboard/myAgentX';
     }
 
     // console.log('mins', mins)
@@ -173,14 +206,108 @@ const ObtainOffer = ({
 
 
                 <button className='flex flex-col w-full h-[50px] border mt-3 items-center justify-center  rounded-lg text-base font-regular'
-                    onClick={() => {
-                        let nextAction = "cancelConfirmationFromDeal"
-                        handleContinue(nextAction)
-                    }}
+                    onClick={handleCancelSubscription}
                 >
                     No Deal. Cancel Subscription
                 </button>
             </div>
+
+            {/* Delete Agents Modal */}
+            <Modal
+                open={showDeleteAgentsModal}
+                onClose={() => setShowDeleteAgentsModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                    },
+                }}
+            >
+                <Box
+                    className="w-11/12 sm:w-8/12 md:w-6/12 lg:w-5/12 xl:w-4/12"
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'white',
+                        borderRadius: '12px',
+                        boxShadow: 24,
+                        p: 0,
+                        outline: 'none',
+                    }}
+                >
+                    <div className="py-3 px-4">
+                        {/* Header */}
+                        <div className="flex justify-between items-center mb-2">
+                            <h2 className="text-lg font-semibold text-gray-800">
+                                
+                            </h2>
+                            <button
+                                onClick={() => setShowDeleteAgentsModal(false)}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <Image
+                                    src="/assets/crossIcon.png"
+                                    height={30}
+                                    width={30}
+                                    alt="Close"
+                                />
+                            </button>
+                        </div>
+
+                        {/* Icon */}
+                        <div className="flex justify-center mb-6">
+                            {/* <div className="w-16 h-16 bg-purple rounded-full flex items-center justify-center">
+                                <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center">
+                                    <div className="w-4 h-4 bg-purple rounded-sm"></div>
+                                </div>
+                            </div> */}
+                            <Image
+                                    src="/assets/Pause_Icon.svg"
+                                    height={40}
+                                    width={40}
+                                    alt="Close"
+                                />
+                        </div>
+
+                        {/* Title */}
+                        <div className="text-center mb-4">
+                            <h3 className="text-xl font-semibold text-black mb-2">
+                                Delete Your Agents
+                            </h3>
+                            {/* <div className="w-32 h-0.5 bg-blue-200 mx-auto"></div> */}
+                        </div>
+
+                        {/* Content */}
+                        <div className="text-center mb-6">
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                                To cancel your plan, you'll need to first delete your agents.
+                            </p>
+                            <p className="text-gray-700 text-sm leading-relaxed mt-2">
+                                The free plan only allows for 1 AI Agent.
+                            </p>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowDeleteAgentsModal(false)}
+                                className="flex-1 h-12 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDeleteAgents}
+                                className="flex-1 h-12 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
 
         </div>
     )
