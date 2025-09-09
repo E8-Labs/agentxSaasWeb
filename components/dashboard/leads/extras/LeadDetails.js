@@ -52,6 +52,9 @@ import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import NoVoicemailView from "../../myagentX/NoVoicemailView";
 import { callStatusColors } from "@/constants/Constants";
 import DeleteCallLogConfimation from "./DeleteCallLogConfimation";
+// import EmailTempletePopup from "../../pipeline/EmailTempletePopup";
+import EmailTempletePopup from "@/components/pipeline/EmailTempletePopup";
+import SMSTempletePopup from "@/components/pipeline/SMSTempletePopup";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -147,6 +150,17 @@ const LeadDetails = ({
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
   const [seletedCallLog, setSelectedCallLog] = useState(null);
   const [delCallLoader, setdelCallLoader] = useState(false);
+  
+  // Email functionality states
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null);
+  const [sendEmailLoader, setSendEmailLoader] = useState(false);
+  
+  // SMS functionality states
+  const [showSMSModal, setShowSMSModal] = useState(false);
+  const [phoneNumbers, setPhoneNumbers] = useState([]);
+  const [phoneLoading, setPhoneLoading] = useState(false);
+  const [sendSMSLoader, setSendSMSLoader] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
@@ -912,6 +926,108 @@ const LeadDetails = ({
     }
   }
 
+  // Send email API function
+  const sendEmailToLead = async (emailData) => {
+    try {
+      console.log('Sending email to lead', emailData)
+      setSendEmailLoader(true);
+      
+      const localData = localStorage.getItem("User");
+      if (!localData) {
+        throw new Error("User not found");
+      }
+      
+      const userData = JSON.parse(localData);
+      const formData = new FormData();
+      
+      // Add required fields
+      formData.append('leadEmail', selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email || '');
+      formData.append('subject', emailData.subject || '');
+      formData.append('content', emailData.content || '');
+      formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []));
+      
+      // Add attachments if any
+      if (emailData.attachments && emailData.attachments.length > 0) {
+        emailData.attachments.forEach((file) => {
+          formData.append('attachments', file);
+        });
+      }
+      
+      const response = await axios.post(
+        Apis.sendEmailToLead,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${userData.token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      if (response.data.status === true) {
+        setShowSuccessSnack("Email sent successfully!");
+        setShowSuccessSnack2(true);
+        setShowEmailModal(false);
+      } else {
+        setShowErrorSnack(response.data.message || "Failed to send email");
+        setShowErrorSnack2(true);
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setShowErrorSnack("Failed to send email. Please try again.");
+      setShowErrorSnack2(true);
+    } finally {
+      setSendEmailLoader(false);
+    }
+  };
+
+  // Send SMS API function
+  const sendSMSToLead = async (smsData) => {
+    try {
+      console.log('Sending SMS to lead', smsData);
+      setSendSMSLoader(true);
+      
+      const localData = localStorage.getItem("User");
+      if (!localData) {
+        throw new Error("User not found");
+      }
+      
+      const userData = JSON.parse(localData);
+      const formData = new FormData();
+      
+      // Add required fields
+      formData.append('leadPhone', selectedLeadsDetails?.phone || '');
+      formData.append('content', smsData.content || '');
+      formData.append('phone', smsData.phone || '');
+      
+      const response = await axios.post(
+        'https://apimyagentx.com/agentxtest/api/templates/send-sms',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${userData.token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      if (response.data.status === true) {
+        setShowSuccessSnack("SMS sent successfully!");
+        setShowSuccessSnack2(true);
+        setShowSMSModal(false);
+      } else {
+        setShowErrorSnack(response.data.message || "Failed to send SMS");
+        setShowErrorSnack2(true);
+      }
+    } catch (error) {
+      console.error("Error sending SMS:", error);
+      setShowErrorSnack("Failed to send SMS. Please try again.");
+      setShowErrorSnack2(true);
+    } finally {
+      setSendSMSLoader(false);
+    }
+  };
+
 
   const callTranscript = (item) => {
     return (
@@ -1217,6 +1333,22 @@ const LeadDetails = ({
                                 </div>
                               )}
                             </div>
+                            {/* Send Email Button */}
+                            <button
+                              className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors"
+                              onClick={() => setShowEmailModal(true)}
+                              disabled={sendEmailLoader}
+                            >
+                              <Image
+                                src="/svgIcons/editIcon.svg"
+                                height={14}
+                                width={14}
+                                alt="Send Email"
+                              />
+                              <span className="text-purple text-sm font-medium">
+                                Send Email
+                              </span>
+                            </button>
                           </div>
                           <div>
                             {selectedLeadsDetails?.email && (
@@ -1287,6 +1419,22 @@ const LeadDetails = ({
                                 {selectedLeadsDetails?.cell}
                               </div>
                             )}
+                            {/* Send SMS Button for Phone */}
+                            <button
+                              className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors"
+                              onClick={() => setShowSMSModal(true)}
+                              disabled={sendSMSLoader}
+                            >
+                              <Image
+                                src="/svgIcons/editIcon.svg"
+                                height={14}
+                                width={14}
+                                alt="Send SMS"
+                              />
+                              <span className="text-purple text-sm font-medium">
+                                Send SMS
+                              </span>
+                            </button>
                           </div>
 
                           <div className="flex flex-row items-center gap-2">
@@ -2863,6 +3011,38 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
+
+      {/* Email Template Modal */}
+      <EmailTempletePopup
+        open={showEmailModal}
+        onClose={() => setShowEmailModal(false)}
+        communicationType="email"
+        addRow={null}
+        isEditing={false}
+        editingRow={null}
+        onUpdateRow={null}
+        selectedGoogleAccount={selectedGoogleAccount}
+        setSelectedGoogleAccount={setSelectedGoogleAccount}
+        onSendEmail={sendEmailToLead}
+        isLeadEmail={true}
+        leadEmail={selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email}
+      />
+
+      {/* SMS Template Modal */}
+      <SMSTempletePopup
+        open={showSMSModal}
+        onClose={() => setShowSMSModal(false)}
+        phoneNumbers={phoneNumbers}
+        phoneLoading={phoneLoading}
+        communicationType="sms"
+        addRow={null}
+        isEditing={false}
+        editingRow={null}
+        onUpdateRow={null}
+        onSendSMS={sendSMSToLead}
+        isLeadSMS={true}
+        leadPhone={selectedLeadsDetails?.phone}
+      />
     </div>
   );
 };

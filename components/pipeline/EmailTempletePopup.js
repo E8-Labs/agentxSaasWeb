@@ -24,6 +24,9 @@ function EmailTempletePopup({
     onUpdateRow = null,
     selectedGoogleAccount,
     setSelectedGoogleAccount,
+    onSendEmail = null,
+    isLeadEmail = false,
+    leadEmail = null,
 
 }) {
 
@@ -158,14 +161,20 @@ function EmailTempletePopup({
     // console.log("template",templetes)
 
 
-    const isSaveDisabled =
+    const isSaveDisabled = isLeadEmail ? (
+        // For lead emails, only require subject and content if no template is selected
+        (!selectedTemp && (!subject?.trim() || !body?.trim())) ||
+        saveEmailLoader ||
+        invalidEmails.length > 0
+    ) : (
+        // Original validation for pipeline cadence
         !tempName?.trim() ||
         !subject?.trim() ||
         !body?.trim() ||
         ccEmails.length === 0 ||
         saveEmailLoader ||
         invalidEmails.length > 0
-        ;
+    );
 
 
     useEffect(() => {
@@ -350,6 +359,18 @@ function EmailTempletePopup({
         let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
 
         console.log('IsdefaultCadence', IsdefaultCadence)
+        // Handle lead email sending
+        if (isLeadEmail && onSendEmail) {
+            console.log('Sending email to lead:', leadEmail);
+            const emailData = {
+                subject: subject,
+                content: body,
+                ccEmails: ccEmails,
+                attachments: attachments,
+            };
+            onSendEmail(emailData);
+            return; // Don't close modal yet, let the send function handle it
+        }
 
         if (selectedTemp && !hasTemplateChanges && !isEditing) {
             // Use existing template without modification - no API call needed
@@ -408,6 +429,8 @@ function EmailTempletePopup({
                     });
                 }
             }
+
+            
 
             if ((isEditing && onUpdateRow && editingRow)) {
                 // Ensure we have a selected account, use first available if none selected
@@ -533,7 +556,7 @@ function EmailTempletePopup({
                         />
                         <div className='flex flex-row items-center justify-between '>
                             <div className='text-xl font-semibold color-black'>
-                                {(isEditing || selectedTemp) ? 'Edit Email' : 'Create Email'}
+                                {isLeadEmail ? 'Send Email to Lead' : ((isEditing || selectedTemp) ? 'Edit Email' : 'Create Email')}
                             </div>
 
                             <FormControl>
@@ -620,6 +643,13 @@ function EmailTempletePopup({
                                     {selectedGoogleAccount?.email}
                                 </span>
                             </div>
+                            {isLeadEmail && leadEmail && (
+                                <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                                    To: <span className="text-[#00000050] ml-2">
+                                        {leadEmail}
+                                    </span>
+                                </div>
+                            )}
 
                             <button
                                 onClick={(event) => setShowChangeManu(event.currentTarget)}
@@ -699,19 +729,23 @@ function EmailTempletePopup({
                             </div>
                         )}
 
-                        <div className="text-[15px] font-[400] text-[#00000080] mt-4">
-                            Template Name
-                        </div>
+                        {!isLeadEmail && (
+                            <>
+                                <div className="text-[15px] font-[400] text-[#00000080] mt-4">
+                                    Template Name
+                                </div>
 
-                        <input
-                            className='w-full h-12 px-[10px] py-7 mt-2 border-1 rounded-xl border-[#00000020]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
-                            placeholder='Template Name'
-                            value={tempName}
-                            onChange={(event) => {
-                                setTempName(event.target.value)
-                                setTempNameChanged(true)
-                            }}
-                        />
+                                <input
+                                    className='w-full h-12 px-[10px] py-7 mt-2 border-1 rounded-xl border-[#00000020]  outline-none focus:outline-none focus:border-[#00000010] focus:ring-0  '
+                                    placeholder='Template Name'
+                                    value={tempName}
+                                    onChange={(event) => {
+                                        setTempName(event.target.value)
+                                        setTempNameChanged(true)
+                                    }}
+                                />
+                            </>
+                        )}
 
                         <div className="text-[15px] font-[400] text-[#00000080] mt-4">
                             Subject
@@ -821,7 +855,7 @@ function EmailTempletePopup({
                                     disabled={isSaveDisabled}
                                     onClick={saveEmail}
                                 >
-                                    {isEditing ? 'Update' : 'Save Email'}
+                                    {isLeadEmail ? 'Send Email' : (isEditing ? 'Update' : 'Save Email')}
                                 </button>
                             )
                         }

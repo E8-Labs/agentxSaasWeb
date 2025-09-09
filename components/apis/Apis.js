@@ -259,7 +259,8 @@ const Apis = {
   continueToDiscount :`${BasePath}api/user/cancellation/continue-to-discount`,
   purchaseDiscountedMins :`${BasePath}api/user/cancellation/purchase-discount`,
   completeCancelatiton :`${BasePath}api/user/cancellation/complete`,
-
+  sendEmailToLead :`${BasePath}api/templates/send-email`,
+  sendSMSToLead :`${BasePath}api/templates/send-sms`,
 
 
 

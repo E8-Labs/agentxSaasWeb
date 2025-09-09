@@ -23,6 +23,9 @@ function SMSTempletePopup({
     isEditing = false,
     editingRow = null,
     onUpdateRow = null,
+    onSendSMS = null,
+    isLeadSMS = false,
+    leadPhone = null,
 
 }) {
 
@@ -47,7 +50,13 @@ function SMSTempletePopup({
     }, [open])
 
     // Check if save button should be disabled
-    const isSaveDisabled = !body?.trim() || saveSmsLoader || !selectedPhone
+    const isSaveDisabled = isLeadSMS ? (
+        // For lead SMS, only require body content
+        !body?.trim() || saveSmsLoader
+    ) : (
+        // Original validation for pipeline cadence
+        !body?.trim() || saveSmsLoader || !selectedPhone
+    )
 
 
     // Auto-fill form when editing
@@ -86,6 +95,17 @@ function SMSTempletePopup({
 
         setSaveSmsLoader(true)
         try {
+            // Handle lead SMS sending
+            if (isLeadSMS && onSendSMS) {
+                console.log('Sending SMS to lead:', leadPhone);
+                const smsData = {
+                    content: body,
+                    phone: leadPhone,
+                };
+                onSendSMS(smsData);
+                return; // Don't close modal yet, let the send function handle it
+            }
+
             // Add your save logic here
             let data = {
                 communicationType: communicationType,
@@ -203,12 +223,18 @@ function SMSTempletePopup({
 
                         <div className='w-full flex flex-row items-center justify-between mb-8'>
                             <div className='text-[15px] font-[700]'>
-                                {isEditing ? "Update" : "New"} Text
+                                {isLeadSMS ? 'Send SMS to Lead' : (isEditing ? "Update" : "New")} Text
                             </div>
 
                             <CloseBtn onClick={onClose} />
                         </div>
-                        {
+                        {isLeadSMS ? (
+                            <div className="text-[15px] font-[400] text-[#00000080]">
+                                To: <span className="text-[#00000050] ml-2">
+                                    {leadPhone}
+                                </span>
+                            </div>
+                        ) : (
                             phoneLoading ? (
                                 <CircularProgress size={30} />
                             ) : (
@@ -255,7 +281,8 @@ function SMSTempletePopup({
                                         }
                                     </Select>
                                 </FormControl>
-                            )}
+                            )
+                        )}
 
                         <div className='w-full flex flex-col items-ceter  p-2 bg-[#7902DF10] rounded-lg mt-4'>
 
@@ -405,7 +432,7 @@ function SMSTempletePopup({
                                 disabled={isSaveDisabled}
                                 onClick={handleSave}
                             >
-                                {isEditing ? "Update" : "Save"} Message
+                                {isLeadSMS ? 'Send SMS' : (isEditing ? "Update" : "Save")} Message
                             </button>
                         )}
                     </div>
