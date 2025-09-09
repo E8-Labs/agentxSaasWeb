@@ -283,7 +283,7 @@ const ObtainOffer = ({
                         {/* Content */}
                         <div className="text-center mb-6">
                             <p className="text-gray-700 text-sm leading-relaxed">
-                                To cancel your plan, you'll need to first delete your agents.
+                                {`To cancel your plan, you'll need to first delete your agents.`}
                             </p>
                             <p className="text-gray-700 text-sm leading-relaxed mt-2">
                                 The free plan only allows for 1 AI Agent.
