@@ -5,7 +5,7 @@ import React from 'react'
 function page() {
   return (
     <div>
-        <UserPlans />
+        <UserPlans from = "dashboard" />
     </div>
   )
 }

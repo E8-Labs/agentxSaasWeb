@@ -106,6 +106,7 @@ const LeadDetails = ({
 
   //show custom variables
   const [showCustomVariables, setShowCustomVariables] = useState(false);
+  const [showTeams, setShowTeams] = useState(false);
 
   //code for del tag
   const [DelTagLoader, setDelTagLoader] = useState(null);
@@ -150,12 +151,12 @@ const LeadDetails = ({
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
   const [seletedCallLog, setSelectedCallLog] = useState(null);
   const [delCallLoader, setdelCallLoader] = useState(false);
-  
+
   // Email functionality states
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null);
   const [sendEmailLoader, setSendEmailLoader] = useState(false);
-  
+
   // SMS functionality states
   const [showSMSModal, setShowSMSModal] = useState(false);
   const [phoneNumbers, setPhoneNumbers] = useState([]);
@@ -931,28 +932,28 @@ const LeadDetails = ({
     try {
       console.log('Sending email to lead', emailData)
       setSendEmailLoader(true);
-      
+
       const localData = localStorage.getItem("User");
       if (!localData) {
         throw new Error("User not found");
       }
-      
+
       const userData = JSON.parse(localData);
       const formData = new FormData();
-      
+
       // Add required fields
       formData.append('leadEmail', selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email || '');
       formData.append('subject', emailData.subject || '');
       formData.append('content', emailData.content || '');
       formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []));
-      
+
       // Add attachments if any
       if (emailData.attachments && emailData.attachments.length > 0) {
         emailData.attachments.forEach((file) => {
           formData.append('attachments', file);
         });
       }
-      
+
       const response = await axios.post(
         Apis.sendEmailToLead,
         formData,
@@ -963,7 +964,7 @@ const LeadDetails = ({
           },
         }
       );
-      
+
       if (response.data.status === true) {
         setShowSuccessSnack("Email sent successfully!");
         setShowSuccessSnack2(true);
@@ -986,20 +987,20 @@ const LeadDetails = ({
     try {
       console.log('Sending SMS to lead', smsData);
       setSendSMSLoader(true);
-      
+
       const localData = localStorage.getItem("User");
       if (!localData) {
         throw new Error("User not found");
       }
-      
+
       const userData = JSON.parse(localData);
       const formData = new FormData();
-      
+
       // Add required fields
       formData.append('leadPhone', selectedLeadsDetails?.phone || '');
       formData.append('content', smsData.content || '');
       formData.append('phone', smsData.phone || '');
-      
+
       const response = await axios.post(
         'https://apimyagentx.com/agentxtest/api/templates/send-sms',
         formData,
@@ -1010,7 +1011,7 @@ const LeadDetails = ({
           },
         }
       );
-      
+
       if (response.data.status === true) {
         setShowSuccessSnack("SMS sent successfully!");
         setShowSuccessSnack2(true);
@@ -1282,74 +1283,78 @@ const LeadDetails = ({
                             )}
                           </div>
                           {/* Email Field */}
-                          <div className="flex flex-row items-center gap-2">
-                            <EnvelopeSimple size={20} color="#000000100" />
-                            <div style={styles.heading2}>
-                              {selectedLeadsDetails?.email ? (
-                                selectedLeadsDetails?.email
-                              ) : (
-                                <div>
-                                  {selectedLeadsDetails?.emails
-                                    ?.slice(0, 1)
-                                    .map((email, emailIndex) => {
-                                      return (
-                                        <div
-                                          key={emailIndex}
-                                          className="flex flex-row items-center gap-2"
-                                        >
-                                          <div
-                                            className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                            style={styles.paragraph}
-                                          >
-                                            <Image
-                                              src={"/assets/power.png"}
-                                              height={9}
-                                              width={7}
-                                              alt="*"
-                                            />
-                                            <div>
-                                              <span className="text-purple">
-                                                New
-                                              </span>{" "}
-                                              {email.email}
+                          {
+                            (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
+
+                              <div className="flex flex-row items-center gap-2">
+                                <EnvelopeSimple size={20} color="#000000100" />
+                                <div style={styles.heading2}>
+                                  {selectedLeadsDetails?.email ? (
+                                    selectedLeadsDetails?.email
+                                  ) : (
+                                    <div>
+                                      {selectedLeadsDetails?.emails
+                                        ?.slice(0, 1)
+                                        .map((email, emailIndex) => {
+                                          return (
+                                            <div
+                                              key={emailIndex}
+                                              className="flex flex-row items-center gap-2"
+                                            >
+                                              <div
+                                                className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
+                                                style={styles.paragraph}
+                                              >
+                                                <Image
+                                                  src={"/assets/power.png"}
+                                                  height={9}
+                                                  width={7}
+                                                  alt="*"
+                                                />
+                                                <div>
+                                                  <span className="text-purple">
+                                                    New
+                                                  </span>{" "}
+                                                  {email.email}
+                                                </div>
+                                              </div>
+                                              <button
+                                                className="text-purple underline"
+                                                onClick={() => {
+                                                  setShowAllEmails(true);
+                                                }}
+                                              >
+                                                {selectedLeadsDetails?.emails
+                                                  ?.length > 1
+                                                  ? `+${selectedLeadsDetails?.emails
+                                                    ?.length - 1
+                                                  }`
+                                                  : ""}
+                                              </button>
                                             </div>
-                                          </div>
-                                          <button
-                                            className="text-purple underline"
-                                            onClick={() => {
-                                              setShowAllEmails(true);
-                                            }}
-                                          >
-                                            {selectedLeadsDetails?.emails
-                                              ?.length > 1
-                                              ? `+${selectedLeadsDetails?.emails
-                                                ?.length - 1
-                                              }`
-                                              : ""}
-                                          </button>
-                                        </div>
-                                      );
-                                    })}
+                                          );
+                                        })}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
-                            {/* Send Email Button */}
-                            <button
-                              className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors"
-                              onClick={() => setShowEmailModal(true)}
-                              disabled={sendEmailLoader}
-                            >
-                              <Image
-                                src="/svgIcons/editIcon.svg"
-                                height={14}
-                                width={14}
-                                alt="Send Email"
-                              />
-                              <span className="text-purple text-sm font-medium">
-                                Send Email
-                              </span>
-                            </button>
-                          </div>
+                                {/* Send Email Button */}
+                                <button
+                                  className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors ml-4"
+                                  onClick={() => setShowEmailModal(true)}
+                                  disabled={sendEmailLoader}
+                                >
+                                  <Image
+                                    src="/svgIcons/editIcon.svg"
+                                    height={14}
+                                    width={14}
+                                    alt="Send Email"
+                                  />
+                                  <span className="text-purple text-sm font-medium">
+                                    Send Email
+                                  </span>
+                                </button>
+                              </div>
+                            )}
                           <div>
                             {selectedLeadsDetails?.email && (
                               <div className="flex flex-row w-full justify-end">
@@ -1397,58 +1402,67 @@ const LeadDetails = ({
                               </div>
                             )}
                           </div>
-                          <div className="flex flex-row gap-2 justify-center items-center">
-                            {/* <div className="w-4 h-4 filter invert brightness-0"> */}
-                            <Image
-                              src="/assets/callBtn.png"
-                              width={16}
-                              height={16}
-                              alt="call"
-                            />
-                            {/* </div> */}
-                            {/* <Phone className="w-4 h-4 text-black" /> */}
-                            <div style={styles.heading2}>
-                              {formatPhoneNumber(selectedLeadsDetails?.phone) ||
-                                "-"}
-                            </div>
-                            {selectedLeadsDetails?.cell != null && (
-                              <div
-                                className="rounded-full font-medium justify-center items-center color-[#ffffff] p-1 px-2 bg-[#15151580]"
-                                style={{ color: "white" }}
-                              >
-                                {selectedLeadsDetails?.cell}
+                          {
+                            selectedLeadsDetails?.phone && (
+                              <div className="flex flex-row gap-2 justify-center items-center">
+                                {/* <div className="w-4 h-4 filter invert brightness-0"> */}
+                                <Image
+                                  src="/assets/callBtn.png"
+                                  width={16}
+                                  height={16}
+                                  alt="call"
+                                />
+                                {/* </div> */}
+                                {/* <Phone className="w-4 h-4 text-black" /> */}
+                                <div style={styles.heading2}>
+                                  {formatPhoneNumber(selectedLeadsDetails?.phone) ||
+                                    "-"}
+                                </div>
+                                {selectedLeadsDetails?.cell != null && (
+                                  <div
+                                    className="rounded-full font-medium justify-center items-center color-[#ffffff] p-1 px-2 bg-[#15151580]"
+                                    style={{ color: "white" }}
+                                  >
+                                    {selectedLeadsDetails?.cell}
+                                  </div>
+                                )}
+                                {/* Send SMS Button for Phone */}
+                                <button
+                                  className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors ml-4"
+                                  onClick={() => setShowSMSModal(true)}
+                                  disabled={sendSMSLoader}
+                                >
+                                  <Image
+                                    src="/svgIcons/editIcon.svg"
+                                    height={14}
+                                    width={14}
+                                    alt="Send SMS"
+                                  />
+                                  <span className="text-purple text-sm font-medium">
+                                    Send SMS
+                                  </span>
+                                </button>
                               </div>
-                            )}
-                            {/* Send SMS Button for Phone */}
-                            <button
-                              className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors"
-                              onClick={() => setShowSMSModal(true)}
-                              disabled={sendSMSLoader}
-                            >
-                              <Image
-                                src="/svgIcons/editIcon.svg"
-                                height={14}
-                                width={14}
-                                alt="Send SMS"
-                              />
-                              <span className="text-purple text-sm font-medium">
-                                Send SMS
-                              </span>
-                            </button>
-                          </div>
+                            )
+                          }
 
-                          <div className="flex flex-row items-center gap-2">
-                            {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                            <Image
-                              src={"/assets/location.png"}
-                              height={16}
-                              width={16}
-                              alt="man"
-                            />
-                            <div style={styles.heading2}>
-                              {selectedLeadsDetails?.address || "-"}
-                            </div>
-                          </div>
+                          {
+                            selectedLeadsDetails?.address && (
+                              <div className="flex flex-row items-center gap-2">
+                                {/* <EnvelopeSimple size={20} color='#00000060' /> */}
+                                <Image
+                                  src={"/assets/location.png"}
+                                  height={16}
+                                  width={16}
+                                  alt="man"
+                                />
+                                <div style={styles.heading2}>
+                                  {selectedLeadsDetails?.address || "-"}
+                                </div>
+                              </div>
+                            )
+                          }
+
                           <div className="flex flex-row items-center gap-2">
                             <Image
                               src={"/assets/tag.png"}
@@ -1523,24 +1537,27 @@ const LeadDetails = ({
                               )}
                             </div>
                           </div>
-
-                          <div className="flex flex-row items-center gap-2">
-                            <Image
-                              src="/assets/pipelineIcon.svg"
-                              height={20}
-                              width={20}
-                              alt="*"
-                              style={{
-                                filter:
-                                  "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%)",
-                              }}
-                            />
-                            <div style={styles.heading2}>
-                              {selectedLeadsDetails?.pipeline
-                                ? selectedLeadsDetails?.pipeline?.title
-                                : "-"}
-                            </div>
-                          </div>
+                          {
+                            selectedLeadsDetails?.pipeline && (
+                              <div className="flex flex-row items-center gap-2">
+                                <Image
+                                  src="/assets/pipelineIcon.svg"
+                                  height={20}
+                                  width={20}
+                                  alt="*"
+                                  style={{
+                                    filter:
+                                      "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%)",
+                                  }}
+                                />
+                                <div style={styles.heading2}>
+                                  {selectedLeadsDetails?.pipeline
+                                    ? selectedLeadsDetails?.pipeline?.title
+                                    : "-"}
+                                </div>
+                              </div>
+                            )
+                          }
 
                           <div>
                             {selectedLeadsDetails?.booking && (
@@ -1602,38 +1619,68 @@ const LeadDetails = ({
                             </div>
                           </div>
 
-                          <div className="mt-10">
-                            {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
-                              <div className="p-8">
-                                <LeadTeamsAssignedList
-                                  users={selectedLeadsDetails?.teamsAssigned}
-                                />
-                              </div>
-                            ) : globalLoader ? (
-                              <CircularProgress size={25} />
+
+                        </div>
+                      </div>
+
+                      <div className="w-full mt-3">
+                        <div className="flex flex-col w-full max-w-full overflow-hidden">
+                          <button className="flex flex-row items-center gap-3"
+                            onClick={() => {
+                              setShowTeams(!showTeams);
+                            }}
+                          >
+                            <Image
+                              src={"/assets/manIcon.png"}
+                              alt="*"
+                              height={30}
+                              width={30}
+                            />
+                            <div
+                              style={{
+                                fontWeight: "600",
+                                fontsize: 15,
+                                color: "#000000100",
+                              }}
+                            >
+                              Select Team
+                            </div>
+                            {showTeams ? (
+                              <CaretUp
+                                size={16}
+                                weight="bold"
+                                color="#15151570"
+                              />
                             ) : (
-                              <button
-                                className="text-end outline-none"
-                                style={styles.paragraph}
-                                aria-describedby={id}
-                                variant="contained"
-                                onClick={(event) => {
-                                  handleShowPopup(event);
-                                }}
-                              >
-                                <Image
-                                  src={"/assets/manIcon.png"}
-                                  height={30}
-                                  width={30}
-                                  alt="man"
-                                />
-                              </button>
+                              <CaretDown
+                                size={16}
+                                weight="bold"
+                                color="#15151570"
+                              />
+                            )}
+                          </button>
+                          <div className="flex w-full">
+                            {showTeams && (
+                              <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
+                                {
+                                  myTeam.map((user) => (
+                                    <div key={user.id} className="flex space-x-3 overflow-x-auto items-center">
+                                      <div className="flex items-center space-x-1">
+                                        <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                          {user?.name?.charAt(0)}
+                                        </div>
+                                        <span className="text-gray-700 text-sm">{user?.name}</span>
+                                      </div>
+                                    </div>
+                                  ))
+                                }
+                              </div>
                             )}
                           </div>
                         </div>
                       </div>
 
-                      <div className=" flex w-full">
+                      <div className="flex w-full">
                         {getExtraColumsCount(columnsLength) >= 1 && (
                           <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
                             <button

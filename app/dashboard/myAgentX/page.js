@@ -17,6 +17,7 @@ import {
   InputLabel,
   Menu,
   Avatar,
+  Tooltip,
 } from "@mui/material";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Apis from "@/components/apis/Apis";
@@ -391,8 +392,8 @@ function Page() {
 
 
   useEffect(() => {
-    let data = getProfileDetails()
-    setUser(data)
+    let data = getUserLocalData()
+    setUser(data.user)
   }, [])
   // get selected agent from local if calendar added by google
 
@@ -2550,8 +2551,50 @@ function Page() {
         className="w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
+        <div className="flex flex-row items-center gap-3">
 
+
+          <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
+          <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+            {agentsListSeparated.length}/{user?.plan?.planCapabilities?.maxAgents} used
+          </div>
+
+
+          <Tooltip
+            title="Additional agents are $20/month each"
+            arrow
+            componentsProps={{
+              tooltip: {
+                sx: {
+                  backgroundColor: "#ffffff", // Ensure white background
+                  color: "#333", // Dark text color
+                  fontSize: "14px",
+                  padding: "10px 15px",
+                  borderRadius: "8px",
+                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                },
+              },
+              arrow: {
+                sx: {
+                  color: "#ffffff", // Match tooltip background
+                },
+              },
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: "600",
+                color: "#000000",
+                cursor: "pointer",
+              }}
+            >
+              <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+              // onClick={() => setIntroVideoModal2(true)}
+              />
+            </div>
+          </Tooltip>
+        </div>
         <div className="flex flex-row gap-4 items-center">
           <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded-full px-4">
             <input

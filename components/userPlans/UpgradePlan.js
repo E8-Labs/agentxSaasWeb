@@ -587,10 +587,6 @@ function UpgradePlan({
                                                         {item.name}
                                                     </div>
 
-                                                    <div className='text-base font-normal mt-1'>
-                                                        {item.mints} Mins | {item.calls} Calls* per month
-                                                    </div>
-
                                                     <div className='text-2xl font-semibold mt-2'>
                                                         {`$${item.discountPrice}`}
                                                     </div>

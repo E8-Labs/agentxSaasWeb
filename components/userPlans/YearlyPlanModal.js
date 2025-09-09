@@ -1,8 +1,9 @@
 import React from 'react';
-import { Modal, Box } from '@mui/material';
+import { Modal, Box, CircularProgress } from '@mui/material';
 import Image from 'next/image';
+import CloseBtn from '../globalExtras/CloseBtn';
 
-const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthly }) => {
+const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthly, selectedDuration = null, loading = false }) => {
     return (
         <Modal
             open={open}
@@ -23,17 +24,9 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                         <div className="text-2xl font-bold text-black">
                             Pay less with annual billing
                         </div>
-                        <button
+                        <CloseBtn
                             onClick={handleClose}
-                            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                        >
-                            <Image
-                                src="/svgIcons/closeIcon.svg"
-                                height={16}
-                                width={16}
-                                alt="Close"
-                            />
-                        </button>
+                        />
                     </div>
 
                     {/* Plan Offer Section */}
@@ -56,7 +49,7 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                                 </div>
                             </div>
                             <div className="text-sm text-gray-600">
-                                All annual plans get 30% discount compared to monthly plans
+                                {`All annual plans get 35% discount compared to ${selectedDuration ? selectedDuration.title : "monthly"} plans`}
                             </div>
                         </div>
                     </div>
@@ -69,12 +62,18 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                         >
                             Continue Yearly
                         </button>
-                        <button
-                            onClick={onContinueMonthly}
-                            className="w-full bg-white border border-gray-300 text-black py-3 px-6 rounded-xl font-semibold text-base hover:bg-gray-50 transition-colors"
-                        >
-                            Continue Monthly
-                        </button>
+                        {
+                            loading ? (
+                                <CircularProgress />
+                            ) : (
+                                <button
+                                    onClick={onContinueMonthly}
+                                    className="w-full bg-white border border-gray-300 text-black py-3 px-6 rounded-xl font-semibold text-base hover:bg-gray-50 transition-colors"
+                                >
+                                    {`Continue ${selectedDuration ? selectedDuration.title : "Monthly"}`}
+                                </button>
+                            )
+                        }
                     </div>
                 </div>
             </Box>

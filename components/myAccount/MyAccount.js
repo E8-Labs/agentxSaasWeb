@@ -14,6 +14,7 @@ import BarServices from "./BarServices";
 import { CancellationAndRefundUrl, privacyPollicyUrl, termsAndConditionUrl } from "@/constants/Constants";
 import TwilioTrustHub from "./TwilioTrustHub";
 import NewBilling from "./NewBilling";
+import BillingHistory from "./BillingHistory";
 
 function MyAccount() {
   let searchParams = useSearchParams();
@@ -30,24 +31,30 @@ function MyAccount() {
     },
     {
       id: 2,
-      heading: "Billing",
-      subHeading: "Manage your billing and payment methods",
+      heading: "Plans & Payment",
+      subHeading: "Manage your payment methods",
       icon: "/otherAssets/walletIcon.png",
     },
     {
       id: 3,
+      heading: "Billing",
+      subHeading: "Manage your billing",
+      icon: "/otherAssets/walletIcon.png",
+    },
+    {
+      id: 4,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
     },
     {
-      id: 4,
+      id: 5,
       heading: "My Phone Numbers",
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
     {
-      id: 5,
+      id: 6,
       heading: "Invite Agents",
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
@@ -65,26 +72,25 @@ function MyAccount() {
     //   icon: "/otherAssets/feedbackIcon.png",
     // },
     {
-      id: 6,
+      id: 7,
       heading: "Twilio Trust Hub",
       subHeading: "Caller ID & compliance for trusted calls",
       icon: "/svgIcons/twilioHub.svg",
     },
     {
-      id: 7,
+      id: 8,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 8,
+      id: 9,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 8,
-      id: 9,
+      id: 10,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -130,13 +136,15 @@ function MyAccount() {
       case 2:
         return <NewBilling />;
       case 3:
-        return <BarServices />;
+        return <BillingHistory />;
       case 4:
-        return <MyPhoneNumber />;
+        return <BarServices />;
       case 5:
-        return <InviteAgentX />;
+        return <MyPhoneNumber />;
       case 6:
-        return <TwilioTrustHub />;
+        return <InviteAgentX />;
+        case 7:
+          return <TwilioTrustHub />;
       // case 6:
       //   return <Support />;
       // case 7:
@@ -148,19 +156,19 @@ function MyAccount() {
 
   const handleTabSelect = (item, index) => {
 
-    if (item.id === 7) {
+    if (item.id === 8) {
       window.open(
         termsAndConditionUrl,
         "_blank"
       );
       return
-    } else if (item.id === 8) {
+    } else if (item.id === 9) {
       window.open(
         "/privacy-policy",
         "_blank"
       );
       return
-    } else if (item.id === 9) {
+    } else if (item.id === 10) {
       window.open(
         CancellationAndRefundUrl,
         "_blank"

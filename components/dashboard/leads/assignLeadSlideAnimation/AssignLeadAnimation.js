@@ -124,20 +124,24 @@ export default function AssignLeadAnimation({
 
         const isAfterStartTime = currentHour >= 7; // || (selectedHour === 7 && selectedMinute >= 0); // 7:00 AM or later
         const isBeforeEndTime =
-            currentHour < 19 || (currentHour === 19 && currentMinute <= 0); // Before 8:30 PM
-        if (
-            isAfterStartTime && // After 7:00 AM
-            isBeforeEndTime // Before 8:30 PM
-        ) {
-            console.log(
-                "✅ Selected time is between 7 AM and 9 PM.",
-                selectedDate.format()
-            );
-            // setSelectedDateTime(selectedDate);
-        } else {
-            setShowTimeError("Calls can only be scheduled between 7 AM to 9 PM")
-            return
+            currentHour < 21 //|| (currentHour === 19 && currentMinute <= 0); // Before 8:30 PM
+
+        if (!CallNow) {
+            if (
+                isAfterStartTime && // After 7:00 AM
+                isBeforeEndTime // Before 8:30 PM
+            ) {
+                console.log(
+                    "✅ Selected time is between 7 AM and 9 PM.",
+                    selectedDate.format()
+                );
+                // setSelectedDateTime(selectedDate);
+            } else {
+                setShowTimeError("Calls can only be scheduled between 7 AM to 9 PM")
+                return
+            }
         }
+
 
         // return;
 
@@ -181,7 +185,7 @@ export default function AssignLeadAnimation({
                 dncCheck: isDncChecked ? true : false,
             };
 
-            // console.log("Data sending in api is", Apidata);
+            console.log("Data sending in assign lead api api is", Apidata);
             // return;
             if (filters && selectedAll) {
                 Apidata = {
@@ -384,7 +388,7 @@ export default function AssignLeadAnimation({
                 <div className="relative flex justify-center items-center w-full">
                     <AgentSelectSnackMessage
                         isVisible={showTimeError != null}
-                        hide={()=>{
+                        hide={() => {
                             setShowTimeError(null)
                         }}
                         message={showTimeError}

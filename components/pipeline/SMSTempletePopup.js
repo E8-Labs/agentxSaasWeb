@@ -41,7 +41,7 @@ function SMSTempletePopup({
     const [showManu, setShowMenu] = useState(null);
 
     const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
-    const [user,setUser] = useState(null)
+    const [user, setUser] = useState(null)
 
     useEffect(() => {
         let data = getUserLocalData()
@@ -101,6 +101,8 @@ function SMSTempletePopup({
                 const smsData = {
                     content: body,
                     phone: leadPhone,
+                    smsPhoneNumberId:selectedPhone.id
+
                 };
                 onSendSMS(smsData);
                 return; // Don't close modal yet, let the send function handle it
@@ -228,61 +230,78 @@ function SMSTempletePopup({
 
                             <CloseBtn onClick={onClose} />
                         </div>
-                        {isLeadSMS ? (
+                        {isLeadSMS && (
                             <div className="text-[15px] font-[400] text-[#00000080]">
                                 To: <span className="text-[#00000050] ml-2">
                                     {leadPhone}
                                 </span>
                             </div>
-                        ) : (
+                        )}
+                        {
                             phoneLoading ? (
                                 <CircularProgress size={30} />
                             ) : (
-                                <FormControl>
-                                    <Select
-                                        value={selectedPhone || ""}
-                                        onChange={(event) => handleSelect(event.target.value)}
-                                        displayEmpty // Enables placeholder
-                                        renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
-                                        sx={{
-                                            ...styles.dropdownMenu,
-                                            backgroundColor: "#FFFFFF",
-                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                borderColor: "transparent", // Hide focused border color
-                                            },
+                                <div className='flex flex-row gap-3 w-full mt-3 items-center'>
+                                    {isLeadSMS && (
+                                        <div className="text-[15px] font-[400] text-[#00000080]">
+                                            From:
+                                        </div>
 
-                                        }}
-                                        MenuProps={{
-                                            PaperProps: {
-                                                style: {
-                                                    maxHeight: "30vh", // Limit dropdown height
-                                                    overflow: "auto", // Enable scrolling in dropdown
-                                                    scrollbarWidth: "none",
-                                                    // borderRadius: "10px"
+                                    )}
+                                    <FormControl sx={{width:isLeadSMS?'80%':'100%'}}>
+                                        <Select
+                                            value={selectedPhone || ""}
+                                            onChange={(event) => handleSelect(event.target.value)}
+                                            displayEmpty // Enables placeholder
+                                            renderValue={(selected) => selected.phone || <div style={{ color: "#aaa" }}>Select Number</div>}
+                                            sx={{
+                                                ...styles.dropdownMenu,
+                                                backgroundColor: "#FFFFFF",
+                                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "transparent", // Hide focused border color
+                                                   
                                                 },
-                                            },
-                                        }}
-                                    >
-                                        {
-                                            phoneNumbers?.map((item, index) => (
-                                                <MenuItem key={index}
-                                                    // className="hover:bg-[#402FFF10]"
-                                                    value={item}
-                                                >
-                                                    <div className='flex flex-row items-center gap-2'>
 
-                                                        <div className='text-[15] font-[500] w-48'>
-                                                            {item.phone}
-                                                        </div>
+                                            }}
+                                            MenuProps={{
+                                                PaperProps: {
+                                                    style: {
+                                                        maxHeight: "30vh", // Limit dropdown height
+                                                        overflow: "auto", // Enable scrolling in dropdown
+                                                        scrollbarWidth: "none",
+                                                        // borderRadius: "10px"
+                                                    },
+                                                },
+                                            }}
+                                        >
+                                            {
+                                                phoneNumbers?.length > 0 ? (
+
+                                                    phoneNumbers?.map((item, index) => (
+                                                        <MenuItem key={index}
+                                                            // className="hover:bg-[#402FFF10]"
+                                                            value={item}
+                                                        >
+                                                            <div className='flex flex-row items-center gap-2'>
+
+                                                                <div className='text-[15] font-[500] w-48'>
+                                                                    {item.phone}
+                                                                </div>
+                                                            </div>
+
+                                                        </MenuItem>
+                                                    ))
+                                                ) : (
+                                                    <div className='p-2'>
+                                                        No number found
                                                     </div>
-
-                                                </MenuItem>
-                                            ))
-                                        }
-                                    </Select>
-                                </FormControl>
+                                                )
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </div>
                             )
-                        )}
+                        }
 
                         <div className='w-full flex flex-col items-ceter  p-2 bg-[#7902DF10] rounded-lg mt-4'>
 
@@ -409,8 +428,8 @@ function SMSTempletePopup({
                         <div className='text-[10px] font-[500] w-full mt-2' style={{
                             textAlign: 'end'
                         }}>
-                            {body.length}/160<br/>
-                            10 text messages equal 1 credit. Balance:<span className="text-purple"> {user?.totalSecondsAvailable/60}</span>
+                            {body.length}/160<br />
+                            10 text messages equal 1 credit. Balance:<span className="text-purple"> {(user?.totalSecondsAvailable / 60).toFixed(2)}</span>
                         </div>
 
                     </div>

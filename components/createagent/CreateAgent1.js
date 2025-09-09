@@ -17,9 +17,19 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { UserTypes } from "@/constants/UserTypes";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import UpgradePlan from "../userPlans/UpgradePlan";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed Google Maps API key - no longer needed
+
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripePublickKey);
+
   const router = useRouter();
   const bottomRef = useRef();
   const [loaderModal, setLoaderModal] = useState(false);
@@ -58,11 +68,21 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [user, setUser] = useState(null);
 
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
   // Removed address picker modal - no longer needed
 
   useEffect(() => {
     setAddress(address?.label);
   }, [addressSelected]);
+
+  useEffect(() => {
+    let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser);
+    if (userData) {
+      let d = JSON.parse(userData);
+      setUser(d);
+    }
+  }, [])
   // const [scollAddress, setScollAddress] = useState("");
   //// //console.log;
 
@@ -287,8 +307,30 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     setOutBoundCalls(!OutBoundCalls);
   };
 
+  const haveLimit = () => {
+
+    let isBothAgents = InBoundCalls && OutBoundCalls
+    console.log('isBothAgents', isBothAgents)
+
+    let remainingLimit = user?.plan?.planCapabilities?.maxAgents - user?.plan?.currentUsage?.maxAgents
+    console.log('remainingLimit', remainingLimit)
+    if (user?.plan === null && isBothAgents) {
+      return false
+    } else
+      if ((isBothAgents && remainingLimit >= 2) || (!isBothAgents && remainingLimit >= 1)) {
+        return false
+      }
+      else
+        return true
+  }
+
   //code for creating agent api
   const handleBuildAgent = async () => {
+    if (!haveLimit()) {
+      setShowUpgradeModal(true)
+      return
+    }
+    return
     try {
       setBuildAgentLoader(true);
       setLoaderModal(true);
@@ -957,6 +999,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       </Modal>
 
       <LoaderAnimation loaderModal={loaderModal} />
+
+      {/* UpgradePlan Modal */}
+      <Elements stripe={stripePromise}>
+        <UpgradePlan
+          open={showUpgradeModal}
+          handleClose={() => setShowUpgradeModal(false)}
+        />
+      </Elements>
 
 
       {/* <Modal

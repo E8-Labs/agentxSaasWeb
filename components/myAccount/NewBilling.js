@@ -318,7 +318,6 @@ function NewBilling() {
             setAllowSmartRefill(Data.user.smartRefill);
         }
         getProfile();
-        getPaymentHistory();
         getCardsList();
     }, []);
 
@@ -618,41 +617,6 @@ function NewBilling() {
         }
     };
 
-    //function to get payment history
-    const getPaymentHistory = async () => {
-        try {
-            setHistoryLoader(true);
-
-            let AuthToken = null;
-            let localDetails = null;
-            const localData = localStorage.getItem("User");
-            if (localData) {
-                const LocalDetails = JSON.parse(localData);
-                localDetails = LocalDetails;
-                AuthToken = LocalDetails.token;
-            }
-
-            const ApiPath = Apis.getPaymentHistory;
-
-            const response = await axios.get(ApiPath, {
-                headers: {
-                    Authorization: "Bearer " + AuthToken,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (response) {
-                // //console.log;
-                if (response.data.status === true) {
-                    setPaymentHistoryData(response.data.data);
-                }
-            }
-        } catch (error) {
-            // console.error("Error occured in get history api is", error);
-        } finally {
-            setHistoryLoader(false);
-        }
-    };
 
     //function to cancel current plan
     const handleCancelPlan = async () => {
@@ -1230,7 +1194,7 @@ function NewBilling() {
                                     <div
                                         className="text-lg font-semibold text-left mt-3"
                                     >
-                                        {`${item.discountPrice||"$0"}/mo`}
+                                        {`${item.discountPrice || "$0"}/mo`}
                                     </div>
 
                                     <div className="text-xs font-normal text-[#8a8a8a] text-left ">
@@ -1302,10 +1266,14 @@ function NewBilling() {
                             }}
                             // onClick={handleSubscribePlan}
                             onClick={() => {
-                                setShowConfirmationModal(true);
+                                if (currentPlan && !selectedPlan.discountPrice ) {
+                                    setShowCancelPoup(true)
+                                } else {
+                                    setShowConfirmationModal(true)
+                                }
                             }}
                         >
-                            {`${currentPlan <= togglePlan ? "Upgrade Plan" : "Downgrade Plan"}`}
+                            {`${currentPlan <= togglePlan ? "Upgrade Plan" : "Downgrade Plan"} `}
                         </button>
                     )}
                 </div>
@@ -1329,86 +1297,6 @@ function NewBilling() {
                     />
                 )
             }
-
-
-
-            <div style={{ fontSize: 16, fontWeight: "700", marginTop: 40 }}>
-                My Billing History
-            </div>
-
-            <div className="w-full flex flex-row justify-between mt-10 px-10 gap-3">
-                <div className="w-5/12">
-                    <div style={styles.text}>Name</div>
-                </div>
-                <div className="w-1/12">
-                    <div style={styles.text}>Amount</div>
-                </div>
-                <div className="w-2/12">
-                    <div style={styles.text}>Status</div>
-                </div>
-                <div className="w-3/12">
-                    <div style={styles.text}>Date</div>
-                </div>
-            </div>
-
-            <div className="w-full">
-                {historyLoader ? (
-                    <div className="w-full flex flex-row items-center justify-center mt-8 pb-12">
-                        <CircularProgress size={35} thickness={2} />
-                    </div>
-                ) : (
-                    <div className="w-full">
-                        {PaymentHistoryData.map((item) => (
-                            <div
-                                key={item.id}
-                                className="w-full flex flex-row gap-3 mt-10 px-10"
-                            >
-                                <div className="w-5/12 flex flex-row gap-2">
-                                    <div className="truncate" style={styles.text2}>
-                                        {item.title}
-                                    </div>
-                                </div>
-                                <div className="w-1/12">
-                                    <div style={styles.text2}>${item.price.toFixed(2)}</div>
-                                </div>
-                                <div className="w-2/12 items-start">
-                                    <div
-                                        className="p-2 flex flex-row gap-2 items-center"
-                                        style={{
-                                            backgroundColor: "#01CB7610",
-                                            borderRadius: 20,
-                                            width: "5vw",
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                height: 8,
-                                                width: 8,
-                                                borderRadius: 5,
-                                                background: "#01CB76",
-                                            }}
-                                        ></div>
-                                        <div
-                                            style={{
-                                                fontSize: 15,
-                                                color: "#01CB76",
-                                                fontWeight: 500,
-                                            }}
-                                        >
-                                            Paid
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-3/12">
-                                    <div style={styles.text2}>
-                                        {GetFormattedDateString(item?.createdAt)}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
 
             <CancelPlanAnimation
                 showModal={showCancelPopup}

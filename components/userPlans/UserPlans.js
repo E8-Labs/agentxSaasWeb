@@ -9,8 +9,13 @@ import { loadStripe } from '@stripe/stripe-js';
 import UserAddCard from './UserAddCardModal';
 import UpgradePlan from './UpgradePlan';
 import YearlyPlanModal from './YearlyPlanModal';
+import Apis from '../apis/Apis';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
-function UserPlans({ handleContinue, handleBack }) {
+function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
+
+  const router = useRouter();
 
 
     let stripePublickKey =
@@ -51,6 +56,7 @@ function UserPlans({ handleContinue, handleBack }) {
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
     const [showYearlyPlanModal, setShowYearlyPlanModal] = useState(false)
     const [selectedMonthlyPlan, setSelectedMonthlyPlan] = useState(null)
+    const [subscribeLoader,setSubscribeLoader] = useState(false)
 
 
 
@@ -66,6 +72,55 @@ function UserPlans({ handleContinue, handleBack }) {
         }
         setAddPaymentPopUp(false);
         // handleSubscribePlan()
+    };
+
+     //function to subscribe plan
+     const handleSubscribePlan = async () => {
+        try {
+            let planType = selectedPlan?.planType;
+
+
+            setSubscribeLoader(true);
+            let AuthToken = null;
+            const localData = localStorage.getItem("User");
+            if (localData) {
+                const LocalDetails = JSON.parse(localData);
+                AuthToken = LocalDetails.token;
+            }
+
+            // //console.log;
+
+            const ApiData = {
+                plan: planType,
+            };
+
+            // //console.log;
+
+            const ApiPath = Apis.subscribePlan;
+            // //console.log;
+            console.log("Api data", ApiData);
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    Authorization: "Bearer " + AuthToken,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response) {
+                console.log("Response of subscribe plan api is", response.data);
+                if (response.data.status === true) {
+                    if(from === "dashboard"){
+                        router.push("/dashboard")
+                    }else{
+                        handleContinue()
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error occured in api is:", error);
+        } finally {
+            setSubscribeLoader(false);
+        }
     };
 
 
@@ -152,13 +207,21 @@ function UserPlans({ handleContinue, handleBack }) {
     const handleContinueMonthly = () => {
         // Proceed with monthly plan
         setShowYearlyPlanModal(false);
-        setAddPaymentPopUp(true);
+        if(!selectedMonthlyPlan.discountPrice){
+            handleSubscribePlan()
+        }else{
+            setAddPaymentPopUp(true);
+        }
     };
 
 
     return (
-        <div className='flex flex-col items-center w-full min-h-[100vh] bg-white'>
-            <div className='flex flex-col items-center w-[90%] min-h-full'>
+        <div className='flex flex-col items-center w-full h-[100vh] bg-white'>
+            <div className='flex flex-col items-center w-[90%]  h-full overflow-y-auto'
+                style={{
+                    scrollbarWidth:'none'
+                }}
+            >
 
                 <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
                     style={{ backgroundColor: '' }}>
@@ -227,8 +290,6 @@ function UserPlans({ handleContinue, handleBack }) {
                     </div>
                 </div>
 
-
-
                 <div className='flex flex-row gap-5 w-full mt-4 pb-8'>
                     {
                         getCurrentPlans().map((item, index) => (
@@ -241,7 +302,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                 className={`flex flex-col items-center w-3/12 rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
                                 `}
-                                style={{ height: 'auto', minHeight: '600px' }}
+                                style={{height: '900px' }}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>
@@ -275,7 +336,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                         }
                                     </div>
 
-                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full overflow-hidden'>
+                                    <div className='flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full'>
                                         {/* Header section - fixed height */}
                                         <div className='flex flex-col items-center w-full flex-shrink-0'>
                                             <div className='text-3xl font-semibold mt-2'>
@@ -285,9 +346,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                             <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
                                                 ${item.discountPrice || 0}
                                             </div>
-                                            <div className='text-base font-normal'>
-                                                {item.calls} Calls* Per Month
-                                            </div>
+
                                             <div className='text-[14px] font-normal text-black/50 '>
                                                 {item.details}
                                             </div>
@@ -298,9 +357,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                                     e.preventDefault();
                                                     e.stopPropagation();
                                                     handleTogglePlanClick(item, index);
-                                                    if (item.isFree) {
-                                                        setShowUpgradePlanPopup(true)
-                                                    } else if (selectedDuration.id === 1) {
+                                                    if (selectedDuration.id === 1 ||selectedDuration.id === 2 ) {
                                                         // Monthly plan selected - show yearly plan modal
                                                         setSelectedMonthlyPlan(item);
                                                         setShowYearlyPlanModal(true);
@@ -313,7 +370,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                                 Get Started
                                             </div>
                                         </div>
-                                        
+
                                         {/* Features container - scrollable */}
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
@@ -325,7 +382,7 @@ function UserPlans({ handleContinue, handleBack }) {
                                                 </div>
                                             )}
 
-                                            <div className='flex flex-col items-start w-full flex-1 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2'>
+                                            <div className='flex flex-col items-start w-full flex-1 pr-2'>
                                                 {
                                                     item.features.map((feature, featureIndex) => (
                                                         <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
@@ -334,8 +391,8 @@ function UserPlans({ handleContinue, handleBack }) {
                                                                 <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
                                                                     <span>{feature.text}</span>
                                                                     {feature.subtext && (
-                                                                        <Tooltip 
-                                                                            title={feature.subtext} 
+                                                                        <Tooltip
+                                                                            title={feature.subtext}
                                                                             arrow
                                                                             placement="top"
                                                                             sx={{
@@ -347,9 +404,17 @@ function UserPlans({ handleContinue, handleBack }) {
                                                                                 }
                                                                             }}
                                                                         >
-                                                                            <span className="w-3 h-3 bg-gray-400 text-white rounded-full flex items-center justify-center text-xs cursor-pointer hover:bg-gray-500 flex-shrink-0">
-                                                                                i
-                                                                            </span>
+                                                                            <div
+                                                                                style={{
+                                                                                    fontSize: 12,
+                                                                                    fontWeight: "600",
+                                                                                    color: "#000000",
+                                                                                    cursor: "pointer",
+                                                                                }}
+                                                                            >
+                                                                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                                                                                />
+                                                                            </div>
                                                                         </Tooltip>
                                                                     )}
                                                                 </div>
@@ -382,6 +447,8 @@ function UserPlans({ handleContinue, handleBack }) {
                 handleClose={() => setShowYearlyPlanModal(false)}
                 onContinueYearly={handleContinueYearly}
                 onContinueMonthly={handleContinueMonthly}
+                selectedDuration = {selectedDuration}
+                loading = {subscribeLoader}
             />
 
             <Modal

@@ -19,19 +19,6 @@ export default function UpgradePlanConfirmation({
 
 
     //get plan id for confirmation popup
-    const getPlanFromId = () => {
-        let planType = "";
-        if (plan === 1) {
-            planType = "30";
-        } else if (plan === 2) {
-            planType = "120";
-        } else if (plan === 3) {
-            planType = "360";
-        } else if (plan === 4) {
-            planType = "720";
-        }
-        return planType;
-    }
 
     return (
         <Dialog
