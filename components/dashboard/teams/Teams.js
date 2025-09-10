@@ -620,11 +620,11 @@ function Teams({
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {(myTeam?.length ? myTeam.length - 1 : 0)}/{(userLocalData?.plan?.planCapabilities?.maxAgents || userLocalData?.planCapabilities?.maxAgents || 0)} used
+            {(myTeam?.length ? myTeam.length - 1 : 0)}/{(userLocalData?.plan?.features?.maxTeamMembers || 0)} used
           </div>
 
           <Tooltip
-            title="Additional agents are $20/month each"
+            title="Additional team seats are $10/month each."
             arrow
             componentsProps={{
               tooltip: {

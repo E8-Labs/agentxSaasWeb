@@ -330,7 +330,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       setShowUpgradeModal(true)
       return
     }
-    return
+    // return
     try {
       setBuildAgentLoader(true);
       setLoaderModal(true);
