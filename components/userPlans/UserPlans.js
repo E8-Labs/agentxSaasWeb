@@ -386,7 +386,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                                                 {
                                                     item.features.map((feature, featureIndex) => (
                                                         <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
-                                                            <Image src="/svgIcons/greenTick.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
+                                                            <Image src="/svgIcons/selectedTickBtn.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
                                                             <div className='flex flex-col items-start gap-1 w-full min-w-0'>
                                                                 <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
                                                                     <span>{feature.text}</span>
@@ -471,7 +471,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                         <div
                             className="w-full border-white"
                             style={{
-                                backgroundColor: "#ffffff",
+                                backgroundColor: "#ffffff40",
                                 padding: 0,
                                 borderRadius: "13px",
                             }}

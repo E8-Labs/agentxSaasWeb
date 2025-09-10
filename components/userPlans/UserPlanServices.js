@@ -197,6 +197,36 @@ export const purchaseMins = async (mins) => {
 }
 
 
+export const checkReferralCode = async (code) => {
+    try {
+        let token = AuthToken()
+
+        console.log('trying to obtain offer')
+
+        const response = await axios.post(Apis.validateReferralCode,{
+            referralCode:code
+        }, {
+            headers: {
+                "Authorization": 'Bearer ' + token,
+                "Content-Type":'application/json'
+            }
+        })
+
+        if (response) {
+            console.log('response of referral code validations', response.data)
+            if (response.data.status == true) {
+                return response.data
+            } else {
+                return response.data
+            }
+        }
+
+    } catch (error) {
+        console.log('error referral code validations api', error)
+    }
+}
+
+
 export const calculatePlanPrice = (selectedPlan) => {
     console.log("Scale plan value passed is", selectedPlan);
     if (!selectedPlan) {
@@ -256,4 +286,40 @@ export const getTotalPrice = (selectedPlan) => {
     }
 }
 
+
+// Returns a human-friendly next charge date string based on plan billing cycle
+// monthly: +30 days, quarterly: +3 calendar months, yearly: +12 calendar months
+export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
+    try {
+        const billingCycle = (selectedPlan && (selectedPlan.billingCycle || selectedPlan.duration)) || "monthly";
+
+        const baseDate = new Date(fromDate);
+        const nextDate = new Date(baseDate);
+
+        if (billingCycle === "monthly") {
+            // exactly 30 days from now as requested
+            nextDate.setDate(nextDate.getDate() + 30);
+        } else if (billingCycle === "quarterly") {
+            // add 3 calendar months
+            const month = nextDate.getMonth();
+            nextDate.setMonth(month + 3);
+        } else if (billingCycle === "yearly") {
+            // add 12 calendar months
+            const month = nextDate.getMonth();
+            nextDate.setMonth(month + 12);
+        } else {
+            // default to 30 days if unknown
+            nextDate.setDate(nextDate.getDate() + 30);
+        }
+
+        const formatted = nextDate.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+        return formatted;
+    } catch (e) {
+        return "";
+    }
+}
 

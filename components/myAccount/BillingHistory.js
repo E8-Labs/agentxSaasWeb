@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
+import moment from 'moment';
 
 function BillingHistory() {
 
@@ -53,7 +54,7 @@ function BillingHistory() {
 
     return (
         <div
-            className="w-[95%] flex flex-col items-start pl-8 py-2 h-screen overflow-y-auto overflow-x-hidden"
+            className="w-full flex flex-col items-start pl-8 py-2 h-screen overflow-y-auto overflow-x-hidden"
             style={{
                 paddingBottom: "50px",
                 scrollbarWidth: "none", // For Firefox
@@ -81,17 +82,17 @@ function BillingHistory() {
                 My Billing History
             </div>
 
-            <div className="w-full flex flex-row justify-between mt-10 px-10 gap-3">
-                <div className="w-5/12">
+            <div className="w-full flex flex-row justify-between mt-10 px-6 gap-3">
+                <div className="w-4/12">
                     <div style={styles.text}>Name</div>
                 </div>
-                <div className="w-1/12">
+                <div className="w-2/12">
                     <div style={styles.text}>Amount</div>
                 </div>
                 <div className="w-2/12">
                     <div style={styles.text}>Status</div>
                 </div>
-                <div className="w-3/12">
+                <div className="w-4/12">
                     <div style={styles.text}>Date</div>
                 </div>
             </div>
@@ -106,14 +107,14 @@ function BillingHistory() {
                         {PaymentHistoryData.map((item) => (
                             <div
                                 key={item.id}
-                                className="w-full flex flex-row gap-3 mt-10 px-10"
+                                className="w-full flex flex-row gap-3 mt-10 px-6"
                             >
-                                <div className="w-5/12 flex flex-row gap-2">
+                                <div className="w-4/12 flex flex-row gap-2">
                                     <div className="truncate" style={styles.text2}>
                                         {item.title}
                                     </div>
                                 </div>
-                                <div className="w-1/12">
+                                <div className="w-2/12">
                                     <div style={styles.text2}>${item.price.toFixed(2)}</div>
                                 </div>
                                 <div className="w-2/12 items-start">
@@ -127,14 +128,6 @@ function BillingHistory() {
                                     >
                                         <div
                                             style={{
-                                                height: 8,
-                                                width: 8,
-                                                borderRadius: 5,
-                                                background: "#01CB76",
-                                            }}
-                                        ></div>
-                                        <div
-                                            style={{
                                                 fontSize: 15,
                                                 color: "#01CB76",
                                                 fontWeight: 500,
@@ -144,9 +137,9 @@ function BillingHistory() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-3/12">
+                                <div className="w-4/12">
                                     <div style={styles.text2}>
-                                        {GetFormattedDateString(item?.createdAt)}
+                                        {moment(item?.createdAt).format("MMM DD YYYY  h:mm A")}
                                     </div>
                                 </div>
                             </div>

@@ -25,14 +25,14 @@ import Apis from "@/components/apis/Apis";
 import AgentSelectSnackMessage, {
     SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
-import { calculatePlanPrice, getMonthlyPrice, getTotalPrice } from "./UserPlanServices";
+import { calculatePlanPrice, getMonthlyPrice, getTotalPrice, checkReferralCode, getNextChargeDate } from "./UserPlanServices";
 // import Apis from '../Apis/Apis';
 
 const UserAddCard = ({
     handleClose,
     togglePlan,
     setAddPaymentSuccessPopUp,
-   
+
     selectedUser,
     fromAdmin = false,
     selectedPlan
@@ -43,6 +43,10 @@ const UserAddCard = ({
     ////console.log
 
     const [inviteCode, setInviteCode] = useState("");
+    // referral code validation states
+    const [referralStatus, setReferralStatus] = useState("idle"); // idle | loading | valid | invalid
+    const [referralMessage, setReferralMessage] = useState("");
+    const referralRequestSeqRef = useRef(0);
 
     const [addCardLoader, setAddCardLoader] = useState(false);
     const [credentialsErr, setCredentialsErr] = useState(false);
@@ -87,6 +91,37 @@ const UserAddCard = ({
         }
     };
     // const [selectedUserPlan, setSelectedUserPlan] = useState(null);
+    // Debounced referral code validation (500 ms)
+    useEffect(() => {
+        if (!inviteCode || inviteCode.trim().length === 0) {
+            setReferralStatus("idle");
+            setReferralMessage("");
+            return;
+        }
+
+        setReferralStatus("loading");
+        setReferralMessage("");
+        const timer = setTimeout(async () => {
+            try {
+                const resp = await checkReferralCode(inviteCode.trim());
+                if (resp && resp.status) {
+                    setReferralStatus("valid");
+                    setReferralMessage(resp.message || "Referral code applied");
+                } else {
+                    setReferralStatus("invalid");
+                    setReferralMessage((resp && resp.message) || "Invalid referral code");
+                }
+            } catch (e) {
+                if (currentSeq !== referralRequestSeqRef.current) return;
+                setReferralStatus("invalid");
+                setReferralMessage("Unable to validate code. Please try again.");
+            }
+        }, 500);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [inviteCode]);
 
     if (!stripeReact || !elements) {
         ////console.log;
@@ -265,14 +300,14 @@ const UserAddCard = ({
     };
 
     const getMonthsCount = () => {
-        
+
         if (!selectedPlan) {
             return 1;
         }
-        
-        
+
+
         const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
-        
+
         if (billingCycle === "monthly") {
             return 1;
         } else if (billingCycle === "quarterly") {
@@ -284,7 +319,7 @@ const UserAddCard = ({
         }
     }
 
-  
+
 
 
     const PayAsYouGoPlanTypes = {
@@ -339,8 +374,8 @@ const UserAddCard = ({
                                 Card Number
                             </div>
                             <div
-                                className="mt-2 px-3 py-1 border relative flex items-center"
-                                style={{   borderRadius: "8px" }}
+                                className="mt-2 px-3 py-1 border relative flex items-center bg-[#ffffff70]"
+                                style={{ borderRadius: "8px" }}
                             >
                                 <div className="flex-1">
                                     <CardNumberElement
@@ -370,6 +405,8 @@ const UserAddCard = ({
                                 </div>
                             </div>
                         </div>
+
+
                         <div className="flex flex-row gap-2 w-full mt-8">
                             <div className="w-6/12">
                                 <div
@@ -377,14 +414,14 @@ const UserAddCard = ({
                                         fontWeight: "400",
 
                                         fontSize: 14,
-                                        color: "#4F5B76",
+                                        color: "#00000090",
                                     }}
                                 >
                                     Exp
                                 </div>
                                 <div
-                                    className="mt-2 px-3 py-1 border"
-                                    style={{   borderRadius: "8px" }}
+                                    className="mt-2 px-3 py-1 border bg-[#ffffff70]"
+                                    style={{ borderRadius: "8px" }}
                                 >
                                     <CardExpiryElement
                                         options={elementOptions}
@@ -418,14 +455,14 @@ const UserAddCard = ({
                                         fontWeight: "400",
 
                                         fontSize: 14,
-                                        color: "#4F5B76",
+                                        color: "#00000090",
                                     }}
                                 >
                                     CVC
                                 </div>
                                 <div
-                                    className="mt-2 px-3 py-1 border"
-                                    style={{   borderRadius: "8px" }}
+                                    className="mt-2 px-3 py-1 border bg-[#ffffff70]"
+                                    style={{ borderRadius: "8px" }}
                                 >
                                     <CardCvcElement
                                         options={elementOptions}
@@ -475,10 +512,9 @@ const UserAddCard = ({
                                 onChange={(e) => {
                                     setInviteCode(e.target.value);
                                 }}
-                                className="outline-none focus:ring-0 w-full h-[50px]"
+                                className="outline-none focus:ring-0 w-full h-[50px] bg-[#ffffff70]"
                                 style={{
-                                    color: "#000000",
-                                     
+                                    color: "#000",
                                     borderRadius: "8px",
                                     border: "1px solid #00000020",
                                     fontSize: 15,
@@ -492,6 +528,19 @@ const UserAddCard = ({
           }
         `}</style>
                         </div>
+
+                        {inviteCode ? (
+                            <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
+                                {referralStatus === "loading" && (
+                                    <>
+                                        <div style={{ fontSize: 12, color: "#4F5B76" }}>Validating code…</div>
+                                    </>
+                                )}
+                                {referralStatus === "invalid" && (
+                                    <div style={{ fontSize: 12, color: "#D93025", fontWeight: 600 }}>{referralMessage || "Invalid referral code"}</div>
+                                )}
+                            </div>
+                        ) : null}
 
                         {/* <CardPostalCodeElement id="postal-code" options={elementOptions} /> */}
 
@@ -572,8 +621,8 @@ const UserAddCard = ({
                     */}
                     </div>
                 </div>
-                <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg" style={{ backgroundColor: 'transparent' }}>
-                    <div className=" rounded-lg p-2 w-[90%]" style={{ backgroundColor: '#ffffffcc' }}>
+                <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg mt-5" style={{ backgroundColor: 'transparent' }}>
+                    <div className=" rounded-lg p-2 w-[90%] " style={{ backgroundColor: '#ffffff' }}>
                         <div style={{ fontSize: 22, fontWeight: "600" }}>Order Summary</div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
@@ -584,30 +633,38 @@ const UserAddCard = ({
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice(selectedPlan)}`}</div>
                         </div>
-                        {/*
-                         <div className="flex flex-row items-start justify-between w-full mt-6">
-                             <div>
-                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                     Referral Code
-                                 </div>
-                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Code desc goes here: 2 months free or 25% off, etc</div>
-                             </div>
-                             <div style={{ fontWeight: "600", fontSize: 15 }}>$372</div>
-                         </div>
-                       */}
+
+
+
+                        {inviteCode && (
+                            <div>
+                                <div className="flex flex-row items-start justify-between w-full mt-6">
+                                    <div>
+                                        <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                            Referral Code
+                                        </div>
+                                        <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
+                                            {referralMessage}
+                                        </div>
+                                    </div>
+                                    <div style={{ fontWeight: "600", fontSize: 15 }}>$372</div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
                                     Total Billed {selectedPlan?.billingCycle || selectedPlan?.duration}
                                 </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
+                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice(selectedPlan)}`}</div>
                         </div>
                         <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
-                            <div>
+                            <div className="flex flex-col items-end ">
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
                                     ${getTotalPrice(selectedPlan)}
                                 </div>

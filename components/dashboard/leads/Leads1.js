@@ -1830,8 +1830,10 @@ const Leads1 = () => {
         {/* Modal to add lead or import lead */}
         <Modal
           open={addNewLeadModal}
-          onClose={() => setAddNewLeadModal(false)}
+          // Prevent closing on backdrop click and escape key
+          onClose={() => {}}
           closeAfterTransition
+          disableEscapeKeyDown
           BackdropProps={{
             timeout: 1000,
             sx: {

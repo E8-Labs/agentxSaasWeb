@@ -620,7 +620,7 @@ function Teams({
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {myTeam.length - 1}/{userLocalData.plan.planCapabilities.maxAgents} used
+            {(myTeam?.length ? myTeam.length - 1 : 0)}/{(userLocalData?.plan?.planCapabilities?.maxAgents || userLocalData?.planCapabilities?.maxAgents || 0)} used
           </div>
 
           <Tooltip
@@ -672,6 +672,8 @@ function Teams({
             needHelp={false} />
         </div>
 
+        </div>
+
         <div
           className="flex h-[90vh] w-full justify-center overflow-auto pb-50"
           style={{ scrollbarWidth: "none" }}
@@ -697,7 +699,9 @@ function Teams({
 
 
                     onClick={() => {
-                      if (userLocalData?.planCapabilities.maxTeamMembers >= user?.currentUsage.maxTeamMembers) {
+                      const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
+                      const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
+                      if (maxTeamMembers >= currentMembers) {
                         setOpenInvitePopup(true)
                       } else {
                         setShowUpgradeModal(true)
@@ -909,7 +913,9 @@ function Teams({
                       }}
 
                       onClick={() => {
-                        if (userLocalData?.planCapabilities.maxTeamMembers > userLocalData?.currentUsage.maxTeamMembers) {
+                        const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
+                        const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
+                        if (maxTeamMembers > currentMembers) {
                           setOpenInvitePopup(true)
                         } else {
                           setShowUpgradeModal(true)

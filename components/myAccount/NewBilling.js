@@ -599,8 +599,8 @@ function NewBilling() {
                         let togglePlan = response2?.data?.data?.plan?.planId;
                         let planType = null;
 
-                        setTogglePlan(planType);
-                        setCurrentPlan(planType);
+                        setTogglePlan(togglePlan);
+                        setCurrentPlan(togglePlan);
                         setToggleFullPlan(response2?.data?.data?.plan)
                         setCurrentFullPlan(response2?.data?.data?.plan)
                     }
@@ -900,9 +900,17 @@ function NewBilling() {
         )
     }
 
+    const handleUpgradeClick = () => {
+        if (currentPlan && !selectedPlan.discountPrice) { // if user try to downgrade on free plan
+            setShowCancelPoup(true)
+        } else { //if(currentFullPlan?.discountPrice < !selectedPlan.discountPrice){
+            setShowConfirmationModal(true)
+        }
+    }
+
     return (
         <div
-            className="w-[95%] flex flex-col items-start pl-8 py-2 h-screen overflow-y-auto overflow-x-hidden"
+            className="w-[95%] flex flex-col items-start pl-8 py-2 h-screen overflow-hidden"
             style={{
                 paddingBottom: "50px",
                 scrollbarWidth: "none", // For Firefox
@@ -1226,7 +1234,7 @@ function NewBilling() {
                 ))}
             </div>
 
-            <div className="w-full flex flex-row items-center gap-3 mt-8">
+            <div className="w-full flex flex-row items-center justify-center gap-3 mt-8">
 
                 <div className="w-1/2">
                     {
@@ -1246,37 +1254,38 @@ function NewBilling() {
                     }
 
                 </div>
-                <div className="w-1/2">
-                    {subscribePlanLoader ? (
-                        <div>
-                            <CircularProgress size={25} />
+                {
+                    currentPlan !== togglePlan && (
+                        <div className="w-1/2">
+                            {subscribePlanLoader ? (
+                                <div>
+                                    <CircularProgress size={25} />
+                                </div>
+                            ) : (
+                                <button
+                                    className="rounded-xl w-full "
+                                    disabled={togglePlan === currentPlan}
+                                    style={{
+                                        height: "50px",
+                                        fontSize: 16,
+                                        fontWeight: "700",
+                                        flexShrink: 0,
+                                        backgroundColor:
+                                            togglePlan === currentPlan ? "#00000020" : "#7902DF",
+                                        color: togglePlan === currentPlan ? "#000000" : "#ffffff",
+                                    }}
+                                    // onClick={handleSubscribePlan}
+                                    onClick={() => {
+                                        handleUpgradeClick()
+
+                                    }}
+                                >
+                                    {`${togglePlan >= currentPlan ? "Downgrade Plan" : "Upgrade Plan"} `}
+                                </button>
+                            )}
                         </div>
-                    ) : (
-                        <button
-                            className="rounded-xl w-full "
-                            disabled={togglePlan === currentPlan}
-                            style={{
-                                height: "50px",
-                                fontSize: 16,
-                                fontWeight: "700",
-                                flexShrink: 0,
-                                backgroundColor:
-                                    togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                                color: togglePlan === currentPlan ? "#000000" : "#ffffff",
-                            }}
-                            // onClick={handleSubscribePlan}
-                            onClick={() => {
-                                if (currentPlan && !selectedPlan.discountPrice ) {
-                                    setShowCancelPoup(true)
-                                } else {
-                                    setShowConfirmationModal(true)
-                                }
-                            }}
-                        >
-                            {`${currentPlan <= togglePlan ? "Upgrade Plan" : "Downgrade Plan"} `}
-                        </button>
-                    )}
-                </div>
+                    )
+                }
 
 
             </div>
@@ -1285,7 +1294,7 @@ function NewBilling() {
             {
                 showConfirmationModal && (
                     <UpgradePlanConfirmation
-                        plan={togglePlan}
+                        plan={selectedPlan}
                         open={showConfirmationModal}
                         onClose={() => {
                             setShowConfirmationModal(false);

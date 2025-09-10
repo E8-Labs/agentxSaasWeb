@@ -262,6 +262,8 @@ const Apis = {
   sendEmailToLead :`${BasePath}api/templates/send-email`,
   sendSMSToLead :`${BasePath}api/templates/send-sms`,
 
+  validateReferralCode : `${BasePath}api/user/validateReferralCode`,
+
 
 
   // Call Analytics API

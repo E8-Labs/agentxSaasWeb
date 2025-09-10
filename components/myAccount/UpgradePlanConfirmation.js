@@ -9,6 +9,7 @@ import {
     IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import Image from "next/image";
 
 export default function UpgradePlanConfirmation({
     plan,
@@ -19,6 +20,7 @@ export default function UpgradePlanConfirmation({
 
 
     //get plan id for confirmation popup
+
 
     return (
         <Dialog
@@ -48,18 +50,28 @@ export default function UpgradePlanConfirmation({
 
             {/* Modal Title */}
             <DialogTitle sx={{ fontWeight: "bold", fontSize: "18px", mt: 1 }}>
-                Billing
+                Are you sure?
             </DialogTitle>
 
             {/* Modal Content */}
             <DialogContent>
-                <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                    Confirm <span style={{ color: "black" }}>{`${getPlanFromId()}`} Mins</span>
+
+                <Typography sx={{ color: "#000", fontSize: "16px" ,fontWeight:500}}>
+                    {`The ${plan.name} plans only allows for x ai agents and x teams and x amount of contacts.
+                    You’ll be billed separately for each extra agent and team seat. You’ll also lose access to the following features: `}
                 </Typography>
-                <Typography sx={{ color: "#000", fontSize: "16px" }}>
-                    {` Please confirm you’d like to proceed with the plan you’ve
-          selected.`}
-                </Typography>
+                <div className="flex flex-col items-start mt-4 gap-1">
+                    {
+                        plan?.features?.map((item) => (
+                            <div key={item.text} className="flex flex-row items-start gap-3 w-full">
+                                <Image src="/svgIcons/greenTick.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
+                                <Typography sx={{ color: "#000", fontSize: "14px" }}>
+                                    {item.text}
+                                </Typography>
+                            </div>
+                        ))
+                    }
+                </div>
             </DialogContent>
 
             {/* Buttons */}
@@ -109,7 +121,7 @@ export default function UpgradePlanConfirmation({
                         width: "45%",
                     }}
                 >
-                    Continue
+                    Downgrade
                 </div>
             </DialogActions>
         </Dialog>

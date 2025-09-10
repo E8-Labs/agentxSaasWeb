@@ -9,6 +9,7 @@ import { CardCvcElement, CardExpiryElement, CardNumberElement, Elements, useElem
 import { loadStripe } from "@stripe/stripe-js";
 import { PersistanceKeys } from '@/constants/Constants'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
+import UserAddCard from './UserAddCardModal'
 
 
 
@@ -418,7 +419,7 @@ function UpgradePlan({
         }
     };
 
-    console.log('price is ',(selectedPlan?.discountPrice))
+    console.log('price is ', (selectedPlan?.discountPrice))
 
 
     return (
@@ -625,331 +626,77 @@ function UpgradePlan({
                                             )}
                                         </div>
 
-                                        {!isAddingCard ? (
-                                            <>
-                                                <div className='flex flex-col gap-2 mt-2 items-center h-[20vh] w-full overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
-                                                    {cards.map((item) => (
-                                                        <div className="w-full" key={item.id}>
-                                                            <button
-                                                                className="w-full outline-none"
-                                                            >
-                                                                <div
-                                                                    className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
-                                                                    style={{
-                                                                        backgroundColor:
-                                                                            item.isDefault || selectedCard?.id === item.id
-                                                                                ? "#4011FA05"
-                                                                                : "transparent",
-                                                                        borderColor:
-                                                                            item.isDefault || selectedCard?.id === item.id
-                                                                                ? "#7902DF"
-                                                                                : "#15151510",
-                                                                    }}
-                                                                >
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div
-                                                                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
-                                                                            style={{
-                                                                                borderWidth:
-                                                                                    item.isDefault || selectedCard?.id === item.id
-                                                                                        ? 3
-                                                                                        : 1,
-                                                                            }}
-                                                                        ></div>
 
-                                                                        <Image
-                                                                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                                                                            alt="Card Logo"
-                                                                            width={50}
-                                                                            height={50}
-                                                                        />
-
-                                                                        <div className='text-xs font-normal'>
-                                                                            ****{item.last4} {
-                                                                                item.isDefault && (
-                                                                                    <span>{`(default)`}</span>
-                                                                                )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className='flex flex-row items-center justify-center'>
-                                                                        <button className='text-xs font-normal'>
-                                                                            {" Edit | "}
-                                                                        </button>
-
-                                                                        <button className='text-xs font-normal ml-1'>
-                                                                            {" Delete"}
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                <button
-                                                    onClick={() => {
-                                                        setIsAddingCard(true);
-                                                        setShowAddCard(true);
-                                                    }}
-                                                    className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
-                                                >
-                                                    + Add Payment
-                                                </button>
-                                            </>
-                                        ) : null}
-
-                                        {
-                                            isAddingCard && (
-                                                <div className='flex flex-col mt-4 items-start w-full max-h-[40vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
-
-                                                    <div className='text-xl font-semibold'>
-                                                        Add Payment Details
-                                                    </div>
-                                                    <Elements stripe={stripePromise}>
-                                                        <div className='w-full'>
-                                                            <div
-                                                                style={{
-                                                                    fontWeight: "400",
-                                                                    fontSize: 14,
-                                                                    color: "#4F5B76",
-                                                                }}
-                                                            >
-                                                                Card Number
-                                                            </div>
-                                                            <div
-                                                                className="mt-2 px-3 py-1 border relative flex items-center"
-                                                                style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                                                            >
-                                                                <div className="flex-1 w-full">
-                                                                    <CardNumberElement
-                                                                        options={elementOptions}
-                                                                        autoFocus={true}
-                                                                        onChange={(event) => {
-                                                                            handleFieldChange(event, cardExpiryRef);
-                                                                            if (event.complete) {
-                                                                                // //console.log;
-                                                                                setCardAdded(true);
-                                                                            } else {
-                                                                                setCardAdded(false);
-                                                                            }
-                                                                        }}
-                                                                        ref={cardNumberRef}
-                                                                        onReady={(element) => {
-                                                                            cardNumberRef.current = element;
-                                                                            cardNumberRef.current.focus();
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="flex items-center gap-1 ml-2">
-                                                                    <Image src="/svgIcons/Visa.svg" alt="Visa" width={32} height={20} />
-                                                                    <Image src="/svgIcons/Mastercard.svg" alt="Mastercard" width={32} height={20} />
-                                                                    <Image src="/svgIcons/Amex.svg" alt="American Express" width={32} height={20} />
-                                                                    <Image src="/svgIcons/Discover.svg" alt="Discover" width={32} height={20} />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex flex-row gap-2 w-full mt-8">
-                                                            <div className="w-6/12">
-                                                                <div
-                                                                    style={{
-                                                                        fontWeight: "400",
-
-                                                                        fontSize: 14,
-                                                                        color: "#4F5B76",
-                                                                    }}
-                                                                >
-                                                                    Exp
-                                                                </div>
-                                                                <div
-                                                                    className="mt-2 px-3 py-1 border"
-                                                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                                                                >
-                                                                    <CardExpiryElement
-                                                                        options={elementOptions}
-                                                                        style={{
-                                                                            width: "100%",
-                                                                            padding: "8px",
-                                                                            color: "white",
-                                                                            fontSize: "22px",
-                                                                            border: "1px solid blue",
-                                                                            borderRadius: "4px",
-                                                                        }}
-                                                                        onChange={(event) => {
-                                                                            handleFieldChange(event, cardCvcRef);
-                                                                            if (event.complete) {
-                                                                                // //console.log;
-                                                                                setCardExpiry(true);
-                                                                            } else {
-                                                                                setCardExpiry(false);
-                                                                            }
-                                                                        }}
-                                                                        ref={cardExpiryRef}
-                                                                        onReady={(element) => {
-                                                                            cardExpiryRef.current = element;
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className="w-6/12">
-                                                                <div
-                                                                    style={{
-                                                                        fontWeight: "400",
-
-                                                                        fontSize: 14,
-                                                                        color: "#4F5B76",
-                                                                    }}
-                                                                >
-                                                                    CVC
-                                                                </div>
-                                                                <div
-                                                                    className="mt-2 px-3 py-1 border"
-                                                                    style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
-                                                                >
-                                                                    <CardCvcElement
-                                                                        options={elementOptions}
-                                                                        style={{
-                                                                            width: "100%",
-                                                                            padding: "8px",
-                                                                            color: "white",
-                                                                            fontSize: "22px",
-                                                                            border: "1px solid blue",
-                                                                            borderRadius: "4px",
-                                                                        }}
-                                                                        ref={cardCvcRef}
-                                                                        onReady={(element) => {
-                                                                            cardCvcRef.current = element;
-                                                                        }}
-                                                                        onChange={(event) => {
-                                                                            // handleFieldChange(event, cardCvcRef);
-                                                                            if (event.complete) {
-                                                                                // //console.log;
-                                                                                setCVC(true);
-                                                                            } else {
-                                                                                setCVC(false);
-                                                                            }
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Optional input field for agent x invite code */}
-
+                                        <div className='flex flex-col gap-2 mt-2 items-center h-[20vh] w-full overflow-y-auto' style={{ scrollbarWidth: 'none' }}>
+                                            {cards.map((item) => (
+                                                <div className="w-full" key={item.id}>
+                                                    <button
+                                                        className="w-full outline-none"
+                                                    >
                                                         <div
-                                                            className="mt-8"
+                                                            className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
                                                             style={{
-                                                                fontWeight: "400",
-
-                                                                fontSize: 14,
-                                                                color: "#4F5B76",
+                                                                backgroundColor:
+                                                                    item.isDefault || selectedCard?.id === item.id
+                                                                        ? "#4011FA05"
+                                                                        : "transparent",
+                                                                borderColor:
+                                                                    item.isDefault || selectedCard?.id === item.id
+                                                                        ? "#7902DF"
+                                                                        : "#15151510",
                                                             }}
                                                         >
-                                                            {`Referral Code (optional)`}
-                                                        </div>
-
-                                                        <div className="mt-4">
-                                                            <input
-                                                                value={inviteCode}
-                                                                onChange={(e) => {
-                                                                    setInviteCode(e.target.value);
-                                                                }}
-                                                                className="outline-none focus:ring-0 w-full h-[50px]"
-                                                                style={{
-                                                                    color: "#000000",
-                                                                    backgroundColor: "rgba(255, 255, 255, 0.8)",
-                                                                    borderRadius: "8px",
-                                                                    border: "1px solid #00000020",
-                                                                    fontSize: 15,
-                                                                    fontWeight: "500",
-                                                                }}
-                                                                placeholder="Enter Referral code"
-                                                            />
-                                                            <style jsx>{`
-                                                    input::placeholder {
-                                                        color: #00000050; /* Set placeholder text color to red */
-                                                    }
-                                                    `}</style>
-                                                        </div>
-                                                    </Elements>
-
-                                                    <div className="mt-4 w-full flex flex-row items-center gap-4">
-                                                        <button
-                                                            className="outline-none border-none"
-                                                            onClick={() => { setAgreeTerms(!agreeTerms) }}>
-
-                                                            {agreeTerms ? (
+                                                            <div className="flex items-center gap-2">
                                                                 <div
-                                                                    className="bg-purple flex flex-row items-center justify-center rounded"
-                                                                    style={{ height: "24px", width: "24px" }}
-                                                                >
-                                                                    <Image
-                                                                        src={"/assets/whiteTick.png"}
-                                                                        height={8}
-                                                                        width={10}
-                                                                        alt="*"
-                                                                    />
-                                                                </div>
-                                                            ) : (
-                                                                <div
-                                                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                                                    style={{ height: "24px", width: "24px" }}
+                                                                    className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
+                                                                    style={{
+                                                                        borderWidth:
+                                                                            item.isDefault || selectedCard?.id === item.id
+                                                                                ? 3
+                                                                                : 1,
+                                                                    }}
                                                                 ></div>
-                                                            )}
-                                                        </button>
 
-                                                        <div
-                                                            className="flex flex-row items-center gap-2"
-                                                            style={{
-                                                                fontWeight: "500",
-                                                                fontSize: 15
-                                                            }}>
-                                                            <div>
-                                                                I agree to
+                                                                <Image
+                                                                    src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                                                                    alt="Card Logo"
+                                                                    width={50}
+                                                                    height={50}
+                                                                />
+
+                                                                <div className='text-xs font-normal'>
+                                                                    ****{item.last4} {
+                                                                        item.isDefault && (
+                                                                            <span>{`(default)`}</span>
+                                                                        )}
+                                                                </div>
                                                             </div>
-                                                            <a
-                                                                href={"https://www.myagentx.com/terms-and-condition"} // Replace with the actual URL
-                                                                style={{ textDecoration: "underline", color: "black" }} // Underline and color styling
-                                                                target="_blank" // Opens in a new tab (optional)
-                                                                rel="noopener noreferrer" // Security for external links
-                                                            >
-                                                                Terms & Conditions
-                                                            </a>
+
+                                                            <div className='flex flex-row items-center justify-center'>
+                                                                <button className='text-xs font-normal'>
+                                                                    {" Edit | "}
+                                                                </button>
+
+                                                                <button className='text-xs font-normal ml-1'>
+                                                                    {" Delete"}
+                                                                </button>
+                                                            </div>
                                                         </div>
-
-                                                    </div>
-
-                                                    <div className='flex flex-row items-center gap-5 w-full mt-8'>
-                                                        <button
-                                                            className='w-1/2 flex flex-col items-center justify-center 
-                                                            h-[53px] border-2 rounded-lg text-lg font-semibold
-                                                            hover:bg-gray-50 transition-colors duration-200'
-                                                            onClick={() => {
-                                                                setIsAddingCard(false);
-                                                                setShowAddCard(false);
-                                                            }}
-                                                        >
-                                                            Cancel
-                                                        </button>
-
-                                                        {addCardLoader ? (
-                                                            <div className="flex flex-row justify-center items-center mt-8 w-full">
-                                                                <CircularProgress size={30} />
-                                                            </div>
-                                                        ) : (
-                                                            <button
-                                                                className='w-1/2 flex flex-col items-center justify-center 
-                                                            h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold
-                                                            '
-                                                                onClick={handleAddCard}
-                                                            >
-                                                                Add Payment
-                                                            </button>
-                                                        )}
-                                                    </div>
+                                                    </button>
                                                 </div>
-                                            )
-                                        }
+                                            ))}
+                                        </div>
+
+                                        <button
+                                            onClick={() => {
+                                                // setIsAddingCard(true);
+                                                setShowAddCard(true);
+                                            }}
+                                            className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
+                                        >
+                                            + Add Payment
+                                        </button>
+
                                     </div>
 
 
@@ -1080,6 +827,62 @@ function UpgradePlan({
 
                             </div>
                         </div>
+
+                        <Modal
+                            open={showAddCard}
+                            // open={true}
+                            closeAfterTransition
+                            BackdropProps={{
+                                timeout: 100,
+                                sx: {
+                                    backgroundColor: "#00000020",
+                                    backdropFilter: "blur(15px)",
+                                },
+                            }}
+                        >
+                            <Box
+                                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+                                sx={styles.paymentModal}
+                            >
+                                <div className="flex flex-row justify-center w-full ">
+                                    <div
+                                        className="w-full border-white"
+                                        style={{
+                                            backgroundColor: "#ffffff40",
+                                            padding: 0,
+                                            borderRadius: "13px",
+                                        }}
+                                    >
+                                        <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
+                                            <button onClick={() => {
+                                                setShowAddCard(false);
+                                                // setIsContinueMonthly(false);
+                                            }}>
+                                                <Image
+                                                    src={"/assets/crossIcon.png"}
+                                                    height={40}
+                                                    width={40}
+                                                    alt="*"
+                                                />
+                                            </button>
+                                        </div>
+                                        <Elements stripe={stripePromise}>
+                                            <UserAddCard
+                                                handleClose={(data) => {
+                                                    if (data) {
+                                                        // const userProfile = await getProfileDetails();
+                                                        // handleContinue()
+                                                    }
+                                                    setAddPaymentPopUp(false);
+                                                }}
+                                                selectedPlan={selectedPlan}
+                                            // togglePlan={togglePlan}
+                                            />
+                                        </Elements>
+                                    </div>
+                                </div>
+                            </Box>
+                        </Modal>
 
 
                     </div>
