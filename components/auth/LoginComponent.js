@@ -462,7 +462,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             const twoHoursFromNow = new Date();
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000);
             if (typeof document !== "undefined") {
-              setCookie(response.data.user, document, twoHoursFromNow);
+              setCookie(response.data.data.user, document, twoHoursFromNow);
               router.push("/onboarding/WaitList");
             }
           } else {

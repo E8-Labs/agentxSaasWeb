@@ -7,6 +7,10 @@ export function middleware(request) {
   const userCookie = request.cookies.get("User");
   let user = null;
 
+  if (user === null) {
+    console.log("not found user")
+  }
+
   if (userCookie) {
     try {
       user = JSON.parse(decodeURIComponent(userCookie.value));
@@ -64,11 +68,10 @@ export function middleware(request) {
   }
 
   // 🚨 Force re-login if cookie is outdated (missing userRole or userType)
-  if (!user.userRole || !user.userType) {
-    const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.delete("User"); // clear old cookie
-    return response;
-  }
+  // if (!user.userRole || !user.userType) {
+  //   // Allow request to proceed without deleting cookie to avoid instant logout on fresh login
+  //   return NextResponse.next();
+  // }
   console.log("User data is", user);
   // ---- Centralized redirect rule ----
   let expectedPath = null;
