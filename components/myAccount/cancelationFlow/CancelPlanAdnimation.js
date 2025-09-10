@@ -34,12 +34,10 @@ export default function CancelPlanAnimation({
 }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
-
-    //variables storing data
-    const [subFormData, setSubFormData] = useState(null);
-    const [selectedUser, setSelectedUser] = useState("");
-    const [monthlyPlans, setMonthlyPlans] = useState([]);
-    const [xBarOptions, setXBarOptions] = useState([]);
+    const [showSnack,setShowSnak ] = useState({
+        data:null,
+        message:null
+    })
 
     const handleContinue = async (nextAction) => {
         console.log('currentIndex', currentIndex)

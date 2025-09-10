@@ -309,6 +309,8 @@ function Page() {
   const [showEmbed, setShowEmbed] = useState(false);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [title, setTitle] = useState(null)
+  const [subTitle, setSubTitle] = useState(null)
 
   const [showAskToUpgradeModal, setShowAskToUPgradeModal] = useState(false)
 
@@ -393,8 +395,8 @@ function Page() {
 
   useEffect(() => {
     let data = getUserLocalData()
-    setUser(data.user)
-    console.log('data', data.user.plan)
+    setUser(data)
+    console.log('data', data.user)
   }, [])
   // get selected agent from local if calendar added by google
 
@@ -2202,7 +2204,7 @@ function Page() {
   //function to add new agent
   const handleAddNewAgent = (event) => {
     event.preventDefault();
-    if (user?.user?.currentUsage?.maxAgents >= user?.user?.features?.maxAgents) {
+    if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
       setShowUpgradeModal(true)
       return
     }
@@ -2345,7 +2347,6 @@ function Page() {
   const handleDuplicate = async () => {
     console.log("Duplicate agent clicked");
     setDuplicateLoader(true);
-    setShowDuplicateConfirmationPopup(false);
     try {
       const data = localStorage.getItem("User");
 
@@ -2366,8 +2367,10 @@ function Page() {
 
         if (response) {
           setDuplicateLoader(false);
+          setShowDuplicateConfirmationPopup(false);
+
+          console.log("duplicate agent data ", response);
           if (response.data.status === true) {
-            console.log("duplicate agent data ", response);
 
             setShowSuccessSnack("Agent duplicated successfully");
             setIsVisibleSnack(true);
@@ -2386,12 +2389,15 @@ function Page() {
               );
               setMainAgentsList(updatedArray);
             }
+          } else {
+            setShowErrorSnack(response.data.message);
+            setIsVisibleSnack2(true);
           }
         }
       }
     } catch (error) {
       setDuplicateLoader(false);
-      // console.error("Error occured in duplicate agent api is", error);
+      console.error("Error occured in duplicate agent api is", error);
       // setShowErrorSnack("Error occured while duplicating agent");
       const errorMessage =
         error?.response?.data?.message || error?.message || error.toString();
@@ -2494,37 +2500,57 @@ function Page() {
   // ////console.log
 
   const handleWebhookClick = (assistantId, baseUrl) => {
-    let url = baseUrl + "api/agent/demoAi/" + assistantId
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Webhook URL Copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+    if (user?.user.planCapabilities.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true)
+      setTitle("Unlock your Web Agent")
+      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+    } else {
+
+      let url = baseUrl + "api/agent/demoAi/" + assistantId
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          // alert("Embed code copied to clipboard!");
+          setShowSuccessSnack("Webhook URL Copied");
+          setIsVisibleSnack(true);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
   };
 
   const handleCopy = (assistantId, baseUrl) => {
-    const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+    if (user?.user.planCapabilities.allowEmbedAndWebAgents === false) {
+      setShowUpgradeModal(true)
+      setTitle("Unlock your Web Agent")
+      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+    } else {
+
+      const iframeCode = `<iframe src="${baseUrl}embed/support/${assistantId}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`;
 
-    navigator.clipboard
-      .writeText(iframeCode)
-      .then(() => {
-        // alert("Embed code copied to clipboard!");
-        setShowSuccessSnack("Embed widget copied");
-        setIsVisibleSnack(true);
-      })
-      .catch((err) => {
-        console.error("Failed to copy text: ", err);
-      });
+      navigator.clipboard
+        .writeText(iframeCode)
+        .then(() => {
+          // alert("Embed code copied to clipboard!");
+          setShowSuccessSnack("Embed widget copied");
+          setIsVisibleSnack(true);
+        })
+        .catch((err) => {
+          console.error("Failed to copy text: ", err);
+        });
+    }
   };
 
+
+  const handleDrawerClose =async () => {
+    setShowDrawerSelectedAgent(null);
+    await getProfileDetails()
+    setActiveTab("Agent Info");
+  }
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -2557,7 +2583,7 @@ function Page() {
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {agentsListSeparated.length}/{user?.plan?.planCapabilities?.maxAgents} used
+            {agentsListSeparated.length}/{user?.user?.plan?.features?.maxAgents} used
           </div>
 
 
@@ -3092,8 +3118,8 @@ function Page() {
           setShowUpgradeModal(false)
         }}
 
-        title={"Unlock More Agents"}
-        subTitle={"Upgrade to add more agents to your team and scale your calling power"}
+        title={title || "Unlock More Agents"}
+        subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
         buttonTitle={"No Thanks"}
       />
 
@@ -3112,8 +3138,7 @@ function Page() {
         anchor="right"
         open={showDrawerSelectedAgent != null}
         onClose={() => {
-          setShowDrawerSelectedAgent(null);
-          setActiveTab("Agent Info");
+          handleDrawerClose()
         }}
         PaperProps={{
           sx: {
@@ -3309,6 +3334,7 @@ function Page() {
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
                     handleDuplicate={handleDuplicate}
+                    duplicateLoader={duplicateLoader}
                   />
                   <div className="flex flex-col gap-2  ">
                     {/* GPT Button */}
@@ -3421,16 +3447,22 @@ function Page() {
                     loading={duplicateLoader}
                   />
                   <button onClick={() => {
-                    console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
-                    // return;
-                    // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
-                    // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                    // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                    const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
-                    const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
+                    if (user?.user.planCapabilities.allowEmbedAndWebAgents === false) {
+                      setShowUpgradeModal(true)
+                      setTitle("Unlock your Web Agent")
+                      setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                    } else {
 
-                    window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+                      console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
+                      // return;
+                      // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
+                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
+                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
+                      const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
+                      const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
 
+                      window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+                    }
                   }}
                   >
                     <Image

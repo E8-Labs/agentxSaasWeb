@@ -20,6 +20,7 @@ import { UserTypes } from "@/constants/UserTypes";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import UpgradePlan from "../userPlans/UpgradePlan";
+import UnlockAgentModal from "@/constants/UnlockAgentModal";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed Google Maps API key - no longer needed
@@ -69,6 +70,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [user, setUser] = useState(null);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showUnclockModal, setShowUnclockModal] = useState(false)
+  const [modalDesc, setModalDesc] = useState(null)
 
   // Removed address picker modal - no longer needed
 
@@ -298,718 +301,747 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   //code for selecting outbound calls
   const handleInboundCallClick = () => {
     // setOutBoundCalls(false);
-    setInBoundCalls(!InBoundCalls);
+    if (OutBoundCalls) {
+      console.log('show modal', user.user.plan)
+      shouldShowUpgrade()
+    }else {
+      setInBoundCalls(!InBoundCalls);
+    }
   };
 
-  //code for selecting inbound calls
-  const handleOutBoundCallClick = () => {
-    // setInBoundCalls(false);
-    setOutBoundCalls(!OutBoundCalls);
-  };
-
-  const haveLimit = () => {
-
-    let isBothAgents = InBoundCalls && OutBoundCalls
-    console.log('isBothAgents', isBothAgents)
-
-    let remainingLimit = user?.plan?.planCapabilities?.maxAgents - user?.plan?.currentUsage?.maxAgents
-    console.log('remainingLimit', remainingLimit)
-    if (user?.plan === null && isBothAgents) {
-      return false
-    } else
-      if ((isBothAgents && remainingLimit >= 2) || (!isBothAgents && remainingLimit >= 1)) {
-        return false
-      }
-      else
-        return true
+  const shouldShowUpgrade = () => {
+    if (user?.user?.plan === null || !user?.user?.plan?.discountPrice) {
+      setShowUnclockModal(true)
+      setModalDesc("The free plan only allows for 1 AI Agent.")
+    } else if (user?.user?.currentUsage.maxAgents >= user?.user?.planCapabilities.maxAgents - 1) {
+      setShowUnclockModal(true)
+      setModalDesc(`Your plan only allows for ${user?.user?.planCapabilities.maxAgents} AI Agent.`)
+    }
   }
+//code for selecting inbound calls
+const handleOutBoundCallClick = () => {
+  // setInBoundCalls(false);
 
-  //code for creating agent api
-  const handleBuildAgent = async () => {
-    if (!haveLimit()) {
-      setShowUpgradeModal(true)
-      return
+  if (InBoundCalls) {
+    console.log('show modal', user.user.plan)
+    shouldShowUpgrade()
+  }else{
+    setOutBoundCalls(!OutBoundCalls);
+  }
+};
+
+const haveLimit = () => {
+
+  let isBothAgents = InBoundCalls && OutBoundCalls
+  console.log('isBothAgents', isBothAgents)
+
+  let remainingLimit = user?.plan?.planCapabilities?.maxAgents - user?.plan?.currentUsage?.maxAgents
+  console.log('remainingLimit', remainingLimit)
+  if (user?.plan === null && isBothAgents) {
+    return false
+  } else
+    if ((isBothAgents && remainingLimit >= 2) || (!isBothAgents && remainingLimit >= 1)) {
+      return false
+    }
+    else
+      return true
+}
+
+//code for creating agent api
+const handleBuildAgent = async () => {
+  if (!haveLimit()) {
+    setShowUpgradeModal(true)
+    return
+  }
+  // return
+  try {
+    setBuildAgentLoader(true);
+    setLoaderModal(true);
+    const localData = localStorage.getItem("User");
+    let AuthToken = null;
+    let LocalDetails = null;
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      // //console.log;
+      AuthToken = UserDetails.token;
+      LocalDetails = UserDetails;
     }
     // return
-    try {
-      setBuildAgentLoader(true);
-      setLoaderModal(true);
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      let LocalDetails = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        // //console.log;
-        AuthToken = UserDetails.token;
-        LocalDetails = UserDetails;
-      }
-      // return
-      // //console.log;
-      const ApiPath = Apis.buildAgent;
-      // //console.log;
-      const formData = new FormData();
+    // //console.log;
+    const ApiPath = Apis.buildAgent;
+    // //console.log;
+    const formData = new FormData();
 
-      //code for sending the user  id if from agency subaccount flow
-      let userId = null;
+    //code for sending the user  id if from agency subaccount flow
+    let userId = null;
 
-      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
 
-      if (U) {
-        const d = JSON.parse(U);
-        console.log("Subaccount data recieved on createagent_1 screen is", d);
-        userId = d.subAccountData.id;
-      }
-
-      if (userId) {
-        console.log("User id to create new agent is", userId);
-        formData.append("userId", userId);
-      }
-
-      formData.append("name", agentName);
-      formData.append("agentRole", agentRole);
-      let agentType = null;
-      if (InBoundCalls && OutBoundCalls) {
-        agentType = "both";
-      } else if (InBoundCalls) {
-        agentType = "inbound";
-      } else if (OutBoundCalls) {
-        agentType = "outbound";
-      }
-      formData.append("agentType", agentType);
-      if (selectedStatus) {
-        if (selectedStatus.id === 5) {
-          formData.append("status", otherStatus);
-        } else {
-          formData.append("status", selectedStatus.title);
-        }
-      } else {
-      }
-      // return;
-      if (addressValue) {
-        formData.append("address", addressValue);
-      }
-      if (!canShowObjectives()) {
-        //if the user type is not real estate then we don't show objectives to user
-        formData.append("agentObjective", "others");
-        formData.append("agentObjectiveDescription", "");
-        formData.append("agentObjectiveId", 100);
-      } else if (agentObjective.id === 100) {
-        formData.append("agentObjective", "others");
-        formData.append("agentObjectiveDescription", otherObjVal);
-        formData.append("agentObjectiveId", 100);
-      } else {
-        formData.append("agentObjective", agentObjective.title);
-        formData.append("agentObjectiveDescription", agentObjective.details);
-        formData.append("agentObjectiveId", agentObjective.id);
-      }
-
-      // //console.log;
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`);
-      }
-
-      // return
-      const response = await axios.post(ApiPath, formData, {
-        headers: {
-          Authorization: "Bearer " + AuthToken,
-        },
-      });
-
-      if (response) {
-        // //console.log;
-        setIsVisible(true);
-        if (response.data.status === true) {
-          console.log("Response of add new agent is", response.data);
-          setSnackMessage("Agent created successfully.");
-          setMsgType(SnackbarTypes.Success);
-          localStorage.setItem(
-            PersistanceKeys.LocalSavedAgentDetails,
-            JSON.stringify(response.data.data)
-          );
-
-          let AT = { agentType, agentName };
-          localStorage.setItem("agentType", JSON.stringify(AT));
-
-          const L = localStorage.getItem("isFromCheckList");
-
-          const localData = localStorage.getItem("User");
-          if (localData) {
-            let D = JSON.parse(localData);
-            D.user.checkList.checkList.agentCreated = true;
-            localStorage.setItem("User", JSON.stringify(D));
-          }
-          window.dispatchEvent(
-            new CustomEvent("UpdateCheckList", { detail: { update: true } })
-          );
-          handleContinue();
-          // }
-        } else if (response.data.status === false) {
-          setSnackMessage("Agent creation failed!");
-          setMsgType(SnackbarTypes.Error);
-          setBuildAgentLoader(false);
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in build agent api is: ----", error);
-      setLoaderModal(false);
-      setBuildAgentLoader(false);
-    } finally {
+    if (U) {
+      const d = JSON.parse(U);
+      console.log("Subaccount data recieved on createagent_1 screen is", d);
+      userId = d.subAccountData.id;
     }
-  };
 
-  //code to select the status
-  const handleSelectStatus = (item) => {
-    if (item.id === 5) {
-      setShowSomtthingElse(true);
+    if (userId) {
+      console.log("User id to create new agent is", userId);
+      formData.append("userId", userId);
+    }
+
+    formData.append("name", agentName);
+    formData.append("agentRole", agentRole);
+    let agentType = null;
+    if (InBoundCalls && OutBoundCalls) {
+      agentType = "both";
+    } else if (InBoundCalls) {
+      agentType = "inbound";
+    } else if (OutBoundCalls) {
+      agentType = "outbound";
+    }
+    formData.append("agentType", agentType);
+    if (selectedStatus) {
+      if (selectedStatus.id === 5) {
+        formData.append("status", otherStatus);
+      } else {
+        formData.append("status", selectedStatus.title);
+      }
     } else {
-      setShowSomtthingElse(false);
     }
-    setSelectedStatus((prevId) => (prevId === item ? null : item));
-  };
+    // return;
+    if (addressValue) {
+      formData.append("address", addressValue);
+    }
+    if (!canShowObjectives()) {
+      //if the user type is not real estate then we don't show objectives to user
+      formData.append("agentObjective", "others");
+      formData.append("agentObjectiveDescription", "");
+      formData.append("agentObjectiveId", 100);
+    } else if (agentObjective.id === 100) {
+      formData.append("agentObjective", "others");
+      formData.append("agentObjectiveDescription", otherObjVal);
+      formData.append("agentObjectiveId", 100);
+    } else {
+      formData.append("agentObjective", agentObjective.title);
+      formData.append("agentObjectiveDescription", agentObjective.details);
+      formData.append("agentObjectiveId", agentObjective.id);
+    }
 
-  // Removed Google Places service - using simple string input
+    // //console.log;
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key} = ${value}`);
+    }
 
-  // Simple address input handler
-  const handleAddressChange = (evt) => {
-    setAddressValue(evt.target.value);
-  };
+    // return
+    const response = await axios.post(ApiPath, formData, {
+      headers: {
+        Authorization: "Bearer " + AuthToken,
+      },
+    });
 
-  const status = [
-    {
-      id: 1,
-      title: "Coming soon",
-    },
-    {
-      id: 2,
-      title: "Just sold",
-    },
-    {
-      id: 3,
-      title: "Just listed",
-    },
-    {
-      id: 4,
-      title: "In escrow",
-    },
-    {
-      id: 5,
-      title: "Something else",
-    },
-  ];
+    if (response) {
+      // //console.log;
+      setIsVisible(true);
+      if (response.data.status === true) {
+        console.log("Response of add new agent is", response.data);
+        setSnackMessage("Agent created successfully.");
+        setMsgType(SnackbarTypes.Success);
+        localStorage.setItem(
+          PersistanceKeys.LocalSavedAgentDetails,
+          JSON.stringify(response.data.data)
+        );
 
-  const styles = {
-    headingStyle: {
-      fontSize: 14,
-      fontWeight: "600",
-    },
-    inputStyle: {
-      fontSize: 13,
-      fontWeight: "400",
-      width: "95%",
-    },
-    headingTitle: {
-      fontSize: 13,
-      fontWeight: "700",
-      width: "95%",
-    },
-    modalsStyle: {
-      height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
-    },
-  };
+        let AT = { agentType, agentName };
+        localStorage.setItem("agentType", JSON.stringify(AT));
 
-  return (
+        const L = localStorage.getItem("isFromCheckList");
+
+        const localData = localStorage.getItem("User");
+        if (localData) {
+          let D = JSON.parse(localData);
+          D.user.checkList.checkList.agentCreated = true;
+          localStorage.setItem("User", JSON.stringify(D));
+        }
+        window.dispatchEvent(
+          new CustomEvent("UpdateCheckList", { detail: { update: true } })
+        );
+        handleContinue();
+        // }
+      } else if (response.data.status === false) {
+        setSnackMessage("Agent creation failed!");
+        setMsgType(SnackbarTypes.Error);
+        setBuildAgentLoader(false);
+      }
+    }
+  } catch (error) {
+    // console.error("Error occured in build agent api is: ----", error);
+    setLoaderModal(false);
+    setBuildAgentLoader(false);
+  } finally {
+  }
+};
+
+//code to select the status
+const handleSelectStatus = (item) => {
+  if (item.id === 5) {
+    setShowSomtthingElse(true);
+  } else {
+    setShowSomtthingElse(false);
+  }
+  setSelectedStatus((prevId) => (prevId === item ? null : item));
+};
+
+// Removed Google Places service - using simple string input
+
+// Simple address input handler
+const handleAddressChange = (evt) => {
+  setAddressValue(evt.target.value);
+};
+
+const status = [
+  {
+    id: 1,
+    title: "Coming soon",
+  },
+  {
+    id: 2,
+    title: "Just sold",
+  },
+  {
+    id: 3,
+    title: "Just listed",
+  },
+  {
+    id: 4,
+    title: "In escrow",
+  },
+  {
+    id: 5,
+    title: "Something else",
+  },
+];
+
+const styles = {
+  headingStyle: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  inputStyle: {
+    fontSize: 13,
+    fontWeight: "400",
+    width: "95%",
+  },
+  headingTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    width: "95%",
+  },
+  modalsStyle: {
+    height: "auto",
+    bgcolor: "transparent",
+    // p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-55%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+};
+
+return (
+  <div
+    style={{ width: "100%" }}
+    className="overflow-y-hidden flex flex-row justify-center items-center"
+  >
     <div
-      style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
+      style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
     >
-      <div
-        className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
-        style={{ scrollbarWidth: "none", backgroundColor: "#ffffff" }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-      >
-        <AgentSelectSnackMessage
-          message={snackMessage}
-          type={msgType}
-          isVisible={isVisible}
-          hide={() => {
-            setIsVisible(false);
-            setSnackMessage("");
-            setMsgType(null);
-          }}
+      <AgentSelectSnackMessage
+        message={snackMessage}
+        type={msgType}
+        isVisible={isVisible}
+        hide={() => {
+          setIsVisible(false);
+          setSnackMessage("");
+          setMsgType(null);
+        }}
+      />
+
+      <div className="w-full h-[90%]">
+        {/* Video card */}
+
+        <IntroVideoModal
+          open={introVideoModal}
+          onClose={() => setIntroVideoModal(false)}
+          videoTitle="Learn about getting started"
+          videoUrl={HowtoVideos.GettingStarted}
         />
 
-        <div className="w-full h-[90%]">
-          {/* Video card */}
-
-          <IntroVideoModal
-            open={introVideoModal}
-            onClose={() => setIntroVideoModal(false)}
-            videoTitle="Learn about getting started"
-            videoUrl={HowtoVideos.GettingStarted}
-          />
-
-          {/* header */}
-          <div className="h-[10%]">
-            <Header />
-          </div>
-          {/* Body */}
-          <div
-            className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-            style={{
-              position: "absolute",
-              // left: "18%",
-              // translate: "-50%",
-              // left: "14%",
-              top: "20%",
-              // backgroundColor: "red"
+        {/* header */}
+        <div className="h-[10%]">
+          <Header />
+        </div>
+        {/* Body */}
+        <div
+          className="-ml-4 lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+          style={{
+            position: "absolute",
+            // left: "18%",
+            // translate: "-50%",
+            // left: "14%",
+            top: "20%",
+            // backgroundColor: "red"
+          }}
+        >
+          <VideoCard
+            duration="1 min 47 sec"
+            horizontal={false}
+            playVideo={() => {
+              setIntroVideoModal(true);
             }}
+            title="Learn about getting started"
+          />
+        </div>
+        <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <button
+            className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
+            style={{ textAlign: "center" }}
+          // onClick={handleContinue}
           >
-            <VideoCard
-              duration="1 min 47 sec"
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true);
-              }}
-              title="Learn about getting started"
-            />
-          </div>
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
-            <button
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[700]"
-              style={{ textAlign: "center" }}
-            // onClick={handleContinue}
+            Get started with your AI agent
+          </button>
+          <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div
+              className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
+              style={{ scrollbarWidth: "none" }}
             >
-              Get started with your AI agent
-            </button>
-            <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
               <div
-                className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
-                style={{ scrollbarWidth: "none" }}
+                style={styles.headingStyle}
+                className="flex flex-row items-center gap-2"
+              // onClick={handleContinue}
               >
+                {`What's this AI agent's name?`}
                 <div
-                  style={styles.headingStyle}
-                  className="flex flex-row items-center gap-2"
-                // onClick={handleContinue}
+                  aria-owns={open ? "mouse-over-popover" : undefined}
+                  aria-haspopup="true"
+                  onMouseEnter={handlePopoverOpen}
+                  onMouseLeave={handlePopoverClose}
+                  style={{ cursor: "pointer" }}
                 >
-                  {`What's this AI agent's name?`}
-                  <div
-                    aria-owns={open ? "mouse-over-popover" : undefined}
-                    aria-haspopup="true"
-                    onMouseEnter={handlePopoverOpen}
-                    onMouseLeave={handlePopoverClose}
-                    style={{ cursor: "pointer" }}
-                  >
+                  <Image
+                    src={"/svgIcons/infoIcon.svg"}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
+                </div>
+              </div>
+              {/* Info popover */}
+              <Popover
+                id="mouse-over-popover"
+                sx={{ pointerEvents: "none" }}
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                onClose={handlePopoverClose}
+                disableRestoreFocus
+              >
+                <div className="flex flex-row items-center px-2 h-[40px] gap-2">
+                  <Image
+                    src={"/svgIcons/infoIcon.svg"}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
+                  <div style={{ fontWeight: "600", fontSize: 15 }}>
+                    Your AI will identify itself by this name
+                  </div>
+                </div>
+              </Popover>
+              <input
+                placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
+                className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
+                style={{
+                  ...styles.inputStyle,
+                  border: "1px solid #00000020",
+                }}
+                value={agentName}
+                onChange={(e) => {
+                  setAgentName(e.target.value);
+                }}
+              />
+
+              <div className="mt-2" style={styles.headingStyle}>
+                {`What's this AI agent's task?`}
+              </div>
+
+              <div className="sm:flex sm:flex-row items-center gap-4">
+                <div
+                  className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
+                  style={{
+                    borderRadius: "23px",
+                    border: OutBoundCalls
+                      ? "2px solid #7902DF"
+                      : "2px solid #00000010",
+                  }}
+                  onClick={handleOutBoundCallClick}
+                >
+                  {OutBoundCalls ? (
                     <Image
-                      src={"/svgIcons/infoIcon.svg"}
-                      height={20}
-                      width={20}
+                      src={"/svgIcons/callOutFocus.svg"}
+                      height={24}
+                      width={24}
                       alt="*"
                     />
-                  </div>
-                </div>
-                {/* Info popover */}
-                <Popover
-                  id="mouse-over-popover"
-                  sx={{ pointerEvents: "none" }}
-                  open={open}
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  transformOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
-                  }}
-                  onClose={handlePopoverClose}
-                  disableRestoreFocus
-                >
-                  <div className="flex flex-row items-center px-2 h-[40px] gap-2">
+                  ) : (
                     <Image
-                      src={"/svgIcons/infoIcon.svg"}
-                      height={20}
-                      width={20}
+                      src={"/assets/callOut.png"}
+                      height={24}
+                      width={24}
                       alt="*"
                     />
-                    <div style={{ fontWeight: "600", fontSize: 15 }}>
-                      Your AI will identify itself by this name
-                    </div>
-                  </div>
-                </Popover>
-                <input
-                  placeholder="Ex: Ana's AI, Ana.ai, Ana's Assistant"
-                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck="false"
-                  enterKeyHint="done"
-                  style={{
-                    ...styles.inputStyle,
-                    border: "1px solid #00000020",
-                  }}
-                  value={agentName}
-                  onChange={(e) => {
-                    setAgentName(e.target.value);
-                  }}
-                />
-
-                <div className="mt-2" style={styles.headingStyle}>
-                  {`What's this AI agent's task?`}
-                </div>
-
-                <div className="sm:flex sm:flex-row items-center gap-4">
+                  )}
                   <div
-                    className="flex flex-row cursor-pointer items-center justify-center gap-2 h-[60px] w-full sm:w-[240px] px-6"
+                    className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
                     style={{
-                      borderRadius: "23px",
-                      border: OutBoundCalls
-                        ? "2px solid #7902DF"
-                        : "2px solid #00000010",
+                      ...styles.inputStyle,
+                      // transition: "0.4s ease",
+                      // scale: "0.9"
                     }}
-                    onClick={handleOutBoundCallClick}
                   >
-                    {OutBoundCalls ? (
-                      <Image
-                        src={"/svgIcons/callOutFocus.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/assets/callOut.png"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
-                    <div
-                      className={`text-start ms-2 sm:text-center sm:ms-0`} // transition-all duration-400 ease-in-out transform active:scale-90
-                      style={{
-                        ...styles.inputStyle,
-                        // transition: "0.4s ease",
-                        // scale: "0.9"
-                      }}
-                    >
-                      Making Outbound Calls
-                    </div>
-                  </div>
-                  <div
-                    className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
-                    style={{
-                      borderRadius: "23px",
-                      border: InBoundCalls
-                        ? "2px solid #7902DF"
-                        : "2px solid #00000010",
-                    }}
-                    onClick={handleInboundCallClick}
-                  >
-                    {InBoundCalls ? (
-                      <Image
-                        src={"/svgIcons/callInFocus.svg"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    ) : (
-                      <Image
-                        src={"/assets/callIn.png"}
-                        height={24}
-                        width={24}
-                        alt="*"
-                      />
-                    )}
-                    <div
-                      className="text-start ms-2 sm:text-center sm:ms-0"
-                      style={styles.inputStyle}
-                    >
-                      Taking Inbound Calls
-                    </div>
+                    Making Outbound Calls
                   </div>
                 </div>
-
-                <div className="mt-2" style={styles.headingStyle}>
-                  {`What's this AI agent's title?`}
-                </div>
-                <input
-                  autoComplete="off"
-                  autoCorrect="on"
-                  spellCheck="true"
-                  enterKeyHint="done"
-                  placeholder="Ex: Senior Property Acquisition Specialist"
-                  className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
+                <div
+                  className="flex flex-row cursor-pointer items-center justify-center gap-2  h-[60px] sm:mt-0 mt-4 w-full sm:w-[240px] px-6"
                   style={{
-                    ...styles.inputStyle,
-                    border: "1px solid #00000020",
+                    borderRadius: "23px",
+                    border: InBoundCalls
+                      ? "2px solid #7902DF"
+                      : "2px solid #00000010",
                   }}
-                  value={agentRole}
-                  onChange={(e) => {
-                    setAgentRole(e.target.value);
-                  }}
-                />
-
-                {canShowObjectives() && (
-                  <div className="mt-2" style={styles.headingStyle}>
-                    {`What's this AI agent's primary objective during the call?`}
+                  onClick={handleInboundCallClick}
+                >
+                  {InBoundCalls ? (
+                    <Image
+                      src={"/svgIcons/callInFocus.svg"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                  ) : (
+                    <Image
+                      src={"/assets/callIn.png"}
+                      height={24}
+                      width={24}
+                      alt="*"
+                    />
+                  )}
+                  <div
+                    className="text-start ms-2 sm:text-center sm:ms-0"
+                    style={styles.inputStyle}
+                  >
+                    Taking Inbound Calls
                   </div>
-                )}
+                </div>
+              </div>
 
-                {canShowObjectives() && (
-                  <div style={styles.inputStyle}>
-                    Select only one. You can create new agents to dedicate them
-                    to other objectives.
-                  </div>
-                )}
-                {canShowObjectives() && (
-                  <div className="flex flex-wrap">
-                    {AgentObjective.map((item) => (
-                      <div
-                        key={item.id}
-                        className="w-full text-start md:w-1/2 pe-2 flex py-4"
+              <div className="mt-2" style={styles.headingStyle}>
+                {`What's this AI agent's title?`}
+              </div>
+              <input
+                autoComplete="off"
+                autoCorrect="on"
+                spellCheck="true"
+                enterKeyHint="done"
+                placeholder="Ex: Senior Property Acquisition Specialist"
+                className="border rounded p-3 outline-none focus:outline-none focus:ring-0"
+                style={{
+                  ...styles.inputStyle,
+                  border: "1px solid #00000020",
+                }}
+                value={agentRole}
+                onChange={(e) => {
+                  setAgentRole(e.target.value);
+                }}
+              />
+
+              {canShowObjectives() && (
+                <div className="mt-2" style={styles.headingStyle}>
+                  {`What's this AI agent's primary objective during the call?`}
+                </div>
+              )}
+
+              {canShowObjectives() && (
+                <div style={styles.inputStyle}>
+                  Select only one. You can create new agents to dedicate them
+                  to other objectives.
+                </div>
+              )}
+              {canShowObjectives() && (
+                <div className="flex flex-wrap">
+                  {AgentObjective.map((item) => (
+                    <div
+                      key={item.id}
+                      className="w-full text-start md:w-1/2 pe-2 flex py-4"
+                    >
+                      <button
+                        className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
+                        onClick={() => {
+                          handleToggleClick(item);
+                        }}
+                        style={{
+                          borderColor:
+                            item.id === toggleClick ? "#7902DF" : "",
+                          backgroundColor:
+                            item.id === toggleClick ? "#402FFF10 " : "",
+                        }}
                       >
-                        <button
-                          className="border-2 w-full rounded-2xl text-start p-4 h-full flex flex-col justify-between outline-none"
-                          onClick={() => {
-                            handleToggleClick(item);
-                          }}
-                          style={{
-                            borderColor:
-                              item.id === toggleClick ? "#7902DF" : "",
-                            backgroundColor:
-                              item.id === toggleClick ? "#402FFF10 " : "",
-                          }}
+                        {item.id === toggleClick ? (
+                          <Image
+                            src={item.focusIcn}
+                            height={30}
+                            width={30}
+                            alt="*"
+                          />
+                        ) : (
+                          <Image
+                            src={item.unFocusIcon}
+                            height={30}
+                            width={30}
+                            alt="*"
+                          />
+                        )}
+                        <div className="mt-8" style={styles.headingTitle}>
+                          {item.title}
+                        </div>
+                        <div
+                          className="mt-4"
+                          style={{ fontSize: 11, fontWeight: "300" }}
                         >
-                          {item.id === toggleClick ? (
-                            <Image
-                              src={item.focusIcn}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={item.unFocusIcon}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
-                          )}
-                          <div className="mt-8" style={styles.headingTitle}>
-                            {item.title}
-                          </div>
-                          <div
-                            className="mt-4"
-                            style={{ fontSize: 11, fontWeight: "300" }}
-                          >
-                            {item.details}
-                          </div>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {showOtherObjective && (
-                  <div>
-                    <div style={styles.headingStyle}>{`Agent's Objective`}</div>
-                    {/* <input ref={bottomRef}
+                          {item.details}
+                        </div>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {showOtherObjective && (
+                <div>
+                  <div style={styles.headingStyle}>{`Agent's Objective`}</div>
+                  {/* <input ref={bottomRef}
                                             placeholder="Type Here.... "
                                             className='border   rounded p-3 outline-none w-full mt-1 mx-2'
                                             style={styles.inputStyle}
                                             value={otherObjVal}
                                             onChange={(e) => { setOtherObjVal(e.target.value) }}
                                         /> */}
-                    <input
-                      ref={bottomRef}
-                      // autoComplete="off"
-                      // autoCorrect="off"
-                      // spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Type Here...."
-                      className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
-                      style={{
-                        ...styles.inputStyle,
-                        border: "1px solid #00000020",
-                      }}
-                      value={otherObjVal}
-                      onChange={(e) => setOtherObjVal(e.target.value)}
-                    />
-                  </div>
-                )}
+                  <input
+                    ref={bottomRef}
+                    // autoComplete="off"
+                    // autoCorrect="off"
+                    // spellCheck="false"
+                    enterKeyHint="done"
+                    placeholder="Type Here...."
+                    className="border w-6/12 rounded p-1 outline-none w-full mt-1 mx-2 mb-2 focus:outline-none focus:ring-0"
+                    style={{
+                      ...styles.inputStyle,
+                      border: "1px solid #00000020",
+                    }}
+                    value={otherObjVal}
+                    onChange={(e) => setOtherObjVal(e.target.value)}
+                  />
+                </div>
+              )}
 
-                {/* <Body /> */}
-              </div>
+              <UnlockAgentModal
+                open={showUnclockModal}
+                handleClose={() => {
+                  setShowUnclockModal(false)
+                }}
+                desc={modalDesc}
+
+              />
+
+              {/* <Body /> */}
             </div>
           </div>
         </div>
-
-        <div className="w-full h-[10%] ">
-          <div>
-            <ProgressBar value={33} />
-          </div>
-
-          <Footer
-            handleContinue={handleBuildAgent}
-            donotShowBack={true}
-            registerLoader={buildAgentLoader}
-            shouldContinue={!canContinue()}
-          />
-        </div>
       </div>
 
-      <Modal
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(5px)",
-          },
-        }}
-      >
-        <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full h-[70vh]">
+      <div className="w-full h-[10%] ">
+        <div>
+          <ProgressBar value={33} />
+        </div>
+
+        <Footer
+          handleContinue={handleBuildAgent}
+          donotShowBack={true}
+          registerLoader={buildAgentLoader}
+          shouldContinue={!canContinue()}
+        />
+      </div>
+    </div>
+
+    <Modal
+      open={showModal}
+      onClose={() => setShowModal(false)}
+      closeAfterTransition
+      BackdropProps={{
+        sx: {
+          backgroundColor: "#00000020",
+          // //backdropFilter: "blur(5px)",
+        },
+      }}
+    >
+      <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
+        <div className="flex flex-row justify-center w-full h-[70vh]">
+          <div
+            className="w-full overflow-auto"
+            style={{
+              backgroundColor: "#ffffff",
+              padding: 20,
+              borderRadius: "13px",
+            }}
+          >
             <div
-              className="w-full overflow-auto"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
+              className="w-full px-2 h-[90%] overflow-auto"
+              style={{ scrollbarWidth: "none", zIndex: 12 }}
             >
-              <div
-                className="w-full px-2 h-[90%] overflow-auto"
-                style={{ scrollbarWidth: "none", zIndex: 12 }}
-              >
-                <div className="flex flex-row items-center justify-end w-full">
-                  <button
-                    className="outline-none border-none"
-                    onClick={() => {
-                      setShowModal(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-
-                <div
-                  className="text-center"
-                  style={{ fontWeight: "600", fontSize: 24 }}
-                >
-                  Community Update
-                </div>
-
-                <div style={styles.headingStyle} className="mt-4">
-                  {`What's the status?`}
-                </div>
-
-                <div className="flex flex-row flex-wrap gap-4 mt-4">
-                  {status.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={(e) => {
-                        handleSelectStatus(item);
-                      }}
-                      className="px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none"
-                      style={{
-                        border:
-                          selectedStatus?.id === item.id
-                            ? "2px solid #7902DF"
-                            : "",
-                        backgroundColor:
-                          selectedStatus?.id === item.id ? "#402FFF15" : "",
-                      }}
-                    >
-                      {item.title}
-                    </button>
-                  ))}
-                </div>
-
-                {showSomtthingElse && (
-                  <div>
-                    <div style={styles.headingStyle} className="mt-4">
-                      {`What's that`}
-                    </div>
-
-                    <div className="mt-1">
-                      <input
-                        className="h-[50px] border rounded-lg outline-none border p-3 w-full focus:outline-none focus:ring-0"
-                        // rows={3}
-                        placeholder="Type here..."
-                        value={otherStatus}
-                        onChange={(e) => {
-                          setOtherStatus(e.target.value);
-                        }}
-                        style={{
-                          ...styles.inputStyle,
-                          border: "1px solid #00000020",
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div style={styles.headingStyle} className="mt-4">
-                  {`What's the address`}
-                </div>
-                {/* Simple address input */}
-                <div className="mt-1 pb-4">
-                  <input
-                    className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
-                    style={{ border: "1px solid #00000020" }}
-                    placeholder="Enter property address..."
-                    value={addressValue}
-                    onChange={handleAddressChange}
-                  />
-                </div>
-
-              </div>
-
-              <div
-                className="w-full flex flex-row items-center justify-center"
-                style={{ position: "absolute", bottom: 0, left: 0 }}
-              >
+              <div className="flex flex-row items-center justify-end w-full">
                 <button
-                  className="text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8"
+                  className="outline-none border-none"
                   onClick={() => {
                     setShowModal(false);
                   }}
                 >
-                  Continue
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
                 </button>
               </div>
 
-              {/* Can be use full to add shadow
-                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+              <div
+                className="text-center"
+                style={{ fontWeight: "600", fontSize: 24 }}
+              >
+                Community Update
+              </div>
+
+              <div style={styles.headingStyle} className="mt-4">
+                {`What's the status?`}
+              </div>
+
+              <div className="flex flex-row flex-wrap gap-4 mt-4">
+                {status.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={(e) => {
+                      handleSelectStatus(item);
+                    }}
+                    className="px-6 border rounded-3xl h-[65px] text-center flex flex-row justify-center items-center outline-none"
+                    style={{
+                      border:
+                        selectedStatus?.id === item.id
+                          ? "2px solid #7902DF"
+                          : "",
+                      backgroundColor:
+                        selectedStatus?.id === item.id ? "#402FFF15" : "",
+                    }}
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+
+              {showSomtthingElse && (
+                <div>
+                  <div style={styles.headingStyle} className="mt-4">
+                    {`What's that`}
+                  </div>
+
+                  <div className="mt-1">
+                    <input
+                      className="h-[50px] border rounded-lg outline-none border p-3 w-full focus:outline-none focus:ring-0"
+                      // rows={3}
+                      placeholder="Type here..."
+                      value={otherStatus}
+                      onChange={(e) => {
+                        setOtherStatus(e.target.value);
+                      }}
+                      style={{
+                        ...styles.inputStyle,
+                        border: "1px solid #00000020",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div style={styles.headingStyle} className="mt-4">
+                {`What's the address`}
+              </div>
+              {/* Simple address input */}
+              <div className="mt-1 pb-4">
+                <input
+                  className="w-full h-[50px] rounded-lg outline-none focus:ring-0 px-4"
+                  style={{ border: "1px solid #00000020" }}
+                  placeholder="Enter property address..."
+                  value={addressValue}
+                  onChange={handleAddressChange}
+                />
+              </div>
+
             </div>
+
+            <div
+              className="w-full flex flex-row items-center justify-center"
+              style={{ position: "absolute", bottom: 0, left: 0 }}
+            >
+              <button
+                className="text-white w-11/12 h-[50px] rounded-lg bg-purple mb-8"
+                onClick={() => {
+                  setShowModal(false);
+                }}
+              >
+                Continue
+              </button>
+            </div>
+
+            {/* Can be use full to add shadow
+                            <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
           </div>
-        </Box>
-      </Modal>
+        </div>
+      </Box>
+    </Modal>
 
-      <LoaderAnimation loaderModal={loaderModal} />
+    <LoaderAnimation loaderModal={loaderModal} />
 
-      {/* UpgradePlan Modal */}
-      <Elements stripe={stripePromise}>
-        <UpgradePlan
-          open={showUpgradeModal}
-          handleClose={() => setShowUpgradeModal(false)}
-        />
-      </Elements>
+    {/* UpgradePlan Modal */}
+    <Elements stripe={stripePromise}>
+      <UpgradePlan
+        open={showUpgradeModal}
+        handleClose={() => setShowUpgradeModal(false)}
+      />
+    </Elements>
 
 
-      {/* <Modal
+    {/* <Modal
                 open={loaderModal}
                 // onClose={() => loaderModal(false)}
                 closeAfterTransition
@@ -1038,8 +1070,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     </div>
                 </Box>
             </Modal> */}
-    </div>
-  );
+  </div>
+);
 };
 
 export default CreateAgent1;
