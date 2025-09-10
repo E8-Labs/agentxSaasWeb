@@ -1218,7 +1218,7 @@ const Leads1 = () => {
         {/* modal to upload lead */}
         <Modal
           open={ShowUploadLeadModal}
-          onClose={() => setShowUploadLeadModal(false)}
+          // onClose={() => setShowUploadLeadModal(false)}
           closeAfterTransition
           BackdropProps={{
             timeout: 1000,

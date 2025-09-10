@@ -394,6 +394,7 @@ function Page() {
   useEffect(() => {
     let data = getUserLocalData()
     setUser(data.user)
+    console.log('data', data.user.plan)
   }, [])
   // get selected agent from local if calendar added by google
 
@@ -2201,7 +2202,7 @@ function Page() {
   //function to add new agent
   const handleAddNewAgent = (event) => {
     event.preventDefault();
-    if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+    if (user?.user?.currentUsage?.maxAgents >= user?.user?.features?.maxAgents) {
       setShowUpgradeModal(true)
       return
     }
@@ -2561,7 +2562,7 @@ function Page() {
 
 
           <Tooltip
-            title="Additional agents are $20/month each"
+            title="Additional agents are $20/month each."
             arrow
             componentsProps={{
               tooltip: {

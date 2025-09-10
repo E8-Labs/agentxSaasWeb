@@ -1280,7 +1280,7 @@ function NewBilling() {
 
                                     }}
                                 >
-                                    {`${togglePlan >= currentPlan ? "Downgrade Plan" : "Upgrade Plan"} `}
+                                    {`${togglePlan >= currentPlan ? "Upgrade Plan" : "Downgrade Plan"} `}
                                 </button>
                             )}
                         </div>
