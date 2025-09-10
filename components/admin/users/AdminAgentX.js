@@ -2416,7 +2416,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       </div>
 
       <div
-        className="w-full flex flex-row justify-between items-center py-4 px-10"
+        className="w-full flex flex-row justify-between items-center"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Agent</div>
@@ -2452,7 +2452,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         </div>
       </div>
 
-      <div className="w-full items-center h-full overflow-hidden" style={{}}>
+      <div className="w-full items-center h-[100%] overflow-hidden" style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
           <div className="h-[45vh] flex flex-row justify-center pt-32 gap-4">

@@ -453,11 +453,8 @@ function DashboardPlans({
                                 <div className="w-3/12">
                                     <div style={styles.text}>Name</div>
                                 </div>
-                                <div className="w-2/12">
+                                <div className="w-3/12">
                                     <div style={styles.text}>Description</div>
-                                </div>
-                                <div className="w-1/12">
-                                    <div style={styles.text}>Tag</div>
                                 </div>
                                 <div className="w-1/12">
                                     <div style={styles.text}>Price</div>
@@ -509,15 +506,9 @@ function DashboardPlans({
                                                                     {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
                                                                 </div>
                                                             </div>
-                                                            <div className="w-2/12 ">
+                                                            <div className="w-3/12 ">
                                                                 <div style={styles.text2}>
                                                                     {item.planDescription}
-                                                                </div>
-                                                            </div>
-                                                            <div className="w-1/12">
-                                                                {/* (item.LeadModel?.phone) */}
-                                                                <div style={styles.text2}>
-                                                                    {item.tag || "-"}
                                                                 </div>
                                                             </div>
                                                             <div className="w-1/12">

@@ -95,7 +95,7 @@ function SelectedUserDetails({
     //pauseToggleBtn
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
 
-    const [selectedDate,setSelectedDate] = useState(null)
+    const [selectedDate, setSelectedDate] = useState(null)
 
     useEffect(() => {
         console.log("selected user", selectedUser);
@@ -251,7 +251,7 @@ function SelectedUserDetails({
 
     const handleResetTrail = async () => {
 
-        if(!selectedDate){
+        if (!selectedDate) {
             return
         }
         //profile_status
@@ -262,7 +262,7 @@ function SelectedUserDetails({
                 let u = JSON.parse(data)
                 let apidata = {
                     userId: selectedUser.id,
-                    trialEndDate:selectedDate
+                    trialEndDate: selectedDate
                 }
 
                 console.log('apidata of reset trail', apidata)
@@ -297,213 +297,217 @@ function SelectedUserDetails({
 
             <div className='flex flex-col items-center justify-center w-full'>
                 <div style={{ alignSelf: 'center' }} className={`w-full ${agencyUser ? "h-[100svh] overflow-hidden" : "h-[80vh]"} bg-white items-center justify-center`}>
-                    <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
-                        <div className='flex flex-row gap-2 items-center justify-start'>
-                            <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
-                                {selectedUser.name[0]}
-                            </div>
-                            <h4>
-                                {selectedUser.name}
-                            </h4>
-
-                            {
-                                agencyUser ? (
-                                    ""
-                                ) : (
-                                    <button
-                                        onClick={() => {
-                                            console.log('selectedUser.id', selectedUser.id)
-                                            if (selectedUser?.id) {
-                                                // Open a new tab with user ID as query param
-                                                let url = ""
-                                                if (from === "admin") {
-                                                    url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
-                                                } else if (from === "subaccount") {
-                                                    // url = `/agency/users?userId=${selectedUser.id}`
-                                                    url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`;
-                                                }
-                                                // url = `admin/users?userId=${selectedUser.id}`
-                                                //console.log
-                                                window.open(url, "_blank");
-                                            }
-                                        }}
-                                    >
-                                        <Image src={"/svgIcons/arrowboxIcon.svg"} height={20} width={20} alt="*" />
-                                    </button>
-                                )
-                            }
-
+                    {/*
+                        <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
                         </div>
-
-                        <div className='flex flex-row items-center gap-4'>
-                            {
-                                pauseLoader ? (
-                                    <CircularProgress size={25} />
-                                ) : (
-                                    <div>
-                                        {
-                                            (!agencyUser && from !== "subaccount") && (
-                                                <button
-                                                    className="text-white bg-purple outline-none rounded-xl px-3"
-                                                    style={{ height: "50px" }}
-                                                    onClick={() => {
-                                                        setShowPauseConfirmationPopup(true);
-                                                    }}
-                                                >
-                                                    {
-                                                        user?.profile_status === "paused" ? "Reinstate" : "Pause"
-                                                    }
-                                                </button>
-                                            )
-                                        }
-                                    </div>
-                                )
-                            }
-
-                            <div>
-                                {
-                                    selectedUser.isTrial &&
-                                    <button
-                                        className='text-white bg-purple outline-none rounded-xl px-3'
-                                        style={{ height: "50px" }}
-                                        onClick={() => {
-                                            setShowResetTrialPopup(true);
-                                            console.log('clicked')
-                                        }}
-                                    >
-                                        Reset Trial
-                                    </button>
-                                }
-                            </div>
-                            {
-                                showResetTrialPopup && (
-                                    <ResetTrial
-                                        showConfirmationPopup={showResetTrialPopup}
-                                        handleClose={() => setShowResetTrialPopup(false)}
-                                        onContinue={handleResetTrail}
-                                        loader={resetTrailLoader}
-                                        selectedDate={selectedDate}
-                                        setSelectedData={setSelectedDate}
-                                    />
-
-                                )}
-
-
-                            {
-                                showPauseConfirmationPopup && (
-                                    <DelAdminUser
-                                        showPauseModal={showPauseConfirmationPopup}
-                                        handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
-                                        handlePaueUser={handlePause}
-                                        pauseLoader={pauseLoader}
-                                        selectedUser={user}
-                                    />
-                                )
-                            }
-
-                            {
-                                (!agencyUser && from !== "subaccount") && (
-                                    <button
-                                        className="text-white bg-purple outline-none rounded-xl px-3"
-                                        style={{ height: "50px" }}
-                                        onClick={() => {
-                                            setShowAddMinutesModal(true)
-                                        }}
-                                    >
-                                        Add Minutes
-                                    </button>
-                                )
-                            }
-
-
-                            {
-                                (!agencyUser && from !== "subaccount") && (
-                                    <button
-                                        className="text-red outline-none rounded-xl px-3"
-                                        style={{ height: "50px" }}
-                                        onClick={() => {
-                                            setShowDeleteModal(true)
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-                                )
-                            }
-
-                            {/* <div>
-                                <button>
-                                    <Image
-                                        src={"/assets/cross.png"}
-                                        alt='*'
-                                        height={20}
-                                        width={20}
-                                    />
-                                </button>
-                        </div>*/}
-                        </div>
-
-
-                    </div>
+                    */}
 
                     <div className='flex flex-row items-start w-full'>
-                        <div className='flex flex-col items-start justify-center gap-3 w-2/12 px-6 pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
-                            {
-                                manuBar.map((item) => (
-                                    <button key={item.id} onClick={() => {
-                                        handleManuClick(item)
-                                    }}
-                                        className={`flex flex-row items-center gap-3 p-2 items-center 
+                        <div className='flex flex-col items-start justify-center w-2/12 px-6 pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
+                            <div className='flex flex-row gap-2 items-center justify-start w-full'>
+                                <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
+                                    {selectedUser.name[0]}
+                                </div>
+                                <h4>
+                                    {selectedUser.name}
+                                </h4>
+
+                                {
+                                    agencyUser ? (
+                                        ""
+                                    ) : (
+                                        <button
+                                            onClick={() => {
+                                                console.log('selectedUser.id', selectedUser.id)
+                                                if (selectedUser?.id) {
+                                                    // Open a new tab with user ID as query param
+                                                    let url = ""
+                                                    if (from === "admin") {
+                                                        url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
+                                                    } else if (from === "subaccount") {
+                                                        // url = `/agency/users?userId=${selectedUser.id}`
+                                                        url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`;
+                                                    }
+                                                    // url = `admin/users?userId=${selectedUser.id}`
+                                                    //console.log
+                                                    window.open(url, "_blank");
+                                                }
+                                            }}
+                                        >
+                                            <Image src={"/svgIcons/arrowboxIcon.svg"} height={20} width={20} alt="*" />
+                                        </button>
+                                    )
+                                }
+
+                            </div>
+                            <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
+                                {
+                                    manuBar.map((item) => (
+                                        <button key={item.id} onClick={() => {
+                                            handleManuClick(item)
+                                        }}
+                                            className={`flex flex-row items-center gap-3 p-2 items-center 
                                         ${selectedManu.id == item.id && "border-b-[2px] border-purple"}`
-                                        }>
-                                        <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
-                                            height={24} width={24} alt='*'
-                                        />
+                                            }>
+                                            <Image src={selectedManu.id == item.id ? item.selectedImage : item.unSelectedImage}
+                                                height={24} width={24} alt='*'
+                                            />
 
-                                        <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
-                                            {item.name}
-                                        </div>
+                                            <div style={{ fontSize: 16, fontWeight: 500, color: selectedManu.id == item.id ? "#7902df" : '#000' }}>
+                                                {item.name}
+                                            </div>
 
-                                    </button>
-                                ))
-                            }
-
+                                        </button>
+                                    ))
+                                }
+                            </div>
                         </div>
 
                         <div className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? "h-[95vh]" : "h-[70vh]"} overflow-auto w-10/12`}>
-                            {
-                                selectedManu.name == "Leads" ? (
-                                    <AdminLeads1 selectedUser={selectedUser} />
-                                ) : (
-                                    selectedManu.name == "Pipeline" ? (
-                                        <AdminPipeline1 selectedUser={selectedUser} />
-                                    ) : selectedManu.name == "Agents" ? (
-                                        <AdminAgentX
-                                            selectedUser={user && user}
-                                            from={from}
-                                            agencyUser={agencyUser}
-                                        />
-                                    ) : selectedManu.name == "Call Log" ? (
-                                        <AdminCallLogs selectedUser={selectedUser} />
-                                    ) : (
-                                        selectedManu.name == "Dashboard" ? (
-                                            <AdminDashboard selectedUser={selectedUser} />
+                            <div className="w-full flex flex-row items-center justify-end">
+                                <div className='flex flex-row items-center gap-4'>
+                                    {
+                                        pauseLoader ? (
+                                            <CircularProgress size={25} />
                                         ) : (
-                                            selectedManu.name == "Integration" ? (
-                                                <AdminIntegration selectedUser={selectedUser} />
+                                            <div>
+                                                {
+                                                    (!agencyUser && from !== "subaccount") && (
+                                                        <button
+                                                            className="text-white bg-purple outline-none rounded-xl px-3"
+                                                            style={{ height: "50px" }}
+                                                            onClick={() => {
+                                                                setShowPauseConfirmationPopup(true);
+                                                            }}
+                                                        >
+                                                            {
+                                                                user?.profile_status === "paused" ? "Reinstate" : "Pause"
+                                                            }
+                                                        </button>
+                                                    )
+                                                }
+                                            </div>
+                                        )
+                                    }
+
+                                    <div>
+                                        {
+                                            selectedUser.isTrial &&
+                                            <button
+                                                className='text-white bg-purple outline-none rounded-xl px-3'
+                                                style={{ height: "50px" }}
+                                                onClick={() => {
+                                                    setShowResetTrialPopup(true);
+                                                    console.log('clicked')
+                                                }}
+                                            >
+                                                Reset Trial
+                                            </button>
+                                        }
+                                    </div>
+                                    {
+                                        showResetTrialPopup && (
+                                            <ResetTrial
+                                                showConfirmationPopup={showResetTrialPopup}
+                                                handleClose={() => setShowResetTrialPopup(false)}
+                                                onContinue={handleResetTrail}
+                                                loader={resetTrailLoader}
+                                                selectedDate={selectedDate}
+                                                setSelectedData={setSelectedDate}
+                                            />
+
+                                        )}
+
+
+                                    {
+                                        showPauseConfirmationPopup && (
+                                            <DelAdminUser
+                                                showPauseModal={showPauseConfirmationPopup}
+                                                handleClosePauseModal={() => { setShowPauseConfirmationPopup(false) }}
+                                                handlePaueUser={handlePause}
+                                                pauseLoader={pauseLoader}
+                                                selectedUser={user}
+                                            />
+                                        )
+                                    }
+
+                                    {
+                                        (!agencyUser && from !== "subaccount") && (
+                                            <button
+                                                className="text-white bg-purple outline-none rounded-xl px-3"
+                                                style={{ height: "50px" }}
+                                                onClick={() => {
+                                                    setShowAddMinutesModal(true)
+                                                }}
+                                            >
+                                                Add Minutes
+                                            </button>
+                                        )
+                                    }
+
+
+                                    {
+                                        (!agencyUser && from !== "subaccount") && (
+                                            <button
+                                                className="text-red outline-none rounded-xl px-3"
+                                                style={{ height: "50px" }}
+                                                onClick={() => {
+                                                    setShowDeleteModal(true)
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+                                        )
+                                    }
+
+                                    {/* <div>
+                            <button>
+                                <Image
+                                    src={"/assets/cross.png"}
+                                    alt='*'
+                                    height={20}
+                                    width={20}
+                                />
+                            </button>
+                    </div>*/}
+                                </div>
+                            </div>
+                            <div className={`flex flex-col items-center justify-center pt-2 ${agencyUser ? "h-[95vh]" : "h-[70vh]"} overflow-auto w-full`}>
+                                {
+                                    selectedManu.name == "Leads" ? (
+                                        <AdminLeads1 selectedUser={selectedUser} />
+                                    ) : (
+                                        selectedManu.name == "Pipeline" ? (
+                                            <AdminPipeline1 selectedUser={selectedUser} />
+                                        ) : selectedManu.name == "Agents" ? (
+                                            <AdminAgentX
+                                                selectedUser={user && user}
+                                                from={from}
+                                                agencyUser={agencyUser}
+                                            />
+                                        ) : selectedManu.name == "Call Log" ? (
+                                            <AdminCallLogs selectedUser={selectedUser} />
+                                        ) : (
+                                            selectedManu.name == "Dashboard" ? (
+                                                <AdminDashboard selectedUser={selectedUser} />
                                             ) : (
-                                                selectedManu.name == "Staff" ? (
-                                                    <AdminTeam selectedUser={selectedUser} />
+                                                selectedManu.name == "Integration" ? (
+                                                    <AdminIntegration selectedUser={selectedUser} />
                                                 ) : (
-                                                    selectedManu.name == "Account" ? (
-                                                        <AdminProfileData selectedUser={selectedUser} from={from} />
-                                                    ) : "Comming soon..."
+                                                    selectedManu.name == "Staff" ? (
+                                                        <AdminTeam selectedUser={selectedUser} />
+                                                    ) : (
+                                                        selectedManu.name == "Account" ? (
+                                                            <AdminProfileData selectedUser={selectedUser} from={from} />
+                                                        ) : "Comming soon..."
+                                                    )
                                                 )
                                             )
+                                            //""
                                         )
-                                        //""
                                     )
-                                )
-                            }
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
