@@ -476,29 +476,35 @@ export default function AddMonthlyPlan({
                 {isEditPlan ? "Edit Plan" : "New Plan"}
               </div>
 
-              {/* Plan Name */}
-              <label style={styles.labels}>Plan Name</label>
-              <input
-                style={styles.inputs}
-                className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                placeholder="Type here"
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                }}
-              />
+              <div className="w-full flex flex-row items-center justify-center gap-2">
+                {/* Plan Name */}
+                <div className="w-1/2">
+                  <label style={styles.labels}>Plan Name</label>
+                  <input
+                    style={styles.inputs}
+                    className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                    placeholder="Type here"
+                    value={title}
+                    onChange={(e) => {
+                      setTitle(e.target.value);
+                    }}
+                  />
+                </div>
 
-              {/* Tag Option */}
-              <label style={styles.labels}>Tag</label>
-              <input
-                style={styles.inputs}
-                className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                placeholder="Popular, best deals"
-                value={tag}
-                onChange={(e) => {
-                  setTag(e.target.value);
-                }}
-              />
+                {/* Tag Option */}
+                <div className="w-1/2">
+                  <label style={styles.labels}>Tag</label>
+                  <input
+                    style={styles.inputs}
+                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                    placeholder="Popular, best deals"
+                    value={tag}
+                    onChange={(e) => {
+                      setTag(e.target.value);
+                    }}
+                  />
+                </div>
+              </div>
 
               {/* Description */}
               <label style={styles.labels}>Description</label>
