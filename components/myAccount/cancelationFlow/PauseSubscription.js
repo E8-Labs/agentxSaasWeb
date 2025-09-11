@@ -1,3 +1,4 @@
+import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { pauseSubscription } from '@/components/userPlans/UserPlanServices';
 import { next30Days } from '@/constants/Constants';
 import { CircularProgress } from '@mui/material';
@@ -7,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 
 function PauseSubscription({
     handleContinue,
+    setShowSnak
 }) {
 
 
@@ -36,8 +38,14 @@ function PauseSubscription({
 
     const handlePause = async () => {
         setPuaseLoading(true)
-        await pauseSubscription()
+        let response = await pauseSubscription()
         let nextAction = "closeModel"
+        if(response){
+            setShowSnak({
+                message:response.message,
+                type:SnackbarTypes.Success
+            })
+        }
         handleContinue(nextAction)
         setPuaseLoading(false)
     }
@@ -60,8 +68,8 @@ function PauseSubscription({
             </div>
 
             <div className='text-base font-normal text-center'>
-                Need some time off? No problem. You can take a short break instead or end your subscription now. Your data is safe, your billing’s on hold, and your account will automatically resume
-                in 30 days on <span className='font-bold'>{`[${nxtCharge}]`}.</span>
+               {` Need some time off? No problem. You can take a short break instead or end your subscription now. Your data is safe, your billing’s on hold, and your account will automatically resume
+                in 30 days on`} <span className='font-bold'>{`[${next30Days}]`}.</span>
             </div>
             <div className=' flex flex-col px-6 w-full mt-8'>
                 {

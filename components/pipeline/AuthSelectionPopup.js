@@ -166,94 +166,97 @@ function AuthSelectionPopup({
                         <CloseBtn onClick={onClose} />
                     </div>
 
+                    {
+                        gmailAccounts?.length > 0 && (
+                            <FormControl>
+                                <Select
+                                    Select
+                                    value={selectedAccount || ""}
+                                    onChange={(e) => handleSelect(e)}
+                                    displayEmpty
+                                    renderValue={(selected) => selected?.name || <div style={{ color: "#aaa" }}>Select Account</div>}
+                                    sx={{
+                                        border: "2px",
+                                        "&:hover": {
+                                            border: "none", // Same border on hover
+                                        },
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            border: "none", // Remove the default outline
+                                        },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                            border: "none", // Remove outline on focus
+                                        },
+                                        "&.MuiSelect-select": {
+                                            py: 0, // Optional padding adjustments
+                                        },
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            style: {
+                                                maxHeight: "30vh", // Limit dropdown height
+                                                overflow: "auto", // Enable scrolling in dropdown
+                                                scrollbarWidth: "none",
+                                                // borderRadius: "10px"
+                                            },
+                                        },
+                                    }}
+                                >
+                                    {
+                                        accountLoader ? (
+                                            <CircularProgress size={20} />
+                                        ) : (
+                                            gmailAccounts?.length > 0 ? (
 
-                    <FormControl>
-                        <Select
-                            Select
-                            value={selectedAccount || ""}
-                            onChange={(e) => handleSelect(e)}
-                            displayEmpty
-                            renderValue={(selected) => selected?.name || <div style={{ color: "#aaa" }}>Select Account</div>}
-                            sx={{
-                                border: "2px",
-                                "&:hover": {
-                                    border: "none", // Same border on hover
-                                },
-                                "& .MuiOutlinedInput-notchedOutline": {
-                                    border: "none", // Remove the default outline
-                                },
-                                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                    border: "none", // Remove outline on focus
-                                },
-                                "&.MuiSelect-select": {
-                                    py: 0, // Optional padding adjustments
-                                },
-                            }}
-                            MenuProps={{
-                                PaperProps: {
-                                    style: {
-                                        maxHeight: "30vh", // Limit dropdown height
-                                        overflow: "auto", // Enable scrolling in dropdown
-                                        scrollbarWidth: "none",
-                                        // borderRadius: "10px"
-                                    },
-                                },
-                            }}
-                        >
-                            {
-                                accountLoader ? (
-                                    <CircularProgress size={20} />
-                                ) : (
-                                    gmailAccounts?.length > 0 ? (
+                                                gmailAccounts?.map((item, index) => (
 
-                                        gmailAccounts?.map((item, index) => (
+                                                    <MenuItem key={index}
+                                                        // className="hover:bg-[#402FFF10]"
+                                                        value={item}
+                                                    >
+                                                        <div className='flex w-full flex-row items-center justify-between'>
 
-                                            <MenuItem key={index}
-                                                // className="hover:bg-[#402FFF10]"
-                                                value={item}
-                                            >
-                                                <div className='flex w-full flex-row items-center justify-between'>
+                                                            <div className="flex flex-row items-center gap-2 max-w-[80%]">
+                                                                <div className='text-[15] font-[500]'>
+                                                                    {item.displayName}
+                                                                </div>
+                                                                <div className='text-[13] font-[500]  text-[#00000070]'>
+                                                                    {`(${item.email})`}
+                                                                </div>
+                                                            </div>
 
-                                                    <div className="flex flex-row items-center gap-2 max-w-[80%]">
-                                                        <div className='text-[15] font-[500]'>
-                                                            {item.displayName}
+                                                            {
+                                                                delLoader?.id === item.id ? (
+                                                                    <CircularProgress size={20} />
+                                                                ) : (
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            e.stopPropagation();
+                                                                            handleDelete(item)
+                                                                        }}
+                                                                        className="ml-2"
+                                                                    >
+                                                                        <Image src={'/otherAssets/delIcon.png'} alt='*'
+                                                                            height={16} width={16}
+                                                                        />
+                                                                    </button>
+                                                                )
+                                                            }
                                                         </div>
-                                                        <div className='text-[13] font-[500]  text-[#00000070]'>
-                                                            {`(${item.email})`}
-                                                        </div>
-                                                    </div>
 
-                                                    {
-                                                        delLoader?.id === item.id ? (
-                                                            <CircularProgress size={20} />
-                                                        ) : (
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    e.stopPropagation();
-                                                                    handleDelete(item)
-                                                                }}
-                                                                className="ml-2"
-                                                            >
-                                                                <Image src={'/otherAssets/delIcon.png'} alt='*'
-                                                                    height={16} width={16}
-                                                                />
-                                                            </button>
-                                                        )
-                                                    }
+                                                    </MenuItem>
+                                                ))
+                                            ) : (
+                                                <div className='ml-2'>
+                                                    No account found
                                                 </div>
-
-                                            </MenuItem>
-                                        ))
-                                    ) : (
-                                        <div className='ml-2'>
-                                            No account found
-                                        </div>
-                                    )
-                                )
-                            }
-                        </Select>
-                    </FormControl>
+                                            )
+                                        )
+                                    }
+                                </Select>
+                            </FormControl>
+                        )
+                    }
 
                     {
                         loginLoader ? (

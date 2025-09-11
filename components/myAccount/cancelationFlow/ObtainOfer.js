@@ -1,69 +1,20 @@
-import { Box, CircularProgress, Modal, Slider } from '@mui/material';
+import { Box, CircularProgress, Modal, } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { styled } from "@mui/material/styles";
 import { getDiscount, purchaseMins } from '@/components/userPlans/UserPlanServices';
 import Image from 'next/image';
 
+import { Slider } from "@/components/ui/slider"
+import GradientSlider from '@/components/ui/GradientSlider';
+
+
 const ObtainOffer = ({
-    handleContinue
+    handleContinue,
+    setShowSnak,
 }) => {
 
-    const GradientSlider = styled(Slider)(({ theme }) => ({
-        color: "transparent", // base color removed
-        height: 8,
-        padding: "20px 0",
-
-        "& .MuiSlider-rail": {
-            opacity: 1,
-            backgroundColor: "#e0e0e0", // rail color
-            height: 8,
-            borderRadius: 8,
-        },
-
-        "& .MuiSlider-track": {
-            border: "none",
-            background: "linear-gradient(90deg, #7902DF, #C73BFF)", // gradient track
-            height: 14,
-            borderRadius: 8,
-        },
-
-        "& .MuiSlider-thumb": {
-            height: 30,
-            width: 30,
-            background: "linear-gradient(135deg, #7902DF, #C73BFF)",
-            border: "3px solid white",
-            boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-            "&:hover": {
-                boxShadow: "0 0 15px rgba(0,0,0,0.3)",
-            },
-        },
-
-        "& .MuiSlider-valueLabel": {
-            background: "linear-gradient(135deg, #7902DF, #C73BFF)",
-            color: "white",
-            borderRadius: 6,
-            padding: "4px 8px",
-            fontSize: 12,
-            fontWeight: "bold",
-            transform: "translateY(-120%) scale(1)",
-
-            "&:before": {
-                content: '""',
-                position: "absolute",
-                bottom: -10, // distance below the box
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 16,
-                height: 10,
-                background: "linear-gradient(135deg, #7902DF, #C73BFF)",
-                clipPath: "polygon(50% 100%, 0 0, 100% 0)", // triangle shape
-            },
-        },
-
-    }));
-
     const [offerData, setOfferData] = useState(null)
-    const [mins, setMins] = useState(200)
+    const [mins, setMins] = useState(0)
     const [loading, setLoading] = useState(false)
     const [showDeleteAgentsModal, setShowDeleteAgentsModal] = useState(false)
 
@@ -84,12 +35,18 @@ const ObtainOffer = ({
 
     const purchaseDeal = async () => {
         setLoading(true)
-        let data = await purchaseMins(mins)
+        let response = await purchaseMins(mins)
+        if (response) {
+            setShowSnak({
+                message: response.message,
+                type: SnackbarTypes.Success
+            })
+        }
         setLoading(false)
         let nextAction = "closeModel"
 
         handleContinue(nextAction)
-        
+
     }
 
     // Function to check if user has more than 1 agent
@@ -135,7 +92,7 @@ const ObtainOffer = ({
                     50% Off
                 </div>
                 <div className="" style={{ fontSize: "15px", fontWeight: "400" }}>
-                    Your Minutes
+                    Your credits
                 </div>
                 <div className="mt-4" style={{ fontSize: "22px", fontWeight: "700" }}>
                     {`Let’s Make a Deal!`}
@@ -168,18 +125,13 @@ const ObtainOffer = ({
                         <div className='text-lg font-semibold mt-3'>
                             How many minutes do you need?
                         </div>
+                        <div className='mt-5'>
+                            <GradientSlider
+                                minutes={mins}
+                                setMinutes={setMins}
+                            />
+                        </div>
 
-                        <GradientSlider className='mt-5'
-
-                            max={2000}
-                            min={30}
-                            valueLabelDisplay="on"
-                            aria-label="Gradient Slider"
-                            value={mins}
-                            onChange={(e, newValue) => {
-                                setMins(newValue);        // newValue is the slider value
-                            }}
-                        />
 
                         <div className='text-[12px] font-normal text-center mt-4'>
                             Your new total is : <span className='font-semibold'>{`$${totalCost}`}</span>
@@ -242,7 +194,7 @@ const ObtainOffer = ({
                         {/* Header */}
                         <div className="flex justify-between items-center mb-2">
                             <h2 className="text-lg font-semibold text-gray-800">
-                                
+
                             </h2>
                             <button
                                 onClick={() => setShowDeleteAgentsModal(false)}
@@ -265,11 +217,11 @@ const ObtainOffer = ({
                                 </div>
                             </div> */}
                             <Image
-                                    src="/assets/Pause_Icon.svg"
-                                    height={40}
-                                    width={40}
-                                    alt="Close"
-                                />
+                                src="/assets/Pause_Icon.svg"
+                                height={40}
+                                width={40}
+                                alt="Close"
+                            />
                         </div>
 
                         {/* Title */}

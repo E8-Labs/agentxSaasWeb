@@ -3,7 +3,19 @@ import { Modal, Box, CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import CloseBtn from '../globalExtras/CloseBtn';
 
-const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthly, selectedDuration = null, loading = false }) => {
+const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthly,
+    selectedDuration = null, loading = false,
+    isFree = false
+
+}) => {
+
+    let description = isFree ? "We have our free plan available for users that want to try before committing. Enjoy!" :
+        `All annual plans get 35% discount compared to ${selectedDuration ? selectedDuration.title : "monthly"} plans`
+
+    let title = isFree ? "Get started for free!" : "Pay less with annual billing"
+    let heading = isFree ? "No Credit Card Required " : "Subscribe to yearly plan"
+    let tag = isFree ? "No Credit Card" : "2 months free"
+
     return (
         <Modal
             open={open}
@@ -22,7 +34,7 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                     {/* Header with Title and Close Button */}
                     <div className="flex items-center justify-between mb-6">
                         <div className="text-2xl font-bold text-black">
-                            Pay less with annual billing
+                            {title}
                         </div>
                         <CloseBtn
                             onClick={handleClose}
@@ -42,39 +54,60 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                         <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                                 <span className="text-lg font-bold text-black">
-                                    Subscribe to yearly plan
+                                    {heading}
                                 </span>
                                 <div className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap">
-                                    2 months free
+                                    {tag}
                                 </div>
                             </div>
                             <div className="text-sm text-gray-600">
-                                {`All annual plans get 35% discount compared to ${selectedDuration ? selectedDuration.title : "monthly"} plans`}
+                                {description}
                             </div>
                         </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-row gap-3">
-                        <button
-                            onClick={onContinueYearly}
-                            className="w-full bg-purple text-white py-3 px-6 rounded-xl font-semibold text-base hover:bg-purple-700 transition-colors"
-                        >
-                            Continue Yearly
-                        </button>
-                        {
+
+                    {
+                        isFree ? (
+
                             loading ? (
                                 <CircularProgress />
                             ) : (
+
                                 <button
                                     onClick={onContinueMonthly}
-                                    className="w-full bg-white border border-gray-300 text-black py-3 px-6 rounded-xl font-semibold text-base hover:bg-gray-50 transition-colors"
+                                    className="w-full bg-purple  text-white py-3 px-6 rounded-xl font-semibold text-base transition-colors"
                                 >
-                                    {`Continue ${selectedDuration ? selectedDuration.title : "Monthly"}`}
+                                    {`Continue on Free Plan`}
                                 </button>
                             )
-                        }
-                    </div>
+
+                        ) : (
+
+                            <div className="flex flex-row gap-3">
+                                <button
+                                    onClick={onContinueYearly}
+                                    className="w-full bg-purple text-white py-3 px-6 rounded-xl font-semibold text-base hover:bg-purple-700 transition-colors"
+                                >
+                                    Continue Yearly
+                                </button>
+                                {
+                                    loading ? (
+                                        <CircularProgress />
+                                    ) : (
+
+                                        <button
+                                            onClick={onContinueMonthly}
+                                            className="w-full bg-white border border-gray-300 text-black py-3 px-6 rounded-xl font-semibold text-base hover:bg-gray-50 transition-colors"
+                                        >
+                                            {`Continue ${selectedDuration ? selectedDuration.title : "Monthly"}`}
+                                        </button>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
                 </div>
             </Box>
         </Modal>

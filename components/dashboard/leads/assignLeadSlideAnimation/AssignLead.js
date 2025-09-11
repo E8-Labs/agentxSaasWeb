@@ -144,7 +144,7 @@ const AssignLead = ({
     // } else {
     //   console.log("Get agents api trigered");
     // }
-    
+
     getAgents();
 
     console.log("Selected agents paased are", selectedAgents);
@@ -263,7 +263,7 @@ const AssignLead = ({
         if (a.agentType == "inbound") {
           inbound = true;
           // console.log("returned the agent", a);
-        }else if (a.agentType == "outbound"){
+        } else if (a.agentType == "outbound") {
           inbound = false;
         }
       }
@@ -370,7 +370,7 @@ const AssignLead = ({
   };
 
   const handleAssignLead = async () => {
-    let userTimeZone =GetTimezone() //userProfile.timeZone || "America/Los_Angeles";
+    let userTimeZone = GetTimezone() //userProfile.timeZone || "America/Los_Angeles";
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone); // Convert input date to Day.js object
     const currentHour = selectedDate.hour(); // Get the current hour (0-23)
     const currentMinute = selectedDate.minute(); // Get minutes for 8:30 PM check
@@ -651,7 +651,7 @@ const AssignLead = ({
           // setLastStepModal(true);
         }}
       >
-        Only outbound agents assigned to a stage can make calls.
+        Only outbound agents assigned to a stage can be selected.
       </div>
 
       {initialLoader ? (

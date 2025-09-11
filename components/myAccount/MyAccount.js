@@ -20,7 +20,7 @@ function MyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
 
-  const [tabSelected, setTabSelected] = useState(5);
+  const [tabSelected, setTabSelected] = useState(6);
 
   const manuBar = [
     {
@@ -109,8 +109,8 @@ function MyAccount() {
     if (exists) {
       setTabSelected(number);
     } else {
-      setTabSelected(5); // Default to Invite Agents
-      setParamsInSearchBar(5);
+      setTabSelected(6); // Default to Invite Agents
+      setParamsInSearchBar(6);
       // console.log("Setting the tab value");
     }
   }, []);
@@ -145,10 +145,6 @@ function MyAccount() {
         return <InviteAgentX />;
         case 7:
           return <TwilioTrustHub />;
-      // case 6:
-      //   return <Support />;
-      // case 7:
-      //   return <SendFeedback />;
       default:
         return <div>Please select an option.</div>;
     }

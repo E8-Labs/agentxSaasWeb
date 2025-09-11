@@ -61,8 +61,8 @@ const LastStep = ({
 
   useEffect(() => {
     const localData = getUserLocalData()
-      setUserLocalDetails(localData.user);
-    
+    setUserLocalDetails(localData.user);
+
   }, []);
 
   useEffect(() => {
@@ -407,7 +407,7 @@ const LastStep = ({
           </div>
 
           <div className="mt-4" style={styles.heading}>
-            Drip calls per day
+            Drip per day
           </div>
 
           <div className="flex flex-row items-center gap-8 mt-4">
@@ -458,7 +458,7 @@ const LastStep = ({
           </div>
 
           <div className="mt-4" style={styles.heading}>
-            When to start calling?
+            When to start?
           </div>
 
           <div className="flex flex-row items-center gap-8 mt-4">
@@ -500,7 +500,7 @@ const LastStep = ({
                 width={24}
                 alt="*"
               />
-              <div style={styles.title}>Call Now</div>
+              <div style={styles.title}>Start Now</div>
             </button>
             <div className="w-1/2">
               <button
@@ -521,7 +521,7 @@ const LastStep = ({
                 }}
               >
                 <CalendarDots size={32} weight="bold" />
-                <div style={styles.title}>Schedule Call</div>
+                <div style={styles.title}>Schedule</div>
               </button>
               {/* <div>
                                       {
@@ -879,15 +879,15 @@ const LastStep = ({
               )}
 
               <UpgradeModal
-              open={showUpgradeModal}
-              handleClose={() => {
-                setShowUpgradeModal(false)
-              }}
-        
-              title={"You've Hit Your DNC Limit"}
-              subTitle={"Upgrade to add more DNC lists"}
-              buttonTitle={"No Thanks"}
-            />
+                open={showUpgradeModal}
+                handleClose={() => {
+                  setShowUpgradeModal(false)
+                }}
+
+                title={"You've Hit Your DNC Limit"}
+                subTitle={"Upgrade to add more DNC lists"}
+                buttonTitle={"No Thanks"}
+              />
             </div>
           )}
 

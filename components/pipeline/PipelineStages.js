@@ -245,7 +245,7 @@ const PipelineStages = ({
     setUser(data.user)
     getMyTeam();
     getNumbers()
-  }, []);
+  }, [stages]);
 
 
   useEffect(() => {
@@ -266,10 +266,12 @@ const PipelineStages = ({
 
     let data = localStorage.getItem("selectedUser")
     let selectedUser  = null
-    if(data){
+    // console.log('data', data)
+    if(data != "undefined"){
        selectedUser = JSON.parse(data)
       console.log("selected user data from local",selectedUser)
     }
+    console.log('trying to get a2p numbers')
     setPhoneLoading(true)
     let id = selectedUser?.id
     let num = await getA2PNumbers(id)

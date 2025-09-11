@@ -579,18 +579,6 @@ export const PromptTagInput = ({
                       </div>
                     )
                   }
-
-                  {
-                    from === "CreateEmail" && (
-                      <div>
-                        <div style={{
-                          fontSize: 14, fontWeight: '500', color: '#00000060'
-                        }}>
-                          {text?.length}/160
-                        </div>
-                      </div>
-                    )
-                  }
                 </div>
 
               </div>

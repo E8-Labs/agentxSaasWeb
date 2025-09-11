@@ -13,9 +13,9 @@ import Apis from '../apis/Apis';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
+function UserPlans({ handleContinue, handleBack, from = "dashboard" }) {
 
-  const router = useRouter();
+    const router = useRouter();
 
 
     let stripePublickKey =
@@ -56,7 +56,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
     const [showYearlyPlanModal, setShowYearlyPlanModal] = useState(false)
     const [selectedMonthlyPlan, setSelectedMonthlyPlan] = useState(null)
-    const [subscribeLoader,setSubscribeLoader] = useState(false)
+    const [subscribeLoader, setSubscribeLoader] = useState(false)
 
 
 
@@ -74,8 +74,8 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
         // handleSubscribePlan()
     };
 
-     //function to subscribe plan
-     const handleSubscribePlan = async () => {
+    //function to subscribe plan
+    const handleSubscribePlan = async () => {
         try {
             let planType = selectedPlan?.planType;
 
@@ -109,9 +109,9 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
                 if (response.data.status === true) {
-                    if(from === "dashboard"){
+                    if (from === "dashboard") {
                         router.push("/dashboard")
-                    }else{
+                    } else {
                         handleContinue()
                     }
                 }
@@ -204,14 +204,16 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
         setAddPaymentPopUp(true);
     };
 
-    const handleContinueMonthly = () => {
+    const handleContinueMonthly =async () => {
         // Proceed with monthly plan
-        setShowYearlyPlanModal(false);
-        if(!selectedMonthlyPlan.discountPrice){
-            handleSubscribePlan()
-        }else{
+       
+        if (!selectedMonthlyPlan.discountPrice) {
+           await handleSubscribePlan()
+        } else {
             setAddPaymentPopUp(true);
         }
+
+        setShowYearlyPlanModal(false);
     };
 
 
@@ -219,7 +221,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
         <div className='flex flex-col items-center w-full h-[100vh] bg-white'>
             <div className='flex flex-col items-center w-[90%]  h-full overflow-y-auto'
                 style={{
-                    scrollbarWidth:'none'
+                    scrollbarWidth: 'none'
                 }}
             >
 
@@ -290,11 +292,11 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                     </div>
                 </div>
 
-                <div className='flex flex-row gap-5 w-full mt-4 pb-8'>
+                <div className='flex flex-row gap-5 w-full h-auto mt-4 pb-8'>
                     {
                         getCurrentPlans().map((item, index) => (
                             <button
-                                key={item.id}
+                                key={index}
                                 onClick={() => handleTogglePlanClick(item, index)}
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
@@ -302,7 +304,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                                 className={`flex flex-col items-center w-3/12 rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
                                 `}
-                                style={{height: '900px' }}
+                                style={{ height: '900px' }}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>
@@ -357,7 +359,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                                                     e.preventDefault();
                                                     e.stopPropagation();
                                                     handleTogglePlanClick(item, index);
-                                                    if (selectedDuration.id === 1 ||selectedDuration.id === 2 ) {
+                                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
                                                         // Monthly plan selected - show yearly plan modal
                                                         setSelectedMonthlyPlan(item);
                                                         setShowYearlyPlanModal(true);
@@ -387,7 +389,7 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                                                     item.features.map((feature, featureIndex) => (
                                                         <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
                                                             <Image src="/svgIcons/selectedTickBtn.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
-                                                            <div className='flex flex-col items-start gap-1 w-full min-w-0'>
+                                                            <div className='flex flex-col items-start gap-1 w-full min-w-0 text-left'>
                                                                 <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
                                                                     <span>{feature.text}</span>
                                                                     {feature.subtext && (
@@ -447,8 +449,9 @@ function UserPlans({ handleContinue, handleBack , from = "dashboard"}) {
                 handleClose={() => setShowYearlyPlanModal(false)}
                 onContinueYearly={handleContinueYearly}
                 onContinueMonthly={handleContinueMonthly}
-                selectedDuration = {selectedDuration}
-                loading = {subscribeLoader}
+                selectedDuration={selectedDuration}
+                loading={subscribeLoader}
+                isFree={!selectedPlan?.discountPrice ? true : false}
             />
 
             <Modal

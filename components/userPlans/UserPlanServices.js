@@ -70,16 +70,17 @@ export const pauseSubscription = async () => {
 
 
         if (response) {
+            console.log('response of puase cancelation', response.data)
             if (response.data.status == true) {
-                console.log('response of puase cancelation', response.data)
-                return response.data.data
+                return response.data
             } else {
-                return null
+                return response.data
             }
         }
 
     } catch (error) {
         console.log('error in pause api', error)
+        
     }
 }
 
@@ -98,11 +99,11 @@ export const claimGift = async () => {
 
 
         if (response) {
+            console.log('response of claimGiftMins', response.data)
             if (response.data.status == true) {
-                console.log('response of claimGiftMins', response.data)
-                return response.data.data
+                return response.data
             } else {
-                return null
+                return response.data
             }
         }
 

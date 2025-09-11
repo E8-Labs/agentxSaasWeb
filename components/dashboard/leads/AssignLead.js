@@ -625,7 +625,7 @@ const AssignLead = ({
           // setLastStepModal(true);
         }}
       >
-        Only outbound agents assigned to a stage can make calls.
+        Only outbound agents assigned to a stage can be selected.
       </div>
 
       {initialLoader ? (

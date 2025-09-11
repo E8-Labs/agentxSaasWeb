@@ -86,9 +86,15 @@ function EmailTempletePopup({
 
     const [shouldUpdate, setShouldUpdate] = useState(false)
 
+    const [IsdefaultCadence, setIsdefaultCadence] = useState(null)
+
+
     useEffect(() => {
         getColumns()
         templatesForSelectedType()
+        let isDefault = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
+        console.log('isDefault', isDefault)
+        setIsdefaultCadence(isDefault)
     }, [open])
 
     const templatesForSelectedType = async () => {
@@ -118,11 +124,11 @@ function EmailTempletePopup({
             if (editingRow.templateId) {
                 loadTemplateDetails(editingRow);
             }
-            
+
             // Always load accounts when editing email templates
             console.log('Loading accounts for editing. editingRow emailAccountId:', editingRow.emailAccountId);
             getAccounts(); // Always load accounts regardless of existing emailAccountId
-            
+
         } else if (!isEditing) {
             // Reset form when not editing
             setTempName("");
@@ -191,7 +197,7 @@ function EmailTempletePopup({
             googleAccountsLength: googleAccounts.length,
             currentSelectedAccountId: selectedGoogleAccount?.id
         });
-        
+
         if (isEditing && googleAccounts.length > 0 && !selectedGoogleAccount?.id) {
             if (editingRow?.emailAccountId) {
                 // Try to restore the existing account
@@ -356,7 +362,6 @@ function EmailTempletePopup({
         });
 
         let response = null
-        let IsdefaultCadence = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
 
         console.log('IsdefaultCadence', IsdefaultCadence)
         // Handle lead email sending
@@ -405,7 +410,7 @@ function EmailTempletePopup({
         if (response.data.status === true) {
 
             const createdTemplate = response?.data?.data
-            
+
             // Handle template list updates based on the operation performed
             if (createdTemplate) {
                 if (selectedTemp && !hasTemplateChanges && !isEditing) {
@@ -430,7 +435,7 @@ function EmailTempletePopup({
                 }
             }
 
-            
+
 
             if ((isEditing && onUpdateRow && editingRow)) {
                 // Ensure we have a selected account, use first available if none selected
@@ -440,7 +445,7 @@ function EmailTempletePopup({
                     accountId = googleAccounts[0].id;
                     setSelectedGoogleAccount(googleAccounts[0]);
                 }
-                
+
                 // Update existing row with new template data
                 const updateData = {
                     templateId: createdTemplate.id,
@@ -456,17 +461,17 @@ function EmailTempletePopup({
                 console.log('Selected Google Account:', selectedGoogleAccount);
                 console.log('Using Account ID:', accountId);
                 console.log('Editing Row:', editingRow);
-                
+
                 // Validate that emailAccountId exists
                 if (!accountId) {
                     console.error('CRITICAL: emailAccountId is still missing during update!');
                     console.error('Available accounts:', googleAccounts);
                 }
-                
+
                 onUpdateRow(editingRow.id, updateData);
             } else {
                 // Add new row
-                
+
                 // Ensure we have a selected account, use first available if none selected
                 let accountId = selectedGoogleAccount?.id;
                 if (!accountId && googleAccounts.length > 0) {
@@ -556,7 +561,7 @@ function EmailTempletePopup({
                         />
                         <div className='flex flex-row items-center justify-between '>
                             <div className='text-xl font-semibold color-black'>
-                                {isLeadEmail ? 'Send Email to Lead' : ((isEditing || selectedTemp) ? 'Edit Email' : 'Create Email')}
+                                {isLeadEmail ? 'Send Email to Lead' : (((isEditing && !IsdefaultCadence) || selectedTemp) ? 'Edit Email' : 'Email')}
                             </div>
 
                             <FormControl>
@@ -795,7 +800,7 @@ function EmailTempletePopup({
                                 saveUpdates={async () => {
 
                                 }}
-                                editTitle={(isEditing || selectedTemp) ? 'Edit Email Body' : 'Create Email Body'}
+                                editTitle={((isEditing && !IsdefaultCadence) || selectedTemp) ? 'Edit Email Body' : 'Email Body'}
                                 limit={160}
                                 from={"CreateEmail"}
                             />
@@ -855,7 +860,7 @@ function EmailTempletePopup({
                                     disabled={isSaveDisabled}
                                     onClick={saveEmail}
                                 >
-                                    {isLeadEmail ? 'Send Email' : (isEditing ? 'Update' : 'Save Email')}
+                                    {isLeadEmail ? 'Send Email' : (isEditing && !IsdefaultCadence ? 'Update' : 'Save Email')}
                                 </button>
                             )
                         }

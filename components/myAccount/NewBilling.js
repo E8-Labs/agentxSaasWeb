@@ -84,6 +84,11 @@ function NewBilling() {
 
     //snack messages variables
     const [successSnack, setSuccessSnack] = useState(null);
+    const [showSnack, setShowSnack] = useState({
+        message: null,
+        type: null
+    });
+
     const [errorSnack, setErrorSnack] = useState(null);
 
     //variables for cancel plan
@@ -933,6 +938,18 @@ function NewBilling() {
                 message={successSnack}
                 type={SnackbarTypes.Success}
             />
+
+            <AgentSelectSnackMessage
+                isVisible={showSnack.message == null ? false : true}
+                hide={() => {
+                    setShowSnack({
+                        message: null,
+                        type: null
+                    });
+                }}
+                message={showSnack.message}
+                type={showSnack.type || SnackbarTypes.Error}
+            />
             <div className="w-full flex flex-row items-center justify-between">
                 <div className="flex flex-col">
                     <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
@@ -1311,6 +1328,7 @@ function NewBilling() {
                 showModal={showCancelPopup}
                 handleClose={handleCloseCancelation}
                 userLocalData={userLocalData}
+                setShowSnak={setShowSnack}
             />
 
 

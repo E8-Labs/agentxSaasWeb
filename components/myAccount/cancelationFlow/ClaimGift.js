@@ -1,17 +1,24 @@
+import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { claimGift, getDiscount } from '@/components/userPlans/UserPlanServices';
 import { CircularProgress } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
 
 
-function ClaimGift({ handleContinue }) {
+function ClaimGift({ handleContinue,setShowSnak }) {
 
     const [claimLoader, setClaimLoader] = useState(false)
     const [loading, setLoading] = useState(false)
 
     const handleClaimMins = async () => {
         setClaimLoader(true)
-        await claimGift()
+        let response = await claimGift()
+        if (response) {
+            setShowSnak({
+                message: response.message,
+                type: SnackbarTypes.Success
+            })
+        }
         setClaimLoader(false)
 
         let nextAction = "closeModel"
@@ -28,7 +35,7 @@ function ClaimGift({ handleContinue }) {
         if (data?.discountOffer?.alreadyUsed === false) {
             let nextAction = "obtainOffer"
             handleContinue(nextAction)
-        }else{
+        } else {
             let nextAction = "cancelConfirmationFromGift"
             handleContinue(nextAction)
         }

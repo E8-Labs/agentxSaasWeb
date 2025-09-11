@@ -55,6 +55,8 @@ import DeleteCallLogConfimation from "./DeleteCallLogConfimation";
 // import EmailTempletePopup from "../../pipeline/EmailTempletePopup";
 import EmailTempletePopup from "@/components/pipeline/EmailTempletePopup";
 import SMSTempletePopup from "@/components/pipeline/SMSTempletePopup";
+import { getA2PNumbers } from "@/components/pipeline/TempleteServices";
+import { UpgradeTag } from "@/components/constants/constants";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -172,6 +174,7 @@ const LeadDetails = ({
       }
     };
 
+    getNumbers()
     getData();
   }, []);
 
@@ -266,6 +269,23 @@ const LeadDetails = ({
       handleClosePopup();
     }
   };
+
+  const getNumbers = async () => {
+
+    let data = localStorage.getItem("selectedUser")
+    let selectedUser = null
+    if (data) {
+      selectedUser = JSON.parse(data)
+      console.log("selected user data from local", selectedUser)
+    }
+    setPhoneLoading(true)
+    let id = selectedUser?.id
+    let num = await getA2PNumbers(id)
+    if (num) {
+      setPhoneNumbers(num)
+    }
+    setPhoneLoading(false)
+  }
 
   //function to handle stages dropdown selection
   const handleStageChange = (event) => {
@@ -1428,9 +1448,9 @@ const LeadDetails = ({
                                 )}
                                 {/* Send SMS Button for Phone */}
                                 <button
-                                  className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors ml-4"
+                                  className={`flex flex-row items-center gap-1 px-3 py-1 rounded-lg ${(userLocalData?.plan?.price && phoneNumbers.length > 0) ? " bg-purple/10 hover:bg-purple/20 text-purple" : "bg-[#00000050] text-white"} transition-colors ml-4`}
                                   onClick={() => setShowSMSModal(true)}
-                                  disabled={sendSMSLoader}
+                                  disabled={sendSMSLoader || !userLocalData?.plan?.price || phoneNumbers.length == 0}
                                 >
                                   <Image
                                     src="/svgIcons/editIcon.svg"
@@ -1438,10 +1458,52 @@ const LeadDetails = ({
                                     width={14}
                                     alt="Send SMS"
                                   />
-                                  <span className="text-purple text-sm font-medium">
+                                  <span className="text-sm font-medium">
                                     Send SMS
                                   </span>
                                 </button>
+                                {
+                                  !userLocalData?.plan?.price ? (
+                                    <UpgradeTag />
+                                  ) : (
+                                    phoneNumbers.length == 0 && (
+                                      <Tooltip key={a.id}
+                                        title={shouldDisable(a) ? "You need to complete A2P to text" : ""}
+                                        arrow
+                                        disableHoverListener={!shouldDisable(a)}
+                                        disableFocusListener={!shouldDisable(a)}
+                                        disableTouchListener={!shouldDisable(a)}
+                                        componentsProps={{
+                                          tooltip: {
+                                            sx: {
+                                              backgroundColor: "#ffffff", // Ensure white background
+                                              color: "#333", // Dark text color
+                                              fontSize: "16px",
+                                              fontWeight: "500",
+                                              padding: "10px 15px",
+                                              borderRadius: "8px",
+                                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                            },
+                                          },
+                                          arrow: {
+                                            sx: {
+                                              color: "#ffffff", // Match tooltip background
+                                            },
+                                          },
+                                        }}
+                                      >
+                                        <Image
+                                          src={"/otherAssets/redInfoIcon.png"}
+                                          height={16}
+                                          width={16}
+                                          alt="*"
+                                        />
+
+                                      </Tooltip>
+                                    )
+                                  )
+                                }
+
                               </div>
                             )
                           }

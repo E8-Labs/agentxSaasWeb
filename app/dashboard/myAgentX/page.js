@@ -2204,6 +2204,8 @@ function Page() {
   //function to add new agent
   const handleAddNewAgent = (event) => {
     event.preventDefault();
+    console.log('user?.user?.currentUsage?.maxAgents', user?.user?.currentUsage?.maxAgents)
+    console.log('user?.user?.planCapabilities?.maxAgents', user?.user?.planCapabilities?.maxAgents)
     if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
       setShowUpgradeModal(true)
       return
@@ -2409,10 +2411,17 @@ function Page() {
   };
 
   const handleLanguageChange = async (event) => {
-    setShowLanguageLoader(true);
     let value = event.target.value;
     console.log("selected language is", value);
     // console.log("selected voice is",SelectedVoice)
+
+    
+    if(value === "Multilingual" && (user?.user?.planCapabilities?.allowLanguageSelection === false)){
+      return
+    }
+
+    setShowLanguageLoader(true);
+
 
     let voice = voicesList.find((voice) => voice.name === SelectedVoice);
 
@@ -2546,7 +2555,7 @@ function Page() {
   };
 
 
-  const handleDrawerClose =async () => {
+  const handleDrawerClose = async () => {
     setShowDrawerSelectedAgent(null);
     await getProfileDetails()
     setActiveTab("Agent Info");
@@ -3711,7 +3720,12 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                // disabled={index !== 0}//languageValue === item?.title ||
+                                  disabled={item.value === "multi" && (user?.user?.planCapabilities?.allowLanguageSelection === false)}
+                                  style={
+                                    item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
+                                      ? { pointerEvents: "auto" }
+                                      : {}
+                                  }
                                 >
                                   <Image
                                     src={item?.flag}
@@ -3725,6 +3739,13 @@ function Page() {
                                   >
                                     {item.subLang}
                                   </div>
+
+                                  {
+                                    item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
+                                      && (
+                                        <UpgradeTag />
+                                      )
+                                  }
                                 </MenuItem>
                               );
                             })}

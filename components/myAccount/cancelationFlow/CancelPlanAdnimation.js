@@ -30,14 +30,12 @@ export default function CancelPlanAnimation({
     showModal,
     handleClose,
     userLocalData,
+    setShowSnak
 
 }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
-    const [showSnack,setShowSnak ] = useState({
-        data:null,
-        message:null
-    })
+  
 
     const handleContinue = async (nextAction) => {
         console.log('currentIndex', currentIndex)
@@ -152,7 +150,7 @@ export default function CancelPlanAnimation({
                                             }}
                                         />
                                     </div>
-                                    <PauseSubscription handleContinue={handleContinue} />
+                                    <PauseSubscription handleContinue={handleContinue} setShowSnak = {setShowSnak}/>
                                 </div>
                             </motion.div>
                         )}
@@ -180,6 +178,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <ClaimGift
                                         handleContinue={handleContinue}
+                                        setShowSnak = {setShowSnak}
                                     />
                                 </div>
                             </motion.div>
@@ -209,6 +208,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <ObtainOffer
                                         handleContinue={handleContinue}
+                                        setShowSnak = {setShowSnak}
                                     />
                                 </div>
                             </motion.div>
@@ -224,7 +224,7 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[70%] bg-white h-[auto] p-6 border-none outline-none"
+                                className="rounded-lg w-[70%] bg-white h-auto p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
@@ -238,6 +238,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <CancelConfirmation
                                         handleContinue={handleContinue}
+                                        setShowSnak={setShowSnak}
                                     />
 
                                 </div>
@@ -253,7 +254,7 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[70%] bg-white h-[90vh] p-6 border-none outline-none"
+                                className="rounded-lg w-[70%] bg-white h-auto p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
@@ -267,6 +268,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <CancelationFinalStep
                                         handleContinue={handleContinue}
+                                        setShowSnak = {setShowSnak}
                                     />
 
                                 </div>
@@ -282,7 +284,7 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[70%] h-[40vh] bg-white p-6 border-none outline-none"
+                                className="rounded-lg w-[70%] h-auto bg-white p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">

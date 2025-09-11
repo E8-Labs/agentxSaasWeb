@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from 'next/image';
 
 
-function CancelationCompleted() {
+function CancelationCompleted({handleContinue}) {
     const router = useRouter();
 
     return (
@@ -31,11 +31,11 @@ function CancelationCompleted() {
 
             <button className='flex flex-col items-center justify-center h-[50px] w-full bg-purple rounded-lg text-base font-normal text-white mt-5 '
                 onClick={() => {
-                    logout()
-                    router.replace("/");
+                    let nextAction = "closeModel"
+                    handleContinue(nextAction)
                 }}
             >
-                Logout
+                Done
             </button>
         </div>
     )

@@ -5,7 +5,8 @@ import Image from 'next/image';
 import React, { useRef, useState } from 'react'
 
 function CancelationFinalStep({
-    handleContinue
+    handleContinue,
+    setShowSnak
 }) {
 
 
@@ -42,7 +43,7 @@ function CancelationFinalStep({
     //delreason extra variables
     const [loading, setloading] = useState(false);
     const [loading2, setloading2] = useState(false)
-    const [showError,setShowError] = useState(null)
+    const [showError, setShowError] = useState(null)
     //function to select the cancel plan reason
 
 
@@ -63,14 +64,18 @@ function CancelationFinalStep({
 
     const handleCancel = async () => {
         setloading(true)
-        let data = await completeCancelation()
-        console.log('data', data)
-        if (data.status == true) {
+        let response = await completeCancelation()
+        console.log('data', response)
 
+        setShowSnak({
+            message: response.message,
+            type: SnackbarTypes.Success
+        })
+        if (response.status === true) {
             let nextAction = "completeCancelation"
             handleContinue(nextAction)
         } else {
-            setShowError(data.message)
+            setShowError(response.message)
         }
         setloading(false)
     }
@@ -88,7 +93,7 @@ function CancelationFinalStep({
     return (
         <div className='flex flex-col items-center w-full -mt-5'>
             <AgentSelectSnackMessage
-                isVisible={showError!=null}
+                isVisible={showError != null}
                 hide={() => {
                     setShowError(null);
                 }}
@@ -116,7 +121,7 @@ function CancelationFinalStep({
             </div>
 
             <div className="mt-9 w-full flex-col  justify-between">
-                <div className='h-[40vh]'>
+                <div className=''>
                     {cancelPlanReasons.map((item, index) => (
                         <button
                             onClick={() => {
@@ -209,21 +214,6 @@ function CancelationFinalStep({
                     </button>
                 )}
 
-                {loading2 ? (
-                    <div className="flex flex-row items-center justify-center mt-10">
-                        <CircularProgress size={35} />
-                    </div>
-                ) : (
-                    <button
-                        className="w-full flex flex-row items-center h-[50px] rounded-lg border justify-center mt-3"
-
-                        onClick={() => {
-                            handlePause();
-                        }}
-                    >
-                        Pause Subscription
-                    </button>
-                )}
             </div>
         </div>
 
