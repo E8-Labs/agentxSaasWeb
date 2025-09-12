@@ -61,60 +61,6 @@ function AgencyPlans() {
     const [showYearlyPlan, setShowYearlyPlan] = useState(false);
     const [isContinueMonthly, setIsContinueMonthly] = useState(false);
 
-    //plan features available
-    // const planFeaturesAvailable = [
-    //     [ // Index 0
-    //         { main: "Unlimited Minutes", sub: "" },
-    //         { main: "Unlimited Agents", sub: "" },
-    //         { main: "Unlimited Teams", sub: "" },
-    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
-    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-    //         { main: "AI Powered CRM", sub: "(Copilot)" },
-    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
-    //         { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-    //         { main: "Custom Voicemails", sub: "" },
-    //         { main: "Phone Numbers", sub: "(Upsell)" },
-    //         { main: "DNC Check", sub: "(Upsell)" },
-    //         { main: "Lead Source", sub: "(Upsell)" },
-    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
-    //         { main: "AI Powered Emails", sub: "(coming soon)" }
-    //     ],
-    //     [ // Index 1
-    //         { main: "Unlimited Minutes", sub: "" },
-    //         { main: "Unlimited Agents", sub: "" },
-    //         { main: "Unlimited Teams", sub: "" },
-    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
-    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-    //         { main: "AI Powered CRM", sub: "(Copilot)" },
-    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
-    //         { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-    //         { main: "Custom Voicemails", sub: "" },
-    //         { main: "Phone Numbers", sub: "(Upsell)" },
-    //         { main: "DNC Check", sub: "(Upsell)" },
-    //         { main: "Lead Source", sub: "(Upsell)" },
-    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
-    //         { main: "AI Powered Emails", sub: "(coming soon)" },
-    //         { main: "Slack Support", sub: "" }
-    //     ],
-    //     [ // Index 2
-    //         { main: "Unlimited Minutes", sub: "" },
-    //         { main: "Unlimited Agents", sub: "" },
-    //         { main: "Unlimited Teams", sub: "" },
-    //         { main: "Unlimited Team Seats", sub: "(Upsell)" },
-    //         { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-    //         { main: "AI Powered CRM", sub: "(Copilot)" },
-    //         { main: "Lead Enrichment", sub: "(Perplexity)" },
-    //         { main: "7000+ Integrations", sub: "(Zapier + Make)" },
-    //         { main: "Custom Voicemails", sub: "" },
-    //         { main: "Phone Numbers", sub: "(Upsell)" },
-    //         { main: "DNC Check", sub: "(Upsell)" },
-    //         { main: "Lead Source", sub: "(Upsell)" },
-    //         { main: "AI Powered iMessage", sub: "(coming soon)" },
-    //         { main: "AI Powered Emails", sub: "(coming soon)" },
-    //         { main: "Slack Support", sub: "" },
-    //         { main: "Tech Support", sub: "" }
-    //     ]
-    // ];
 
     const planFeaturesAvailable = {
         1: [ // Monthly
@@ -220,8 +166,6 @@ function AgencyPlans() {
         ]
     };
 
-
-
     const planFeaturesUnavailable = {
         1: [ // Monthly
             [
@@ -294,11 +238,8 @@ function AgencyPlans() {
         ]
     };
 
-
-
     useEffect(() => {
         getPlans();
-
     }, []);
 
     const selectDefaultPlan = (monthly) => {
@@ -707,11 +648,11 @@ function AgencyPlans() {
                                                         </div>
 
                                                         <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
-                                                            {item.fee}% Rev Share
+                                                            {item.capabilities?.affiliatePercent}% Rev Share
                                                         </div>
 
                                                         <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${item?.ratePerMin?.toFixed(2)} per min
+                                                            ${item?.capabilities?.aiCreditRate?.toFixed(2)} per min
                                                         </div>
 
                                                         <div className="mt-3 mb-3">
