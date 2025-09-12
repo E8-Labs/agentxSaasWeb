@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { calculatePlanPrice, getUserPlans } from './UserPlanServices'
+import { calculatePlanPrice, getNextChargeDate, getUserPlans } from './UserPlanServices'
 import Apis from '../apis/Apis'
 import axios from 'axios'
 import { AuthToken } from '../agency/plan/AuthDetails'
@@ -503,7 +503,11 @@ function UpgradePlan({
                                 />
                             </div>
 
-                            <div className='flex flex-col w-[75%] items-start h-[85%] overflow-y-auto -mt-5'>
+                            <div className='flex flex-col w-[75%] items-start h-[85%] overflow-y-auto -mt-5'
+                                    style={{
+                                        scrollbarWidth:'none'
+                                    }}
+                            >
                                 <div className='text-2xl font-[600] '>
                                     Upgrade Your Plan
                                 </div>
@@ -723,7 +727,7 @@ function UpgradePlan({
                                                 <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
                                                     {` Total Billed ${selectedPlan?.billingCycle}`}
                                                 </div>
-                                                <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
+                                                <div className='text-[#8a8a8a]' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
                                             </div>
                                             <div className='text-[#8a8a8a]' style={{ fontWeight: "600", fontSize: 15 }}>
                                                 {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * (selectedPlan?.discountPrice)}` : "$0"}

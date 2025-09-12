@@ -36,7 +36,7 @@ function AgencyIntegrations({ selectedAgency }) {
                             className={`${currentTab === 1 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}
                             onClick={() => { handleTabSelection(1) }}
                         >
-                            Twillio
+                            Twilio
                         </button>
                         <button
                             className={`${currentTab === 2 ? "border-purple" : "border-black"} border rounded-full px-4 py-1 outline-none`}

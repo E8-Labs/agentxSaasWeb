@@ -549,6 +549,7 @@ const AgentsListPaginated = ({
         <NoAgent showBtn={
           search ? false : true
         }
+          from = {from}
           title={
             search ? "No agent found" : "You have no active agents"
           }

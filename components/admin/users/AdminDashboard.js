@@ -203,15 +203,16 @@ const AdminDashboard = ({ selectedUser }) => {
   // utils/convertTime.js
   function convertTime(seconds) {
     const minutes = Math.floor(seconds / 60);
+    return minutes
     const remainingSeconds = seconds % 60;
 
     // If remaining seconds are zero, return only minutes
     if (remainingSeconds === 0) {
-      return `${minutes} Min`;
+      return `${minutes}`;
     }
 
     // Otherwise, return minutes and seconds
-    return `${minutes} Min ${remainingSeconds.toString().padStart(2, "0")} Sec`;
+    return `${minutes} ${remainingSeconds.toString().padStart(2, "0")} Sec`;
   }
 
   const backgroundImage = {
@@ -490,7 +491,7 @@ const AdminDashboard = ({ selectedUser }) => {
                               color: "#fff",
                             }}
                           >
-                            Mins Balance
+                              Balance
                           </div>
 
                           <div
@@ -503,7 +504,7 @@ const AdminDashboard = ({ selectedUser }) => {
                           >
                             {convertTime(
                               selectedUser?.totalSecondsAvailable || 0
-                            )}
+                            ).toFixed(2)} AI Credits
                           </div>
                         </div>
                       </div>

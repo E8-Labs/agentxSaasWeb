@@ -20,6 +20,9 @@ import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
 import { convertSecondsToMinDuration } from "@/utilities/utility";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { Elements } from "@stripe/react-stripe-js";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
+import { loadStripe } from "@stripe/stripe-js";
 
 const Page = () => {
   const router = useRouter();
@@ -47,6 +50,15 @@ const Page = () => {
   //variables for popover
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+
+
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripePublickKey);
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -299,7 +311,7 @@ const Page = () => {
         }}>
         <DashboardSlider />
       </div> */}
-      
+
 
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
@@ -491,20 +503,18 @@ const Page = () => {
                               color: "#fff",
                             }}
                           >
-                            Mins Balance
+                            Balance
                           </div>
 
                           <div
-                            className="lg:text-4xl md:text-2xl sm:text-xl text-lg font-bold text-white"
+                            className="lg:text-2xl md:text-3xl sm:text-xl text-lg font-bold text-white"
                             style={{
                               // fontSize: 40,
                               fontWeight: "400",
                               color: "#fff",
                             }}
                           >
-                            {convertSecondsToMinDuration(
-                              userDetails?.totalSecondsAvailable || 0
-                            )}
+                            {(userDetails?.totalSecondsAvailable / 60).toFixed(0)} AI credits
                           </div>
                         </div>
                       </div>
@@ -522,9 +532,7 @@ const Page = () => {
                         <button
                           className="flex flex-row items-center gap-2 justify-center bg-white h-[43px] w-[130px] rounded-[15px]"
                           onClick={() => {
-                            const openBilling = true;
-                            // localStorage.setItem("openBilling", JSON.stringify(openBilling));
-                            router.push("/dashboard/myAccount?tab=2");
+                              setShowUpgradePlanPopup(true)
                           }}
                         >
                           <Image
@@ -633,6 +641,31 @@ const Page = () => {
                       // }
                       value={statsDetails?.formattedAvDuration ?? "-"}
                       borderSide="border-l-2"
+                    />
+
+                    {/* Card: credits used */}
+                    <Card
+                      icon="/otherAssets/creditsUsedIcons.png"
+                      title="Credits Used"
+                      value={statsDetails?.creditsUsed || 0}
+                      borderSide="border-t-2"
+                    />
+
+                    {/* Card: Email Sent */}
+                    <Card
+                      icon="/otherAssets/emailSentIcon.png"
+                      title="Email Sent"
+                      value={statsDetails?.emailsSent || 0}
+                      borderSide="border-l-2 border-t-2"
+                    />
+
+                    {/* Card: Text send */}
+                    <Card
+                      icon="/otherAssets/smsSentIcon.png"
+                      title="Text Sent"
+                      
+                      value={statsDetails?.smsSents || 0}
+                      borderSide="border-l-2 border-t-2"
                     />
                   </div>
 
@@ -755,6 +788,17 @@ const Page = () => {
               </div>
             </div>
           </div>
+
+          <Elements stripe={stripePromise}>
+            <UpgradePlan
+              open={showUpgradePlanPopup}
+              handleClose={() => {
+                setShowUpgradePlanPopup(false)
+              }}
+
+
+            />
+          </Elements>
         </div>
       )}
     </div>

@@ -1,6 +1,11 @@
 import { Box, CircularProgress, Modal, Tooltip } from "@mui/material";
 import Image from "next/image";
 import CloseIcon from "@mui/icons-material/Close";
+import { useEffect, useState } from "react";
+import { getUserLocalData } from "@/components/constants/constants";
+import { Elements } from "@stripe/react-stripe-js";
+import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
+import { loadStripe } from "@stripe/stripe-js";
 
 export default function EnrichModal({
     showenrichModal,
@@ -11,148 +16,266 @@ export default function EnrichModal({
     setIsEnrichToggle
 }) {
 
+
+
+    let stripePublickKey =
+        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+            ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+            : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+    const stripePromise = loadStripe(stripePublickKey);
+
+    const [userData, setUserData] = useState(null)
+    const [showAddCard, setShowAddCard] = useState(false)
+
+    useEffect(() => {
+        let data = getUserLocalData()
+        if (data) {
+            setUserData(data)
+        }
+    }, [])
+
     const handleEnrichFalse = () => {
         setIsEnrichToggle(false);
         setShowenrichModal(false);
     }
 
+
+    const handleClose = (data) => {
+        console.log("data of add card", data)
+        if (data) {
+            setShowAddCard(false);
+            setShowenrichConfirmModal(true)
+            // setCards([newCard, ...cards]);
+        }
+    };
+
     return (
-        <Modal open={showenrichModal}
-            // onClose={() => setShowAddLeadModal(false)}
-            closeAfterTransition
-            BackdropProps={{
-                timeout: 1000,
-                sx: {
-                    backgroundColor: "#00000020",
-                    // //backdropFilter: "blur(20px)",
-                },
-            }}
-        >
-            <Box
-                className="lg:w-6/12 sm:w-9/12 w-10/12 "
-                sx={{
-                    height: "auto",
-                    bgcolor: "transparent",
-                    // p: 2,
-                    mx: "auto",
-                    my: "50vh",
-                    transform: "translateY(-50%)",
-                    borderRadius: 2,
-                    border: "none",
-                    outline: "none",
+        <div>
+            <Modal open={showenrichModal}
+                // onClose={() => setShowAddLeadModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
                 }}
             >
-                <div className="flex flex-row justify-center w-full ">
-                    <div
-                        className="w-full"
-                        style={{
-                            backgroundColor: "#ffffff",
-                            padding: 20,
-                            borderRadius: "13px",
-                            height: "60vh"
-                        }}
-                    >
-                        <div className="flex flex-row justify-between w-full">
+                <Box
+                    className="lg:w-6/12 sm:w-9/12 w-10/12 "
+                    sx={{
+                        height: "auto",
+                        bgcolor: "transparent",
+                        // p: 2,
+                        mx: "auto",
+                        my: "50vh",
+                        transform: "translateY(-50%)",
+                        borderRadius: 2,
+                        border: "none",
+                        outline: "none",
+                    }}
+                >
+                    <div className="flex flex-row justify-center w-full ">
+                        <div
+                            className="w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                                height: "60vh"
+                            }}
+                        >
+                            <div className="flex flex-row justify-between w-full">
 
-                            <div style={{ fontSize: 18, fontWeight: '700' }}>
-                                Lead Insight
-                            </div>
-                            <button
-                                onClick={() => {
-                                    handleEnrichFalse();
-                                }}
-                            >
-                                <Image
-                                    src={"/assets/cross.png"}
-                                    height={14}
-                                    width={14}
-                                    alt="*"
-                                />
-                            </button>
-                        </div>
-
-                        <div className="w-full flex flex-col items-center justify-center mt-[90px] gap-4">
-
-                            <Image src={'/svgIcons/sparkles.svg'}
-                                height={37} width={37} alt="*"
-                            />
-
-                            <div style={{ fontSize: 18, fontWeight: '700' }}>
-                                Enrich Lead
-                            </div>
-                            <div className="flex flex-row gap-2 items-center">
-
-                                <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
-                                    credit cost ($0.05/lead)
+                                <div style={{ fontSize: 18, fontWeight: '700' }}>
+                                    Lead Insight
                                 </div>
-
-                                <Tooltip
-                                    title="This is the cost for us to run the api call with perplexity"
-                                    arrow
-                                    componentsProps={{
-                                        tooltip: {
-                                            sx: {
-                                                backgroundColor: "#ffffff", // Ensure white background
-                                                color: "#333", // Dark text color
-                                                fontSize: "16px",
-                                                fontWeight: '500',
-                                                padding: "10px 15px",
-                                                borderRadius: "8px",
-                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                            },
-                                        },
-                                        arrow: {
-                                            sx: {
-                                                color: "#ffffff", // Match tooltip background
-                                            },
-                                        },
+                                <button
+                                    onClick={() => {
+                                        handleEnrichFalse();
                                     }}
                                 >
-                                    <Image src={"/svgIcons/infoIcon.svg"}
-                                        height={16} width={16} alt="*"
+                                    <Image
+                                        src={"/assets/cross.png"}
+                                        height={14}
+                                        width={14}
+                                        alt="*"
                                     />
-                                </Tooltip>
+                                </button>
                             </div>
 
-                            <div style={{ fontSize: 15, fontWeight: '500', width: '30vw', textAlign: 'center' }}>
-                                {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
-                            </div>
+                            <div className="w-full flex flex-col items-center justify-center mt-[90px] gap-4">
 
+                                <Image src={'/svgIcons/sparkles.svg'}
+                                    height={37} width={37} alt="*"
+                                />
 
+                                <div style={{ fontSize: 18, fontWeight: '700' }}>
+                                    Enrich Lead
+                                </div>
+                                <div className="flex flex-row gap-2 items-center">
 
-                            <div className="flex flex-row items-center justify-between w-[60%]">
+                                    <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
+                                        credit cost ($0.05/lead)
+                                    </div>
 
-                                {Loader ? (
-                                    <CircularProgress size={27} />
-                                ) : (
-                                    <button className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-[#7902DF] py-3 rounded-lg
-                     items-center justify-center border rounded-lg"
-                                        style={{}}
-                                        onClick={() => {
-                                            // handleAddLead(false)
-                                            handleEnrichFalse();
+                                    <Tooltip
+                                        title="This is the cost for us to run the api call with perplexity"
+                                        arrow
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    backgroundColor: "#ffffff", // Ensure white background
+                                                    color: "#333", // Dark text color
+                                                    fontSize: "16px",
+                                                    fontWeight: '500',
+                                                    padding: "10px 15px",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                },
+                                            },
+                                            arrow: {
+                                                sx: {
+                                                    color: "#ffffff", // Match tooltip background
+                                                },
+                                            },
                                         }}
                                     >
-                                        Not Interested
-                                    </button>
-                                )}
+                                        <Image src={"/svgIcons/infoIcon.svg"}
+                                            height={16} width={16} alt="*"
+                                        />
+                                    </Tooltip>
+                                </div>
 
-                                <button className="h-[53px] text-[16px] w-[143px] rounded-lg bg-purple items-center justify-center text-white"
-                                    onClick={() => {
-                                        setShowenrichConfirmModal(true)
-                                    }}
-                                >
-                                    Enrich Lead
-                                </button>
+                                <div style={{ fontSize: 15, fontWeight: '500', width: '30vw', textAlign: 'center' }}>
+                                    {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
+                                </div>
+
+
+
+                                <div className="flex flex-row items-center justify-between w-[60%]">
+
+                                    {Loader ? (
+                                        <CircularProgress size={27} />
+                                    ) : (
+                                        <button className="h-[53px] flex w-[45%] text-[#000000]  text-[16px] hover:text-[#7902DF] py-3 rounded-lg
+                     items-center justify-center border rounded-lg"
+                                            style={{}}
+                                            onClick={() => {
+                                                // handleAddLead(false)
+                                                handleEnrichFalse();
+                                            }}
+                                        >
+                                            Not Interested
+                                        </button>
+                                    )}
+
+                                    <button className="h-[53px] text-[16px] w-[143px] rounded-lg bg-purple items-center justify-center text-white"
+                                        onClick={() => {
+                                            if (userData?.user?.cards?.length === 0) {
+                                                setShowAddCard(true)
+                                            } else {
+                                                setShowenrichConfirmModal(true)
+                                            }
+                                        }}
+                                    >
+                                        Enrich Lead
+                                    </button>
+
+                                </div>
 
                             </div>
 
                         </div>
-
                     </div>
-                </div>
-            </Box>
-        </Modal>
+                </Box>
+            </Modal>
+
+
+            {/* Add Payment Modal */}
+            <Modal
+                open={showAddCard} //addPaymentPopUp
+                // open={true}
+                closeAfterTransition
+                BackdropProps={{
+                    timeout: 100,
+                    sx: {
+                        backgroundColor: "#00000020",
+                        // //backdropFilter: "blur(20px)",
+                    },
+                }}
+            >
+                <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+                    <div className="flex flex-row justify-center w-full">
+                        <div
+                            className="sm:w-7/12 w-full"
+                            style={{
+                                backgroundColor: "#ffffff",
+                                padding: 20,
+                                borderRadius: "13px",
+                            }}
+                        >
+                            <div className="flex flex-row justify-between items-center">
+                                <div
+                                    style={{
+                                        fontSize: 22,
+                                        fontWeight: "600",
+                                    }}
+                                >
+                                    Payment Details
+                                </div>
+                                <button onClick={() => setShowAddCard(false)}>
+                                    <Image
+                                        src={"/assets/crossIcon.png"}
+                                        height={40}
+                                        width={40}
+                                        alt="*"
+                                    />
+                                </button>
+                            </div>
+                            <Elements stripe={stripePromise}>
+                                <AddCardDetails
+                                    //selectedPlan={selectedPlan}
+                                    // stop={stop}
+                                    // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                                    handleClose={handleClose}
+                                    togglePlan={""}
+                                    // fromAdmin={true}
+                                    // selectedUser={selectedUSer}
+                                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                                />
+                            </Elements>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+        </div>
 
     )
 }
+
+     const styles = {
+    paymentModal: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+    claimPopup: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-55%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
+  };

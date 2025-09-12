@@ -1,18 +1,33 @@
 import { useState } from "react";
 import Image from "next/image";
 
-export default function ChipInput({
-  ccEmails,
-  setccEmails
-}) {
-  // const [chips, setChips] = useState([]);
+export default function ChipInput({ ccEmails, setccEmails }) {
   const [inputValue, setInputValue] = useState("");
 
+  const isValidEmail = (email) => {
+    // Basic email regex (simple but effective for most use cases)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const addEmail = (value) => {
+    const trimmed = value.trim().replace(/,$/, ""); // remove trailing comma if exists
+    if (trimmed && isValidEmail(trimmed)) {
+      setccEmails([...ccEmails, trimmed]);
+      setInputValue("");
+    }
+  };
+
   const handleKeyDown = (e) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
+    if ((e.key === "Enter" || e.key === ",") && inputValue.trim() !== "") {
       e.preventDefault();
-      setccEmails([...ccEmails, inputValue.trim()]);
-      setInputValue(""); // clear input
+      addEmail(inputValue);
+    }
+  };
+
+  const handleBlur = () => {
+    // Add email if user clicks away after typing
+    if (inputValue.trim() !== "") {
+      addEmail(inputValue);
     }
   };
 
@@ -21,19 +36,19 @@ export default function ChipInput({
   };
 
   return (
-    <div className="flex flex-row items-center overflow-x-auto flex gap-2 px-2 py-2">
+    <div className="flex flex-row items-center overflow-x-auto gap-2 px-2 py-2 rounded-md">
       {ccEmails?.map((chip, index) => (
         <div
           key={index}
-          className="px-3 py-2 bg-[#F9F9F9] rounded-full border border-[#00000020] flex flex-row items-center gap-2 flex-shrink-0"
+          className="px-3 py-2 bg-[#F9F9F9] rounded-full flex flex-row items-center gap-2 flex-shrink-0"
         >
-          <div className="h-[20px] w-[20px] rounded-full bg-black flex flex-row items-center justify-center text-white text-[12px] font-medium">
+          <div className="h-[20px] w-[20px] rounded-full bg-black flex items-center justify-center text-white text-[12px] font-medium">
             {chip.charAt(0).toUpperCase()}
           </div>
-          <div className="text-black text-[13px] font-normal">{chip}</div>
+          <div className="text-black text-[13px]">{chip}</div>
           <button onClick={() => removeChip(index)} className="ml-1">
             <Image
-              src={"/assets/blackBgCross.png"}
+              src="/assets/blackBgCross.png"
               alt="remove"
               height={13}
               width={13}
@@ -47,8 +62,9 @@ export default function ChipInput({
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         placeholder=""
-        className="flex-1 outline-none border-none focus:outline-none focus:border-none focus:ring-0 text-[13px]"
+        className="flex-1 outline-none border-none focus:outline-none focus:ring-0 text-[13px]"
       />
     </div>
   );

@@ -1,7 +1,10 @@
 import CloseBtn from '@/components/globalExtras/CloseBtn'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Box, Modal } from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
 import Image from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 
 function UnlockAgentModal({
     open,
@@ -12,6 +15,17 @@ function UnlockAgentModal({
     buttonTitle = "No Thanks",
 
 }) {
+
+    let stripePublickKey =
+        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+            ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+            : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+    const stripePromise = loadStripe(stripePublickKey);
+
+
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
+
     return (
         <div className='w-full'>
             <Modal
@@ -52,7 +66,7 @@ function UnlockAgentModal({
                                 {subTitle}
                             </div>
                             <div className="mt-4 w-full text-center" style={{ fontSize: "16px", fontWeight: "400" }}>
-                                {desc} <br/> Please upgrade your plan to add additional agents.
+                                {desc} <br /> Please upgrade your plan to add additional agents.
                             </div>
                         </div>
 
@@ -70,7 +84,7 @@ function UnlockAgentModal({
                                 className="h-[54px] w-[90%] px-10 rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
                                 style={{ fontSize: "15px", fontWeight: "500" }}
                                 onClick={() => {
-                                    // setShowUpgradePlanPopup(true)
+                                    setShowUpgradeModal(true)
                                 }}
                             >
                                 Upgrade
@@ -86,6 +100,16 @@ function UnlockAgentModal({
                     </div>
                 </Box>
             </Modal>
+
+            {/* UpgradePlan Modal */}
+            <Elements stripe={stripePromise}>
+                <UpgradePlan
+                    open={showUpgradeModal}
+                    handleClose={() => setShowUpgradeModal(false)}
+                />
+            </Elements>
+
+
         </div>
     )
 }
