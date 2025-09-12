@@ -391,7 +391,7 @@ const AgencyNavBar = () => {
 
       {
         checkStripeStatusLoader ? (
-          <div style={{ position: "absolute", bottom: 10, right: 10 }}>
+          <div style={{ position: "absolute", bottom: 10, right: 10, zIndex: 9999 }}>
             <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
               <CircularProgress size={20} />
               <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>
@@ -401,7 +401,7 @@ const AgencyNavBar = () => {
           </div>
         ) : (
           checkStripeStatus && (
-            <div style={{ position: "absolute", bottom: 10, right: 10 }}>
+            <div style={{ position: "absolute", bottom: 10, right: 10, zIndex: 9999 }}>
               <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
                 <Image alt="error" src={"/assets/salmanassets/danger_conflict.svg"} height={30} width={30} />
                 <div className="text-black" style={{ fontSize: 14, fontWeight: 500 }}>

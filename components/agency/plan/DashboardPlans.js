@@ -13,6 +13,7 @@ import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmation
 import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyData';
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
 import SupportFile from './SupportFile';
+import AddMonthlyPlanAnimation from './AddMonthlyPlanAnimation';
 
 
 function DashboardPlans({
@@ -54,14 +55,17 @@ function DashboardPlans({
             const currentPlanId = u.user?.plan?.planId;
             const agencyPlansList = localStorage.getItem("agencyPlansList");
             if (selectedAgency) {
+                console.log("Selected agency is", selectedAgency)
                 setAgencyPlanCost(selectedAgency.plan.ratePerMin);
             } else {
                 if (agencyPlansList) {
                     const u = JSON.parse(agencyPlansList);
                     const matchedPlan = u.find(plan => plan.id === currentPlanId);
                     console.log("Matched plan is", matchedPlan);
-                    if (matchedPlan?.ratePerMin) {
-                        setAgencyPlanCost(matchedPlan?.ratePerMin);
+                    if (matchedPlan?.capabilities?.aiCreditRate) {
+                        console.log("matchedPlan plan is", matchedPlan)
+                        // capabilities?.aiCreditRate
+                        setAgencyPlanCost(matchedPlan?.capabilities?.aiCreditRate);
                     }
                 }
             }
@@ -654,7 +658,7 @@ function DashboardPlans({
 
                 {
                     planType === "monthly" ?
-                        <AddMonthlyPlan
+                        <AddMonthlyPlanAnimation
                             open={open}
                             handleClose={handleClosePlanPopUp} onPlanCreated={handlePlanCreated}
                             canAddPlan={canAddPlan}
