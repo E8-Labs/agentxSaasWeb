@@ -101,9 +101,9 @@ export default function PlanFeatures({
                 <div className="flex flex-col gap-2">
                     {customFeatures.map((feature, index) => (
                         <div
+                            key={index}
                             className="w-full border border-gray-200 rounded p-2 outline-none flex flex-row items-center">
                             <input
-                                key={index}
                                 value={feature}
                                 onChange={(e) =>
                                     handleChangeCustomFeature(index, e.target.value)
