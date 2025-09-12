@@ -2206,7 +2206,7 @@ function Page() {
     event.preventDefault();
     console.log('user?.user?.currentUsage?.maxAgents', user?.user?.currentUsage?.maxAgents)
     console.log('user?.user?.planCapabilities?.maxAgents', user?.user?.planCapabilities?.maxAgents)
-    if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+    if (user?.user?.plan?.price === 0 && user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
       setShowUpgradeModal(true)
       return
     }
