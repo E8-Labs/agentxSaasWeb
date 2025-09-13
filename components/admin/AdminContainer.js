@@ -16,6 +16,8 @@ import AdminAgencyDetails from "./agency/AdminAgencyDetails";
 import AdminTransactions from "./agency/AdminTransactions";
 import AdminActiveCalls from "./activeCalls/AdminActiveCalls";
 import AdminPaymentCharges from "./paymentCharges/AdminPaymentCharges";
+import AgencyPlans from "./plans/AgencyPlans";
+import AgentXPlans from "./plans/AgentXPlans";
 
 function AdminContainer() {
   const router = useRouter();
@@ -64,6 +66,12 @@ function AdminContainer() {
 
     },
     {
+      id: 7,
+      name: "Plans",
+      value: 'plans',
+
+    },
+    {
       id: 8,
       name: "Logout",
     },
@@ -89,6 +97,14 @@ function AdminContainer() {
     { id: 1, name: "Upcoming Charges", value: 'upcoming-charges' },
     { id: 2, name: "Payment Charges", value: 'payment-charges' },
     { id: 3, name: "Active Calls", value: 'active-calls' }
+  ];
+
+  // Plans submenu state
+  const [plansSubTab, setPlansSubTab] = useState('agentx-plans');
+  
+  const plansSubMenus = [
+    { id: 1, name: "AgentX Plans", value: 'agentx-plans' },
+    { id: 2, name: "Agency Plans", value: 'agency-plans' }
   ];
 
   return (
@@ -196,6 +212,32 @@ function AdminContainer() {
           </div>
         )}
 
+        {/* Plans Submenu */}
+        {selectedManu.name === "Plans" && (
+          <div className="flex w-[100vw] flex-row items-center justify-start gap-3 px-10 pt-2 bg-gray-50">
+            {plansSubMenus.map((subItem) => (
+              <button
+                key={subItem.id}
+                onClick={() => setPlansSubTab(subItem.value)}
+                className={`flex flex-row items-center gap-3 p-2 items-center 
+                        ${plansSubTab === subItem.value &&
+                  "border-b-[2px] border-purple"
+                  }`}
+              >
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: plansSubTab === subItem.value ? "#7902df" : "#666",
+                  }}
+                >
+                  {subItem.name}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="w-full items-center h-full overflow-hidden flex-1">
           {selectedManu.name === "Users" ? (
             <AdminUsers />
@@ -218,6 +260,12 @@ function AdminContainer() {
               <AdminAgencyDetails />
             ) : (
               <AdminTransactions />
+            )
+          ) : selectedManu.name === "Plans" ? (
+            plansSubTab === 'agentx-plans' ? (
+              <AgentXPlans />
+            ) : (
+              <AgencyPlans />
             )
           ) : (
             <div>
