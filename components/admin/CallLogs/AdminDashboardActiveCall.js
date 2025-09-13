@@ -11,7 +11,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { getReadableStatus } from "@/utilities/UserUtility";
 
-function AdminDashboardActiveCall({ }) {
+function AdminDashboardActiveCall({ isFromAgency }) {
   const Limit = 30;
   const LimitPerPage = 20;
   const [user, setUser] = useState(null);
@@ -660,9 +660,13 @@ function AdminDashboardActiveCall({ }) {
       <div className="flex w-full pl-10 flex-row items-start gap-3 overflow-hidden"></div>
 
       <div className="w-full flex flex-row justify-between mt-2 px-10">
-        <div className="w-2/12">
-          <div style={styles.text}>Agency Name</div>
-        </div>
+        {
+          !isFromAgency && (
+            <div className="w-2/12">
+              <div style={styles.text}>Agency Name</div>
+            </div>
+          )
+        }
         <div className="w-2/12">
           <div style={styles.text}>Account Name</div>
         </div>
@@ -821,11 +825,15 @@ function AdminDashboardActiveCall({ }) {
                                 className="w-full flex flex-row items-center justify-between mt-10 px-10"
                                 key={index}
                               >
-                                <div className="w-2/12">
-                                  <div style={styles.text2}>
-                                    {item.agency?.name || "AgentX Main Admin"}
-                                  </div>
-                                </div>
+                                {
+                                  !isFromAgency && (
+                                    <div className="w-2/12">
+                                      <div style={styles.text2}>
+                                        {item.agency?.name || "AgentX Main Admin"}
+                                      </div>
+                                    </div>
+                                  )
+                                }
 
                                 <button className="w-2/12 flex flex-row gap-3 items-center"
                                   onClick={() => {

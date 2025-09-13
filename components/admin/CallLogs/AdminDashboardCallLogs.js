@@ -499,7 +499,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
       <div className="w-full">
         {activeTab === "Call Activities" ? (
-          <AdminDashboardActiveCall />
+          <AdminDashboardActiveCall isFromAgency={isFromAgency} />
         ) : activeTab === "Scheduled" ? (
           <AdminDashboardScheduledCalls />
         ) : (
