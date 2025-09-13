@@ -33,10 +33,20 @@ function AgencyPlans() {
             title: "Monthly",
         }, {
             id: 2,
-            title: "Quarterly (save 20%)",
+            title: "Quarterly",
         }, {
             id: 3,
-            title: "Yearly (save 30%)",
+            title: "Yearly",
+        },
+    ]
+
+    const durationSaving = [
+        {
+            id: 1,
+            title: "save 20%",
+        }, {
+            id: 2,
+            title: "save 30%",
         },
     ]
 
@@ -62,181 +72,7 @@ function AgencyPlans() {
     const [isContinueMonthly, setIsContinueMonthly] = useState(false);
 
 
-    const planFeaturesAvailable = {
-        1: [ // Monthly
-            [ // Column 1
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Team Seats", sub: "(Upsell)" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "AI Powered CRM", sub: "(Copilot)" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-                { main: "Custom Voicemails", sub: "" },
-                { main: "Phone Numbers", sub: "(Upsell)" },
-                { main: "DNC Check", sub: "(Upsell)" },
-                { main: "Lead Source", sub: "(Upsell)" },
-                { main: "AI Powered iMessage", sub: "(coming soon)" },
-                { main: "AI Powered Emails", sub: "(coming soon)" }
-            ],
-            [ // Column 2
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Team Seats", sub: "(Upsell)" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "AI Powered CRM", sub: "(Copilot)" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "10,000+ Integrations", sub: "(Zapier + Make)" },
-                { main: "Custom Voicemails", sub: "" },
-                { main: "Phone Numbers", sub: "(Upsell)" },
-                { main: "DNC Check", sub: "(Upsell)" },
-                { main: "Lead Source", sub: "(Upsell)" },
-                { main: "AI Powered iMessage", sub: "(coming soon)" },
-                { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Slack Support", sub: "" }
-            ],
-            [ // Column 3
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Team Seats", sub: "(Upsell)" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "AI Powered CRM", sub: "(Copilot)" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "7000+ Integrations", sub: "(Zapier + Make)" },
-                { main: "Custom Voicemails", sub: "" },
-                { main: "Phone Numbers", sub: "(Upsell)" },
-                { main: "DNC Check", sub: "(Upsell)" },
-                { main: "Lead Source", sub: "(Upsell)" },
-                { main: "AI Powered iMessage", sub: "(coming soon)" },
-                { main: "AI Powered Emails", sub: "(coming soon)" },
-                { main: "Slack Support", sub: "" },
-                { main: "Zoom Support", sub: "" }
-            ]
-        ],
-        2: [ // Quarterly
-            [ // Column 1
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "7000+ Integrations", sub: "" },
-                { main: "Mins roll over for 6 months", sub: "" },
-                { main: "Custom Monthly Plans", sub: "" },
-                { main: "16 + Custom Engineered Voices", sub: "" }
-            ],
-            [ // Column 2
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over for 6 months", sub: "" }
-            ],
-            [ // Column 3
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over for 6 months", sub: "" }
-            ]
-        ],
-        3: [ // Yearly
-            [ // Column 1
-                { main: "Unlimited Minutes", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "LLMs", sub: "(AgentX, OpenAI, Llama, Gemini)" },
-                { main: "7000+ Integrations", sub: "" },
-                { main: "Mins roll over for 6 months", sub: "" },
-                { main: "Custom Monthly Plans", sub: "" }
-            ],
-            [ // Column 2
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over for 6 months", sub: "" }
-            ],
-            [ // Column 3
-                { main: "Agents", sub: "" },
-                { main: "Unlimited Agents", sub: "" },
-                { main: "Unlimited Teams", sub: "" },
-                { main: "1000+ Integrations", sub: "" },
-                { main: "Mins roll over for 6 months", sub: "" }
-            ]
-        ]
-    };
 
-    const planFeaturesUnavailable = {
-        1: [ // Monthly
-            [
-                { main: "Slack Support", sub: "" },
-            ],
-            [
-                { main: "Zoom Support", sub: "" }
-            ],
-            [
-                // No unavailable features
-            ]
-        ],
-        2: [ // Quarterly
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipelines", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment (Perplexity)", sub: "" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "(Perplexity)" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ]
-        ],
-        3: [ // Yearly
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ],
-            [
-                { main: "Voicemails", sub: "" },
-                { main: "Lead Enrichment", sub: "" },
-                { main: "DNC Checklist", sub: "" },
-                { main: "AI Powered CRM", sub: "" },
-                { main: "Custom Pipeline Steps", sub: "" },
-                { main: "Calendar Integration", sub: "" },
-                { main: "Support", sub: "" }
-            ]
-        ]
-    };
 
     useEffect(() => {
         getPlans();
@@ -525,7 +361,8 @@ function AgencyPlans() {
                                 marginTop: 20,
                             }}
                         >
-                            {`AI Agents from just $1.50/day`}
+                            {/*`AI Agents from just $1.50/day`*/}
+                            Grow Your Business
                         </div>
 
                         <div
@@ -535,24 +372,45 @@ function AgencyPlans() {
                                 color: '#808080'
                             }}
                         >
-                            {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
+                            {`AI Agents from just $1.50 per day — gets more done than coffee. Cheaper too. 😉`}
                         </div>
                     </div>
 
-                    <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] px-2 py-1 rounded-full'>
-                        {
-                            duration?.map((item) => (
-                                <button key={item.id}
-                                    className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                    onClick={() => {
-                                        setSelectedDuration(item);
-                                        getCurrentPlans();
-                                    }}
-                                >
-                                    {item.title}
-                                </button>
-                            ))
-                        }
+                    <div>
+                        <div className='flex flex-row items-center justify-end gap-2 px-2'>
+                            {
+                                durationSaving.map((item) => {
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            className={`px-2 py-1 text-[#8A8A8A] rounded-tl-lg rounded-tr-lg`}
+                                            style={{ fontWeight: "600", fontSize: "13px" }}
+                                            onClick={() => {
+                                                setSelectedDuration(item);
+                                                getCurrentPlans();
+                                            }}
+                                        >
+                                            {item.title}
+                                        </button>
+                                    )
+                                })
+                            }
+                        </div>
+                        <div className='flex flex-row items-center gap-2 bg-[#F6F6F6] px-2 py-1 rounded-full border border-[#E8E8E8]'>
+                            {
+                                duration?.map((item) => (
+                                    <button key={item.id}
+                                        className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                        onClick={() => {
+                                            setSelectedDuration(item);
+                                            getCurrentPlans();
+                                        }}
+                                    >
+                                        {item.title}
+                                    </button>
+                                ))
+                            }
+                        </div>
                     </div>
                     <SelectYearlypopup
                         showYearlyPlan={showYearlyPlan}
@@ -640,9 +498,9 @@ function AgencyPlans() {
                                             : ""*/}
                                                             ${selectedDuration.title === "Monthly"
                                                                 ? item.originalPrice
-                                                                : selectedDuration.title === "Quarterly (save 20%)"
+                                                                : selectedDuration.title === "Quarterly"
                                                                     ? formatDecimalValue(item.originalPrice / 3)
-                                                                    : selectedDuration.title === "Yearly (save 30%)"
+                                                                    : selectedDuration.title === "Yearly"
                                                                         ? formatDecimalValue(item.originalPrice / 12)
                                                                         : "-"}
                                                         </div>
@@ -695,9 +553,13 @@ function AgencyPlans() {
 
                                                             {/* Features */}
                                                             {
-                                                                planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
-                                                                    <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
-                                                                        <Image src="/otherAssets/selectedTickBtn.png" height={16} width={16} alt="✓" />
+                                                                // planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
+                                                                item?.features?.map((item) => (
+                                                                    <div key={item.text} className="flex flex-row items-center gap-2 mt-1">
+                                                                        <Image
+                                                                            src="/svgIcons/greenTick.svg" //"/otherAssets/selectedTickBtn.png"
+                                                                            height={16} width={16} alt="✓"
+                                                                        />
                                                                         <div
                                                                             className='flex flex-row items-center gap-2'
                                                                             style={{
@@ -714,7 +576,7 @@ function AgencyPlans() {
                                                                                 textAlign: 'left',
                                                                                 borderWidth: 0,
                                                                             }}>
-                                                                                {label.main}
+                                                                                {item.text}
                                                                             </div>
                                                                             <div style={{
                                                                                 fontSize: 13,
@@ -722,7 +584,7 @@ function AgencyPlans() {
                                                                                 textAlign: 'left',
                                                                                 color: "#00000050"
                                                                             }}>
-                                                                                {label.sub}
+                                                                                {item.subtext}
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -730,7 +592,7 @@ function AgencyPlans() {
                                                             }
 
 
-                                                            {
+                                                            {/*
                                                                 planFeaturesUnavailable[selectedDuration.id][index]?.map((label, labelIndex) => (
                                                                     <div key={labelIndex} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image src="/svgIcons/redCross.svg" height={16} width={16} alt="✗" />
@@ -762,7 +624,7 @@ function AgencyPlans() {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                ))}
+                                                                ))*/}
 
                                                         </div>
                                                     </div>
@@ -850,7 +712,7 @@ function AgencyPlans() {
                             <div
                                 className="w-full border-white"
                                 style={{
-                                    backgroundColor: "#ffffff80",
+                                    backgroundColor: "#ffffff",
                                     padding: 0,
                                     borderRadius: "13px",
                                 }}

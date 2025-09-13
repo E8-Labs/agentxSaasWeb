@@ -14,6 +14,7 @@ import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyDa
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
 import SupportFile from './SupportFile';
 import AddMonthlyPlanAnimation from './AddMonthlyPlanAnimation';
+import { formatFractional2 } from './AgencyUtilities';
 
 
 function DashboardPlans({
@@ -346,7 +347,6 @@ function DashboardPlans({
             setDelLoading(false);
         }
     }
-
 
     return (
         <div className='w-full flex flex-col items-center '>

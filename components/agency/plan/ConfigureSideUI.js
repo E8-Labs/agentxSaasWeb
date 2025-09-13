@@ -1,6 +1,7 @@
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import Image from 'next/image'
 import React from 'react'
+import { formatFractional2 } from './AgencyUtilities';
 
 const ConfigureSideUI = ({
     tag,
@@ -64,7 +65,7 @@ const ConfigureSideUI = ({
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px] bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent"
                             >
-                                ${basicsData?.discountedPrice || "100"}
+                                ${formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{planDescription || "Desc text goes here"}</div>
                             <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {features?.allowTrial && trialValidForDays ? <span>| {trialValidForDays}Days</span> : ""}</button>

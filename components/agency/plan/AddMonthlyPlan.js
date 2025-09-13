@@ -75,7 +75,7 @@ export default function AddMonthlyPlan({
         );
       }
       const DiscountedPrice = selectedPlan?.discountedPrice / selectedPlan?.minutes
-      setDiscountedPrice(DiscountedPrice);
+      setDiscountedPrice(formatFractional2(DiscountedPrice));
       setMinutes(selectedPlan?.minutes);
       setPlanDuration(selectedPlan?.duration);
     }
@@ -96,9 +96,9 @@ export default function AddMonthlyPlan({
       );
       // if (OriginalPrice > 0) {
       // }
-      const DiscountedPrice = basicsData?.discountedPrice / basicsData?.minutes
+      const DiscountedPrice = basicsData?.discountedPrice
       if (DiscountedPrice) {
-        setDiscountedPrice(DiscountedPrice);
+        setDiscountedPrice(formatFractional2(basicsData?.discountedPrice));
       }
       setMinutes(basicsData?.minutes);
       setPlanDuration(basicsData?.planDuration);
@@ -192,12 +192,13 @@ export default function AddMonthlyPlan({
 
   // Keep only up to 2 fractional digits; always render as "0.xx"
   const formatFractional2 = (raw) => {
-    const s = raw ?? "";
-    // If there's already a dot, take only what's after the first dot.
+    if (raw == null) return "";
+    const s = raw.toString();
     const afterDot = s.includes(".") ? s.split(".")[1] : s;
     const digits = afterDot.replace(/\D/g, "").slice(0, 2);
     return digits ? `0.${digits}` : "";
   };
+
 
   //handle next
   const handleNext = () => {
@@ -411,6 +412,7 @@ export default function AddMonthlyPlan({
               <SubDuration
                 planDuration={planDuration}
                 setPlanDuration={setPlanDuration}
+                isEditPlan={isEditPlan}
               />
 
               <div className="w-full flex flex-row items-center gap-2">
@@ -464,7 +466,7 @@ export default function AddMonthlyPlan({
                   )*/}
 
                   {/* Minutes */}
-                  <label style={styles.labels}>Minutes</label>
+                  <label style={styles.labels}>Credits</label>
                   <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
                     <input
                       style={styles.inputs}
@@ -501,10 +503,10 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Credit</div>
-                    <div>${discountedPrice}/ min</div>
+                    <div>${formatFractional2(discountedPrice)}/ min</div>
                     {
                       discountedPrice && minutes && (
-                        <div>${(discountedPrice * minutes).toFixed(2)}</div>
+                        <div>${formatFractional2(discountedPrice * minutes)}</div>
                       )
                     }
                   </div>
@@ -513,7 +515,7 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Cost</div>
-                    <div>{agencyPlanCost && `$${formatDecimalValue(agencyPlanCost)}`}/ min</div>
+                    <div>{agencyPlanCost && `$${formatFractional2(agencyPlanCost)}`}/ min</div>
                     {
                       discountedPrice && minutes && (
                         <div>${formatDecimalValue(agencyPlanCost * minutes)}</div>
@@ -528,10 +530,10 @@ export default function AddMonthlyPlan({
                       >
                         <div>Your Profit</div>
                         <div>
-                          ${formatDecimalValue(discountedPrice - agencyPlanCost)}/ min
+                          ${formatFractional2(discountedPrice - agencyPlanCost)}/ min
                         </div>
                         <div>
-                          ${formatDecimalValue((discountedPrice - agencyPlanCost) * minutes)}
+                          ${formatFractional2((discountedPrice - agencyPlanCost) * minutes)}
                         </div>
                       </div>
                       <div
@@ -639,6 +641,7 @@ export default function AddMonthlyPlan({
               trialValidForDays={trialValidForDays}
               allowTrial={allowTrial}
               handleClose={handleClose}
+              minutes={minutes}
               handleResetValues={handleResetValues}
             />
           </div>

@@ -60,7 +60,7 @@ export default function PlanConfiguration({
         calendars: false,
         liveTransfer: false,
         ragKnowledgeBase: false,
-        embedAgent: false,
+        embedBrowserWebhookAgent: false,
         apiKey: false,
         voicemail: false,
         twilio: false,
@@ -92,7 +92,7 @@ export default function PlanConfiguration({
         {
             label: "Embed / Browser / Webhook Agent",
             tooltip: "Embed the agent into sites, browsers, or trigger webhooks.",
-            stateKey: "embedAgent",
+            stateKey: "embedBrowserWebhookAgent",
         },
         {
             label: "API Key",
@@ -131,8 +131,8 @@ export default function PlanConfiguration({
     useEffect(() => {
         const coreFeatures = featuresList
             .filter(item => features[item.stateKey])
-            .map((item, index) => ({
-                id: index + 1,
+            .map(item => ({
+                id: item.stateKey,      // stable id
                 title: item.label,
             }));
 
@@ -140,27 +140,28 @@ export default function PlanConfiguration({
 
         if (noOfAgents) {
             extraFeatures.push({
-                id: coreFeatures.length + extraFeatures.length + 1,
-                title: `${noOfAgents} AI Agent`,
+                id: "agents",
+                title: `${noOfAgents} AI Agent${noOfAgents > 1 ? "s" : ""}`,
             });
         }
 
         if (noOfContacts) {
             extraFeatures.push({
-                id: coreFeatures.length + extraFeatures.length + 1,
-                title: `${noOfContacts} Contacts`,
+                id: "contacts",
+                title: `${noOfContacts} Contact${noOfContacts > 1 ? "s" : ""}`,
             });
         }
 
         if (language) {
             extraFeatures.push({
-                id: coreFeatures.length + 1,
+                id: "language",
                 title: `${language} Language`,
             });
         }
 
         setAllowedFeatures([...extraFeatures, ...coreFeatures]);
     }, [features, language, noOfAgents, noOfContacts]);
+
 
 
     //auto remove show trial warning
@@ -190,8 +191,45 @@ export default function PlanConfiguration({
 
     //set the values of selected plan to edit plan
     useEffect(() => {
+        if (selectedPlan) {
+            console.log("Selected plan data passed is", selectedPlan);
+            const dynamicFeatures = selectedPlan?.dynamicFeatures;
+            setNoOfAgents(dynamicFeatures?.maxAgents);
+            setNoOfContacts(dynamicFeatures?.maxLeads);
+            setFeatures({
+                toolsActions: dynamicFeatures?.allowToolsAndActions,
+                calendars: dynamicFeatures?.allowCalendars,
+                liveTransfer: dynamicFeatures?.allowLiveTransfer,
+                ragKnowledgeBase: dynamicFeatures?.allowRAGKnowledgeBase,
+                embedBrowserWebhookAgent: dynamicFeatures?.allowEmbedBrowserWebhookAgent,
+                apiKey: dynamicFeatures?.allowAPIKey,
+                voicemail: dynamicFeatures?.allowVoicemail,
+                twilio: dynamicFeatures?.allowTwilio,
+                allowTrial: dynamicFeatures?.allowTrial,
+            });
+            setTrialValidForDays(selectedPlan?.trialValidForDays);
+        }
+    }, [selectedPlan])
+
+    //set the values of configuration data
+    useEffect(() => {
         if (configurationData) {
-            console.log("Configuration data passed is", configurationData)
+            console.log("Selected configurationData data passed is", configurationData);
+            const dynamicFeatures = configurationData?.features;
+            setNoOfAgents(configurationData?.maxAgents);
+            setNoOfContacts(configurationData?.maxLeads);
+            setFeatures({
+                toolsActions: dynamicFeatures?.toolsActions,
+                calendars: dynamicFeatures?.calendars,
+                liveTransfer: dynamicFeatures?.liveTransfer,
+                ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase,
+                embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent,
+                apiKey: dynamicFeatures?.apiKey,
+                voicemail: dynamicFeatures?.voicemail,
+                twilio: dynamicFeatures?.twilio,
+                allowTrial: dynamicFeatures?.allowTrial,
+            });
+            setTrialValidForDays(configurationData?.trialValidForDays);
         }
     }, [configurationData])
 
@@ -230,12 +268,14 @@ export default function PlanConfiguration({
         formData.append("numberOfAgents", noOfAgents);
         formData.append("numberOfContacts", noOfContacts);
         formData.append("language", language);
-        formData.append("durationOfTrial", trialValidForDays);
+        if (features.allowTrial) {
+            formData.append("durationOfTrial", trialValidForDays);
+        }
         formData.append("allowToolsAndActions", features.toolsActions);
         formData.append("allowCalendars", features.calendars);
         formData.append("allowLiveTransfer", features.liveTransfer);
         formData.append("allowRAGKnowledgeBase", features.ragKnowledgeBase);
-        formData.append("allowEmbedBrowserWebhookAgent", features.embedAgent);
+        formData.append("allowEmbedBrowserWebhookAgent", features.embedBrowserWebhookAgent);
         formData.append("allowAPIKey", features.apiKey);
         formData.append("allowVoicemail", features.voicemail);
         formData.append("allowTwilio", features.twilio);
@@ -373,16 +413,15 @@ export default function PlanConfiguration({
     };
 
     const isFormValid = () => {
-        const requiredFieldsFilled =
-            noOfAgents?.trim() &&
-            noOfContacts?.trim() &&
-            language
+        const agentsStr = noOfAgents?.toString().trim();
+        const contactsStr = noOfContacts?.toString().trim();
 
+        const requiredFieldsFilled = agentsStr && contactsStr && language;
         const trialValid = features.allowTrial ? trialValidForDays : true;
 
         return requiredFieldsFilled && trialValid;
-        // return true;
     };
+
 
     //add custom features
     const handleAddCustomFeature = () => {
@@ -397,11 +436,23 @@ export default function PlanConfiguration({
     };
 
     //remove custom field
-    const
-        handleRemoveCustomFeature = (index) => {
-            console.log("Index passed to remove the custom field", index)
-            setCustomFeatures((prev) => prev.filter((_, i) => i !== index));
-        };
+    const handleRemoveCustomFeature = (index) => {
+        console.log("Index passed to remove the custom field", index)
+        setCustomFeatures((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    //handle back function click with storing the current data
+    const handleBackClick = () => {
+        setConfigurationData({
+            maxAgents: noOfAgents,
+            maxLeads: noOfAgents,
+            language: language,
+            features: features,
+            trialValidForDays: trialValidForDays
+        });
+        handleBack();
+    }
+
 
 
     return (
@@ -487,6 +538,7 @@ export default function PlanConfiguration({
                             <LanguagesSelection
                                 language={language}
                                 setLanguage={setLanguage}
+                                selectedLanguage={selectedPlan?.dynamicFeatures?.allowLanguageSelection}
                             />
 
 
@@ -518,7 +570,7 @@ export default function PlanConfiguration({
                                 <button
                                     disabled={createPlanLoader}
                                     onClick={() => {
-                                        handleBack();
+                                        handleBackClick();
                                     }}
                                     className="text-purple-600 font-semibold border rounded-lg w-[12vw]"
                                 >

@@ -34,7 +34,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 
-function AdminDashboardCallLogs({ selectedAgency }) {
+function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const LimitPerPage = 30;
 
   const [searchValue, setSearchValue] = useState("");
@@ -553,9 +553,13 @@ function AdminDashboardCallLogs({ selectedAgency }) {
                 ) : (
                   <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                     <div className="w-full flex flex-row mt-2 px-10 mt-4">
-                      <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Agency Name</div>
-                      </div>
+                      {
+                        !isFromAgency && (
+                          <div className="min-w-[200px] flex-shrink-0">
+                            <div style={styles.text}>Agency Name</div>
+                          </div>
+                        )
+                      }
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Account Name</div>
                       </div>
@@ -596,11 +600,15 @@ function AdminDashboardCallLogs({ selectedAgency }) {
                             style={{ cursor: "pointer" }}
                             className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                           >
-                            <div className="min-w-[200px] flex-shrink-0">
-                              <div style={styles.text2}>
-                                {item.agency?.name || "AgentX Main Admin"}
-                              </div>
-                            </div>
+                            {
+                              !isFromAgency && (
+                                <div className="min-w-[200px] flex-shrink-0">
+                                  <div style={styles.text2}>
+                                    {item.agency?.name || "AgentX Main Admin"}
+                                  </div>
+                                </div>
+                              )
+                            }
                             <div className="min-w-[200px] flex-shrink-0 flex flex-row gap-2 items-center">
                               <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                                 {item.user?.name.slice(0, 1).toUpperCase()}

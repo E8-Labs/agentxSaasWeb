@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 const SubDuration = ({
     planDuration,
-    setPlanDuration
+    setPlanDuration,
+    isEditPlan
 }) => {
 
     const duration = [
@@ -47,6 +48,7 @@ const SubDuration = ({
                                 style={styles.regular}
                                 className={`outline-none ${planDuration === item.value ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[120px] rounded-lg text-center border`}
                                 onClick={() => { handleToggle(item) }}
+                                disabled={isEditPlan}
                             >
                                 {item.title}
                             </button>
@@ -65,6 +67,7 @@ export default SubDuration;
 export const LanguagesSelection = ({
     language,
     setLanguage,
+    selectedLanguage
 }) => {
     const languages = [
         {
@@ -78,6 +81,17 @@ export const LanguagesSelection = ({
             value: "multilingual"
         },
     ]
+
+    useEffect(() => {
+        console.log("Language to show", selectedLanguage);
+        if (selectedLanguage === true) {
+            console.log("Select multilingual");
+            setLanguage("multilingual")
+        } else if (selectedLanguage === false) {
+            console.log("Select english");
+            setLanguage("english")
+        }
+    }, [selectedLanguage])
 
     //toggle plan duration
     const handleToggle = (item) => {
@@ -107,7 +121,6 @@ export const LanguagesSelection = ({
         </div>
     )
 }
-
 
 const styles = {
     regular: {
