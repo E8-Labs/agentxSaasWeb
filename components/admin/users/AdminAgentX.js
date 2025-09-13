@@ -82,7 +82,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://ai.myagentx.com/"
+      ? "https://app.assignx.ai/"
       : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
 
   let demoBaseUrl =

@@ -417,14 +417,14 @@ const Page = ({ length = 6, onComplete }) => {
         />
         <meta
           property="og:image"
-          content="https://ai.myagentx.com/thumbOrb.png"
+          content="https://app.assignx.ai/thumbOrb.png"
         />
-        <meta property="og:url" content="https://ai.myagentx.com" />
+        <meta property="og:url" content="https://app.assignx.ai" />
         <meta property="og:type" content="website" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
-          content="https://ai.myagentx.com/thumbOrb.png"
+          content="https://app.assignx.ai/thumbOrb.png"
         />
       </Head> */}
 

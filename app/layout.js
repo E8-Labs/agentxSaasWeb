@@ -19,16 +19,16 @@ export const metadata = {
   openGraph: {
     title: "Create Your AI Agent - AgentX",
     description: "Design and create custom AI agents with ease.",
-    url: "https://ai.myagentx.com/createagent",
+    url: "https://app.assignx.ai/createagent",
     images: [
       // {
-      //   url: "https://ai.myagentx.com/thumbOrb.png",
+      //   url: "https://app.assignx.ai/thumbOrb.png",
       //   width: 1200,
       //   height: 630,
       //   alt: "Thumbnail Alt Text",
       // },
       {
-        url: "https://ai.myagentx.com/thumbOrbSmall.png",
+        url: "https://app.assignx.ai/thumbOrbSmall.png",
         width: 276,
         height: 276,
         alt: "Thumbnail Alt Text",
@@ -40,7 +40,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Create Your AI Agent - AgentX",
     description: "Design and create custom AI agents with ease.",
-    images: ["https://ai.myagentx.com/thumbOrb.png"],
+    images: ["https://app.assignx.ai/thumbOrb.png"],
   },
 };
 
