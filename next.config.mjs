@@ -24,7 +24,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "apimyagentx.com",
+        hostname: "app.assignx.ai",
       },
       {
         protocol: "https",
