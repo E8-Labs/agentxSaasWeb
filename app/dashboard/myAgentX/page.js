@@ -107,7 +107,7 @@ function Page() {
 
   let demoBaseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://apimyagentx.com/agentx/"
+      ? "https://app.assignx.ai/agentx/"
       : "https://apimyagentx.com/agentxtest/";
 
 
