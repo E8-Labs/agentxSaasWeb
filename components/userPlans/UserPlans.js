@@ -13,7 +13,7 @@ import Apis from '../apis/Apis';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
-function UserPlans({ handleContinue, handleBack, from = "dashboard" }) {
+function UserPlans({ handleContinue, handleBack,from = ""}) {
 
     const router = useRouter();
 
@@ -111,7 +111,10 @@ function UserPlans({ handleContinue, handleBack, from = "dashboard" }) {
                 if (response.data.status === true) {
                     if (from === "dashboard") {
                         router.push("/dashboard")
+                        console.log('route to dashboard')
                     } else {
+                        console.log('handle continue ')
+
                         handleContinue()
                     }
                 }

@@ -618,7 +618,7 @@ function Teams({
         <div className="flex flex-row items-center gap-3">
 
 
-          <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
+          <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
             {(myTeam?.length ? myTeam.length - 1 : 0)}/{(userLocalData?.plan?.features?.maxTeamMembers || 0)} used
           </div>
@@ -658,9 +658,9 @@ function Teams({
             </div>
           </Tooltip>
 
-          <div className="flex flex-row items-center gap-2">
-            <NotficationsDrawer />
-          </div>
+        </div>
+        <div className="flex flex-row items-center gap-2">
+          <NotficationsDrawer />
         </div>
         <div
           style={{
@@ -672,131 +672,131 @@ function Teams({
             needHelp={false} />
         </div>
 
-        </div>
+      </div>
 
-        <div
-          className="flex h-[90vh] w-full justify-center overflow-auto pb-50"
-          style={{ scrollbarWidth: "none" }}
-        >
-          {getTeamLoader ? (
-            <div className="w-full pt-[100px] flex flex-col items-center">
-              <CircularProgress size={40} />
-            </div>
-          ) : (
-            <div className="w-11/12 flex flex-col items-start">
-              {canShowInviteButton() && myTeam.length !== 0 && (
-                <div className="w-full flex flex-row items-center justify-end">
-                  <button
-                    className="rounded-lg text-white bg-purple mt-8"
-                    style={{
-                      fontWeight: "500",
-                      fontSize: "16",
-                      height: "50px",
-                      width: "173px",
-                    }}
-
-
+      <div
+        className="flex h-[90vh] w-full justify-center overflow-auto pb-50"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {getTeamLoader ? (
+          <div className="w-full pt-[100px] flex flex-col items-center">
+            <CircularProgress size={40} />
+          </div>
+        ) : (
+          <div className="w-11/12 flex flex-col items-start">
+            {canShowInviteButton() && myTeam.length !== 0 && (
+              <div className="w-full flex flex-row items-center justify-end">
+                <button
+                  className="rounded-lg text-white bg-purple mt-8"
+                  style={{
+                    fontWeight: "500",
+                    fontSize: "16",
+                    height: "50px",
+                    width: "173px",
+                  }}
 
 
-                    onClick={() => {
-                      const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
-                      const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
-                      if (maxTeamMembers >= currentMembers) {
-                        setOpenInvitePopup(true)
-                      } else {
-                        setShowUpgradeModal(true)
-                      }
-                    }}
-                  >
-                    {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
-                  </button>
-                </div>
-              )}
 
-              {myTeam.length > 0 ? (
-                <div
-                  className="pt-3 flex flex-row w-full flex-wrap"
-                  style={{ overflow: "auto", scrollbarWidth: "none" }}
+
+                  onClick={() => {
+                    const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
+                    const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
+                    if (maxTeamMembers >= currentMembers) {
+                      setOpenInvitePopup(true)
+                    } else {
+                      setShowUpgradeModal(true)
+                    }
+                  }}
                 >
-                  {myTeam.map((item, index) => {
-                    // //console.log;
-                    return (
-                      <div key={item.id} className="relative w-4/12 p-3">
-                        <div className="p-4 flex flex-row justify-between items-start border rounded-lg">
+                  {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
+                </button>
+              </div>
+            )}
 
-                          {/* Img code here */}
-                          <div className="flex flex-row items-start gap-4">
-                            <div>
-                              {item.invitedUser?.thumb_profile_image ? (
-                                <div
-                                  style={{
-                                    width: "37px",
-                                    height: "37px",
-                                    borderRadius: "50%", // Ensures circular shape
-                                    overflow: "hidden", // Clips any overflow from the image
-                                    display: "flex", // Centers the image if needed
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                  }}
-                                >
-                                  <img
-                                    src={item.invitedUser?.thumb_profile_image}
-                                    alt="*"
-                                    style={{ height: "100%", width: "100%" }}
-                                  />
-                                </div>
-                              ) : (
-                                <div
-                                  className="flex rounded-full justify-center items-center bg-black text-white text-md"
-                                  style={{
-                                    height: 37,
-                                    width: 37,
-                                    textTransform: "capitalize",
-                                  }}
-                                >
-                                  {item.name?.[0] || 'U'}
-                                </div>
-                              )}
-                            </div>
+            {myTeam.length > 0 ? (
+              <div
+                className="pt-3 flex flex-row w-full flex-wrap"
+                style={{ overflow: "auto", scrollbarWidth: "none" }}
+              >
+                {myTeam.map((item, index) => {
+                  // //console.log;
+                  return (
+                    <div key={item.id} className="relative w-4/12 p-3">
+                      <div className="p-4 flex flex-row justify-between items-start border rounded-lg">
 
-                            <div className="flex flex-wrap flex-col items-start gap-2">
-                              <div className="text-lg font-medium text-black">
-                                {item.name}
-                              </div>
-                              <div className="text-sm font-medium text-gray-500">
-                                {item?.phone ? formatPhoneNumber(item.phone) : 'No phone'}
-                              </div>
-                              <div className="text-sm font-medium text-gray-500 underline">
-                                {item.email.length > 25 ? item.email.slice(0, 25) + "..." : item.email}
-                              </div>
+                        {/* Img code here */}
+                        <div className="flex flex-row items-start gap-4">
+                          <div>
+                            {item.invitedUser?.thumb_profile_image ? (
                               <div
-                                className={`text-sm font-medium ${item.status === "Pending"
-                                  ? "text-red-500"
-                                  : "text-green-500"
-                                  }`}
+                                style={{
+                                  width: "37px",
+                                  height: "37px",
+                                  borderRadius: "50%", // Ensures circular shape
+                                  overflow: "hidden", // Clips any overflow from the image
+                                  display: "flex", // Centers the image if needed
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                }}
                               >
-                                {item.status}
+                                <img
+                                  src={item.invitedUser?.thumb_profile_image}
+                                  alt="*"
+                                  style={{ height: "100%", width: "100%" }}
+                                />
                               </div>
-                            </div>
+                            ) : (
+                              <div
+                                className="flex rounded-full justify-center items-center bg-black text-white text-md"
+                                style={{
+                                  height: 37,
+                                  width: 37,
+                                  textTransform: "capitalize",
+                                }}
+                              >
+                                {item.name?.[0] || 'U'}
+                              </div>
+                            )}
                           </div>
 
-                          {canShowMenuDots(item) && (
-                            <button
-                              id={`dropdown-toggle-${item.id}`}
-                              onClick={(e) => handlePopoverOpen(e, item)}
-                              className="relative"
+                          <div className="flex flex-wrap flex-col items-start gap-2">
+                            <div className="text-lg font-medium text-black">
+                              {item.name}
+                            </div>
+                            <div className="text-sm font-medium text-gray-500">
+                              {item?.phone ? formatPhoneNumber(item.phone) : 'No phone'}
+                            </div>
+                            <div className="text-sm font-medium text-gray-500 underline">
+                              {item.email.length > 25 ? item.email.slice(0, 25) + "..." : item.email}
+                            </div>
+                            <div
+                              className={`text-sm font-medium ${item.status === "Pending"
+                                ? "text-red-500"
+                                : "text-green-500"
+                                }`}
                             >
-                              <img
-                                src={"/otherAssets/threeDotsIcon.png"}
-                                height={24}
-                                width={24}
-                                alt="threeDots"
-                              />
-                            </button>
-                          )}
+                              {item.status}
+                            </div>
+                          </div>
                         </div>
 
-                        {/* Custom Dropdown
+                        {canShowMenuDots(item) && (
+                          <button
+                            id={`dropdown-toggle-${item.id}`}
+                            onClick={(e) => handlePopoverOpen(e, item)}
+                            className="relative"
+                          >
+                            <img
+                              src={"/otherAssets/threeDotsIcon.png"}
+                              height={24}
+                              width={24}
+                              alt="threeDots"
+                            />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Custom Dropdown
                       {moreDropdown === item.id && (
                         <div
                           className="absolute right-0  top-10 bg-white border rounded-lg shadow-lg z-10"
@@ -826,442 +826,460 @@ function Teams({
                         </div>
                       )} */}
 
-                        <Popover
-                          open={open}
-                          anchorEl={anchorEl}
-                          onClose={handlePopoverClose}
-                          anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "right",
-                          }}
-                          transformOrigin={{
-                            vertical: "top",
-                            horizontal: "right",
-                          }}
-                          PaperProps={{
-                            sx: {
-                              boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
-                              border: "none", // optional: add a light border instead
-                            },
-                          }}
-                        >
-                          <div className="flex flex-col">
-                            {popoverTeam && canShowResendOption(popoverTeam) && (
-                              <MenuItem
-                                onClick={() => {
-                                  handleResendInvite(popoverTeam);
-                                  handlePopoverClose();
-                                }}
-                              >
-                                Resend Invite
-                              </MenuItem>
-                            )}
+                      <Popover
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handlePopoverClose}
+                        anchorOrigin={{
+                          vertical: "bottom",
+                          horizontal: "right",
+                        }}
+                        transformOrigin={{
+                          vertical: "top",
+                          horizontal: "right",
+                        }}
+                        PaperProps={{
+                          sx: {
+                            boxShadow: "0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)",
+                            border: "none", // optional: add a light border instead
+                          },
+                        }}
+                      >
+                        <div className="flex flex-col">
+                          {popoverTeam && canShowResendOption(popoverTeam) && (
                             <MenuItem
-                              sx={{ color: "red" }}
                               onClick={() => {
-                                DeleteTeamMember(popoverTeam);
+                                handleResendInvite(popoverTeam);
                                 handlePopoverClose();
                               }}
                             >
-                              Delete
+                              Resend Invite
                             </MenuItem>
-                          </div>
-                        </Popover>
-
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
-                  <Image
-                    src={"/otherAssets/noTemView.png"}
-                    height={280}
-                    width={240}
-                    alt="*"
-                  />
-                  {agencyData?.sellSeats || userLocalData?.sellSeats ? (
-                    <div className="w-full flex flex-col items-center -mt-12 gap-4">
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
-                        Add Team (${userLocalData.costPerSeat}/mo)
-                      </div>
-                      <div style={{ fontWeight: "400", fontSize: 15 }}>
-                        Add Seats With Full Access
-                      </div>
-                      <div className="text-center" style={{ fontWeight: "400", fontSize: 15, width: "700px" }}>
-                        Unlock full access for your team by adding an extra seat to your account. <span className="text-purple">For just ${userLocalData.costPerSeat} per additional user</span>, per month. Your team member will have complete access to all features, allowing seamless collaboration, lead management, and AI agent usage. Empower your team to work smarter—add a seat and scale your success effortlessly.
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="w-full flex flex-col items-center -mt-12 gap-4">
-                      <div style={{ fontWeight: "700", fontSize: 22 }}>
-                        Add Your Team
-                      </div>
-                      <div style={{ fontWeight: "400", fontSize: 15 }}>
-                        Add team member to better manage your leads
-                      </div>
-                    </div>
-                  )}
-                  <div className="">
-                    <button
-                      className="rounded-lg text-white bg-purple mt-8"
-                      style={{
-                        fontWeight: "500",
-                        fontSize: "16",
-                        height: "50px",
-                        width: "173px",
-                      }}
-
-                      onClick={() => {
-                        const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
-                        const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
-                        if (maxTeamMembers > currentMembers) {
-                          setOpenInvitePopup(true)
-                        } else {
-                          setShowUpgradeModal(true)
-                        }
-                      }}
-
-                    >
-                      {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
-                    </button>
-                  </div>
-
-
-                  <UpgradeModal
-                    open={showUpgradeModal}
-                    handleClose={() => {
-                      setShowUpgradeModal(false)
-                    }}
-
-                    title={"You've Hit Your Members Limit"}
-                    subTitle={"Upgrade to add more team members"}
-                    buttonTitle={"No Thanks"}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <Modal
-          open={openInvitePopup}
-          onClose={() => setOpenInvitePopup(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 500,
-            sx: {
-              backgroundColor: "#00000030",
-              // backdropFilter: "blur(20px)",
-            },
-          }}
-        >
-          <Box className="lg:w-5/12 sm:w-full w-6/12r" sx={styles.modalsStyle}>
-            <AgentSelectSnackMessage
-              isVisible={showError}
-              hide={() => setShowError(false)}
-              message={"Enter all credentials"}
-            />
-            <div className="flex flex-row justify-center w-full">
-              <div
-                className="sm:w-full w-full p-8"
-                style={{
-                  backgroundColor: "#ffffff",
-
-                  borderRadius: "13px",
-                }}
-              >
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row gap-3">
-                    <div
-                      style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
-                    >
-                      New Invite
-                    </div>
-                  </div>
-                  <CloseBtn onClick={() => { setOpenInvitePopup(false); }} />
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: "700",
-                    color: "#000",
-                    marginTop: 20,
-                  }}
-                >
-                  Invite Team
-                </div>
-
-                <div className="pt-5" style={styles.headingStyle}>
-                  Name
-                </div>
-                <input
-                  placeholder="Type here"
-                  className="w-full border mt-2 rounded p-2 outline-none outline-none focus:ring-0"
-                  style={styles.inputFieldStyle}
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    setShowError(false);
-                  }}
-                />
-
-                <div className="pt-5 w-full flex flex-row items-center justify-between">
-                  <div style={styles.headingStyle}>
-                    Email Address
-                  </div>
-                  <div>
-                    {emailLoader ? (
-                      <p style={{ ...styles.errmsg, color: "black" }}>
-                        Checking ...
-                      </p>
-                    ) : (
-                      <div>
-                        {email && emailCheckResponse ? (
-                          <p
-                            style={{
-                              ...styles.errmsg,
-                              color:
-                                emailCheckResponse?.status === true
-                                  ? "green"
-                                  : "red",
+                          )}
+                          <MenuItem
+                            sx={{ color: "red" }}
+                            onClick={() => {
+                              DeleteTeamMember(popoverTeam);
+                              handlePopoverClose();
                             }}
                           >
-                            {emailCheckResponse?.message
-                              ?.slice(0, 1)
-                              .toUpperCase() +
-                              emailCheckResponse?.message?.slice(1)}
-                          </p>
-                        ) : (
-                          <div />
-                        )}
+                            Delete
+                          </MenuItem>
+                        </div>
+                      </Popover>
+
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
+                <Image
+                  src={"/otherAssets/noTemView.png"}
+                  height={280}
+                  width={240}
+                  alt="*"
+                />
+                {
+                  !userLocalData?.plan.price ? (
+                    <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                      <Image src={"/otherAssets/starsIcon2.png"}
+                        height={30} width={30} alt="*"
+                      />
+                      <div style={{ fontWeight: "700", fontSize: 22 }}>
+                        Unlock Teams
+                      </div>
+                      <div style={{ fontWeight: "400", fontSize: 15, textAlign: 'center' }}>
+                        Upgrade to invite team members and manage<br />  agents in one place
+                      </div>
+                    </div>
+                  ) :
+                    agencyData?.sellSeats || userLocalData?.sellSeats ? (
+                      <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                        <div style={{ fontWeight: "700", fontSize: 22 }}>
+                          Add Team (${userLocalData.costPerSeat}/mo)
+                        </div>
+                        <div style={{ fontWeight: "400", fontSize: 15 }}>
+                          Add Seats With Full Access
+                        </div>
+                        <div className="text-center" style={{ fontWeight: "400", fontSize: 15, width: "700px" }}>
+                          Unlock full access for your team by adding an extra seat to your account. <span className="text-purple">For just ${userLocalData.costPerSeat} per additional user</span>, per month. Your team member will have complete access to all features, allowing seamless collaboration, lead management, and AI agent usage. Empower your team to work smarter—add a seat and scale your success effortlessly.
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full flex flex-col items-center -mt-12 gap-4">
+                        <div style={{ fontWeight: "700", fontSize: 22 }}>
+                          Add Your Team
+                        </div>
+                        <div style={{ fontWeight: "400", fontSize: 15 }}>
+                          Add team member to better manage your leads
+                        </div>
                       </div>
                     )}
-                    <div style={{ ...styles.errmsg, color: "red" }}>
-                      {validEmail}
-                    </div>
-                  </div>
+                <div className="">
+                  <button
+                    className="rounded-lg text-white bg-purple mt-8"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: "16",
+                      height: "50px",
+                      width: "173px",
+                    }}
+
+                    onClick={() => {
+                      if(!userLocalData?.plan.price ){
+                        setShowUpgradeModal(true)
+                        return
+                      }
+                      const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
+                      const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
+                      if (maxTeamMembers > currentMembers) {
+                        setOpenInvitePopup(true)
+                      } else {
+                        setShowUpgradeModal(true)
+                      }
+                    }}
+
+                  >
+                    {!userLocalData?.plan.price ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
+                  </button>
                 </div>
 
-                <input
-                  placeholder="Type here"
-                  className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
-                  style={styles.inputFieldStyle}
-                  value={email}
-                  onChange={(e) => {
-                    let value = e.target.value;
-                    setEmail(value);
-                    setShowError(false);
-                    if (timerRef.current) {
-                      clearTimeout(timerRef.current);
-                    }
 
-                    setEmailCheckResponse(null);
-
-                    if (!value) {
-                      // //console.log;
-                      setValidEmail("");
-                      return;
-                    }
-
-                    if (!validateEmail(value)) {
-                      // //console.log;
-                      setValidEmail("Invalid");
-                    } else {
-                      // //console.log;
-                      if (value) {
-                        // Set a new timeout
-                        timerRef.current = setTimeout(() => {
-                          checkEmail(value);
-                        }, 300);
-                      } else {
-                        // Reset the response if input is cleared
-                        setEmailCheckResponse(null);
-                        setValidEmail("");
-                      }
-                    }
+                <UpgradeModal
+                  open={showUpgradeModal}
+                  handleClose={() => {
+                    setShowUpgradeModal(false)
                   }}
-                />
 
-                <div className="pt-5 flex flex-row items-center justify-between w-full">
-                  <div style={styles.headingStyle}>
-                    Phone Number
+                  title={"You've Hit Your Members Limit"}
+                  subTitle={"Upgrade to add more team members"}
+                  buttonTitle={"No Thanks"}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <Modal
+        open={openInvitePopup}
+        onClose={() => setOpenInvitePopup(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 500,
+          sx: {
+            backgroundColor: "#00000030",
+            // backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-5/12 sm:w-full w-6/12r" sx={styles.modalsStyle}>
+          <AgentSelectSnackMessage
+            isVisible={showError}
+            hide={() => setShowError(false)}
+            message={"Enter all credentials"}
+          />
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-full w-full p-8"
+              style={{
+                backgroundColor: "#ffffff",
+
+                borderRadius: "13px",
+              }}
+            >
+              <div className="flex flex-row justify-between">
+                <div className="flex flex-row gap-3">
+                  <div
+                    style={{ fontSize: 16, fontWeight: "500", color: "#000" }}
+                  >
+                    New Invite
                   </div>
-                  {/* Code for error messages */}
-                  <div>
+                </div>
+                <CloseBtn onClick={() => { setOpenInvitePopup(false); }} />
+              </div>
+
+              <div
+                style={{
+                  fontSize: 24,
+                  fontWeight: "700",
+                  color: "#000",
+                  marginTop: 20,
+                }}
+              >
+                Invite Team
+              </div>
+
+              <div className="pt-5" style={styles.headingStyle}>
+                Name
+              </div>
+              <input
+                placeholder="Type here"
+                className="w-full border mt-2 rounded p-2 outline-none outline-none focus:ring-0"
+                style={styles.inputFieldStyle}
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setShowError(false);
+                }}
+              />
+
+              <div className="pt-5 w-full flex flex-row items-center justify-between">
+                <div style={styles.headingStyle}>
+                  Email Address
+                </div>
+                <div>
+                  {emailLoader ? (
+                    <p style={{ ...styles.errmsg, color: "black" }}>
+                      Checking ...
+                    </p>
+                  ) : (
                     <div>
-                      {errorMessage && (
-                        <div
-                          className={`text-red`}
+                      {email && emailCheckResponse ? (
+                        <p
                           style={{
                             ...styles.errmsg,
                             color:
-                              checkPhoneResponse?.status === true ? "green" : "red",
+                              emailCheckResponse?.status === true
+                                ? "green"
+                                : "red",
                           }}
                         >
-                          {errorMessage}
-                        </div>
+                          {emailCheckResponse?.message
+                            ?.slice(0, 1)
+                            .toUpperCase() +
+                            emailCheckResponse?.message?.slice(1)}
+                        </p>
+                      ) : (
+                        <div />
                       )}
                     </div>
-                    <div>
-                      {checkPhoneLoader && (
-                        <div
-                          className={`text-red`}
-                          style={{ ...styles.errmsg }}
-                        >
-                          {checkPhoneLoader}
-                        </div>
-                      )}
-                    </div>
+                  )}
+                  <div style={{ ...styles.errmsg, color: "red" }}>
+                    {validEmail}
                   </div>
                 </div>
-                <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
-                  <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
-                    <div className="w-full">
-                      <PhoneInput
-                        className="outline-none bg-transparent focus:ring-0"
-                        country="us" // Default country
-                        value={phone}
-                        onChange={handlePhoneNumberChange}
-                        // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                        placeholder={"Type here"}
-                        // disabled={loading}
-                        style={{
-                          borderRadius: "7px",
-                          outline: "none", // Ensure no outline on wrapper
-                          boxShadow: "none", // Remove any shadow
-                        }}
-                        inputStyle={{
-                          width: "100%",
-                          borderWidth: "0px",
-                          backgroundColor: "transparent",
-                          paddingLeft: "60px",
-                          paddingTop: "12px",
-                          paddingBottom: "12px",
-                          fontSize: 15,
-                          fontWeight: "500",
-                          height: "50px",
-                          outline: "none", // Remove outline on input
-                          boxShadow: "none", // Remove shadow as well
-                        }}
-                        buttonStyle={{
-                          border: "none",
-                          backgroundColor: "transparent",
-                          outline: "none", // Ensure no outline on button
-                        }}
-                        dropdownStyle={{
-                          maxHeight: "150px",
-                          overflowY: "auto",
-                        }}
-                        countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
-                      />
-                    </div>
-                  </div>
-                </div>
+              </div>
 
-                {inviteTeamLoader ? (
-                  <div className="flex flex-col items-center p-5">
-                    <CircularProgress size={30} />
+              <input
+                placeholder="Type here"
+                className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
+                style={styles.inputFieldStyle}
+                value={email}
+                onChange={(e) => {
+                  let value = e.target.value;
+                  setEmail(value);
+                  setShowError(false);
+                  if (timerRef.current) {
+                    clearTimeout(timerRef.current);
+                  }
+
+                  setEmailCheckResponse(null);
+
+                  if (!value) {
+                    // //console.log;
+                    setValidEmail("");
+                    return;
+                  }
+
+                  if (!validateEmail(value)) {
+                    // //console.log;
+                    setValidEmail("Invalid");
+                  } else {
+                    // //console.log;
+                    if (value) {
+                      // Set a new timeout
+                      timerRef.current = setTimeout(() => {
+                        checkEmail(value);
+                      }, 300);
+                    } else {
+                      // Reset the response if input is cleared
+                      setEmailCheckResponse(null);
+                      setValidEmail("");
+                    }
+                  }
+                }}
+              />
+
+              <div className="pt-5 flex flex-row items-center justify-between w-full">
+                <div style={styles.headingStyle}>
+                  Phone Number
+                </div>
+                {/* Code for error messages */}
+                <div>
+                  <div>
+                    {errorMessage && (
+                      <div
+                        className={`text-red`}
+                        style={{
+                          ...styles.errmsg,
+                          color:
+                            checkPhoneResponse?.status === true ? "green" : "red",
+                        }}
+                      >
+                        {errorMessage}
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <button
+                  <div>
+                    {checkPhoneLoader && (
+                      <div
+                        className={`text-red`}
+                        style={{ ...styles.errmsg }}
+                      >
+                        {checkPhoneLoader}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
+                <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
+                  <div className="w-full">
+                    <PhoneInput
+                      className="outline-none bg-transparent focus:ring-0"
+                      country="us" // Default country
+                      value={phone}
+                      onChange={handlePhoneNumberChange}
+                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                      placeholder={"Type here"}
+                      // disabled={loading}
+                      style={{
+                        borderRadius: "7px",
+                        outline: "none", // Ensure no outline on wrapper
+                        boxShadow: "none", // Remove any shadow
+                      }}
+                      inputStyle={{
+                        width: "100%",
+                        borderWidth: "0px",
+                        backgroundColor: "transparent",
+                        paddingLeft: "60px",
+                        paddingTop: "12px",
+                        paddingBottom: "12px",
+                        fontSize: 15,
+                        fontWeight: "500",
+                        height: "50px",
+                        outline: "none", // Remove outline on input
+                        boxShadow: "none", // Remove shadow as well
+                      }}
+                      buttonStyle={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                        outline: "none", // Ensure no outline on button
+                      }}
+                      dropdownStyle={{
+                        maxHeight: "150px",
+                        overflowY: "auto",
+                      }}
+                      countryCodeEditable={true}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {inviteTeamLoader ? (
+                <div className="flex flex-col items-center p-5">
+                  <CircularProgress size={30} />
+                </div>
+              ) : (
+                <button
+                  style={{
+                    marginTop: 20,
+                    backgroundColor:
+                      !name ||
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
+                        ? "#00000020"
+                        : "",
+                  }}
+                  className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
+                  onClick={() => {
+                    let data = {
+                      name: name,
+                      email: email,
+                      phone: phone,
+                    };
+                    inviteTeamMember(data);
+                  }}
+                  disabled={
+                    !name ||
+                    !email ||
+                    !phone ||
+                    emailCheckResponse?.status !== true ||
+                    checkPhoneResponse?.status !== true
+                  }
+                >
+                  <div
                     style={{
-                      marginTop: 20,
-                      backgroundColor:
+                      fontSize: 16,
+                      fontWeight: "500",
+                      color:
                         !name ||
                           !email ||
                           !phone ||
                           emailCheckResponse?.status !== true ||
                           checkPhoneResponse?.status !== true
-                          ? "#00000020"
-                          : "",
+                          ? "#000000"
+                          : "#ffffff",
                     }}
-                    className="w-full flex bg-purple p-3 rounded-lg items-center justify-center"
-                    onClick={() => {
-                      let data = {
-                        name: name,
-                        email: email,
-                        phone: phone,
-                      };
-                      inviteTeamMember(data);
-                    }}
-                    disabled={
-                      !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
-                    }
                   >
-                    <div
-                      style={{
-                        fontSize: 16,
-                        fontWeight: "500",
-                        color:
-                          !name ||
-                            !email ||
-                            !phone ||
-                            emailCheckResponse?.status !== true ||
-                            checkPhoneResponse?.status !== true
-                            ? "#000000"
-                            : "#ffffff",
-                      }}
-                    >
-                      {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "Send Invite"}
-                    </div>
-                  </button>
-                )}
+                    {agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "Send Invite"}
+                  </div>
+                </button>
+              )}
 
-                {/* Can be use full to add shadow */}
-                {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-              </div>
+              {/* Can be use full to add shadow */}
+              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
-          </Box>
-        </Modal>
-      </div>
-      );
+          </div>
+        </Box>
+      </Modal>
+    </div>
+  );
 }
 
-      export default Teams;
+export default Teams;
 
-      const styles = {
-        itemText: {
-        fontSize: "16px",
-      fontWeight: "500",
-      color: "#000",
+const styles = {
+  itemText: {
+    fontSize: "16px",
+    fontWeight: "500",
+    color: "#000",
   },
-      deleteText: {
-        fontSize: "16px",
-      fontWeight: "500",
-      color: "#FF4D4F", // Red color for delete
+  deleteText: {
+    fontSize: "16px",
+    fontWeight: "500",
+    color: "#FF4D4F", // Red color for delete
   },
-      modalsStyle: {
-        height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
+  modalsStyle: {
+    height: "auto",
+    bgcolor: "transparent",
+    // p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-55%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
   },
-      headingStyle: {
-        fontSize: 12,
-      fontWeight: "400",
-      color: "#00000050",
+  headingStyle: {
+    fontSize: 12,
+    fontWeight: "400",
+    color: "#00000050",
   },
-      inputFieldStyle: {
-        fontSize: 15,
-      fontWeight: "500",
-      // marginTop: 10,
-      border: "1px solid #00000010",
-      height: "50px",
+  inputFieldStyle: {
+    fontSize: 15,
+    fontWeight: "500",
+    // marginTop: 10,
+    border: "1px solid #00000010",
+    height: "50px",
   },
-      errmsg: {
-        fontSize: 12,
-      fontWeight: "500",
+  errmsg: {
+    fontSize: 12,
+    fontWeight: "500",
   },
 };

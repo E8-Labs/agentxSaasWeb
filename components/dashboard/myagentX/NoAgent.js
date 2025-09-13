@@ -8,7 +8,8 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnac
 function NoAgent({
   showBtn = true,
   title = "You have no active agents",
-  selectedUser
+  selectedUser,
+  from,
 }) {
 
   //show snack
@@ -51,7 +52,7 @@ function NoAgent({
   return (
     <div
       className='flex flex-col items-center w-full h-full overflow-x-hidden'
-      style = {{scrollbarWidth:'none'}}
+      style={{ scrollbarWidth: 'none' }}
     >
       <AgentSelectSnackMessage
         type={showSnack.type}
@@ -68,8 +69,8 @@ function NoAgent({
       <Image className=''
         alt="No img"
         src={"/agencyIcons/noAgents.jpg"}
-        height={200}
-        width={450}
+        height={from === "Admin" ? 200 : 600}
+        width={from === "Admin" ? 400 : 600}
       />
 
       <div
@@ -91,7 +92,7 @@ function NoAgent({
               className="flex items-center justify-center  text-black text-white font-medium"
             // Fixed typo
             >
-              Add new agent
+              Add New Agent
             </div>
           </button>
         )

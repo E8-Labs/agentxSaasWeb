@@ -25,6 +25,7 @@ import IntroVideoModal from "./IntroVideoModal";
 import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import { AuthToken } from "../agency/plan/AuthDetails";
+import { getUserLocalData } from "../constants/constants";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -67,6 +68,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [shouldContinue, setShouldContinue] = useState(true);
   const [errorMessage, setErrorMessage] = useState(false);
   const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
+
+  const [userData, setUserData] = useState(null)
+
+  useEffect(() => {
+    let data = getUserLocalData()
+    if (data) {
+      setUserData(data)
+    }
+  }, [])
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
@@ -339,7 +349,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     try {
       console.log("Trigered the get numbers api");
       const token = AuthToken();
-      
+
       let userId = null;
       const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
       console.log("check 343")
@@ -882,47 +892,50 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               )}
 
               {/* Phone number input here */}
-
-              <div className="w-full">
-                <div style={styles.headingStyle}>
-                  What number should we forward live transfers to when a lead
-                  wants to talk to you?
-                </div>
-                <PhoneInput
-                  className="border outline-none bg-white"
-                  country={"us"} // restrict to US only
-                  onlyCountries={["us"]}
-                  disableDropdown={true}
-                  countryCodeEditable={false}
-                  disableCountryCode={false}
-                  value={callBackNumber}
-                  onChange={handleCallBackNumberChange}
-                  // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                  placeholder={"Enter Phone Number"}
-                  // disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: "7px" }}
-                  inputStyle={{
-                    width: "100%",
-                    borderWidth: "0px",
-                    backgroundColor: "transparent",
-                    paddingLeft: "60px",
-                    paddingTop: "12px",
-                    paddingBottom: "12px",
-                  }}
-                  buttonStyle={{
-                    border: "none",
-                    backgroundColor: "transparent",
-                  }}
-                  dropdownStyle={{
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                  }}
-                // defaultMask={locationLoader ? "Loading..." : undefined}
-                />
-                <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
-                  {errorMessage}
-                </div>
-              </div>
+              {
+                userData?.user?.plan?.price && (
+                  <div className="w-full">
+                    <div style={styles.headingStyle}>
+                      What number should we forward live transfers to when a lead
+                      wants to talk to you?
+                    </div>
+                    <PhoneInput
+                      className="border outline-none bg-white"
+                      country={"us"} // restrict to US only
+                      onlyCountries={["us"]}
+                      disableDropdown={true}
+                      countryCodeEditable={false}
+                      disableCountryCode={false}
+                      value={callBackNumber}
+                      onChange={handleCallBackNumberChange}
+                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                      placeholder={"Enter Phone Number"}
+                      // disabled={loading} // Disable input if still loading
+                      style={{ borderRadius: "7px" }}
+                      inputStyle={{
+                        width: "100%",
+                        borderWidth: "0px",
+                        backgroundColor: "transparent",
+                        paddingLeft: "60px",
+                        paddingTop: "12px",
+                        paddingBottom: "12px",
+                      }}
+                      buttonStyle={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                      }}
+                      dropdownStyle={{
+                        maxHeight: "150px",
+                        overflowY: "auto",
+                      }}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                    />
+                    <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                      {errorMessage}
+                    </div>
+                  </div>
+                )
+              }
 
               <div className="flex flex-row items-center gap-4 justify-start">
                 <button onClick={handleToggleClick}>

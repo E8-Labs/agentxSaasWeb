@@ -7,6 +7,8 @@ import { PersistanceKeys } from "@/constants/Constants.js";
 import { User } from "lucide-react";
 import dynamic from "next/dynamic.js";
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation"
+
 
 const CreateAgent1 = dynamic(() =>
   import("../../components/createagent/CreateAgent1.js")
@@ -45,8 +47,14 @@ function EmptyPage() {
 
 const Page = () => {
   // //console.log;
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const stepFromUrl = parseInt(searchParams.get("step") || "1", 10);
+  const [index, setIndex] = useState(stepFromUrl);
+
   const [user, setUser] = useState(null);
-  const [index, setIndex] = useState(0);
   const [components, setComponents] = useState([
     EmptyPage,
     // CreateAgent1,
@@ -58,7 +66,17 @@ const Page = () => {
   const [windowSize, setWindowSize] = useState(null);
   const [subAccount, setSubaccount] = useState(null)
 
-  let CurrentComp = components[index];
+  let CurrentComp = components[index-1] || EmptyPage;
+  useEffect(() => {
+    const currentStep = searchParams.get("step");
+    if (currentStep !== index.toString()) {
+      router.replace(`?step=${index}`);
+    }
+  }, [index, router, searchParams]);
+
+  // console.log("Rendering step:", index, components[index]);
+
+  
 
   useEffect(() => {
     let size = null;
@@ -185,20 +203,10 @@ const Page = () => {
   }
 
   // Function to proceed to the next step
-  const handleContinue = () => {
-    // //console.log;
-    setIndex(index + 1);
-  };
-
-  const handleBack = () => {
-    // //console.log;
-    setIndex(index - 1);
-  };
-
-  const handleSkipAddPayment = () => {
-    // //console.log;
-    setIndex(index + 2);
-  };
+  const handleContinue = () => setIndex((prev) => prev + 1);
+  const handleBack = () => setIndex((prev) => Math.max(prev - 1, 0));
+  const handleSkipAddPayment = () => setIndex((prev) => prev + 2);
+  
 
   //function to get the agent Details
   const [AgentDetails, setAgentDetails] = useState({

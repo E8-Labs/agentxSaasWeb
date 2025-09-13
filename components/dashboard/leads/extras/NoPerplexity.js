@@ -1,9 +1,25 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { CircularProgress, Tooltip } from "@mui/material";
+import { Box, CircularProgress, Modal, Tooltip } from "@mui/material";
 import getProfileDetails from "@/components/apis/GetProfile";
+import { Elements } from "@stripe/react-stripe-js";
+import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
+import { loadStripe } from "@stripe/stripe-js";
 function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
+
+
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripePublickKey);
+
+
+
   const [userLocalData, setUserLocalData] = useState("");
+
+  const [showAddCard, setShowAddCard] = useState(false)
+
 
   useEffect(() => {
     const getData = async () => {
@@ -27,10 +43,29 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
 
     getData();
   }, []);
+
+  const handleClose = (data) => {
+    console.log("data of add card", data)
+    if (data) {
+      setShowAddCard(false);
+      if (userLocalData?.enrichCredits > 0) {
+        handleEnrichLead();
+      } else {
+        setshowConfirmPerplexity(true);
+      }
+      // setCards([newCard, ...cards]);
+    }
+  }
+
+
+
+
+
   return (
     <div className="flex flex-col items-center gap-3 w-full h-[40vh] ">
       {/* {
                 userLocalData?.enrichCredits > 0 ? ( */}
+
       <div
         style={{
           fontSize: 14,
@@ -44,32 +79,19 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
         Credits: {userLocalData?.enrichCredits || 0}
       </div>
       {/* ) : (
-                    <div style={{ marginBottom: '100px' }}></div>
+                    <div style={{ marginBottom: '60px' }}></div>
                 )
             } */}
 
-      {loading ? (
-        <CircularProgress size={27} />
-      ) : (
-        <button
-          className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-purple items-center justify-center text-white"
-          onClick={() => {
-            if (userLocalData?.enrichCredits > 0) {
-              handleEnrichLead();
-            } else {
-              setshowConfirmPerplexity(true);
-            }
-          }}
-        >
-          <Image
-            src={"/svgIcons/sparklesWhite.svg"}
-            height={16}
-            width={16}
-            alt="*"
-          />
-          <div>Enrich Lead</div>
-        </button>
-      )}
+
+      <Image src={'/otherAssets/starsIcon2.png'}
+        height={30} width={30} alt="*"
+      />
+
+      <div style={{ fontSize: 16, fontWeight: "600", color: "#000000" }}>
+        Enrich Leads
+      </div>
+
       <div
         style={{
           fontSize: 15,
@@ -81,7 +103,7 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
         {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
       </div>
 
-      <div className="flex flex-row gap-2 items-center">
+      <div className="flex flex-row items-center gap-2">
         <div style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}>
           credit cost ($0.05/lead)
         </div>
@@ -116,8 +138,119 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
           />
         </Tooltip>
       </div>
+
+
+      {loading ? (
+        <CircularProgress size={27} />
+      ) : (
+        <button
+          className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-purple items-center justify-center text-white"
+          onClick={() => {
+            if (userData?.user?.cards?.length > 0) {
+              setShowAddCard(true)
+            } else {
+              if (userLocalData?.enrichCredits > 0) {
+                handleEnrichLead();
+              } else {
+                setshowConfirmPerplexity(true);
+              }
+            }
+          }}
+        >
+          <Image
+            src={"/svgIcons/sparklesWhite.svg"}
+            height={16}
+            width={16}
+            alt="*"
+          />
+          <div>Enrich Lead</div>
+        </button>
+      )}
+
+      {/* Add Payment Modal */}
+      <Modal
+        open={showAddCard} //addPaymentPopUp
+        // open={true}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-7/12 w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="flex flex-row justify-between items-center">
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "600",
+                  }}
+                >
+                  Payment Details
+                </div>
+                <button onClick={() => setShowAddCard(false)}>
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
+                </button>
+              </div>
+              <Elements stripe={stripePromise}>
+                <AddCardDetails
+                  //selectedPlan={selectedPlan}
+                  // stop={stop}
+                  // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                  handleClose={handleClose}
+                  togglePlan={""}
+                // fromAdmin={true}
+                // selectedUser={selectedUSer}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                />
+              </Elements>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 }
 
 export default NoPerplexity;
+
+const styles = {
+  paymentModal: {
+    height: "auto",
+    bgcolor: "transparent",
+    // p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-50%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+  claimPopup: {
+    height: "auto",
+    bgcolor: "transparent",
+    // p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-55%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+};

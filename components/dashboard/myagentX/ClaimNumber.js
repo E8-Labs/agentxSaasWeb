@@ -7,6 +7,10 @@ import React, { useEffect, useRef, useState } from "react";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../leads/AgentSelectSnackMessage";
+import { getUserLocalData } from "@/components/constants/constants";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 
 const ClaimNumber = ({
   showClaimPopup,
@@ -18,6 +22,13 @@ const ClaimNumber = ({
   AssignNumber,
   selectedUSer,
 }) => {
+
+
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripePublickKey);
   const timerRef = useRef(null);
 
   const [findNumber, setFindNumber] = useState("");
@@ -31,6 +42,9 @@ const ClaimNumber = ({
   const [openPurchaseErrSnack, setOpenPurchaseErrSnack] = useState("");
   const [isSnackVisible, setIsSnackVisible] = useState(false);
   const [errorType, setErrorType] = useState(null);
+  const [showAddCard, setShowAddCard] = useState(false)
+  const [cardData, getcardData] = useState("");
+
 
   //code to select Purchase number
   const handlePurchaseNumberClick = (item, index) => {
@@ -40,8 +54,19 @@ const ClaimNumber = ({
     setSelectedPurchasedIndex((prevId) => (prevId === index ? null : index));
   };
 
+  const handleClose = (data) => {
+    console.log("data of add card",data)
+    if (data) {
+      setShowAddCard(false);
+      handlePurchaseNumber()
+      // setCards([newCard, ...cards]);
+    }
+  };
+
   // function for purchasing number api
   const handlePurchaseNumber = async () => {
+    console.log('purchase number')
+    // return
     try {
       setPurchaseLoader(true);
       let AuthToken = null;
@@ -104,10 +129,10 @@ const ClaimNumber = ({
         // //console.log;
         if (response.data.status === true) {
           setOpenPurchaseSuccessModal(true);
-          
-            UserDetails.user.checkList.checkList.numberClaimed = true;
-            localStorage.setItem("User", JSON.stringify(D));
-          
+
+          UserDetails.user.checkList.checkList.numberClaimed = true;
+          localStorage.setItem("User", JSON.stringify(D));
+
           window.dispatchEvent(
             new CustomEvent("UpdateCheckList", { detail: { update: true } })
           );
@@ -196,6 +221,17 @@ const ClaimNumber = ({
   };
 
   const styles = {
+    paymentModal: {
+      height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      my: "50vh",
+      transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
     claimPopup: {
       height: "auto",
       bgcolor: "transparent",
@@ -412,7 +448,15 @@ const ClaimNumber = ({
                         {selectedPurchasedNumber && (
                           <button
                             className="text-white bg-purple w-full h-[50px] rounded-lg"
-                            onClick={handlePurchaseNumber}
+                            onClick={() => {
+                              let userData = getUserLocalData()
+                              if (userData) {
+                                if (userData.user?.cards?.length === 0) {
+                                  setShowAddCard(true)
+                                } else
+                                  handlePurchaseNumber()
+                              }
+                            }}
                           >
                             Proceed to Buy
                           </button>
@@ -471,7 +515,66 @@ const ClaimNumber = ({
           </div>
         </Box>
       </Modal>
-    </div>
+
+      {/* Add Payment Modal */}
+      <Modal
+        open={showAddCard} //addPaymentPopUp
+        // open={true}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-7/12 w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 20,
+                borderRadius: "13px",
+              }}
+            >
+              <div className="flex flex-row justify-between items-center">
+                <div
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "600",
+                  }}
+                >
+                  Payment Details
+                </div>
+                <button onClick={() => setShowAddCard(false)}>
+                  <Image
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
+                    alt="*"
+                  />
+                </button>
+              </div>
+              <Elements stripe={stripePromise}>
+                <AddCardDetails
+                  //selectedPlan={selectedPlan}
+                  // stop={stop}
+                  getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                  handleClose={handleClose}
+                  togglePlan={""}
+                  // fromAdmin={true}
+                  selectedUser={selectedUSer}
+                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                />
+              </Elements>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+    </div >
   );
 };
 

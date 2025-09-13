@@ -24,13 +24,6 @@ import UnlockAgentModal from "@/constants/UnlockAgentModal";
 
 const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed Google Maps API key - no longer needed
-
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-  const stripePromise = loadStripe(stripePublickKey);
-
   const router = useRouter();
   const bottomRef = useRef();
   const [loaderModal, setLoaderModal] = useState(false);
@@ -69,7 +62,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [user, setUser] = useState(null);
 
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
 
@@ -349,10 +341,6 @@ const haveLimit = () => {
 
 //code for creating agent api
 const handleBuildAgent = async () => {
-  if (!haveLimit()) {
-    setShowUpgradeModal(true)
-    return
-  }
   // return
   try {
     setBuildAgentLoader(true);
@@ -1032,15 +1020,7 @@ return (
 
     <LoaderAnimation loaderModal={loaderModal} />
 
-    {/* UpgradePlan Modal */}
-    <Elements stripe={stripePromise}>
-      <UpgradePlan
-        open={showUpgradeModal}
-        handleClose={() => setShowUpgradeModal(false)}
-      />
-    </Elements>
-
-
+ 
     {/* <Modal
                 open={loaderModal}
                 // onClose={() => loaderModal(false)}
