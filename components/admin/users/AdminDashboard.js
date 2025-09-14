@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { Constants, PersistanceKeys } from "@/constants/Constants";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { secondsToMinsConverter } from "@/utilities/utility";
 
 const AdminDashboard = ({ selectedUser }) => {
   const router = useRouter();
@@ -502,9 +503,9 @@ const AdminDashboard = ({ selectedUser }) => {
                               color: "#fff",
                             }}
                           >
-                            {convertTime(
+                            {secondsToMinsConverter(
                               selectedUser?.totalSecondsAvailable || 0
-                            ).toFixed(2)} AI Credits
+                            )} AI Credits
                           </div>
                         </div>
                       </div>
