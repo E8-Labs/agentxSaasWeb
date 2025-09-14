@@ -32,6 +32,7 @@ import {
 import Vapi from "@vapi-ai/web";
 import { VoiceWavesComponent } from "../askSky/askskycomponents/voice-waves";
 import { AudioWaveActivity } from "../askSky/askskycomponents/AudioWaveActivity";
+import { agentImage } from "@/utilities/agentUtilities";
 
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
@@ -46,11 +47,10 @@ const backgroundImage = {
 const Creator = ({ agentId, name }) => {
   const router = useRouter();
   const buttonRef = useRef(null);
-  const buttonRef2 = useRef(null);
-  const buttonRef3 = useRef(null);
-  const buttonRef4 = useRef(null);
-  const buttonRef5 = useRef(null);
   const buttonRef6 = useRef(null);
+  const profileBoxRef = useRef(null);
+  const createAIButtonRef = useRef(null);
+  const endCallButtonRef = useRef(null);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -78,7 +78,16 @@ const Creator = ({ agentId, name }) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
 
+  //agent details by id
+  const [agentDetails, setAgentDetails] = useState(null);
+  const [profileLoader, setProfileLoader] = useState(true);
+
   const API_KEY = process.env.NEXT_PUBLIC_REACT_APP_VITE_API_KEY;
+
+  //fetch user profile data
+  useEffect(() => {
+    getUserByAgentId()
+  }, []);
 
   // User loading messages to fake feedback...
   useEffect(() => {
@@ -126,6 +135,26 @@ const Creator = ({ agentId, name }) => {
 
     return () => mediaQuery.removeEventListener("change", handleResize); // Cleanup listener on component unmount
   }, []);
+
+  //get user details by agentId
+  const getUserByAgentId = async () => {
+    try {
+      setProfileLoader(true);
+      const response = await axios.get(
+        `${Apis.getUserByAgentVapiId}/${agentId}`
+      );
+      console.log("Response of getagent details by id is", response);
+      if (response) {
+        setAgentDetails(response)
+      }
+      setProfileLoader(false);
+    } catch (error) {
+      console.log("Error occured in fetch user details by agent id", error);
+      setProfileLoader(false);
+    } finally {
+      setProfileLoader(false);
+    }
+  }
 
   // Handle button click
   const handleInitiateVapi = () => {
@@ -176,9 +205,8 @@ const Creator = ({ agentId, name }) => {
   async function handleStartCall(voice) {
     try {
       // Check if user has sufficient minutes before starting call
-      const response = await axios.get(
-        `${Apis.getUserByAgentVapiId}/${agentId}`
-      );
+
+      const response = agentDetails;
 
       if (response.data.status && response.data.data.user) {
         const { totalSecondsAvailable } = response.data.data.user;
@@ -234,6 +262,68 @@ const Creator = ({ agentId, name }) => {
     }
   }
 
+  // const handleMouseMove = (event) => {
+  //   const centerX = window.innerWidth / 2;
+  //   const centerY = window.innerHeight / 2;
+  //   const x = event.clientX;
+  //   const y = event.clientY;
+
+  //   setMousePosition({ x, y });
+
+  //   // Check if the mouse is within 150px of the center
+  //   if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
+  //     setBoxVisible(false); // Hide the box
+  //     return;
+  //   }
+
+  //   // Check if the mouse is over buttonRef
+  //   if (buttonRef.current) {
+  //     const rect = buttonRef.current.getBoundingClientRect();
+  //     if (
+  //       x >= rect.left &&
+  //       x <= rect.right &&
+  //       y >= rect.top &&
+  //       y <= rect.bottom
+  //     ) {
+  //       setBoxVisible(false); // Hide the animation when hovering over buttonRef
+  //       return;
+  //     }
+  //   }
+
+  //   setBoxVisible(true);
+
+  // };
+
+  // const handleMouseMove = (event) => {
+  //   const centerX = window.innerWidth / 2;
+  //   const centerY = window.innerHeight / 2;
+  //   const x = event.clientX;
+  //   const y = event.clientY;
+
+  //   setMousePosition({ x, y });
+
+  //   // Check if the mouse is within 150px of the center
+  //   if (Math.abs(x - centerX) <= 150 && Math.abs(y - centerY) <= 150) {
+  //     setBoxVisible(false); // Hide the box
+  //     return;
+  //   }
+
+  //   // Check if the mouse is over buttonRef or createAIButtonRef
+  //   if (
+  //     (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
+  //     (createAIButtonRef.current && isMouseOverRef(createAIButtonRef, x, y)) ||
+  //     (endCallButtonRef.current && isMouseOverRef(endCallButtonRef, x, y)) ||
+  //     (profileBoxRef.current && isMouseOverRef(profileBoxRef, x, y))
+  //   ) {
+  //     setBoxVisible(false); // Hide the animation when hovering over either buttonRef or createAIButtonRef
+  //     return;
+  //   }
+
+  //   setBoxVisible(true);
+  // };
+
+  // Helper function to check if mouse is over a specific element
+
   const handleMouseMove = (event) => {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
@@ -248,20 +338,34 @@ const Creator = ({ agentId, name }) => {
       return;
     }
 
-    // Check if the mouse is over buttonRef
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      if (
-        x >= rect.left &&
-        x <= rect.right &&
-        y >= rect.top &&
-        y <= rect.bottom
-      ) {
-        setBoxVisible(false); // Hide the animation when hovering over buttonRef
-        return;
-      }
+    // Check if the mouse is over any of the refs (buttonRef, createAIButtonRef, endCallButtonRef, profileBoxRef)
+    if (
+      (buttonRef.current && isMouseOverRef(buttonRef, x, y)) ||
+      (createAIButtonRef.current && isMouseOverRef(createAIButtonRef, x, y)) ||
+      (endCallButtonRef.current && isMouseOverRef(endCallButtonRef, x, y)) ||  // Check for endCallButtonRef
+      (profileBoxRef.current && isMouseOverRef(profileBoxRef, x, y))
+    ) {
+      setBoxVisible(false); // Hide the animation when hovering over any of the refs
+      return;
     }
+
+    setBoxVisible(true); // Show the box when not hovering over the refs
   };
+
+  // Helper function to check if mouse is over a specific element
+  const isMouseOverRef = (ref, x, y) => {
+    const rect = ref.current.getBoundingClientRect();
+    // Log the position and check if it's correctly identifying the bounding box
+    console.log("Checking mouse position over element:", rect);
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  };
+
+
+  // const isMouseOverRef = (ref, x, y) => {
+  //   const rect = ref.current.getBoundingClientRect();
+  //   return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  // };
+
 
   const showCallUI = () => {
     return (
@@ -280,7 +384,6 @@ const Creator = ({ agentId, name }) => {
 
         {open && (
           <button
-            ref={buttonRef}
             onClick={handleCloseCall}
             className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
           >
@@ -320,6 +423,58 @@ const Creator = ({ agentId, name }) => {
         className="  overflow-y-hidden"
         onMouseMove={handleMouseMove}
       >
+        <div
+          ref={profileBoxRef}
+          style={{
+            position: "absolute",
+            left: 20,
+            top: 25
+          }}
+        >
+          {
+            profileLoader ? (
+              <div>
+                Fetching data..
+              </div>
+            ) : (
+              <div
+                className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none"
+              >
+                <div>
+                  {agentImage(agentDetails?.data?.data?.agent)}
+                </div>
+                <div style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
+                  {/*agentDetails?.data?.data?.agent?.name*/}
+                  {agentDetails?.data?.data?.agent?.name &&
+                    agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1).toLowerCase()}
+                </div>
+              </div>
+            )
+          }
+        </div>
+
+        {/* Bottom button */}
+        <div
+          ref={createAIButtonRef}
+          style={{
+            position: "absolute",
+            left: 20,
+            bottom: 25
+          }}>
+          <button
+            className="rounded-full border border-[#ffffff] bg-purple60 flex flex-row items-center gap-2 h-[52px] px-4 outline-none"
+            onClick={() => { window.open("https://www.assignx.ai/", '_blank') }}
+          >
+            <Image
+              src={"/assets/stars.png"}
+              alt="phone"
+              height={20}
+              width={20}
+            />
+            <div className="text-white" style={{ fontSize: "17px", fontWeight: "500" }}>Build your AI</div>
+          </button>
+        </div>
+
         {/* Animating Image */}
         <div
           style={{
@@ -343,6 +498,8 @@ const Creator = ({ agentId, name }) => {
                                     <Image onClick={handleInitiateVapi} src="/mainAppGif.gif" alt='gif' style={{ backgroundColor: "red", borderRadius: "50%" }} height={600} width={600} />
                                 </div> */}
 
+
+
             <div
               style={gifBackgroundImage}
               className="flex flex-row justify-center items-center"
@@ -363,8 +520,9 @@ const Creator = ({ agentId, name }) => {
               />
             </div>
           </button>
-
-          {showCallUI()}
+          <div ref={endCallButtonRef}>
+            {showCallUI()}
+          </div>
         </div>
 
         {/* visible on small screens only */}
@@ -386,7 +544,7 @@ const Creator = ({ agentId, name }) => {
             }}
           >
             {/* <div className='px-4 py-2 rounded-lg -mb-8' style={{ fontSize: 14, fontWeight: '500', fontFamily: 'inter', backgroundColor: '#ffffff50' }}>
-                                    Tap to call
+                                    Click to Talk
                                 </div> */}
             <motion.div
               animate={{
@@ -408,7 +566,7 @@ const Creator = ({ agentId, name }) => {
                 position: "relative", // Required for positioning the triangle
               }}
             >
-              Tap to call
+              Click to Talk
               {/* Triangle at the bottom center */}
               <div
                 style={{
@@ -444,7 +602,9 @@ const Creator = ({ agentId, name }) => {
               />
             </div>
           </button>
-          {showCallUI()}
+          <div ref={buttonRef}>
+            {showCallUI()}
+          </div>
         </div>
 
         {/* Mouse Following Box Animation */}
@@ -484,7 +644,7 @@ const Creator = ({ agentId, name }) => {
                     fontSize: 14,
                   }}
                 >
-                  Tap to call
+                  Click to Talk
                 </div>
               </motion.div>
             )}

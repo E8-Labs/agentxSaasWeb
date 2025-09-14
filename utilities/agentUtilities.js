@@ -319,8 +319,9 @@ const agentMemoji = (agent) => {
   const selectedVoice = voicesList.find(
     (voice) => voice.voice_id === agent?.voiceId
   );
-  // //console.log;
+  console.log("Avatar got details", agent);
   if (selectedVoice && selectedVoice.img) {
+    console.log("showing the compared avatar")
     return (
       <div
         className="flex flex-row items-center justify-center"
@@ -340,9 +341,29 @@ const agentMemoji = (agent) => {
 
         />
       </div>
-
     )
+  } else {
+    console.log("showing the hard coated avatar")
+    return (
+      <div
+        className="flex flex-row items-center justify-center"
+        style={{
+          height: "40px",
+          width: "40px",
+          borderRadius: "50%",
+          backgroundColor: "white",
+        }}
+      >
+        <Image
+          src={"/assets/avatar1.png"}
+          height={40}
+          width={40}
+          alt="*"
+          className="rounded-full"
 
+        />
+      </div>
+    )
   }
 }
 
@@ -419,4 +440,26 @@ export function findLLMModel(value) {
   return model;
 }
 
-
+export function agentImage(agent) {
+  console.log("Agent passed is", agent)
+  let img = agent?.thumb_profile_image;
+  if (img) {
+    return (
+      <Image
+        className="rounded-full"
+        src={img}
+        height={40}
+        width={40}
+        style={{
+          height: "40px",
+          width: "40px",
+          resize: "cover",
+        }}
+        alt="*"
+      />
+    )
+  } else {
+    console.log("Passing to avatar")
+    return agentMemoji(agent)
+  }
+}
