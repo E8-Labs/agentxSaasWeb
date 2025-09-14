@@ -30,12 +30,43 @@ export default function CancelPlanAnimation({
     showModal,
     handleClose,
     userLocalData,
-    setShowSnak
+    setShowSnak,
+    isPaused,
 
 }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [direction, setDirection] = useState(0);
-  
+
+    useEffect(() => {
+        getCUrrentComponent()
+    }, [isPaused])
+
+    const getCUrrentComponent =async () => {
+
+        if (isPaused) {
+            if (
+                userLocalData?.isTrial === false &&
+                userLocalData?.cancelPlanRedemptions === 0
+            ) {
+                setDirection(1);
+                setCurrentIndex((prevIndex) => prevIndex + 1);
+            } else {
+                let data = await getDiscount()
+
+                console.log('data', data)
+                if (data?.discountOffer?.alreadyUsed === false) {
+                    setDirection(1);
+                    setCurrentIndex((prevIndex) => prevIndex + 2);
+                } else {
+                    setDirection(1);
+                    setCurrentIndex((prevIndex) => prevIndex + 3);
+                }
+
+
+            }
+        }
+    }
+
 
     const handleContinue = async (nextAction) => {
         console.log('currentIndex', currentIndex)
@@ -150,7 +181,7 @@ export default function CancelPlanAnimation({
                                             }}
                                         />
                                     </div>
-                                    <PauseSubscription handleContinue={handleContinue} setShowSnak = {setShowSnak}/>
+                                    <PauseSubscription handleContinue={handleContinue} setShowSnak={setShowSnak} />
                                 </div>
                             </motion.div>
                         )}
@@ -178,7 +209,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <ClaimGift
                                         handleContinue={handleContinue}
-                                        setShowSnak = {setShowSnak}
+                                        setShowSnak={setShowSnak}
                                     />
                                 </div>
                             </motion.div>
@@ -208,7 +239,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <ObtainOffer
                                         handleContinue={handleContinue}
-                                        setShowSnak = {setShowSnak}
+                                        setShowSnak={setShowSnak}
                                     />
                                 </div>
                             </motion.div>
@@ -268,7 +299,7 @@ export default function CancelPlanAnimation({
                                     </div>
                                     <CancelationFinalStep
                                         handleContinue={handleContinue}
-                                        setShowSnak = {setShowSnak}
+                                        setShowSnak={setShowSnak}
                                     />
 
                                 </div>

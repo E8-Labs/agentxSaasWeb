@@ -25,7 +25,7 @@ import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/Smart
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
 import PlansService from "@/utilities/PlansService";
-import { getUserPlans, initiateCancellation } from "../userPlans/UserPlanServices";
+import { getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation } from "../userPlans/UserPlanServices";
 import CloseBtn from "../globalExtras/CloseBtn";
 import PauseSubscription from "./cancelationFlow/PauseSubscription";
 import CancelPlanAnimation from "./cancelationFlow/CancelPlanAdnimation";
@@ -119,6 +119,9 @@ function NewBilling() {
 
     const [currentFullPlan, setCurrentFullPlan] = useState(null)
     const [toggleFullPlan, setToggleFullPlan] = useState(null)
+    const [isPaused, setIsPaused] = useState(false)
+    const [currentPlanOrder, setCurrentPlanOrder] = useState(null);
+
 
 
     useEffect(() => {
@@ -162,6 +165,14 @@ function NewBilling() {
             if (freePlan) {
                 quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
                 yearly.unshift({ ...freePlan, billingCycle: "yearly" });
+            }
+
+            const currentPlan = plansList.find(plan => plan.planId === currentFullPlan?.planId);
+
+
+            if (currentPlan) {
+                const planOrder = currentPlan.displayOrder;
+                setCurrentPlanOrder(planOrder);
             }
 
 
@@ -394,6 +405,7 @@ function NewBilling() {
                 let plan = response?.data?.data?.plan;
                 let togglePlan = plan?.planId;
                 setCurrentFullPlan(plan)
+                setIsPaused(plan.pauseExpiresAt != null ? true : false)
                 setToggleFullPlan(plan)
                 let planType = togglePlan;
                 // if (plan.status == "active") {
@@ -1188,7 +1200,7 @@ function NewBilling() {
                         >
                             <div className="flex flex-col items-start h-[26vh] justify-between">
                                 <div>
-                                    <div>
+                                    <div className="flex flex-row items-center w-full justify-between">
                                         {item.id === togglePlan ? (
                                             <Image
                                                 src={"/svgIcons/checkMark.svg"}
@@ -1204,6 +1216,21 @@ function NewBilling() {
                                                 alt="*"
                                             />
                                         )}
+
+                                        {
+                                            isPaused && item.id === currentPlan && (
+                                                <div
+                                                    className="mt-2 flex px-2 py-1 bg-purple rounded-full text-white"
+                                                    style={{
+                                                        fontSize: 11.6,
+                                                        fontWeight: "500",
+                                                        width: "fit-content",
+                                                    }}
+                                                >
+                                                    Paused
+                                                </div>
+                                            )
+                                        }
                                     </div>
 
                                     <div className="flex flex-row items-center justify-between w-[10vw] mt-2">
@@ -1252,25 +1279,27 @@ function NewBilling() {
             </div>
 
             <div className="w-full flex flex-row items-center justify-center gap-3 mt-8">
+                {
+                    currentFullPlan?.price ? (
+                        <div className="w-1/2">
+                            {
+                                cancelInitiateLoader ? (
+                                    <CircularProgress size={20} />
+                                ) : (
+                                    <button
+                                        className="w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border"
 
-                <div className="w-1/2">
-                    {
-                        cancelInitiateLoader ? (
-                            <CircularProgress size={20} />
-                        ) : (
-                            <button
-                                className="w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border"
+                                        onClick={() => {
+                                            handleCancelClick()
+                                        }}
+                                    >
+                                        Cancel Account
+                                    </button>
+                                )
+                            }
 
-                                onClick={() => {
-                                    handleCancelClick()
-                                }}
-                            >
-                                Cancel Account
-                            </button>
-                        )
-                    }
-
-                </div>
+                        </div>
+                    ) : ""}
                 {
                     currentPlan !== togglePlan && (
                         <div className="w-1/2">
@@ -1297,7 +1326,7 @@ function NewBilling() {
 
                                     }}
                                 >
-                                    {`${togglePlan >= currentPlan ? "Upgrade Plan" : "Downgrade Plan"} `}
+                                    {`${getTotalPrice(plan) >= currentFullPlan.price ? "Upgrade Plan" : "Downgrade Plan"} `}
                                 </button>
                             )}
                         </div>
@@ -1312,6 +1341,7 @@ function NewBilling() {
                 showConfirmationModal && (
                     <UpgradePlanConfirmation
                         plan={selectedPlan}
+                        currentFullPlan={currentFullPlan}
                         open={showConfirmationModal}
                         onClose={() => {
                             setShowConfirmationModal(false);
@@ -1329,6 +1359,7 @@ function NewBilling() {
                 handleClose={handleCloseCancelation}
                 userLocalData={userLocalData}
                 setShowSnak={setShowSnack}
+                isPaused={isPaused}
             />
 
 

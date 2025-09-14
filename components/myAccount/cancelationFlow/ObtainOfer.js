@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 import { Slider } from "@/components/ui/slider"
 import GradientSlider from '@/components/ui/GradientSlider';
+import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 
 const ObtainOffer = ({
@@ -123,7 +124,7 @@ const ObtainOffer = ({
                         }}
                     >
                         <div className='text-lg font-semibold mt-3'>
-                            How many minutes do you need?
+                            How many credits do you need?
                         </div>
                         <div className='mt-5'>
                             <GradientSlider

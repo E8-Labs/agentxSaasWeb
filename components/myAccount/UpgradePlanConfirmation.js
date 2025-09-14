@@ -10,13 +10,17 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Image from "next/image";
+import { getMonthlyPrice, getTotalPrice } from "../userPlans/UserPlanServices";
 
 export default function UpgradePlanConfirmation({
     plan,
     open,
     onClose,
     onConfirm,
+    currentFullPlan
 }) {
+
+    console.log('plan', plan)
 
 
     //get plan id for confirmation popup
@@ -56,7 +60,7 @@ export default function UpgradePlanConfirmation({
             {/* Modal Content */}
             <DialogContent>
 
-                <Typography sx={{ color: "#000", fontSize: "16px" ,fontWeight:500}}>
+                <Typography sx={{ color: "#000", fontSize: "16px", fontWeight: 500 }}>
                     {`The ${plan.name} plans only allows for x ai agents and x teams and x amount of contacts.
                     You’ll be billed separately for each extra agent and team seat. You’ll also lose access to the following features: `}
                 </Typography>
@@ -121,7 +125,7 @@ export default function UpgradePlanConfirmation({
                         width: "45%",
                     }}
                 >
-                    Downgrade
+                    {`${getTotalPrice(plan) >= currentFullPlan.price ? "Upgrade" : "Downgrade"} `}
                 </div>
             </DialogActions>
         </Dialog>

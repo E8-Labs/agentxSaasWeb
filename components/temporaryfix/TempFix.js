@@ -123,7 +123,7 @@ const TemFix = () => {
                         ]);
                     } else {
                         setComponents([
-                            CreateAgent1,
+                            // CreateAgent1,
                             // CreatAgent3,
                             // UserPlans,
                             CreateAgent4,

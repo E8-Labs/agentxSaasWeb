@@ -307,7 +307,7 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
                                 className={`flex flex-col items-center w-3/12 rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
                                 `}
-                                style={{ height: '900px' }}
+                                style={{}}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>

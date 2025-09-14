@@ -620,7 +620,7 @@ function Teams({
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {(myTeam?.length ? myTeam.length - 1 : 0)}/{(userLocalData?.plan?.features?.maxTeamMembers || 0)} used
+            {}/{(userLocalData?.plan?.features?.maxTeamMembers || 0)} used
           </div>
 
           <Tooltip
@@ -662,16 +662,16 @@ function Teams({
         <div className="flex flex-row items-center gap-2">
           <NotficationsDrawer />
         </div>
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            bottom: 0
-          }}>
-          <DashboardSlider
-            needHelp={false} />
-        </div>
 
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          right: 0,
+          bottom: 0
+        }}>
+        <DashboardSlider
+          needHelp={false} />
       </div>
 
       <div
@@ -927,7 +927,7 @@ function Teams({
                     }}
 
                     onClick={() => {
-                      if(!userLocalData?.plan.price ){
+                      if (!userLocalData?.plan.price) {
                         setShowUpgradeModal(true)
                         return
                       }

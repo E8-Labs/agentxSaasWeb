@@ -647,7 +647,6 @@ const UserAddCard = ({
                                             {referralMessage}
                                         </div>
                                     </div>
-                                    <div style={{ fontWeight: "600", fontSize: 15 }}>$372</div>
                                 </div>
                             </div>
                         )}

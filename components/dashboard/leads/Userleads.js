@@ -1658,7 +1658,12 @@ const Userleads = ({
             className="flex flex-row items-center justify-between w-full px-10 py-4 "
             style={{ borderBottom: "1px solid #15151510" }}
           >
-            <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
+            <div className="flex fex-row items-center gap-2">
+              <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
+              <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+                {(user?.currentUsage?.maxLeads)}/{(user?.plan?.features?.maxLeads || 0)} used
+              </div>
+            </div>
             <div className="flex fex-row items-center gap-6">
               <button
                 style={{

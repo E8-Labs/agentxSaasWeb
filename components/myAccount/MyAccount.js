@@ -32,14 +32,14 @@ function MyAccount() {
     {
       id: 2,
       heading: "Plans & Payment",
-      subHeading: "Manage your payment methods",
+      subHeading: "Manage your plans and payment method ",
       icon: "/otherAssets/walletIcon.png",
     },
     {
       id: 3,
       heading: "Billing",
-      subHeading: "Manage your billing",
-      icon: "/otherAssets/walletIcon.png",
+      subHeading: "Manage your billing transactions",
+      icon: "/otherAssets/billingIcon.png",
     },
     {
       id: 4,

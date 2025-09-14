@@ -5,7 +5,7 @@ import Image from 'next/image';
 import React, { useState } from 'react'
 
 
-function ClaimGift({ handleContinue,setShowSnak }) {
+function ClaimGift({ handleContinue, setShowSnak }) {
 
     const [claimLoader, setClaimLoader] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -62,7 +62,7 @@ function ClaimGift({ handleContinue,setShowSnak }) {
                     className="text-center text-xl font-semibold  w-full"
 
                 >
-                    {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
+                    {`Don’t Hang Up Yet! Get 30 AI Credits of Free Talk Time and Stay Connected!`}
                 </div>
             </div>
 
@@ -104,7 +104,7 @@ function ClaimGift({ handleContinue,setShowSnak }) {
                             marginBottom: 60
                         }}
                     >
-                        Mins
+                        AI Credits
                     </div>
 
                 </div>
@@ -137,7 +137,7 @@ function ClaimGift({ handleContinue,setShowSnak }) {
                         }}
                         onClick={handleClaimMins}
                     >
-                        Claim my 30 minutes
+                        Claim my 30 AI Credits
                     </button>
                 )}
 
