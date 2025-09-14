@@ -10,13 +10,16 @@ import { loadStripe } from "@stripe/stripe-js";
 import { PersistanceKeys } from '@/constants/Constants'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
 import UserAddCard from './UserAddCardModal'
+import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 
 
 
 
 function UpgradePlan({
     open,
-    handleClose
+    handleClose,
+    plan,
+    currentFullPlan
 }) {
 
     const stripeReact = useStripe();
@@ -91,6 +94,16 @@ function UpgradePlan({
     const referralRequestSeqRef = useRef(0);
 
     let haveCards = cards && cards.length > 0 ? true : false;
+
+    useEffect(() => {
+
+    }, [plan])
+
+    useEffect(() => {
+        console.log('selectedPlan', selectedPlan)
+        console.log('setCurrentUserPlan', currentUserPlan)
+    }
+        , [selectedPlan, currentFullPlan])
 
     useEffect(() => {
         if (!inviteCode || inviteCode.trim().length === 0) {
@@ -217,6 +230,11 @@ function UpgradePlan({
     useEffect(() => {
         const currentPlans = getCurrentPlans();
         if (currentPlans.length > 0 && selectedPlan) {
+            if (plan && currentFullPlan) {
+                setSelectedPlan(plan);
+                setTogglePlan(plan?.id);
+                setCurrentUserPlan(currentFullPlan);
+            }
             // Find the plan with the same name in the new billing cycle
             const matchingPlan = currentPlans.find(plan => plan.name === selectedPlan.name);
             if (matchingPlan) {
@@ -230,6 +248,8 @@ function UpgradePlan({
                 setSelectedPlanIndex(0);
                 setTogglePlan(currentPlans[0].id);
             }
+
+            
         }
     }, [selectedDuration]);
 

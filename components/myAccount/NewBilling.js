@@ -30,6 +30,7 @@ import CloseBtn from "../globalExtras/CloseBtn";
 import PauseSubscription from "./cancelationFlow/PauseSubscription";
 import CancelPlanAnimation from "./cancelationFlow/CancelPlanAdnimation";
 import { getBusinessProfile } from "@/apiservicescomponent/twilioapis/GetBusinessProfile";
+import UpgradePlan from "../userPlans/UpgradePlan";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -122,6 +123,8 @@ function NewBilling() {
     const [isPaused, setIsPaused] = useState(false)
     const [currentPlanOrder, setCurrentPlanOrder] = useState(null);
 
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
 
 
     useEffect(() => {
@@ -138,7 +141,7 @@ function NewBilling() {
     const getPlans = async () => {
         let plansList = await getUserPlans()
         if (plansList) {
-
+            setPlans(plansList)
             const monthly = [];
             const quarterly = [];
             const yearly = [];
@@ -166,16 +169,6 @@ function NewBilling() {
                 quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
                 yearly.unshift({ ...freePlan, billingCycle: "yearly" });
             }
-
-            const currentPlan = plansList.find(plan => plan.planId === currentFullPlan?.planId);
-
-
-            if (currentPlan) {
-                const planOrder = currentPlan.displayOrder;
-                setCurrentPlanOrder(planOrder);
-            }
-
-
             setMonthlyPlans(monthly);
             setQuaterlyPlans(quarterly);
             setYearlyPlans(yearly);
@@ -404,6 +397,13 @@ function NewBilling() {
             if (response) {
                 let plan = response?.data?.data?.plan;
                 let togglePlan = plan?.planId;
+                let planFromList = plans.find(plan => plan.id === togglePlan);
+
+                console.log('filtered current plan is', planFromList)
+                if (planFromList) {
+                    const planOrder = planFromList.displayOrder;
+                    setCurrentPlanOrder(planOrder);
+                }
                 setCurrentFullPlan(plan)
                 setIsPaused(plan.pauseExpiresAt != null ? true : false)
                 setToggleFullPlan(plan)
@@ -921,7 +921,12 @@ function NewBilling() {
         if (currentPlan && !selectedPlan.discountPrice) { // if user try to downgrade on free plan
             setShowCancelPoup(true)
         } else { //if(currentFullPlan?.discountPrice < !selectedPlan.discountPrice){
-            setShowConfirmationModal(true)
+
+            if (currentPlanOrder <= selectedPlan?.displayOrder) {
+                setShowUpgradeModal(true)
+            } else {
+                setShowConfirmationModal(true)
+            }
         }
     }
 
@@ -1326,7 +1331,7 @@ function NewBilling() {
 
                                     }}
                                 >
-                                    {`${getTotalPrice(selectedPlan) >= currentFullPlan.price ? "Upgrade Plan" : "Downgrade Plan"} `}
+                                    {`${selectedPlan?.displayOrder <= currentPlanOrder ? "Upgrade Plan" : "Downgrade Plan"} `}
                                 </button>
                             )}
                         </div>
@@ -1361,6 +1366,17 @@ function NewBilling() {
                 setShowSnak={setShowSnack}
                 isPaused={isPaused}
             />
+
+            <Elements stripe={stripePromise}>
+                <UpgradePlan
+                    open={showUpgradeModal}
+                    handleClose={() => {
+                        setShowUpgradeModal(false)
+                    }}
+                    plan={selectedPlan}
+                    currentFullPlan={currentFullPlan}
+                />
+            </Elements>
 
 
             {/* Add Payment Modal */}
@@ -1419,444 +1435,8 @@ function NewBilling() {
                 </Box>
             </Modal>
 
-            {/* Modal for Gift popup */}
-            <Modal
-                open={giftPopup}
-                // open={true}
-                closeAfterTransition
-                BackdropProps={{
-                    timeout: 100,
-                    sx: {
-                        backgroundColor: "#00000020",
-                        // //backdropFilter: "blur(20px)",
-                    },
-                }}
-            >
-                <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
-                    <div className="flex flex-row justify-center w-full h-[100%]">
-                        <div
-                            className="sm:w-7/12 w-full h-[70%]"
-                            style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                                paddingBottom: "20px",
-                            }}
-                        >
-                            <div className="flex flex-row justify-end">
-                                <button
-                                    className="outline-none"
-                                    onClick={() => setGiftPopup(false)}
-                                >
-                                    <Image
-                                        src={"/assets/crossIcon.png"}
-                                        height={40}
-                                        width={40}
-                                        alt="*"
-                                    />
-                                </button>
-                            </div>
 
-                            <div
-                                className="text-center text-purple"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 16.8,
-                                }}
-                            >
-                                {`Here’s a Gift`}
-                            </div>
 
-                            <div className="flex flex-row items-center justify-center w-full mt-6">
-                                <div
-                                    className="text-center  w-full"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize:
-                                            ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 24,
-                                        width: ScreenWidth > 1200 ? "70%" : "100%",
-                                        alignSelf: "center",
-                                    }}
-                                >
-                                    {`Don’t Hang Up Yet! Get 30 Minutes of Free Talk Time and Stay Connected!`}
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col items-center px-4 w-full">
-                                <div
-                                    className={`flex flex-row items-center gap-2 text-purple ${ScreenWidth < 1200 ? "mt-4" : "mt-6"
-                                        }bg-[#402FFF10] py-2 px-4 rounded-full`}
-                                    style={styles.gitTextStyle}
-                                >
-                                    <Image
-                                        src={"/svgIcons/gift.svg"}
-                                        height={
-                                            ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
-                                        }
-                                        width={
-                                            ScreenWidth < 1300 ? 19 : ScreenWidth <= 640 ? 16 : 22
-                                        }
-                                        alt="*"
-                                    />
-                                    Enjoy your next calls on us
-                                </div>
-                                <div className="w-full flex flex-row justify-center items-center mt-8">
-                                    <div style={{ position: "relative" }}>
-                                        <Image
-                                            src={"/svgIcons/giftIcon.svg"}
-                                            height={81}
-                                            width={81}
-                                            alt="*"
-                                            className="-mb-28 ms-4"
-                                            style={{
-                                                zIndex: 9999,
-                                                position: "relative",
-                                            }}
-                                        />
-                                        <div
-                                            className="text-purple"
-                                            style={{
-                                                fontSize: 200,
-                                                fontWeight: "400",
-                                                zIndex: 0,
-                                                position: "relative",
-                                            }}
-                                        >
-                                            30
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        style={{
-                                            fontSize: 40,
-                                            fontWeight: "700",
-                                        }}
-                                    >
-                                        Mins
-                                    </div>
-                                </div>
-                                {redeemLoader ? (
-                                    <div className="h-[50px] w-full flex flex-row items-center justify-center">
-                                        <CircularProgress size={30} />
-                                    </div>
-                                ) : (
-                                    <button
-                                        className="rounded-lg text-white bg-purple outline-none"
-                                        style={{
-                                            fontWeight: "700",
-                                            fontSize: "16",
-                                            height: "50px",
-                                            width: "340px",
-                                        }}
-                                        onClick={handleRedeemPlan}
-                                    >
-                                        Claim my 30 minutes
-                                    </button>
-                                )}
-                                <button
-                                    className="outline-none mt-6"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 16.8,
-                                    }}
-                                    onClick={() => {
-                                        setShowConfirmCancelPlanPopup(true);
-                                    }}
-                                >
-                                    {`No thank you, I’d like to cancel my Agentx`}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </Box>
-            </Modal>
-
-            {/* Modal for cancel plan confirmation */}
-            <Modal
-                open={showConfirmCancelPlanPopup} //addPaymentPopUp
-                // open={true}
-                closeAfterTransition
-                BackdropProps={{
-                    timeout: 100,
-                    sx: {
-                        backgroundColor: "#00000030",
-                        // //backdropFilter: "blur(20px)",
-                    },
-                }}
-            >
-                <Box
-                    className="md:8/12 lg:w-6/12 sm:w-11/12 w-full"
-                    sx={styles.paymentModal}
-                >
-                    <div className="flex flex-row justify-center w-full">
-                        <div
-                            className="sm:w-7/12 w-full"
-                            style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                                height: "394px",
-                            }}
-                        >
-                            <div className="flex flex-row justify-end">
-                                <button onClick={() => setShowConfirmCancelPlanPopup(false)}>
-                                    <Image
-                                        src={"/assets/crossIcon.png"}
-                                        height={40}
-                                        width={40}
-                                        alt="*"
-                                    />
-                                </button>
-                            </div>
-                            <div
-                                className="text-center mt-8"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 22,
-                                }}
-                            >
-                                Are you sure ?
-                            </div>
-
-                            <div className="flex flex-row items-center justify-center w-full mt-6">
-                                <div
-                                    className="text-center"
-                                    style={{
-                                        fontWeight: "500",
-                                        fontSize: 15,
-                                        width: "70%",
-                                        alignSelf: "center",
-                                    }}
-                                >
-                                    Canceling your AgentX means you lose access to your agents,
-                                    leads, pipeline, staff and more.
-                                </div>
-                            </div>
-
-                            <button
-                                className="w-full flex flex-row items-center h-[50px] rounded-lg bg-purple text-white justify-center mt-10"
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 16.8,
-                                    outline: "none",
-                                }}
-                            >
-                                Never mind, keep my AgentX
-                            </button>
-
-                            {cancelPlanLoader ? (
-                                <div className="w-full flex flex-row items-center justify-center mt-8">
-                                    <CircularProgress size={30} />
-                                </div>
-                            ) : (
-                                <button
-                                    className="w-full flex flex-row items-center rounded-lg justify-center mt-8"
-                                    style={{
-                                        fontWeight: "600",
-                                        fontSize: 16.8,
-                                        outline: "none",
-                                    }}
-                                    onClick={handleCancelPlan}
-                                // onClick={() => { setShowConfirmCancelPlanPopup2(true) }}
-                                >
-                                    Yes. Cancel
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </Box>
-            </Modal>
-
-            {/* del pln last step */}
-            <Modal
-                open={showConfirmCancelPlanPopup2} //showConfirmCancelPlanPopup2
-                // open={true}
-                closeAfterTransition
-                BackdropProps={{
-                    timeout: 100,
-                    sx: {
-                        backgroundColor: "#00000030",
-                        // //backdropFilter: "blur(20px)",
-                    },
-                }}
-            >
-                <Box
-                    className="md:9/12 lg:w-7/12 sm:w-10/12 w-full"
-                    sx={styles.paymentModal}
-                >
-                    <div className="flex flex-row justify-center w-full">
-                        <div
-                            className="sm:w-7/12 w-full"
-                            style={{
-                                backgroundColor: "#ffffff",
-                                padding: 20,
-                                borderRadius: "13px",
-                                // height: "394px"
-                            }}
-                        >
-                            <div className="flex flex-row justify-between items-center">
-                                <div
-                                    style={{
-                                        fontSize: 16.8,
-                                        fontWeight: "500",
-                                        paddingLeft: "12px",
-                                    }}
-                                >
-                                    Cancel Plan
-                                </div>
-                                <button onClick={() => setShowConfirmCancelPlanPopup2(false)}>
-                                    <Image
-                                        src={"/assets/crossIcon.png"}
-                                        height={40}
-                                        width={40}
-                                        alt="*"
-                                    />
-                                </button>
-                            </div>
-
-                            <div className="flex flex-row items-center justify-center">
-                                <Image
-                                    src={"/svgIcons/warning2.svg"}
-                                    height={49}
-                                    width={49}
-                                    alt="*"
-                                />
-                            </div>
-
-                            <div
-                                style={{
-                                    fontWeight: "600",
-                                    fontSize: 22,
-                                    textAlign: "center",
-                                    marginTop: 10,
-                                }}
-                            >
-                                AgentX Successfully Canceled
-                            </div>
-
-                            <div
-                                style={{
-                                    fontWeight: "500",
-                                    fontSize: 16,
-                                    textAlign: "center",
-                                    marginTop: 30,
-                                }}
-                            >
-                                {`Tell us why you’re canceling to better improve our platform for you.`}
-                            </div>
-
-                            <div className="w-full flex flex-row items-center justify-center">
-                                <div className="mt-9 w-10/12">
-                                    {cancelPlanReasons.map((item, index) => (
-                                        <button
-                                            onClick={() => {
-                                                handleSelectReason(item);
-                                            }}
-                                            key={index}
-                                            style={{
-                                                fontWeight: "500",
-                                                fontSize: 15,
-                                                textAlign: "start",
-                                                marginTop: 6,
-                                            }}
-                                            className="flex flex-row items-center gap-2"
-                                        >
-                                            <div
-
-                                                className="rounded-full flex flex-row items-center justify-center"
-                                                style={{
-                                                    border:
-                                                        item.reason === selectReason
-                                                            ? "2px solid #7902DF"
-                                                            : "2px solid #15151510",
-                                                    // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
-                                                    // margin: item.reason === selectReason && "5px",
-                                                    height: "20px",
-                                                    width: "20px",
-                                                }}
-                                            >
-                                                <div
-                                                    className="w-full h-full rounded-full"
-                                                    style={{
-                                                        backgroundColor:
-                                                            item.reason === selectReason && "#7902DF",
-                                                        height: "12px",
-                                                        width: "12px",
-                                                    }}
-                                                />
-                                            </div>
-                                            <div>{item.reason}</div>
-                                        </button>
-                                    ))}
-                                    {showOtherReasonInput && (
-                                        <div className="w-full mt-4">
-                                            <TextField
-                                                inputRef={textFieldRef}
-                                                placeholder="Type here"
-                                                className="focus:ring-0 outline-none"
-                                                variant="outlined"
-                                                fullWidth
-                                                multiline
-                                                minRows={4}
-                                                maxRows={5}
-                                                sx={{
-                                                    "& .MuiOutlinedInput-root": {
-                                                        "& fieldset": {
-                                                            border: "1px solid #00000010", // Normal border
-                                                        },
-                                                        "&:hover fieldset": {
-                                                            border: "1px solid #00000010", // Hover border
-                                                        },
-                                                        "&.Mui-focused fieldset": {
-                                                            border: "none", // Remove border on focus
-                                                        },
-                                                    },
-                                                    "& .MuiOutlinedInput-notchedOutline": {
-                                                        border: "none", // Additional safety to remove outline
-                                                    },
-                                                    "& .Mui-focused": {
-                                                        outline: "none", // Remove focus outline
-                                                    },
-                                                }}
-                                                value={otherReasonInput}
-                                                onChange={(e) => {
-                                                    setOtherReasonInput(e.target.value);
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                    {cancelReasonLoader ? (
-                                        <div className="flex flex-row items-center justify-center mt-10">
-                                            <CircularProgress size={35} />
-                                        </div>
-                                    ) : (
-                                        <button
-                                            className="w-full flex flex-row items-center h-[50px] rounded-lg text-white justify-center mt-10"
-                                            style={{
-                                                fontWeight: "600",
-                                                fontSize: 16.8,
-                                                outline: "none",
-                                                backgroundColor: (selectReason && (selectReason !== "Others" || otherReasonInput))
-                                                    ? "#7902df"
-                                                    : "#00000050",
-                                                color: selectReason && (selectReason !== "Others" || otherReasonInput)
-                                                    ? "#ffffff"
-                                                    : "#000000",
-                                            }}
-                                            onClick={() => {
-                                                handleDelReason();
-                                            }}
-                                            disabled={!selectReason && (selectReason !== "Others" || otherReasonInput)}
-                                        >
-                                            Continue
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Box>
-            </Modal>
         </div>
     );
 }
@@ -1870,7 +1450,7 @@ const styles = {
     text2: {
         textAlignLast: "left",
         fontSize: 15,
-        color: "#000000",
+        color: "rgba(0, 0, 0, 1)",
         fontWeight: 500,
         whiteSpace: "nowrap", // Prevent text from wrapping
         overflow: "hidden", // Hide overflow text

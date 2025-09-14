@@ -125,7 +125,8 @@ export default function UpgradePlanConfirmation({
                         width: "45%",
                     }}
                 >
-                    {`${getTotalPrice(plan) >= currentFullPlan.price ? "Upgrade" : "Downgrade"} `}
+                    {`${currentPlanOrder <= selectedPlan?.displayOrder ? "Upgrade" : "Downgrade"} `}
+
                 </div>
             </DialogActions>
         </Dialog>
