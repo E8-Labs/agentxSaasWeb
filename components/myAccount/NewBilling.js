@@ -1326,7 +1326,7 @@ function NewBilling() {
 
                                     }}
                                 >
-                                    {`${getTotalPrice(plan) >= currentFullPlan.price ? "Upgrade Plan" : "Downgrade Plan"} `}
+                                    {`${getTotalPrice(selectedPlan) >= currentFullPlan.price ? "Upgrade Plan" : "Downgrade Plan"} `}
                                 </button>
                             )}
                         </div>
