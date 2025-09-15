@@ -30,7 +30,7 @@ class SocketService {
     this.isConnected = false;
     this.isConnecting = false;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
+    this.maxReconnectAttempts = 0;
     this.reconnectDelay = 1000; // 1 second initial delay
   }
 
@@ -74,40 +74,10 @@ class SocketService {
     return userData?.token || null;
   }
 
-  // Connect to socket server
+  // Connect to socket server (DISABLED)
   connect() {
-    if (this.isConnecting || this.isConnected) {
-      return;
-    }
-
-    const userData = this.getUserData();
-    if (!userData?.token) {
-      console.warn('🔌 Cannot connect to socket: No auth token found');
-      return;
-    }
-
-    this.isConnecting = true;
-    console.log('🔌 Connecting to socket server...', `User ID: ${userData.userId}`);
-
-    try {
-      this.socket = io(this.getServerUrl(), {
-        auth: {
-          token: userData.token,
-          userId: userData.userId,
-          userEmail: userData.userEmail
-        },
-        autoConnect: true,
-        reconnection: true,
-        reconnectionAttempts: this.maxReconnectAttempts,
-        reconnectionDelay: this.reconnectDelay,
-        timeout: 10000
-      });
-
-      this.setupEventListeners();
-    } catch (error) {
-      console.error('🔌 Socket connection error:', error);
-      this.isConnecting = false;
-    }
+    console.log('🔌 Socket connection disabled');
+    return;
   }
 
   // Setup socket event listeners
