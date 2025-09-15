@@ -119,7 +119,7 @@ export const copyAgencyOnboardingLink = ({
   const d = localStorage.getItem("User");
   const BasePath =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-      ? "https://ai.myagentx.com/" //"https://www.blindcircle.com/agentx/"
+      ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
       : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
   // console.log("Agency uuid link copied check 2", d)
   if (d) {

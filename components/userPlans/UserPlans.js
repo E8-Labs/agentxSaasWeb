@@ -130,12 +130,17 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
     const getPlans = async () => {
         let plansList = await getUserPlans()
         if (plansList) {
+            // Filter features in each plan to only show features where thumb = false
+            const filteredPlans = plansList.map(plan => ({
+                ...plan,
+                features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
+            }));
 
             const monthly = [];
             const quarterly = [];
             const yearly = [];
             let freePlan = null;
-            plansList.forEach(plan => {
+            filteredPlans.forEach(plan => {
                 switch (plan.billingCycle) {
                     case "monthly":
                         monthly.push(plan);
