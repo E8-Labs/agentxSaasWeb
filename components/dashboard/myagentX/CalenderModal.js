@@ -228,7 +228,7 @@ function CalendarModal(props) {
         "locations.readonly",
         "locations/customFields.readonly",
       ].join(" ");
-
+    console.log("GHL Check 1");
     const params = new URLSearchParams({
       response_type: "code",
       client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
@@ -237,24 +237,25 @@ function CalendarModal(props) {
       // keep auth in the same popup window
       loginWindowOpenMode: "self",
     });
-
+    console.log("GHL Check 2");
     const authUrl =
       "https://marketplace.gohighlevel.com/oauth/chooselocation?" + params.toString();
-
+    console.log("GHL Check 3");
     // Open a centered popup
     const w = 520;
     const h = 650;
     const y = window.top.outerHeight / 2 + window.top.screenY - h / 2;
     const x = window.top.outerWidth / 2 + window.top.screenX - w / 2;
-
+    console.log("GHL Check 4");
     popupRef.current = window.open(
       authUrl,
       "ghl_oauth",
       `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`
     );
-
+    console.log("GHL Check 5");
     if (!popupRef.current) {
       // Popup blocked → fallback to full redirect
+      console.log("GHL Check 6");
       window.location.href = authUrl;
     } else {
       setStatus("Waiting for authorization...");
@@ -929,7 +930,7 @@ function CalendarModal(props) {
                             className="w-full"
                             value={item}
                             key={index}
-                            // disabled={item?.isActive === false}
+                          // disabled={item?.isActive === false}
                           >
                             <button onClick={() => { }}>{item.name}</button>
                           </MenuItem>
