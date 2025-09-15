@@ -213,7 +213,9 @@ function CalendarModal(props) {
   //ghl calendar popup click
   const startGHLAuthPopup = useCallback(() => {
     const currentPath = window.location.origin + window.location.pathname;
+    let p = currentPath + "Hamza";
     console.log("Path to redirect is", currentPath)
+    console.log("Testing the P", p);
     // Build scopes as a space-separated string
     const scope =
       (process.env.NEXT_PUBLIC_GHL_SCOPE || "").trim() ||
@@ -229,8 +231,8 @@ function CalendarModal(props) {
 
     const params = new URLSearchParams({
       response_type: "code",
-      client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID ?? "",
-      redirect_uri: currentPath ?? "",//process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
+      client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
+      redirect_uri: currentPath,//process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
       scope,
       // keep auth in the same popup window
       loginWindowOpenMode: "self",

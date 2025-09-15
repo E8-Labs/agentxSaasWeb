@@ -90,6 +90,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
+    console.log("Trigered the Exchange token file");
     const { searchParams } = new URL(req.url);
     const redirectUri = searchParams.get("redirect_uri") ?? "";//process.env.NEXT_PUBLIC_GHL_REDIRECT_URI
     console.log("Redirect url of GHL calendar is", redirectUri);
