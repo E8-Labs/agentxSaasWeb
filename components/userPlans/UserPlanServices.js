@@ -2,6 +2,26 @@ import axios from "axios"
 import { AuthToken } from "../agency/plan/AuthDetails"
 import Apis from "../apis/Apis"
 
+
+export const downgradeToStarterFeatures = [
+    "10 AI Agents",
+    "GHL Subaccount & Snapshots",
+    "10,000 Contacts",
+    "Priority Support ",
+    "Ultra Priority Calling",
+    "4 Team Seats",
+    "Zoom Support Webinar",
+    "450 AI Credits",
+]
+
+export const downgradeToGrowthFeatures = [
+    "Unlimited Agents",
+    "1000 AI Credits",
+    "Unlimited Contacts",
+    "Success Manager",
+    "Unlimited Team Seats",
+]
+
 export const getUserPlans = async () => {
     try {
         let token = AuthToken()

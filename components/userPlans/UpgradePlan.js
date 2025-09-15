@@ -668,7 +668,7 @@ function UpgradePlan({
                                     >
 
                                         {
-                                            cards.length === 0 ? (
+                                            cards.length === 0  || showAddCard ? (
                                                 <div className='w-full flex flex-col gap-2 mt-2'>
                                                     <div className='text-xl font-semibold'>
                                                         Add Payment Details
@@ -874,7 +874,9 @@ function UpgradePlan({
                                                             h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold
                                                             '
                                                                 disabled={!(CardAdded && CardExpiry && CVC) || addCardLoader}
-                                                                onClick={handleAddCard}
+                                                                onClick={()=>{
+                                                                    setShowAddCard(true)
+                                                                }}
                                                             >
                                                                 Add Payment
                                                             </button>
@@ -1108,7 +1110,7 @@ function UpgradePlan({
                         </div>
 
                         <Modal
-                            open={showAddCard}
+                            open={false}
                             // open={true}
                             closeAfterTransition
                             BackdropProps={{

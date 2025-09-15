@@ -17,7 +17,8 @@ export default function UpgradePlanConfirmation({
     open,
     onClose,
     onConfirm,
-    currentFullPlan
+    currentFullPlan,
+    currentPlanOrder
 }) {
 
     console.log('plan', plan)
@@ -125,7 +126,7 @@ export default function UpgradePlanConfirmation({
                         width: "45%",
                     }}
                 >
-                    {`${currentPlanOrder <= selectedPlan?.displayOrder ? "Upgrade" : "Downgrade"} `}
+                    {`${currentPlanOrder <= plan?.displayOrder ? "Upgrade" : "Downgrade"} `}
 
                 </div>
             </DialogActions>

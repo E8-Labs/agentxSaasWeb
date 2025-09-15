@@ -25,12 +25,15 @@ import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/Smart
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
 import PlansService from "@/utilities/PlansService";
-import { getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation } from "../userPlans/UserPlanServices";
+import { downgradeToGrowthFeatures, downgradeToStarterFeatures, getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation } from "../userPlans/UserPlanServices";
 import CloseBtn from "../globalExtras/CloseBtn";
 import PauseSubscription from "./cancelationFlow/PauseSubscription";
 import CancelPlanAnimation from "./cancelationFlow/CancelPlanAdnimation";
 import { getBusinessProfile } from "@/apiservicescomponent/twilioapis/GetBusinessProfile";
 import UpgradePlan from "../userPlans/UpgradePlan";
+import { getUserLocalData } from "../constants/constants";
+import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import DowngradePlanPopup from "./cancelationFlow/DowngradePlanPopup";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -124,7 +127,21 @@ function NewBilling() {
     const [currentPlanOrder, setCurrentPlanOrder] = useState(null);
 
     const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+    const [showDowngradeModal, setShowDowngradeModal] = useState(false)
+    const [downgradeTitle, setDowngradeTitle] = useState("")
+    const [downgradeFeatures, setDowngradeFeatures] = useState([])
 
+
+    useEffect(() => {
+        const d = localStorage.getItem("User");
+        if (d) {
+            const Data = JSON.parse(d);
+            console.log("Smart refill is", Data.user.smartRefill);
+            setAllowSmartRefill(Data.user.smartRefill);
+        }
+        getProfile();
+        getCardsList();
+    }, []);
 
 
     useEffect(() => {
@@ -138,16 +155,32 @@ function NewBilling() {
     }, []);
 
 
+
     const getPlans = async () => {
         let plansList = await getUserPlans()
+        let userData = getUserLocalData()
         if (plansList) {
             // Filter features in each plan to only show features where thumb = true
             const filteredPlans = plansList.map(plan => ({
                 ...plan,
                 features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
             }));
-            
+
             setPlans(filteredPlans)
+
+            console.log('filteredPlans', filteredPlans)
+
+            let currentPlan = userData?.user?.plan?.planId;
+
+            console.log('currentPlan for filter', currentPlan)
+
+            let planFromList = filteredPlans.find(plan => plan.id === currentPlan);
+
+            console.log('filtered current plan is', planFromList)
+            if (planFromList) {
+                const planOrder = planFromList.displayOrder;
+                setCurrentPlanOrder(planOrder);
+            }
             const monthly = [];
             const quarterly = [];
             const yearly = [];
@@ -324,18 +357,6 @@ function NewBilling() {
             reason: "Others",
         },
     ];
-
-    useEffect(() => {
-        const d = localStorage.getItem("User");
-        if (d) {
-            const Data = JSON.parse(d);
-            console.log("Smart refill is", Data.user.smartRefill);
-            setAllowSmartRefill(Data.user.smartRefill);
-        }
-        getProfile();
-        getCardsList();
-    }, []);
-
     // Auto-select billing cycle and plan based on current user plan
     useEffect(() => {
         console.log('Auto-select useEffect triggered');
@@ -403,13 +424,7 @@ function NewBilling() {
             if (response) {
                 let plan = response?.data?.data?.plan;
                 let togglePlan = plan?.planId;
-                let planFromList = plans.find(plan => plan.id === togglePlan);
 
-                console.log('filtered current plan is', planFromList)
-                if (planFromList) {
-                    const planOrder = planFromList.displayOrder;
-                    setCurrentPlanOrder(planOrder);
-                }
                 setCurrentFullPlan(plan)
                 setIsPaused(plan.pauseExpiresAt != null ? true : false)
                 setToggleFullPlan(plan)
@@ -553,7 +568,7 @@ function NewBilling() {
         setTogglePlan(item.id);
         setToggleFullPlan(item)
 
-        setSelectedPlan((prevId) => (prevId === item ? null : item));
+        setSelectedPlan(item)
         // setTogglePlan(prevId => (prevId === id ? null : id));
     };
 
@@ -931,18 +946,30 @@ function NewBilling() {
             if (currentPlanOrder <= selectedPlan?.displayOrder) {
                 setShowUpgradeModal(true)
             } else {
-                setShowConfirmationModal(true)
+                setShowDowngradeModal(true)
+               if(selectedPlan?.name == "Growth"){
+                    setDowngradeTitle("Confirm Growth Plan")
+                    setDowngradeFeatures(downgradeToGrowthFeatures)
+               }else if(selectedPlan?.name === "Starter"){
+                    setDowngradeTitle("Confirm Starter Plan")
+                    setDowngradeFeatures(downgradeToStarterFeatures)
+               }else{
+                console.log('no condition matched')
+                setShowCancelPoup(true)
+               }
+
             }
         }
     }
 
     return (
         <div
-            className="w-[95%] flex flex-col items-start pl-8 py-2 h-screen overflow-hidden"
+            className="w-[95%] flex flex-col items-start pl-8 py-2 overflow-auto"
             style={{
                 paddingBottom: "50px",
                 scrollbarWidth: "none", // For Firefox
                 WebkitOverflowScrolling: "touch",
+                scrollbarWidth: 'none'
             }}
         >
             <AgentSelectSnackMessage
@@ -1262,19 +1289,19 @@ function NewBilling() {
                                     <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
                                         {item.details}
                                     </div>
-                                    
+
                                     {/* Features section - only show features with thumb = true */}
                                     {item.features && item.features.length > 0 && (
                                         <div className="mt-6 flex-1">
                                             <div className="flex flex-col gap-3">
                                                 {item.features.map((feature, featureIndex) => (
                                                     <div key={featureIndex} className="flex flex-row items-start gap-1">
-                                                        <Image 
-                                                            src="/svgIcons/selectedTickBtn.svg" 
-                                                            height={16} 
-                                                            width={16} 
-                                                            alt="✓" 
-                                                            className="mt-0.5 flex-shrink-0" 
+                                                        <Image
+                                                            src="/svgIcons/selectedTickBtn.svg"
+                                                            height={16}
+                                                            width={16}
+                                                            alt="✓"
+                                                            className="mt-0.5 flex-shrink-0"
                                                         />
                                                         <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
                                                             {feature.text}
@@ -1353,7 +1380,8 @@ function NewBilling() {
 
                                     }}
                                 >
-                                    {`${selectedPlan?.displayOrder <= currentPlanOrder ? "Upgrade Plan" : "Downgrade Plan"} `}
+                                    {`${selectedPlan?.displayOrder >= currentPlanOrder ? "Upgrade Plan" : "Downgrade Plan"} `}
+                                     {/* {selectedPlan?.displayOrder || "null"} {currentPlanOrder || "null"} */}
                                 </button>
                             )}
                         </div>
@@ -1363,23 +1391,15 @@ function NewBilling() {
 
             </div>
 
-            {/* Code for Confirmation poup */}
-            {
-                showConfirmationModal && (
-                    <UpgradePlanConfirmation
-                        plan={selectedPlan}
-                        currentFullPlan={currentFullPlan}
-                        open={showConfirmationModal}
-                        onClose={() => {
-                            setShowConfirmationModal(false);
-                        }}
-                        onConfirm={() => {
-                            handleSubscribePlan();
-                            setTimeout(() => setShowConfirmationModal(false), 0);
-                        }}
-                    />
-                )
-            }
+           <DowngradePlanPopup 
+                open={showDowngradeModal}
+                handleClose={() => setShowDowngradeModal(false)}
+                onConfirm={() => {
+                    handleSubscribePlan()
+                }}
+                downgradeTitle={downgradeTitle}
+                features={downgradeFeatures}
+           />
 
             <CancelPlanAnimation
                 showModal={showCancelPopup}
