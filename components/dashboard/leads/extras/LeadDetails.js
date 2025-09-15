@@ -55,7 +55,7 @@ import DeleteCallLogConfimation from "./DeleteCallLogConfimation";
 // import EmailTempletePopup from "../../pipeline/EmailTempletePopup";
 import EmailTempletePopup from "@/components/pipeline/EmailTempletePopup";
 import SMSTempletePopup from "@/components/pipeline/SMSTempletePopup";
-import { getA2PNumbers } from "@/components/pipeline/TempleteServices";
+import { getA2PNumbers, getGmailAccounts } from "@/components/pipeline/TempleteServices";
 import { UpgradeTag } from "@/components/constants/constants";
 
 const LeadDetails = ({
@@ -164,6 +164,8 @@ const LeadDetails = ({
   const [phoneNumbers, setPhoneNumbers] = useState([]);
   const [phoneLoading, setPhoneLoading] = useState(false);
   const [sendSMSLoader, setSendSMSLoader] = useState(false);
+
+  const [googleAccounts, setGoogleAccounts] = useState([])
 
   useEffect(() => {
     const getData = async () => {
@@ -782,6 +784,17 @@ const LeadDetails = ({
     },
   };
 
+  useEffect(() => {
+    getGoogleAccounts()
+  }, [])
+
+  const getGoogleAccounts = async () => {
+    let accounts = await getGmailAccounts()
+    setGoogleAccounts(accounts)
+    setSelectedGoogleAccount(accounts[0] || null)
+
+  }
+
   function getExtraColumsCount(columns) {
     // //console.log
     let count = 0;
@@ -951,6 +964,7 @@ const LeadDetails = ({
   const sendEmailToLead = async (emailData) => {
     try {
       console.log('Sending email to lead', emailData)
+      console.log('selectedGoogleAccount', selectedGoogleAccount)
       setSendEmailLoader(true);
 
       const localData = localStorage.getItem("User");
@@ -962,10 +976,11 @@ const LeadDetails = ({
       const formData = new FormData();
 
       // Add required fields
-      formData.append('leadEmail', selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email || '');
+      formData.append('leadId', selectedLeadsDetails?.id)
       formData.append('subject', emailData.subject || '');
       formData.append('content', emailData.content || '');
       formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []));
+      formData.append('emailAccountId', JSON.stringify(selectedGoogleAccount.id || []));
 
       // Add attachments if any
       if (emailData.attachments && emailData.attachments.length > 0) {

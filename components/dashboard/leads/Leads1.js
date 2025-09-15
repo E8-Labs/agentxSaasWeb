@@ -27,7 +27,7 @@ import TagsInput from "./TagsInput";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "./AgentSelectSnackMessage";
-import { SnackMessageTitles } from "@/components/constants/constants";
+import { getUserLocalData, SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
@@ -123,6 +123,15 @@ const Leads1 = () => {
   const [currentBatch, setCurrentBatch] = useState(0);
   const [totalBatches, setTotalBatches] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [user, setUser] = useState(null); 
+
+  useEffect(()=>{
+    let data = getUserLocalData()
+    if(data){
+      setUser(data.user)
+    }
+  },[])
 
 
   // //test code
@@ -965,6 +974,9 @@ const Leads1 = () => {
             </div>
           ) : (
             <div className="h-screen">
+              <div className = "p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+                {(user?.currentUsage?.maxLeads)}/{(user?.plan?.features?.maxLeads || 0)} used
+              </div>
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}
@@ -1831,7 +1843,7 @@ const Leads1 = () => {
         <Modal
           open={addNewLeadModal}
           // Prevent closing on backdrop click and escape key
-          onClose={() => {}}
+          onClose={() => { }}
           closeAfterTransition
           disableEscapeKeyDown
           BackdropProps={{

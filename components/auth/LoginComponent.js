@@ -24,6 +24,7 @@ import {
   getLocation,
 } from "@/components/onboarding/services/apisServices/ApiService";
 import Link from "next/link";
+import getProfileDetails from "../apis/GetProfile";
 // import { useRouter, useSearchParams } from "next/navigation";
 
 const LoginComponent = ({ length = 6, onComplete }) => {
@@ -100,6 +101,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     const localData = localStorage.getItem("User");
     if (localData) {
       let d = JSON.parse(localData);
+      getProfileDetails()
       // //console.log;
 
       // set user type in global variable

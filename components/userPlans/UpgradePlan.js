@@ -624,7 +624,7 @@ function UpgradePlanContent({
             if (result2.status) {
                 setAddCardSuccess(true);
                 if (!togglePlan) handleClose(result);
-                if (togglePlan) handleSubscribePlan();
+                if (togglePlan) setShowAddCard(false);
             } else {
                 setAddCardFailure(true);
                 setAddCardErrtxt(result2.message);
@@ -905,7 +905,7 @@ function UpgradePlanContent({
                                                 ) : (
 
                                                     <div className='flex flex-col gap-2 mt-2 items-center w-full' >
-                                                        <div className='text-xl font-semibold flex flex-row items-center justify-between'>
+                                                        <div className='text-xl font-semibold flex flex-row items-start justify-between'>
                                                             Payment
                                                         </div>
                                                         {cards.map((item) => (

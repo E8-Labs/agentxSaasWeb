@@ -644,6 +644,7 @@ function NewBilling() {
                     }
                     // localStorage.setItem("User", JSON.stringify(localDetails));
                     setSuccessSnack("Your plan successfully updated");
+                    getProfileDetails()
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
                 }

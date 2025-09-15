@@ -2618,7 +2618,7 @@ function Page() {
 
 
           <Tooltip
-            title="Additional agents are $20/month each."
+            title={`Additional agents are $${user?.user?.planCapabilities.costPerAdditionalAgent}/month each.`}
             arrow
             componentsProps={{
               tooltip: {
