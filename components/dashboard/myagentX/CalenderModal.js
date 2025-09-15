@@ -207,7 +207,7 @@ function CalendarModal(props) {
       // GHL_CLIENT_SECRET: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
       // GHL_REDIRECT_URI: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
     }
-    // console.log("GHL ENV variables are", ghlVariables)
+    console.log("GHL ENV variables are", ghlVariables)
   }
 
   //ghl calendar popup click
