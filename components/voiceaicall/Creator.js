@@ -10,6 +10,7 @@ import {
   Alert,
   Slide,
   Fade,
+  CircularProgress,
 } from "@mui/material";
 import {
   notFound,
@@ -431,26 +432,24 @@ const Creator = ({ agentId, name }) => {
             top: 25
           }}
         >
-          {
-            profileLoader ? (
-              <div>
-                Fetching data..
-              </div>
-            ) : (
-              <div
-                className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none"
-              >
+          <div
+            className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none"
+          >
+            {
+              profileLoader ? (
+                <CircularProgress size={15} />
+              ) : (
                 <div>
                   {agentImage(agentDetails?.data?.data?.agent)}
                 </div>
-                <div style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
-                  {/*agentDetails?.data?.data?.agent?.name*/}
-                  {agentDetails?.data?.data?.agent?.name &&
-                    agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1).toLowerCase()}
-                </div>
-              </div>
-            )
-          }
+              )
+            }
+            <div style={{ fontSize: "17px", fontWeight: "500", color: "black" }}>
+              {/*agentDetails?.data?.data?.agent?.name*/}
+              {agentDetails?.data?.data?.agent?.name &&
+                agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() + agentDetails?.data?.data?.agent?.name.slice(1).toLowerCase()}
+            </div>
+          </div>
         </div>
 
         {/* Bottom button */}

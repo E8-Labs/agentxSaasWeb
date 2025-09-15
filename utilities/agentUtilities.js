@@ -441,7 +441,7 @@ export function findLLMModel(value) {
 }
 
 export function agentImage(agent) {
-  console.log("Agent passed is", agent)
+  console.log("Agent passed is", agent?.thumb_profile_image)
   let img = agent?.thumb_profile_image;
   if (img) {
     return (

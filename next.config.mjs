@@ -28,7 +28,8 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "api.myagentx.com",
+        hostname: "apimyagentx.com",
+        pathname: "/agentxtest/uploads/**",
       },
     ],
   },
@@ -48,11 +49,11 @@ const isSentryEnabled = !!process.env.SENTRY_AUTH_TOKEN;
 
 export default isSentryEnabled
   ? withSentryConfig(nextConfig, {
-      org: "e8labs",
-      project: "javascript-nextjs",
-      silent: !process.env.CI,
-      widenClientFileUpload: true,
-      disableLogger: true,
-      automaticVercelMonitors: true,
-    })
+    org: "e8labs",
+    project: "javascript-nextjs",
+    silent: !process.env.CI,
+    widenClientFileUpload: true,
+    disableLogger: true,
+    automaticVercelMonitors: true,
+  })
   : nextConfig;
