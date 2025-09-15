@@ -120,4 +120,7 @@ export function secondsToMinsConverter(seconds) {
   return roundedMinutes;
 }
 
-
+function normalizeRedirectUri(uri) {
+  if (!uri) return "";
+  return uri.endsWith("/") ? uri : uri + "/";
+}
