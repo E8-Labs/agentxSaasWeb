@@ -95,6 +95,7 @@ export async function GET(req) {
     console.log("Redirect url of GHL calendar is", redirectUri);
     const code = searchParams.get("code");
     if (!code) return NextResponse.json({ error: "Missing code" }, { status: 400 });
+    if (!redirectUri) return NextResponse.json({ error: "Missing redirect url" }, { status: 400 });
 
     const body = new URLSearchParams({
         grant_type: "authorization_code",
@@ -112,6 +113,8 @@ export async function GET(req) {
     });
 
     const json = await r.json();
+    console.log("R of GHL Auth api in json is", json)
+    console.log("R of GHL Auth api simple is", r)
     if (!r.ok) return NextResponse.json(json, { status: r.status });
 
     const isProd = process.env.NODE_ENV === "production";
