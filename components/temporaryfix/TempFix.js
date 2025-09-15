@@ -5,7 +5,8 @@ import { PersistanceKeys } from "@/constants/Constants.js";
 import { User } from "lucide-react";
 import dynamic from "next/dynamic.js";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation";
+import UnlockAgentModal from "@/constants/UnlockAgentModal";
 
 
 const CreateAgent1 = dynamic(() =>
@@ -63,7 +64,9 @@ const TemFix = () => {
     ]);
 
     const [windowSize, setWindowSize] = useState(null);
-    const [subAccount, setSubaccount] = useState(null)
+    const [subAccount, setSubaccount] = useState(null);
+    const [showUnlockModal, setShowUnlockModal] = useState(false);
+    const [modalDesc, setModalDesc] = useState(null);
 
     let CurrentComp = components[index - 1] || EmptyPage;
     useEffect(() => {
@@ -123,7 +126,7 @@ const TemFix = () => {
                         ]);
                     } else {
                         setComponents([
-                            // CreateAgent1,
+                            CreateAgent1,
                             // CreatAgent3,
                             // UserPlans,
                             CreateAgent4,
@@ -192,6 +195,19 @@ const TemFix = () => {
     useEffect(() => {
         checkIsFromOnboarding()
     }, [])
+
+    // Check if user should see upgrade popup
+    useEffect(() => {
+        if (user) {
+            // Check if user is on free plan and has 1 agent
+            if (user.user.plan === null || user.user.plan?.price === 0) {
+                if (user.user.currentUsage?.maxAgents >= 1) {
+                    setModalDesc("The free plan only allows for 1 AI Agent.");
+                    setShowUnlockModal(true);
+                }
+            }
+        }
+    }, [user]);
 
     const checkIsFromOnboarding = () => {
         let data = localStorage.getItem(PersistanceKeys.SubaccoutDetails)
@@ -266,6 +282,19 @@ const TemFix = () => {
                     user={user}
                     screenWidth={windowSize}
                 />
+                
+                {/* Upgrade Modal for Free Plan Users */}
+                {showUnlockModal && (
+                    <UnlockAgentModal
+                        open={showUnlockModal}
+                        handleClose={() => {
+                            setShowUnlockModal(false);
+                            // Redirect back to dashboard when modal is closed
+                            router.push('/dashboard/myAgentX');
+                        }}
+                        desc={modalDesc}
+                    />
+                )}
             </div>
         </ErrorBoundary>
     );

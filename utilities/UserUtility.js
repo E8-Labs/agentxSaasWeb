@@ -13,7 +13,11 @@ export const getSupportUrlFor = (user) => {
   return PersistanceKeys.SupportWebinarUrl;
 };
 
-export function logout() {
+export function logout(reason = "Unknown reason") {
+  // Log the logout event with timestamp and reason
+  const timestamp = new Date().toISOString();
+  console.log(`🚪 USER LOGOUT TRIGGERED - Time: ${timestamp}, Reason: ${reason}`);
+  
   // localStorage.removeItem("User");
   // localStorage.removeItem("localAgentDetails");
   if (typeof document !== "undefined") {

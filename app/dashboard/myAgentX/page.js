@@ -42,6 +42,7 @@ import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import MoreAgentsPopup from "@/components/dashboard/MoreAgentsPopup";
 import { GetFormattedDateString } from "@/utilities/utility";
 import {
   findLLMModel,
@@ -309,6 +310,7 @@ function Page() {
   const [showEmbed, setShowEmbed] = useState(false);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showMoreAgentsPopup, setShowMoreAgentsPopup] = useState(false)
   const [title, setTitle] = useState(null)
   const [subTitle, setSubTitle] = useState(null)
 
@@ -390,6 +392,9 @@ function Page() {
         }
       }
     }
+    
+    // Prefetch the createagent route for faster navigation
+    router.prefetch('/createagent');
   }, [])
 
 
@@ -2206,15 +2211,31 @@ function Page() {
     event.preventDefault();
     console.log('user?.user?.currentUsage?.maxAgents', user?.user?.currentUsage?.maxAgents)
     console.log('user?.user?.planCapabilities?.maxAgents', user?.user?.planCapabilities?.maxAgents)
-    if (user?.user?.plan?.price === 0 && user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-      setShowUpgradeModal(true)
+    
+    // Check if user is on free plan and has reached their limit
+    if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+      if (user?.user?.currentUsage?.maxAgents >= 1) {
+        console.log('Free plan user has reached limit - show upgrade modal')
+        setShowUpgradeModal(true)
+        return
+      }
+    }
+    
+    // Check if paid plan user has reached their agent limit
+    if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+      console.log('Paid plan user is over the allowed capabilities')
+      setShowMoreAgentsPopup(true)
+      return
+    } else {
+      console.log('User is under the allowed capabilities')
+      // Route the user to createagent
+      const data = {
+        status: true,
+      };
+      localStorage.setItem("fromDashboard", JSON.stringify(data));
+      router.push('/createagent')
       return
     }
-    const data = {
-      status: true,
-    };
-    localStorage.setItem("fromDashboard", JSON.stringify(data));
-    router.push("/createagent");
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -2759,6 +2780,7 @@ function Page() {
           <Link
             className="w-full py-6 flex justify-center items-center"
             href="/createagent"
+            prefetch={true}
             style={{
               // marginTop: 40,
               border: "1px dashed #7902DF",
@@ -3130,6 +3152,19 @@ function Page() {
         title={title || "Unlock More Agents"}
         subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
         buttonTitle={"No Thanks"}
+      />
+
+      <MoreAgentsPopup
+        open={showMoreAgentsPopup}
+        onClose={() => setShowMoreAgentsPopup(false)}
+        onUpgrade={() => setShowUpgradeModal(true)}
+        onAddAgent={() => {
+          const data = {
+            status: true,
+          };
+          localStorage.setItem("fromDashboard", JSON.stringify(data));
+        }}
+        costPerAdditionalAgent={user?.user?.planCapabilities?.costPerAdditionalAgent || 10}
       />
 
       <AskToUpgrade

@@ -15,7 +15,10 @@ export function middleware(request) {
     try {
       user = JSON.parse(decodeURIComponent(userCookie.value));
     } catch (err) {
-      console.error("Invalid User cookie:", err);
+      console.error("🍪 COOKIE PARSING ERROR - Time:", new Date().toISOString(), "Error:", err);
+      console.error("🍪 Cookie value that failed to parse:", userCookie.value);
+      // Don't immediately logout on parsing errors - could be temporary corruption
+      user = null;
     }
   }
 
@@ -64,6 +67,7 @@ export function middleware(request) {
   // ---- Require login for everything else ----
   if (!user) {
     // Not logged in → always send home
+    console.log("🔄 MIDDLEWARE REDIRECT - Time:", new Date().toISOString(), "Reason: No user found", "Path:", pathname);
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -95,10 +99,16 @@ export function middleware(request) {
   }
 
   // ---- Prevent redirect loops ----
+  const isExactMatch = pathname === expectedPath;
+  const isSubPath = pathname.startsWith(expectedPath + "/");
+  
+  console.log("🔍 MIDDLEWARE DEBUG - Path:", pathname, "Expected:", expectedPath, "IsExact:", isExactMatch, "IsSubPath:", isSubPath, "UserType:", user.userType, "UserRole:", user.userRole);
+  
   if (
     pathname !== expectedPath && // exact base mismatch
     !pathname.startsWith(expectedPath + "/") // allow deeper subpaths
   ) {
+    console.log("🔄 MIDDLEWARE REDIRECT - Time:", new Date().toISOString(), "Reason: Path mismatch", "Current:", pathname, "Expected:", expectedPath, "UserType:", user.userType, "UserRole:", user.userRole);
     return NextResponse.redirect(new URL(expectedPath, request.url));
   }
 

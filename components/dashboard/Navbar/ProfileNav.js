@@ -352,7 +352,7 @@ const ProfileNav = () => {
       );
       if (LocalData.user.profile_status === "paused") {
         setErrorSnack("Your account has been frozen.");
-        logout();
+        logout("Profile status paused/frozen");
         router.push("/");
         return;
       }
@@ -739,7 +739,8 @@ const ProfileNav = () => {
       } else {
         //console.log;
         //Logout user
-        logout();
+        console.log('User is not logged in Line 742 ProfileNav')
+        logout("API failure/no response from getProfile");
         router.push("/");
       }
     
@@ -1496,11 +1497,7 @@ return (
                 <div className="w-full mt-2 flex flex-row items-center justify-center">
                   <button
                     onClick={() => {
-                      localStorage.clear();
-                      if (typeof document !== "undefined") {
-                        document.cookie =
-                          "User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                      }
+                      logout("Manual logout button clicked");
                       router.push("/");
                     }}
                     className="text-red bg-[#FF4E4E40] font-[600] text-lg px-4 py-1 rounded-full"

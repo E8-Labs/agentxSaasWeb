@@ -290,38 +290,37 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     return false;
   }
 
-  //code for selecting outbound calls
+  //code for selecting inbound calls
   const handleInboundCallClick = () => {
-    // setOutBoundCalls(false);
-    if (OutBoundCalls && shouldShowUpgrade()) {
-
+    // Check if user has reached their agent limit before allowing selection
+    if (shouldShowUpgrade()) {
       console.log('show modal', user.user.plan)
-      setShowUnclockModal(true)
-      
+      return; // Don't toggle the state, just show the modal
     } else {
       setInBoundCalls(!InBoundCalls);
     }
   };
 
   const shouldShowUpgrade = () => {
-    if (user?.user?.plan === null || !user?.user?.plan?.price) {
-      // setShowUnclockModal(true)
-      setModalDesc("The free plan only allows for 1 AI Agent.")
-      return true
-    } else if (user?.user?.currentUsage.maxAgents >= user?.user?.planCapabilities.maxAgents - 1) {
-      // setShowUnclockModal(true)
-      setModalDesc(`Your plan only allows for ${user?.user?.planCapabilities.maxAgents} AI Agent.`)
-      return true
-    } else return false
+    // Free plan - only allow 1 agent
+    if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+      // If user already has 1 agent and tries to create another, show unlock modal
+      if (user?.user?.currentUsage?.maxAgents >= 1) {
+        setModalDesc("The free plan only allows for 1 AI Agent.")
+        setShowUnclockModal(true)
+        return true
+      }
+      return false
+    } 
+    // For paid plans, no restrictions here - handled on main screen
+    return false
   }
-  //code for selecting inbound calls
+  //code for selecting outbound calls
   const handleOutBoundCallClick = () => {
-    // setInBoundCalls(false);
-
-    if (InBoundCalls && shouldShowUpgrade()) {
+    // Check if user has reached their agent limit before allowing selection
+    if (shouldShowUpgrade()) {
       console.log('show modal', user.user.plan)
-      setShowUnclockModal(true)
-
+      return; // Don't toggle the state, just show the modal
     } else {
       setOutBoundCalls(!OutBoundCalls);
     }
@@ -544,7 +543,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   return (
     <div
       style={{ width: "100%" }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className="overflow-y-hidden flex flex-row justify-center items-center  w-full"
     >
       <div
         className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
