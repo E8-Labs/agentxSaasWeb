@@ -1789,7 +1789,7 @@ function Page() {
       let AuthToken = null;
       if (localData) {
         const UserDetails = JSON.parse(localData);
-        setUser(UserDetails);
+        // setUser(UserDetails);
         AuthToken = UserDetails.token;
       }
 
@@ -2211,6 +2211,7 @@ function Page() {
     event.preventDefault();
     console.log('user?.user?.currentUsage?.maxAgents', user?.user?.currentUsage?.maxAgents)
     console.log('user?.user?.planCapabilities?.maxAgents', user?.user?.planCapabilities?.maxAgents)
+    console.log('user', user)
     
     // Check if user is on free plan and has reached their limit
     if (user?.user?.plan === null || user?.user?.plan?.price === 0) {

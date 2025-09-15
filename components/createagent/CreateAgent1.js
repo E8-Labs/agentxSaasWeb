@@ -64,8 +64,22 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
+  const [selectedUser,setSelectedUser] = useState(null)
 
   // Removed address picker modal - no longer needed
+
+  useEffect(()=>{
+   getSelectedUser()
+  }
+   ,[])
+
+
+   const getSelectedUser = () =>{
+     let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    if(U){
+      setSelectedUser(JSON.parse(U))
+    }
+   }
 
   useEffect(() => {
     setAddress(address?.label);
@@ -87,6 +101,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+
+
 
   const handlePopoverOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -305,8 +321,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     // Free plan - only allow 1 agent
     if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
       // If user already has 1 agent and tries to create another, show unlock modal
+      console.log('user before trying line 308', user)
       if (user?.user?.currentUsage?.maxAgents >= 1) {
         setModalDesc("The free plan only allows for 1 AI Agent.")
+      console.log('user before trying line 311', user)
+
         setShowUnclockModal(true)
         return true
       }
@@ -367,12 +386,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       //code for sending the user  id if from agency subaccount flow
       let userId = null;
 
-      const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-
-      if (U) {
-        const d = JSON.parse(U);
-        console.log("Subaccount data recieved on createagent_1 screen is", d);
-        userId = d.subAccountData.id;
+      if (selectedUser) {
+       
+        console.log("Subaccount data recieved on createagent_1 screen is", selectedUser);
+        userId = selectedUser.subAccountData.id;
       }
 
       if (userId) {
@@ -860,7 +877,11 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 <UnlockAgentModal
                   open={showUnclockModal}
-                  handleClose={() => {
+                  handleClose={(data) => {
+                    if(data){
+                      console.log('data', data)
+                      setSelectedUser(data)
+                    }
                     setShowUnclockModal(false)
                   }}
                   desc={modalDesc}

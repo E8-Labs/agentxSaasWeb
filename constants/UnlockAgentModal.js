@@ -105,8 +105,11 @@ function UnlockAgentModal({
             <Elements stripe={stripePromise}>
                 <UpgradePlan
                     open={showUpgradeModal}
-                    handleClose={() => setShowUpgradeModal(false)}
-                />
+                    handleClose={() => {
+                        setShowUpgradeModal(false)
+                        handleClose() // also close the unlock modal
+                        }}
+                />      
             </Elements>
 
 

@@ -284,7 +284,7 @@ const TemFix = () => {
                 />
                 
                 {/* Upgrade Modal for Free Plan Users */}
-                {showUnlockModal && (
+                {/* {showUnlockModal && (
                     <UnlockAgentModal
                         open={showUnlockModal}
                         handleClose={() => {
@@ -294,7 +294,7 @@ const TemFix = () => {
                         }}
                         desc={modalDesc}
                     />
-                )}
+                )} */}
             </div>
         </ErrorBoundary>
     );

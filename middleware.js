@@ -108,6 +108,11 @@ export function middleware(request) {
     pathname !== expectedPath && // exact base mismatch
     !pathname.startsWith(expectedPath + "/") // allow deeper subpaths
   ) {
+    console.log("Path mismatch detected");
+    if(pathname === "/createagent" && user.userType === "admin") { // allowed createagent for admin
+      console.log("Accessing /createagent as admin, allowing");
+      return NextResponse.next();
+    }
     console.log("🔄 MIDDLEWARE REDIRECT - Time:", new Date().toISOString(), "Reason: Path mismatch", "Current:", pathname, "Expected:", expectedPath, "UserType:", user.userType, "UserRole:", user.userRole);
     return NextResponse.redirect(new URL(expectedPath, request.url));
   }

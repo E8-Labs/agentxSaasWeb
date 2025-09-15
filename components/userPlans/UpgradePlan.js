@@ -11,6 +11,8 @@ import { PersistanceKeys } from '@/constants/Constants'
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
 import UserAddCard from './UserAddCardModal'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
+import getProfileDetails from '../apis/GetProfile'
+import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -624,7 +626,10 @@ function UpgradePlanContent({
             if (result2.status) {
                 setAddCardSuccess(true);
                 if (!togglePlan) handleClose(result);
-                if (togglePlan) setShowAddCard(false);
+                if (togglePlan) {
+                    setShowAddCard(false);
+                    getCardsList()
+                }
             } else {
                 setAddCardFailure(true);
                 setAddCardErrtxt(result2.message);
@@ -649,9 +654,22 @@ function UpgradePlanContent({
 
             // //console.log;
 
-            const ApiData = {
+            const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+            let selectedUser = null;
+            console.log("Selected user local data is", selectedUserLocalData);
+            if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
+                selectedUser = JSON.parse(selectedUserLocalData);
+                console.log("Selected user details are", selectedUser);
+            }
+
+            let ApiData = {
                 plan: planType,
             };
+
+
+            if (selectedUser) {
+                ApiData.userId = selectedUser?.subAccountData?.id;
+            }
 
             // //console.log;
 
@@ -668,7 +686,14 @@ function UpgradePlanContent({
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
                 setsubscribeLoader(false);
-                handleClose()
+                let user
+                if (selectedUser) {
+                    user = await AdminGetProfileDetails(selectedUser?.subAccountData.id) // refresh admin profile
+                } else {
+                    user = getProfileDetails()
+                }
+
+                handleClose(user)
             }
         } catch (error) {
             // console.error("Error occured in api is:", error);
@@ -904,7 +929,7 @@ function UpgradePlanContent({
                                                     />
                                                 ) : (
 
-                                                    <div className='flex flex-col gap-2 mt-2 items-center w-full' >
+                                                    <div className='flex flex-col gap-2 mt-2 items-start w-full' >
                                                         <div className='text-xl font-semibold flex flex-row items-start justify-between'>
                                                             Payment
                                                         </div>
