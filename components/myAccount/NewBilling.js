@@ -48,11 +48,11 @@ function NewBilling() {
         }, {
             id: 2,
             title: "Quarterly",
-            save: "20%"
+            save: "25%"
         }, {
             id: 3,
             title: "Yearly",
-            save: '30%'
+            save: '35%'
         },
     ]
 
@@ -141,12 +141,18 @@ function NewBilling() {
     const getPlans = async () => {
         let plansList = await getUserPlans()
         if (plansList) {
-            setPlans(plansList)
+            // Filter features in each plan to only show features where thumb = true
+            const filteredPlans = plansList.map(plan => ({
+                ...plan,
+                features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+            }));
+            
+            setPlans(filteredPlans)
             const monthly = [];
             const quarterly = [];
             const yearly = [];
             let freePlan = null;
-            plansList.forEach(plan => {
+            filteredPlans.forEach(plan => {
                 switch (plan.billingCycle) {
                     case "monthly":
                         monthly.push(plan);
@@ -1178,22 +1184,19 @@ function NewBilling() {
                     display: "flex",
                     scrollbarWidth: "none",
                     WebkitOverflowScrolling: "touch",
-                    height: "",
                     marginTop: 20,
-                    // border:'2px solid red'
-                    scrollbarWidth: "none",
-                    overflowY: "hidden",
-                    height: "", // Ensures the height is always fixed
                     flexShrink: 0,
+                    alignItems: "stretch", // This makes all cards the same height
                 }}>
                 {getCurrentPlans().map((item, index) => (
                     <button
                         key={item.id}
-                        className="mt-4 outline-none"
+                        className="mt-4 outline-none flex-shrink-0"
+                        style={{ width: "280px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
-                            className="px-4 py-3 pb-4  flex flex-col gap-2"
+                            className="px-4 py-4 pb-4 flex flex-col gap-3 h-full"
                             style={{
                                 ...styles.pricingBox,
                                 border:
@@ -1201,11 +1204,12 @@ function NewBilling() {
                                         ? "2px solid #7902DF"
                                         : "1px solid #15151520",
                                 backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
+                                minHeight: "420px", // Further increased height for better feature accommodation
                             }}
                         >
-                            <div className="flex flex-col items-start h-[26vh] justify-between">
-                                <div>
-                                    <div className="flex flex-row items-center w-full justify-between">
+                            <div className="flex flex-col items-start h-full justify-between">
+                                <div className="w-full">
+                                    <div className="flex flex-row items-center w-full justify-between mb-3">
                                         {item.id === togglePlan ? (
                                             <Image
                                                 src={"/svgIcons/checkMark.svg"}
@@ -1225,7 +1229,7 @@ function NewBilling() {
                                         {
                                             isPaused && item.id === currentPlan && (
                                                 <div
-                                                    className="mt-2 flex px-2 py-1 bg-purple rounded-full text-white"
+                                                    className="flex px-2 py-1 bg-purple rounded-full text-white"
                                                     style={{
                                                         fontSize: 11.6,
                                                         fontWeight: "500",
@@ -1238,39 +1242,57 @@ function NewBilling() {
                                         }
                                     </div>
 
-                                    <div className="flex flex-row items-center justify-between w-[10vw] mt-2">
-                                        <div className="text-[14px] font-semibold">
+                                    <div className="flex flex-row items-center justify-between w-full mb-4">
+                                        <div className="text-[16px] font-semibold">
                                             {item.name}
                                         </div>
-                                        <div className="text-[14px] font-semibold">
+                                        <div className="text-[14px] font-semibold text-gray-600">
                                             {item.mints} mins
                                         </div>
-
                                     </div>
 
-                                    <div
-                                        className="text-lg font-semibold text-left mt-3"
-                                    >
+                                    <div className="text-xl font-bold text-left mb-2">
                                         {`${item.discountPrice || "$0"}/mo`}
                                     </div>
 
-                                    <div className="text-xs font-normal text-[#8a8a8a] text-left ">
+                                    <div className="text-sm font-normal text-[#8a8a8a] text-left mb-3">
                                         {item.calls} calls* per month
                                     </div>
 
-
-                                    <div className="text-xs font-normal text-[#8a8a8a] text-left mt-3">
+                                    <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
                                         {item.details}
                                     </div>
+                                    
+                                    {/* Features section - only show features with thumb = true */}
+                                    {item.features && item.features.length > 0 && (
+                                        <div className="mt-6 flex-1">
+                                            <div className="flex flex-col gap-3">
+                                                {item.features.map((feature, featureIndex) => (
+                                                    <div key={featureIndex} className="flex flex-row items-start gap-1">
+                                                        <Image 
+                                                            src="/svgIcons/selectedTickBtn.svg" 
+                                                            height={16} 
+                                                            width={16} 
+                                                            alt="✓" 
+                                                            className="mt-0.5 flex-shrink-0" 
+                                                        />
+                                                        <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
+                                                            {feature.text}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
 
                                 {item.id === currentPlan && (
                                     <div
-                                        className="mt-2 flex px-2 py-1 bg-purple rounded-full text-white"
+                                        className="mt-4 flex px-3 py-1.5 bg-purple rounded-full text-white"
                                         style={{
-                                            fontSize: 11.6,
-                                            fontWeight: "500",
+                                            fontSize: 12,
+                                            fontWeight: "600",
                                             width: "fit-content",
                                         }}
                                     >

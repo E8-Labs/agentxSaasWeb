@@ -94,13 +94,20 @@ function Billing() {
   // Function to load plans for billing context
   const loadPlansForBilling = async () => {
     try {
-      const plansData = await PlansService.getCachedPlans(
-        'billing_plans',
-        'regular',
-        'billing',
-        false
-      );
-      setPlans(plansData);
+      // Load plans with features using getUserPlans instead of PlansService
+      const { getUserPlans } = await import('../userPlans/UserPlanServices');
+      const plansData = await getUserPlans();
+      
+      if (plansData) {
+        // Filter features to only show those with thumb = true
+        const filteredPlans = plansData.map(plan => ({
+          ...plan,
+          features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+        }));
+        setPlans(filteredPlans);
+      } else {
+        setPlans(PlansService.getFallbackPlans('billing', false));
+      }
     } catch (error) {
       console.error('Error loading billing plans:', error);
       setPlans(PlansService.getFallbackPlans('billing', false));
@@ -967,6 +974,28 @@ function Billing() {
                     </div>
                   </div>
                 </div>
+                
+                {/* Features section - only show features with thumb = true */}
+                {item.features && item.features.length > 0 && (
+                  <div className="mt-4">
+                    <div className="flex flex-col gap-2">
+                      {item.features.map((feature, featureIndex) => (
+                        <div key={featureIndex} className="flex flex-row items-start gap-2">
+                          <Image 
+                            src="/svgIcons/selectedTickBtn.svg" 
+                            height={14} 
+                            width={14} 
+                            alt="✓" 
+                            className="mt-1 flex-shrink-0" 
+                          />
+                          <div className="text-sm font-normal text-gray-700">
+                            {feature.text}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
