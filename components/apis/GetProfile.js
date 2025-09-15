@@ -1,7 +1,7 @@
 import axios from "axios";
 import Apis from "./Apis";
 
-const getProfileDetails = async () => {
+const getProfileDetails = async () => { //some text update
   try {
     let Authtoken = null;
     let localDetails = null;
