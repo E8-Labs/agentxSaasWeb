@@ -67,12 +67,12 @@ const ObtainOffer = ({
 
     // Function to handle cancel subscription
     const handleCancelSubscription = () => {
-        if (checkUserAgents()) {
-            setShowDeleteAgentsModal(true);
-        } else {
+        // if (checkUserAgents()) {
+        //     setShowDeleteAgentsModal(true);
+        // } else {
             let nextAction = "cancelConfirmationFromDeal";
             handleContinue(nextAction);
-        }
+        // }
     }
 
     // Function to handle delete agents and redirect

@@ -894,7 +894,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               {/* Phone number input here */}
               {
-                userData?.user?.plan?.price ? (
+                userData?.user?.plan?.price? (
                   <div>
                     <div className="w-full">
                       <div style={styles.headingStyle}>
