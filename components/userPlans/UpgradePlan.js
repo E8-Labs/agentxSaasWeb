@@ -15,7 +15,7 @@ import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 
 
 
-function UpgradePlan({
+function UpgradePlanContent({
     open,
     handleClose,
     plan,
@@ -24,12 +24,6 @@ function UpgradePlan({
 
     const stripeReact = useStripe();
     const elements = useElements();
-
-    let stripePublickKey =
-        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-            ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-            : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-    const stripePromise = loadStripe(stripePublickKey);
 
 
 
@@ -80,6 +74,7 @@ function UpgradePlan({
     const [credentialsErr, setCredentialsErr] = useState(false);
     const [addCardSuccess, setAddCardSuccess] = useState(false);
     const [addCardFailure, setAddCardFailure] = useState(false);
+    const [subscribeLoader, setsubscribeLoader] = useState(false);
 
 
     const [CVC, setCVC] = useState(false);
@@ -125,6 +120,7 @@ function UpgradePlan({
                     setReferralMessage((resp && resp.message) || "Invalid referral code");
                 }
             } catch (e) {
+                const currentSeq = referralRequestSeqRef.current;
                 if (currentSeq !== referralRequestSeqRef.current) return;
                 setReferralStatus("invalid");
                 setReferralMessage("Unable to validate code. Please try again.");
@@ -454,7 +450,7 @@ function UpgradePlan({
 
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
-                setsubscribeLoader
+                setsubscribeLoader(false);
                 handleClose()
             }
         } catch (error) {
@@ -673,8 +669,7 @@ function UpgradePlan({
                                                     <div className='text-xl font-semibold'>
                                                         Add Payment Details
                                                     </div>
-                                                    <Elements stripe={stripePromise}>
-                                                        <div className='w-full'>
+                                                    <div className='w-full'>
                                                             <div
                                                                 style={{
                                                                     fontWeight: "400",
@@ -849,7 +844,6 @@ function UpgradePlan({
                                                             </div>
                                                         ) : null}
 
-                                                    </Elements>
 
                                                     <div className='flex flex-row items-center gap-5 w-full mt-8'>
                                                         <button
@@ -874,9 +868,7 @@ function UpgradePlan({
                                                             h-[53px] text-white  bg-purple rounded-lg text-lg font-semibold
                                                             '
                                                                 disabled={!(CardAdded && CardExpiry && CVC) || addCardLoader}
-                                                                onClick={()=>{
-                                                                    setShowAddCard(true)
-                                                                }}
+                                                                onClick={handleAddCard}
                                                             >
                                                                 Add Payment
                                                             </button>
@@ -1110,7 +1102,7 @@ function UpgradePlan({
                         </div>
 
                         <Modal
-                            open={false}
+                            open={showAddCard}
                             // open={true}
                             closeAfterTransition
                             BackdropProps={{
@@ -1147,19 +1139,17 @@ function UpgradePlan({
                                                 />
                                             </button>
                                         </div>
-                                        <Elements stripe={stripePromise}>
-                                            <UserAddCard
-                                                handleClose={(data) => {
-                                                    if (data) {
-                                                        // const userProfile = await getProfileDetails();
-                                                        // handleContinue()
-                                                    }
-                                                    setAddPaymentPopUp(false);
-                                                }}
-                                                selectedPlan={selectedPlan}
-                                            // togglePlan={togglePlan}
-                                            />
-                                        </Elements>
+                                        <UserAddCard
+                                            handleClose={(data) => {
+                                                if (data) {
+                                                    // const userProfile = await getProfileDetails();
+                                                    // handleContinue()
+                                                }
+                                                setShowAddCard(false);
+                                            }}
+                                            selectedPlan={selectedPlan}
+                                        // togglePlan={togglePlan}
+                                        />
                                     </div>
                                 </div>
                             </Box>
@@ -1208,5 +1198,29 @@ const elementOptions = {
     },
 };
 
+
+function UpgradePlan({
+    open,
+    handleClose,
+    plan,
+    currentFullPlan
+}) {
+    let stripePublickKey =
+        process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+            ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+            : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+    const stripePromise = loadStripe(stripePublickKey);
+
+    return (
+        <Elements stripe={stripePromise}>
+            <UpgradePlanContent
+                open={open}
+                handleClose={handleClose}
+                plan={plan}
+                currentFullPlan={currentFullPlan}
+            />
+        </Elements>
+    );
+}
 
 export default UpgradePlan
