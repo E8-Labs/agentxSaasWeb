@@ -13,13 +13,13 @@ import UserAddCard from './UserAddCardModal'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 
 // Separate component for card form to isolate Stripe Elements
-const CardForm = ({ 
-    onCardAdded, 
-    onCardExpiry, 
-    onCVC, 
-    onFieldChange, 
-    cardNumberRef, 
-    cardExpiryRef, 
+const CardForm = ({
+    onCardAdded,
+    onCardExpiry,
+    onCVC,
+    onFieldChange,
+    cardNumberRef,
+    cardExpiryRef,
     cardCvcRef,
     inviteCode,
     setInviteCode,
@@ -461,7 +461,7 @@ function UpgradePlanContent({
                 setTogglePlan(currentPlans[0].id);
             }
 
-            
+
         }
     }, [selectedDuration]);
 
@@ -761,284 +761,287 @@ function UpgradePlanContent({
                                 />
                             </div>
 
-                            <div className='flex flex-col w-[75%] items-start h-[85%] -mt-5'
-                                style={{
-                                    scrollbarWidth: 'none'
-                                }}
-                            >
-                                <div className='text-2xl font-[600] '>
-                                    Upgrade Your Plan
-                                </div>
+                            <div className='flex flex-col w-[75%] items-start h-[95%] -mt-5 flex flex-col items-center justify-between'>
 
-                                <div className='text-[16px] font-semibold '>
-                                    Upgrade for premium features and support
-                                </div>
-
-                                <div className='w-full flex flex-row items-end justify-end'>
-
-                                    <div className='flex flex-col items-start'>
-                                        <div className='flex flex-row items-center gap-5'>
-                                            {
-                                                duration.map((item) => (
-                                                    <div key={item.id}
-                                                        className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
-                                                    >
-                                                        {item.save ? (
-                                                            <div
-                                                                className={`text-[11px] font-meduim ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
-                                                            >
-                                                                Save {item.save}
-                                                            </div>
-                                                        ) : (
-                                                            <div className='w-[4.2vw]'></div>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                        </div>
-
-                                        <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
-                                            {
-                                                duration.map((item) => (
-                                                    <div key={item.id}
-                                                        className='flex-col'
-                                                    >
-
-                                                        <button
-                                                            className={`px-2 py-[5px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                                            onClick={() => {
-                                                                setSelectedDuration(item);
-                                                                // getCurrentPlans();
-                                                            }}
-                                                        >
-                                                            {item.title}
-                                                        </button>
-                                                    </div>
-                                                ))
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div className='text-xl font-semibold'>
-                                    Select Plan
-                                </div>
-
-                                <div
-                                    className='w-full flex flex-row gap-3 mt-3'
+                                <div className='w-full h-[85%] overflow-auto'
                                     style={{
                                         scrollbarWidth: 'none'
                                     }}
                                 >
-                                    {
-                                        getCurrentPlans().map((item, index) => {
-                                            const isCurrentPlan = isPlanCurrent(item);
-                                            return (
-                                                <button
-                                                    className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
-                                                        ${isCurrentPlan
-                                                            ? "border-gray-300 cursor-not-allowed opacity-60"
-                                                            : selectedPlan?.id === item.id
-                                                                ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
-                                                                : "border-gray-200 hover:border-purple hover:shadow-md"
-                                                        }`}
-                                                    key={item.id}
-                                                    onClick={() => handleTogglePlanClick(item, index)}
-                                                    disabled={isCurrentPlan}
-                                                >
-                                                    <div className='w-full flex flex-row items-center justify-between'>
-                                                        <div className='text-medium font-semibold'>
-                                                            {item.name}
-                                                        </div>
+                                    <div className='text-2xl font-[600] '>
+                                        Upgrade Your Plan
+                                    </div>
 
-                                                        <div className='text-medium font-semibold'>
-                                                            {`$${item.discountPrice}`}
-                                                        </div>
-                                                    </div>
+                                    <div className='text-[16px] font-semibold'>
+                                        Upgrade for premium features and support
+                                    </div>
 
-                                                    <div className='text-[14px] font-[500] mt-2'>
-                                                        {item.details}
-                                                    </div>
+                                    <div className='w-full flex flex-row items-end justify-end'>
 
-                                                    <div className={`py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-base font-semibold
-                                                        ${isCurrentPlan
-                                                            ? "bg-gray-400 text-white cursor-not-allowed"
-                                                            : "bg-purple text-white"
-                                                        }`}>
-                                                        {isCurrentPlan ? "Current Plan" : "Select Plan"}
-                                                    </div>
-                                                </button>
-                                            );
-                                        })
-                                    }
-
-                                </div>
-
-
-                                <div className='flex flex-row items-start w-full gap-10 mt-4'>
-                                    <div
-                                        className='w-[50%] flex flex-col items-start h-[30vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
-                                    >
-
-                                        {
-                                            (cards.length === 0 && !showAddCard) || (showAddCard && cards.length > 0) ? (
-                                                <CardForm
-                                                    onCardAdded={setCardAdded}
-                                                    onCardExpiry={setCardExpiry}
-                                                    onCVC={setCVC}
-                                                    onFieldChange={handleFieldChange}
-                                                    cardNumberRef={cardNumberRef}
-                                                    cardExpiryRef={cardExpiryRef}
-                                                    cardCvcRef={cardCvcRef}
-                                                    inviteCode={inviteCode}
-                                                    setInviteCode={setInviteCode}
-                                                    referralStatus={referralStatus}
-                                                    referralMessage={referralMessage}
-                                                    addCardLoader={addCardLoader}
-                                                    handleAddCard={handleAddCard}
-                                                    onCancel={() => {
-                                                        setShowAddCard(false);
-                                                    }}
-                                                />
-                                            ) : (
-
-                                                <div className='flex flex-col gap-2 mt-2 items-center w-full' >
-                                                    <div className='text-xl font-semibold flex flex-row items-center justify-between'>
-                                                        Payment
-                                                    </div>
-                                                    {cards.map((item) => (
-                                                        <div className="w-full" key={item.id}>
-                                                            <button
-                                                                className="w-full outline-none"
-                                                            >
+                                        <div className='flex flex-col items-start'>
+                                            <div className='flex flex-row items-center gap-5'>
+                                                {
+                                                    duration.map((item) => (
+                                                        <div key={item.id}
+                                                            className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
+                                                        >
+                                                            {item.save ? (
                                                                 <div
-                                                                    className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
-                                                                    style={{
-                                                                        backgroundColor:
-                                                                            item.isDefault || selectedCard?.id === item.id
-                                                                                ? "#4011FA05"
-                                                                                : "transparent",
-                                                                        borderColor:
-                                                                            item.isDefault || selectedCard?.id === item.id
-                                                                                ? "#7902DF"
-                                                                                : "#15151510",
-                                                                    }}
+                                                                    className={`text-[11px] font-meduim ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
                                                                 >
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div
-                                                                            className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
-                                                                            style={{
-                                                                                borderWidth:
-                                                                                    item.isDefault || selectedCard?.id === item.id
-                                                                                        ? 3
-                                                                                        : 1,
-                                                                            }}
-                                                                        ></div>
-
-                                                                        <Image
-                                                                            src={getCardImage(item) || "/svgIcons/Visa.svg"}
-                                                                            alt="Card Logo"
-                                                                            width={50}
-                                                                            height={50}
-                                                                        />
-
-                                                                        <div className='text-xs font-normal'>
-                                                                            ****{item.last4} {
-                                                                                item.isDefault && (
-                                                                                    <span>{`(default)`}</span>
-                                                                                )}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div className='flex flex-row items-center justify-center'>
-                                                                        <button className='text-xs font-normal'>
-                                                                            {" Edit | "}
-                                                                        </button>
-
-                                                                        <button className='text-xs font-normal ml-1'>
-                                                                            {" Delete"}
-                                                                        </button>
-                                                                    </div>
+                                                                    Save {item.save}
                                                                 </div>
-                                                            </button>
+                                                            ) : (
+                                                                <div className='w-[4.2vw]'></div>
+                                                            )}
                                                         </div>
                                                     ))}
+                                            </div>
 
+                                            <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
+                                                {
+                                                    duration.map((item) => (
+                                                        <div key={item.id}
+                                                            className='flex-col'
+                                                        >
+
+                                                            <button
+                                                                className={`px-2 py-[5px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                                onClick={() => {
+                                                                    setSelectedDuration(item);
+                                                                    // getCurrentPlans();
+                                                                }}
+                                                            >
+                                                                {item.title}
+                                                            </button>
+                                                        </div>
+                                                    ))
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div className='text-xl font-semibold'>
+                                        Select Plan
+                                    </div>
+
+                                    <div
+                                        className='w-full flex flex-row gap-3 mt-3'
+                                        style={{
+                                            scrollbarWidth: 'none'
+                                        }}
+                                    >
+                                        {
+                                            getCurrentPlans().map((item, index) => {
+                                                const isCurrentPlan = isPlanCurrent(item);
+                                                return (
                                                     <button
-                                                        onClick={() => {
-                                                            setShowAddCard(true);
-                                                        }}
-                                                        className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
+                                                        className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
+                                                        ${isCurrentPlan
+                                                                ? "border-gray-300 cursor-not-allowed opacity-60"
+                                                                : selectedPlan?.id === item.id
+                                                                    ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
+                                                                    : "border-gray-200 hover:border-purple hover:shadow-md"
+                                                            }`}
+                                                        key={item.id}
+                                                        onClick={() => handleTogglePlanClick(item, index)}
+                                                        disabled={isCurrentPlan}
                                                     >
-                                                        + Add Payment
-                                                    </button>
+                                                        <div className='w-full flex flex-row items-center justify-between'>
+                                                            <div className='text-medium font-semibold'>
+                                                                {item.name}
+                                                            </div>
 
-                                                </div>
-                                            )
+                                                            <div className='text-medium font-semibold'>
+                                                                {`$${item.discountPrice}`}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className='text-[14px] font-[500] mt-2'>
+                                                            {item.details}
+                                                        </div>
+
+                                                        <div className={`py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-base font-semibold
+                                                        ${isCurrentPlan
+                                                                ? "bg-gray-400 text-white cursor-not-allowed"
+                                                                : "bg-purple text-white"
+                                                            }`}>
+                                                            {isCurrentPlan ? "Current Plan" : "Select Plan"}
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })
                                         }
 
                                     </div>
 
 
-                                    <div className={`w-[50%] flex flex-col items-start ${haveCards ? "text-black" : "text-[#8a8a8a]"}`}>
-                                        <div className=' text-xl font-semibold '>
-                                            Order Summary
-                                        </div>
-                                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                                            <div>
-                                                <div className=' text-lg font-semibold'>
-                                                    {selectedPlan ? `${selectedPlan?.name} Plan` : "No Plan Selected"}
-                                                </div>
-                                                <div className=' text-xs font-regular '>
-                                                    {selectedPlan ? `${selectedPlan?.billingCycle} subscription` : ""}
-                                                </div>
-                                            </div>
-                                            <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x ${selectedPlan?.discountPrice}` : "$0"}
-                                            </div>
-                                        </div>
+                                    <div className='flex flex-row items-start w-full gap-10 mt-4'>
+                                        <div
+                                            className='w-[50%] flex flex-col items-start h-[30vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
+                                        >
 
-                                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                                            <div>
-                                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    {` Total Billed ${selectedPlan?.billingCycle}`}
-                                                </div>
-                                                <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
-                                            </div>
-                                            <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * (selectedPlan?.discountPrice)}` : "$0"}
-                                            </div>
-                                        </div>
+                                            {
+                                                (cards.length === 0 && !showAddCard) || (showAddCard && cards.length > 0) ? (
+                                                    <CardForm
+                                                        onCardAdded={setCardAdded}
+                                                        onCardExpiry={setCardExpiry}
+                                                        onCVC={setCVC}
+                                                        onFieldChange={handleFieldChange}
+                                                        cardNumberRef={cardNumberRef}
+                                                        cardExpiryRef={cardExpiryRef}
+                                                        cardCvcRef={cardCvcRef}
+                                                        inviteCode={inviteCode}
+                                                        setInviteCode={setInviteCode}
+                                                        referralStatus={referralStatus}
+                                                        referralMessage={referralMessage}
+                                                        addCardLoader={addCardLoader}
+                                                        handleAddCard={handleAddCard}
+                                                        onCancel={() => {
+                                                            setShowAddCard(false);
+                                                        }}
+                                                    />
+                                                ) : (
 
-                                        {inviteCode && (
-                                            <div>
-                                                <div className="flex flex-row items-start justify-between w-full mt-6">
-                                                    <div>
-                                                        <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                                            Referral Code
+                                                    <div className='flex flex-col gap-2 mt-2 items-center w-full' >
+                                                        <div className='text-xl font-semibold flex flex-row items-center justify-between'>
+                                                            Payment
                                                         </div>
-                                                        <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
-                                                            {referralMessage}
+                                                        {cards.map((item) => (
+                                                            <div className="w-full" key={item.id}>
+                                                                <button
+                                                                    className="w-full outline-none"
+                                                                >
+                                                                    <div
+                                                                        className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
+                                                                        style={{
+                                                                            backgroundColor:
+                                                                                item.isDefault || selectedCard?.id === item.id
+                                                                                    ? "#4011FA05"
+                                                                                    : "transparent",
+                                                                            borderColor:
+                                                                                item.isDefault || selectedCard?.id === item.id
+                                                                                    ? "#7902DF"
+                                                                                    : "#15151510",
+                                                                        }}
+                                                                    >
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div
+                                                                                className={`w-5 h-5 rounded-full border border-[#7902DF] flex items-center justify-center`}
+                                                                                style={{
+                                                                                    borderWidth:
+                                                                                        item.isDefault || selectedCard?.id === item.id
+                                                                                            ? 3
+                                                                                            : 1,
+                                                                                }}
+                                                                            ></div>
+
+                                                                            <Image
+                                                                                src={getCardImage(item) || "/svgIcons/Visa.svg"}
+                                                                                alt="Card Logo"
+                                                                                width={50}
+                                                                                height={50}
+                                                                            />
+
+                                                                            <div className='text-xs font-normal'>
+                                                                                ****{item.last4} {
+                                                                                    item.isDefault && (
+                                                                                        <span>{`(default)`}</span>
+                                                                                    )}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className='flex flex-row items-center justify-center'>
+                                                                            <button className='text-xs font-normal'>
+                                                                                {" Edit | "}
+                                                                            </button>
+
+                                                                            <button className='text-xs font-normal ml-1'>
+                                                                                {" Delete"}
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            </div>
+                                                        ))}
+
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowAddCard(true);
+                                                            }}
+                                                            className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
+                                                        >
+                                                            + Add Payment
+                                                        </button>
+
+                                                    </div>
+                                                )
+                                            }
+
+                                        </div>
+
+
+                                        <div className={`w-[50%] flex flex-col items-start ${haveCards ? "text-black" : "text-[#8a8a8a]"}`}>
+                                            <div className=' text-xl font-semibold '>
+                                                Order Summary
+                                            </div>
+                                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                <div>
+                                                    <div className=' text-lg font-semibold'>
+                                                        {selectedPlan ? `${selectedPlan?.name} Plan` : "No Plan Selected"}
+                                                    </div>
+                                                    <div className=' text-xs font-regular '>
+                                                        {selectedPlan ? `${selectedPlan?.billingCycle} subscription` : ""}
+                                                    </div>
+                                                </div>
+                                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                    {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "")} x ${selectedPlan?.discountPrice}` : "$0"}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                <div>
+                                                    <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                        {` Total Billed ${selectedPlan?.billingCycle}`}
+                                                    </div>
+                                                    <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
+                                                </div>
+                                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                    {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * (selectedPlan?.discountPrice)}` : "$0"}
+                                                </div>
+                                            </div>
+
+                                            {inviteCode && (
+                                                <div>
+                                                    <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                        <div>
+                                                            <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                Referral Code
+                                                            </div>
+                                                            <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
+                                                                {referralMessage}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                    </div>
-                                </div>
-
-                                <div className='flex flex-row w-full justify-between items-center'>
-                                    <div className='w-1/2'></div>
-                                    <div className='flex flex-row items-center justify-between w-1/2'>
-                                        <div className=" text-3xl font-semibold  ">
-                                            Total:
                                         </div>
+                                    </div>
+
+                                    <div className='flex flex-row w-full justify-between items-center'>
+                                        <div className='w-1/2'></div>
+                                        <div className='flex flex-row items-center justify-between w-1/2'>
+                                            <div className=" text-3xl font-semibold  ">
+                                                Total:
+                                            </div>
 
 
-                                        <div className=" text-3xl font-semibold  ">
-                                            {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * (selectedPlan?.discountPrice)}` : "$0"}
+                                            <div className=" text-3xl font-semibold  ">
+                                                {selectedPlan ? `$${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || "") * (selectedPlan?.discountPrice)}` : "$0"}
 
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1046,7 +1049,7 @@ function UpgradePlanContent({
 
                                 {/* Terms and Conditions - Only show when not adding card */}
                                 {!isAddingCard && (
-                                    <>
+                                    <div className="w-full">
                                         <div className="w-full mb-4 flex flex-row items-center gap-3">
                                             <button
                                                 className="outline-none border-none"
@@ -1094,7 +1097,7 @@ function UpgradePlanContent({
                                             </div>
                                         </div>
 
-                                        <div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-5 w-full mt-2 mb-10'>
+                                        <div className='flex flex-col sm:flex-row items-center gap-3 sm:gap-5 w-full mt-2'>
                                             <button
                                                 className='w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] border-2 rounded-lg text-base sm:text-lg font-semibold hover:bg-gray-50 transition-colors duration-200'
                                                 onClick={() => handleClose()}
@@ -1102,23 +1105,31 @@ function UpgradePlanContent({
                                                 Cancel
                                             </button>
 
-                                            <button
-                                                className={`w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${agreeTerms && selectedPlan && !isPlanCurrent(selectedPlan)
-                                                        ? "text-white bg-purple hover:bg-purple-700"
-                                                        : "text-black bg-[#00000050] cursor-not-allowed"
-                                                    }`}
-                                                disabled={!agreeTerms || !selectedPlan || isPlanCurrent(selectedPlan)}
-                                                onClick={() => {
-                                                    if (agreeTerms && selectedPlan) {
-                                                        handleSubscribePlan();
-                                                    }
-                                                }}
-                                            >
-                                                Upgrade
-                                            </button>
+                                            {
+                                                subscribeLoader ? (
+                                                    <div className="w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px]">
+                                                        <CircularProgress size={25} />
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        className={`w-full sm:w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                        ${agreeTerms && selectedPlan && !isPlanCurrent(selectedPlan)
+                                                                ? "text-white bg-purple hover:bg-purple-700"
+                                                                : "text-black bg-[#00000050] cursor-not-allowed"
+                                                            }`}
+                                                        disabled={!agreeTerms || !selectedPlan || isPlanCurrent(selectedPlan)}
+                                                        onClick={() => {
+                                                            if (agreeTerms && selectedPlan) {
+                                                                handleSubscribePlan();
+                                                            }
+                                                        }}
+                                                    >
+                                                        Upgrade
+                                                    </button>
+                                                )
+                                            }
                                         </div>
-                                    </>
+                                    </div>
                                 )}
 
 
