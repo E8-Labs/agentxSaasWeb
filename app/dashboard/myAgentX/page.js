@@ -2613,7 +2613,7 @@ function Page() {
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {agentsListSeparated.length}/{user?.user?.plan?.features?.maxAgents} used
+            {agentsListSeparated.length}/{user?.user?.planCapabilities?.maxAgents} used
           </div>
 
 
