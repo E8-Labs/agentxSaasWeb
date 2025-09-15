@@ -102,7 +102,7 @@ const MoreAgentsPopup = ({
 
           {/* Description */}
           <div className="text-center text-gray-600 mb-8 space-y-2">
-            <p>You've reached the maximum number of agents on your current plan.</p>
+            <p>{`You've reached the maximum number of agents on your current plan.`}</p>
             <p>
               You can upgrade your plan or add an agent for{' '}
               <span className="font-semibold text-purple-600">${costPerAdditionalAgent}</span> per month.
