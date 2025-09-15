@@ -83,7 +83,7 @@
 //         });
 //     }
 
-//     return res;
+//     return res
 // }
 
 // app/api/ghl/exchange/route.js
