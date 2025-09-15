@@ -112,3 +112,9 @@ export function ToUppercase(text) {
       1
     )}`
 }
+
+
+function normalizeRedirectUri(uri) {
+  if (!uri) return "";
+  return uri.endsWith("/") ? uri : uri + "/";
+}
