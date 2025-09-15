@@ -34,6 +34,7 @@ import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { HowtoVideos, PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
 import CheckList from "./CheckList";
+import socketService from "@/utilities/SocketService";
 import { uploadBatchSequence } from "../leads/extras/UploadBatch";
 import CallPausedPopup from "@/components/callPausedPoupup/CallPausedPopup";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
@@ -97,7 +98,8 @@ const ProfileNav = () => {
 
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
-  const [showLowMinsModal, setShowLowMinsModal] = useState(false)
+  const [showLowMinsModal, setShowLowMinsModal] = useState(false);
+  const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
 
   useEffect(() => {
     console.log("Search url is", pathname);
@@ -377,6 +379,36 @@ const ProfileNav = () => {
 
   useEffect(() => {
     getUserProfile();
+    
+    // Initialize socket connection after getting user profile
+    const initializeSocket = () => {
+      const userData = localStorage.getItem("User");
+      if (userData) {
+        console.log('🔌 Initializing socket connection...');
+        setSocketStatus('connecting');
+        socketService.connect();
+        
+        // Monitor socket status
+        const checkStatus = () => {
+          const status = socketService.getConnectionStatus();
+          setSocketStatus(status);
+        };
+        
+        // Check status every 2 seconds
+        const statusInterval = setInterval(checkStatus, 2000);
+        
+        // Cleanup interval on unmount
+        return () => clearInterval(statusInterval);
+      }
+    };
+    
+    // Small delay to ensure localStorage is ready
+    const cleanup = setTimeout(initializeSocket, 1000);
+    
+    // Cleanup socket on unmount
+    return () => {
+      socketService.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -1155,7 +1187,7 @@ return (
         >
           <Link
             href={"/dashboard/myAccount"}
-            className="w-full  flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start" //border border-[#00000015] rounded-[10px]
+            className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
             style={{
               textOverflow: "ellipsis",
               textDecoration: "none",
@@ -1202,6 +1234,18 @@ return (
               >
                 {userDetails?.user?.email}
               </div>
+            </div>
+            
+            {/* Socket Connection Status Indicator */}
+            <div className="absolute top-2 right-2">
+              <div 
+                className={`w-2 h-2 rounded-full ${
+                  socketStatus === 'connected' ? 'bg-green-500' : 
+                  socketStatus === 'connecting' ? 'bg-yellow-500' : 
+                  'bg-red-500'
+                }`}
+                title={`Socket: ${socketStatus}`}
+              />
             </div>
           </Link>
 

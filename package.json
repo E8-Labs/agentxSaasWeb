@@ -97,6 +97,7 @@
     "react-toastify": "^11.0.0",
     "recharts": "^2.15.1",
     "shadcn-ui": "^0.9.4",
+    "socket.io-client": "^4.8.1",
     "style-loader": "^4.0.0",
     "styled-components": "^6.1.13",
     "tailwind-merge": "^3.0.1",
