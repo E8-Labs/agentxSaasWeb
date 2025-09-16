@@ -2241,7 +2241,7 @@ function Page() {
 
     // Check if user is on free plan and has reached their limit
     if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
-      if (user?.user?.currentUsage?.maxAgents >= 1) {
+      if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
         console.log('Free plan user has reached limit - show upgrade modal')
         setShowUpgradeModal(true)
         return
@@ -2402,8 +2402,8 @@ function Page() {
 
       if (data) {
         const userData = JSON.parse(data);
-        const AuthToken = userData.token;
-        const ApiPath = Apis.duplicateAgent;
+        const token = AuthToken();
+        const ApiPath = Apis.duplicateAgent;  
 
         let apidata = {
           agentId: showDrawerSelectedAgent.id,
@@ -2411,7 +2411,7 @@ function Page() {
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
-            Authorization: "Bearer " + AuthToken,
+            Authorization: "Bearer " + token,
           },
         });
 
@@ -3805,7 +3805,11 @@ function Page() {
                                   {
                                     item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
                                     && (
-                                      <UpgradeTag />
+                                      <UpgradeTag
+                                        title="Unlock Language Selection"
+                                        subTitle="Upgrade to unlock language selection"
+                                        buttonTitle="No Thanks"
+                                      /> 
                                     )
                                   }
                                 </MenuItem>
