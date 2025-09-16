@@ -115,6 +115,8 @@ function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
+  let attempts = 0;
+  const maxAttempts = 10;
   // const fileInputRef = useRef(null);
   const router = useRouter();
   let tabs = ["Agent Info", "Actions", "Pipeline", "Knowledge"];
@@ -398,32 +400,24 @@ function Page() {
   }, [])
 
 
+  // useEffect(() => {
+  //   checkUser();
+  // }, []);
+  // get selected agent from local if calendar added by google
+
   useEffect(() => {
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    const checkUser = async () => {
-      // await getProfileDetails();
-      attempts++;
-      console.log(`Trying to get user - try no ${attempts}`);
-
-      const data = localStorage.getItem("User");
-      let userData = null;
-      if (data) {
-        console.log(`User found on try ${attempts}`);
-        console.log("user data for showing max agents is", JSON.parse(data))
-        setUser(JSON.parse(data));
-      } else if (attempts < maxAttempts) {
-        console.log(`User not found on try ${attempts}, retrying in 500ms...`);
-        setTimeout(checkUser, 500); // retry after 500ms
-      } else {
-        console.warn(`User not found in localStorage after ${attempts} attempts.`);
-      }
+    const onPageLoad = () => {
+      checkUser();
     };
 
-    checkUser();
+    if (document.readyState === "complete") {
+      // If page is already loaded
+      onPageLoad();
+    } else {
+      window.addEventListener("load", onPageLoad);
+      return () => window.removeEventListener("load", onPageLoad);
+    }
   }, []);
-  // get selected agent from local if calendar added by google
 
   //printing the user object data after setting the data inside it
   useEffect(() => {
@@ -569,8 +563,27 @@ function Page() {
     }
   }, [objective]);
 
-  //function for numbers width
+  //fetch local data after 500ms
+  const checkUser = async () => {
+    // await getProfileDetails();
+    attempts++;
+    console.log(`Trying to get user - try no ${attempts}`);
 
+    const data = localStorage.getItem("User");
+    let userData = null;
+    if (data) {
+      console.log(`User found on try ${attempts}`);
+      console.log("user data for showing max agents is", JSON.parse(data))
+      setUser(JSON.parse(data));
+    } else if (attempts < maxAttempts) {
+      console.log(`User not found on try ${attempts}, retrying in 500ms...`);
+      setTimeout(checkUser, 500); // retry after 500ms
+    } else {
+      console.warn(`User not found in localStorage after ${attempts} attempts.`);
+    }
+  };
+
+  //function for numbers width
   const numberDropDownWidth = (agName) => {
     if (
       showDrawerSelectedAgent?.agentType === "outbound" ||

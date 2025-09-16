@@ -1286,17 +1286,19 @@ function NewBilling() {
                                             {item.name}
                                         </div>
                                         <div className="text-[14px] font-semibold text-gray-600">
-                                            {item.mints} mins
+                                            {item.mints} AI credits
                                         </div>
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        {`${item.discountPrice || "$0"}/mo`}
+                                        ${`${item.discountPrice || "$0"}/mo`}
                                     </div>
 
-                                    <div className="text-sm font-normal text-[#8a8a8a] text-left mb-3">
-                                        {item.calls} calls* per month
-                                    </div>
+                                    {/*
+                                        <div className="text-sm font-normal text-[#8a8a8a] text-left mb-3">
+                                            {item.calls} calls* per month
+                                        </div>
+                                    */}
 
                                     <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
                                         {item.details}
