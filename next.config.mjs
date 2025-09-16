@@ -29,6 +29,11 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "apimyagentx.com",
+        pathname: "/agentx/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "apimyagentx.com",
         pathname: "/agentxtest/uploads/**",
       },
     ],
