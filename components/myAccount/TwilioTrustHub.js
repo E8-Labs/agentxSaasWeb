@@ -84,7 +84,10 @@ const TwilioTrustHub = () => {
                 setLoader(true);
             }
             const token = AuthToken();
-            const ApiPath = Apis.getBusinessProfile;
+            let ApiPath = Apis.getBusinessProfile;
+            if (selectedUser) {
+                ApiPath = `${Apis.getBusinessProfile}?userId=${selectedUser.id}`
+            }
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + token,
