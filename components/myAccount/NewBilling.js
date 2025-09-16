@@ -1255,9 +1255,9 @@ function NewBilling() {
                                         )}
 
                                         {
-                                            isPaused && item.id === currentPlan && (
+                                            isPaused && item.id === currentPlan ? (
                                                 <div
-                                                    className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                                    className="flex px-2 py-1 bg-[#EAB308] rounded-full text-white"
                                                     style={{
                                                         fontSize: 11.6,
                                                         fontWeight: "500",
@@ -1266,16 +1266,19 @@ function NewBilling() {
                                                 >
                                                     Paused
                                                 </div>
-                                            )
-                                        }
-                                        {
-                                            item.id === currentPlan && (
-                                                <div style={{
-                                                    fontSize: 11.6,
-                                                    fontWeight: "500",
-                                                    width: "fit-content",
-                                                }}>
-                                                    Renews at: {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                            ) : (
+                                                <div>
+                                                    {
+                                                        item.id === currentPlan && (
+                                                            <div style={{
+                                                                fontSize: 11.6,
+                                                                fontWeight: "500",
+                                                                width: "fit-content",
+                                                            }}>
+                                                                Renews at: {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                            </div>
+                                                        )
+                                                    }
                                                 </div>
                                             )
                                         }
