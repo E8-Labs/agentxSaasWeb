@@ -1291,7 +1291,7 @@ function NewBilling() {
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        ${`${item.discountPrice || "$0"}/mo`}
+                                        ${`${item.discountPrice || "0"}/mo`}
                                     </div>
 
                                     {/*

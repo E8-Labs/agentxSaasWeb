@@ -400,24 +400,10 @@ function Page() {
   }, [])
 
 
-  // useEffect(() => {
-  //   checkUser();
-  // }, []);
-  // get selected agent from local if calendar added by google
-
   useEffect(() => {
-    const onPageLoad = () => {
-      checkUser();
-    };
-
-    if (document.readyState === "complete") {
-      // If page is already loaded
-      onPageLoad();
-    } else {
-      window.addEventListener("load", onPageLoad);
-      return () => window.removeEventListener("load", onPageLoad);
-    }
+    checkUser();
   }, []);
+  // get selected agent from local if calendar added by google
 
   //printing the user object data after setting the data inside it
   useEffect(() => {
