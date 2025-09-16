@@ -948,16 +948,16 @@ function NewBilling() {
                 setShowUpgradeModal(true)
             } else {
                 setShowDowngradeModal(true)
-               if(selectedPlan?.name == "Growth"){
+                if (selectedPlan?.name == "Growth") {
                     setDowngradeTitle("Confirm Growth Plan")
                     setDowngradeFeatures(downgradeToGrowthFeatures)
-               }else if(selectedPlan?.name === "Starter"){
+                } else if (selectedPlan?.name === "Starter") {
                     setDowngradeTitle("Confirm Starter Plan")
                     setDowngradeFeatures(downgradeToStarterFeatures)
-               }else{
-                console.log('no condition matched')
-                setShowCancelPoup(true)
-               }
+                } else {
+                    console.log('no condition matched')
+                    setShowCancelPoup(true)
+                }
 
             }
         }
@@ -1268,6 +1268,17 @@ function NewBilling() {
                                                 </div>
                                             )
                                         }
+                                        {
+                                            item.id === currentPlan && (
+                                                <div style={{
+                                                    fontSize: 11.6,
+                                                    fontWeight: "500",
+                                                    width: "fit-content",
+                                                }}>
+                                                    {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                </div>
+                                            )
+                                        }
                                     </div>
 
                                     <div className="flex flex-row items-center justify-between w-full mb-4">
@@ -1382,7 +1393,7 @@ function NewBilling() {
                                     }}
                                 >
                                     {`${selectedPlan?.displayOrder >= currentPlanOrder ? "Upgrade Plan" : "Downgrade Plan"} `}
-                                     {/* {selectedPlan?.displayOrder || "null"} {currentPlanOrder || "null"} */}
+                                    {/* {selectedPlan?.displayOrder || "null"} {currentPlanOrder || "null"} */}
                                 </button>
                             )}
                         </div>
@@ -1392,7 +1403,7 @@ function NewBilling() {
 
             </div>
 
-           <DowngradePlanPopup 
+            <DowngradePlanPopup
                 open={showDowngradeModal}
                 handleClose={() => setShowDowngradeModal(false)}
                 onConfirm={() => {
@@ -1400,7 +1411,7 @@ function NewBilling() {
                 }}
                 downgradeTitle={downgradeTitle}
                 features={downgradeFeatures}
-           />
+            />
 
             <CancelPlanAnimation
                 showModal={showCancelPopup}

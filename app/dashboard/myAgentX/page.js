@@ -392,17 +392,34 @@ function Page() {
         }
       }
     }
-    
+
     // Prefetch the createagent route for faster navigation
     router.prefetch('/createagent');
   }, [])
 
 
   useEffect(() => {
-    let data = getUserLocalData()
-    setUser(data)
-    console.log('data', data.user)
-  }, [])
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    const checkUser = () => {
+      attempts++;
+      console.log(`Trying to get user - try no ${attempts}`);
+      
+      const data = localStorage.getItem("User");
+      if (data) {
+        console.log(`User found on try ${attempts}`);
+        setUser(JSON.parse(data));
+      } else if (attempts < maxAttempts) {
+        console.log(`User not found on try ${attempts}, retrying in 500ms...`);
+        setTimeout(checkUser, 500); // retry after 500ms
+      } else {
+        console.warn(`User not found in localStorage after ${attempts} attempts.`);
+      }
+    };
+
+    checkUser();
+  }, []);
   // get selected agent from local if calendar added by google
 
   useEffect(() => {
@@ -2212,7 +2229,7 @@ function Page() {
     console.log('user?.user?.currentUsage?.maxAgents', user?.user?.currentUsage?.maxAgents)
     console.log('user?.user?.planCapabilities?.maxAgents', user?.user?.planCapabilities?.maxAgents)
     console.log('user', user)
-    
+
     // Check if user is on free plan and has reached their limit
     if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
       if (user?.user?.currentUsage?.maxAgents >= 1) {
@@ -2221,7 +2238,7 @@ function Page() {
         return
       }
     }
-    
+
     // Check if paid plan user has reached their agent limit
     if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
       console.log('Paid plan user is over the allowed capabilities')
@@ -2437,8 +2454,8 @@ function Page() {
     console.log("selected language is", value);
     // console.log("selected voice is",SelectedVoice)
 
-    
-    if(value === "Multilingual" && (user?.user?.planCapabilities?.allowLanguageSelection === false)){
+
+    if (value === "Multilingual" && (user?.user?.planCapabilities?.allowLanguageSelection === false)) {
       return
     }
 
@@ -3778,9 +3795,9 @@ function Page() {
 
                                   {
                                     item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
-                                      && (
-                                        <UpgradeTag />
-                                      )
+                                    && (
+                                      <UpgradeTag />
+                                    )
                                   }
                                 </MenuItem>
                               );
