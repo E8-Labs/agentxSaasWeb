@@ -407,12 +407,13 @@ function Page() {
       console.log(`Trying to get user - try no ${attempts}`);
 
       const data = localStorage.getItem("User");
+      let userData = null;
       if (data) {
         console.log(`User found on try ${attempts}`);
-        let userData = JSON.parse(data);
+        userData = JSON.parse(data);
         console.log("user data for showing max agents is", userData)
         const profileData = await getProfileDetails();
-        userData.user = profileData;
+        userData?.user = profileData.data.data;;
         setUser(userData);
       } else if (attempts < maxAttempts) {
         console.log(`User not found on try ${attempts}, retrying in 500ms...`);
@@ -2405,7 +2406,7 @@ function Page() {
       if (data) {
         const userData = JSON.parse(data);
         const token = AuthToken();
-        const ApiPath = Apis.duplicateAgent;  
+        const ApiPath = Apis.duplicateAgent;
 
         let apidata = {
           agentId: showDrawerSelectedAgent.id,
@@ -3811,7 +3812,7 @@ function Page() {
                                         title="Unlock Language Selection"
                                         subTitle="Upgrade to unlock language selection"
                                         buttonTitle="No Thanks"
-                                      /> 
+                                      />
                                     )
                                   }
                                 </MenuItem>
