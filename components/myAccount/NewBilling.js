@@ -645,6 +645,7 @@ function NewBilling() {
                     // localStorage.setItem("User", JSON.stringify(localDetails));
                     setSuccessSnack("Your plan successfully updated");
                     getProfileDetails()
+                    setShowDowngradeModal(false);
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
                 }
@@ -1422,6 +1423,7 @@ function NewBilling() {
                 onConfirm={() => {
                     handleSubscribePlan()
                 }}
+                subscribePlanLoader={subscribePlanLoader}
                 downgradeTitle={downgradeTitle}
                 features={downgradeFeatures}
             />
