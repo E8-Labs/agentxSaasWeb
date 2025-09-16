@@ -413,7 +413,7 @@ function Page() {
         userData = JSON.parse(data);
         console.log("user data for showing max agents is", userData)
         const profileData = await getProfileDetails();
-        userData?.user = profileData.data.data;;
+        userData.user = profileData.data.data;;
         setUser(userData);
       } else if (attempts < maxAttempts) {
         console.log(`User not found on try ${attempts}, retrying in 500ms...`);
