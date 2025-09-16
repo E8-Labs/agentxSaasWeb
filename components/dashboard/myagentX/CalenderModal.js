@@ -65,6 +65,10 @@ function CalendarModal(props) {
     const code = qs.get("code");
     const error = qs.get("error");
 
+    console.log("Code sent by authorization popup", code)
+    console.log("Error sent by authorization popup", error)
+    console.log("QS sent by authorization popup", qs)
+
     // If this window was opened by another window (popup case)
     if (window.opener && (code || error)) {
       try {
@@ -212,7 +216,7 @@ function CalendarModal(props) {
 
   //ghl calendar popup click
   const startGHLAuthPopup = useCallback(() => {
-    const currentPath = window.location.origin + window.location.pathname;
+    const currentPath = process.env.NEXT_PUBLIC_GHL_REDIRECT_URI; //window.location.origin + window.location.pathname;
     let p = currentPath + "Hamza";
     console.log("Path to redirect is", currentPath)
     console.log("Testing the P", p);
