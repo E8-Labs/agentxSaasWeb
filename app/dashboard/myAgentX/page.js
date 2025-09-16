@@ -403,7 +403,7 @@ function Page() {
     const maxAttempts = 10;
 
     const checkUser = async () => {
-      await getProfileDetails();
+      // await getProfileDetails();
       attempts++;
       console.log(`Trying to get user - try no ${attempts}`);
 
