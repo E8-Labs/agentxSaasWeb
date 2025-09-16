@@ -143,8 +143,8 @@ function MyAccount() {
         return <MyPhoneNumber />;
       case 6:
         return <InviteAgentX />;
-        case 7:
-          return <TwilioTrustHub />;
+      case 7:
+        return <TwilioTrustHub />;
       default:
         return <div>Please select an option.</div>;
     }
@@ -195,7 +195,7 @@ function MyAccount() {
       </div>
 
       <div className="w-full flex flex-row item-center pl-4 h-[100%]">
-        <div className="w-4/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
+        <div className="w-3/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {manuBar.map((item, index) => (
             <div key={item.id} className="w-full">
               <button
@@ -218,28 +218,26 @@ function MyAccount() {
                 >
                   <Image src={item.icon} height={24} width={24} alt="icon" />
                   <div
-                    className="flex flex-col gap-1 items-start"
-                    style={{
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
+                    className="flex flex-col gap-1 items-start text-start"
+                  // style={{
+                  //   whiteSpace: "nowrap",
+                  //   overflow: "hidden",
+                  //   textOverflow: "ellipsis",
+                  // }}
                   >
                     <div
                       style={{
                         fontSize: 16,
                         fontWeight: "700",
                         color: "#000",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        textAlign: "left",
                       }}
                     >
                       {item.heading}
                     </div>
 
                     <div
-                      style={{ fontSize: 13, fontWeight: "500", color: "#000" }}
+                      style={{ fontSize: 13, fontWeight: "500", color: "#000", textAlign: "left", }}
                     >
                       {item.subHeading}
                     </div>
@@ -251,7 +249,7 @@ function MyAccount() {
         </div>
 
         <div
-          className="w-8/12 "
+          className="w-9/12 "
           style={{
             overflow: "auto",
             height: "92vh",

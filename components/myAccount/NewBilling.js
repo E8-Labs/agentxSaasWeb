@@ -1220,7 +1220,7 @@ function NewBilling() {
                     <button
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0"
-                        style={{ width: "280px" }} // Fixed width for consistent card sizes
+                        style={{ width: "220px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
@@ -1285,7 +1285,7 @@ function NewBilling() {
                                         <div className="text-[16px] font-semibold">
                                             {item.name}
                                         </div>
-                                        <div className="text-[14px] font-semibold text-gray-600">
+                                        <div className="text-[16px] font-semibold">
                                             {item.mints} AI credits
                                         </div>
                                     </div>
@@ -1300,9 +1300,11 @@ function NewBilling() {
                                         </div>
                                     */}
 
-                                    <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
-                                        {item.details}
-                                    </div>
+                                    {/*
+                                        <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
+                                            {item.details}
+                                        </div>
+                                    */}
 
                                     {/* Features section - only show features with thumb = true */}
                                     {item.features && item.features.length > 0 && (
@@ -1318,7 +1320,13 @@ function NewBilling() {
                                                             className="mt-0.5 flex-shrink-0"
                                                         />
                                                         <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                            {feature.text}
+                                                            {
+                                                                feature.thumb && (
+                                                                    <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
+                                                                        {feature.text}
+                                                                    </div>
+                                                                )
+                                                            }
                                                         </div>
                                                     </div>
                                                 ))}
