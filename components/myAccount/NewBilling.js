@@ -1275,7 +1275,7 @@ function NewBilling() {
                                                     fontWeight: "500",
                                                     width: "fit-content",
                                                 }}>
-                                                    {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                    Renews at: {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
                                                 </div>
                                             )
                                         }

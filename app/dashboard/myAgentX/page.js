@@ -405,11 +405,13 @@ function Page() {
     const checkUser = () => {
       attempts++;
       console.log(`Trying to get user - try no ${attempts}`);
-      
+
       const data = localStorage.getItem("User");
       if (data) {
         console.log(`User found on try ${attempts}`);
-        setUser(JSON.parse(data));
+        const userData = JSON.parse(data);
+        console.log("user data for showing max agents is", userData)
+        setUser(userData);
       } else if (attempts < maxAttempts) {
         console.log(`User not found on try ${attempts}, retrying in 500ms...`);
         setTimeout(checkUser, 500); // retry after 500ms
@@ -421,6 +423,13 @@ function Page() {
     checkUser();
   }, []);
   // get selected agent from local if calendar added by google
+
+  //printing the user object data after setting the data inside it
+  useEffect(() => {
+    if (user) {
+      console.log("Data stored in user variable is", user)
+    }
+  }, [user])
 
   useEffect(() => {
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle);

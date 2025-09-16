@@ -216,7 +216,7 @@ function CalendarModal(props) {
 
   //ghl calendar popup click
   const startGHLAuthPopup = useCallback(() => {
-    const currentPath = process.env.NEXT_PUBLIC_GHL_REDIRECT_URI; //window.location.origin + window.location.pathname;
+    const currentPath = window.location.origin + window.location.pathname; //process.env.NEXT_PUBLIC_GHL_REDIRECT_URI;
     let p = currentPath + "Hamza";
     console.log("Path to redirect is", currentPath)
     console.log("Testing the P", p);
