@@ -402,15 +402,17 @@ function Page() {
     let attempts = 0;
     const maxAttempts = 10;
 
-    const checkUser = () => {
+    const checkUser = async () => {
       attempts++;
       console.log(`Trying to get user - try no ${attempts}`);
 
       const data = localStorage.getItem("User");
       if (data) {
         console.log(`User found on try ${attempts}`);
-        const userData = JSON.parse(data);
+        let userData = JSON.parse(data);
         console.log("user data for showing max agents is", userData)
+        const profileData = await getProfileDetails();
+        userData.user = profileData;
         setUser(userData);
       } else if (attempts < maxAttempts) {
         console.log(`User not found on try ${attempts}, retrying in 500ms...`);
