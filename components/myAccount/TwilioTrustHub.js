@@ -14,7 +14,7 @@ import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
 import IntroVideoModal from '../createagent/IntroVideoModal'
 import Image from 'next/image'
 
-const TwilioTrustHub = (selectedUser) => {
+const TwilioTrustHub = ({selectedUser}) => {
 
     //how to video
     const [introVideoModal2, setIntroVideoModal2] = useState(false);
