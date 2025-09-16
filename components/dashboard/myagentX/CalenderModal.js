@@ -228,7 +228,7 @@ function CalendarModal(props) {
         "locations.readonly",
         "locations/customFields.readonly",
       ].join(" ");
-    console.log("GHL Check 1");
+    console.log("GHL Check 1 scopes are", scope);
     const params = new URLSearchParams({
       response_type: "code",
       client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
@@ -237,10 +237,10 @@ function CalendarModal(props) {
       // keep auth in the same popup window
       loginWindowOpenMode: "self",
     });
-    console.log("GHL Check 2");
+    console.log("GHL Check 2 param are", params);
     const authUrl =
       "https://marketplace.gohighlevel.com/oauth/chooselocation?" + params.toString();
-    console.log("GHL Check 3");
+    console.log("GHL Check 3", authUrl);
     // Open a centered popup
     const w = 520;
     const h = 650;
@@ -258,6 +258,7 @@ function CalendarModal(props) {
       console.log("GHL Check 6");
       window.location.href = authUrl;
     } else {
+      console.log("Waiting for GHL authorization")
       setStatus("Waiting for authorization...");
       // setShowSnack({
       //   message: "Waiting for authorization...",
