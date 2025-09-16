@@ -2393,8 +2393,8 @@ function Page() {
 
       if (data) {
         const userData = JSON.parse(data);
-        const AuthToken = userData.token;
-        const ApiPath = Apis.duplicateAgent;
+        const token = AuthToken();
+        const ApiPath = Apis.duplicateAgent;  
 
         let apidata = {
           agentId: showDrawerSelectedAgent.id,
@@ -2402,7 +2402,7 @@ function Page() {
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
-            Authorization: "Bearer " + AuthToken,
+            Authorization: "Bearer " + token,
           },
         });
 
@@ -3796,7 +3796,11 @@ function Page() {
                                   {
                                     item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
                                     && (
-                                      <UpgradeTag />
+                                      <UpgradeTag
+                                        title="Unlock Language Selection"
+                                        subTitle="Upgrade to unlock language selection"
+                                        buttonTitle="No Thanks"
+                                      /> 
                                     )
                                   }
                                 </MenuItem>
