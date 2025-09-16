@@ -2232,7 +2232,7 @@ function Page() {
 
     // Check if user is on free plan and has reached their limit
     if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
-      if (user?.user?.currentUsage?.maxAgents >= 1) {
+      if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
         console.log('Free plan user has reached limit - show upgrade modal')
         setShowUpgradeModal(true)
         return
