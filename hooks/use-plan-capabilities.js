@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux';
 import {
+  selectUser,
   selectUserPlan,
   selectPlanCapabilities,
   selectCurrentUsage,
@@ -12,6 +13,7 @@ import {
 } from '../store/slices/userSlice';
 
 export const usePlanCapabilities = () => {
+  const reduxUser = useSelector(selectUser);
   const plan = useSelector(selectUserPlan);
   const planCapabilities = useSelector(selectPlanCapabilities);
   const currentUsage = useSelector(selectCurrentUsage);
@@ -22,28 +24,8 @@ export const usePlanCapabilities = () => {
   const allowKnowledgeBases = useSelector(selectAllowKnowledgeBases);
   const isTrial = useSelector(selectIsTrial);
 
-  // Log plan capabilities when they change
-  console.log('🔍 [PLAN-CAPABILITIES] Current plan state:', {
-    planType: plan?.type || 'undefined',
-    planPrice: plan?.price || 'undefined',
-    maxAgents: maxAgents || 0,
-    currentAgents: currentAgents || 0,
-    canCreateAgent: (currentAgents || 0) < (maxAgents || 0),
-    allowVoicemail: allowVoicemail || false,
-    allowToolsAndActions: allowToolsAndActions || false,
-    allowKnowledgeBases: allowKnowledgeBases || false,
-    isTrial: isTrial || false,
-    hasUser: !!plan,
-    hasPlanCapabilities: !!planCapabilities
-  });
-  
-  // Additional debugging
-  console.log('🔍 [PLAN-CAPABILITIES] Raw data check:', {
-    planCapabilitiesObject: planCapabilities,
-    maxAgentsFromCapabilities: planCapabilities?.maxAgents,
-    currentUsageObject: currentUsage,
-    currentAgentsFromUsage: currentUsage?.maxAgents
-  });
+  // Minimal logging to prevent memory leaks
+  // console.log('🔍 [PLAN-CAPABILITIES] maxAgents:', maxAgents, 'currentAgents:', currentAgents);
 
   // Check if user has reached agent limit
   const canCreateAgent = () => {
@@ -75,7 +57,18 @@ export const usePlanCapabilities = () => {
 
   // Check if user is on free plan
   const isFreePlan = () => {
-    return !plan || plan.price === 0;
+    if (!plan) return true;
+    
+    // More comprehensive free plan detection
+    // Check plan type first, then capabilities, then price as fallback
+    const planType = plan?.type?.toLowerCase();
+    if (planType?.includes('free')) return true;
+    
+    // If user has more than 1 agent capability, it's likely not free
+    if (planCapabilities?.maxAgents > 1) return false;
+    
+    // Fallback to price check
+    return plan.price === 0;
   };
 
   // Get upgrade message for features

@@ -18,16 +18,9 @@ const userSlice = createSlice({
       const { token, user } = action.payload;
       console.log('🟢 [REDUX] Setting user data:', { 
         userId: user?.id, 
-        email: user?.email, 
-        plan: user?.plan?.type,
-        planPrice: user?.plan?.price,
+        planType: user?.plan?.type,
         maxAgents: user?.planCapabilities?.maxAgents,
-        currentAgents: user?.currentUsage?.maxAgents,
-        hasPlanCapabilities: !!user?.planCapabilities,
-        planCapabilitiesObject: user?.planCapabilities,
-        hasCurrentUsage: !!user?.currentUsage,
-        currentUsageObject: user?.currentUsage,
-        fullActionPayload: action.payload
+        currentAgents: user?.currentUsage?.maxAgents
       });
       state.token = token;
       state.user = user; // Store the complete user object

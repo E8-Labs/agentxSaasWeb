@@ -34,6 +34,7 @@ import UpgradePlan from "../userPlans/UpgradePlan";
 import { getUserLocalData } from "../constants/constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import DowngradePlanPopup from "./cancelationFlow/DowngradePlanPopup";
+import UpgradeModal from "@/constants/UpgradeModal";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -130,6 +131,9 @@ function NewBilling() {
     const [showDowngradeModal, setShowDowngradeModal] = useState(false)
     const [downgradeTitle, setDowngradeTitle] = useState("")
     const [downgradeFeatures, setDowngradeFeatures] = useState([])
+
+    // Smart Refill Upgrade Modal state
+    const [showSmartRefillUpgradeModal, setShowSmartRefillUpgradeModal] = useState(false)
 
 
     useEffect(() => {
@@ -620,31 +624,12 @@ function NewBilling() {
             if (response) {
                 // console.log
                 if (response.data.status === true) {
-                    localDetails.user.plan = response.data.data;
-                    console.log("User plan sibscibe res[ponse is", response.data.data)
-
-                    window.dispatchEvent(
-                        new CustomEvent("hidePlanBar", { detail: { update: true } })
-                    )
-                    window.dispatchEvent(
-                        new CustomEvent("UpdateProfile", { detail: { update: true } })
-                    )
-                    let user = userLocalData
-                    user.plan = response.data.data
-                    setUserLocalData(user)
-                    let response2 = await getProfileDetails();
-                    if (response2) {
-                        let togglePlan = response2?.data?.data?.plan?.planId;
-                        let planType = null;
-
-                        setTogglePlan(togglePlan);
-                        setCurrentPlan(togglePlan);
-                        setToggleFullPlan(response2?.data?.data?.plan)
-                        setCurrentFullPlan(response2?.data?.data?.plan)
-                    }
-                    // localStorage.setItem("User", JSON.stringify(localDetails));
+                    console.log("✅ [NEW-BILLING] Plan subscription successful:", response.data.data);
+                    
+                    // Refresh profile and update all state
+                    await refreshProfileAndState();
+                    
                     setSuccessSnack("Your plan successfully updated");
-                    getProfileDetails()
                     setShowDowngradeModal(false);
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
@@ -693,18 +678,14 @@ function NewBilling() {
             if (response) {
                 //console.log;
                 if (response.data.status === true) {
-                    // //console.log;
-                    // window.location.reload();
-                    await getProfileDetails();
+                    console.log("✅ [NEW-BILLING] Plan cancellation successful");
+                    
+                    // Refresh profile and update all state
+                    await refreshProfileAndState();
+                    
                     setShowConfirmCancelPlanPopup(false);
                     setGiftPopup(false);
-                    setTogglePlan(null);
-                    setCurrentPlan(null);
                     setShowConfirmCancelPlanPopup2(true);
-                    let user = userLocalData
-                    user.plan.status = "cancelled"
-                    setUserLocalData(user)
-                    //console.log
                     setSuccessSnack("Your plan was successfully cancelled");
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
@@ -818,9 +799,10 @@ function NewBilling() {
         }
     };
 
-    const handleCloseCancelation = () => {
-        setShowCancelPoup(false)
-        getProfile()
+    const handleCloseCancelation = async () => {
+        setShowCancelPoup(false);
+        // Refresh profile after cancellation
+        await refreshProfileAndState();
     }
 
     //del reason api
@@ -940,6 +922,173 @@ function NewBilling() {
         )
     }
 
+    // Function to refresh profile and update all related state
+    const refreshProfileAndState = async () => {
+        try {
+            console.log('🔄 [NEW-BILLING] Refreshing profile after plan change...');
+            const response = await getProfileDetails();
+            
+            if (response && response.data?.status === true) {
+                const profileData = response.data.data;
+                const plan = profileData.plan;
+                
+                // Update user local data
+                setUserLocalData(profileData);
+                
+                // Update plan-related state
+                setCurrentFullPlan(plan);
+                setToggleFullPlan(plan);
+                setCurrentPlan(plan?.planId);
+                setTogglePlan(plan?.planId);
+                
+                // Update plan order for comparison
+                if (plan?.displayOrder) {
+                    setCurrentPlanOrder(plan.displayOrder);
+                }
+                
+                // Update pause status
+                setIsPaused(plan?.pauseExpiresAt != null ? true : false);
+                
+                console.log('✅ [NEW-BILLING] Profile refreshed successfully:', {
+                    planId: plan?.planId,
+                    planType: plan?.type,
+                    planPrice: plan?.price,
+                    displayOrder: plan?.displayOrder
+                });
+                
+                // Dispatch events to update other components
+                window.dispatchEvent(
+                    new CustomEvent("hidePlanBar", { detail: { update: true } })
+                );
+                window.dispatchEvent(
+                    new CustomEvent("UpdateProfile", { detail: { update: true } })
+                );
+                
+                return true;
+            }
+        } catch (error) {
+            console.error('❌ [NEW-BILLING] Error refreshing profile:', error);
+        }
+        return false;
+    };
+
+    // Function to get features that would be lost when downgrading
+    const getFeaturesToLose = (currentPlan, targetPlan) => {
+        if (!currentPlan || !targetPlan) {
+            console.log('❌ [DOWNGRADE] Missing current or target plan');
+            return [];
+        }
+
+        console.log('🔍 [DOWNGRADE] Current plan:', currentPlan);
+        console.log('🔍 [DOWNGRADE] Target plan:', targetPlan);
+
+        const featuresToLose = [];
+        currentPlan.capabilities = currentPlan.features || []
+        targetPlan.capabilities = targetPlan.features || []
+        // Check if plans have capabilities
+        if (currentPlan.capabilities && targetPlan.capabilities) {
+            console.log('✅ [DOWNGRADE] Using capabilities for comparison');
+
+            // Compare AI Agents
+            const currentAgents = currentPlan.capabilities?.maxAgents || 0;
+            const targetAgents = targetPlan.capabilities?.maxAgents || 0;
+            
+            if (currentAgents > targetAgents) {
+                if (currentAgents === 1000) {
+                    featuresToLose.push("Unlimited Agents");
+                } else {
+                    featuresToLose.push(`${currentAgents} AI Agents`);
+                }
+            }
+
+            // Compare Contacts
+            const currentContacts = currentPlan.capabilities?.maxLeads || 0;
+            const targetContacts = targetPlan.capabilities?.maxLeads || 0;
+            
+            if (currentContacts > targetContacts) {
+                if (currentContacts === 10000000) {
+                    featuresToLose.push("Unlimited Contacts");
+                } else {
+                    featuresToLose.push(`${currentContacts.toLocaleString()} Contacts`);
+                }
+            }
+
+            // Compare Team Seats
+            const currentTeamSeats = currentPlan.capabilities?.maxTeamMembers || 0;
+            const targetTeamSeats = targetPlan.capabilities?.maxTeamMembers || 0;
+            
+            if (currentTeamSeats > targetTeamSeats) {
+                if (currentTeamSeats === 1000) {
+                    featuresToLose.push("Unlimited Team Seats");
+                } else {
+                    featuresToLose.push(`${currentTeamSeats} Team Seats`);
+                }
+            }
+
+            // Compare AI Credits
+            const currentCredits = currentPlan.mints || 0;
+            const targetCredits = targetPlan.mints || 0;
+            
+            if (currentCredits > targetCredits) {
+                featuresToLose.push(`${currentCredits} AI Credits`);
+            }
+
+            // Compare specific features that are boolean capabilities
+            const capabilityFeatures = [
+                { key: 'allowPrioritySupport', name: 'Priority Support' },
+                { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
+                { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
+                { key: 'allowLeadSource', name: 'Lead Source' }
+            ];
+
+            capabilityFeatures.forEach(feature => {
+                const currentHasFeature = currentPlan.capabilities?.[feature.key] || false;
+                const targetHasFeature = targetPlan.capabilities?.[feature.key] || false;
+                
+                if (currentHasFeature && !targetHasFeature) {
+                    featuresToLose.push(feature.name);
+                }
+            });
+        } else {
+            console.log('⚠️ [DOWNGRADE] No capabilities found, using fallback logic');
+            
+            // Fallback: Use plan names and basic comparisons
+            const currentPlanName = currentPlan.name || '';
+            const targetPlanName = targetPlan.name || '';
+            
+            // Scale to Growth
+            if (currentPlanName === 'Scale' && targetPlanName === 'Growth') {
+                featuresToLose.push("Unlimited Agents", "Unlimited Contacts", "Unlimited Team Seats", "1000 AI Credits", "Success Manager");
+            }
+            // Scale to Starter
+            else if (currentPlanName === 'Scale' && targetPlanName === 'Starter') {
+                featuresToLose.push("Unlimited Agents", "Unlimited Contacts", "Unlimited Team Seats", "1000 AI Credits", "Success Manager", "Ultra Priority Calling");
+            }
+            // Growth to Starter
+            else if (currentPlanName === 'Growth' && targetPlanName === 'Starter') {
+                featuresToLose.push("10 AI Agents", "10,000 Contacts", "4 Team Seats", "450 AI Credits", "Ultra Priority Calling");
+            }
+        }
+
+        // Check for Success Manager (Scale only)
+        if (currentPlan.name === 'Scale' && targetPlan.name !== 'Scale') {
+            if (!featuresToLose.includes("Success Manager")) {
+                featuresToLose.push("Success Manager");
+            }
+        }
+
+        // Check for Ultra Priority Calling (Growth and Scale only)
+        if ((currentPlan.name === 'Scale' || currentPlan.name === 'Growth') && 
+            targetPlan.name === 'Starter') {
+            if (!featuresToLose.includes("Ultra Priority Calling")) {
+                featuresToLose.push("Ultra Priority Calling");
+            }
+        }
+
+        console.log('📋 [DOWNGRADE] Features to lose:', featuresToLose);
+        return featuresToLose;
+    };
+
     const handleUpgradeClick = () => {
         if (currentPlan && !selectedPlan.discountPrice) { // if user try to downgrade on free plan
             setShowCancelPoup(true)
@@ -949,19 +1098,80 @@ function NewBilling() {
                 setShowUpgradeModal(true)
             } else {
                 setShowDowngradeModal(true)
-                if (selectedPlan?.name == "Growth") {
-                    setDowngradeTitle("Confirm Growth Plan")
-                    setDowngradeFeatures(downgradeToGrowthFeatures)
-                } else if (selectedPlan?.name === "Starter") {
-                    setDowngradeTitle("Confirm Starter Plan")
-                    setDowngradeFeatures(downgradeToStarterFeatures)
-                } else {
-                    console.log('no condition matched')
-                    setShowCancelPoup(true)
-                }
-
+                
+                // Set title based on target plan
+                setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`);
+                
+                // Calculate features that would be lost
+                const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan);
+                setDowngradeFeatures(featuresToLose);
             }
         }
+    }
+
+    // Function to check if user is on free plan
+    const isFreePlan = () => {
+        return currentFullPlan && (currentFullPlan.price === 0 || currentFullPlan.isFree);
+    };
+
+    // Handler for smart refill disabled click
+    const handleSmartRefillDisabledClick = () => {
+        setShowSmartRefillUpgradeModal(true);
+    };
+
+    // Handler for smart refill upgrade modal
+    const handleSmartRefillUpgrade = async () => {
+        setShowSmartRefillUpgradeModal(false);
+        // Refresh profile after upgrade
+        await refreshProfileAndState();
+    };
+
+    // Function to determine button text and action
+    const getButtonConfig = () => {
+        // If no plan is selected or current plan is same as selected plan, show Cancel
+        if (!selectedPlan || currentPlan === togglePlan) {
+            return {
+                text: "Cancel Account",
+                action: () => handleCancelClick(),
+                isLoading: cancelInitiateLoader,
+                className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
+                style: {}
+            };
+        }
+
+        // If user has selected a plan higher than current plan, show Upgrade
+        if (selectedPlan?.displayOrder >= currentPlanOrder) {
+            return {
+                text: "Upgrade Plan",
+                action: () => handleUpgradeClick(),
+                isLoading: subscribePlanLoader,
+                className: "rounded-xl w-full",
+                style: {
+                    height: "50px",
+                    fontSize: 16,
+                    fontWeight: "700",
+                    flexShrink: 0,
+                    backgroundColor: "#7902DF",
+                    color: "#ffffff",
+                }
+            };
+        }
+
+        // Otherwise show Downgrade
+        return {
+            text: "Downgrade Plan",
+            action: () => handleUpgradeClick(),
+            isLoading: subscribePlanLoader,
+            className: "rounded-xl w-full",
+            style: {
+                height: "50px",
+                fontSize: 16,
+                fontWeight: "700",
+                flexShrink: 0,
+                backgroundColor: "#7902DF",
+                color: "#ffffff",
+            }
+        };
     }
 
     return (
@@ -1164,7 +1374,11 @@ function NewBilling() {
 
             {/* Code for  smart refill*/}
 
-            <SmartRefillCard />
+            <SmartRefillCard 
+                isDisabled={false}
+                onDisabledClick={handleSmartRefillDisabledClick}
+                isFreePlan={isFreePlan()}
+            />
 
             {/* code for current plans available */}
             <div className="flex flex-col items-end  w-full mt-4">
@@ -1359,62 +1573,32 @@ function NewBilling() {
             </div>
 
             <div className="w-full flex flex-row items-center justify-center gap-3 mt-8">
-                {
-                    currentFullPlan?.price ? (
-                        <div className="w-1/2">
-                            {
-                                cancelInitiateLoader ? (
-                                    <CircularProgress size={20} />
-                                ) : (
-                                    <button
-                                        className="w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border"
+                {(() => {
+                    const buttonConfig = getButtonConfig();
+                    
+                    // Only show button if user has a paid plan or if they have selected a different plan
+                    if (!currentFullPlan?.price && (!selectedPlan || currentPlan === togglePlan)) {
+                        return null;
+                    }
 
-                                        onClick={() => {
-                                            handleCancelClick()
-                                        }}
-                                    >
-                                        Cancel Account
-                                    </button>
-                                )
-                            }
-
-                        </div>
-                    ) : ""}
-                {
-                    currentPlan !== togglePlan && (
+                    return (
                         <div className="w-1/2">
-                            {subscribePlanLoader ? (
-                                <div>
+                            {buttonConfig.isLoading ? (
+                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
                                     <CircularProgress size={25} />
                                 </div>
                             ) : (
                                 <button
-                                    className="rounded-xl w-full "
-                                    disabled={togglePlan === currentPlan}
-                                    style={{
-                                        height: "50px",
-                                        fontSize: 16,
-                                        fontWeight: "700",
-                                        flexShrink: 0,
-                                        backgroundColor:
-                                            togglePlan === currentPlan ? "#00000020" : "#7902DF",
-                                        color: togglePlan === currentPlan ? "#000000" : "#ffffff",
-                                    }}
-                                    // onClick={handleSubscribePlan}
-                                    onClick={() => {
-                                        handleUpgradeClick()
-
-                                    }}
+                                    className={buttonConfig.className}
+                                    onClick={buttonConfig.action}
+                                    style={buttonConfig.style}
                                 >
-                                    {`${selectedPlan?.displayOrder >= currentPlanOrder ? "Upgrade Plan" : "Downgrade Plan"} `}
-                                    {/* {selectedPlan?.displayOrder || "null"} {currentPlanOrder || "null"} */}
+                                    {buttonConfig.text}
                                 </button>
                             )}
                         </div>
-                    )
-                }
-
-
+                    );
+                })()}
             </div>
 
             <DowngradePlanPopup
@@ -1438,14 +1622,31 @@ function NewBilling() {
 
             <Elements stripe={stripePromise}>
                 <UpgradePlan
+                    selectedPlan={selectedPlan}
                     open={showUpgradeModal}
-                    handleClose={() => {
-                        setShowUpgradeModal(false)
+                    handleClose={async (upgradeResult) => {
+                        setShowUpgradeModal(false);
+                        
+                        // If upgrade was successful, refresh profile and state
+                        if (upgradeResult) {
+                            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...');
+                            await refreshProfileAndState();
+                        }
                     }}
                     plan={selectedPlan}
                     currentFullPlan={currentFullPlan}
                 />
             </Elements>
+
+            {/* Smart Refill Upgrade Modal */}
+            <UpgradeModal
+                title="Enable Smart Refill"
+                subTitle="Avoid call interruptions when making calls, ensure your AI always has minutes."
+                buttonTitle="No Thanks. Continue on free plan"
+                open={showSmartRefillUpgradeModal}
+                handleClose={() => setShowSmartRefillUpgradeModal(false)}
+                onUpgradeSuccess={handleSmartRefillUpgrade}
+            />
 
 
             {/* Add Payment Modal */}

@@ -105,10 +105,14 @@ const DuplicateButton = dynamic(
 function Page() {
   // Redux hooks for plan management
   const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
+  
+  // Add flags to prevent infinite loops
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
-  useEffect(() => {
-    console.log("reduxUser on myAgentX page", reduxUser)
-  }, [reduxUser])
+  // useEffect(() => {
+  //   console.log("reduxUser on myAgentX page", reduxUser)
+  // }, [reduxUser])
   const { 
     canCreateAgent,
     allowVoicemail,
@@ -409,7 +413,7 @@ function Page() {
         if (ag) {
           let agent = JSON.parse(ag)
 
-          console.log('selected agent from local is', agent)
+          // console.log('selected agent from local is', agent)
           setShowDrawerSelectedAgent(agent)
         }
       }
@@ -417,93 +421,148 @@ function Page() {
 
     // Prefetch the createagent route for faster navigation
     router.prefetch('/createagent');
+    
+    // Cleanup function for component unmount
   }, [])
 
 
   // Function to sync fresh profile data to Redux
-  const syncProfileToRedux = async () => {
+  const syncProfileToRedux = async (skipLocalStorage = false) => {
     try {
-      console.log('🔄 [DASHBOARD] Fetching fresh profile data...');
+      // console.log('🔄 [DASHBOARD] Fetching fresh profile data...');
       const profileResponse = await getProfileDetails();
       
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = getUserLocalData();
         
-        console.log('🔄 [DASHBOARD] Syncing fresh profile to Redux:', {
-          userId: freshUserData?.id,
-          planType: freshUserData?.plan?.type,
-          planPrice: freshUserData?.plan?.price,
-          maxAgents: freshUserData?.planCapabilities?.maxAgents,
-          currentAgents: freshUserData?.currentUsage?.maxAgents
-        });
+        // console.log('🔄 [DASHBOARD] Syncing profile to Redux - userId:', freshUserData?.id);
         
         // Update Redux with fresh data
         setReduxUser({
           token: localData.token,
           user: freshUserData
         });
+        
+        // Only update localStorage if not skipped (to prevent loops during initialization)
+        if (!skipLocalStorage) {
+          const updatedUserData = {
+            token: localData.token,
+            user: freshUserData
+          };
+          localStorage.setItem("User", JSON.stringify(updatedUserData));
+          setUser(updatedUserData);
+        }
       }
     } catch (error) {
       console.error('🔴 [DASHBOARD] Error syncing profile to Redux:', error);
     }
   };
 
+  // Handle successful plan upgrade - refresh user data
+  const handleUpgradeSuccess = async () => {
+    // console.log('🎉 [DASHBOARD] Plan upgrade successful! Fetching fresh profile data...');
+    
+    try {
+      // Always fetch fresh profile data after upgrade
+      // console.log('🔄 [DASHBOARD] Calling getProfileDetails API for latest plan info...');
+      const profileResponse = await getProfileDetails();
+      
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = getUserLocalData();
+        
+        // console.log('✅ [DASHBOARD] Fresh profile data received - maxAgents:', freshUserData?.planCapabilities?.maxAgents);
+        
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+        
+        // Update both Redux and localStorage
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        setUser(updatedUserData);
+        
+        // console.log('🎊 [DASHBOARD] User data successfully refreshed after upgrade!');
+      } else {
+        console.error('🔴 [DASHBOARD] Failed to get fresh profile data after upgrade');
+      }
+    } catch (error) {
+      console.error('🔴 [DASHBOARD] Error refreshing user data after upgrade:', error);
+    }
+  };
+
   // Combined initialization function (merges Redux + test branch logic)
   const initializeUserData = async () => {
+    // Prevent infinite loops
+    if (isInitializing || hasInitialized) {
+      // console.log('🛑 [DASHBOARD] Initialization already in progress or completed');
+      return;
+    }
+    
+    setIsInitializing(true);
     attempts++;
-    console.log(`🔄 [DASHBOARD] Initializing user data - attempt ${attempts}`);
+    // console.log(`🔄 [DASHBOARD] Initializing user data - attempt ${attempts}`);
 
-    const data = localStorage.getItem("User");
-    if (data) {
-      const userData = JSON.parse(data);
-      console.log(`✅ [DASHBOARD] User found on attempt ${attempts}`);
-      console.log("user data for showing max agents is", userData);
-      
-      // Set local state (from test branch)
-      setUser(userData);
-      
-      // Load into Redux if not already there (from our branch)
-      if (userData && !reduxUser) {
-        console.log('🔄 [DASHBOARD] Loading localStorage data into Redux:', {
-          userId: userData.user?.id,
-          plan: userData.user?.plan?.type,
-          maxAgentsFromLocal: userData.user?.planCapabilities?.maxAgents
-        });
-        setReduxUser({
-          token: userData.token,
-          user: userData.user
-        });
+    try {
+      const data = localStorage.getItem("User");
+      if (data) {
+        const userData = JSON.parse(data);
+        // console.log(`✅ [DASHBOARD] User found on attempt ${attempts}`);
+        
+        // Set local state (from test branch)
+        setUser(userData);
+        
+        // Load into Redux if not already there (from our branch)
+        if (userData && !reduxUser) {
+          // console.log('🔄 [DASHBOARD] Loading localStorage to Redux');
+          setReduxUser({
+            token: userData.token,
+            user: userData.user
+          });
+        }
+        
+        // Only sync profile if we haven't already initialized
+        // Skip localStorage update during initialization to prevent loops
+        if (!hasInitialized) {
+          await syncProfileToRedux(true);
+        }
+        
+        setHasInitialized(true);
+        
+      } else if (attempts < maxAttempts) {
+        // console.log(`⚠️ [DASHBOARD] User not found on attempt ${attempts}, retrying in 500ms...`);
+        setIsInitializing(false); // Allow retry
+        setTimeout(initializeUserData, 500); // retry after 500ms
+        return; // Don't set isInitializing to false at the end
+      } else {
+        // console.warn(`❌ [DASHBOARD] User not found in localStorage after ${attempts} attempts.`);
+        setHasInitialized(true); // Prevent further retries
       }
-      
-      // Fetch fresh profile data and sync to Redux
-      await syncProfileToRedux();
-      
-      // Debug: Compare Redux vs localStorage data
-      console.log('🔍 [DEBUG] Data comparison:');
-      console.log('localStorage maxAgents:', userData.user?.planCapabilities?.maxAgents);
-      console.log('localStorage planCapabilities:', userData.user?.planCapabilities);
-      
-    } else if (attempts < maxAttempts) {
-      console.log(`⚠️ [DASHBOARD] User not found on attempt ${attempts}, retrying in 500ms...`);
-      setTimeout(initializeUserData, 500); // retry after 500ms
-    } else {
-      console.warn(`❌ [DASHBOARD] User not found in localStorage after ${attempts} attempts.`);
+    } catch (error) {
+      console.error('🔴 [DASHBOARD] Error in initializeUserData:', error);
+      setHasInitialized(true); // Prevent infinite retries on error
+    } finally {
+      setIsInitializing(false);
     }
   };
 
   useEffect(() => {
     // Combined initialization: Redux + localStorage with retry logic
-    initializeUserData();
-  }, []);
+    // Only run once on component mount
+    if (!hasInitialized && !isInitializing) {
+      initializeUserData();
+    }
+  }, [hasInitialized, isInitializing]); // Add dependencies to prevent infinite loops
   // get selected agent from local if calendar added by google
 
   //printing the user object data after setting the data inside it
-  useEffect(() => {
-    if (user) {
-      console.log("Data stored in user variable is", user)
-    }
-  }, [user])
+  // useEffect(() => {
+  //   if (user) {
+  //     console.log("Data stored in user variable is", user)
+  //   }
+  // }, [user])
 
   useEffect(() => {
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle);
@@ -514,7 +573,7 @@ function Page() {
         if (ag) {
           let agent = JSON.parse(ag);
 
-          console.log("selected agent from local is", agent);
+          // console.log("selected agent from local is", agent);
           setShowDrawerSelectedAgent(agent);
         }
       }
@@ -550,7 +609,7 @@ function Page() {
     if (!d) return;
 
     const cr = JSON.parse(d);
-    console.log("credentials from local", cr);
+    // console.log("credentials from local", cr);
 
     setName(cr?.name || "");
     setPhone(cr?.phone || "");
@@ -565,7 +624,7 @@ function Page() {
       });
     }
 
-    console.log('flatExtracolumns', flatExtraColumns)
+    // console.log('flatExtracolumns', flatExtraColumns)
 
     // Now map through current scriptKeys and set values if present
     const updatedInputValues = {};
@@ -575,7 +634,7 @@ function Page() {
       }
     });
 
-    console.log('updatedInputValues', updatedInputValues)
+    // console.log('updatedInputValues', updatedInputValues)
 
     setInputValues(updatedInputValues);
   }, [openTestAiModal]);
@@ -646,16 +705,16 @@ function Page() {
   const checkUser = async () => {
     // await getProfileDetails();
     attempts++;
-    console.log(`Trying to get user - try no ${attempts}`);
+    // console.log(`Trying to get user - try no ${attempts}`);
 
     const data = localStorage.getItem("User");
     let userData = null;
     if (data) {
-      console.log(`User found on try ${attempts}`);
-      console.log("user data for showing max agents is", JSON.parse(data))
+      // console.log(`User found on try ${attempts}`);
+      // console.log("user data for showing max agents is", JSON.parse(data))
       setUser(JSON.parse(data));
     } else if (attempts < maxAttempts) {
-      console.log(`User not found on try ${attempts}, retrying in 500ms...`);
+      // console.log(`User not found on try ${attempts}, retrying in 500ms...`);
       setTimeout(checkUser, 500); // retry after 500ms
     } else {
       console.warn(`User not found in localStorage after ${attempts} attempts.`);
@@ -776,7 +835,7 @@ function Page() {
   //function to update agent profile image
   const updateAgentProfile = async (image) => {
     try {
-      console.log("Trigered update api");
+      // console.log("Trigered update api");
       setGlobalLoader(true);
 
       const LocalData = localStorage.getItem("User");
@@ -796,10 +855,10 @@ function Page() {
       formData.append("media", image);
       formData.append("agentId", showDrawerSelectedAgent?.id);
 
-      console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
+      // console.log('showDrawerSelectedAgent', showDrawerSelectedAgent)
 
       for (let [key, value] of formData.entries()) {
-        console.log(key, value)
+        // console.log(key, value)
       }
 
       //// //console.log;
@@ -812,7 +871,7 @@ function Page() {
       });
 
       if (response) {
-        console.log("response of update image is", response.data)
+        // console.log("response of update image is", response.data)
 
         if (response.data.status === true) {
           const localAgentsList = localStorage.getItem(
@@ -868,7 +927,7 @@ function Page() {
         }
       }
     } catch (error) {
-      console.log("Error occured in api is", error);
+      // console.log("Error occured in api is", error);
       setGlobalLoader(false);
     } finally {
       setGlobalLoader(false);
@@ -879,12 +938,12 @@ function Page() {
   const handleShowDrawer = (item) => {
     //console.log;
     // return
-    console.log("Agent  item", item);
+    // console.log("Agent  item", item);
 
     if (item.Calendar) {
-      console.log("Agent has calendaer in item");
+      // console.log("Agent has calendaer in item");
     } else {
-      console.log("Agent donot have calendar in the item");
+      // console.log("Agent donot have calendar in the item");
     }
 
     setAssignNumber(item?.phoneNumber);
@@ -900,12 +959,12 @@ function Page() {
       item.agentLanguage === "English" || item.agentLanguage === "Multilingual"
         ? "en"
         : "es";
-    console.log("v", v);
+    // console.log("v", v);
     let voices = [];
 
     voices = voicesList.filter((voice) => voice.langualge === v);
 
-    console.log("filtered voices are", voices);
+    // console.log("filtered voices are", voices);
     setFilteredVoices(voices);
     setCallRecordingPermition(item.consentRecording);
     setVoiceExpressiveness(item.voiceStability);
@@ -918,27 +977,27 @@ function Page() {
     if (modelValue) {
       let model = findLLMModel(modelValue);
 
-      console.log("Selected model 2:", model);
+      // console.log("Selected model 2:", model);
       setSelectedGptManu(model);
     }
 
     let comparedAgent = []
 
-    console.log('search before', search)
+    // console.log('search before', search)
     if (!search) {
       comparedAgent = mainAgentsList.find((mainAgent) => {
-        console.log("Main agent list is", mainAgent);
+        // console.log("Main agent list is", mainAgent);
         return mainAgent.agents.some((subAgent) => subAgent.id === item.id);
       });
     } else {
-      console.log('agentsListSeparated', agentsListSeparated)
+      // console.log('agentsListSeparated', agentsListSeparated)
       comparedAgent = agentsListSeparated.find((mainAgent) => {
-        console.log("seperated agent list is", mainAgent);
+        // console.log("seperated agent list is", mainAgent);
         return mainAgent.id === item.id;
       });
     }
 
-    console.log("comparedAgent is", comparedAgent);
+    // console.log("comparedAgent is", comparedAgent);
 
     setCalendarDetails(comparedAgent);
 
@@ -1352,9 +1411,9 @@ function Page() {
 
               if (matchedAgent) {
                 setShowDrawerSelectedAgent(matchedAgent);
-                console.log("Matched Agent Stored:"); //, matchedAgent
+                // console.log("Matched Agent Stored:"); //, matchedAgent
               } else {
-                console.log("No matching agent found.");
+                // console.log("No matching agent found.");
               }
             }
 
@@ -1448,7 +1507,7 @@ function Page() {
       }
 
       for (let [key, value] of formData.entries()) {
-        console.log(`agnet key ${key} and value ${value}`);
+        // console.log(`agnet key ${key} and value ${value}`);
       }
 
       // return
@@ -1468,7 +1527,7 @@ function Page() {
         );
         if (response.data.status === true) {
           setIsVisibleSnack(true);
-          console.log("Here status true");
+          // console.log("Here status true");
           const localAgentsList = localStorage.getItem(
             PersistanceKeys.LocalStoredAgentsListMain
           );
@@ -1476,16 +1535,16 @@ function Page() {
           let agentsListDetails = [];
 
           if (localAgentsList) {
-            console.log("local agents List");
+            // console.log("local agents List");
             const agentsList = JSON.parse(localAgentsList);
             // agentsListDetails = agentsList;
 
             const updateAgentData = response.data.data;
-            console.log(
-              `Agent updated data ${updateAgentData.agents.length
-              } ${!showScriptModal}`,
-              updateAgentData
-            );
+            // console.log(
+            //   `Agent updated data ${updateAgentData.agents.length
+            //   } ${!showScriptModal}`,
+            //   updateAgentData
+            // );
 
             const updatedArray = agentsList.map((localItem) => {
               const apiItem =
@@ -1496,30 +1555,30 @@ function Page() {
             // let updatedSubAgent = null
             if (showDrawerSelectedAgent) {
               if (updateAgentData.agents.length > 0) {
-                console.log("Updated showDrawerAgent");
+                // console.log("Updated showDrawerAgent");
                 if (
                   updateAgentData.agents[0].id == showDrawerSelectedAgent.id
                 ) {
-                  console.log("Updated showDrawerAgent first subagent");
+                  // console.log("Updated showDrawerAgent first subagent");
                   setShowDrawerSelectedAgent(updateAgentData.agents[0]);
                 } else if (updateAgentData.agents.length > 1) {
                   if (
                     updateAgentData.agents[1].id == showDrawerSelectedAgent.id
                   ) {
-                    console.log("Updated showDrawerAgent second subagent");
+                    // console.log("Updated showDrawerAgent second subagent");
                     setShowDrawerSelectedAgent(updateAgentData.agents[1]);
                   }
                 }
               }
             } else if (showScriptModal) {
               if (updateAgentData.agents.length > 0) {
-                console.log("Updated showScriptModal");
+                // console.log("Updated showScriptModal");
                 if (updateAgentData.agents[0].id == showScriptModal.id) {
-                  console.log("Updated showScriptModal first subagent");
+                  // console.log("Updated showScriptModal first subagent");
                   setShowScriptModal(updateAgentData.agents[0]);
                 } else if (updateAgentData.agents.length > 1) {
                   if (updateAgentData.agents[1].id == showScriptModal.id) {
-                    console.log("Updated showScriptModal second subagent");
+                    // console.log("Updated showScriptModal second subagent");
                     setShowScriptModal(updateAgentData.agents[1]);
                   }
                 }
@@ -1534,7 +1593,7 @@ function Page() {
             setMainAgentsList(updatedArray);
             // agentsListDetails = updatedArray
           } else {
-            console.log("No local agents list");
+            // console.log("No local agents list");
           }
 
           // setShowDrawer(null);
@@ -1551,12 +1610,12 @@ function Page() {
   };
 
   const updateSubAgent = async (voiceData = null, model = null) => {
-    console.log(
-      "Updating sub agent with voiceData:",
-      voiceData,
-      "and model:",
-      model
-    );
+    // console.log(
+    //   "Updating sub agent with voiceData:",
+    //   voiceData,
+    //   "and model:",
+    //   model
+    // );
 
     // return
     try {
@@ -1613,9 +1672,9 @@ function Page() {
           formData.append("agentLLmModel", model);
         }
 
-        console.log("Data to update");
+        // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
-          console.log(`${key}: ${value}`);
+          // console.log(`${key}: ${value}`);
         }
 
         // return
@@ -1627,10 +1686,10 @@ function Page() {
 
         if (response) {
           // setShowRenameAgentPopup(false);
-          console.log(
-            "Response of update sub agent api is :--",
-            response.data.data
-          );
+          // console.log(
+          //   "Response of update sub agent api is :--",
+          //   response.data.data
+          // );
           // //console.log;
           setShowSuccessSnack(
             `${fromatMessageName(
@@ -1866,7 +1925,7 @@ function Page() {
     ) {
       return;
     }
-    console.log("Matching agent data:", agentData);
+    // console.log("Matching agent data:", agentData);
     setKYCList(agentData[0].kyc);
 
     ////console.log;
@@ -2067,7 +2126,7 @@ function Page() {
         extraColumns: newArray,
       };
 
-      console.log('ApiData', ApiData)
+      // console.log('ApiData', ApiData)
 
       localStorage.setItem(
         PersistanceKeys.TestAiCredentials,
@@ -2168,6 +2227,13 @@ function Page() {
     }
 
     getCalenders();
+
+    // Cleanup function to clear timeouts
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
   }, []);
 
   const handleSelectProfileImg = (index) => {
@@ -2195,6 +2261,12 @@ function Page() {
     searchLoader = false
   ) => {
     setPaginationLoader(true);
+    
+    // Clear previous data if it's a new search to prevent memory buildup
+    if (search && searchLoader) {
+      setMainAgentsList([]);
+      setAgentsListSeparated([]);
+    }
 
     //test code failed for saving search value
 
@@ -2204,7 +2276,7 @@ function Page() {
     //   return
     // }
 
-    console.log("Pagination status passed is", paginationStatus);
+    // console.log("Pagination status passed is", paginationStatus);
     // console.log('search', search)
     try {
       const agentLocalDetails = localStorage.getItem(
@@ -2220,7 +2292,7 @@ function Page() {
         offset = 0;
         ApiPath = `${Apis.getAgents}?offset=${offset}&search=${search}`;
       }
-      console.log("Api path is", ApiPath);
+      // console.log("Api path is", ApiPath);
 
       const Auth = AuthToken();
       ////console.log;
@@ -2274,7 +2346,7 @@ function Page() {
         //console.log;
         setPaginationLoader(false);
         let agents = response.data.data || [];
-        console.log("Agents from api", agents);
+        // console.log("Agents from api", agents);
         setOldAgentsList(agents);
         if (agents.length >= 6) {
           setCanGetMore(true);
@@ -2308,7 +2380,7 @@ function Page() {
           newList.push(...agents); // append all agents at once
         }
 
-        console.log("Agents after pushing", newList);
+        // console.log("Agents after pushing", newList);
         if (!search) {
           localStorage.setItem(
             PersistanceKeys.LocalStoredAgentsListMain,
@@ -2330,40 +2402,30 @@ function Page() {
     event.preventDefault();
     
     // Combined plan checking - use Redux as primary, localStorage as fallback
-    console.log('🎯 [DASHBOARD] handleAddNewAgent called - Combined plan check:', {
-      reduxCanCreateAgent: canCreateAgent,
-      reduxIsFreePlan: isFreePlan,
-      reduxCurrentAgents: currentAgents,
-      reduxMaxAgents: maxAgents,
-      reduxPlanType: reduxUser?.plan?.type,
-      localCurrentUsage: user?.user?.currentUsage?.maxAgents,
-      localMaxAgents: user?.user?.planCapabilities?.maxAgents,
-      localPlanType: user?.user?.plan?.type,
-      localPlanPrice: user?.user?.plan?.price
-    });
+    // console.log('🎯 [DASHBOARD] Combined plan check for new agent');
 
     // Use Redux plan capabilities as primary source
     if (reduxUser?.planCapabilities) {
-      console.log('🔴 [DASHBOARD] Using Redux plan capabilities');
+      // console.log('🔴 [DASHBOARD] Using Redux plan capabilities');
       if (!canCreateAgent) {
         if (isFreePlan && currentAgents >= 1) {
-          console.log('🚫 [DASHBOARD] Free plan user has reached limit - show upgrade modal')
+          // console.log('🚫 [DASHBOARD] Free plan user has reached limit');
           setShowUpgradeModal(true)
           return
         } else if (currentAgents >= maxAgents) {
-          console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities')
+          // console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities');
           setShowMoreAgentsPopup(true)
           return
         }
       }
     } else {
       // Fallback to localStorage logic (from test branch)
-      console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
+      // console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
       
       // Check if user is on free plan and has reached their limit
       if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
         if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-          console.log('Free plan user has reached limit - show upgrade modal')
+          // console.log('Free plan user has reached limit');
           setShowUpgradeModal(true)
           return
         }
@@ -2371,14 +2433,14 @@ function Page() {
 
       // Check if paid plan user has reached their agent limit
       if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-        console.log('Paid plan user is over the allowed capabilities')
+        // console.log('Paid plan user is over the allowed capabilities');
         setShowMoreAgentsPopup(true)
         return
       }
     }
     
     // User can create agent - proceed to creation
-    console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
+    // console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
     const data = {
       status: true,
     };
@@ -2516,7 +2578,7 @@ function Page() {
   };
 
   const handleDuplicate = async () => {
-    console.log("Duplicate agent clicked");
+    // console.log("Duplicate agent clicked");
     setDuplicateLoader(true);
     try {
       const data = localStorage.getItem("User");
@@ -2540,7 +2602,7 @@ function Page() {
           setDuplicateLoader(false);
           setShowDuplicateConfirmationPopup(false);
 
-          console.log("duplicate agent data ", response);
+          // console.log("duplicate agent data ", response);
           if (response.data.status === true) {
 
             setShowSuccessSnack("Agent duplicated successfully");
@@ -2581,7 +2643,7 @@ function Page() {
 
   const handleLanguageChange = async (event) => {
     let value = event.target.value;
-    console.log("selected language is", value);
+    // console.log("selected language is", value);
     // console.log("selected voice is",SelectedVoice)
 
     // Combined language selection checking - Redux first, localStorage fallback
@@ -2611,7 +2673,7 @@ function Page() {
     let selectedLanguage =
       value === "English" || value === "Multilingual" ? "en" : "es";
 
-    console.log("selected langualge", selectedLanguage);
+    // console.log("selected langualge", selectedLanguage);
     let voiceData = {};
 
     voiceData = {
@@ -2832,7 +2894,10 @@ function Page() {
                   setCanKeepLoading(false);
                 }
 
-                clearTimeout(searchTimeoutRef.current);
+                // Clear existing timeout to prevent memory leaks
+                if (searchTimeoutRef.current) {
+                  clearTimeout(searchTimeoutRef.current);
+                }
                 searchTimeoutRef.current = setTimeout(() => {
                   // handleSearch(e);
                   let searchLoader = true;
@@ -2907,7 +2972,7 @@ function Page() {
             handlePopoverClose={handlePopoverClose}
             user={user}
             getAgents={(p, s) => {
-              console.log("p", s);
+              // console.log("p", s);
               getAgents(p, s); //user
             }}
             search={search}
@@ -3312,7 +3377,7 @@ function Page() {
         handleClose={() => {
           setShowUpgradeModal(false)
         }}
-
+        onUpgradeSuccess={handleUpgradeSuccess}
         title={title || "Unlock More Agents"}
         subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
         buttonTitle={"No Thanks"}
@@ -3321,7 +3386,10 @@ function Page() {
       <MoreAgentsPopup
         open={showMoreAgentsPopup}
         onClose={() => setShowMoreAgentsPopup(false)}
-        onUpgrade={() => setShowUpgradeModal(true)}
+        onUpgrade={() => {
+          setShowMoreAgentsPopup(false);
+          setShowUpgradeModal(true);
+        }}
         onAddAgent={() => {
           const data = {
             status: true,
@@ -3661,7 +3729,7 @@ function Page() {
                       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
                     } else {
 
-                      console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
+                      // console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
                       // return;
                       // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
                       // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
@@ -3863,9 +3931,9 @@ function Page() {
                               const selectedVoice = AgentLanguagesList.find(
                                 (lang) => lang?.title === selected
                               );
-                              console.log(
-                                `Selected Language for ${selected} is ${selectedVoice?.title}`
-                              );
+                              // console.log(
+                              //   `Selected Language for ${selected} is ${selectedVoice?.title}`
+                              // );
                               //  return selectedVoice ? selectedVoice.title : null;
 
                               return (
@@ -3997,7 +4065,7 @@ function Page() {
                             onChange={handleChangeVoice}
                             displayEmpty // Enables placeholder
                             renderValue={(selected) => {
-                              console.log("selected", selected);
+                              // console.log("selected", selected);
                               if (!selected)
                                 return (
                                   <div style={{ color: "#aaa" }}>Select</div>
@@ -4078,10 +4146,10 @@ function Page() {
                                   {item.preview ? (
                                     <div //style={{marginLeft:15}}
                                       onClick={(e) => {
-                                        console.log(
-                                          "audio preview ",
-                                          item.preview
-                                        );
+                                        // console.log(
+                                        //   "audio preview ",
+                                        //   item.preview
+                                        // );
                                         e.stopPropagation(); // Prevent dropdown from closing
                                         e.preventDefault(); // Prevent selection event
 
@@ -4542,10 +4610,10 @@ function Page() {
                                       if (showReassignBtn && item?.claimedBy) {
                                         e.stopPropagation();
                                         setShowConfirmationModal(item);
-                                        console.log(
-                                          "Hit release number api",
-                                          item
-                                        );
+                                        // console.log(
+                                        //   "Hit release number api",
+                                        //   item
+                                        // );
                                         // AssignNumber
                                       } else {
                                         //console.log;
@@ -4627,10 +4695,10 @@ function Page() {
                                     "inbound")
                                 }
                                 onClick={() => {
-                                  console.log(
-                                    "This triggers when user clicks on assigning global number",
-                                    assignNumber
-                                  );
+                                  // console.log(
+                                  //   "This triggers when user clicks on assigning global number",
+                                  //   assignNumber
+                                  // );
                                   // return;
                                   AssignNumber(Constants.GlobalPhoneNumber);
                                   // handleReassignNumber(showConfirmationModal);
@@ -5387,7 +5455,7 @@ function Page() {
                           from={"Prompt"}
                           uniqueColumns={uniqueColumns}
                           tagValue={(text) => {
-                            console.log("Text updated ", text);
+                            // console.log("Text updated ", text);
                             setScriptTagInput(text);
                             // let agent = showScriptModal;
                             // agent.prompt.callScript = text;

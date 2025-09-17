@@ -16,9 +16,12 @@ const UpgradeModal = ({
     buttonTitle,
     open,
     handleClose,
+    onUpgradeSuccess,
+    selectedPlan = null, // Pre-selected plan from previous screen
 }) => {
 
 
+    console.log("SelectedPlan in UpgradeModal is ", selectedPlan)
     let stripePublickKey =
         process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
             ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
@@ -177,11 +180,17 @@ const UpgradeModal = ({
             <Elements stripe={stripePromise}>
                 <UpgradePlan
                     open={showUpgradePlanPopup}
-                    handleClose={() => {
+                    selectedPlan={selectedPlan} // Pass the pre-selected plan
+                    handleClose={async (upgradeResult) => {
                         setShowUpgradePlanPopup(false)
+                        handleClose()
+                        // If upgrade was successful, call the success callback
+                        // The upgradeResult indicates success but doesn't contain profile data
+                        if (upgradeResult && onUpgradeSuccess) {
+                            console.log('🎉 [UPGRADE-MODAL] Upgrade successful, calling success callback');
+                            await onUpgradeSuccess()
+                        }
                     }}
-
-
                 />
             </Elements>
         </div>

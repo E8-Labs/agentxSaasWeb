@@ -19,7 +19,7 @@ export default function GradientSlider({
             background: "linear-gradient(to bottom, #C73BFF, #7902DF)",
           }}
         >
-          {minutes}credit
+          {minutes} credits
           <div
             className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent"
             style={{ borderTopColor: "#7902DF" }}

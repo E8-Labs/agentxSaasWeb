@@ -27,22 +27,18 @@ class StorageBridge {
               token: userState.token,
               user: userState.user
             };
-            console.log('📖 [STORAGE-BRIDGE] Getting User from Redux:', {
-              source: 'Redux',
-              userId: userState.user?.id,
-              hasToken: !!userState.token
-            });
+            // console.log('📖 [STORAGE-BRIDGE] Getting User from Redux');
             return JSON.stringify(reduxData);
           }
           break;
         default:
           // For non-migrated keys, use localStorage directly
-          console.log(`📖 [STORAGE-BRIDGE] Getting ${key} from localStorage (not migrated)`);
+          // console.log(`📖 [STORAGE-BRIDGE] Getting ${key} from localStorage`);
           return localStorage.getItem(key);
       }
       
       // Fallback to localStorage if Redux doesn't have the data
-      console.log(`📖 [STORAGE-BRIDGE] Fallback to localStorage for ${key}`);
+      // console.log(`📖 [STORAGE-BRIDGE] Fallback to localStorage for ${key}`);
       return localStorage.getItem(key);
     } catch (error) {
       console.warn('StorageBridge getItem error:', error);
@@ -58,28 +54,18 @@ class StorageBridge {
       switch (key) {
         case 'User':
           const userData = typeof value === 'string' ? JSON.parse(value) : value;
-          console.log('💾 [STORAGE-BRIDGE] Setting User data:', {
-            target: 'Redux + localStorage',
-            userId: userData.user?.id,
-            plan: userData.user?.plan?.type,
-            planPrice: userData.user?.plan?.price,
-            hasToken: !!userData.token,
-            hasPlanCapabilities: !!userData.user?.planCapabilities,
-            maxAgentsFromCapabilities: userData.user?.planCapabilities?.maxAgents,
-            planCapabilitiesStructure: userData.user?.planCapabilities,
-            fullUserStructure: userData.user
-          });
+          // console.log('💾 [STORAGE-BRIDGE] Setting User data');
           this.store.dispatch(setUser(userData));
           break;
         default:
           // For non-migrated keys, only update localStorage
-          console.log(`💾 [STORAGE-BRIDGE] Setting ${key} to localStorage only (not migrated)`);
+          // console.log(`💾 [STORAGE-BRIDGE] Setting ${key} to localStorage only`);
           break;
       }
       
       // Always update localStorage for backward compatibility
       localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
-      console.log(`💾 [STORAGE-BRIDGE] localStorage updated for key: ${key}`);
+      // console.log(`💾 [STORAGE-BRIDGE] localStorage updated for key: ${key}`);
     } catch (error) {
       console.warn('StorageBridge setItem error:', error);
       localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));

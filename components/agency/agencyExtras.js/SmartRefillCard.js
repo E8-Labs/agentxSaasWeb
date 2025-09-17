@@ -4,7 +4,12 @@ import { CircularProgress, Switch } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 
-const SmartRefillCard = ({ selectedUser = null }) => {
+const SmartRefillCard = ({ 
+    selectedUser = null, 
+    isDisabled = false, 
+    onDisabledClick = null,
+    isFreePlan = false
+}) => {
 
     //smart refill variables
     const [allowSmartRefill, setAllowSmartRefill] = useState(false);
@@ -99,8 +104,18 @@ const SmartRefillCard = ({ selectedUser = null }) => {
             */}
             <div>
                 <Switch
-                    checked={allowSmartRefill}
+                    checked={isFreePlan ? false : allowSmartRefill}
                     onChange={() => {
+                        // If user is on free plan and trying to enable Smart Refill (always show as off for free plans)
+                        if (isFreePlan && onDisabledClick) {
+                            onDisabledClick();
+                            return;
+                        }
+                        
+                        if (isDisabled && onDisabledClick) {
+                            onDisabledClick();
+                            return;
+                        }
                         setAllowSmartRefill(!allowSmartRefill);
                         if (allowSmartRefill === true) {
                             handleRemoveSmartRefill();

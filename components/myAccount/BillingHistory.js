@@ -119,21 +119,25 @@ function BillingHistory() {
                                 </div>
                                 <div className="w-2/12 items-start">
                                     <div
-                                        className="p-2 flex flex-row gap-2 items-center"
+                                        className="p-2 flex flex-row gap-2 items-center justify-center"
                                         style={{
-                                            backgroundColor: "#01CB7610",
+                                            backgroundColor: item.processingStatus === 'failed' ? "#FF000010" : "#01CB7610",
                                             borderRadius: 20,
-                                            width: "5vw",
+                                            // padding: '2px',
+                                            width: "4vw",
                                         }}
                                     >
                                         <div
                                             style={{
                                                 fontSize: 15,
-                                                color: "#01CB76",
+                                                color: item.processingStatus === 'failed' ? "#FF0000" : "#01CB76",
                                                 fontWeight: 500,
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                textAlign: 'center',
                                             }}
                                         >
-                                            Paid
+                                            {item.processingStatus === 'failed' ? 'Failed' : 'Paid'}
                                         </div>
                                     </div>
                                 </div>

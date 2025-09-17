@@ -38,7 +38,7 @@ function DowngradePlanPopup({
         // }}
         >
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-            <Box className="bg-white m-h-[90svh] overflow-auto rounded-xl w-5/12 border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Box className="bg-white m-h-[90svh] overflow-auto rounded-xl w-6/12 md:w-5/12 lg:w-[30%] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="w-full ">
                     <div className='w-full flex flex-col items-center justify-center px-8 pt-4'>
                         <div className='w-full flex flex-row items-start justify-end'>
