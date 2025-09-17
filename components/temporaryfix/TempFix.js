@@ -7,6 +7,8 @@ import dynamic from "next/dynamic.js";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import UnlockAgentModal from "@/constants/UnlockAgentModal";
+import { useUser } from "@/hooks/redux-hooks";
+import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
 
 
 const CreateAgent1 = dynamic(() =>
@@ -50,6 +52,16 @@ const TemFix = () => {
 
     const router = useRouter();
     const searchParams = useSearchParams();
+    
+    // Redux hooks
+    const { user: reduxUser, isAuthenticated } = useUser();
+    const { 
+        canCreateAgent, 
+        isFreePlan, 
+        currentAgents, 
+        maxAgents, 
+        getUpgradeMessage 
+    } = usePlanCapabilities();
 
     const stepFromUrl = parseInt(searchParams.get("step") || "1", 10);
     const [index, setIndex] = useState(stepFromUrl);
@@ -112,7 +124,10 @@ const TemFix = () => {
             }
             console.log("data form admin is", fromAdmin)
             if (!fromAdmin) {
-                if (Data.user.plan) {
+                // Use Redux user data instead of localStorage
+                const userHasPlan = reduxUser?.plan;
+                
+                if (userHasPlan && canCreateAgent) {
                     if (windowSize < 640) {
                         //console.log;
                         setComponents([
@@ -189,25 +204,38 @@ const TemFix = () => {
             }
         }
 
-    }, [windowSize]);
+    }, [windowSize, reduxUser, canCreateAgent, subAccount]);
 
 
     useEffect(() => {
         checkIsFromOnboarding()
     }, [])
 
-    // Check if user should see upgrade popup
+    // Check if user should see upgrade popup using Redux
     useEffect(() => {
-        if (user) {
-            // Check if user is on free plan and has 1 agent
-            if (user.user.plan === null || user.user.plan?.price === 0) {
-                if (user.user.currentUsage?.maxAgents >= 1) {
-                    setModalDesc("The free plan only allows for 1 AI Agent.");
-                    setShowUnlockModal(true);
-                }
+        console.log('🎯 [TEMPFIX] Plan check triggered:', {
+            hasReduxUser: !!reduxUser,
+            canCreateAgent,
+            isFreePlan,
+            currentAgents,
+            maxAgents,
+            planType: reduxUser?.plan?.type
+        });
+
+        if (reduxUser && !canCreateAgent) {
+            if (isFreePlan && currentAgents >= 1) {
+                console.log('🚫 [TEMPFIX] Free plan limit reached - showing unlock modal');
+                setModalDesc("The free plan only allows for 1 AI Agent.");
+                setShowUnlockModal(true);
+            } else if (currentAgents >= maxAgents) {
+                console.log('🚫 [TEMPFIX] Plan limit reached - showing unlock modal');
+                setModalDesc(getUpgradeMessage('agents'));
+                setShowUnlockModal(true);
             }
+        } else if (reduxUser && canCreateAgent) {
+            console.log('✅ [TEMPFIX] User can create agents - no modal needed');
         }
-    }, [user]);
+    }, [reduxUser, canCreateAgent, isFreePlan, currentAgents, maxAgents, getUpgradeMessage]);
 
     const checkIsFromOnboarding = () => {
         let data = localStorage.getItem(PersistanceKeys.SubaccoutDetails)

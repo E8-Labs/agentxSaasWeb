@@ -90,6 +90,8 @@ import UpgardView from "@/constants/UpgardView";
 import { getUserLocalData, UpgradeTag } from "@/components/constants/constants";
 import AskToUpgrade from "@/constants/AskToUpgrade";
 import getProfileDetails from "@/components/apis/GetProfile";
+import { useUser } from "@/hooks/redux-hooks";
+import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -101,6 +103,24 @@ const DuplicateButton = dynamic(
   }
 );
 function Page() {
+  // Redux hooks for plan management
+  const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
+
+  useEffect(() => {
+    console.log("reduxUser on myAgentX page", reduxUser)
+  }, [reduxUser])
+  const { 
+    canCreateAgent,
+    allowVoicemail,
+    allowToolsAndActions,
+    allowKnowledgeBases,
+    isFeatureAllowed,
+    getUpgradeMessage,
+    isFreePlan,
+    currentAgents,
+    maxAgents
+  } = usePlanCapabilities();
+
   let baseUrl =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? "https://app.assignx.ai/"
@@ -398,10 +418,69 @@ function Page() {
   }, [])
 
 
+  // Function to sync fresh profile data to Redux
+  const syncProfileToRedux = async () => {
+    try {
+      console.log('🔄 [DASHBOARD] Fetching fresh profile data...');
+      const profileResponse = await getProfileDetails();
+      
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = getUserLocalData();
+        
+        console.log('🔄 [DASHBOARD] Syncing fresh profile to Redux:', {
+          userId: freshUserData?.id,
+          planType: freshUserData?.plan?.type,
+          planPrice: freshUserData?.plan?.price,
+          maxAgents: freshUserData?.planCapabilities?.maxAgents,
+          currentAgents: freshUserData?.currentUsage?.maxAgents
+        });
+        
+        // Update Redux with fresh data
+        setReduxUser({
+          token: localData.token,
+          user: freshUserData
+        });
+      }
+    } catch (error) {
+      console.error('🔴 [DASHBOARD] Error syncing profile to Redux:', error);
+    }
+  };
+
   useEffect(() => {
     let data = getUserLocalData()
     setUser(data)
     console.log('data', data.user)
+    
+    // Load existing localStorage data into Redux if not already there
+    if (data && !reduxUser) {
+      console.log('🔄 [DASHBOARD] Loading localStorage data into Redux:', {
+        userId: data.user?.id,
+        plan: data.user?.plan?.type,
+        maxAgentsFromLocal: data.user?.planCapabilities?.maxAgents
+      });
+      // Use the Redux setUser action
+      setReduxUser({
+        token: data.token,
+        user: data.user
+      });
+    }
+    
+    // Fetch fresh profile data and sync to Redux
+    syncProfileToRedux();
+    
+    // Debug: Compare Redux vs localStorage data
+    if (data) {
+      console.log('🔍 [DEBUG] Data comparison:');
+      console.log('localStorage maxAgents:', data.user?.planCapabilities?.maxAgents);
+      console.log('localStorage planCapabilities:', data.user?.planCapabilities);
+      
+      if (reduxUser) {
+        console.log('Redux maxAgents:', reduxUser?.planCapabilities?.maxAgents);
+        console.log('Redux planCapabilities:', reduxUser?.planCapabilities);
+        console.log('Are maxAgents equal?', data.user?.planCapabilities?.maxAgents === reduxUser?.planCapabilities?.maxAgents);
+      }
+    }
   }, [])
   // get selected agent from local if calendar added by google
 
@@ -2206,37 +2285,38 @@ function Page() {
     }
   };
 
-  //function to add new agent
+  //function to add new agent - Updated to use Redux
   const handleAddNewAgent = (event) => {
     event.preventDefault();
-    console.log('user?.user?.currentUsage?.maxAgents', user?.user?.currentUsage?.maxAgents)
-    console.log('user?.user?.planCapabilities?.maxAgents', user?.user?.planCapabilities?.maxAgents)
-    console.log('user', user)
     
-    // Check if user is on free plan and has reached their limit
-    if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
-      if (user?.user?.currentUsage?.maxAgents >= 1) {
-        console.log('Free plan user has reached limit - show upgrade modal')
+    console.log('🎯 [DASHBOARD] handleAddNewAgent called - Redux plan check:', {
+      canCreateAgent,
+      isFreePlan,
+      currentAgents,
+      maxAgents,
+      planType: reduxUser?.plan?.type
+    });
+    
+    // Use Redux plan capabilities instead of local state
+    if (!canCreateAgent) {
+      if (isFreePlan && currentAgents >= 1) {
+        console.log('🚫 [DASHBOARD] Free plan user has reached limit - show upgrade modal')
         setShowUpgradeModal(true)
+        return
+      } else if (currentAgents >= maxAgents) {
+        console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities')
+        setShowMoreAgentsPopup(true)
         return
       }
     }
     
-    // Check if paid plan user has reached their agent limit
-    if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-      console.log('Paid plan user is over the allowed capabilities')
-      setShowMoreAgentsPopup(true)
-      return
-    } else {
-      console.log('User is under the allowed capabilities')
-      // Route the user to createagent
-      const data = {
-        status: true,
-      };
-      localStorage.setItem("fromDashboard", JSON.stringify(data));
-      router.push('/createagent')
-      return
-    }
+    // User can create agent - proceed to creation
+    console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
+    const data = {
+      status: true,
+    };
+    localStorage.setItem("fromDashboard", JSON.stringify(data));
+    router.push('/createagent')
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -2438,7 +2518,10 @@ function Page() {
     // console.log("selected voice is",SelectedVoice)
 
     
-    if(value === "Multilingual" && (user?.user?.planCapabilities?.allowLanguageSelection === false)){
+    // Use Redux plan capabilities for language selection
+    if(value === "Multilingual" && !isFeatureAllowed('allowLanguageSelection')){
+      setShowErrorSnack("Multilingual support requires a plan upgrade.");
+      setIsVisibleSnack2(true);
       return
     }
 
@@ -2531,7 +2614,7 @@ function Page() {
   // ////console.log
 
   const handleWebhookClick = (assistantId, baseUrl) => {
-    if (user?.user.planCapabilities.allowEmbedAndWebAgents === false) {
+    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle("Unlock your Web Agent")
       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
@@ -2552,7 +2635,7 @@ function Page() {
   };
 
   const handleCopy = (assistantId, baseUrl) => {
-    if (user?.user.planCapabilities.allowEmbedAndWebAgents === false) {
+    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle("Unlock your Web Agent")
       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
@@ -2580,6 +2663,8 @@ function Page() {
   const handleDrawerClose = async () => {
     setShowDrawerSelectedAgent(null);
     await getProfileDetails()
+    // Sync fresh profile data to Redux after profile update
+    await syncProfileToRedux();
     setActiveTab("Agent Info");
   }
 
@@ -2614,12 +2699,12 @@ function Page() {
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {agentsListSeparated.length}/{user?.user?.planCapabilities?.maxAgents} used
+            {agentsListSeparated.length}/{reduxUser?.planCapabilities?.maxAgents || 0} used
           </div>
 
 
           <Tooltip
-            title={`Additional agents are $${user?.user?.planCapabilities.costPerAdditionalAgent}/month each.`}
+            title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
             arrow
             componentsProps={{
               tooltip: {
@@ -3165,7 +3250,7 @@ function Page() {
           };
           localStorage.setItem("fromDashboard", JSON.stringify(data));
         }}
-        costPerAdditionalAgent={user?.user?.planCapabilities?.costPerAdditionalAgent || 10}
+        costPerAdditionalAgent={reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}
       />
 
       <AskToUpgrade
@@ -3492,7 +3577,7 @@ function Page() {
                     loading={duplicateLoader}
                   />
                   <button onClick={() => {
-                    if (user?.user.planCapabilities.allowEmbedAndWebAgents === false) {
+                    if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
                       setShowUpgradeModal(true)
                       setTitle("Unlock your Web Agent")
                       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
@@ -3756,9 +3841,9 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                  disabled={item.value === "multi" && (user?.user?.planCapabilities?.allowLanguageSelection === false)}
+                                  disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
                                   style={
-                                    item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
+                                    item.value === "multi" && reduxUser?.planCapabilities?.allowLanguageSelection === false
                                       ? { pointerEvents: "auto" }
                                       : {}
                                   }
@@ -3777,7 +3862,7 @@ function Page() {
                                   </div>
 
                                   {
-                                    item.value === "multi" && user?.user?.planCapabilities?.allowLanguageSelection === false
+                                    item.value === "multi" && reduxUser?.planCapabilities?.allowLanguageSelection === false
                                       && (
                                         <UpgradeTag />
                                       )
@@ -4558,7 +4643,7 @@ function Page() {
                       </div>
                     </div>
                     {
-                      user?.user.planCapabilities.allowLiveCallTransfer ? (
+                      reduxUser?.planCapabilities?.allowLiveCallTransfer ? (
                         <div className="flex flex-row items-center justify-between gap-2">
                           <div>
                             {showDrawerSelectedAgent?.liveTransferNumber ? (
@@ -4624,7 +4709,7 @@ function Page() {
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              user?.user.planCapabilities.allowToolsAndActions === false ? (
+              !allowToolsAndActions ? (
                 <UpgardView
                   title={"Unlock Actions"}
                   subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
@@ -4661,22 +4746,35 @@ function Page() {
                 />
               </div>
             ) : activeTab === "Knowledge" ? (
-              <div className="flex flex-col gap-4">
-                <Knowledgebase user={user} agent={showDrawerSelectedAgent}
-                  setShowUpgradeModal={setShowUpgradeModal}
+              !allowKnowledgeBases ? (
+                <UpgardView
+                  title={"Unlock Knowledge Base"}
+                  subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
                 />
-              </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  <Knowledgebase user={reduxUser} agent={showDrawerSelectedAgent}
+                    setShowUpgradeModal={setShowUpgradeModal}
+                  />
+                </div>
+              )
             ) : activeTab === "Voicemail" ? (
-
-              <div className="flex flex-col gap-4 w-full">
-                <VoiceMailTab
-                  setMainAgentsList={setMainAgentsList}
-                  agent={showDrawerSelectedAgent}
-                  setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                  kycsData={kycsData}
-                  uniqueColumns={uniqueColumns}
+              !allowVoicemail ? (
+                <UpgardView
+                  title={"Unlock Voicemail"}
+                  subTitle={"Upgrade to enable voicemail features for your outbound agents."}
                 />
-              </div>
+              ) : (
+                <div className="flex flex-col gap-4 w-full">
+                  <VoiceMailTab
+                    setMainAgentsList={setMainAgentsList}
+                    agent={showDrawerSelectedAgent}
+                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                    kycsData={kycsData}
+                    uniqueColumns={uniqueColumns}
+                  />
+                </div>
+              )
             ) : (
               ""
             )}

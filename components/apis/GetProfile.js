@@ -39,7 +39,13 @@ const getProfileDetails = async (selectedAgency) => {
         // //console.log;
         if (response?.data?.status === true) {
           localDetails.user = response.data.data;
-          console.log("Get profile response is", response.data.data);
+          console.log("🔄 [GET-PROFILE] Profile updated:", {
+            userId: response.data.data?.id,
+            planType: response.data.data?.plan?.type,
+            planPrice: response.data.data?.plan?.price,
+            maxAgents: response.data.data?.planCapabilities?.maxAgents,
+            currentAgents: response.data.data?.currentUsage?.maxAgents
+          });
           if (!selectedAgency) {
             localStorage.setItem("User", JSON.stringify(localDetails));
           }
