@@ -293,7 +293,15 @@ function UpgradePlanContent({
     // Handle pre-selected plan from previous screen
     useEffect(() => {
         if (selectedPlan && open) {
+
+            // Set selected duration based on the plan's billing cycle
+            const planDuration = getDurationFromBillingCycle(selectedPlan.billingCycle);
+            if (planDuration) {
+                setSelectedDuration(planDuration);
+            }
+
             // Find the matching plan in current plans
+
             const currentPlans = getCurrentPlans();
             const matchingPlan = currentPlans.find(plan =>
                 plan.name === selectedPlan.name ||
@@ -301,12 +309,16 @@ function UpgradePlanContent({
                 plan.planType === selectedPlan.planType
             );
 
+
+
             if (matchingPlan) {
                 console.log('matchingPlan', matchingPlan)
                 setCurrentSelectedPlan(matchingPlan);
                 const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
                 setSelectedPlanIndex(planIndex);
                 setTogglePlan(matchingPlan.id);
+
+
             }
         }
     }, [selectedPlan, open, selectedDuration, monthlyPlans, quaterlyPlans, yearlyPlans])
@@ -524,6 +536,20 @@ function UpgradePlanContent({
         if (billingCycle === "quarterly") return 3;
         if (billingCycle === "yearly") return 12;
         return 1;
+    }
+
+    // Function to get duration object from billing cycle
+    const getDurationFromBillingCycle = (billingCycle) => {
+        switch (billingCycle) {
+            case "monthly":
+                return duration[0] // Monthly
+            case "quarterly":
+                return duration[1]// Quarterly
+            case "yearly":
+                return duration[2] // Yearly
+            default:
+                return duration[0]; // Default to monthly
+        }
     }
 
     //functiion to get cards list
