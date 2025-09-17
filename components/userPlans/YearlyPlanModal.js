@@ -54,11 +54,13 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
                         <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                                 <span className="text-lg font-bold text-black">
-                                    {heading}
+                                    {heading} 🎉
                                 </span>
-                                <div className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap">
-                                    {tag}
-                                </div>
+                                {/*
+                                    <div className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap">
+                                        {tag}
+                                    </div>
+                                */}
                             </div>
                             <div className="text-sm text-gray-600">
                                 {description}

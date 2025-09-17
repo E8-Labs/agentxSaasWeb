@@ -1,6 +1,6 @@
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { next30Days } from '@/constants/Constants'
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import moment from 'moment';
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -11,6 +11,7 @@ function DowngradePlanPopup({
     onConfirm,
     downgradeTitle,
     features,
+    subscribePlanLoader
 }) {
 
     const [confirmChecked, setConfirmChecked] = useState(false)
@@ -73,9 +74,9 @@ function DowngradePlanPopup({
                                     {`You’ll loose access to`}
                                 </div>
                                 <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-4">
-                                    {features.map((item,index) => (
+                                    {features.map((item, index) => (
                                         <div key={index} className="flex flex-row items-center gap-2">
-                                            <Image  src="/svgIcons/selectedTickBtn.svg"
+                                            <Image src="/svgIcons/selectedTickBtn.svg"
                                                 height={24} width={24} alt="cross"
                                             />
                                             <div className="text-base font-normal">
@@ -117,23 +118,30 @@ function DowngradePlanPopup({
                                 </div>
                             </div>
 
+                            {
+                                subscribePlanLoader ? (
+                                    <div className="w-full flex flex-row items-center justify-center mt-5 h-[50px]">
+                                        <CircularProgress size={30} />
+                                    </div>
+                                ) : (
+                                    <button
+                                        className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[50px] ${!confirmChecked ? "bg-btngray text-black" : "bg-purple text-white"}`}
+                                        style={{
+                                            fontWeight: "400",
+                                            fontSize: 15.8,
+                                            outline: "none",
+                                        }}
 
-                            <button
-                                className="w-full flex w-full items-center rounded-lg justify-center mt-5 border h-[50px]"
-                                style={{
-                                    fontWeight: "400",
-                                    fontSize: 15.8,
-                                    outline: "none",
-                                }}
+                                        disabled={!confirmChecked}
 
-                                disabled={!confirmChecked}
-
-                                onClick={() => {
-                                    onConfirm()
-                                }}
-                            >
-                                Confirm Cancellation
-                            </button>
+                                        onClick={() => {
+                                            onConfirm()
+                                        }}
+                                    >
+                                        Confirm Cancellation
+                                    </button>
+                                )
+                            }
 
 
                         </div >

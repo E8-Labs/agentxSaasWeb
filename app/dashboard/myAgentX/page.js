@@ -135,6 +135,8 @@ function Page() {
   const timerRef = useRef();
   const fileInputRef = useRef([]);
   const searchTimeoutRef = useRef(null);
+  let attempts = 0;
+  const maxAttempts = 10;
   // const fileInputRef = useRef(null);
   const router = useRouter();
   let tabs = ["Agent Info", "Actions", "Pipeline", "Knowledge"];
@@ -412,7 +414,7 @@ function Page() {
         }
       }
     }
-    
+
     // Prefetch the createagent route for faster navigation
     router.prefetch('/createagent');
   }, [])
@@ -447,42 +449,61 @@ function Page() {
     }
   };
 
-  useEffect(() => {
-    let data = getUserLocalData()
-    setUser(data)
-    console.log('data', data.user)
-    
-    // Load existing localStorage data into Redux if not already there
-    if (data && !reduxUser) {
-      console.log('🔄 [DASHBOARD] Loading localStorage data into Redux:', {
-        userId: data.user?.id,
-        plan: data.user?.plan?.type,
-        maxAgentsFromLocal: data.user?.planCapabilities?.maxAgents
-      });
-      // Use the Redux setUser action
-      setReduxUser({
-        token: data.token,
-        user: data.user
-      });
-    }
-    
-    // Fetch fresh profile data and sync to Redux
-    syncProfileToRedux();
-    
-    // Debug: Compare Redux vs localStorage data
+  // Combined initialization function (merges Redux + test branch logic)
+  const initializeUserData = async () => {
+    attempts++;
+    console.log(`🔄 [DASHBOARD] Initializing user data - attempt ${attempts}`);
+
+    const data = localStorage.getItem("User");
     if (data) {
-      console.log('🔍 [DEBUG] Data comparison:');
-      console.log('localStorage maxAgents:', data.user?.planCapabilities?.maxAgents);
-      console.log('localStorage planCapabilities:', data.user?.planCapabilities);
+      const userData = JSON.parse(data);
+      console.log(`✅ [DASHBOARD] User found on attempt ${attempts}`);
+      console.log("user data for showing max agents is", userData);
       
-      if (reduxUser) {
-        console.log('Redux maxAgents:', reduxUser?.planCapabilities?.maxAgents);
-        console.log('Redux planCapabilities:', reduxUser?.planCapabilities);
-        console.log('Are maxAgents equal?', data.user?.planCapabilities?.maxAgents === reduxUser?.planCapabilities?.maxAgents);
+      // Set local state (from test branch)
+      setUser(userData);
+      
+      // Load into Redux if not already there (from our branch)
+      if (userData && !reduxUser) {
+        console.log('🔄 [DASHBOARD] Loading localStorage data into Redux:', {
+          userId: userData.user?.id,
+          plan: userData.user?.plan?.type,
+          maxAgentsFromLocal: userData.user?.planCapabilities?.maxAgents
+        });
+        setReduxUser({
+          token: userData.token,
+          user: userData.user
+        });
       }
+      
+      // Fetch fresh profile data and sync to Redux
+      await syncProfileToRedux();
+      
+      // Debug: Compare Redux vs localStorage data
+      console.log('🔍 [DEBUG] Data comparison:');
+      console.log('localStorage maxAgents:', userData.user?.planCapabilities?.maxAgents);
+      console.log('localStorage planCapabilities:', userData.user?.planCapabilities);
+      
+    } else if (attempts < maxAttempts) {
+      console.log(`⚠️ [DASHBOARD] User not found on attempt ${attempts}, retrying in 500ms...`);
+      setTimeout(initializeUserData, 500); // retry after 500ms
+    } else {
+      console.warn(`❌ [DASHBOARD] User not found in localStorage after ${attempts} attempts.`);
     }
-  }, [])
+  };
+
+  useEffect(() => {
+    // Combined initialization: Redux + localStorage with retry logic
+    initializeUserData();
+  }, []);
   // get selected agent from local if calendar added by google
+
+  //printing the user object data after setting the data inside it
+  useEffect(() => {
+    if (user) {
+      console.log("Data stored in user variable is", user)
+    }
+  }, [user])
 
   useEffect(() => {
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle);
@@ -621,8 +642,27 @@ function Page() {
     }
   }, [objective]);
 
-  //function for numbers width
+  //fetch local data after 500ms
+  const checkUser = async () => {
+    // await getProfileDetails();
+    attempts++;
+    console.log(`Trying to get user - try no ${attempts}`);
 
+    const data = localStorage.getItem("User");
+    let userData = null;
+    if (data) {
+      console.log(`User found on try ${attempts}`);
+      console.log("user data for showing max agents is", JSON.parse(data))
+      setUser(JSON.parse(data));
+    } else if (attempts < maxAttempts) {
+      console.log(`User not found on try ${attempts}, retrying in 500ms...`);
+      setTimeout(checkUser, 500); // retry after 500ms
+    } else {
+      console.warn(`User not found in localStorage after ${attempts} attempts.`);
+    }
+  };
+
+  //function for numbers width
   const numberDropDownWidth = (agName) => {
     if (
       showDrawerSelectedAgent?.agentType === "outbound" ||
@@ -2285,26 +2325,53 @@ function Page() {
     }
   };
 
-  //function to add new agent - Updated to use Redux
+  //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
     event.preventDefault();
     
-    console.log('🎯 [DASHBOARD] handleAddNewAgent called - Redux plan check:', {
-      canCreateAgent,
-      isFreePlan,
-      currentAgents,
-      maxAgents,
-      planType: reduxUser?.plan?.type
+    // Combined plan checking - use Redux as primary, localStorage as fallback
+    console.log('🎯 [DASHBOARD] handleAddNewAgent called - Combined plan check:', {
+      reduxCanCreateAgent: canCreateAgent,
+      reduxIsFreePlan: isFreePlan,
+      reduxCurrentAgents: currentAgents,
+      reduxMaxAgents: maxAgents,
+      reduxPlanType: reduxUser?.plan?.type,
+      localCurrentUsage: user?.user?.currentUsage?.maxAgents,
+      localMaxAgents: user?.user?.planCapabilities?.maxAgents,
+      localPlanType: user?.user?.plan?.type,
+      localPlanPrice: user?.user?.plan?.price
     });
-    
-    // Use Redux plan capabilities instead of local state
-    if (!canCreateAgent) {
-      if (isFreePlan && currentAgents >= 1) {
-        console.log('🚫 [DASHBOARD] Free plan user has reached limit - show upgrade modal')
-        setShowUpgradeModal(true)
-        return
-      } else if (currentAgents >= maxAgents) {
-        console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities')
+
+    // Use Redux plan capabilities as primary source
+    if (reduxUser?.planCapabilities) {
+      console.log('🔴 [DASHBOARD] Using Redux plan capabilities');
+      if (!canCreateAgent) {
+        if (isFreePlan && currentAgents >= 1) {
+          console.log('🚫 [DASHBOARD] Free plan user has reached limit - show upgrade modal')
+          setShowUpgradeModal(true)
+          return
+        } else if (currentAgents >= maxAgents) {
+          console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities')
+          setShowMoreAgentsPopup(true)
+          return
+        }
+      }
+    } else {
+      // Fallback to localStorage logic (from test branch)
+      console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
+      
+      // Check if user is on free plan and has reached their limit
+      if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+        if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+          console.log('Free plan user has reached limit - show upgrade modal')
+          setShowUpgradeModal(true)
+          return
+        }
+      }
+
+      // Check if paid plan user has reached their agent limit
+      if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+        console.log('Paid plan user is over the allowed capabilities')
         setShowMoreAgentsPopup(true)
         return
       }
@@ -2456,7 +2523,7 @@ function Page() {
 
       if (data) {
         const userData = JSON.parse(data);
-        const AuthToken = userData.token;
+        const token = AuthToken();
         const ApiPath = Apis.duplicateAgent;
 
         let apidata = {
@@ -2465,7 +2532,7 @@ function Page() {
 
         const response = await axios.post(ApiPath, apidata, {
           headers: {
-            Authorization: "Bearer " + AuthToken,
+            Authorization: "Bearer " + token,
           },
         });
 
@@ -2517,12 +2584,23 @@ function Page() {
     console.log("selected language is", value);
     // console.log("selected voice is",SelectedVoice)
 
-    
-    // Use Redux plan capabilities for language selection
-    if(value === "Multilingual" && !isFeatureAllowed('allowLanguageSelection')){
-      setShowErrorSnack("Multilingual support requires a plan upgrade.");
-      setIsVisibleSnack2(true);
-      return
+    // Combined language selection checking - Redux first, localStorage fallback
+    if (value === "Multilingual") {
+      // Use Redux plan capabilities as primary source
+      if (reduxUser?.planCapabilities) {
+        if (!isFeatureAllowed('allowLanguageSelection')) {
+          setShowErrorSnack("Multilingual support requires a plan upgrade.");
+          setIsVisibleSnack2(true);
+          return
+        }
+      } else {
+        // Fallback to localStorage logic
+        if (user?.user?.planCapabilities?.allowLanguageSelection === false) {
+          setShowErrorSnack("Multilingual support requires a plan upgrade.");
+          setIsVisibleSnack2(true);
+          return
+        }
+      }
     }
 
     setShowLanguageLoader(true);
@@ -3862,10 +3940,19 @@ function Page() {
                                   </div>
 
                                   {
-                                    item.value === "multi" && reduxUser?.planCapabilities?.allowLanguageSelection === false
-                                      && (
-                                        <UpgradeTag />
+                                    item.value === "multi" && (
+                                      // Combined check - Redux first, localStorage fallback
+                                      (reduxUser?.planCapabilities ? 
+                                        !isFeatureAllowed('allowLanguageSelection') : 
+                                        user?.user?.planCapabilities?.allowLanguageSelection === false
                                       )
+                                    ) && (
+                                      <UpgradeTag
+                                        title="Unlock Language Selection"
+                                        subTitle="Upgrade to unlock language selection"
+                                        buttonTitle="No Thanks"
+                                      />
+                                    )
                                   }
                                 </MenuItem>
                               );

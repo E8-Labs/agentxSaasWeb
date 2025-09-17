@@ -122,7 +122,7 @@ function CancelConfirmation({
 
 
             <button
-                className="w-full flex w-full items-center rounded-lg justify-center mt-5 border h-[50px]"
+                className={`w-full flex w-full items-center rounded-lg justify-center mt-5 border h-[50px] ${!confirmChecked ? "bg-btngray text-black" : "bg-purple text-white"}`}
                 style={{
                     fontWeight: "400",
                     fontSize: 15.8,

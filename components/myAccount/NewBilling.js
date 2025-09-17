@@ -645,6 +645,7 @@ function NewBilling() {
                     // localStorage.setItem("User", JSON.stringify(localDetails));
                     setSuccessSnack("Your plan successfully updated");
                     getProfileDetails()
+                    setShowDowngradeModal(false);
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
                 }
@@ -948,16 +949,16 @@ function NewBilling() {
                 setShowUpgradeModal(true)
             } else {
                 setShowDowngradeModal(true)
-               if(selectedPlan?.name == "Growth"){
+                if (selectedPlan?.name == "Growth") {
                     setDowngradeTitle("Confirm Growth Plan")
                     setDowngradeFeatures(downgradeToGrowthFeatures)
-               }else if(selectedPlan?.name === "Starter"){
+                } else if (selectedPlan?.name === "Starter") {
                     setDowngradeTitle("Confirm Starter Plan")
                     setDowngradeFeatures(downgradeToStarterFeatures)
-               }else{
-                console.log('no condition matched')
-                setShowCancelPoup(true)
-               }
+                } else {
+                    console.log('no condition matched')
+                    setShowCancelPoup(true)
+                }
 
             }
         }
@@ -1220,7 +1221,7 @@ function NewBilling() {
                     <button
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0"
-                        style={{ width: "280px" }} // Fixed width for consistent card sizes
+                        style={{ width: "220px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
@@ -1255,9 +1256,9 @@ function NewBilling() {
                                         )}
 
                                         {
-                                            isPaused && item.id === currentPlan && (
+                                            isPaused && item.id === currentPlan ? (
                                                 <div
-                                                    className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                                    className="flex px-2 py-1 bg-[#EAB308] rounded-full text-white"
                                                     style={{
                                                         fontSize: 11.6,
                                                         fontWeight: "500",
@@ -1265,6 +1266,20 @@ function NewBilling() {
                                                     }}
                                                 >
                                                     Paused
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    {
+                                                        item.id === currentPlan && (
+                                                            <div style={{
+                                                                fontSize: 11.6,
+                                                                fontWeight: "500",
+                                                                width: "fit-content",
+                                                            }}>
+                                                                Renews at: {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                            </div>
+                                                        )
+                                                    }
                                                 </div>
                                             )
                                         }
@@ -1274,22 +1289,26 @@ function NewBilling() {
                                         <div className="text-[16px] font-semibold">
                                             {item.name}
                                         </div>
-                                        <div className="text-[14px] font-semibold text-gray-600">
-                                            {item.mints} mins
+                                        <div className="text-[16px] font-semibold">
+                                            {item.mints} AI credits
                                         </div>
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        {`${item.discountPrice || "$0"}/mo`}
+                                        ${`${item.discountPrice || "0"}/mo`}
                                     </div>
 
-                                    <div className="text-sm font-normal text-[#8a8a8a] text-left mb-3">
-                                        {item.calls} calls* per month
-                                    </div>
+                                    {/*
+                                        <div className="text-sm font-normal text-[#8a8a8a] text-left mb-3">
+                                            {item.calls} calls* per month
+                                        </div>
+                                    */}
 
-                                    <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
-                                        {item.details}
-                                    </div>
+                                    {/*
+                                        <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
+                                            {item.details}
+                                        </div>
+                                    */}
 
                                     {/* Features section - only show features with thumb = true */}
                                     {item.features && item.features.length > 0 && (
@@ -1305,7 +1324,13 @@ function NewBilling() {
                                                             className="mt-0.5 flex-shrink-0"
                                                         />
                                                         <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                            {feature.text}
+                                                            {
+                                                                feature.thumb && (
+                                                                    <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
+                                                                        {feature.text}
+                                                                    </div>
+                                                                )
+                                                            }
                                                         </div>
                                                     </div>
                                                 ))}
@@ -1382,7 +1407,7 @@ function NewBilling() {
                                     }}
                                 >
                                     {`${selectedPlan?.displayOrder >= currentPlanOrder ? "Upgrade Plan" : "Downgrade Plan"} `}
-                                     {/* {selectedPlan?.displayOrder || "null"} {currentPlanOrder || "null"} */}
+                                    {/* {selectedPlan?.displayOrder || "null"} {currentPlanOrder || "null"} */}
                                 </button>
                             )}
                         </div>
@@ -1392,15 +1417,16 @@ function NewBilling() {
 
             </div>
 
-           <DowngradePlanPopup 
+            <DowngradePlanPopup
                 open={showDowngradeModal}
                 handleClose={() => setShowDowngradeModal(false)}
                 onConfirm={() => {
                     handleSubscribePlan()
                 }}
+                subscribePlanLoader={subscribePlanLoader}
                 downgradeTitle={downgradeTitle}
                 features={downgradeFeatures}
-           />
+            />
 
             <CancelPlanAnimation
                 showModal={showCancelPopup}
