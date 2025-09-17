@@ -1374,14 +1374,14 @@ const LeadDetails = ({
                                 </div>
                                 {/* Send Email Button */}
                                 <button
-                                  className="flex flex-row items-center gap-1 px-3 py-1 rounded-lg bg-purple/10 hover:bg-purple/20 transition-colors ml-4"
+                                  className="flex flex-row items-center gap-1 px-3 py-2 border text-purple rounded-lg  ml-4"
                                   onClick={() => setShowEmailModal(true)}
                                   disabled={sendEmailLoader}
                                 >
                                   <Image
-                                    src="/svgIcons/editIcon.svg"
-                                    height={14}
-                                    width={14}
+                                    src="/otherAssets/sendEmailIcon.png"
+                                    height={18}
+                                    width={18}
                                     alt="Send Email"
                                   />
                                   <span className="text-purple text-sm font-medium">
@@ -1462,62 +1462,65 @@ const LeadDetails = ({
                                   </div>
                                 )}
                                 {/* Send SMS Button for Phone */}
-                                <button
-                                  className={`flex flex-row items-center gap-1 px-3 py-1 rounded-lg ${(userLocalData?.plan?.price && phoneNumbers.length > 0) ? " bg-purple/10 hover:bg-purple/20 text-purple" : "bg-[#00000050] text-white"} transition-colors ml-4`}
-                                  onClick={() => setShowSMSModal(true)}
-                                  disabled={sendSMSLoader || !userLocalData?.plan?.price || phoneNumbers.length == 0}
+                                <Tooltip
+                                  title={
+                                    !userLocalData?.plan?.capabilities?.sms
+                                      ? "Upgrade account to send SMS"
+                                      : phoneNumbers.length == 0
+                                        ? "You need to complete A2P to text"
+                                        : ""
+                                  }
+                                  arrow
+                                  disableHoverListener={userLocalData?.plan?.capabilities?.sms && phoneNumbers.length > 0}
+                                  disableFocusListener={userLocalData?.plan?.capabilities?.sms && phoneNumbers.length > 0}
+                                  disableTouchListener={userLocalData?.plan?.capabilities?.sms && phoneNumbers.length > 0}
+                                  componentsProps={{
+                                    tooltip: {
+                                      sx: {
+                                        backgroundColor: "#ffffff",
+                                        color: "#333",
+                                        fontSize: "16px",
+                                        fontWeight: "500",
+                                        padding: "10px 15px",
+                                        borderRadius: "8px",
+                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
+                                      },
+                                    },
+                                    arrow: {
+                                      sx: {
+                                        color: "#ffffff",
+                                      },
+                                    },
+                                  }}
                                 >
-                                  <Image
-                                    src="/svgIcons/editIcon.svg"
-                                    height={14}
-                                    width={14}
-                                    alt="Send SMS"
-                                  />
-                                  <span className="text-sm font-medium">
-                                    Send SMS
-                                  </span>
-                                </button>
-                                {
-                                  !userLocalData?.plan?.price ? (
-                                    <UpgradeTag />
-                                  ) : (
-                                    phoneNumbers.length == 0 && (
-                                      <Tooltip key={a.id}
-                                        title={shouldDisable(a) ? "You need to complete A2P to text" : ""}
-                                        arrow
-                                        disableHoverListener={!shouldDisable(a)}
-                                        disableFocusListener={!shouldDisable(a)}
-                                        disableTouchListener={!shouldDisable(a)}
-                                        componentsProps={{
-                                          tooltip: {
-                                            sx: {
-                                              backgroundColor: "#ffffff", // Ensure white background
-                                              color: "#333", // Dark text color
-                                              fontSize: "16px",
-                                              fontWeight: "500",
-                                              padding: "10px 15px",
-                                              borderRadius: "8px",
-                                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                            },
-                                          },
-                                          arrow: {
-                                            sx: {
-                                              color: "#ffffff", // Match tooltip background
-                                            },
-                                          },
-                                        }}
-                                      >
-                                        <Image
-                                          src={"/otherAssets/redInfoIcon.png"}
-                                          height={16}
-                                          width={16}
-                                          alt="*"
+                                  <div className="flex flex-col items-start ">
+                                    {
+                                      userLocalData?.planCapabilities?.allowTextMessages === false && (
+                                        <Image className="-mb-2 ml-2 border"
+                                          src="/otherAssets/starsIcon2.png"
+                                          height={20}
+                                          width={20}
+                                          alt="Upgrade"
                                         />
-
-                                      </Tooltip>
-                                    )
-                                  )
-                                }
+                                      )
+                                    }
+                                    <button
+                                      className={`flex flex-row items-center gap-1 px-3 py-2 border text-purple rounded-lg  ml-4`}
+                                      onClick={() => setShowSMSModal(true)}
+                                      disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
+                                    >
+                                      <Image
+                                        src="/otherAssets/sendSmsIcon.png"
+                                        height={18}
+                                        width={18}
+                                        alt="Send SMS"
+                                      />
+                                      <span className="text-sm font-medium">
+                                        Send SMS
+                                      </span>
+                                    </button>
+                                  </div>
+                                </Tooltip>
 
                               </div>
                             )

@@ -36,7 +36,7 @@ export default function ChipInput({ ccEmails, setccEmails }) {
   };
 
   return (
-    <div className="flex flex-row items-center overflow-x-auto gap-2 px-2 py-2 rounded-md">
+    <div className="flex flex-row items-center overflow-x-auto gap-2 px-2 py-2 rounded-md w-full">
       {ccEmails?.map((chip, index) => (
         <div
           key={index}
@@ -64,7 +64,7 @@ export default function ChipInput({ ccEmails, setccEmails }) {
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         placeholder=""
-        className="flex-1 outline-none border-none focus:outline-none focus:ring-0 text-[13px]"
+        className="flex-1 min-w-0 outline-none border-none focus:outline-none focus:ring-0 text-[13px] bg-transparent"
       />
     </div>
   );

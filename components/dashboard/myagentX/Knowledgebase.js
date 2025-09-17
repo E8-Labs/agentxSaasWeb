@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import axios from "axios";
 import UpgradeModal from "@/constants/UpgradeModal";
 import UpgardView from "@/constants/UpgardView";
+import { AuthToken } from "@/components/agency/plan/AuthDetails";
 
 function Knowledgebase({ user, agent
 }) {
@@ -17,6 +18,10 @@ function Knowledgebase({ user, agent
   const [showAddNewCalendar, setShowAddNewCalendar] = useState(false); // Fixed missing state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
+
+
+  // console.log('user in kb file', user)
+
   useEffect(() => {
     GetKnowledgebase();
   }, [showKbPopup]);
@@ -25,7 +30,7 @@ function Knowledgebase({ user, agent
 
   async function GetKnowledgebase() {
     try {
-      const token = user.token; // Extract JWT token
+      const token = AuthToken; // Extract JWT token
 
       // let link = `/api/kb/getkb?agentId=${agent.id}`;
       let link = `${Apis.GetKnowledgebase}?agentId=${agent.id}`;
@@ -58,7 +63,7 @@ function Knowledgebase({ user, agent
   }
 
   function GetNoKbView() {
-    if (user?.user.planCapabilities.allowKnowledgeBases === false) {
+    if (user?.planCapabilities.allowKnowledgeBases === false) {
       return (
         <UpgardView
           title={"Add Knowledge Base"}
@@ -86,7 +91,7 @@ function Knowledgebase({ user, agent
             <button
               className="flex flex-row h-[54px] items-center gap-2 bg-purple p-2 px-8 rounded-lg"
               onClick={() => {
-                if (user?.user.planCapabilities.maxKnowledgeBases > user?.user.currentUsage.maxKnowledgeBases) {
+                if (user?.planCapabilities.maxKnowledgeBases > user?.currentUsage.maxKnowledgeBases) {
                   addKnowledgebase()
                 } else {
                   setShowUpgradeModal(true)
@@ -111,7 +116,7 @@ function Knowledgebase({ user, agent
     //console.log
     try {
       setKbDelLoader(item.id);
-      const token = user.token; // Extract JWT token
+      const token = AuthToken; // Extract JWT token
       setKb((prevKb) => prevKb.filter((kbItem) => kbItem.id !== item.id));
 
       let link = `${Apis.deleteKnowledgebase}`;
@@ -148,7 +153,7 @@ function Knowledgebase({ user, agent
         kbList={kb}
         onDelete={(item) => {
 
-          if (user?.user.planCapabilities.maxKnowledgeBases > user?.user.currentUsage.maxKnowledgeBases) {
+          if (user?.planCapabilities.maxKnowledgeBases > user?.currentUsage.maxKnowledgeBases) {
             handleDeleteKb(item);
           } else {
             setShowUpgradeModal(true)

@@ -216,7 +216,7 @@ function UpgradePlanContent({
 
     const [CVC, setCVC] = useState(false);
     const [elementsCreated, setElementsCreated] = useState(false);
-    
+
     // State to track if user is adding a new payment method
     const [isAddingNewPaymentMethod, setIsAddingNewPaymentMethod] = useState(false);
 
@@ -231,7 +231,7 @@ function UpgradePlanContent({
     const referralRequestSeqRef = useRef(0);
 
     let haveCards = cards && cards.length > 0 ? true : false;
-    
+
     // Determine if user is adding a new payment method
     const isUserAddingNewPaymentMethod = () => {
         // If user has no existing cards and is filling out card form
@@ -244,7 +244,7 @@ function UpgradePlanContent({
         }
         return false;
     };
-    
+
     // Update the state when payment method fields change
     useEffect(() => {
         setIsAddingNewPaymentMethod(isUserAddingNewPaymentMethod());
@@ -295,12 +295,12 @@ function UpgradePlanContent({
         if (selectedPlan && open) {
             // Find the matching plan in current plans
             const currentPlans = getCurrentPlans();
-            const matchingPlan = currentPlans.find(plan => 
-                plan.name === selectedPlan.name || 
+            const matchingPlan = currentPlans.find(plan =>
+                plan.name === selectedPlan.name ||
                 plan.id === selectedPlan.id ||
                 plan.planType === selectedPlan.planType
             );
-            
+
             if (matchingPlan) {
                 console.log('matchingPlan', matchingPlan)
                 setCurrentSelectedPlan(matchingPlan);
@@ -489,14 +489,16 @@ function UpgradePlanContent({
     const isPlanCurrent = (item) => {
         if (!currentUserPlan) return false;
 
+
+
         // Handle free plan case
-        if (item.isFree && (!currentUserPlan.planType || currentUserPlan.price <= 0)) {
+        if (item.isFree && (!currentUserPlan.planId || currentUserPlan.price <= 0)) {
             return true;
         }
 
         // Handle paid plans
-        if (item.planType && currentUserPlan.planType) {
-            return item.planType === currentUserPlan.planType;
+        if (item.id === currentUserPlan.planId) {
+            return true;
         }
 
         // Fallback comparison by name
@@ -669,7 +671,7 @@ function UpgradePlanContent({
 
             // Handle payment method logic
             let paymentMethodId = null;
-            
+
             // If user is adding a new payment method, add it first
             if (isAddingNewPaymentMethod) {
                 console.log('Adding new payment method before subscription...');
@@ -710,7 +712,7 @@ function UpgradePlanContent({
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
                 setsubscribeLoader(false);
-                
+
                 // Call getProfileDetails to refresh the profile
                 let user
                 if (selectedUser) {
@@ -893,6 +895,9 @@ function UpgradePlanContent({
                                         {
                                             getCurrentPlans().map((item, index) => {
                                                 const isCurrentPlan = isPlanCurrent(item);
+                                                console.log('isCurrentPlan', isCurrentPlan)
+                                                console.log('currentUserPlan', currentUserPlan)
+                                                console.log('item', item)
                                                 return (
                                                     <button
                                                         className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
@@ -1037,113 +1042,113 @@ function UpgradePlanContent({
                                                 <div className=' text-xl font-semibold '>
                                                     Order Summary
                                                 </div>
-                                            <div className="flex flex-row items-start justify-between w-full mt-6">
-                                                <div>
-                                                    <div className=' text-lg font-semibold'>
-                                                        {currentSelectedPlan ? `${currentSelectedPlan?.name} Plan` : "No Plan Selected"}
+                                                <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                    <div>
+                                                        <div className=' text-lg font-semibold'>
+                                                            {currentSelectedPlan ? `${currentSelectedPlan?.name} Plan` : "No Plan Selected"}
+                                                        </div>
+                                                        <div className=' text-xs font-regular '>
+                                                            {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle} subscription` : ""}
+                                                        </div>
                                                     </div>
-                                                    <div className=' text-xs font-regular '>
-                                                        {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle} subscription` : ""}
-                                                    </div>
-                                                </div>
-                                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    {currentSelectedPlan ? `${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "")} x ${currentSelectedPlan?.discountPrice}` : ""}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-row items-start justify-between w-full mt-6">
-                                                <div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {` Total Billed ${currentSelectedPlan?.billingCycle}`}
+                                                        {currentSelectedPlan ? `${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "")} x ${currentSelectedPlan?.discountPrice}` : ""}
                                                     </div>
-                                                    <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(currentSelectedPlan)}</div>
                                                 </div>
-                                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                    {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
-                                                </div>
-                                            </div>
 
-                                            {inviteCode && (
-                                                <div>
-                                                    <div className="flex flex-row items-start justify-between w-full mt-6">
-                                                        <div>
-                                                            <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                                                Referral Code
-                                                            </div>
-                                                            <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
-                                                                {referralMessage}
+                                                <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                    <div>
+                                                        <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                            {` Total Billed ${currentSelectedPlan?.billingCycle}`}
+                                                        </div>
+                                                        <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(currentSelectedPlan)}</div>
+                                                    </div>
+                                                    <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                        {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
+                                                    </div>
+                                                </div>
+
+                                                {inviteCode && (
+                                                    <div>
+                                                        <div className="flex flex-row items-start justify-between w-full mt-6">
+                                                            <div>
+                                                                <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                                    Referral Code
+                                                                </div>
+                                                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
+                                                                    {referralMessage}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )}
-                                            
-                                            <div className='w-full h-[1px] bg-gray-200 my-4'></div>
-                                            {/* Total Section - Inside Order Summary */}
-                                            <div className='flex flex-row w-full justify-between items-center mt-6'>
-                                                <div className=" text-3xl font-semibold  ">
-                                                    Total:
-                                                </div>
-                                                <div className=" text-3xl font-semibold  ">
-                                                    {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
-                                                </div>
-                                            </div>
-                                        </div>
-                                            )}
-                                </div>
-
-
-                                {/* Terms and Conditions - Only show when adding new payment method */}
-                                {isAddingNewPaymentMethod && (
-                                    <div className="w-full">
-                                        <div className="w-full mb-4 flex flex-row items-center gap-3">
-                                            <button
-                                                className="outline-none border-none"
-                                                onClick={() => setAgreeTerms(!agreeTerms)}
-                                            >
-                                                {agreeTerms ? (
-                                                    <div
-                                                        className="bg-purple flex flex-row items-center justify-center rounded"
-                                                        style={{ height: "24px", width: "24px" }}
-                                                    >
-                                                        <Image
-                                                            src={"/assets/whiteTick.png"}
-                                                            height={8}
-                                                            width={10}
-                                                            alt="*"
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div
-                                                        className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
-                                                        style={{ height: "24px", width: "24px" }}
-                                                    ></div>
                                                 )}
-                                            </button>
 
-                                            <div
-                                                className="flex flex-row items-center gap-2"
-                                                style={{
-                                                    fontWeight: "500",
-                                                    fontSize: 15
-                                                }}
-                                            >
-                                                <div>
-                                                    I agree to
+                                                <div className='w-full h-[1px] bg-gray-200 my-4'></div>
+                                                {/* Total Section - Inside Order Summary */}
+                                                <div className='flex flex-row w-full justify-between items-center mt-6'>
+                                                    <div className=" text-3xl font-semibold  ">
+                                                        Total:
+                                                    </div>
+                                                    <div className=" text-3xl font-semibold  ">
+                                                        {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
+                                                    </div>
                                                 </div>
-                                                <a
-                                                    href={"https://www.myagentx.com/terms-and-condition"}
-                                                    style={{ textDecoration: "underline", color: "#7902DF" }}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="hover:text-purple-700 transition-colors duration-200"
+                                            </div>
+                                        )}
+                                    </div>
+
+
+                                    {/* Terms and Conditions - Only show when adding new payment method */}
+                                    {isAddingNewPaymentMethod && (
+                                        <div className="w-full">
+                                            <div className="w-full mb-4 flex flex-row items-center gap-3">
+                                                <button
+                                                    className="outline-none border-none"
+                                                    onClick={() => setAgreeTerms(!agreeTerms)}
                                                 >
-                                                    Terms & Conditions
-                                                </a>
+                                                    {agreeTerms ? (
+                                                        <div
+                                                            className="bg-purple flex flex-row items-center justify-center rounded"
+                                                            style={{ height: "24px", width: "24px" }}
+                                                        >
+                                                            <Image
+                                                                src={"/assets/whiteTick.png"}
+                                                                height={8}
+                                                                width={10}
+                                                                alt="*"
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <div
+                                                            className="bg-none border-2 border-gray-300 flex flex-row items-center justify-center rounded"
+                                                            style={{ height: "24px", width: "24px" }}
+                                                        ></div>
+                                                    )}
+                                                </button>
+
+                                                <div
+                                                    className="flex flex-row items-center gap-2"
+                                                    style={{
+                                                        fontWeight: "500",
+                                                        fontSize: 15
+                                                    }}
+                                                >
+                                                    <div>
+                                                        I agree to
+                                                    </div>
+                                                    <a
+                                                        href={"https://www.myagentx.com/terms-and-condition"}
+                                                        style={{ textDecoration: "underline", color: "#7902DF" }}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="hover:text-purple-700 transition-colors duration-200"
+                                                    >
+                                                        Terms & Conditions
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
                                 </div>
 

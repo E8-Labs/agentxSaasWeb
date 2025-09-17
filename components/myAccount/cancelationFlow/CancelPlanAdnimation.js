@@ -39,11 +39,11 @@ export default function CancelPlanAnimation({
 
     useEffect(() => {
         getCUrrentComponent()
-    }, [isPaused])
+    }, [showModal])
 
-    const getCUrrentComponent =async () => {
-
-        if (isPaused) {
+    const getCUrrentComponent = async () => {
+        console.log('userLocalData?.subscriptionPauseUsed', userLocalData?.subscriptionPauseUsed)
+        if (isPaused || userLocalData?.subscriptionPauseUsed > 0) {
             if (
                 userLocalData?.isTrial === false &&
                 userLocalData?.cancelPlanRedemptions === 0

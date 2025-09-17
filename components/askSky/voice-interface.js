@@ -25,7 +25,7 @@ export function VoiceInterface({ loading, loadingMessage, isSpeaking }) {
         {loading ? (
           <p style={{
             whiteSpace:'nowrap'
-          }} className="mt-10 italic w-full truncate">{loadingMessage}</p>
+          }} className="mt-10 italic w-full text-center truncate">{loadingMessage}</p>
         ) : (
           isSpeaking ? (
             <VoiceWavesComponent
