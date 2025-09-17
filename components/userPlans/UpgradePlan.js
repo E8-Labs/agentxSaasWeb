@@ -817,7 +817,7 @@ function UpgradePlanContent({
                                 />
                             </div>
 
-                            <div className='flex flex-col w-[75%] h-[95%] items-start flex-1 px-6 py-6 border'>
+                            <div className='flex flex-col w-[75%] h-[95%] items-start flex-1 px-6 py-6'>
 
                                 {/* Header Section */}
                                 <div className='w-full -mt-4'>

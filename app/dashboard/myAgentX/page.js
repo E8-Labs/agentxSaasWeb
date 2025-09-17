@@ -3987,7 +3987,7 @@ function Page() {
                                   className="flex flex-row items-center gap-2 bg-purple10 w-full"
                                   value={item?.title}
                                   key={index}
-                                  disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
+                                  // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
                                   style={
                                     item.value === "multi" && reduxUser?.planCapabilities?.allowLanguageSelection === false
                                       ? { pointerEvents: "auto" }
