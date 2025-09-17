@@ -75,7 +75,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   useEffect(() => {
     let data = getUserLocalData()
     if (data) {
-      setUserData(data)
+      setUserData(data.user)
     }
   }, [])
 
@@ -569,7 +569,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             />
           </div>
           <div
-            className="flex flex-col items-center px-4 w-full h-[65vh] overflow-auto"
+            className="flex flex-col items-center px-4 w-full h-[67vh] overflow-auto"
             style={{ scrollbarWidth: "none" }}
           >
             <div
@@ -580,7 +580,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               {`Let's talk digits`}
             </div>
             <div
-              className="mt-8 w-11/12 sm:w-6/12 gap-4 flex flex-col h-[55vh] overflow-auto"
+              className="mt-8 w-11/12 sm:w-6/12 gap-4 flex flex-col h-[65vh] overflow-auto"
               // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
               style={{ scrollbarWidth: "none" }}
             >
@@ -894,7 +894,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               {/* Phone number input here */}
               {
-                userData?.user?.plan?.price? (
+                userData?.planCapabilities?.allowLiveCallTransfer === true ? (
                   <div>
                     <div className="w-full">
                       <div style={styles.headingStyle}>
@@ -965,10 +965,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     </div>
                   </div>
                 ) : (
-                  <UpgardView
-                    title={"Enable Live Transfer"}
-                    subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
-                  />
+                  <div className="w-full -mt-10">
+                    <UpgardView
+                      title={"Enable Live Transfer"}
+                      subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
+                    />
+                  </div>
                 )
               }
 

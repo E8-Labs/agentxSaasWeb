@@ -35,7 +35,7 @@ function UpgardView({
                 {subTitle}
             </div>
 
-            <button className='flex flex-col text-white items-center justify-center h-[50px] mt-6 w-[50%] bg-purple rounded-lg'
+            <button className='flex flex-col text-white items-center justify-center h-[50px] mt-3 w-[50%] bg-purple rounded-lg'
             onClick={() => {
                setShowUpgradePlanPopup(true)
               }}

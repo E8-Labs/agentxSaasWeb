@@ -85,6 +85,43 @@ const Userleads = ({
   const [totalLeads, setTotalLeads] = useState(0);
   const [SelectedSheetId, setSelectedSheetId] = useState(null);
   const [selectedLeadsList, setSelectedLeadsList] = useState([]);
+
+  // Helper function to filter out address column if no leads have address data
+  const filterAddressColumn = (columns, leads) => {
+    if (!columns || !leads || leads.length === 0) return columns;
+    
+    // Check if address column exists in the columns
+    const addressColumn = columns.find(column => 
+      column.title?.toLowerCase() === 'address' || 
+      column.key?.toLowerCase() === 'address'
+    );
+    
+    if (addressColumn) {
+      console.log('Address column detected:', addressColumn);
+    }
+    
+    // Check if any lead has address data
+    const hasAddressData = leads.some(lead => 
+      lead.address && lead.address.trim() !== ''
+    );
+    
+    console.log('Has address data in leads:', hasAddressData, 'Total leads:', leads.length);
+    
+    // If no leads have address data, filter out address column
+    if (!hasAddressData && addressColumn) {
+      console.log('Filtering out address column - no leads have address data');
+      return columns.filter(column => 
+        column.title?.toLowerCase() !== 'address' && 
+        column.key?.toLowerCase() !== 'address'
+      );
+    }
+    
+    if (hasAddressData && addressColumn) {
+      console.log('Keeping address column - leads have address data');
+    }
+    
+    return columns;
+  };
   const [selectedAll, setSelectedAll] = useState(false);
   const [AssignLeadModal, setAssignLeadModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -793,8 +830,10 @@ const Userleads = ({
       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
       let dynamicColumns = [];
       if (leads.length > 0) {
+        // Filter out address column if no leads have address data
+        const filteredColumns = filterAddressColumn(leadColumns, leads);
         dynamicColumns = [
-          ...leadColumns,
+          ...filteredColumns,
           // { title: "Tag" },
           {
             title: "More",
@@ -907,8 +946,10 @@ const Userleads = ({
                 // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
                 let dynamicColumns = [];
                 if (leads.length > 0) {
+                  // Filter out address column if no leads have address data
+                  const filteredColumns = filterAddressColumn(leadColumns, leads);
                   dynamicColumns = [
-                    ...leadColumns,
+                    ...filteredColumns,
                     // { title: "Tag" },
                     {
                       title: "More",

@@ -817,14 +817,14 @@ function UpgradePlanContent({
                                 />
                             </div>
 
-                            <div className='flex flex-col w-[75%] items-start flex-1 px-6 py-6'>
+                            <div className='flex flex-col w-[75%] h-[95%] items-start flex-1 px-6 py-6 border'>
 
                                 {/* Header Section */}
-                                <div className='w-full mb-6'>
-                                    <div className='text-2xl font-[600] mb-2'>
+                                <div className='w-full -mt-4'>
+                                    <div className='text-xl font-[600] mb-2'>
                                         Upgrade Your Plan
                                     </div>
-                                    <div className='text-[16px] font-semibold'>
+                                    <div className='text-[15px] font-semibold'>
                                         Upgrade for premium features and support
                                     </div>
                                 </div>
@@ -843,7 +843,7 @@ function UpgradePlanContent({
                                                 {
                                                     duration.map((item) => (
                                                         <div key={item.id}
-                                                            className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
+                                                            className={`px-1 py-0.5 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
                                                         >
                                                             {item.save ? (
                                                                 <div
@@ -858,7 +858,7 @@ function UpgradePlanContent({
                                                     ))}
                                             </div>
 
-                                            <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
+                                            <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-1 py-0.5 rounded-full'>
                                                 {
                                                     duration.map((item) => (
                                                         <div key={item.id}
@@ -866,7 +866,7 @@ function UpgradePlanContent({
                                                         >
 
                                                             <button
-                                                                className={`px-2 py-[5px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                                className={`px-1 py-[3px] ${selectedDuration?.id === item.id ? "text-white text-[13px] font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
                                                                 onClick={() => {
                                                                     setSelectedDuration(item);
                                                                     // getCurrentPlans();
@@ -882,7 +882,7 @@ function UpgradePlanContent({
                                     </div>
 
 
-                                    <div className='text-xl font-semibold'>
+                                    <div className='text-lg font-semibold'>
                                         Select Plan
                                     </div>
 
@@ -912,20 +912,20 @@ function UpgradePlanContent({
                                                         disabled={isCurrentPlan}
                                                     >
                                                         <div className='w-full flex flex-row items-center justify-between'>
-                                                            <div className='text-medium font-semibold'>
+                                                            <div className='text-[15px] font-semibold'>
                                                                 {item.name}
                                                             </div>
 
-                                                            <div className='text-medium font-semibold'>
+                                                            <div className='text-[15px] font-semibold'>
                                                                 {`$${item.discountPrice}`}
                                                             </div>
                                                         </div>
 
-                                                        <div className='text-[14px] font-[500] mt-2'>
+                                                        <div className='text-[13px] font-[500] mt-1'>
                                                             {item.details}
                                                         </div>
 
-                                                        <div className={`py-3 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-base font-semibold
+                                                        <div className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
                                                         ${isCurrentPlan
                                                                 ? "bg-gray-400 text-white cursor-not-allowed"
                                                                 : "bg-purple text-white"
@@ -940,9 +940,9 @@ function UpgradePlanContent({
                                     </div>
 
 
-                                    <div className='flex flex-row items-start w-full gap-10 mt-4'>
+                                    <div className='flex flex-row items-start w-full gap-10 mt-2'>
                                         <div
-                                            className='w-[50%] flex flex-col items-start h-[30vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
+                                            className='w-[50%] flex flex-col items-start h-[27vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
                                         >
 
                                             {
@@ -968,7 +968,7 @@ function UpgradePlanContent({
                                                 ) : (
 
                                                     <div className='flex flex-col gap-2 mt-2 items-start w-full' >
-                                                        <div className='text-xl font-semibold flex flex-row items-start justify-between'>
+                                                        <div className='text-lg font-semibold flex flex-row items-start justify-between'>
                                                             Payment
                                                         </div>
                                                         {cards.map((item) => (
@@ -1153,15 +1153,15 @@ function UpgradePlanContent({
                                 </div>
 
                                 {/* Upgrade Button - Fixed at bottom with equal padding */}
-                                <div className='w-full mt-6'>
+                                <div className='w-full flex flex-row items-center justify-center mt-6'>
                                     {
                                         subscribeLoader ? (
-                                            <div className="w-full flex flex-col items-center justify-center h-[53px]">
+                                            <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
                                                 <CircularProgress size={25} />
                                             </div>
                                         ) : (
                                             <button
-                                                className={`w-full flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                className={`w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
                                                 ${isUpgradeButtonEnabled()
                                                         ? "text-white bg-purple hover:bg-purple-700"
                                                         : "text-black bg-[#00000050] cursor-not-allowed"

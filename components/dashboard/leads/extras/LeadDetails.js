@@ -1542,81 +1542,82 @@ const LeadDetails = ({
                               </div>
                             )
                           }
-
-                          <div className="flex flex-row items-center gap-2">
-                            <Image
-                              src={"/assets/tag.png"}
-                              height={16}
-                              width={16}
-                              alt="man"
-                            />
-                            <div>
-                              {selectedLeadsDetails?.tags.length > 0 ? (
-                                <div
-                                  className="text-end flex flex-row items-center gap-2 "
-                                // style={styles.paragraph}
-                                >
-                                  {
-                                    // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                    selectedLeadsDetails?.tags
-                                      .slice(0, 2)
-                                      .map((tag, index) => {
-                                        return (
-                                          <div
-                                            key={index}
-                                            className="flex flex-row items-center gap-2"
-                                          >
-                                            <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
-                                              <div
-                                                className="text-purple" //1C55FF10
-                                              >
-                                                {tag}
-                                              </div>
-                                              {DelTagLoader &&
-                                                tag.includes(DelTagLoader) ? (
-                                                <div>
-                                                  <CircularProgress size={15} />
-                                                </div>
-                                              ) : (
-                                                <button
-                                                  onClick={() => {
-                                                    handleDelTag(tag);
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="#7902DF"
-                                                  />
-                                                </button>
-                                              )}
-                                            </div>
-                                          </div>
-                                        );
-                                      })
-                                  }
-                                  <button
-                                    className="outline-none"
-                                    onClick={() => {
-                                      // console.log(
-                                      //   "tags are",
-                                      //   selectedLeadsDetails?.tags
-                                      // );
-                                      setExtraTagsModal(true);
-                                    }}
+                          {selectedLeadsDetails?.tags.length > 0 && (
+                            <div className="flex flex-row items-center gap-2">
+                              <Image
+                                src={"/assets/tag.png"}
+                                height={16}
+                                width={16}
+                                alt="man"
+                              />
+                              <div>
+                                {selectedLeadsDetails?.tags.length > 0 ? (
+                                  <div
+                                    className="text-end flex flex-row items-center gap-2 "
+                                  // style={styles.paragraph}
                                   >
-                                    {selectedLeadsDetails?.tags.length > 2 && (
-                                      <div className="text-purple underline">
-                                        +{selectedLeadsDetails?.tags.length - 2}
-                                      </div>
-                                    )}
-                                  </button>
-                                </div>
-                              ) : (
-                                "-"
-                              )}
+                                    {
+                                      // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                      selectedLeadsDetails?.tags
+                                        .slice(0, 2)
+                                        .map((tag, index) => {
+                                          return (
+                                            <div
+                                              key={index}
+                                              className="flex flex-row items-center gap-2"
+                                            >
+                                              <div className="flex flex-row items-center gap-2 bg-purple10 px-2 py-1 rounded-lg">
+                                                <div
+                                                  className="text-purple" //1C55FF10
+                                                >
+                                                  {tag}
+                                                </div>
+                                                {DelTagLoader &&
+                                                  tag.includes(DelTagLoader) ? (
+                                                  <div>
+                                                    <CircularProgress size={15} />
+                                                  </div>
+                                                ) : (
+                                                  <button
+                                                    onClick={() => {
+                                                      handleDelTag(tag);
+                                                    }}
+                                                  >
+                                                    <X
+                                                      size={15}
+                                                      weight="bold"
+                                                      color="#7902DF"
+                                                    />
+                                                  </button>
+                                                )}
+                                              </div>
+                                            </div>
+                                          );
+                                        })
+                                    }
+                                    <button
+                                      className="outline-none"
+                                      onClick={() => {
+                                        // console.log(
+                                        //   "tags are",
+                                        //   selectedLeadsDetails?.tags
+                                        // );
+                                        setExtraTagsModal(true);
+                                      }}
+                                    >
+                                      {selectedLeadsDetails?.tags.length > 2 && (
+                                        <div className="text-purple underline">
+                                          +{selectedLeadsDetails?.tags.length - 2}
+                                        </div>
+                                      )}
+                                    </button>
+                                  </div>
+                                ) : (
+                                  "-"
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
                           {
                             selectedLeadsDetails?.pipeline && (
                               <div className="flex flex-row items-center gap-2">
@@ -1711,10 +1712,10 @@ const LeadDetails = ({
                             }}
                           >
                             <Image
-                              src={"/assets/manIcon.png"}
+                              src={"/assets/assignTeamIcon.png"}
                               alt="*"
-                              height={30}
-                              width={30}
+                              height={16}
+                              width={16}
                             />
                             <div
                               style={{
@@ -1723,7 +1724,7 @@ const LeadDetails = ({
                                 color: "#000000100",
                               }}
                             >
-                              Select Team
+                              Assign Team
                             </div>
                             {showTeams ? (
                               <CaretUp
