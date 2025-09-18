@@ -229,6 +229,7 @@ function UpgradePlanContent({
     const [referralStatus, setReferralStatus] = useState("idle"); // idle | loading | valid | invalid
     const [referralMessage, setReferralMessage] = useState("");
     const referralRequestSeqRef = useRef(0);
+    const [isSmallScreen, setIsSmallScreen] = useState(false);
 
     let haveCards = cards && cards.length > 0 ? true : false;
 
@@ -284,11 +285,11 @@ function UpgradePlanContent({
 
     }, [plan])
 
-    useEffect(() => {
-        console.log('currentSelectedPlan', currentSelectedPlan)
-        console.log('setCurrentUserPlan', currentUserPlan)
-    }
-        , [currentSelectedPlan, currentFullPlan])
+    // useEffect(() => {
+    //     console.log('currentSelectedPlan', currentSelectedPlan)
+    //     console.log('setCurrentUserPlan', currentUserPlan)
+    // }
+    //     , [currentSelectedPlan, currentFullPlan])
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
@@ -312,7 +313,6 @@ function UpgradePlanContent({
 
 
             if (matchingPlan) {
-                console.log('matchingPlan', matchingPlan)
                 setCurrentSelectedPlan(matchingPlan);
                 const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
                 setSelectedPlanIndex(planIndex);
@@ -321,7 +321,7 @@ function UpgradePlanContent({
 
             }
         }
-    }, [selectedPlan, open, selectedDuration, monthlyPlans, quaterlyPlans, yearlyPlans])
+    }, [selectedPlan, open, monthlyPlans, quaterlyPlans, yearlyPlans])
 
     useEffect(() => {
         if (!inviteCode || inviteCode.trim().length === 0) {
@@ -392,6 +392,18 @@ function UpgradePlanContent({
             getCurrentUserPlan()
         }
     }, [open])
+
+    // Check screen height for scrolling behavior
+    useEffect(() => {
+        const checkScreenHeight = () => {
+            setIsSmallScreen(window.innerHeight < 800);
+        };
+        
+        checkScreenHeight();
+        window.addEventListener('resize', checkScreenHeight);
+        
+        return () => window.removeEventListener('resize', checkScreenHeight);
+    }, []);
 
     const getCurrentUserPlan = () => {
         const localData = localStorage.getItem("User");
@@ -843,7 +855,12 @@ function UpgradePlanContent({
                                 />
                             </div>
 
-                            <div className='flex flex-col w-[75%] h-[95%] items-start flex-1 px-6 py-6'>
+                            <div className={`flex flex-col w-[75%] md:h-[100%] h-[100%] items-start flex-1 px-6 py-2 ${isSmallScreen ? 'overflow-auto' : 'md:overflow-none'}`}
+                                style={{
+                                    maxHeight: isSmallScreen ? 'calc(100vh - 120px)' : 'none',
+                                    scrollbarWidth: 'none'
+                                }}
+                            >
 
                                 {/* Header Section */}
                                 <div className='w-full -mt-4'>
@@ -856,9 +873,11 @@ function UpgradePlanContent({
                                 </div>
 
                                 {/* Content Section */}
-                                <div className='w-full flex-1 overflow-auto'
+                                <div className='w-full flex-1'
                                     style={{
-                                        scrollbarWidth: 'none'
+                                        scrollbarWidth: 'none',
+                                        overflowY: isSmallScreen ? 'auto' : 'visible',
+                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none'
                                     }}
                                 >
 
@@ -921,9 +940,6 @@ function UpgradePlanContent({
                                         {
                                             getCurrentPlans().map((item, index) => {
                                                 const isCurrentPlan = isPlanCurrent(item);
-                                                console.log('isCurrentPlan', isCurrentPlan)
-                                                console.log('currentUserPlan', currentUserPlan)
-                                                console.log('item', item)
                                                 return (
                                                     <button
                                                         className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
@@ -968,7 +984,7 @@ function UpgradePlanContent({
 
                                     <div className='flex flex-row items-start w-full gap-10 mt-2'>
                                         <div
-                                            className='w-[50%] flex flex-col items-start h-[27vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
+                                            className='w-[50%] flex flex-col items-start h-[24vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
                                         >
 
                                             {
@@ -1065,7 +1081,7 @@ function UpgradePlanContent({
                                         {/* Only show Order Summary if a plan is selected */}
                                         {currentSelectedPlan && (
                                             <div className={`w-[50%] flex flex-col items-start ${haveCards ? "text-black" : "text-[#8a8a8a]"}`}>
-                                                <div className=' text-xl font-semibold '>
+                                                <div className=' text-xl font-semibold '>   
                                                     Order Summary
                                                 </div>
                                                 <div className="flex flex-row items-start justify-between w-full mt-6">
@@ -1109,9 +1125,9 @@ function UpgradePlanContent({
                                                     </div>
                                                 )}
 
-                                                <div className='w-full h-[1px] bg-gray-200 my-4'></div>
+                                                <div className='w-full h-[1px] bg-gray-200 my-2'></div>
                                                 {/* Total Section - Inside Order Summary */}
-                                                <div className='flex flex-row w-full justify-between items-center mt-6'>
+                                                <div className='flex flex-row w-full justify-between items-center mt-1'>
                                                     <div className=" text-3xl font-semibold  ">
                                                         Total:
                                                     </div>
@@ -1179,7 +1195,7 @@ function UpgradePlanContent({
                                 </div>
 
                                 {/* Upgrade Button - Fixed at bottom with equal padding */}
-                                <div className='w-full flex flex-row items-center justify-center mt-6'>
+                                <div className='w-full flex flex-row items-center justify-center md:mt-6 mt-3'>
                                     {
                                         subscribeLoader ? (
                                             <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
@@ -1187,7 +1203,7 @@ function UpgradePlanContent({
                                             </div>
                                         ) : (
                                             <button
-                                                className={`w-1/2 flex flex-col items-center justify-center h-[53px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                className={`w-1/2 flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
                                                 ${isUpgradeButtonEnabled()
                                                         ? "text-white bg-purple hover:bg-purple-700"
                                                         : "text-black bg-[#00000050] cursor-not-allowed"
