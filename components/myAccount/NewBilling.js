@@ -35,6 +35,7 @@ import { getUserLocalData } from "../constants/constants";
 import { set } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import DowngradePlanPopup from "./cancelationFlow/DowngradePlanPopup";
 import UpgradeModal from "@/constants/UpgradeModal";
+import { useUser } from "@/hooks/redux-hooks";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -43,6 +44,7 @@ let stripePublickKey =
 const stripePromise = loadStripe(stripePublickKey);
 
 function NewBilling() {
+    const { updateProfile } = useUser();
 
     const duration = [
         {
@@ -343,6 +345,49 @@ function NewBilling() {
         return null;
     };
 
+    // Helper function to find matching plan from all plan arrays (monthly, quarterly, yearly)
+    const findMatchingPlanFromAllArrays = (profilePlan) => {
+        if (!profilePlan) return null;
+
+        // Combine all plan arrays
+        const allPlans = [...monthlyPlans, ...quaterlyPlans, ...yearlyPlans];
+        
+        if (allPlans.length === 0) {
+            console.log('🔍 [PLAN-MATCH] No plans available yet');
+            return null;
+        }
+
+        // Try to find by planId first (most reliable)
+        if (profilePlan.planId) {
+            const matchByPlanId = allPlans.find(plan => plan.id === profilePlan.planId);
+            if (matchByPlanId) {
+                console.log('🔍 [PLAN-MATCH] Found by planId:', matchByPlanId);
+                return matchByPlanId;
+            }
+        }
+
+        // Try to find by planType
+        if (profilePlan.type) {
+            const matchByType = allPlans.find(plan => plan.planType === profilePlan.type);
+            if (matchByType) {
+                console.log('🔍 [PLAN-MATCH] Found by planType:', matchByType);
+                return matchByType;
+            }
+        }
+
+        // Try to find by title/name
+        if (profilePlan.title) {
+            const matchByTitle = allPlans.find(plan => plan.name === profilePlan.title);
+            if (matchByTitle) {
+                console.log('🔍 [PLAN-MATCH] Found by title:', matchByTitle);
+                return matchByTitle;
+            }
+        }
+
+        console.log('🔍 [PLAN-MATCH] No matching plan found for:', profilePlan);
+        return null;
+    };
+
 
     //cancel plan reasons
     const cancelPlanReasons = [
@@ -421,6 +466,25 @@ function NewBilling() {
         }
     }, [currentFullPlan, monthlyPlans, quaterlyPlans, yearlyPlans]);
 
+    // Add state to hold the profile plan before matching
+    const [profilePlan, setProfilePlan] = useState(null);
+
+    // Effect to match profile plan with plans list and set currentFullPlan
+    useEffect(() => {
+        if (profilePlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
+            console.log('🔄 [PLAN-SYNC] Attempting to match profile plan with plans list');
+            const matchedPlan = findMatchingPlanFromAllArrays(profilePlan);
+            
+            if (matchedPlan) {
+                console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan);
+                setCurrentFullPlan(matchedPlan);
+            } else {
+                console.log('🔄 [PLAN-SYNC] No match found, using profile plan as fallback');
+                setCurrentFullPlan(profilePlan);
+            }
+        }
+    }, [profilePlan, monthlyPlans, quaterlyPlans, yearlyPlans]);
+
 
 
     console.log('togglePlan', togglePlan)
@@ -435,7 +499,7 @@ function NewBilling() {
                 let plan = response?.data?.data?.plan;
                 let togglePlan = plan?.planId;
 
-                setCurrentFullPlan(plan)
+                setProfilePlan(plan)  // Set profile plan for matching, don't set currentFullPlan directly
                 setIsPaused(plan.pauseExpiresAt != null ? true : false)
                 setToggleFullPlan(plan)
                 let planType = togglePlan;
@@ -941,8 +1005,11 @@ function NewBilling() {
                 // Update user local data
                 setUserLocalData(profileData);
 
+                // Update Redux store with fresh profile data
+                updateProfile(profileData);
+
                 // Update plan-related state
-                setCurrentFullPlan(plan);
+                setProfilePlan(plan);  // Set profile plan for matching, currentFullPlan will be set by useEffect
                 setToggleFullPlan(plan);
                 setCurrentPlan(plan?.planId);
                 setTogglePlan(plan?.planId);
@@ -997,8 +1064,10 @@ function NewBilling() {
         const featuresToLose = [];
         // console.log('🔍 [DOWNGRADE] Current plan capabilities:', currentPlan.capabilities);
 
-        // Use existing capabilities or fallback to empty object, don't overwrite with features
-        const currentCapabilities = currentPlan.features || {};
+        // Fix: Use capabilities for both plans, with proper fallback handling
+        // Profile API returns capabilities in currentPlan.capabilities  
+        // Plans API returns capabilities in targetPlan.capabilities
+        const currentCapabilities = currentPlan.capabilities || {};
         const targetCapabilities = targetPlan.capabilities || {};
 
         // Check if plans have capabilities
@@ -1635,7 +1704,8 @@ function NewBilling() {
                     const buttonConfig = getButtonConfig();
                     console.log('selected plan in button config', selectedPlan);
                     // Only show button if user has a paid plan or if they have selected a different plan
-                    if (!currentFullPlan?.price && (!selectedPlan || currentPlan === togglePlan)) {
+                    // Show cancel button if user is on paid plan and selected their own plan
+                    if (!currentFullPlan?.price && !selectedPlan) {
                         return null;
                     }
 

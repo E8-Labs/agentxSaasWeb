@@ -23,6 +23,10 @@ function CancelConfirmation({
         loadCurrentPlanFeatures()
     },[])
 
+    useEffect(()=>{
+        console.log('🔍 [CANCELATION FLOW] Redux User:', reduxUser)
+    },[reduxUser])
+
     const getUserData = () =>{
         let data = localStorage.getItem("User")
 
@@ -41,18 +45,51 @@ function CancelConfirmation({
         try {
             setLoading(true)
             
-            // Get current user plan
-            const userPlan = reduxUser.plan
+            // Get current user plan - try Redux first, fallback to localStorage
+            let userPlan = reduxUser?.plan;
+            
+            // If Redux doesn't have plan data or shows Free plan, check localStorage  
+            if (!userPlan || userPlan.name === 'Free') {
+                const localData = localStorage.getItem("User");
+                if (localData) {
+                    const userData = JSON.parse(localData);
+                    userPlan = userData.user?.plan;
+                    console.log('🔄 [CANCELATION FLOW] Using localStorage plan data:', userPlan);
+                }
+            }
+            
             if (userPlan) {
                 setCurrentPlan(userPlan)
                 
                 // Get all plans to find the current plan details
                 const allPlans = await getUserPlans()
                 const currentPlanDetails = allPlans.find(plan => plan.id === userPlan.planId)
+                console.log('🔍 [CANCELATION FLOW] All plans:', allPlans)
+                console.log('🔍 [CANCELATION FLOW] User plan:', userPlan)
+                console.log('🔍 [CANCELATION FLOW] Current plan details:', currentPlanDetails)
                 
                 if (currentPlanDetails) {
                     // Get free plan for comparison (cancellation means going to free)
-                    const freePlan = allPlans.find(plan => plan.name === 'Free')
+                    let freePlan = allPlans.find(plan => plan.name === 'Free' || plan.isFree === 1)
+                    
+                    // If free plan doesn't have proper capabilities, create a fallback
+                    if (freePlan && !freePlan.capabilities) {
+                        freePlan = {
+                            ...freePlan,
+                            capabilities: {
+                                maxAgents: 1,
+                                maxLeads: 500,
+                                maxTeamMembers: 0,
+                                allowPrioritySupport: false,
+                                allowZoomSupport: false,
+                                allowGHLSubaccounts: false,
+                                allowLeadSource: false,
+                                allowKnowledgeBases: false,
+                                allowSuccessManager: false
+                            }
+                        };
+                        console.log('🔧 [CANCELATION FLOW] Added capabilities to free plan:', freePlan);
+                    }
                     
                     // Use getFeaturesToLose function to get actual features that will be lost
                     const featuresToLose = getFeaturesToLose(currentPlanDetails, freePlan)

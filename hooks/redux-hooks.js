@@ -1,4 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 import { 
   selectUser, 
   selectToken, 
@@ -31,6 +32,28 @@ export const useUser = () => {
   const isAgencyTeamMember = useSelector(selectIsAgencyTeamMember);
   const loading = useSelector(selectUserLoading);
   const error = useSelector(selectUserError);
+
+  // Initialize Redux from localStorage if Redux is empty but localStorage has data
+  useEffect(() => {
+    if (!user && !token) {
+      try {
+        const localStorageData = localStorage.getItem('User');
+        if (localStorageData) {
+          const userData = JSON.parse(localStorageData);
+          if (userData.token && userData.user) {
+            console.log('🔄 [REDUX-HOOKS] Initializing Redux from localStorage:', {
+              userId: userData.user?.id,
+              planType: userData.user?.plan?.type,
+              planName: userData.user?.plan?.name
+            });
+            dispatch(setUser(userData));
+          }
+        }
+      } catch (error) {
+        console.warn('Failed to initialize Redux from localStorage:', error);
+      }
+    }
+  }, [user, token, dispatch]);
 
   const actions = {
     setUser: (userData) => dispatch(setUser(userData)),

@@ -23,8 +23,9 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
 
     const featuresToLose = [];
 
-    // Use existing capabilities or fallback to empty object, don't overwrite with features
-    const currentCapabilities = currentPlan.features || {};
+    // Fix: Use capabilities for both plans, with proper fallback handling
+    // Plans API returns capabilities in both currentPlan.capabilities and targetPlan.capabilities  
+    const currentCapabilities = currentPlan.capabilities || {};
     const targetCapabilities = targetPlan.capabilities || {};
 
     // Check if plans have capabilities
