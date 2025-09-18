@@ -179,8 +179,15 @@ const Pipeline1 = ({ handleContinue }) => {
   //code to get pipelines
   const getPipelines = async () => {
     try {
+      //TODO: @Arslan @Hamza tell me why do we have two different keys to store a user's data on localstorage from admin?
+      // Getting pipelines is different and getting a2p number is using diff key. Why is that?
+      // I have consolidated the logic here  and on the @PipelineStages.js file. Let's discuss it and consolidate into one.
       console.log("Trigered getpipelines")
-      const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+      let selectedUserLocalData = localStorage.getItem("selectedUser")
+      if(!selectedUserLocalData){
+        selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      }
+      // const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
       let selectedUser = null;
       console.log("Selected user local data is", selectedUserLocalData);
       if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
@@ -190,7 +197,15 @@ const Pipeline1 = ({ handleContinue }) => {
       let ApiPath = Apis.getPipelines + "?liteResource=true"
 
       if (selectedUser) {
-        ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
+        //TODO: @Arslan @Hamza tell me why are we using selectedUser?.subAccountData?.id instead of selectedUser?.id here
+        // I am commenting it for now.
+        // ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
+        if(selectedUser?.subAccountData?.id){
+          ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
+        }else{
+          ApiPath = ApiPath + "&userId=" + selectedUser?.id;
+        }
+        
       }
 
       console.log("ApiPath is", ApiPath);

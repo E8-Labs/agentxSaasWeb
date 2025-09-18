@@ -265,6 +265,9 @@ const PipelineStages = ({
   const getNumbers = async () => {
 
     let data = localStorage.getItem("selectedUser")
+    if(!data){
+      data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    }
     let selectedUser  = null
     // console.log('data', data)
     if(data != "undefined"){
