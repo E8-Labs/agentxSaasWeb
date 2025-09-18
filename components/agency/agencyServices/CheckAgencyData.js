@@ -77,9 +77,11 @@ export function convertTime(seconds) {
 
     // If remaining seconds are zero, return only minutes
     if (remainingSeconds === 0) {
-        return `${minutes} Min`;
+        // return `${minutes} Credits`;
+        return `${Math.round(minutes).toLocaleString("en-US")} Credits`;
     }
 
     // Otherwise, return minutes and seconds
-    return `${minutes} Min`;//${remainingSeconds.toString().padStart(2, "0")} Sec
+    // return `${minutes} Credits`;//${remainingSeconds.toString().padStart(2, "0")} Sec
+    return `${Math.round(minutes).toLocaleString("en-US")} Credits`;
 }

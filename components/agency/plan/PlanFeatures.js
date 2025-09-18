@@ -33,35 +33,39 @@ export default function PlanFeatures({
                     >
                         <div className="flex flex-row items-center gap-2">
                             <div styles={{ fontSize: "10px", fontWeight: "900" }}>{item.label}</div>
-                            <Tooltip
-                                title={item.tooltip}
-                                arrow
-                                componentsProps={{
-                                    tooltip: {
-                                        sx: {
-                                            backgroundColor: "#ffffff", // Ensure white background
-                                            color: "#333", // Dark text color
-                                            fontSize: "14px",
-                                            padding: "10px 15px",
-                                            borderRadius: "8px",
-                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                        },
-                                    },
-                                    arrow: {
-                                        sx: {
-                                            color: "#ffffff", // Match tooltip background
-                                        },
-                                    },
-                                }}
-                            >
-                                <Image
-                                    src="/otherAssets/infoLightDark.png"
-                                    alt="info"
-                                    width={14}
-                                    height={14}
-                                    className="cursor-pointer rounded-full"
-                                />
-                            </Tooltip>
+                            {
+                                item.tooltip && (
+                                    <Tooltip
+                                        title={item.tooltip}
+                                        arrow
+                                        componentsProps={{
+                                            tooltip: {
+                                                sx: {
+                                                    backgroundColor: "#ffffff", // Ensure white background
+                                                    color: "#333", // Dark text color
+                                                    fontSize: "14px",
+                                                    padding: "10px 15px",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                },
+                                            },
+                                            arrow: {
+                                                sx: {
+                                                    color: "#ffffff", // Match tooltip background
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <Image
+                                            src="/otherAssets/infoLightDark.png"
+                                            alt="info"
+                                            width={14}
+                                            height={14}
+                                            className="cursor-pointer rounded-full"
+                                        />
+                                    </Tooltip>
+                                )
+                            }
                         </div>
 
                         <Switch
@@ -87,7 +91,7 @@ export default function PlanFeatures({
                             <input
                                 style={styles.inputs}
                                 className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                placeholder="Trial for Days."
+                                placeholder="Number of trial days"
                                 value={trialValidForDays}
                                 onChange={(e) => {
                                     setTrialValidForDays(e.target.value);

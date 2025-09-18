@@ -149,8 +149,8 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             areaOfFocusTitle: "What area do you focus on?",
             userType: "ReceptionAgent",
             roundedImage: false,
-          },
-          {
+        },
+        {
             id: 15,
             title: "General Agent",
             agentType: "General Agent",
@@ -159,7 +159,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
             areaOfFocusTitle: "What area do you focus on?",
             userType: "GeneralAgent",
             roundedImage: false,
-          },
+        },
         {
             id: 100,
             title: "Website Agent",
@@ -811,78 +811,80 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
 
                 {/* Code for allow sell seats */}
-                <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-
-                    <div className="flex flex-row items-center gap-2">
-                        <div style={styles.inputs}>
-                            {
-                                seats ? (
-                                    <div>
-                                        Sell Seats(${seats}/seat)
-                                    </div>
-                                ) : (
-                                    <div>
-                                        Sell Seats / Month
-                                    </div>
-                                )
-                            }
-                        </div>
-
-                        <Tooltip
-                            title="Maximize revenue by selling seats per month to any org." //"If the lead has given consent, no need to run against DNC"
-                            arrow
-                            componentsProps={{
-                                tooltip: {
-                                    sx: {
-                                        backgroundColor: "#ffffff", // Ensure white background
-                                        color: "#333", // Dark text color
-                                        fontSize: "14px",
-                                        padding: "10px 15px",
-                                        borderRadius: "8px",
-                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                {/*
+                    <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+    
+                        <div className="flex flex-row items-center gap-2">
+                            <div style={styles.inputs}>
+                                {
+                                    seats ? (
+                                        <div>
+                                            Sell Seats(${seats}/seat)
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            Sell Seats / Month
+                                        </div>
+                                    )
+                                }
+                            </div>
+    
+                            <Tooltip
+                                title="Maximize revenue by selling seats per month to any org." //"If the lead has given consent, no need to run against DNC"
+                                arrow
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "#ffffff", // Ensure white background
+                                            color: "#333", // Dark text color
+                                            fontSize: "14px",
+                                            padding: "10px 15px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                        },
                                     },
-                                },
-                                arrow: {
-                                    sx: {
-                                        color: "#ffffff", // Match tooltip background
+                                    arrow: {
+                                        sx: {
+                                            color: "#ffffff", // Match tooltip background
+                                        },
                                     },
-                                },
-                            }}
-                        >
-                            <div
-                                style={{
-                                    fontSize: 12,
-                                    fontWeight: "600",
-                                    color: "#000000",
-                                    cursor: "pointer",
                                 }}
                             >
-                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
-                                // onClick={() => setIntroVideoModal2(true)}
-                                />
-                            </div>
-                        </Tooltip>
+                                <div
+                                    style={{
+                                        fontSize: 12,
+                                        fontWeight: "600",
+                                        color: "#000000",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                    // onClick={() => setIntroVideoModal2(true)}
+                                    />
+                                </div>
+                            </Tooltip>
+                        </div>
+    
+                        <div className='flex flex-row items-center gap-4'>
+    
+                            <Switch
+                                checked={alowSellSeats}
+                                onChange={(e) => setAlowSellSeats(e.target.checked)}
+                                sx={{
+                                    '& .MuiSwitch-switchBase.Mui-checked': {
+                                        color: 'white',
+                                    },
+                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                        backgroundColor: '#7902DF',
+                                    },
+                                }}
+                            />
+                        </div>
+    
                     </div>
+                */}
 
-                    <div className='flex flex-row items-center gap-4'>
-
-                        <Switch
-                            checked={alowSellSeats}
-                            onChange={(e) => setAlowSellSeats(e.target.checked)}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: 'white',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: '#7902DF',
-                                },
-                            }}
-                        />
-                    </div>
-
-                </div>
-
-                {
+                {/*
                     showSellSeatsModal && (
                         <div>
                             <div style={styles.subheading} className='mt-2'>
@@ -904,65 +906,65 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                             </div>
                         </div>
                     )
-                }
+                */}
 
-
-
-                <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
-                    <div className="flex flex-row items-center gap-2">
-                        <label className="text-sm font-medium">Twilio Trust Hub</label>
-
-                        <Tooltip
-                            title="Enable Twilio for this subaccount to register their own numbers."
-                            arrow
-                            componentsProps={{
-                                tooltip: {
-                                    sx: {
-                                        backgroundColor: "#ffffff", // Ensure white background
-                                        color: "#333", // Dark text color
-                                        fontSize: "14px",
-                                        padding: "10px 15px",
-                                        borderRadius: "8px",
-                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                {/*
+                    <div className='flex flex-row items-center justify-between w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
+                        <div className="flex flex-row items-center gap-2">
+                            <label className="text-sm font-medium">Twilio Trust Hub</label>
+    
+                            <Tooltip
+                                title="Enable Twilio for this subaccount to register their own numbers."
+                                arrow
+                                componentsProps={{
+                                    tooltip: {
+                                        sx: {
+                                            backgroundColor: "#ffffff", // Ensure white background
+                                            color: "#333", // Dark text color
+                                            fontSize: "14px",
+                                            padding: "10px 15px",
+                                            borderRadius: "8px",
+                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                        },
                                     },
-                                },
-                                arrow: {
-                                    sx: {
-                                        color: "#ffffff", // Match tooltip background
+                                    arrow: {
+                                        sx: {
+                                            color: "#ffffff", // Match tooltip background
+                                        },
                                     },
-                                },
-                            }}
-                        >
-                            <div
-                                style={{
-                                    fontSize: 12,
-                                    fontWeight: "600",
-                                    color: "#000000",
-                                    cursor: "pointer",
                                 }}
                             >
-                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
-                                // onClick={() => setIntroVideoModal2(true)}
-                                />
-                            </div>
-                        </Tooltip>
+                                <div
+                                    style={{
+                                        fontSize: 12,
+                                        fontWeight: "600",
+                                        color: "#000000",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                    // onClick={() => setIntroVideoModal2(true)}
+                                    />
+                                </div>
+                            </Tooltip>
+                        </div>
+                        <Switch
+                            checked={allowTwillio}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                            onChange={(e) => {
+                                setAllowTwillio(e.target.checked)
+                            }}
+                        />
+    
                     </div>
-                    <Switch
-                        checked={allowTwillio}
-                        sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                            },
-                        }}
-                        onChange={(e) => {
-                            setAllowTwillio(e.target.checked)
-                        }}
-                    />
-
-                </div>
+                */}
 
                 <div className='flex flex-row items-center justify-between  w-full py-1 px-4 bg-[#D9D9D92B] rounded-md mt-4'>
                     <div className="flex flex-row items-center gap-2">
@@ -1028,142 +1030,142 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
 
 
 
-                <div className="mb-4">
-                    <p
-                        className="mb-2 mt-4"
-                        style={styles.headings}
-                    >
-                        Invite Team Members
-                    </p>
-                    <p className="mb-2"
-                        style={{
-                            fontSize: "13px",
-                            fontWeight: "500",
-                            color: "#00000060"
-                        }}>
-                        {`Members invited in the list below won’t pay for seats.`}
-                    </p>
-                    <div className='flex fex-row ites-center w-full mb-2'>
-                        <div className="flex-1"
-                            style={styles.inputs}>
-                            Full Name
+                {/*
+                    <div className="mb-4">
+                        <p
+                            className="mb-2 mt-4"
+                            style={styles.headings}
+                        >
+                            Invite Team Members
+                        </p>
+                        <p className="mb-2"
+                            style={{
+                                fontSize: "13px",
+                                fontWeight: "500",
+                                color: "#00000060"
+                            }}>
+                            {`Members invited in the list below won’t pay for seats.`}
+                        </p>
+                        <div className='flex fex-row ites-center w-full mb-2'>
+                            <div className="flex-1"
+                                style={styles.inputs}>
+                                Full Name
+                            </div>
+                            <div className="flex-1"
+                                style={styles.inputs}>
+                                Email Address
+                            </div>
+                            <div className="flex-1"
+                                style={styles.inputs}>
+                                Phone Number
+                            </div>
                         </div>
-                        <div className="flex-1"
-                            style={styles.inputs}>
-                            Email Address
-                        </div>
-                        <div className="flex-1"
-                            style={styles.inputs}>
-                            Phone Number
-                        </div>
-                    </div>
-                    <div className="max-h-60 overflow-y-auto w-full pr-2 space-y-4">
-                        {teamMembers.map((member, index) => (
-                            <div
-                                key={index}
-                                className="gap-4 flex flex-row items-center"
-                            // relative grid grid-cols-1 md:grid-cols-3
-                            >
-                                <input
-                                    type="text"
-                                    placeholder="Full Name"
-                                    className="px-3 py-2 border border-gray-300 rounded-lg w-1/3 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                    value={member.name}
-                                    onChange={(e) => handleChange(index, 'name', e.target.value)}
-                                    style={styles.inputs}
-                                />
-
-                                <div className='w-1/3'>
+    
+                        <div className="max-h-60 overflow-y-auto w-full pr-2 space-y-4">
+                            {teamMembers.map((member, index) => (
+                                <div
+                                    key={index}
+                                    className="gap-4 flex flex-row items-center"
+                                // relative grid grid-cols-1 md:grid-cols-3
+                                >
                                     <input
-                                        type="email"
-                                        placeholder="Email"
-                                        className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                        value={member.email}
-                                        onChange={(e) => {
-                                            handleChange(index, 'email', e.target.value);
-                                            validateMemberEmail(index, e.target.value);
-                                        }}
+                                        type="text"
+                                        placeholder="Full Name"
+                                        className="px-3 py-2 border border-gray-300 rounded-lg w-1/3 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                        value={member.name}
+                                        onChange={(e) => handleChange(index, 'name', e.target.value)}
                                         style={styles.inputs}
                                     />
-
-                                    {/* Success/Error Message */}
-                                    <div>
-                                        {member.emailError && (
-                                            <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
-                                        )}
-                                        {member.emailValid && !member.emailError && (
-                                            <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-row items-center overflow-hidden w-1/3">
-                                    <div className='w-[90%] flex flex-row items-center'>
-                                        <div className="w-full">
-                                            <PhoneInput
-                                                country={"us"}
-                                                value={member.phone}
-                                                onChange={(value, countryData, e) => {
-                                                    handleChange(index, 'phone', value);
-                                                    // if (e?.type === 'input') {
-                                                    validateMemberPhone(index, value, countryCode);
-                                                    // }
-                                                }}
-                                                specialLabel=""
-                                                countryCodeEditable={false}
-                                                disableDropdown={true}
-                                                inputStyle={{
-                                                    width: "100%",
-                                                    borderWidth: "0px",
-                                                    backgroundColor: "transparent",
-                                                    paddingLeft: "45px",
-                                                    paddingTop: "14px",
-                                                    paddingBottom: "14px",
-                                                    fontSize: "15px",
-                                                    fontWeight: "500"
-                                                }}
-                                                buttonStyle={{
-                                                    border: "none",
-                                                    backgroundColor: "transparent"
-                                                }}
-                                                dropdownStyle={{
-                                                    maxHeight: "150px",
-                                                    overflowY: "auto",
-                                                }}
-                                                containerClass="border border-gray-300 rounded-lg w-full"
-                                            />
-                                            {/* Show validation */}
-                                            {member.phoneError && (
-                                                <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
+    
+                                    <div className='w-1/3'>
+                                        <input
+                                            type="email"
+                                            placeholder="Email"
+                                            className="px-3 py-2 w-[90%] border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                            value={member.email}
+                                            onChange={(e) => {
+                                                handleChange(index, 'email', e.target.value);
+                                                validateMemberEmail(index, e.target.value);
+                                            }}
+                                            style={styles.inputs}
+                                        />
+    
+                                        <div>
+                                            {member.emailError && (
+                                                <p style={{ ...styles.errmsg, color: 'red' }}>{member.emailError}</p>
                                             )}
-                                            {member.phoneValid && !member.phoneError && (
+                                            {member.emailValid && !member.emailError && (
                                                 <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
                                             )}
                                         </div>
-
                                     </div>
-                                    {index > 0 && (
-                                        <button
-                                            onClick={() => handleRemoveMember(index)}
-                                            className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
-                                        >
-                                            ✕
-                                        </button>
-                                    )}
+    
+                                    <div className="flex flex-row items-center overflow-hidden w-1/3">
+                                        <div className='w-[90%] flex flex-row items-center'>
+                                            <div className="w-full">
+                                                <PhoneInput
+                                                    country={"us"}
+                                                    value={member.phone}
+                                                    onChange={(value, countryData, e) => {
+                                                        handleChange(index, 'phone', value);
+                                                        // if (e?.type === 'input') {
+                                                        validateMemberPhone(index, value, countryCode);
+                                                        // }
+                                                    }}
+                                                    specialLabel=""
+                                                    countryCodeEditable={false}
+                                                    disableDropdown={true}
+                                                    inputStyle={{
+                                                        width: "100%",
+                                                        borderWidth: "0px",
+                                                        backgroundColor: "transparent",
+                                                        paddingLeft: "45px",
+                                                        paddingTop: "14px",
+                                                        paddingBottom: "14px",
+                                                        fontSize: "15px",
+                                                        fontWeight: "500"
+                                                    }}
+                                                    buttonStyle={{
+                                                        border: "none",
+                                                        backgroundColor: "transparent"
+                                                    }}
+                                                    dropdownStyle={{
+                                                        maxHeight: "150px",
+                                                        overflowY: "auto",
+                                                    }}
+                                                    containerClass="border border-gray-300 rounded-lg w-full"
+                                                />
+                                                {member.phoneError && (
+                                                    <p style={{ ...styles.errmsg, color: 'red' }}>{member.phoneError}</p>
+                                                )}
+                                                {member.phoneValid && !member.phoneError && (
+                                                    <p style={{ ...styles.errmsg, color: 'green' }}>Valid</p>
+                                                )}
+                                            </div>
+    
+                                        </div>
+                                        {index > 0 && (
+                                            <button
+                                                onClick={() => handleRemoveMember(index)}
+                                                className="text-red-500 hover:text-red-700 text-sm ms-2 text-bold"
+                                            >
+                                                ✕
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+                        <div className='w-full flex flex-row items-center justify-start pe-4'>
+                            <button
+                                onClick={handleAddMember}
+                                className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
+                            >
+                                + New Member
+                            </button>
+                        </div>
                     </div>
-
-                    <div className='w-full flex flex-row items-center justify-start pe-4'>
-                        <button
-                            onClick={handleAddMember}
-                            className="mt-3 text-purple border-b boder-2 border-purple60 text-sm"
-                        >
-                            + New Member
-                        </button>
-                    </div>
-                </div>
+                */}
             </div>
 
             <div className="flex justify-between mt-4">

@@ -13,13 +13,14 @@ const ConfigureSideUI = ({
     allowedFeatures,
     basicsData,
     features,
+    from,
 }) => {
 
-    console.log("Passed allwoed features are", allowedFeatures);
+    // console.log("Passed allwoed features are", allowedFeatures);
 
     return (
         <div
-            className="w-full h-full rounded-tr-xl rounded-br-xl"
+            className={`w-full h-full ${from === "dashboard" ? "rounded-xl" : "rounded-tr-xl rounded-br-xl"}`}
             style={{
                 backgroundImage: "url('/otherAssets/monthlyplansbg.png')", //"url('/agencyIcons/addPlanBg.jpg')",
                 backgroundSize: "cover",
@@ -28,7 +29,7 @@ const ConfigureSideUI = ({
         >
             <div className="p-6 flex flex-col items-center h-[100%]">
                 <div
-                    className="w-9/12 h-[95%] flex flex-col items-center justify-start mt-[5vh] overflow-auto scrollbar-hide"
+                    className={`${from === "dashboard"? "w-[90%]" : "w-9/12"} h-[95%] flex flex-col items-center justify-start mt-[5vh] overflow-auto scrollbar-hide`}
                     style={{
                         scrollbarWidth: "none",
                         msOverflowStyle: "none",
@@ -60,17 +61,17 @@ const ConfigureSideUI = ({
 
                         </div>
                         <div className='bg-white rounded-lg mt-2 mb-2 p-4 flex flex-col items-center w-[95%]'>
-                            <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>{title || "Title"}</div>
+                            <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>{basicsData?.title || "Title"}</div>
                             <div
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px] bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent"
                             >
                                 ${formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
                             </div>
-                            <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{planDescription || "Desc text goes here"}</div>
-                            <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {features?.allowTrial && trialValidForDays ? <span>| {trialValidForDays}Days</span> : ""}</button>
+                            <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>
+                            <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {allowTrial && trialValidForDays ? <span>| {trialValidForDays} Day Free Trial</span> : ""}</button>
                             {
-                                allowedFeatures.length > 0 && (
+                                allowedFeatures?.length > 0 && (
                                     <div className='w-full'>
                                         {
                                             allowedFeatures.map((item) => {
@@ -96,7 +97,7 @@ const ConfigureSideUI = ({
                                                                 textAlign: 'left',
                                                                 borderWidth: 0,
                                                             }}>
-                                                                {item.title}
+                                                                {item.text}
                                                             </div>
                                                         </div>
                                                     </div>

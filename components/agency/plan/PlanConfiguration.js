@@ -50,6 +50,7 @@ export default function PlanConfiguration({
     const [noOfAgents, setNoOfAgents] = useState("");
     const [noOfContacts, setNoOfContacts] = useState("");
     const [language, setLanguage] = useState("");
+    const [languageTitle, setLanguageTitle] = useState("");
     const [trialValidForDays, setTrialValidForDays] = useState("");
     //custom features
     const [customFeatures, setCustomFeatures] = useState([]);
@@ -71,7 +72,7 @@ export default function PlanConfiguration({
     const featuresList = [
         {
             label: "Tools & Actions",
-            tooltip: "Maximize revenue by selling seats per month to any org.",
+            tooltip: "Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.",// "Maximize revenue by selling seats per month to any org.",
             stateKey: "toolsActions",
         },
         {
@@ -81,37 +82,42 @@ export default function PlanConfiguration({
         },
         {
             label: "Live Transfer",
-            tooltip: "Enable live call transfers between agents.",
+            tooltip: " Allow agents to make live transfers.", //"Enable live call transfers between agents.",
             stateKey: "liveTransfer",
         },
         {
             label: "RAG Knowledge Base",
-            tooltip: "Use knowledge base for better responses.",
+            tooltip: "Allow users to train agents on their own custom data. Add Youtube videos, website links, documents and more.", //"Use knowledge base for better responses.",
             stateKey: "ragKnowledgeBase",
         },
         {
             label: "Embed / Browser / Webhook Agent",
-            tooltip: "Embed the agent into sites, browsers, or trigger webhooks.",
+            tooltip: "Allow AI agent on websites to engage with leads and customers.", //"Embed the agent into sites, browsers, or trigger webhooks.",
             stateKey: "embedBrowserWebhookAgent",
         },
         {
             label: "API Key",
-            tooltip: "Enable API access for integrations.",
+            tooltip: "",//Enable API access for integrations.
             stateKey: "apiKey",
         },
         {
             label: "Voicemail",
-            tooltip: "Enable voicemail recording.",
+            tooltip: "Allow agents to leave voicemails",//Enable voicemail recording.
             stateKey: "voicemail",
         },
         {
             label: "Twilio",
-            tooltip: "Integrate with Twilio for calls & SMS.",
+            tooltip: "Import your Twilio phone numbers and access all Trust Hub features to increase answer rate.", //"Integrate with Twilio for calls & SMS.",
             stateKey: "twilio",
         },
         {
+            label: "Allow Team Seats",
+            tooltip: "Num of seats Price Additional seats",
+            stateKey: "teamseats",
+        },
+        {
             label: "Allow Trial",
-            tooltip: "Allow trial access for users.",
+            tooltip: "",//Allow trial access for users.
             stateKey: "allowTrial",
         },
     ];
@@ -129,11 +135,15 @@ export default function PlanConfiguration({
     // }, [features]);
 
     useEffect(() => {
+
+        console.log("features are", features)
+        console.log("Custom features are", customFeatures)
+
         const coreFeatures = featuresList
             .filter(item => features[item.stateKey])
             .map(item => ({
                 id: item.stateKey,      // stable id
-                title: item.label,
+                text: item.label,
             }));
 
         const extraFeatures = [];
@@ -141,26 +151,34 @@ export default function PlanConfiguration({
         if (noOfAgents) {
             extraFeatures.push({
                 id: "agents",
-                title: `${noOfAgents} AI Agent${noOfAgents > 1 ? "s" : ""}`,
+                text: `${noOfAgents} AI Agent${noOfAgents > 1 ? "s" : ""}`,
             });
         }
 
         if (noOfContacts) {
             extraFeatures.push({
                 id: "contacts",
-                title: `${noOfContacts} Contact${noOfContacts > 1 ? "s" : ""}`,
+                text: `${noOfContacts} Contact${noOfContacts > 1 ? "s" : ""}`,
             });
         }
 
         if (language) {
             extraFeatures.push({
                 id: "language",
-                title: `${language} Language`,
+                text: `${languageTitle}`,
             });
         }
 
-        setAllowedFeatures([...extraFeatures, ...coreFeatures]);
-    }, [features, language, noOfAgents, noOfContacts]);
+        // Add custom features to the allowed features
+        const customFeaturesList = customFeatures
+            .filter(feature => feature.trim() !== "") // Filter out empty features
+            .map((feature, index) => ({
+                id: `custom_${index}`,
+                text: feature,
+            }));
+
+        setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
+    }, [features, language, noOfAgents, noOfContacts, customFeatures]);
 
 
 
@@ -190,28 +208,30 @@ export default function PlanConfiguration({
     }, [customFeatures]);
 
     //set the values of selected plan to edit plan
-    useEffect(() => {
-        if (selectedPlan) {
-            console.log("Selected plan data passed is", selectedPlan);
-            const dynamicFeatures = selectedPlan?.dynamicFeatures;
-            setNoOfAgents(dynamicFeatures?.maxAgents);
-            setNoOfContacts(dynamicFeatures?.maxLeads);
-            setFeatures({
-                toolsActions: dynamicFeatures?.allowToolsAndActions,
-                calendars: dynamicFeatures?.allowCalendars,
-                liveTransfer: dynamicFeatures?.allowLiveTransfer,
-                ragKnowledgeBase: dynamicFeatures?.allowRAGKnowledgeBase,
-                embedBrowserWebhookAgent: dynamicFeatures?.allowEmbedBrowserWebhookAgent,
-                apiKey: dynamicFeatures?.allowAPIKey,
-                voicemail: dynamicFeatures?.allowVoicemail,
-                twilio: dynamicFeatures?.allowTwilio,
-                allowTrial: dynamicFeatures?.allowTrial,
-            });
-            setTrialValidForDays(selectedPlan?.trialValidForDays);
-        }
-    }, [selectedPlan])
+    // useEffect(() => {
+    //     if (selectedPlan) {
+    //         console.log("Selected plan data passed is", selectedPlan);
+    //         const dynamicFeatures = selectedPlan?.dynamicFeatures;
+    //         setNoOfAgents(dynamicFeatures?.maxAgents);
+    //         setNoOfContacts(dynamicFeatures?.maxLeads);
+    //         setFeatures({
+    //             toolsActions: dynamicFeatures?.allowToolsAndActions || false,
+    //             calendars: dynamicFeatures?.allowCalendars || false,
+    //             liveTransfer: dynamicFeatures?.allowLiveTransfer || false,
+    //             ragKnowledgeBase: dynamicFeatures?.allowRAGKnowledgeBase || false,
+    //             embedBrowserWebhookAgent: dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
+    //             apiKey: dynamicFeatures?.allowAPIKey || false,
+    //             voicemail: dynamicFeatures?.allowVoicemail || false,
+    //             twilio: dynamicFeatures?.allowTwilio || false,
+    //             allowTrial: dynamicFeatures?.allowTrial || false,
+    //         });
+    //         setTrialValidForDays(selectedPlan?.trialValidForDays);
+    //     }
+    // }, [selectedPlan])
 
     //set the values of configuration data
+
+
     useEffect(() => {
         if (configurationData) {
             console.log("Selected configurationData data passed is", configurationData);
@@ -219,15 +239,15 @@ export default function PlanConfiguration({
             setNoOfAgents(configurationData?.maxAgents);
             setNoOfContacts(configurationData?.maxLeads);
             setFeatures({
-                toolsActions: dynamicFeatures?.toolsActions,
-                calendars: dynamicFeatures?.calendars,
-                liveTransfer: dynamicFeatures?.liveTransfer,
-                ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase,
-                embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent,
-                apiKey: dynamicFeatures?.apiKey,
-                voicemail: dynamicFeatures?.voicemail,
-                twilio: dynamicFeatures?.twilio,
-                allowTrial: dynamicFeatures?.allowTrial,
+                toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
+                calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
+                liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || false,
+                ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase || dynamicFeatures?.allowRAGKnowledgeBase || false,
+                embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
+                apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
+                voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemail || false,
+                twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
+                allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
             });
             setTrialValidForDays(configurationData?.trialValidForDays);
         }
@@ -538,6 +558,7 @@ export default function PlanConfiguration({
                             <LanguagesSelection
                                 language={language}
                                 setLanguage={setLanguage}
+                                setLanguageTitle={setLanguageTitle}
                                 selectedLanguage={selectedPlan?.dynamicFeatures?.allowLanguageSelection}
                             />
 
@@ -607,6 +628,7 @@ export default function PlanConfiguration({
                             noOfContacts={noOfAgents}
                             basicsData={basicsData}
                             features={features}
+                            allowTrial={features.allowTrial}
                             trialValidForDays={trialValidForDays}
                         />
                     </div>

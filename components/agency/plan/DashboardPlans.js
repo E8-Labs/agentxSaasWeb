@@ -7,7 +7,7 @@ import AddXBarPlan from './AddXBarPlan';
 import { AuthToken } from './AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
-import { CircularProgress } from '@mui/material';
+import { Modal, Box, CircularProgress } from '@mui/material';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import DelConfirmationPopup from '@/components/onboarding/extras/DelConfirmationPopup';
 import { CheckStripe, formatDecimalValue } from '../agencyServices/CheckAgencyData';
@@ -15,6 +15,7 @@ import { copyAgencyOnboardingLink } from '@/components/constants/constants';
 import SupportFile from './SupportFile';
 import AddMonthlyPlanAnimation from './AddMonthlyPlanAnimation';
 import { formatFractional2 } from './AgencyUtilities';
+import ConfigureSideUI from './ConfigureSideUI';
 
 
 function DashboardPlans({
@@ -39,6 +40,7 @@ function DashboardPlans({
 
     //selected plan details
     const [selectedPlan, setSelectedPlan] = useState(null);
+    const [selectedPlanDetails, setSelectedPlanDetails] = useState(null);
 
     //agencyp plan cost
     const [agencyPlanCost, setAgencyPlanCost] = useState("");
@@ -348,6 +350,16 @@ function DashboardPlans({
         }
     }
 
+    //code to show plan details only
+    const showPlanDetails = (item) => {
+        console.log("Select plan is", item);
+        if (planType === "monthly") {
+            setSelectedPlanDetails(item);
+        } else {
+            console.log("This is XBas so no details view")
+        }
+    }
+
     return (
         <div className='w-full flex flex-col items-center '>
             {/* Code for snack msg */}
@@ -491,41 +503,48 @@ function DashboardPlans({
                                                     {plansList.slice().reverse().map((item) => (
                                                         <div
                                                             key={item.id}
-                                                            // style={{ cursor: "pointer" }}
+                                                            style={{ cursor: "pointer" }}
                                                             className="w-full flex flex-row justify-between items-center mt-5 hover:bg-[#402FFF05] py-2"
-                                                        // onClick={() => {
-                                                        //     setmoreDropdown(
-                                                        //         moreDropdown === item.id ? null : item.id
-                                                        //     );
-                                                        //     setSelectedPlan(selectedPlan === item ? null : item);
-                                                        // }}
                                                         >
                                                             <div
                                                                 className="w-3/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                                                                onClick={() => {
+                                                                    showPlanDetails(item);
+                                                                }}
                                                             >
-                                                                {/*<div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                {item.name.slice(0, 1).toUpperCase()}
-                        </div>*/}
                                                                 <div style={{ ...styles.text2, ...{ width: "80%", } }}>
                                                                     {item.title}{" "}{item.hasTrial == true && (`| ${item.trialValidForDays} Day Free Trial`)}
                                                                 </div>
                                                             </div>
-                                                            <div className="w-3/12 ">
+                                                            <div className="w-3/12"
+                                                                onClick={() => {
+                                                                    showPlanDetails(item);
+                                                                }}>
                                                                 <div style={styles.text2}>
                                                                     {item.planDescription}
                                                                 </div>
                                                             </div>
-                                                            <div className="w-1/12">
+                                                            <div className="w-1/12"
+                                                                onClick={() => {
+                                                                    showPlanDetails(item);
+                                                                }}>
                                                                 <div style={styles.text2}>
                                                                     ${formatDecimalValue(item.discountedPrice) || 0}
                                                                 </div>
                                                             </div>
-                                                            <div className="w-2/12">
+                                                            <div className="w-2/12"
+                                                                onClick={() => {
+                                                                    showPlanDetails(item);
+                                                                }}>
                                                                 <div style={styles.text2}>
                                                                     {item.subscriberCount || 0}
                                                                 </div>
                                                             </div>
-                                                            <div className="w-1/12">
+                                                            <div className="w-1/12"
+                                                                onClick={() => {
+                                                                    console.log("Item is", item)
+                                                                    showPlanDetails(item);
+                                                                }}>
                                                                 {item.minutes || "X"}-Mins
                                                             </div>
 
@@ -549,8 +568,13 @@ function DashboardPlans({
                                                                                 className="px-4 py-2 hover:bg-purple10 w-full text-start bg-transparent cursor-pointer text-sm font-medium text-gray-800"
                                                                                 onClick={() => {
                                                                                     // setmoreDropdown(null)
-                                                                                    setIsEditPlan(true);
-                                                                                    setOpen(true);
+                                                                                    if (selectedPlan.subscriberCount > 0) {
+                                                                                        setSnackMsg("Cannot delete plan with active subscriptions.");
+                                                                                        setSnackMsgType(SnackbarTypes.Warning);
+                                                                                    } else {
+                                                                                        setIsEditPlan(true);
+                                                                                        setOpen(true);
+                                                                                    }
                                                                                 }}
                                                                             >
                                                                                 Edit
@@ -676,6 +700,31 @@ function DashboardPlans({
                             selectedPlan={selectedPlan}
                             selectedAgency={selectedAgency}
                         />
+                }
+
+                {/* Code for plan details */}
+                {
+                    selectedPlanDetails && (
+                        <Modal
+                            open={selectedPlanDetails !== null}
+                            onClose={() => { setSelectedPlanDetails(null) }}
+                        >
+                            <Box className="bg-transparent rounded-xl max-w-[80%] w-[40%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                                <ConfigureSideUI
+                                    handleClose={() => { setSelectedPlanDetails(null) }}
+                                    // handleResetValues={handleResetValues}
+                                    allowedFeatures={selectedPlanDetails?.features}
+                                    noOfAgents={selectedPlanDetails?.maxAgents}
+                                    noOfContacts={selectedPlanDetails?.maxLeads}
+                                    basicsData={selectedPlanDetails}
+                                    // features={features}
+                                    allowTrial={selectedPlanDetails?.dynamicFeatures?.allowTrial}
+                                    trialValidForDays={selectedPlanDetails?.trialValidForDays}
+                                    from={"dashboard"}
+                                />
+                            </Box>
+                        </Modal>
+                    )
                 }
 
             </div>

@@ -277,7 +277,7 @@ const SubAccountPlan = ({ handleContinue }) => {
         />
 
         {/* Progress bar */}
-        <div className="w-full flex flex-row items-center gap-4 mt-24">
+        <div className="w-full flex flex-row items-center gap-4 mt-4">
           <Image
             src="/assets/agentX.png"
             style={{ height: "29px", width: "122px", resize: "contain" }}
@@ -299,10 +299,10 @@ const SubAccountPlan = ({ handleContinue }) => {
           </div>
         </div>
 
-        <div className="w-full flex flex-row items-center px-4 h-[90%] overflow-y-auto">
+        <div className="w-full flex flex-row items-start h-[90%] overflow-y-auto">
           <div className="w-6/12">
             <div
-              className="mt-12"
+              // className="mt-4"
               style={{
                 fontWeight: "600",
                 fontSize: "38px",
@@ -311,7 +311,7 @@ const SubAccountPlan = ({ handleContinue }) => {
               Select a Plan
             </div>
             {initialLoader ? (
-              <div className="mt-6 h-[50vh] flex flex-row justify-center w-full">
+              <div className="mt-6 h-[95%] flex flex-row justify-center w-full">
                 <CircularProgress size={35} />
               </div>
             ) : (

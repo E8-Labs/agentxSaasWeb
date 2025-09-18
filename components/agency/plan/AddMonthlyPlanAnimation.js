@@ -35,6 +35,22 @@ export default function AddMonthlyPlanAnimation({
     const [basicsData, setBasicsData] = useState({});
     const [configurationData, setConfigurationData] = useState({});
 
+    //set the configuration data when editing plan
+    useEffect(() => {
+        if (isEditPlan) {
+            const object = {
+                maxAgents: selectedPlan?.dynamicFeatures?.maxAgents,
+                maxLeads: selectedPlan?.dynamicFeatures?.maxLeads,
+                language: selectedPlan?.dynamicFeatures?.allowLanguageSelection,
+                features: selectedPlan?.dynamicFeatures,
+                trialValidForDays: selectedPlan?.trialValidForDays
+            }
+            console.log("Object for edit plan is", object)
+            setConfigurationData(object);
+        }
+    }, [isEditPlan, selectedPlan]);
+
+
     //variables storing data
 
     const handleContinue = (formData) => {

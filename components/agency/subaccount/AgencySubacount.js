@@ -29,6 +29,7 @@ function AgencySubacount({
   selectedAgency
 }) {
   const [subAccountList, setSubAccountsList] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
   const [initialLoader, setInitialLoader] = useState(false);
   const [moreDropdown, setmoreDropdown] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -61,6 +62,10 @@ function AgencySubacount({
   // state variables for dropdown
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeAccount, setActiveAccount] = useState(null);
+
+  //filter and search variable
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
 
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -167,6 +172,7 @@ function AgencySubacount({
       if (response) {
         console.log("Response of get subaccounts api is", response.data);
         setSubAccountsList(response.data.data);
+        setFilteredList(response.data.data);
         setInitialLoader(false);
       }
     } catch (error) {
@@ -301,6 +307,25 @@ function AgencySubacount({
     }
   }
 
+  //search change
+  const handleSearchChange = (value) => {
+    setSearchValue(value);
+
+    if (!value) {
+      setFilteredList(subAccountList); // reset if empty
+    } else {
+      const lower = value.toLowerCase();
+      setFilteredList(
+        subAccountList.filter(
+          (item) =>
+            item.name?.toLowerCase().includes(lower) ||
+            item.email?.toLowerCase().includes(lower) || // optional
+            item.phone?.toLowerCase().includes(lower)   // optional
+        )
+      );
+    }
+  };
+
   return (
     <div className="w-full flex flex-col items-center ">
       <AgentSelectSnackMessage
@@ -361,7 +386,7 @@ function AgencySubacount({
               color: "black",
             }}
           >
-            Total Sub Accounts: {subAccountList?.length || 0}
+            Total Sub Accounts: {filteredList?.length || 0}
           </div>
 
           <button
@@ -372,6 +397,42 @@ function AgencySubacount({
             }}
           >
             Create Sub Account
+          </button>
+        </div>
+        <div className="w-full flex flex-row items-center justify-start mb-2 ps-10 mt-4 gap-4">
+          <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
+            <input
+              style={{ fontSize: 15 }}
+              type="text"
+              placeholder="Search by name, email or phone"
+              className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
+              value={searchValue}
+              onChange={(e) => {
+                const value = e.target.value;
+                // handleSearchChange(value);
+                setSearchValue(value);
+                handleSearchChange(value);
+              }}
+            />
+            <Image
+              src={"/otherAssets/searchIcon.png"}
+              alt="Search"
+              width={20}
+              height={20}
+            />
+          </div>
+          <button
+            className="flex-shrink-0"
+            onClick={() => {
+              setShowFilterModal(true);
+            }}
+          >
+            <Image
+              src={"/otherAssets/filterBtn.png"}
+              height={36}
+              width={36}
+              alt="Search"
+            />
           </button>
         </div>
 
@@ -397,9 +458,11 @@ function AgencySubacount({
           <div className="w-2/12">
             <div style={styles.text}>Renewal</div>
           </div>
-          <div className="w-1/12">
-            <div style={styles.text}>Teams</div>
-          </div>
+          {/*
+            <div className="w-1/12">
+              <div style={styles.text}>Teams</div>
+            </div>
+          */}
           <div className="w-1/12">
             <div style={styles.text}>Action</div>
           </div>
@@ -415,9 +478,9 @@ function AgencySubacount({
             id="scrollableDiv1"
             style={{ scrollbarWidth: "none" }}
           >
-            {subAccountList?.length > 0 ? (
+            {filteredList?.length > 0 ? (
               <div>
-                {subAccountList.map((item) => (
+                {filteredList.map((item) => (
                   <div
                     key={item.id}
                     style={{ cursor: "pointer" }}
@@ -494,7 +557,9 @@ function AgencySubacount({
                           : "-"}
                       </div>
                     </div>
-                    <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>{item.teamMembers}</div>
+                    {/*
+                      <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>{item.teamMembers}</div>
+                    */}
 
                     <div className="w-1/12 relative">
                       <button

@@ -625,7 +625,8 @@ export default function AddMonthlyPlan({
                   }}
                   disabled={!isFormValid()}
                 >
-                  {isEditPlan ? "Update" : "Create Plan"}
+                  {/*isEditPlan ? "Update" : "Create Plan"*/}
+                  Continue
                 </button>
               )}
             </div>

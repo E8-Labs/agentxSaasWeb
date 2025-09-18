@@ -36,7 +36,7 @@ const SubDuration = ({
 
     return (
         <div className='w-full'>
-            <div style={styles.regular}>
+            <div style={styles.labels}>
                 Subscription Duration
             </div>
             <div className='flex flex-row items-center gap-4 w-full mt-2 mb-4'>
@@ -67,18 +67,21 @@ export default SubDuration;
 export const LanguagesSelection = ({
     language,
     setLanguage,
-    selectedLanguage
+    selectedLanguage,
+    setLanguageTitle
 }) => {
     const languages = [
         {
             id: 1,
             title: "English or Spanish",
-            value: "english"
+            value: "english",
+            label: "English"
         },
         {
             id: 2,
             title: "Multilingual",
-            value: "multilingual"
+            value: "multilingual",
+            label: "Spanish"
         },
     ]
 
@@ -87,15 +90,18 @@ export const LanguagesSelection = ({
         if (selectedLanguage === true) {
             console.log("Select multilingual");
             setLanguage("multilingual")
+            setLanguageTitle("Spanish")
         } else if (selectedLanguage === false) {
             console.log("Select english");
             setLanguage("english")
+            setLanguageTitle("English")
         }
     }, [selectedLanguage])
 
     //toggle plan duration
     const handleToggle = (item) => {
-        setLanguage(item.value)
+        setLanguage(item.title)
+        setLanguageTitle(item.label)
     }
     return (
         <div className='w-full'>
@@ -125,5 +131,15 @@ export const LanguagesSelection = ({
 const styles = {
     regular: {
         fontSize: "15px", fontWeight: "500"
+    },
+    labels: {
+        fontSize: "15px",
+        fontWeight: "500",
+        color: "#00000050",
+    },
+    inputs: {
+        fontSize: "15px",
+        fontWeight: "500",
+        color: "#000000",
     },
 }

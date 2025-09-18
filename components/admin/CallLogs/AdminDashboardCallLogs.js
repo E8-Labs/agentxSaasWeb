@@ -39,7 +39,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
   const [searchValue, setSearchValue] = useState("");
 
-  const [activeTab, setActiveTab] = useState("All Calls");
+  const [activeTab, setActiveTab] = useState("All Calls || Activity Logs");
 
 
   const [callDetails, setCallDetails] = useState([]);
@@ -384,7 +384,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           className="pl-10 mt-5"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
-          Call Logs
+          {isFromAgency ? "Activity Logs" : "Call Logs"}
         </div>
         {
           !selectedAgency && (
@@ -481,7 +481,10 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities"].map((tab) => (//, "Scheduled"
+        {(isFromAgency
+          ? ["Activity Logs", "Activity"]
+          : ["All Calls", "Call Activities"]
+        ).map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -498,11 +501,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className="w-full">
-        {activeTab === "Call Activities" ? (
+        {activeTab === "Call Activities" || "Activity" ? (
           <AdminDashboardActiveCall isFromAgency={isFromAgency} />
         ) : activeTab === "Scheduled" ? (
           <AdminDashboardScheduledCalls />
-        ) : (
+        ) : activeTab === "All Calls" || activeTab === "Call Activities" ? (
 
           <div clasSName="w-full">
             <div
@@ -985,7 +988,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             )}
 
           </div>
-        )}
+        ) : "No call log"}
       </div>
     </div>
 
