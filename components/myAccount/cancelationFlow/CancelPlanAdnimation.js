@@ -42,7 +42,7 @@ export default function CancelPlanAnimation({
     }, [showModal])
 
     const getCUrrentComponent = async () => {
-        console.log('userLocalData?.subscriptionPauseUsed', userLocalData?.subscriptionPauseUsed)
+        console.log('userLocalData', userLocalData?.subscriptionPauseUsed)
         if (isPaused || userLocalData?.subscriptionPauseUsed > 0) {
             if (
                 userLocalData?.isTrial === false &&
@@ -61,12 +61,9 @@ export default function CancelPlanAnimation({
                     setDirection(1);
                     setCurrentIndex((prevIndex) => prevIndex + 3);
                 }
-
-
             }
         }
     }
-
 
     const handleContinue = async (nextAction) => {
         console.log('currentIndex', currentIndex)

@@ -61,7 +61,7 @@ function UnlockAgentModal({
                                 />
                             </div>
                             <div
-                                className=""
+                                className="text-center"
                                 style={{ fontSize: "13px", fontWeight: "400", color: "#00000050" }}>
                                 {subTitle}
                             </div>

@@ -482,7 +482,7 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
                         <div
                             className="w-full border-white"
                             style={{
-                                backgroundColor: "#ffffff99",
+                                backgroundColor: "#ffffff",
                                 padding: 0,
                                 borderRadius: "13px",
                             }}

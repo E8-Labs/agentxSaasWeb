@@ -414,7 +414,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       // If user is trying to select both types at once on free plan
       if (agentsToCreate > 1) {
         // console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agent types');
-        setModalDesc("The free plan only allows for 1 AI Agent. Please select either inbound OR outbound, not both.");
+        setModalDesc("The free plan only allows for 1 AI Agent.");
         setShowUnclockModal(true);
         return { showModal: true };
       }

@@ -588,9 +588,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 {`Select a phone number you'd like to use to call with`}
               </div>
 
-              <div className="border rounded-lg">
-                <Box className="w-full">
-                  <FormControl className="w-full">
+              <div
+                className="border rounded-lg"
+                style={{
+                  height: "clamp(50px, 60px, 70px)",
+                  fontSize: "clamp(12px, 2.5vw, 16px)"
+                }}
+              >
+                <Box className="w-full h-full">
+                  <FormControl className="w-full h-full">
                     <Select
                       ref={selectRef}
                       open={openCalimNumDropDown}
@@ -626,7 +632,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       {previousNumber.map((item, index) => (
                         <MenuItem
                           key={index}
-                          style={styles.dropdownMenu}
+                          style={{
+                            ...styles.dropdownMenu,
+                            fontSize: "clamp(12px, 2.5vw, 16px)",
+                            padding: "clamp(8px, 1.5vw, 16px)",
+                            minHeight: "clamp(40px, 55px, 65px)",
+                          }}
                           value={
                             item?.phoneNumber?.startsWith("+")
                               ? item?.phoneNumber.slice(1)
@@ -713,6 +724,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         <i>Get your own unique phone number.</i>{" "}
                         <button
                           className="text-purple underline"
+                          style={{ fontSize: "clamp(10px, 2vw, 14px)" }}
                           onClick={() => {
                             setShowClaimPopup(true);
                           }}
@@ -793,48 +805,64 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               </button>
 
               <div
-                className="flex flex-row items-center gap-4 overflow-x-auto h-[80px]"
+                className="flex flex-row items-center overflow-x-auto"
                 style={{
                   scrollbarWidth: "none",
                   overflowY: "hidden",
-                  height: "80px", // Ensures the height is always fixed
+                  height: "clamp(50px,60px , 70px)",
                   flexShrink: 0,
+                  paddingBottom: "3px",
+                  gap: "clamp(8px, 2vw, 16px)",
                 }}
               >
-                <div className="flex flex-row items-center gap-4">
+                <div
+                  className="flex flex-row items-center min-w-full"
+                  style={{ gap: "clamp(8px, 2vw, 16px)" }}
+                >
                   {previousNumber.map((item, index) => (
                     <button
-                      className="flex flex-row items-center justify-center w-[271px] h-[71px]"
                       key={index}
+                      className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                       style={{
                         ...styles.callBackStyles,
+                        width: "clamp(120px, 28vw, 280px)",
+                        height: "clamp(35px, 45px, 55px)",
+                        fontSize: "clamp(11px, 2.2vw, 17px)",
                         border:
                           userSelectedNumber === item
                             ? "2px solid #7902DF"
                             : "1px solid #15151550",
                         backgroundColor:
                           userSelectedNumber === item
-                            ? "2px solid #402FFF15"
-                            : "",
+                            ? "#402FFF15"
+                            : "#fff",
+                        minWidth: "clamp(100px, 22vw, 180px)",
+                        maxWidth: "280px",
+                        whiteSpace: "nowrap",
+                        padding: "clamp(8px, 1.5vw, 16px)",
                       }}
-                      onClick={(e) => {
-                        handleSelectedNumberClick(item);
-                      }}
+                      onClick={() => handleSelectedNumberClick(item)}
                     >
                       Use {formatPhoneNumber(item.phoneNumber)}
                     </button>
                   ))}
                   <button
-                    className="flex flex-row items-center justify-center h-[71px]"
+                    className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                     style={{
                       ...styles.callBackStyles,
-                      width: "242px",
+                      width: "clamp(110px, 25vw, 250px)",
+                      height: "clamp(35px, 45px, 55px)",
+                      fontSize: "clamp(11px, 2.2vw, 17px)",
                       border: useOfficeNumber
                         ? "2px solid #7902DF"
                         : "1px solid #15151550",
                       backgroundColor: useOfficeNumber
-                        ? "2px solid #402FFF15"
-                        : "",
+                        ? "#402FFF15"
+                        : "#fff",
+                      minWidth: "clamp(90px, 20vw, 160px)",
+                      maxWidth: "250px",
+                      whiteSpace: "nowrap",
+                      padding: "clamp(5px, 8vw, 11px)",
                     }}
                     onClick={handleOfficeNumberClick}
                   >
@@ -845,7 +873,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               {showOfficeNumberInput ? (
                 <div className="w-full">
-                  <div className="mt-4" style={styles.dropdownMenu}>
+                  <div className="mt-2" style={styles.dropdownMenu}>
                     Enter your cell or office number
                   </div>
 
@@ -880,13 +908,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     }}
                   // defaultMask={locationLoader ? "Loading..." : undefined}
                   />
-
-                  <div
-                    className="mt-2"
-                    style={{ fontWeight: "500", fontSize: 11, color: "red" }}
-                  >
-                    {officeErrorMessage}
-                  </div>
+                  {officeErrorMessage && (
+                    <div
+                      className="mt-2"
+                      style={{ fontWeight: "500", fontSize: 11, color: "red" }}
+                    >
+                      {officeErrorMessage}
+                    </div>
+                  )}
                 </div>
               ) : (
                 ""
@@ -965,11 +994,13 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full -mt-10">
-                    <UpgardView
-                      title={"Enable Live Transfer"}
-                      subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
-                    />
+                  <div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                    <div className="w-full h-full flex items-center justify-center">
+                      <UpgardView
+                        title={"Enable Live Transfer"}
+                        subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
+                      />
+                    </div>
                   </div>
                 )
               }
