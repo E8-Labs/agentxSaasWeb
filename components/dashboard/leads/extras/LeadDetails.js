@@ -48,6 +48,9 @@ import getProfileDetails from "@/components/apis/GetProfile";
 
 import Player from "@madzadev/audio-player";
 import "@madzadev/audio-player/dist/index.css";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import NoVoicemailView from "../../myagentX/NoVoicemailView";
 import { callStatusColors } from "@/constants/Constants";
@@ -166,6 +169,18 @@ const LeadDetails = ({
   const [sendSMSLoader, setSendSMSLoader] = useState(false);
 
   const [googleAccounts, setGoogleAccounts] = useState([])
+
+  // Stripe configuration for upgrade modal
+  let stripePublickKey =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
+      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
+  const stripePromise = loadStripe(stripePublickKey);
+  
+  // Upgrade modal states
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [currentFullPlan, setCurrentFullPlan] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -1462,50 +1477,66 @@ const LeadDetails = ({
                                   </div>
                                 )}
                                 {/* Send SMS Button for Phone */}
-                                <Tooltip
-                                  title={
-                                    !userLocalData?.plan?.capabilities?.sms
-                                      ? "Upgrade account to send SMS"
-                                      : phoneNumbers.length == 0
-                                        ? "You need to complete A2P to text"
-                                        : ""
-                                  }
-                                  arrow
-                                  disableHoverListener={userLocalData?.plan?.capabilities?.sms && phoneNumbers.length > 0}
-                                  disableFocusListener={userLocalData?.plan?.capabilities?.sms && phoneNumbers.length > 0}
-                                  disableTouchListener={userLocalData?.plan?.capabilities?.sms && phoneNumbers.length > 0}
-                                  componentsProps={{
-                                    tooltip: {
-                                      sx: {
-                                        backgroundColor: "#ffffff",
-                                        color: "#333",
-                                        fontSize: "16px",
-                                        fontWeight: "500",
-                                        padding: "10px 15px",
-                                        borderRadius: "8px",
-                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)",
-                                      },
-                                    },
-                                    arrow: {
-                                      sx: {
-                                        color: "#ffffff",
-                                      },
-                                    },
-                                  }}
-                                >
-                                  <div className="flex flex-col items-start ">
-                                    {
-                                      userLocalData?.planCapabilities?.allowTextMessages === false && (
-                                        <Image className="-mb-2 ml-2 border"
-                                          src="/otherAssets/starsIcon2.png"
-                                          height={20}
-                                          width={20}
-                                          alt="Upgrade"
-                                        />
-                                      )
+                                <div className="relative ml-4">
+                                  {/* Stars icon overlapping top-left corner of button */}
+                                  {userLocalData?.planCapabilities?.allowTextMessages === false && (
+                                    <Image 
+                                      className="absolute -top-3 -left-2 z-10"
+                                      src="/otherAssets/starsIcon2.png"
+                                      height={20}
+                                      width={20}
+                                      alt="Upgrade"
+                                    />
+                                  )}
+                                  
+                                  <Tooltip
+                                    title={
+                                      !userLocalData?.plan?.capabilities?.sms || !userLocalData?.planCapabilities?.allowTextMessages
+                                        ? (
+                                          <div className="flex flex-col items-start gap-1">
+                                            <span>Upgrade Account to send SMS</span>
+                                            <button
+                                              className="text-purple underline hover:text-purple-700 transition-colors text-left p-0 bg-transparent border-none"
+                                              onClick={() => {
+                                                console.log('Upgrade clicked from SMS tooltip');
+                                                setShowUpgradeModal(true);
+                                              }}
+                                            >
+                                              Upgrade
+                                            </button>
+                                          </div>
+                                        )
+                                        : phoneNumbers.length == 0
+                                          ? "You need to complete A2P to text"
+                                          : ""
                                     }
+                                    arrow
+                                    disableHoverListener={userLocalData?.planCapabilities?.allowTextMessages && phoneNumbers.length > 0}
+                                    disableFocusListener={userLocalData?.planCapabilities?.allowTextMessages && phoneNumbers.length > 0}
+                                    disableTouchListener={userLocalData?.planCapabilities?.allowTextMessages && phoneNumbers.length > 0}
+                                    componentsProps={{
+                                      tooltip: {
+                                        sx: {
+                                          backgroundColor: "#ffffff",
+                                          color: "#333",
+                                          fontSize: "14px",
+                                          fontWeight: "500",
+                                          padding: "12px 15px",
+                                          borderRadius: "8px",
+                                          boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)",
+                                          border: "1px solid #e5e7eb",
+                                          maxWidth: "250px",
+                                        },
+                                      },
+                                      arrow: {
+                                        sx: {
+                                          color: "#ffffff",
+                                        },
+                                      },
+                                    }}
+                                  >
                                     <button
-                                      className={`flex flex-row items-center gap-1 px-3 py-2 border text-purple rounded-lg  ml-4`}
+                                      className={`flex flex-row border items-center gap-1 px-3 py-2 text-purple rounded-lg`}
                                       onClick={() => setShowSMSModal(true)}
                                       disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
                                     >
@@ -1519,8 +1550,8 @@ const LeadDetails = ({
                                         Send SMS
                                       </span>
                                     </button>
-                                  </div>
-                                </Tooltip>
+                                  </Tooltip>
+                                </div>
 
                               </div>
                             )
@@ -3171,6 +3202,30 @@ const LeadDetails = ({
         isLeadSMS={true}
         leadPhone={selectedLeadsDetails?.phone}
       />
+
+      {/* Upgrade Plan Modal */}
+      <Elements stripe={stripePromise}>
+        <UpgradePlan
+          selectedPlan={selectedPlan}
+          open={showUpgradeModal}
+          handleClose={async (upgradeResult) => {
+            setShowUpgradeModal(false);
+            if (upgradeResult) {
+              console.log('🔄 [LEAD-DETAILS] Upgrade successful, refreshing profile...');
+              // Refresh user data after successful upgrade
+              const getData = async () => {
+                let user = await getProfileDetails();
+                if (user) {
+                  setUserLocalData(user.data.data);
+                }
+              };
+              await getData();
+            }
+          }}
+          plan={selectedPlan}
+          currentFullPlan={currentFullPlan}
+        />
+      </Elements>
     </div>
   );
 };
