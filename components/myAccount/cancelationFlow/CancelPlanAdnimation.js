@@ -65,7 +65,6 @@ export default function CancelPlanAnimation({
         }
     }
 
-
     const handleContinue = async (nextAction) => {
         console.log('currentIndex', currentIndex)
         if (nextAction) {
