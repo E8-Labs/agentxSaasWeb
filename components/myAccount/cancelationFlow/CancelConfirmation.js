@@ -2,39 +2,26 @@ import { next30Days } from '@/constants/Constants'
 import moment from 'moment';
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
-
+import { getUserPlans } from '@/components/userPlans/UserPlanServices'
+import { getFeaturesToLose, getFreePlan } from '@/utilities/PlanComparisonUtils'
+import { useUser } from '@/hooks/redux-hooks'
 function CancelConfirmation({
     handleContinue
 }) {
 
     const [confirmChecked,setConfirmChecked] = useState(false)
-
-    let features = [
-        { id: 1, title: 'Mins of AI Credits' },
-        { id: 2, title: 'Unlimited Agents' },
-        { id: 3, title: 'Unlimited Team' },
-        { id: 4, title: 'LLMs' },
-        { id: 5, title: 'AI Powered CRM' },
-        { id: 6, title: 'Lead Enrichment' },
-        { id: 7, title: '10,000+ Integrations' },
-        { id: 8, title: 'Custom Voicemails' },
-        { id: 9, title: 'Geo-Based Phone Access' },
-        { id: 10, title: 'DNC Check' },
-        { id: 11, title: 'Lead Source' },
-        { id: 12, title: 'AI Powered Message' },
-        { id: 13, title: 'AI Powered Email' },
-        { id: 14, title: 'Zoom Support' },
-        { id: 15, title: 'Priority Support' },
-        { id: 16, title: 'Tech Support' }
-    ];
-
+    const [features, setFeatures] = useState([])
     const [nxtCharge,setNxtChage] = useState(null)
+    const [currentPlan, setCurrentPlan] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    const { user: reduxUser } = useUser()
 
 
     useEffect(()=>{
         getUserData()
+        loadCurrentPlanFeatures()
     },[])
-
 
     const getUserData = () =>{
         let data = localStorage.getItem("User")
@@ -46,6 +33,73 @@ function CancelConfirmation({
             date = moment(date).format("MM/DD/YYYY")
             setNxtChage(date)
         }
+    }
+
+    
+
+    const loadCurrentPlanFeatures = async () => {
+        try {
+            setLoading(true)
+            
+            // Get current user plan
+            const userPlan = reduxUser.plan
+            if (userPlan) {
+                setCurrentPlan(userPlan)
+                
+                // Get all plans to find the current plan details
+                const allPlans = await getUserPlans()
+                const currentPlanDetails = allPlans.find(plan => plan.id === userPlan.planId)
+                
+                if (currentPlanDetails) {
+                    // Get free plan for comparison (cancellation means going to free)
+                    const freePlan = allPlans.find(plan => plan.name === 'Free')
+                    
+                    // Use getFeaturesToLose function to get actual features that will be lost
+                    const featuresToLose = getFeaturesToLose(currentPlanDetails, freePlan)
+                    
+                    // Convert to the format expected by the UI
+                    const planFeatures = featuresToLose.map((feature, index) => ({
+                        id: index + 1,
+                        title: feature
+                    }))
+                    
+                    setFeatures(planFeatures)
+                } else {
+                    // Fallback to default features if plan details not found
+                    setFeatures(getDefaultFeatures())
+                }
+            } else {
+                // Fallback to default features if no plan found
+                setFeatures(getDefaultFeatures())
+            }
+        } catch (error) {
+            console.error('Error loading current plan features:', error)
+            // Fallback to default features on error
+            setFeatures(getDefaultFeatures())
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const getDefaultFeatures = () => {
+        return [
+            { id: 1, title: 'Mins of AI Credits' },
+            { id: 2, title: 'Unlimited Agents' },
+            { id: 3, title: 'Unlimited Team' },
+            { id: 4, title: 'LLMs' },
+            { id: 5, title: 'AI Powered CRM' },
+            { id: 6, title: 'Lead Enrichment' },
+            { id: 7, title: '10,000+ Integrations' },
+            { id: 8, title: 'Custom Voicemails' },
+            { id: 9, title: 'Geo-Based Phone Access' },
+            { id: 10, title: 'DNC Check' },
+            { id: 11, title: 'Lead Source' },
+            { id: 12, title: 'AI Powered Message' },
+            { id: 13, title: 'AI Powered Email' },
+            { id: 14, title: 'Zoom Support' },
+            { id: 15, title: 'Priority Support' },
+            { id: 16, title: 'Tech Support' }
+        ]
     }
 
 
@@ -73,20 +127,31 @@ function CancelConfirmation({
                 <div
                     className="text-center text-base font-normal mt-3"
                 >
-                    {`You’ll loose access to`}
+                    {`You'll lose access to`}
                 </div>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-full mt-4 h-[33vh] overflow-y-auto">
-                    {features.map((item, idx) => (
-                        <div key={item.id} className="flex flex-row items-center gap-2">
-                            <Image src={'/otherAssets/grayCross.png'}
-                                height={24} width={24} alt="cross"
-                            />
-                            <div className="text-base font-normal">
-                                {item.title}
-                            </div>
+                
+                {loading ? (
+                    <div className="flex items-center justify-center w-full mt-4 h-[33vh]">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple mx-auto mb-2"></div>
+                            <div className="text-sm text-gray-600">Loading features...</div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-full mt-4 h-[33vh] overflow-y-auto">
+                        {features.map((item, idx) => (
+                            <div key={item.id} className="flex flex-row items-center gap-2">
+                                <Image src={'/svgIcons/selectedTickBtn.svg'}
+                                    height={24} width={24} alt="cross"
+                                    className="flex-shrink-0"
+                                />
+                                <div className="text-base font-normal text-gray-700">
+                                    {item.title}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
 
             </div>

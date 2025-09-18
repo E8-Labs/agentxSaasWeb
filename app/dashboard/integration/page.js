@@ -22,6 +22,8 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { Searchbar } from "@/components/general/MuiSearchBar";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import { Scopes } from "@/components/dashboard/myagentX/Scopes";
+import { connectGmailAccount } from "@/components/pipeline/TempleteServices";
 const allIntegrations = [
   {
     title: "Mailchimp",
@@ -198,6 +200,13 @@ const allIntegrations = [
       "Streamline Salesforce CRM with AgentX for effortless lead tracking and workflow automation.",
     icon: "/svgIcons/SalesforceIcon.svg",
   },
+  {
+    title: "Google",
+    url: "",
+    description:
+      "Connect Gmail to send automated emails and Google Calendar to schedule events for seamless lead management and follow-ups.",
+    icon: "/otherAssets/gmailIcon.png",
+  },
 ];
 function Page() {
   const [showKeysBox, setshowKeysBox] = useState(false);
@@ -218,6 +227,9 @@ function Page() {
 
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
+
+  // Google auth states
+  const [googleAuthLoader, setGoogleAuthLoader] = useState(false);
 
   useEffect(() => {
     getMyApiKeys();
@@ -355,8 +367,81 @@ function Page() {
     return maskedId;
   };
 
+  // Google OAuth handler
+  const handleGoogleAuth = () => {
+    const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
+      process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID;
+    const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI;
+
+    const oauthUrl =
+      `https://accounts.google.com/o/oauth2/v2/auth?` +
+      new URLSearchParams({
+        client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        redirect_uri: REDIRECT_URI,
+        response_type: "code",
+        scope: Scopes.join(" "),
+        access_type: "offline",
+        prompt: "consent",
+      }).toString();
+
+    const popup = window.open(oauthUrl, "_blank", "width=500,height=600");
+
+    const listener = async (event) => {
+      if (event.data?.type === "google-auth-code") {
+        window.removeEventListener("message", listener);
+
+        try {
+          setGoogleAuthLoader(true);
+          const res = await fetch(
+            `/api/google/exchange-token?code=${event.data.code}`
+          );
+          const { tokens } = await res.json();
+
+          if (tokens?.access_token) {
+            const userInfoRes = await fetch(
+              "https://www.googleapis.com/oauth2/v2/userinfo",
+              {
+                headers: {
+                  Authorization: `Bearer ${tokens.access_token}`,
+                },
+              }
+            );
+            const userInfo = await userInfoRes.json();
+
+            const googleLoginData = {
+              ...tokens,
+              ...userInfo,
+            };
+
+            console.log("Google login details are", googleLoginData);
+            let response = await connectGmailAccount(googleLoginData);
+            setGoogleAuthLoader(false);
+
+            if (response && response.data && response.data.status == true) {
+              setShowCopySnak(response.data.message);
+            } else {
+              setShowCopySnak(response?.data?.message || "Failed to connect Google account");
+            }
+          }
+        } catch (err) {
+          console.error("Google OAuth error:", err);
+          setGoogleAuthLoader(false);
+          
+          // Check if error has response with message
+          if (err.response && err.response.data && err.response.data.message) {
+            setShowCopySnak(err.response.data.message);
+          } else {
+            setShowCopySnak("Failed to connect Google account. Please try again.");
+          }
+        }
+      }
+    };
+
+    window.addEventListener("message", listener);
+  };
+
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full h-screen flex flex-col overflow-hidden">
       <AgentSelectSnackMessage
         isVisible={showCopySnak}
         hide={() => setShowCopySnak(null)}
@@ -364,7 +449,7 @@ function Page() {
         type={SnackbarTypes.Success}
       />
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
+        className="w-full flex flex-row justify-between items-center py-4 px-4 sm:px-6 lg:px-10 flex-shrink-0"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div style={{ fontSize: 24, fontWeight: "600" }}>Integration</div>
@@ -636,6 +721,10 @@ function Page() {
                   </div>
                   <button
                     onClick={() => {
+                      if (integration.title === "Google") {
+                        handleGoogleAuth();
+                        return;
+                      }
                       // if (integration.title === "GHL") {
                       //   setShowCopySnak("Comming soon");
                       //   return;
@@ -644,9 +733,17 @@ function Page() {
                         window.open(integration.url, "_blank");
                       }
                     }}
-                    className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium"
+                    className="w-full bg-purple text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2"
+                    disabled={googleAuthLoader && integration.title === "Google"}
                   >
-                    Add
+                    {googleAuthLoader && integration.title === "Google" ? (
+                      <>
+                        <CircularProgress size={16} color="inherit" />
+                        Connecting...
+                      </>
+                    ) : (
+                      "Add"
+                    )}
                   </button>
                 </div>
               </div>

@@ -79,7 +79,7 @@ function DowngradePlanPopup({
                                             <Image src="/svgIcons/selectedTickBtn.svg"
                                                 height={24} width={24} alt="cross"
                                             />
-                                            <div className="text-base font-normal">
+                                            <div className="text-[13px] font-normal">
                                                 {item}
                                             </div>
                                         </div>

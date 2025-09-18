@@ -149,6 +149,12 @@ function NewBilling() {
 
 
     useEffect(() => {
+        console.log('selectedPlan changed:', selectedPlan);
+
+    }, [selectedPlan]);
+
+
+    useEffect(() => {
         let screenWidth = 1000;
         if (typeof window !== "undefined") {
             screenWidth = window.innerWidth;
@@ -625,10 +631,10 @@ function NewBilling() {
                 // console.log
                 if (response.data.status === true) {
                     console.log("✅ [NEW-BILLING] Plan subscription successful:", response.data.data);
-                    
+
                     // Refresh profile and update all state
                     await refreshProfileAndState();
-                    
+
                     setSuccessSnack("Your plan successfully updated");
                     setShowDowngradeModal(false);
                 } else if (response.data.status === false) {
@@ -679,10 +685,10 @@ function NewBilling() {
                 //console.log;
                 if (response.data.status === true) {
                     console.log("✅ [NEW-BILLING] Plan cancellation successful");
-                    
+
                     // Refresh profile and update all state
                     await refreshProfileAndState();
-                    
+
                     setShowConfirmCancelPlanPopup(false);
                     setGiftPopup(false);
                     setShowConfirmCancelPlanPopup2(true);
@@ -927,35 +933,35 @@ function NewBilling() {
         try {
             console.log('🔄 [NEW-BILLING] Refreshing profile after plan change...');
             const response = await getProfileDetails();
-            
+
             if (response && response.data?.status === true) {
                 const profileData = response.data.data;
                 const plan = profileData.plan;
-                
+
                 // Update user local data
                 setUserLocalData(profileData);
-                
+
                 // Update plan-related state
                 setCurrentFullPlan(plan);
                 setToggleFullPlan(plan);
                 setCurrentPlan(plan?.planId);
                 setTogglePlan(plan?.planId);
-                
+
                 // Update plan order for comparison
                 if (plan?.displayOrder) {
                     setCurrentPlanOrder(plan.displayOrder);
                 }
-                
+
                 // Update pause status
                 setIsPaused(plan?.pauseExpiresAt != null ? true : false);
-                
+
                 console.log('✅ [NEW-BILLING] Profile refreshed successfully:', {
                     planId: plan?.planId,
                     planType: plan?.type,
                     planPrice: plan?.price,
                     displayOrder: plan?.displayOrder
                 });
-                
+
                 // Dispatch events to update other components
                 window.dispatchEvent(
                     new CustomEvent("hidePlanBar", { detail: { update: true } })
@@ -963,7 +969,7 @@ function NewBilling() {
                 window.dispatchEvent(
                     new CustomEvent("UpdateProfile", { detail: { update: true } })
                 );
-                
+
                 return true;
             }
         } catch (error) {
@@ -981,18 +987,28 @@ function NewBilling() {
 
         console.log('🔍 [DOWNGRADE] Current plan:', currentPlan);
         console.log('🔍 [DOWNGRADE] Target plan:', targetPlan);
+        console.log('🔍 [DOWNGRADE] Current plan capabilities type:', typeof currentPlan.capabilities);
+        console.log('🔍 [DOWNGRADE] Target plan capabilities type:', typeof targetPlan.capabilities);
+        console.log('🔍 [DOWNGRADE] Current plan capabilities:', currentPlan.capabilities);
+        console.log('🔍 [DOWNGRADE] Target plan capabilities:', targetPlan.capabilities);
+        console.log('🔍 [DOWNGRADE] Current plan features:', currentPlan.features);
+        console.log('🔍 [DOWNGRADE] Target plan features:', targetPlan.features);
 
         const featuresToLose = [];
-        currentPlan.capabilities = currentPlan.features || []
-        targetPlan.capabilities = targetPlan.features || []
+        // console.log('🔍 [DOWNGRADE] Current plan capabilities:', currentPlan.capabilities);
+
+        // Use existing capabilities or fallback to empty object, don't overwrite with features
+        const currentCapabilities = currentPlan.features || {};
+        const targetCapabilities = targetPlan.capabilities || {};
+
         // Check if plans have capabilities
-        if (currentPlan.capabilities && targetPlan.capabilities) {
+        if (currentCapabilities && targetCapabilities) {
             console.log('✅ [DOWNGRADE] Using capabilities for comparison');
 
             // Compare AI Agents
-            const currentAgents = currentPlan.capabilities?.maxAgents || 0;
-            const targetAgents = targetPlan.capabilities?.maxAgents || 0;
-            
+            const currentAgents = currentCapabilities?.maxAgents || 0;
+            const targetAgents = targetCapabilities?.maxAgents || 0;
+
             if (currentAgents > targetAgents) {
                 if (currentAgents === 1000) {
                     featuresToLose.push("Unlimited Agents");
@@ -1002,9 +1018,9 @@ function NewBilling() {
             }
 
             // Compare Contacts
-            const currentContacts = currentPlan.capabilities?.maxLeads || 0;
-            const targetContacts = targetPlan.capabilities?.maxLeads || 0;
-            
+            const currentContacts = currentCapabilities?.maxLeads || 0;
+            const targetContacts = targetCapabilities?.maxLeads || 0;
+
             if (currentContacts > targetContacts) {
                 if (currentContacts === 10000000) {
                     featuresToLose.push("Unlimited Contacts");
@@ -1014,9 +1030,9 @@ function NewBilling() {
             }
 
             // Compare Team Seats
-            const currentTeamSeats = currentPlan.capabilities?.maxTeamMembers || 0;
-            const targetTeamSeats = targetPlan.capabilities?.maxTeamMembers || 0;
-            
+            const currentTeamSeats = currentCapabilities?.maxTeamMembers || 0;
+            const targetTeamSeats = targetCapabilities?.maxTeamMembers || 0;
+
             if (currentTeamSeats > targetTeamSeats) {
                 if (currentTeamSeats === 1000) {
                     featuresToLose.push("Unlimited Team Seats");
@@ -1028,7 +1044,7 @@ function NewBilling() {
             // Compare AI Credits
             const currentCredits = currentPlan.mints || 0;
             const targetCredits = targetPlan.mints || 0;
-            
+
             if (currentCredits > targetCredits) {
                 featuresToLose.push(`${currentCredits} AI Credits`);
             }
@@ -1038,31 +1054,51 @@ function NewBilling() {
                 { key: 'allowPrioritySupport', name: 'Priority Support' },
                 { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
                 { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
-                { key: 'allowLeadSource', name: 'Lead Source' }
+                { key: 'allowLeadSource', name: 'Lead Source' }, 
+                { key: 'allowKnowledgeBases', name: 'RAG Knowledge Base' },
+                { key: 'allowSuccessManager', name: 'Success Manager' }
+                // { key: 'allowToolsAndActions', name: 'Tools & Actions' },
+                // { key: 'allowVoicemail', name: 'Voicemail' },
+                // { key: 'allowTwilio', name: 'Twilio' },
+                // { key: 'allowEmbedBrowserWebhookAgent', name: 'Embed / Browser / Webhook Agent' },
+                // { key: 'allowAIPoweredCRM', name: 'AI Powered CRM' },
+                // { key: 'allowAdvancedLLMs', name: 'Advanced LLMs' },
+                // { key: 'allowPhoneNumbers', name: 'Phone Numbers' },
+                // { key: 'allowAIAaaSAcademy', name: 'AI AaaS Academy' },
+                // { key: 'allowWebhookAgents', name: 'Webhook Agents' },
+                // { key: 'allowDiscordSupport', name: 'Discord Support' },
+                // { key: 'allowLeadEnrichment', name: 'Lead Enrichment' },
+                // { key: 'allowTwilioTrustHub', name: 'Twilio Trust Hub' },
+                // { key: 'allowAIPoweredEmails', name: 'AI Powered Emails' },
+                // { key: 'allowPriorityCalling', name: 'Priority Calling' },
+                // { key: 'allowCustomVoicemails', name: 'Custom Voicemails' },
+                // { key: 'allowLiveCallTransfer', name: 'Live Call Transfer' },
+                // { key: 'allowAIPowerediMessage', name: 'AI Powered iMessage' },
+                // { key: 'allowUnlimitedTeamSeats', name: 'Unlimited Team Seats' },
             ];
 
             capabilityFeatures.forEach(feature => {
-                const currentHasFeature = currentPlan.capabilities?.[feature.key] || false;
-                const targetHasFeature = targetPlan.capabilities?.[feature.key] || false;
-                
+                const currentHasFeature = currentCapabilities?.[feature.key] || false;
+                const targetHasFeature = targetCapabilities?.[feature.key] || false;
+
                 if (currentHasFeature && !targetHasFeature) {
                     featuresToLose.push(feature.name);
                 }
             });
         } else {
             console.log('⚠️ [DOWNGRADE] No capabilities found, using fallback logic');
-            
+
             // Fallback: Use plan names and basic comparisons
             const currentPlanName = currentPlan.name || '';
             const targetPlanName = targetPlan.name || '';
-            
+
             // Scale to Growth
             if (currentPlanName === 'Scale' && targetPlanName === 'Growth') {
-                featuresToLose.push("Unlimited Agents", "Unlimited Contacts", "Unlimited Team Seats", "1000 AI Credits", "Success Manager");
+                featuresToLose.push("Unlimited AI Agents", "Unlimited Contacts", "Unlimited Team Seats", "1000 AI Credits", "Success Manager");
             }
             // Scale to Starter
             else if (currentPlanName === 'Scale' && targetPlanName === 'Starter') {
-                featuresToLose.push("Unlimited Agents", "Unlimited Contacts", "Unlimited Team Seats", "1000 AI Credits", "Success Manager", "Ultra Priority Calling");
+                featuresToLose.push("Unlimited AI Agents", "Unlimited Contacts", "Unlimited Team Seats", "1000 AI Credits", "Success Manager", "Ultra Priority Calling");
             }
             // Growth to Starter
             else if (currentPlanName === 'Growth' && targetPlanName === 'Starter') {
@@ -1078,7 +1114,7 @@ function NewBilling() {
         }
 
         // Check for Ultra Priority Calling (Growth and Scale only)
-        if ((currentPlan.name === 'Scale' || currentPlan.name === 'Growth') && 
+        if ((currentPlan.name === 'Scale' || currentPlan.name === 'Growth') &&
             targetPlan.name === 'Starter') {
             if (!featuresToLose.includes("Ultra Priority Calling")) {
                 featuresToLose.push("Ultra Priority Calling");
@@ -1098,11 +1134,12 @@ function NewBilling() {
                 setShowUpgradeModal(true)
             } else {
                 setShowDowngradeModal(true)
-                
+
                 // Set title based on target plan
                 setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`);
-                
+
                 // Calculate features that would be lost
+                console.log('🔍 [DOWNGRADE] target plan before func:', selectedPlan);
                 const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan);
                 setDowngradeFeatures(featuresToLose);
             }
@@ -1374,7 +1411,7 @@ function NewBilling() {
 
             {/* Code for  smart refill*/}
 
-            <SmartRefillCard 
+            <SmartRefillCard
                 isDisabled={false}
                 onDisabledClick={handleSmartRefillDisabledClick}
                 isFreePlan={isFreePlan()}
@@ -1382,6 +1419,26 @@ function NewBilling() {
 
             {/* code for current plans available */}
             <div className="flex flex-col items-end  w-full mt-4">
+                <div className='flex flex-col items-start'>
+                    <div className='flex flex-row items-center gap-8'>
+                        {
+                            duration.map((item) => (
+                                <div key={item.id}
+                                    className={`px-1 py-0.5 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
+                                >
+                                    {item.save ? (
+                                        <div
+                                            className={`text-[11px] font-meduim ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
+                                        >
+                                            Save {item.save}
+                                        </div>
+                                    ) : (
+                                        <div className='w-[2vw]'></div>
+                                    )}
+                                </div>
+                            ))}
+                    </div>
+                </div>
                 <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
                     {
                         duration.map((item) => (
@@ -1420,6 +1477,7 @@ function NewBilling() {
                     }
                 </div>
             </div>
+
             <div className="w-full flex flex-row gap-4"
                 style={{
                     overflowX: "auto",
@@ -1447,7 +1505,7 @@ function NewBilling() {
                                         ? "2px solid #7902DF"
                                         : "1px solid #15151520",
                                 backgroundColor: item.id === togglePlan ? "#402FFF05" : "",
-                                minHeight: "420px", // Further increased height for better feature accommodation
+                                minHeight: "320px", // Further increased height for better feature accommodation
                             }}
                         >
                             <div className="flex flex-col items-start h-full justify-between">
@@ -1575,7 +1633,7 @@ function NewBilling() {
             <div className="w-full flex flex-row items-center justify-center gap-3 mt-8">
                 {(() => {
                     const buttonConfig = getButtonConfig();
-                    
+                    console.log('selected plan in button config', selectedPlan);
                     // Only show button if user has a paid plan or if they have selected a different plan
                     if (!currentFullPlan?.price && (!selectedPlan || currentPlan === togglePlan)) {
                         return null;
@@ -1626,10 +1684,14 @@ function NewBilling() {
                     open={showUpgradeModal}
                     handleClose={async (upgradeResult) => {
                         setShowUpgradeModal(false);
-                        
+
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...');
+                            setShowSnack({
+                                message: "Upgraded to " + selectedPlan.name + " plan",
+                                type: SnackbarTypes.Success
+                            });
+                            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             await refreshProfileAndState();
                         }
                     }}
