@@ -176,7 +176,7 @@ const LeadDetails = ({
       ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
       : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
   const stripePromise = loadStripe(stripePublickKey);
-  
+
   // Upgrade modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -1337,7 +1337,7 @@ const LeadDetails = ({
                             (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
 
                               <div className="flex flex-row items-center gap-2">
-                                <EnvelopeSimple size={20} color="#000000100" />
+                                <Image src="/otherAssets/email.png" height={16} width={16} alt="email" />
                                 <div style={styles.heading2}>
                                   {selectedLeadsDetails?.email ? (
                                     selectedLeadsDetails?.email
@@ -1389,7 +1389,7 @@ const LeadDetails = ({
                                 </div>
                                 {/* Send Email Button */}
                                 <button
-                                  className="flex flex-row items-center gap-1 px-3 py-2 border text-purple rounded-lg  ml-4"
+                                  className="flex flex-row items-center gap-1 px-2 py-2 border text-purple rounded-lg  ml-4"
                                   onClick={() => setShowEmailModal(true)}
                                   disabled={sendEmailLoader}
                                 >
@@ -1399,7 +1399,7 @@ const LeadDetails = ({
                                     width={18}
                                     alt="Send Email"
                                   />
-                                  <span className="text-purple text-sm font-medium">
+                                  <span className="text-purple text-[12px] font-[400]">
                                     Send Email
                                   </span>
                                 </button>
@@ -1457,9 +1457,9 @@ const LeadDetails = ({
                               <div className="flex flex-row gap-2 justify-center items-center">
                                 {/* <div className="w-4 h-4 filter invert brightness-0"> */}
                                 <Image
-                                  src="/assets/callBtn.png"
+                                  src="/otherAssets/phone.png"
                                   width={16}
-                                  height={16}
+                                  height={20}
                                   alt="call"
                                 />
                                 {/* </div> */}
@@ -1480,7 +1480,7 @@ const LeadDetails = ({
                                 <div className="relative ml-4">
                                   {/* Stars icon overlapping top-left corner of button */}
                                   {userLocalData?.planCapabilities?.allowTextMessages === false && (
-                                    <Image 
+                                    <Image
                                       className="absolute -top-3 -left-2 z-10"
                                       src="/otherAssets/starsIcon2.png"
                                       height={20}
@@ -1488,7 +1488,7 @@ const LeadDetails = ({
                                       alt="Upgrade"
                                     />
                                   )}
-                                  
+
                                   <Tooltip
                                     title={
                                       !userLocalData?.plan?.capabilities?.sms || !userLocalData?.planCapabilities?.allowTextMessages
@@ -1562,7 +1562,7 @@ const LeadDetails = ({
                               <div className="flex flex-row items-center gap-2">
                                 {/* <EnvelopeSimple size={20} color='#00000060' /> */}
                                 <Image
-                                  src={"/assets/location.png"}
+                                  src={"/otherAssets/location.png"}
                                   height={16}
                                   width={16}
                                   alt="man"
@@ -1576,7 +1576,7 @@ const LeadDetails = ({
                           {selectedLeadsDetails?.tags.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
                               <Image
-                                src={"/assets/tag.png"}
+                                src={"/otherAssets/tag.png"}
                                 height={16}
                                 width={16}
                                 alt="man"
@@ -1653,7 +1653,7 @@ const LeadDetails = ({
                             selectedLeadsDetails?.pipeline && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
-                                  src="/assets/pipelineIcon.svg"
+                                  src="/otherAssets/pipelineIcon.svg"
                                   height={20}
                                   width={20}
                                   alt="*"
@@ -1675,9 +1675,9 @@ const LeadDetails = ({
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
-                                  src="/svgIcons/calendar.svg"
-                                  height={20}
-                                  width={20}
+                                  src="/otherAssets/Calendar.png"
+                                  height={16}
+                                  width={16}
                                   alt="*"
                                 />
                                 <div style={styles.heading2}>
@@ -1730,65 +1730,63 @@ const LeadDetails = ({
                               )}
                             </div>
                           </div>
-
-
                         </div>
                       </div>
 
                       <div className="w-full mt-3">
-                        <div className="flex flex-col w-full max-w-full overflow-hidden">
-                          <button className="flex flex-row items-center gap-3"
-                            onClick={() => {
-                              setShowTeams(!showTeams);
-                            }}
-                          >
-                            <Image
-                              src={"/otherAssets/assignTeamIcon.png"}
-                              alt="*"
-                              height={16}
-                              width={16}
-                            />
-                            <div
-                              style={{
-                                fontWeight: "600",
-                                fontsize: 15,
-                                color: "#000000100",
-                              }}
-                            >
-                              Assign Team
+                        <div className="">
+                          {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
+                            <div className="">
+                              <LeadTeamsAssignedList
+                                users={selectedLeadsDetails?.teamsAssigned}
+                              />
                             </div>
-                            {showTeams ? (
-                              <CaretUp
-                                size={16}
-                                weight="bold"
-                                color="#15151570"
-                              />
-                            ) : (
-                              <CaretDown
-                                size={16}
-                                weight="bold"
-                                color="#15151570"
-                              />
-                            )}
-                          </button>
-                          <div className="flex w-full">
-                            {showTeams && (
-                              <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
-                                {
-                                  myTeam.map((user) => (
-                                    <div key={user.id} className="flex space-x-3 overflow-x-auto items-center">
-                                      <div className="flex items-center space-x-1">
-                                        <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                          {user?.name?.charAt(0)}
+                          ) : globalLoader ? (
+                            <CircularProgress size={25} />
+                          ) : (
+                            <div className="flex flex-col w-full max-w-full overflow-hidden">
+                              <button className="flex flex-row items-center gap-3"
+                                onClick={(event) => {
+                                  handleShowPopup(event);
+                                }}
+                              >
+                                <Image
+                                  src={"/otherAssets/assignTeamIcon.png"}
+                                  alt="*"
+                                  height={16}
+                                  width={16}
+                                />
+                                <div
+                                 
+                                    style={{
+                                      fontWeight: "500",
+                                      fontsize: 15,
+                                      color: "#000000100",
+                                  }}
+                                >
+                                  Assign Team
+                                </div>
+                              </button>
+                              <div className="flex w-full">
+                                {showTeams && (
+                                  <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
+                                    {
+                                      myTeam.map((user) => (
+                                        <div key={user.id} className="flex space-x-3 overflow-x-auto items-center">
+                                          <div className="flex items-center space-x-1">
+                                            <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                              {user?.name?.charAt(0)}
+                                            </div>
+                                            <span className="text-gray-700 text-sm">{user?.name}</span>
+                                          </div>
                                         </div>
-                                        <span className="text-gray-700 text-sm">{user?.name}</span>
-                                      </div>
-                                    </div>
-                                  ))
-                                }
+                                      ))
+                                    }
+                                  </div>
+                                )}
                               </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1810,7 +1808,7 @@ const LeadDetails = ({
                                 />
                                 <div
                                   style={{
-                                    fontWeight: "600",
+                                    fontWeight: "500",
                                     fontsize: 15,
                                     color: "#000000100",
                                   }}
@@ -2094,18 +2092,20 @@ const LeadDetails = ({
                         onClose={handleClosePopup}
                         anchorOrigin={{
                           vertical: "bottom",
-                          horizontal: "right",
+                          horizontal: "left",
                         }}
                         transformOrigin={{
                           vertical: "top",
-                          horizontal: "right", // Ensures the Popover's top right corner aligns with the anchor point
+                          horizontal: "left",
                         }}
+                        disablePortal={false}
                         PaperProps={{
-                          elevation: 0, // This will remove the shadow
+                          elevation: 0,
                           style: {
                             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                             borderRadius: "10px",
                             minWidth: "120px",
+                            zIndex: 9999,
                           },
                         }}
                       >
@@ -2835,241 +2835,241 @@ const LeadDetails = ({
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-
-            {/* Show Transcript UI Modal*/}
-
-            <Modal
-              open={isExpanded}
-              onClose={() => setIsExpanded(null)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-4/12 sm:w-4/12 w-6/12"
-                sx={styles.modalsStyle}
-              >
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="w-full"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <div className="w-full flex flex-row items-center justify-between">
-                      <div className="font-bold text-xl mt-4 mb-4">
-                        Call Transcript
-                      </div>
-                      <div>
-                        <button
-                          className="font-bold outline-none border-none"
-                          onClick={() => setIsExpanded(null)}
-                        >
-                          <CloseIcon />
-                        </button>
-                      </div>
-                    </div>
-                    <TranscriptViewer callId={isExpanded?.id || ""} />
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* delete lead modal */}
-
-            <Modal
-              open={showDelModal}
-              onClose={() => setShowDelModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: "#00000020",
-                  // //backdropFilter: "blur(5px)",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-4/12 sm:w-4/12 w-6/12"
-                sx={styles.modalsStyle}
-              >
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="w-full"
-                    style={{
-                      backgroundColor: "#ffffff",
-                      padding: 20,
-                      borderRadius: "13px",
-                    }}
-                  >
-                    <div className="font-bold text-xl mt-6">
-                      Are you sure you want to delete this lead
-                    </div>
-                    <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                      <button
-                        className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                        onClick={() => {
-                          setShowDelModal(false);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      {delLeadLoader ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                          onClick={async () => {
-                            await handleDeleteLead(selectedLeadsDetails);
-                            //  setShowDelModal(false)
-                          }}
-                        >
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Box>
-            </Modal>
           </div>
+              )}
         </div>
-      </Drawer>
 
-      {/* Modal to add notes */}
+        {/* Show Transcript UI Modal*/}
 
-      <Modal
-        open={showAddNotes}
-        onClose={() => setShowAddNotes(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: "#00000020",
-          },
-        }}
-      >
-        <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+        <Modal
+          open={isExpanded}
+          onClose={() => setIsExpanded(null)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+            },
+          }}
         >
-          <div className="flex flex-row justify-center w-full h-[50vh]">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                paddingInline: 30,
-                borderRadius: "13px",
-                // paddingBottom: 10,
-                // paddingTop: 10,
-                height: "100%",
-              }}
-            >
-              <div style={{ fontWeight: "700", fontsize: 22 }}>
-                Add your notes
-              </div>
+          <Box
+            className="lg:w-4/12 sm:w-4/12 w-6/12"
+            sx={styles.modalsStyle}
+          >
+            <div className="flex flex-row justify-center w-full">
               <div
-                className="mt-4"
+                className="w-full"
                 style={{
-                  height: "70%",
-                  overflow: "auto",
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
                 }}
               >
-                <TextareaAutosize
-                  maxRows={12}
-                  className="outline-none focus:outline-none focus:ring-0 w-full"
-                  style={{
-                    fontsize: 15,
-                    fontWeight: "500",
-                    height: "250px",
-                    border: "1px solid #00000020",
-                    resize: "none",
-                    borderRadius: "13px",
-                  }}
-                  placeholder="Add notes"
-                  value={addNotesValue}
-                  onChange={(event) => {
-                    setddNotesValue(event.target.value);
-                  }}
-                />
-              </div>
-              <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
-                {addLeadNoteLoader ? (
-                  <CircularProgress size={25} />
-                ) : (
-                  <button
-                    className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
-                    style={{
-                      fontWeight: "600",
-                      fontsize: 16,
-                    }}
-                    onClick={() => {
-                      handleAddLeadNotes();
-                    }}
-                  >
-                    Add
-                  </button>
-                )}
+                <div className="w-full flex flex-row items-center justify-between">
+                  <div className="font-bold text-xl mt-4 mb-4">
+                    Call Transcript
+                  </div>
+                  <div>
+                    <button
+                      className="font-bold outline-none border-none"
+                      onClick={() => setIsExpanded(null)}
+                    >
+                      <CloseIcon />
+                    </button>
+                  </div>
+                </div>
+                <TranscriptViewer callId={isExpanded?.id || ""} />
               </div>
             </div>
-          </div>
-        </Box>
-      </Modal>
+          </Box>
+        </Modal>
+        {/* delete lead modal */}
 
-      {/* Warning Modal for no voice */}
-      <Modal
-        open={showNoAudioPlay}
-        onClose={() => setShowNoAudioPlay(false)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
+        <Modal
+          open={showDelModal}
+          onClose={() => setShowDelModal(false)}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 1000,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(5px)",
+            },
+          }}
+        >
+          <Box
+            className="lg:w-4/12 sm:w-4/12 w-6/12"
+            sx={styles.modalsStyle}
+          >
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="font-bold text-xl mt-6">
+                  Are you sure you want to delete this lead
+                </div>
+                <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                  <button
+                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={() => {
+                      setShowDelModal(false);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  {delLeadLoader ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <button
+                      className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                      onClick={async () => {
+                        await handleDeleteLead(selectedLeadsDetails);
+                        //  setShowDelModal(false)
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+    </div>
+        </div >
+      </Drawer >
+
+  {/* Modal to add notes */ }
+
+  < Modal
+open = { showAddNotes }
+onClose = {() => setShowAddNotes(false)}
+closeAfterTransition
+BackdropProps = {{
+  timeout: 1000,
+    sx: {
+    backgroundColor: "#00000020",
+          },
+}}
+      >
+  <Box
+    className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
+    sx={{ ...styles.modalsStyle, scrollbarWidth: "none" }}
+  >
+    <div className="flex flex-row justify-center w-full h-[50vh]">
+      <div
+        className="w-full"
+        style={{
+          backgroundColor: "#ffffff",
+          padding: 20,
+          paddingInline: 30,
+          borderRadius: "13px",
+          // paddingBottom: 10,
+          // paddingTop: 10,
+          height: "100%",
+        }}
+      >
+        <div style={{ fontWeight: "700", fontsize: 22 }}>
+          Add your notes
+        </div>
+        <div
+          className="mt-4"
+          style={{
+            height: "70%",
+            overflow: "auto",
+          }}
+        >
+          <TextareaAutosize
+            maxRows={12}
+            className="outline-none focus:outline-none focus:ring-0 w-full"
+            style={{
+              fontsize: 15,
+              fontWeight: "500",
+              height: "250px",
+              border: "1px solid #00000020",
+              resize: "none",
+              borderRadius: "13px",
+            }}
+            placeholder="Add notes"
+            value={addNotesValue}
+            onChange={(event) => {
+              setddNotesValue(event.target.value);
+            }}
+          />
+        </div>
+        <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
+          {addLeadNoteLoader ? (
+            <CircularProgress size={25} />
+          ) : (
+            <button
+              className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+              style={{
+                fontWeight: "600",
+                fontsize: 16,
+              }}
+              onClick={() => {
+                handleAddLeadNotes();
+              }}
+            >
+              Add
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  </Box>
+      </Modal >
+
+  {/* Warning Modal for no voice */ }
+  < Modal
+open = { showNoAudioPlay }
+onClose = {() => setShowNoAudioPlay(false)}
+closeAfterTransition
+BackdropProps = {{
+  sx: {
+    backgroundColor: "#00000020",
             // //backdropFilter: "blur(5px)",
           },
+}}
+      >
+  <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+    <div className="flex flex-row justify-center w-full">
+      <div
+        className="w-full flex flex-col items-center"
+        style={{
+          backgroundColor: "#ffffff",
+          padding: 20,
+          borderRadius: "13px",
         }}
       >
-        <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="w-full flex flex-col items-center"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <audio controls>
-                <source src={showAudioPlay} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
-              <button
-                className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
-                onClick={() => {
-                  setShowNoAudioPlay(false);
-                }}
-                style={{ fontWeight: "600", fontSize: 15 }}
-              >
-                Close
-              </button>
+        <audio controls>
+          <source src={showAudioPlay} type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+        <button
+          className="text-white w-full h-[50px] rounded-lg bg-purple mt-4"
+          onClick={() => {
+            setShowNoAudioPlay(false);
+          }}
+          style={{ fontWeight: "600", fontSize: 15 }}
+        >
+          Close
+        </button>
 
-              {/* Can be use full to add shadow
+        {/* Can be use full to add shadow
                             <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-            </div>
-          </div>
-        </Box>
-      </Modal>
+      </div>
+    </div>
+  </Box>
+      </Modal >
 
-      {/* Modal for audio play */}
-      {/* <Modal
+  {/* Modal for audio play */ }
+{/* <Modal
         open={showAudioPlay}
         onClose={() => setShowAudioPlay(null)}
         closeAfterTransition
@@ -3111,122 +3111,122 @@ const LeadDetails = ({
         </Box>
       </Modal> */}
 
-      <Modal
-        open={showAudioPlay}
-        onClose={() => setShowAudioPlay(null)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
-          },
+<Modal
+  open={showAudioPlay}
+  onClose={() => setShowAudioPlay(null)}
+  closeAfterTransition
+  BackdropProps={{
+    sx: {
+      backgroundColor: "#00000020",
+    },
+  }}
+>
+  <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
+    <div className="flex flex-row justify-center">
+      <div
+        className="w-full flex flex-col items-end"
+        style={{
+          backgroundColor: "#ffffff",
+          padding: 20,
+          borderRadius: "13px",
         }}
       >
-        <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center">
-            <div
-              className="w-full flex flex-col items-end"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <button
-                className="mb-3"
-                style={{ fontWeight: "600", fontSize: 15 }}
-                onClick={() => {
-                  navigator.clipboard.writeText(showAudioPlay).then(() => {
-                    setShowAudioPlay(null);
-                    setShowSuccessSnack("Audio URL copied");
-                    setShowSuccessSnack2(true);
-                  });
-                }}
-              >
-                <Image src={'/otherAssets/share.png'}
-                  height={20} width={20} alt="*"
-                />
-              </button>
-
-              <audio
-                id="custom-audio"
-                controls
-                style={{ width: "100%" }}
-                src={showAudioPlay}
-              />
-
-              {/* Buttons */}
-
-              <button
-                className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
-                style={{ fontWeight: "600", fontSize: 15 }}
-                onClick={() => {
-                  setShowAudioPlay(null);
-                }}
-              >
-                Close
-              </button>
-
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Email Template Modal */}
-      <EmailTempletePopup
-        open={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        communicationType="email"
-        addRow={null}
-        isEditing={false}
-        editingRow={null}
-        onUpdateRow={null}
-        selectedGoogleAccount={selectedGoogleAccount}
-        setSelectedGoogleAccount={setSelectedGoogleAccount}
-        onSendEmail={sendEmailToLead}
-        isLeadEmail={true}
-        leadEmail={selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email}
-      />
-
-      {/* SMS Template Modal */}
-      <SMSTempletePopup
-        open={showSMSModal}
-        onClose={() => setShowSMSModal(false)}
-        phoneNumbers={phoneNumbers}
-        phoneLoading={phoneLoading}
-        communicationType="sms"
-        addRow={null}
-        isEditing={false}
-        editingRow={null}
-        onUpdateRow={null}
-        onSendSMS={sendSMSToLead}
-        isLeadSMS={true}
-        leadPhone={selectedLeadsDetails?.phone}
-      />
-
-      {/* Upgrade Plan Modal */}
-      <Elements stripe={stripePromise}>
-        <UpgradePlan
-          selectedPlan={selectedPlan}
-          open={showUpgradeModal}
-          handleClose={async (upgradeResult) => {
-            setShowUpgradeModal(false);
-            if (upgradeResult) {
-              console.log('🔄 [LEAD-DETAILS] Upgrade successful, refreshing profile...');
-              // Refresh user data after successful upgrade
-              const getData = async () => {
-                let user = await getProfileDetails();
-                if (user) {
-                  setUserLocalData(user.data.data);
-                }
-              };
-              await getData();
-            }
+        <button
+          className="mb-3"
+          style={{ fontWeight: "600", fontSize: 15 }}
+          onClick={() => {
+            navigator.clipboard.writeText(showAudioPlay).then(() => {
+              setShowAudioPlay(null);
+              setShowSuccessSnack("Audio URL copied");
+              setShowSuccessSnack2(true);
+            });
           }}
-          plan={selectedPlan}
-          currentFullPlan={currentFullPlan}
+        >
+          <Image src={'/otherAssets/share.png'}
+            height={20} width={20} alt="*"
+          />
+        </button>
+
+        <audio
+          id="custom-audio"
+          controls
+          style={{ width: "100%" }}
+          src={showAudioPlay}
         />
-      </Elements>
+
+        {/* Buttons */}
+
+        <button
+          className="w-full h-[50px] rounded-lg bg-purple text-white mt-4"
+          style={{ fontWeight: "600", fontSize: 15 }}
+          onClick={() => {
+            setShowAudioPlay(null);
+          }}
+        >
+          Close
+        </button>
+
+      </div>
     </div>
+  </Box>
+</Modal>
+
+{/* Email Template Modal */ }
+<EmailTempletePopup
+  open={showEmailModal}
+  onClose={() => setShowEmailModal(false)}
+  communicationType="email"
+  addRow={null}
+  isEditing={false}
+  editingRow={null}
+  onUpdateRow={null}
+  selectedGoogleAccount={selectedGoogleAccount}
+  setSelectedGoogleAccount={setSelectedGoogleAccount}
+  onSendEmail={sendEmailToLead}
+  isLeadEmail={true}
+  leadEmail={selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email}
+/>
+
+{/* SMS Template Modal */ }
+<SMSTempletePopup
+  open={showSMSModal}
+  onClose={() => setShowSMSModal(false)}
+  phoneNumbers={phoneNumbers}
+  phoneLoading={phoneLoading}
+  communicationType="sms"
+  addRow={null}
+  isEditing={false}
+  editingRow={null}
+  onUpdateRow={null}
+  onSendSMS={sendSMSToLead}
+  isLeadSMS={true}
+  leadPhone={selectedLeadsDetails?.phone}
+/>
+
+{/* Upgrade Plan Modal */ }
+<Elements stripe={stripePromise}>
+  <UpgradePlan
+    selectedPlan={selectedPlan}
+    open={showUpgradeModal}
+    handleClose={async (upgradeResult) => {
+      setShowUpgradeModal(false);
+      if (upgradeResult) {
+        console.log('🔄 [LEAD-DETAILS] Upgrade successful, refreshing profile...');
+        // Refresh user data after successful upgrade
+        const getData = async () => {
+          let user = await getProfileDetails();
+          if (user) {
+            setUserLocalData(user.data.data);
+          }
+        };
+        await getData();
+      }
+    }}
+    plan={selectedPlan}
+    currentFullPlan={currentFullPlan}
+  />
+</Elements>
+    </div >
   );
 };
 

@@ -43,6 +43,7 @@ import ConfirmPerplexityModal from "./extras/CofirmPerplexityModal";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import { LeadProgressBanner } from "./extras/LeadProgressBanner";
 import { uploadBatchSequence } from "./extras/UploadBatch";
+import { useUser } from "@/hooks/redux-hooks";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -917,6 +918,8 @@ const Leads1 = () => {
   //   setIsEnrich(checked);
   // };
 
+  const { user: reduxUser} = useUser();
+
   return (
     <div className="w-full">
       {/* {
@@ -975,7 +978,7 @@ const Leads1 = () => {
           ) : (
             <div className="h-screen">
               <div className = "p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-                {(user?.currentUsage?.maxLeads)}/{(user?.plan?.features?.maxLeads || 0)} used
+                {`${reduxUser?.currentUsage?.maxLeads}/ ${reduxUser?.planCapabilities?.maxLeads >= 100000000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxLeads || 0}`} used`}
               </div>
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image

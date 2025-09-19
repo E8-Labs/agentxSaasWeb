@@ -94,6 +94,10 @@ function Teams({
   }, []);
 
 
+  let maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
+  let currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
+
+
   const data = [
     {
       id: 1,
@@ -620,7 +624,7 @@ function Teams({
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {userLocalData?.currentUsage?.maxTeamMembers||0}/{(userLocalData?.planCapabilities.maxTeamMembers || 0)} used
+            {`${reduxUser?.currentUsage?.maxTeamMembers}/ ${reduxUser?.planCapabilities?.maxTeamMembers >= 1000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxTeamMembers || 0}`} used`}
           </div>
 
           <Tooltip
@@ -699,8 +703,6 @@ function Teams({
 
 
                   onClick={() => {
-                    const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
-                    const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
                     if (maxTeamMembers >= currentMembers) {
                       setOpenInvitePopup(true)
                     } else {
@@ -881,7 +883,7 @@ function Teams({
                   alt="*"
                 />
                 {
-                  !userLocalData?.plan.price ? (
+                  maxTeamMembers <= currentMembers ? (
                     <div className="w-full flex flex-col items-center -mt-12 gap-4">
                       <Image src={"/otherAssets/starsIcon2.png"}
                         height={30} width={30} alt="*"
@@ -931,8 +933,7 @@ function Teams({
                         setShowUpgradeModal(true)
                         return
                       }
-                      const maxTeamMembers = userLocalData?.planCapabilities?.maxTeamMembers || userLocalData?.plan?.planCapabilities?.maxTeamMembers || 0;
-                      const currentMembers = userLocalData?.currentUsage?.maxTeamMembers || 0;
+
                       if (maxTeamMembers > currentMembers) {
                         setOpenInvitePopup(true)
                       } else {
@@ -941,7 +942,7 @@ function Teams({
                     }}
 
                   >
-                    {!userLocalData?.plan.price ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
+                    { maxTeamMembers <= currentMembers ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
 

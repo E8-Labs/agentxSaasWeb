@@ -129,6 +129,7 @@ export const config = {
     "/buyerkycquestions/:path*",
     "/dashboard/:path*",
     "/onboarding",
+    "/plan",
     "/onboarding/:path*",
     "/admin/:path*",
     "/embedCalendar/:path*",
