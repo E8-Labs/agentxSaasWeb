@@ -275,7 +275,7 @@ function AdminContainer() {
               <AgencyPlans />
             )
           ) : selectedManu.name === "Cron Jobs" ? (
-            <AdminCronJobs />
+            <AdminCronJobs isActive={selectedManu.name === "Cron Jobs"} />
           ) : (
             <div>
               <Dashboard />

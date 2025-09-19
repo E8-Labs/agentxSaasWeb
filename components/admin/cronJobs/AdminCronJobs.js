@@ -4,7 +4,7 @@ import { RefreshCw, Play, AlertTriangle, CheckCircle, Clock, XCircle } from 'luc
 import { toast } from '@/hooks/use-toast';
 import Apis from '@/components/apis/Apis';
 
-function AdminCronJobs() {
+function AdminCronJobs({ isActive = true }) {
   const [cronJobs, setCronJobs] = useState([]);
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,12 +13,41 @@ function AdminCronJobs() {
 
   useEffect(() => {
     fetchCronJobs();
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchCronJobs, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    
+    // Auto-refresh every 10 seconds when component is visible and active
+    const interval = setInterval(() => {
+      // Only refresh if the document is visible (user is on this tab) and component is active
+      if (!document.hidden && isActive) {
+        fetchCronJobs();
+      }
+    }, 10000);
+    
+    // Also refresh when user comes back to the tab
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isActive) {
+        fetchCronJobs();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isActive]);
+
+  // Fetch data when component becomes active
+  useEffect(() => {
+    if (isActive) {
+      fetchCronJobs();
+    }
+  }, [isActive]);
 
   const fetchCronJobs = async () => {
+    // Don't fetch if component is not active
+    if (!isActive) return;
+    
     try {
       setRefreshing(true);
       const localData = localStorage.getItem("User");
@@ -200,7 +229,15 @@ function AdminCronJobs() {
 
       {/* Header with Refresh Button */}
       <div className="w-full flex justify-between items-center px-10 py-4">
-        <h1 className="text-2xl font-bold">Cron Jobs Status</h1>
+        <div className="flex items-center space-x-3">
+          <h1 className="text-2xl font-bold">Cron Jobs Status</h1>
+          {isActive && (
+            <div className="flex items-center space-x-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Auto-refreshing every 10s</span>
+            </div>
+          )}
+        </div>
         <button 
           onClick={fetchCronJobs} 
           disabled={refreshing}
