@@ -351,7 +351,7 @@ function NewBilling() {
 
         // Combine all plan arrays
         const allPlans = [...monthlyPlans, ...quaterlyPlans, ...yearlyPlans];
-        
+
         if (allPlans.length === 0) {
             console.log('🔍 [PLAN-MATCH] No plans available yet');
             return null;
@@ -474,7 +474,7 @@ function NewBilling() {
         if (profilePlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
             console.log('🔄 [PLAN-SYNC] Attempting to match profile plan with plans list');
             const matchedPlan = findMatchingPlanFromAllArrays(profilePlan);
-            
+
             if (matchedPlan) {
                 console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan);
                 setCurrentFullPlan(matchedPlan);
@@ -1123,7 +1123,7 @@ function NewBilling() {
                 { key: 'allowPrioritySupport', name: 'Priority Support' },
                 { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
                 { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
-                { key: 'allowLeadSource', name: 'Lead Source' }, 
+                { key: 'allowLeadSource', name: 'Lead Source' },
                 { key: 'allowKnowledgeBases', name: 'RAG Knowledge Base' },
                 { key: 'allowSuccessManager', name: 'Success Manager' }
                 // { key: 'allowToolsAndActions', name: 'Tools & Actions' },
@@ -1202,7 +1202,7 @@ function NewBilling() {
             if (currentPlanOrder <= selectedPlan?.displayOrder) {
                 setShowUpgradeModal(true)
             } else {
-                setShowDowngradeModal(true)
+                // setShowDowngradeModal(true)
 
                 // Set title based on target plan
                 setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`);
@@ -1211,6 +1211,9 @@ function NewBilling() {
                 console.log('🔍 [DOWNGRADE] target plan before func:', selectedPlan);
                 const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan);
                 setDowngradeFeatures(featuresToLose);
+                if (featuresToLose.length > 0) {
+                    setShowDowngradeModal(true)
+                }
             }
         }
     }
@@ -1237,7 +1240,7 @@ function NewBilling() {
         // If no plan is selected or current plan is same as selected plan, show Cancel
         if (!selectedPlan || currentPlan === togglePlan) {
             return {
-                text: "Cancel Account",
+                text: "Cancel Subscription",
                 action: () => handleCancelClick(),
                 isLoading: cancelInitiateLoader,
                 className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",

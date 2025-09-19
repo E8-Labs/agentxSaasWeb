@@ -1743,7 +1743,7 @@ const LeadDetails = ({
                             }}
                           >
                             <Image
-                              src={"/assets/assignTeamIcon.png"}
+                              src={"/otherAssets/assignTeamIcon.png"}
                               alt="*"
                               height={16}
                               width={16}

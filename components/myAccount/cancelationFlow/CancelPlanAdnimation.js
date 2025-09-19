@@ -34,12 +34,17 @@ export default function CancelPlanAnimation({
     isPaused,
 
 }) {
-    const [currentIndex, setCurrentIndex] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(-1);
     const [direction, setDirection] = useState(0);
 
     useEffect(() => {
-        getCUrrentComponent()
+        if (showModal) {
+            getCUrrentComponent()
+        }
+
     }, [showModal])
+
+    console.log('currentIndex', currentIndex)
 
     const getCUrrentComponent = async () => {
         console.log('userLocalData', userLocalData?.subscriptionPauseUsed)
@@ -49,19 +54,21 @@ export default function CancelPlanAnimation({
                 userLocalData?.cancelPlanRedemptions === 0
             ) {
                 setDirection(1);
-                setCurrentIndex((prevIndex) => prevIndex + 1);
+                setCurrentIndex((prevIndex) => prevIndex + 2);
             } else {
                 let data = await getDiscount()
 
                 console.log('data', data)
                 if (data?.discountOffer?.alreadyUsed === false) {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 2);
+                    setCurrentIndex((prevIndex) => prevIndex + 3);
                 } else {
                     setDirection(1);
-                    setCurrentIndex((prevIndex) => prevIndex + 3);
+                    setCurrentIndex((prevIndex) => prevIndex + 4);
                 }
             }
+        } else {
+            setCurrentIndex(0)
         }
     }
 
