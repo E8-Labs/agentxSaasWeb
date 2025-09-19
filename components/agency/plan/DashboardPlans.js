@@ -16,6 +16,7 @@ import SupportFile from './SupportFile';
 import AddMonthlyPlanAnimation from './AddMonthlyPlanAnimation';
 import { formatFractional2 } from './AgencyUtilities';
 import ConfigureSideUI from './ConfigureSideUI';
+import EditPlanWarning from './EditPlanWarning';
 
 
 function DashboardPlans({
@@ -569,7 +570,7 @@ function DashboardPlans({
                                                                                 onClick={() => {
                                                                                     // setmoreDropdown(null)
                                                                                     if (selectedPlan.subscriberCount > 0) {
-                                                                                        setSnackMsg("Cannot delete plan with active subscriptions.");
+                                                                                        setSnackMsg("Cannot edit plan with active subscriptions.");
                                                                                         setSnackMsgType(SnackbarTypes.Warning);
                                                                                     } else {
                                                                                         setIsEditPlan(true);
@@ -726,6 +727,12 @@ function DashboardPlans({
                         </Modal>
                     )
                 }
+
+                {/* Warning popup */}
+                <EditPlanWarning
+                    open={false}
+                    // handleClose={handleClosePlanPopUp}
+                />
 
             </div>
 

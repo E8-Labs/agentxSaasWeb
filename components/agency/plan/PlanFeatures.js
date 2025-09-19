@@ -10,7 +10,9 @@ export default function PlanFeatures({
     setFeatures,
     featuresList,
     trialValidForDays,
-    setTrialValidForDays
+    setTrialValidForDays,
+    agencyAllowedFeatures,
+    upgradePlanClickModal
 }) {
 
     const handleToggle = (key) => {
@@ -66,6 +68,18 @@ export default function PlanFeatures({
                                     </Tooltip>
                                 )
                             }
+                            {
+                                !agencyAllowedFeatures[item.stateKey] && (
+                                    <button
+                                        className="text-sm text-white bg-purple rounded-lg px-2 py-1"
+                                        onClick={() => {
+                                            upgradePlanClickModal()
+                                        }}
+                                    >
+                                        Upgrade
+                                    </button>
+                                )
+                            }
                         </div>
 
                         <Switch
@@ -79,6 +93,7 @@ export default function PlanFeatures({
                                     backgroundColor: "#7902DF",
                                 },
                             }}
+                            disabled={!agencyAllowedFeatures[item.stateKey]}
                         />
                     </div>
                 ))}

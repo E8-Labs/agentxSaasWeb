@@ -68,7 +68,8 @@ export const LanguagesSelection = ({
     language,
     setLanguage,
     selectedLanguage,
-    setLanguageTitle
+    setLanguageTitle,
+    languageTitle
 }) => {
     const languages = [
         {
@@ -115,7 +116,7 @@ export const LanguagesSelection = ({
                             <button
                                 key={item.id}
                                 style={styles.regular}
-                                className={`outline-none ${language === item.value ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[150px] rounded-lg text-center border`}
+                                className={`outline-none ${languageTitle.toLowerCase() === item.label.toLowerCase() ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[150px] rounded-lg text-center border`}
                                 onClick={() => { handleToggle(item) }}
                             >
                                 {item.title}

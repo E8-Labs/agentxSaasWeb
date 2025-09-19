@@ -24,7 +24,7 @@ let stripePublickKey =
         : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AgencyPlans() {
+function AgencyPlans({ isFrom, handleCloseModal }) {
 
     const router = useRouter();
     const duration = [
@@ -285,7 +285,11 @@ function AgencyPlans() {
                         setSnackMsgType(SnackbarTypes.Success);
                         localStorage.removeItem("subPlan");
                         // router.push("/agency/dashboard");
-                        router.push("/agency/verify");
+                        if (isFrom === "addPlan") {
+                            handleCloseModal(response.data.message);
+                        } else {
+                            router.push("/agency/verify");
+                        }
 
                     } else if (response.data.status === false) {
                         setErrorMsg(response.data.message);
@@ -335,7 +339,7 @@ function AgencyPlans() {
     return (
         <div
             // style={backgroundImage}
-            className="overflow-hidden flex flex-col items-center w-[90%] max-h-[90vh]"
+            className={`overflow-hidden flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] p-8" : "w-[90%]"} max-h-[90vh]`}
         >
 
             <div

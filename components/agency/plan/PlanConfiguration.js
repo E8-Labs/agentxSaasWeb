@@ -13,6 +13,8 @@ import SubDuration, { LanguagesSelection } from "./SubDuration";
 import SideUI from "./SideUI";
 import PlanFeatures from "./PlanFeatures";
 import ConfigureSideUI from "./ConfigureSideUI";
+import AgencyPlans from "@/components/plan/AgencyPlans";
+import getProfileDetails from "@/components/apis/GetProfile";
 
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
@@ -48,10 +50,15 @@ export default function PlanConfiguration({
 
     //new variables
     const [noOfAgents, setNoOfAgents] = useState("");
+    const [costPerAdditionalAgent, setCostPerAdditionalAgent] = useState("");
     const [noOfContacts, setNoOfContacts] = useState("");
+    const [noOfSeats, setNoOfSeats] = useState("");
+    const [costPerAdditionalSeat, setCostPerAdditionalSeat] = useState("");
     const [language, setLanguage] = useState("");
     const [languageTitle, setLanguageTitle] = useState("");
     const [trialValidForDays, setTrialValidForDays] = useState("");
+    //upgrade Plan popup variable
+    const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false);
     //custom features
     const [customFeatures, setCustomFeatures] = useState([]);
     const [allowedFeatures, setAllowedFeatures] = useState([]);
@@ -66,6 +73,19 @@ export default function PlanConfiguration({
         voicemail: false,
         twilio: false,
         allowTrial: false,
+        allowTeamSeats: false,
+    });
+    const [agencyAllowedFeatures, setAgencyAllowedFeatures] = useState({
+        toolsActions: false,
+        calendars: false,
+        liveTransfer: false,
+        ragKnowledgeBase: false,
+        embedBrowserWebhookAgent: false,
+        apiKey: false,
+        voicemail: false,
+        twilio: false,
+        allowTrial: false,
+        allowTeamSeats: false,
     });
 
     //features list
@@ -113,7 +133,7 @@ export default function PlanConfiguration({
         {
             label: "Allow Team Seats",
             tooltip: "Num of seats Price Additional seats",
-            stateKey: "teamseats",
+            stateKey: "allowTeamSeats",
         },
         {
             label: "Allow Trial",
@@ -122,29 +142,41 @@ export default function PlanConfiguration({
         },
     ];
 
-    //map allowed features
-    // useEffect(() => {
-    //     setAllowedFeatures(
-    //         featuresList
-    //             .filter(item => features[item.stateKey])
-    //             .map((item, index) => ({
-    //                 id: index + 1,
-    //                 title: item.label,
-    //             }))
-    //     );
-    // }, [features]);
+    //check for seats features
+    useEffect(() => {
+        if (costPerAdditionalSeat.length > 0 && costPerAdditionalSeat > 0) {
+            setFeatures({
+                ...features,
+                allowTeamSeats: true
+            })
+        }
+    }, [costPerAdditionalSeat]);
 
     useEffect(() => {
 
         console.log("features are", features)
         console.log("Custom features are", customFeatures)
 
+        if (!features.allowTeamSeats) {
+            setNoOfSeats("");
+            setCostPerAdditionalSeat("");
+        }
+
+        // const coreFeatures = featuresList
+        //     .filter(item => features[item.stateKey])
+        //     .map(item => ({
+        //         id: item.stateKey,      // stable id
+        //         text: item.label,
+        //     }));
+
         const coreFeatures = featuresList
+            .filter(item => item.stateKey !== "allowTrial") // exclude Allow Trial
             .filter(item => features[item.stateKey])
             .map(item => ({
-                id: item.stateKey,      // stable id
+                id: item.stateKey,
                 text: item.label,
             }));
+
 
         const extraFeatures = [];
 
@@ -233,9 +265,11 @@ export default function PlanConfiguration({
 
 
     useEffect(() => {
+        fetchAgencyAllowedFeatures();
         if (configurationData) {
-            console.log("Selected configurationData data passed is", configurationData);
+            // console.log("Selected configurationData data passed is", configurationData);
             const dynamicFeatures = configurationData?.features;
+            console.log("dynamic features are", dynamicFeatures)
             setNoOfAgents(configurationData?.maxAgents);
             setNoOfContacts(configurationData?.maxLeads);
             setFeatures({
@@ -288,6 +322,9 @@ export default function PlanConfiguration({
         formData.append("numberOfAgents", noOfAgents);
         formData.append("numberOfContacts", noOfContacts);
         formData.append("language", language);
+        formData.append("teamSeatCount", noOfSeats);
+        formData.append("costPerAdditionalAgent", costPerAdditionalAgent);
+        formData.append("costPerAdditionalTeamSeat", costPerAdditionalSeat);
         if (features.allowTrial) {
             formData.append("durationOfTrial", trialValidForDays);
         }
@@ -473,7 +510,42 @@ export default function PlanConfiguration({
         handleBack();
     }
 
+    //fetch agencyallwoed features
+    const fetchAgencyAllowedFeatures = () => {
+        const localData = localStorage.getItem("User");
+        if (localData) {
+            const LD = JSON.parse(localData);
+            const dynamicFeatures = LD?.user?.planCapabilities;
+            setAgencyAllowedFeatures({
+                toolsActions: dynamicFeatures?.allowToolsAndActions,
+                calendars: dynamicFeatures?.allowCalendarIntegration,
+                liveTransfer: dynamicFeatures?.allowLiveCallTransfer,
+                ragKnowledgeBase: dynamicFeatures?.allowKnowledgeBases,
+                embedBrowserWebhookAgent: dynamicFeatures?.allowEmbedAndWebAgents,
+                apiKey: dynamicFeatures?.allowAPIAccess,
+                voicemail: dynamicFeatures?.allowVoicemail,
+                twilio: dynamicFeatures?.allowTwilioIntegration,
+                allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
+                allowTrial: true,
+            });
+        }
+    }
 
+    //open upgrade plan popup
+    const handleUpgradePlanModalClick = () => {
+        setShowUpgradePlanPopup(true);
+    }
+
+    //code for close modal
+    const handleCloseModal = async (d) => {
+        if (d) {
+            await getProfileDetails();
+            setShowUpgradePlanPopup(false);
+            fetchAgencyAllowedFeatures()
+        } else {
+            setShowUpgradePlanPopup(false);
+        }
+    }
 
     return (
         <Modal
@@ -543,20 +615,62 @@ export default function PlanConfiguration({
 
                                 {/* Tag Option */}
                                 <div className="w-1/2">
-                                    <label style={styles.labels}>Number of Contacts</label>
+                                    <label style={styles.labels}>Price Additional Agents</label>
                                     <input
                                         style={styles.inputs}
                                         className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                                         placeholder="0"
-                                        value={noOfContacts}
+                                        value={costPerAdditionalAgent}
                                         onChange={(e) => {
-                                            setNoOfContacts(e.target.value);
+                                            setCostPerAdditionalAgent(e.target.value);
                                         }}
                                     />
                                 </div>
                             </div>
+                            <div className="w-full flex flex-row items-center justify-center gap-2">
+                                {/* Plan Name */}
+                                <div className="w-1/2">
+                                    <label style={styles.labels}>Number of Seats</label>
+                                    <input
+                                        style={styles.inputs}
+                                        className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                        placeholder="0"
+                                        value={noOfSeats}
+                                        onChange={(e) => {
+                                            setNoOfSeats(e.target.value);
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Tag Option */}
+                                <div className="w-1/2">
+                                    <label style={styles.labels}>Price Additional Seats</label>
+                                    <input
+                                        style={styles.inputs}
+                                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                                        placeholder="0"
+                                        value={costPerAdditionalSeat}
+                                        onChange={(e) => {
+                                            setCostPerAdditionalSeat(e.target.value);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            <div className="w-full">
+                                <label style={styles.labels}>Number of Contacts</label>
+                                <input
+                                    style={styles.inputs}
+                                    className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
+                                    placeholder="0"
+                                    value={noOfContacts}
+                                    onChange={(e) => {
+                                        setNoOfContacts(e.target.value);
+                                    }}
+                                />
+                            </div>
                             <LanguagesSelection
                                 language={language}
+                                languageTitle={languageTitle}
                                 setLanguage={setLanguage}
                                 setLanguageTitle={setLanguageTitle}
                                 selectedLanguage={selectedPlan?.dynamicFeatures?.allowLanguageSelection}
@@ -566,12 +680,14 @@ export default function PlanConfiguration({
                             <PlanFeatures
                                 featuresList={featuresList}
                                 features={features}
+                                agencyAllowedFeatures={agencyAllowedFeatures}
                                 setFeatures={setFeatures}
                                 customFeatures={customFeatures}
                                 handleChangeCustomFeature={handleChangeCustomFeature}
                                 handleRemoveCustomFeature={handleRemoveCustomFeature}
                                 trialValidForDays={trialValidForDays}
                                 setTrialValidForDays={setTrialValidForDays}
+                                upgradePlanClickModal={handleUpgradePlanModalClick}
                             />
 
                         </div>
@@ -632,6 +748,19 @@ export default function PlanConfiguration({
                             trialValidForDays={trialValidForDays}
                         />
                     </div>
+
+                    {/*Upgrade agency plan*/}
+                    <Modal open={showUpgradePlanPopup}>
+                        <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <AgencyPlans
+                                isFrom={"addPlan"}
+                                handleCloseModal={(d) => {
+                                    handleCloseModal(d)
+                                }}
+                            />
+                        </Box>
+                    </Modal>
+
                 </div>
             </Box>
         </Modal>

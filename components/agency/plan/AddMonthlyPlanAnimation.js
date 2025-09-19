@@ -37,6 +37,7 @@ export default function AddMonthlyPlanAnimation({
 
     //set the configuration data when editing plan
     useEffect(() => {
+        console.log("Status of edit plans is", isEditPlan)
         if (isEditPlan) {
             const object = {
                 maxAgents: selectedPlan?.dynamicFeatures?.maxAgents,
