@@ -1187,7 +1187,7 @@ function NewBilling() {
             setShowCancelPoup(true)
         } else { //if(currentFullPlan?.discountPrice < !selectedPlan.discountPrice){
 
-            if (currentFullPlan.displayOrder <= selectedPlan?.displayOrder) {
+            if (currentFullPlan?.displayOrder <= selectedPlan?.displayOrder) {
                 setShowUpgradeModal(true)
             } else {
                 // setShowDowngradeModal(true)
@@ -1239,7 +1239,7 @@ function NewBilling() {
         }
 
         // If user has selected a plan higher than current plan, show Upgrade
-        if (selectedPlan?.displayOrder >= currentFullPlan.displayOrder) {
+        if (selectedPlan?.displayOrder >= currentFullPlan?.displayOrder) {
             return {
                 text: "Upgrade Plan",
                 action: () => handleUpgradeClick(),

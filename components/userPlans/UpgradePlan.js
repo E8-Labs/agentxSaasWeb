@@ -1177,7 +1177,7 @@ function UpgradePlanContent({
                                 </div>
 
                                 {/* Upgrade Button - Fixed at bottom with equal padding */}
-                                <div className='w-full flex flex-row items-center justify-center md:mt-6 mt-3'>
+                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3'>
                                     {
                                         subscribeLoader ? (
                                             <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">

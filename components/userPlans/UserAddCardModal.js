@@ -364,17 +364,7 @@ const UserAddCard = ({
                             <div className="mt-2" style={{ fontWeight: "400", fontSize: 15 }}>Enter your payment details to continue</div>
                             <div className="mt-4" style={{ fontWeight: "600", fontSize: 22 }}>Add Payment Details</div>
                             <div
-                                style={{
-                                    fontWeight: "400",
-
-                                    fontSize: 14,
-                                    color: "#4F5B76",
-                                }}
-                            >
-                                Card Number
-                            </div>
-                            <div
-                                className="mt-2 px-3 py-1 border relative flex items-center bg-[#ffffff70]"
+                                className="mt-8 px-3 py-1 border relative flex items-center bg-[#ffffff70]"
                                 style={{ borderRadius: "8px" }}
                             >
                                 <div className="flex-1">
@@ -410,16 +400,6 @@ const UserAddCard = ({
                         <div className="flex flex-row gap-2 w-full mt-8">
                             <div className="w-6/12">
                                 <div
-                                    style={{
-                                        fontWeight: "400",
-
-                                        fontSize: 14,
-                                        color: "#00000090",
-                                    }}
-                                >
-                                    Exp
-                                </div>
-                                <div
                                     className="mt-2 px-3 py-1 border bg-[#ffffff70]"
                                     style={{ borderRadius: "8px" }}
                                 >
@@ -450,16 +430,6 @@ const UserAddCard = ({
                                 </div>
                             </div>
                             <div className="w-6/12">
-                                <div
-                                    style={{
-                                        fontWeight: "400",
-
-                                        fontSize: 14,
-                                        color: "#00000090",
-                                    }}
-                                >
-                                    CVC
-                                </div>
                                 <div
                                     className="mt-2 px-3 py-1 border bg-[#ffffff70]"
                                     style={{ borderRadius: "8px" }}
@@ -493,18 +463,6 @@ const UserAddCard = ({
                         </div>
 
                         {/* Optional input field for agent x invite code */}
-
-                        <div
-                            className="mt-8"
-                            style={{
-                                fontWeight: "400",
-
-                                fontSize: 14,
-                                color: "#4F5B76",
-                            }}
-                        >
-                            {`Referral Code (optional)`}
-                        </div>
 
                         <div className="mt-4">
                             <input
