@@ -52,6 +52,7 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import { userLocalData } from "@/components/agency/plan/AuthDetails";
 import UpgradeModal from "@/constants/UpgradeModal";
 import { getUserLocalData } from "@/components/constants/constants";
+import { useUser } from "@/hooks/redux-hooks";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -89,37 +90,37 @@ const Userleads = ({
   // Helper function to filter out address column if no leads have address data
   const filterAddressColumn = (columns, leads) => {
     if (!columns || !leads || leads.length === 0) return columns;
-    
+
     // Check if address column exists in the columns
-    const addressColumn = columns.find(column => 
-      column.title?.toLowerCase() === 'address' || 
+    const addressColumn = columns.find(column =>
+      column.title?.toLowerCase() === 'address' ||
       column.key?.toLowerCase() === 'address'
     );
-    
+
     if (addressColumn) {
       console.log('Address column detected:', addressColumn);
     }
-    
+
     // Check if any lead has address data
-    const hasAddressData = leads.some(lead => 
+    const hasAddressData = leads.some(lead =>
       lead.address && lead.address.trim() !== ''
     );
-    
+
     console.log('Has address data in leads:', hasAddressData, 'Total leads:', leads.length);
-    
+
     // If no leads have address data, filter out address column
     if (!hasAddressData && addressColumn) {
       console.log('Filtering out address column - no leads have address data');
-      return columns.filter(column => 
-        column.title?.toLowerCase() !== 'address' && 
+      return columns.filter(column =>
+        column.title?.toLowerCase() !== 'address' &&
         column.key?.toLowerCase() !== 'address'
       );
     }
-    
+
     if (hasAddressData && addressColumn) {
       console.log('Keeping address column - leads have address data');
     }
-    
+
     return columns;
   };
   const [selectedAll, setSelectedAll] = useState(false);
@@ -206,6 +207,8 @@ const Userleads = ({
 
   //render status
   const isFirstRender = useRef(true);
+
+  const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
 
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null);
@@ -1702,7 +1705,9 @@ const Userleads = ({
             <div className="flex fex-row items-center gap-2">
               <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
               <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-                {(user?.currentUsage?.maxLeads)}/{(user?.plan?.features?.maxLeads || 0)} used
+
+                {`${reduxUser?.currentUsage?.maxLeads}/ ${reduxUser?.planCapabilities?.maxLeads >= 100000000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxLeads || 0}`} used`}
+
               </div>
             </div>
             <div className="flex fex-row items-center gap-6">

@@ -1,7 +1,14 @@
 import Image from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe } from '@stripe/stripe-js'
+import UpgradePlan from '../userPlans/UpgradePlan'
+
+// Initialize Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 function TwillioUpgradeView() {
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
     return (
         <div className='flex flex-col items-center h-full'>
             <div className='flex flex-col items-start w-full p-6'>
@@ -34,10 +41,21 @@ function TwillioUpgradeView() {
 
                 <button
                     className='px-6 py-3 rounded-lg bg-purple text-base font-semibold text-white'
+                    onClick={() => setShowUpgradeModal(true)}
                 >
                     Upgrade
                 </button>
             </div>
+
+            {/* Upgrade Plan Modal */}
+            <Elements stripe={stripePromise}>
+                <UpgradePlan
+                    open={showUpgradeModal}
+                    handleClose={() => setShowUpgradeModal(false)}
+                    plan={null}
+                    currentFullPlan={null}
+                />
+            </Elements>
         </div>
     )
 }

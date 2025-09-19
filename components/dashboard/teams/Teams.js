@@ -624,7 +624,7 @@ function Teams({
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
           <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-            {userLocalData?.currentUsage?.maxTeamMembers || 0}/{(userLocalData?.planCapabilities.maxTeamMembers || 0)} used
+            {`${reduxUser?.currentUsage?.maxTeamMembers}/ ${reduxUser?.planCapabilities?.maxTeamMembers >= 1000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxTeamMembers || 0}`} used`}
           </div>
 
           <Tooltip

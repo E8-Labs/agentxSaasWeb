@@ -32,6 +32,12 @@ import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
 import AuthSelectionPopup from "./AuthSelectionPopup";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getUserLocalData, UpgradeTag } from "../constants/constants";
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import UpgradePlan from '../userPlans/UpgradePlan';
+
+// Initialize Stripe
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 
 const PipelineStages = ({
@@ -94,6 +100,10 @@ const PipelineStages = ({
   const [showAdvanceSettings, setShowAdvanceSettings] = useState(false);
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+
+  //code for upgrade plan modal
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   //code for input arrays
   const [inputs, setInputs] = useState([
@@ -170,6 +180,7 @@ const PipelineStages = ({
 
   const handleSelectAdd = async (stageIndex, value) => {
     if (user?.planCapabilities.allowTextMessages === false && value == "sms") {
+      setShowUpgradeModal(true);
       return
     }
     if (value != "call") {
@@ -672,7 +683,7 @@ const PipelineStages = ({
 
 
   const shouldDisable = (item) => {
-    if (item.value == "sms" && (phoneNumbers.length === 0)) {// 
+    if (item.value == "sms" && ((phoneNumbers.length === 0) && user?.planCapabilities.allowTextMessages === false)) {// 
       return true
     } else {
       return false
@@ -1083,7 +1094,7 @@ const PipelineStages = ({
                                 >
                                   {ACTIONS.map((a) => (
                                     <Tooltip key={a.id}
-                                      title={shouldDisable(a) ? "You need to complete A2P to text" : ""}
+                                      title={shouldDisable(a) && user?.planCapabilities.allowTextMessages === true ? "You need to complete A2P to text" : ""}
                                       arrow
                                       disableHoverListener={!shouldDisable(a)}
                                       disableFocusListener={!shouldDisable(a)}
@@ -1109,7 +1120,7 @@ const PipelineStages = ({
                                     >
                                       <div>
                                         <MenuItem
-                                          disabled={shouldDisable(a)}
+                                          // disabled={shouldDisable(a)}
                                           key={a.value}
                                           sx={{
                                             width: 180,
@@ -1149,7 +1160,7 @@ const PipelineStages = ({
 
                                                   <div style={{ fontSize: 15, fontWeight: '400' }}>{a.label}</div>
                                                   {
-                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" && !shouldDisable(a) &&
+                                                    user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
 
                                                     <button className="ml-2">
                                                       <UpgradeTag />
@@ -1158,7 +1169,7 @@ const PipelineStages = ({
 
                                                 </div>
                                                 {
-                                                  shouldDisable(a) && (
+                                                  shouldDisable(a)  && user?.planCapabilities.allowTextMessages != false && a.label == "Text" && (
                                                     <Image
                                                       src={"/otherAssets/redInfoIcon.png"}
                                                       height={16}
@@ -2207,6 +2218,16 @@ const PipelineStages = ({
                 </div>
               </Box>
             </Modal>
+
+            {/* Upgrade Plan Modal */}
+            <Elements stripe={stripePromise}>
+              <UpgradePlan
+                open={showUpgradeModal}
+                handleClose={() => setShowUpgradeModal(false)}
+                plan={selectedPlan}
+                currentFullPlan={null}
+              />
+            </Elements>
           </div>
         )}
       </Droppable>
