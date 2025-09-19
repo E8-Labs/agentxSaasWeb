@@ -27,6 +27,7 @@ const ConnectStripe = () => {
             const LD = JSON.parse(Data);
             if (LD) {
                 setAgencyData(LD.user);
+                console.log("Agency data from localstorge is", LD.user);
             }
         }
     }, [])
@@ -124,7 +125,7 @@ const ConnectStripe = () => {
                         </div>
             */}
             {
-                agencydata?.stripeAccount ? (
+                agencydata?.canAcceptPaymentsAgencyccount ? (
                     <StripeDetailsCard
                         stripeData={agencydata?.stripeAccount}
                     />
