@@ -15,7 +15,7 @@ export const downgradeToStarterFeatures = [
 ]
 
 export const downgradeToGrowthFeatures = [
-    "Unlimited Agents",
+    "Unlimited AI Agents",
     "1000 AI Credits",
     "Unlimited Contacts",
     "Success Manager",

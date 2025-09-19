@@ -121,7 +121,7 @@ function CancelConfirmation({
     const getDefaultFeatures = () => {
         return [
             { id: 1, title: 'Mins of AI Credits' },
-            { id: 2, title: 'Unlimited Agents' },
+            { id: 2, title: 'Unlimited AI Agents' },
             { id: 3, title: 'Unlimited Team' },
             { id: 4, title: 'LLMs' },
             { id: 5, title: 'AI Powered CRM' },
@@ -175,7 +175,7 @@ function CancelConfirmation({
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-full mt-4 h-[33vh] overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-full mt-4 max-h-[33vh] overflow-y-auto">
                         {features.map((item, idx) => (
                             <div key={item.id} className="flex flex-row items-center gap-2">
                                 <Image src={'/svgIcons/selectedTickBtn.svg'}

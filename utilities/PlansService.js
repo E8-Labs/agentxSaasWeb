@@ -185,3 +185,22 @@ class PlansService {
 }
 
 export default PlansService;
+
+
+
+
+export  const duration = [
+  {
+      id: 1,
+      title: "Monthly",
+      save: ""
+  }, {
+      id: 2,
+      title: "Quarterly",
+      save: "20%"
+  }, {
+      id: 3,
+      title: "Yearly",
+      save: '30%'
+  },
+]

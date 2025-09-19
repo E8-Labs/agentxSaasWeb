@@ -24,7 +24,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/SmartRefillapi";
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
-import PlansService from "@/utilities/PlansService";
+import PlansService, { duration } from "@/utilities/PlansService";
 import { downgradeToGrowthFeatures, downgradeToStarterFeatures, getMonthlyPrice, getTotalPrice, getUserPlans, initiateCancellation } from "../userPlans/UserPlanServices";
 import CloseBtn from "../globalExtras/CloseBtn";
 import PauseSubscription from "./cancelationFlow/PauseSubscription";
@@ -45,23 +45,6 @@ const stripePromise = loadStripe(stripePublickKey);
 
 function NewBilling() {
     const { updateProfile } = useUser();
-
-    const duration = [
-        {
-            id: 1,
-            title: "Monthly",
-            save: ""
-        }, {
-            id: 2,
-            title: "Quarterly",
-            save: "25%"
-        }, {
-            id: 3,
-            title: "Yearly",
-            save: '35%'
-        },
-    ]
-
     //stroes user cards list
     const [cards, setCards] = useState([]);
 
@@ -695,11 +678,11 @@ function NewBilling() {
                 // console.log
                 if (response.data.status === true) {
                     console.log("✅ [NEW-BILLING] Plan subscription successful:", response.data.data);
-
+                    setCurrentPlanOrder(selectedPlan.displayOrder)
                     // Refresh profile and update all state
                     await refreshProfileAndState();
 
-                    setSuccessSnack("Your plan successfully updated");
+                    setSuccessSnack(response.data.message);
                     setShowDowngradeModal(false);
                 } else if (response.data.status === false) {
                     setErrorSnack(response.data.message);
@@ -1045,6 +1028,11 @@ function NewBilling() {
         return false;
     };
 
+    useEffect(() => {
+        console.log("currentPlan", currentFullPlan)
+        console.log("currentPlanOrder", currentPlanOrder)
+    }, [currentPlanOrder])
+
     // Function to get features that would be lost when downgrading
     const getFeaturesToLose = (currentPlan, targetPlan) => {
         if (!currentPlan || !targetPlan) {
@@ -1080,7 +1068,7 @@ function NewBilling() {
 
             if (currentAgents > targetAgents) {
                 if (currentAgents === 1000) {
-                    featuresToLose.push("Unlimited Agents");
+                    featuresToLose.push("Unlimited AI Agents");
                 } else {
                     featuresToLose.push(`${currentAgents} AI Agents`);
                 }
@@ -1199,7 +1187,7 @@ function NewBilling() {
             setShowCancelPoup(true)
         } else { //if(currentFullPlan?.discountPrice < !selectedPlan.discountPrice){
 
-            if (currentPlanOrder <= selectedPlan?.displayOrder) {
+            if (currentFullPlan.displayOrder <= selectedPlan?.displayOrder) {
                 setShowUpgradeModal(true)
             } else {
                 // setShowDowngradeModal(true)
@@ -1237,8 +1225,10 @@ function NewBilling() {
 
     // Function to determine button text and action
     const getButtonConfig = () => {
+        console.log("currentPlan", currentFullPlan)
+        console.log("currentPlanOrder", currentPlanOrder)
         // If no plan is selected or current plan is same as selected plan, show Cancel
-        if (!selectedPlan || currentPlan === togglePlan) {
+        if ((!selectedPlan || currentPlan === togglePlan)) {
             return {
                 text: "Cancel Subscription",
                 action: () => handleCancelClick(),
@@ -1249,7 +1239,7 @@ function NewBilling() {
         }
 
         // If user has selected a plan higher than current plan, show Upgrade
-        if (selectedPlan?.displayOrder >= currentPlanOrder) {
+        if (selectedPlan?.displayOrder >= currentFullPlan.displayOrder) {
             return {
                 text: "Upgrade Plan",
                 action: () => handleUpgradeClick(),
@@ -1708,7 +1698,7 @@ function NewBilling() {
                     console.log('selected plan in button config', selectedPlan);
                     // Only show button if user has a paid plan or if they have selected a different plan
                     // Show cancel button if user is on paid plan and selected their own plan
-                    if (!currentFullPlan?.price && !selectedPlan) {
+                    if (currentFullPlan?.name === "Free" && selectedPlan?.name === "Free") {
                         return null;
                     }
 
@@ -1761,7 +1751,7 @@ function NewBilling() {
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
                             setShowSnack({
-                                message: "Upgraded to " + selectedPlan.name + " plan",
+                                message: "Upgraded to " + selectedPlan.name + " Plan",
                                 type: SnackbarTypes.Success
                             });
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);

@@ -181,7 +181,7 @@ export default function CancelPlanAnimation({
                                         <CloseBtn
                                             onClick={() => {
                                                 handleClose()
-                                                setCurrentIndex(0)
+                                                setCurrentIndex(-1)
                                             }}
                                         />
                                     </div>
@@ -207,7 +207,7 @@ export default function CancelPlanAnimation({
                                         <CloseBtn
                                             onClick={() => {
                                                 handleClose()
-                                                setCurrentIndex(0)
+                                                setCurrentIndex(-1)
                                             }}
                                         />
                                     </div>
@@ -237,7 +237,7 @@ export default function CancelPlanAnimation({
                                         <CloseBtn
                                             onClick={() => {
                                                 handleClose()
-                                                setCurrentIndex(0)
+                                                setCurrentIndex(-1)
                                             }}
                                         />
                                     </div>
@@ -267,7 +267,7 @@ export default function CancelPlanAnimation({
                                         <CloseBtn
                                             onClick={() => {
                                                 handleClose()
-                                                setCurrentIndex(0)
+                                                setCurrentIndex(-1)
                                             }}
                                         />
                                     </div>
@@ -297,7 +297,7 @@ export default function CancelPlanAnimation({
                                         <CloseBtn
                                             onClick={() => {
                                                 handleClose()
-                                                setCurrentIndex(0)
+                                                setCurrentIndex(-1)
                                             }}
                                         />
                                     </div>
@@ -327,7 +327,7 @@ export default function CancelPlanAnimation({
                                         <CloseBtn
                                             onClick={() => {
                                                 handleClose()
-                                                setCurrentIndex(0)
+                                                setCurrentIndex(-1)
                                             }}
                                         />
                                     </div>

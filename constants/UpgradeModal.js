@@ -32,7 +32,7 @@ const UpgradeModal = ({
 
     const benifits1 = [
         { id: 1, title: "More Mins of AI Credits", subTitle: "" },
-        { id: 2, title: "Unlimited Agents", subTitle: "" },
+        { id: 2, title: "Unlimited AI Agents", subTitle: "" },
         { id: 3, title: "Unlimited Team", subTitle: "" },
         { id: 4, title: "LLMs", subTitle: "(AgentX, OpenAI, Llama, Gemini)" },
         { id: 5, title: "AI Powered CRM", subTitle: "(Copilot)" },

@@ -13,6 +13,7 @@ import UserAddCard from './UserAddCardModal'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import getProfileDetails from '../apis/GetProfile'
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
+import { duration } from '@/utilities/PlansService'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -162,25 +163,6 @@ function UpgradePlanContent({
     const elements = useElements();
 
 
-
-
-
-
-    const duration = [
-        {
-            id: 1,
-            title: "Monthly",
-            save: ""
-        }, {
-            id: 2,
-            title: "Quarterly",
-            save: "20%"
-        }, {
-            id: 3,
-            title: "Yearly",
-            save: '30%'
-        },
-    ]
 
     const [selectedDuration, setSelectedDuration] = useState(duration[0])
 
