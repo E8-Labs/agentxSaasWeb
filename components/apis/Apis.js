@@ -272,6 +272,14 @@ const Apis = {
   // Payment Charges API
   getPaymentCharges: `${BasePath}api/admin/payment-charges`,
 
+  // Cron Jobs API
+  getCronStatus: `${BasePath}api/admin/cron/status`,
+  getCronSummary: `${BasePath}api/admin/cron/summary`,
+  getStuckCronJobs: `${BasePath}api/admin/cron/stuck`,
+  getCronJobStatus: `${BasePath}api/admin/cron/status`,
+  getCronConfig: `${BasePath}api/admin/cron/config`,
+  restartCronJob: `${BasePath}api/admin/cron/restart`,
+
 };
 
 export default Apis;

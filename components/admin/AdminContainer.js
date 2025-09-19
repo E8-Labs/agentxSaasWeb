@@ -18,6 +18,7 @@ import AdminActiveCalls from "./activeCalls/AdminActiveCalls";
 import AdminPaymentCharges from "./paymentCharges/AdminPaymentCharges";
 import AgencyPlans from "./plans/AgencyPlans";
 import AgentXPlans from "./plans/AgentXPlans";
+import AdminCronJobs from "./cronJobs/AdminCronJobs";
 
 function AdminContainer() {
   const router = useRouter();
@@ -73,6 +74,12 @@ function AdminContainer() {
     },
     {
       id: 8,
+      name: "Cron Jobs",
+      value: 'cron-jobs',
+
+    },
+    {
+      id: 9,
       name: "Logout",
     },
   ];
@@ -267,6 +274,8 @@ function AdminContainer() {
             ) : (
               <AgencyPlans />
             )
+          ) : selectedManu.name === "Cron Jobs" ? (
+            <AdminCronJobs />
           ) : (
             <div>
               <Dashboard />
