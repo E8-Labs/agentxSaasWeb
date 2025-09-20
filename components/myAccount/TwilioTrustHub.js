@@ -164,13 +164,13 @@ const TwilioTrustHub = ({
                 ApiPath = `${Apis.disconnectTwilio}`
             }
             console.log("Apipath fr disconnect twilio is", ApiPath);
-            let ApiData = null;
+            let ApiData = {};
             if (selectedUser) {
                 ApiData = {
                     userId: selectedUser.id
                 }
             }
-            const response = await axios.post(ApiPath, { ApiData }, {
+            const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + token,
                     // "Content-Type": "application/json"
