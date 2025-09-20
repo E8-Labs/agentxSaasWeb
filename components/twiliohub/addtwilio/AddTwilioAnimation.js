@@ -30,7 +30,8 @@ const boxVariants = {
 const AddTwilioAnimation = ({
     showAddTwilio,
     handleClose,
-    getProfileData
+    getProfileData,
+    selectedUser
 }) => {
 
 
@@ -165,6 +166,7 @@ const AddTwilioAnimation = ({
                                         handleClose={handleClose}
                                         profileLoader={getProfileLoader}
                                         closeLoader={closeLoader}
+                                        selectedUser={selectedUser}
                                     />
                                 </div>
                             </motion.div>

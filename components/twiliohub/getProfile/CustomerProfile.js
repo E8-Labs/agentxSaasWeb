@@ -15,7 +15,8 @@ const CustomerProfile = ({
     getProfileData,
     profileStatus,
     disconnectLoader,
-    handleDisconnectTwilio
+    handleDisconnectTwilio,
+    selectedUser
 }) => {
 
     console.log("Trust hub data passed is", twilioHubData);
@@ -224,6 +225,7 @@ const CustomerProfile = ({
                                 }
                             }}
                             getProfileData={getProfileData}
+                            selectedUser={selectedUser}
                         />
                     )
                 }

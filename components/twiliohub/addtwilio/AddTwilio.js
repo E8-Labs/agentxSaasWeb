@@ -14,7 +14,8 @@ const AddTwilio = ({
     handleContinue,
     setTrustProducts,
     profileLoader,
-    closeLoader
+    closeLoader,
+    selectedUser
 }) => {
 
     const [accountSID, setAccountSID] = useState("");
@@ -53,9 +54,15 @@ const AddTwilio = ({
             }
             const ApiPath = Apis.addTwilio;
             const token = AuthToken();
-            const ApiData = {
+            let ApiData = {
                 twilioAccountSid: accountSID,
                 twilioAuthToken: accountToken
+            }
+            if (selectedUser) {
+                ApiData = {
+                    ...ApiData,
+                    userId: selectedUser.id
+                }
             }
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -216,9 +223,7 @@ const AddTwilio = ({
             <div className='w-full flex flex-row items-center justify-end mt-4'>
                 {
                     (addTwilioLoader || profileLoader) ? (
-                        <CircularProgress size={25} sx={{
-                            color:'white'
-                        }} />
+                        <CircularProgress size={25} />
                     ) :
                         <button
                             className={`${isDisabled ? "bg-btngray text-black" : "bg-purple text-white"} w-[180px] h-[50px] rounded-lg px-6 outline-none border-none`}

@@ -13,56 +13,35 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/Agent
 import { HowtoVideos, PersistanceKeys } from '@/constants/Constants'
 import IntroVideoModal from '../createagent/IntroVideoModal'
 import Image from 'next/image'
-
-const TwilioTrustHub = ({selectedUser}) => {
-
-    //how to video
-    const [introVideoModal2, setIntroVideoModal2] = useState(false);
-
-    // const timer = setTimeout(() => {
-    //     getBusinessProfile(true);
-    // }, 300);
-
-    // return () => clearTimeout(timer);
-
-    // useEffect(() => {
-    //     getBusinessProfile();
-
-    //     // Start polling every 3 seconds (silent polling)
-    //     const interval = setInterval(() => {
-    //         getBusinessProfile(true);
-    //     }, 3000);
+// import { getUserLocalData } from '../constants/constants'
 
 
+const TwilioTrustHub = ({
+    isFromAgency,
+    hotReloadTrustProducts,
+    setHotReloadTrustProducts,
+    removeTrustHubData,
+    setRemoveTrustHubData,
+    selectedUser
+}) => {
 
-    //     setPollingInterval(interval);
-
-    //     // Cleanup on unmount
-    //     return () => {
-    //         if (interval) {
-    //             clearInterval(interval);
-    //         }
-    //     };
-    // }, []);
-
-    //test polling code
-    
-    
     useEffect(() => {
-        getBusinessProfile(); // Initial load with loader
+        console.log("Should triger the get businessprofile api");
+        getBusinessProfile();
 
+        // Start polling every 6 seconds (silent polling)
         const interval = setInterval(() => {
-            (async () => {
-                try {
-                    console.log("This is trigering the business profile api in polling");
-                    await getBusinessProfile(true); // Polling
-                } catch (err) {
-                    console.error("Polling error:", err);
-                }
-            })();
+            getBusinessProfile(true);
         }, 3000);
 
-        return () => clearInterval(interval); // Clean up on unmount
+        setPollingInterval(interval);
+
+        // Cleanup on unmount
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
     }, []);
 
     const [twilioHubData, setTwilioHubData] = useState(null);
@@ -75,19 +54,62 @@ const TwilioTrustHub = ({selectedUser}) => {
         message: "",
         isVisible: false
     });
+    const [isFreePlan, setIsFreePlan] = useState(false)
+
+
+    // useEffect(() => {
+    //     let data = getUserLocalData()
+    //     if (data) {
+    //         let isFree = !data.user.plan.price ? true : false
+    //         setIsFreePlan(isFree)
+    //         console.log('isFree', isFree)
+    //     }
+
+
+    // }, [])
+
+    //triger the get business profile
+    useEffect(() => {
+        console.log("Hot reload status for getBusiness profile", hotReloadTrustProducts);
+        if (hotReloadTrustProducts) {
+            getBusinessProfile();
+        }
+    }, [hotReloadTrustProducts]);
+
+    //remove trust hub data
+    useEffect(() => {
+        if (removeTrustHubData) {
+            setTwilioHubData(null);
+            setProfileStatus(true);
+            if (typeof setRemoveTrustHubData === "function") {
+                setRemoveTrustHubData(false);
+            }
+        }
+    }, [removeTrustHubData]);
 
     //get the twilio profile details
     const getBusinessProfile = async (isPolling = false, d = null) => {
+        console.log("Get business profile trigered")
+        if (typeof setHotReloadTrustProducts === "function") {
+            setHotReloadTrustProducts(false);
+        }
+        console.log("Check 1");
         try {
+            console.log("Check 2");
             // Only show loader on initial load, not during polling
             if (!twilioHubData && !isPolling) {
                 setLoader(true);
+                console.log("Check 3");
             }
+            console.log("Check 4");
             const token = AuthToken();
+            console.log("Check 5");
             let ApiPath = Apis.getBusinessProfile;
+            console.log("Check 6");
             if (selectedUser) {
                 ApiPath = `${Apis.getBusinessProfile}?userId=${selectedUser.id}`
             }
+            console.log("Api path for get twilio details is", ApiPath);
             const response = await axios.get(ApiPath, {
                 headers: {
                     "Authorization": "Bearer " + token,
@@ -100,7 +122,7 @@ const TwilioTrustHub = ({selectedUser}) => {
                 if (!isPolling) {
                     setLoader(false);
                 }
-                console.log("Response og get business profile is", response.data);
+                console.log("Response of get business profile is", response.data);
                 const ApiResponse = response.data
                 if (ApiResponse.status === true) {
                     setTwilioHubData(ApiResponse.data);
@@ -124,6 +146,9 @@ const TwilioTrustHub = ({selectedUser}) => {
             if (!twilioHubData && !isPolling) {
                 setLoader(false);
             }
+            if (typeof setHotReloadTrustProducts === "function") {
+                setHotReloadTrustProducts(false);
+            }
             console.log("Error occured in getBusinessProfile api is", error);
         }
     }
@@ -133,8 +158,20 @@ const TwilioTrustHub = ({selectedUser}) => {
         try {
             setDisConnectLoader(true);
             const token = AuthToken();
-            const ApiPath = Apis.disconnectTwilio;
-            const response = await axios.post(ApiPath, {}, {
+            let ApiPath = Apis.disconnectTwilio;
+            console.log("Selected user passed in twilio is", Boolean(selectedUser));
+            if (selectedUser) {
+                ApiPath = `${Apis.disconnectTwilio}`
+            }
+            console.log("Apipath fr disconnect twilio is", ApiPath);
+            let ApiData = {};
+            if (selectedUser) {
+                ApiData = {
+                    userId: selectedUser.id
+                }
+            }
+            console.log("Api data in disconnect twilio is", ApiData);
+            const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     "Authorization": "Bearer " + token,
                     // "Content-Type": "application/json"
@@ -173,14 +210,21 @@ const TwilioTrustHub = ({selectedUser}) => {
         }
     }
 
+    // isFreePlan ? (
+    //     <TwillioUpgradeView />
+    // ) : (
+
+    // )
     return (
         <div
-            className="w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto"
+            className={`${!isFromAgency ? "w-full flex flex-col items-start px-8 py-2 h-screen overflow-y-auto" : "w-full"}`
+            }
             style={{
                 paddingBottom: "50px",
                 scrollbarWidth: "none", // For Firefox
                 WebkitOverflowScrolling: "touch",
-            }}>
+            }
+            }>
 
             <AgentSelectSnackMessage
                 type={showSnack.type}
@@ -209,6 +253,8 @@ const TwilioTrustHub = ({selectedUser}) => {
                                 profileStatus={profileStatus}
                                 disconnectLoader={disconnectLoader}
                                 handleDisconnectTwilio={handleDisconnectTwilio}
+                                isFromAgency={isFromAgency}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         <div className='w-full mt-4'>
@@ -217,11 +263,9 @@ const TwilioTrustHub = ({selectedUser}) => {
                                 twilioHubData={twilioHubData?.cnam}
                                 trustProducts={twilioHubData?.trustProducts}
                                 // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => {
-                                    console.log("should triger the api to get business profile after cnam added");
-                                    getBusinessProfile(true)//testing pass true
-                                }}
+                                getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         <div className='w-full mt-4'>
@@ -230,11 +274,9 @@ const TwilioTrustHub = ({selectedUser}) => {
                                 twilioHubData={twilioHubData?.shakenStir}
                                 trustProducts={twilioHubData?.trustProducts}
                                 // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => {
-                                    console.log("should triger the api to get business profile after shaken stir added");
-                                    getBusinessProfile();
-                                }}
+                                getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         <div className='w-full mt-4'>
@@ -243,11 +285,9 @@ const TwilioTrustHub = ({selectedUser}) => {
                                 twilioHubData={twilioHubData?.voiceIntegrity}
                                 trustProducts={twilioHubData?.trustProducts}
                                 // getProfileData={getBusinessProfile}
-                                getProfileData={(d) => {
-                                    console.log("should triger the api to get business profile after voice added");
-                                    getBusinessProfile();
-                                }}
+                                getProfileData={(d) => { getBusinessProfile() }}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
                         {/*<div className='w-full mt-4'>
@@ -258,26 +298,9 @@ const TwilioTrustHub = ({selectedUser}) => {
                                 // twilioHubData={twilioHubData?.voiceIntegrity}
                                 businessProfileData={twilioHubData?.profile}
                                 profileStatus={profileStatus}
+                                selectedUser={selectedUser}
                             />
                         </div>
-                        <div className="w-full flex flex-row items-center justify-end mt-6 gap-4">
-                            <button
-                                className='text-[15px] font-[500] text-purple outline-none border-none cursor-pointer'
-                                onClick={() => { setIntroVideoModal2(true) }}
-                            >
-                                Learn more about Twilio Trust Hub
-                            </button>
-                            <Image src="/otherAssets/playIcon.jpg" alt="info" width={10} height={10} className="cursor-pointer"
-                            // onClick={() => setIntroVideoModal2(true)}
-                            />
-                        </div>
-                        {/* Intro modal */}
-                        <IntroVideoModal
-                            open={introVideoModal2}
-                            onClose={() => setIntroVideoModal2(false)}
-                            videoTitle="Learn how to add Twilio Trust Hub"
-                            videoUrl={HowtoVideos.TwilioTrustHub}
-                        />
                     </div>
                 )
             }
