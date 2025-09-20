@@ -27,7 +27,7 @@ function TwillioUpgradeView() {
 
     const fetchLocalUserData = (attempt = 1, maxAttempts = 5) => {
 
-        const localStorageUser = localStorage.getItem("user");
+        const localStorageUser = localStorage.getItem("User");
 
         if (localStorageUser) {
             try {

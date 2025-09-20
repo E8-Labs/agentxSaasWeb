@@ -52,7 +52,7 @@ function UpgardView({
             return;
         }
 
-        const localStorageUser = localStorage.getItem("user");
+        const localStorageUser = localStorage.getItem("User");
 
         if (localStorageUser) {
             try {
