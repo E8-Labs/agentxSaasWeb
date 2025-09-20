@@ -108,13 +108,30 @@ function UpgardView({
                 />
             </div>
 
+            {
+                showUnlockPremiumFeaturesBtn && (
+                    <div
+                        className='font-semibold text-center'
+                        style={{
+                            fontSize: "clamp(17px, 22px, 26px)",
+                        }}
+                    >
+                        Contact Your Agency
+                    </div>
+                )}
             <div
                 className='font-semibold text-center'
                 style={{
                     fontSize: "clamp(10px, 14vw, 18px)",
                 }}
             >
-                {title}
+                {
+                    showUnlockPremiumFeaturesBtn ? (
+                        "Unlock Premium Features"
+                    ) : (
+                        title
+                    )
+                }
             </div>
             <div
                 className='font-normal text-center w-full sm:w-[85%] md:w-[75%] leading-relaxed max-w-2xl'
@@ -123,7 +140,16 @@ function UpgardView({
                     lineHeight: "1.5"
                 }}
             >
-                {subTitle}
+                {
+                    showUnlockPremiumFeaturesBtn ? (
+                        <div>
+                            This feature is only available on premium plans.<br />
+                            Your agency will need to enable this for you. You can request this below.
+                        </div>
+                    ) : (
+                        subTitle
+                    )
+                }
             </div>
 
             {
