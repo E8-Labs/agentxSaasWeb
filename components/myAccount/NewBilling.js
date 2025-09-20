@@ -1483,20 +1483,18 @@ function NewBilling() {
             {/* code for current plans available */}
             <div className="w-full flex flex-row items-center justify-between">
                 <Link
-                    href="/plans"
-                    underline="none"
-                    sx={{
-                        mt: 4,
-                        display: 'flex',
-                        px: 3,
-                        py: 1.5,
+                    href="/plan"
+                    className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline"
+                    style={{
                         color: '#7902DF',
-                        fontSize: 12,
-                        fontWeight: 600,
                         width: 'fit-content',
-                        cursor: 'pointer',
-                        whitespace: 'nowrap',
+                        textDecoration: 'none',
+                        whiteSpace: 'nowrap',
+                        fontWeight: 600,
+                        fontSize: 12,
                         borderRadius: '9999px',
+                        display: 'flex',
+                        alignItems: 'center'
                     }}
                 >
                     View Details

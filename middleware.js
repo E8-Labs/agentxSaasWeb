@@ -93,7 +93,8 @@ export function middleware(request) {
   // ✅ UPDATE: Skip redirect enforcement for certain paths
   if (
     pathname.startsWith("/createagent") ||
-    pathname.startsWith("/pipeline")
+    pathname.startsWith("/pipeline") ||
+    pathname.startsWith("/plan")
   ) {
     return NextResponse.next();
   }
