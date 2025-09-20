@@ -999,6 +999,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       <UpgardView
                         title={"Enable Live Transfer"}
                         subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
+                        userData={userData}
                       />
                     </div>
                   </div>

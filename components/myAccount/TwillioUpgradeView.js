@@ -8,7 +8,55 @@ import UpgradePlan from '../userPlans/UpgradePlan'
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 function TwillioUpgradeView() {
-    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] = useState(false);
+    //store local user data
+    let localUserData = null;
+
+    useEffect(() => {
+        fetchLocalUserData();
+        const Data = localUserData?.agencyCapabilities
+        if (localUserData?.userRole === "AgencySubAccount") {
+            if (title === "Enable Live Transfer") {
+                if (!Data?.allowTwilioIntegration) {
+                    setShowUnlockPremiumFeaturesBtn(true);
+                }
+            }
+        }
+    }, [localUserData]);
+
+    const fetchLocalUserData = (attempt = 1, maxAttempts = 5) => {
+
+        const localStorageUser = localStorage.getItem("user");
+
+        if (localStorageUser) {
+            try {
+                const Data = JSON.parse(localStorageUser);
+                localUserData = Data?.user;
+
+                if (localUserData) {
+                    console.log(`✅ Successfully fetched local data on attempt ${attempt}`);
+                    return;
+                } else {
+                    console.warn(`⚠️ localStorage "user" found but invalid on attempt ${attempt}`);
+                }
+            } catch (error) {
+                console.error(`❌ JSON parse failed on attempt ${attempt}:`, error);
+            }
+        } else {
+            console.warn(`⚠️ No localStorage "user" found on attempt ${attempt}`);
+        }
+
+        // Retry if not found and attempts remain
+        if (attempt < maxAttempts) {
+            console.log(`⏳ Retrying... attempt ${attempt + 1} in 300ms`);
+            setTimeout(() => fetchLocalUserData(attempt + 1, maxAttempts), 300);
+        } else {
+            console.error("❌ Max attempts reached. Could not fetch local data.");
+        }
+    };
+
+
     return (
         <div className='flex flex-col items-center h-full'>
             <div className='flex flex-col items-start w-full p-6'>
@@ -36,15 +84,29 @@ function TwillioUpgradeView() {
                 </div>
 
                 <div className='text-base font-normal text-center'>
-                    Import your Twilio phone numbers and access all <br/> Trust Hub features to increase answer rate.
+                    Import your Twilio phone numbers and access all <br /> Trust Hub features to increase answer rate.
                 </div>
 
-                <button
-                    className='px-6 py-3 rounded-lg bg-purple text-base font-semibold text-white'
-                    onClick={() => setShowUpgradeModal(true)}
-                >
-                    Upgrade
-                </button>
+                {
+                    showUnlockPremiumFeaturesBtn ? (
+                        <button
+                            className='px-6 py-3 rounded-lg bg-purple text-base font-semibold text-white'
+                            onClick={() => {
+                                alert("Request Feature from Agency")
+                                console.warn("Request Feature from Agency")
+                            }}
+                        >
+                            Request Feature
+                        </button>
+                    ) : (
+                        <button
+                            className='px-6 py-3 rounded-lg bg-purple text-base font-semibold text-white'
+                            onClick={() => setShowUpgradeModal(true)}
+                        >
+                            Upgrade
+                        </button>
+                    )
+                }
             </div>
 
             {/* Upgrade Plan Modal */}
