@@ -39,7 +39,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
   const [searchValue, setSearchValue] = useState("");
 
-  const [activeTab, setActiveTab] = useState("All Calls || Activity Logs");
+  const [activeTab, setActiveTab] = useState(isFromAgency ? "Activity Logs" : "All Calls");
 
 
   const [callDetails, setCallDetails] = useState([]);
@@ -501,11 +501,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className="w-full">
-        {activeTab === "Call Activities" || "Activity" ? (
+        {activeTab === "Call Activities" || activeTab === "Activity" ? (
           <AdminDashboardActiveCall isFromAgency={isFromAgency} />
         ) : activeTab === "Scheduled" ? (
           <AdminDashboardScheduledCalls />
-        ) : activeTab === "All Calls" || activeTab === "Call Activities" ? (
+        ) : activeTab === "All Calls" || activeTab === "Activity Logs" ? (
 
           <div clasSName="w-full">
             <div
@@ -564,7 +564,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         )
                       }
                       <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Account Name</div>
+                        <div style={styles.text}>Test Name</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Agent Name</div>
