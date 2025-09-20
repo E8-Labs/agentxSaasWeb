@@ -125,10 +125,11 @@ const AdminAssignLead = ({
 
       // //console.log;
 
-      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id + "&agentType=outbound";
+      const ApiPath = Apis.getAgents + "?userId=" + userProfile.id + "&agentType=outbound&pipeline=true";
+      console.log("ApiPath of get get agents", ApiPath)
       // return
       const response = await axios.get(ApiPath, {
-        headers: {
+        headers: {  
           Authorization: "Bearer " + AuthToken,
           "Content-Type": "application/json",
         },
@@ -152,7 +153,7 @@ const AdminAssignLead = ({
           );
 
           // Keep the main agent if it has only outbound agents or both inbound and outbound agents
-          return hasOutbound && (!hasInbound || hasInbound);
+          return hasOutbound //&& (!hasInbound || hasInbound);
         });
         setAgentsList(filterredAgentsList);
         console.log(filterredAgentsList)
@@ -452,6 +453,7 @@ const AdminAssignLead = ({
     let filtered = agentsList.filter((item) => {
       return item.pipeline != null && item.stages.length > 0;
     });
+    console.log("filtered agents in GetAgentsActiveInPipelinesAndStages", filtered)
     return filtered;
   }
 
@@ -571,10 +573,10 @@ const AdminAssignLead = ({
         >
           {GetAgentsActiveInPipelinesAndStages().map((item, index) => {
             const noNumberWarning = (mainAgent) => {
-              // console.log(
-              //   "Agent passed is",
-              //   mainAgent?.agents?.map((item) => item.phoneNumber)
-              // );
+              console.log(
+                "Agent passed is",
+                mainAgent?.agents?.map((item) => item.phoneNumber)
+              );
               return mainAgent.agents.map((subAgent, index) => {
                 // Check if the agent is of type 'outbound' and has no phone number
                 if (

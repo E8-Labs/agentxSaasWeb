@@ -181,7 +181,7 @@ const AssignLead = ({
 
       // const ApiPath = Apis.getAgents;
       const offset = agentsList.length;
-      const ApiPath = `${Apis.getAgents}?offset=${offset}&agentType=outbound`
+      const ApiPath = `${Apis.getAgents}?offset=${offset}&agentType=outbound` +  "&agentType=outbound&pipeline=true"
       console.log("Api path is", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
