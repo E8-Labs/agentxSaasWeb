@@ -562,8 +562,10 @@ function SheduledCalls({ user }) {
   // }
 
   function getAgentNameForActiviti(agent) {
-    const agents = agent.agents || [];
-    if (agents.length > 0) {
+    // console.log("agents in getAgentNameForActiviti", agent)
+    const agents = agent?.agents || [];
+
+    if (agents?.length > 0) {
       let name = agents[0]?.name || "-";
 
       if (agents[0].agentType === "outbound") {
