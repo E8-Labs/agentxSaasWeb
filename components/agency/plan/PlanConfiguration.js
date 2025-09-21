@@ -750,7 +750,12 @@ export default function PlanConfiguration({
                     </div>
 
                     {/*Upgrade agency plan*/}
-                    <Modal open={showUpgradePlanPopup}>
+                    <Modal
+                        open={showUpgradePlanPopup}
+                        onClose={() => {
+                            setShowUpgradePlanPopup(false);
+                        }}
+                     >
                         <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                             <AgencyPlans
                                 isFrom={"addPlan"}

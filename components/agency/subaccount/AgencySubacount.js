@@ -404,7 +404,7 @@ function AgencySubacount({
             <input
               style={{ fontSize: 15 }}
               type="text"
-              placeholder="Search by name, email or phone"
+              placeholder="Search by name, status or plan"
               className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
               value={searchValue}
               onChange={(e) => {
