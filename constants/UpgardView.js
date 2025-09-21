@@ -155,7 +155,7 @@ function UpgardView({
             {
                 showUnlockPremiumFeaturesBtn ? (
                     <button
-                        className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl'
+                        className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4'
                         style={{
                             height: "clamp(35px, 45px, 55px)",
                             fontSize: "clamp(10px, 13px, 16px)"
@@ -169,7 +169,7 @@ function UpgardView({
                     </button>
                 ) : (
                     <button
-                        className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl'
+                        className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4'
                         style={{
                             height: "clamp(35px, 45px, 55px)",
                             fontSize: "clamp(10px, 13px, 16px)"
