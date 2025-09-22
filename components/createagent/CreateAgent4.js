@@ -24,14 +24,16 @@ import VideoCard from "./VideoCard";
 import IntroVideoModal from "./IntroVideoModal";
 import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
-import { AuthToken } from "../agency/plan/AuthDetails";
-import { getUserLocalData } from "../constants/constants";
 import UpgardView from "@/constants/UpgardView";
+import { useUser } from "@/hooks/redux-hooks";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
   const router = useRouter();
   const selectRef = useRef(null);
+  
+  // Redux user state
+  const { user: userData, token } = useUser();
 
   //agent type
   const [agentType, setAgentType] = useState("");
@@ -69,15 +71,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [shouldContinue, setShouldContinue] = useState(true);
   const [errorMessage, setErrorMessage] = useState(false);
   const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
-
-  const [userData, setUserData] = useState(null)
-
-  useEffect(() => {
-    let data = getUserLocalData()
-    if (data) {
-      setUserData(data.user)
-    }
-  }, [])
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
@@ -227,14 +220,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // //console.log;
 
       setReassignLoader(item);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      // Use Redux token instead of localStorage
+      if (!token) {
+        console.error("No token available");
+        setReassignLoader(null);
+        return;
+      }
       const agentDetails = localStorage.getItem("agentDetails");
       let MyAgentData = null;
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
 
       if (agentDetails) {
         // //console.log;
@@ -260,7 +253,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + token,
           "Content-Type": "application/json",
         },
       });
@@ -349,7 +342,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const getAvailabePhoneNumbers = async () => {
     try {
       console.log("Trigered the get numbers api");
-      const token = AuthToken();
+      // Use Redux token instead of AuthToken()
+      if (!token) {
+        console.error("No token available");
+        return;
+      }
 
       let userId = null;
       const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
@@ -403,14 +400,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     // const isInboundOnly = isInboundOnly()
     try {
       setAssignLoader(true);
-      let AuthToken = null;
-      const LocalData = localStorage.getItem("User");
+      // Use Redux token instead of localStorage
+      if (!token) {
+        console.error("No token available");
+        setAssignLoader(false);
+        return;
+      }
       let MyAgentData = null;
       const agentDetails = localStorage.getItem("agentDetails");
-      if (LocalData) {
-        const UserDetails = JSON.parse(LocalData);
-        AuthToken = UserDetails.token;
-      }
 
       if (agentDetails) {
         // //console.log;
@@ -438,7 +435,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // return;
       const response = await axios.post(ApiPath, formData, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: "Bearer " + token,
         },
       });
 
@@ -999,8 +996,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       <UpgardView
                         title={"Enable Live Transfer"}
                         subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
-                        userData={userData}
-                      />
+                        userData={userData} 
+                        // handleContinue={handleContinue}
+                        />
                     </div>
                   </div>
                 )

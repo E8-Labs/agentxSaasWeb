@@ -12,8 +12,11 @@ import YearlyPlanModal from './YearlyPlanModal';
 import Apis from '../apis/Apis';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import getProfileDetails from '../apis/GetProfile';
+import { useUser } from '@/hooks/redux-hooks';
 
-function UserPlans({ handleContinue, handleBack,from = ""}) {
+
+function UserPlans({ handleContinue, handleBack, from = "" }) {
 
     const router = useRouter();
 
@@ -23,6 +26,9 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
             ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
             : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
     const stripePromise = loadStripe(stripePublickKey);
+
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
+
 
 
     const duration = [
@@ -74,6 +80,33 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
         // handleSubscribePlan()
     };
 
+    // Function to refresh user data after plan upgrade
+    const refreshUserData = async () => {
+        try {
+            // console.log('🔄 [CREATE-AGENT] Refreshing user data after plan upgrade...');
+            const profileResponse = await getProfileDetails();
+
+            if (profileResponse?.data?.status === true) {
+                const freshUserData = profileResponse.data.data;
+                const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+
+                console.log('🔄 [User plans] Fresh user data received after upgrade');
+                // Update Redux with fresh data
+                setReduxUser({
+                    token: localData.token,
+                    user: freshUserData
+                });
+
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('🔴 [User plans] Error refreshing user data:', error);
+            return false;
+        }
+    };
+
     //function to subscribe plan
     const handleSubscribePlan = async () => {
         try {
@@ -109,6 +142,7 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
                 if (response.data.status === true) {
+                    await refreshUserData();
                     if (from === "dashboard") {
                         router.push("/dashboard")
                         console.log('route to dashboard')
@@ -212,11 +246,11 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
         setAddPaymentPopUp(true);
     };
 
-    const handleContinueMonthly =async () => {
+    const handleContinueMonthly = async () => {
         // Proceed with monthly plan
-       
+
         if (!selectedMonthlyPlan.discountPrice) {
-           await handleSubscribePlan()
+            await handleSubscribePlan()
         } else {
             setAddPaymentPopUp(true);
         }
@@ -445,8 +479,15 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
             <Elements stripe={stripePromise}>
                 <UpgradePlan
                     open={showUpgradePlanPopup}
-                    handleClose={() => {
-                        setShowUpgradePlanPopup(false)
+                    handleClose={async (result) => {
+                        setShowUpgradePlanPopup(false);
+                        if (result) {
+                            // console.log('🎉 [CREATE-AGENT] Plan upgraded successfully');
+                            // Refresh user data after upgrade to get new plan capabilities
+                            await refreshUserData();
+                            
+                            handleContinue()
+                        }
                     }}
 
                 />

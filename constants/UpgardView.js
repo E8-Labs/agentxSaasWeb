@@ -1,4 +1,6 @@
+import getProfileDetails from '@/components/apis/GetProfile';
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import { useUser } from '@/hooks/redux-hooks';
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js';
 import Image from 'next/image'
@@ -7,7 +9,8 @@ import React, { useEffect, useState } from 'react'
 function UpgardView({
     title,
     subTitle,
-    userData
+    userData,
+    // handleContinue
 }) {
 
     let stripePublickKey =
@@ -18,6 +21,7 @@ function UpgardView({
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false);
     const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] = useState(false);
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
     //store local user data
     let localUserData = null;
 
@@ -78,6 +82,34 @@ function UpgardView({
             setTimeout(() => fetchLocalUserData(attempt + 1, maxAttempts), 300);
         } else {
             console.error("❌ Max attempts reached. Could not fetch local data.");
+        }
+    };
+
+
+      // Function to refresh user data after plan upgrade
+      const refreshUserData = async () => {
+        try {
+            // console.log('🔄 [CREATE-AGENT] Refreshing user data after plan upgrade...');
+            const profileResponse = await getProfileDetails();
+
+            if (profileResponse?.data?.status === true) {
+                const freshUserData = profileResponse.data.data;
+                const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+
+                console.log('🔄 [Upgrade view] Fresh user data received after upgrade');
+                // Update Redux with fresh data
+                setReduxUser({
+                    token: localData.token,
+                    user: freshUserData
+                });
+
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('🔴 [Upgrade view] Error refreshing user data:', error);
+            return false;
         }
     };
 
@@ -187,8 +219,10 @@ function UpgardView({
             <Elements stripe={stripePromise}>
                 <UpgradePlan
                     open={showUpgradePlanPopup}
-                    handleClose={() => {
+                    handleClose={async () => {
+                        await refreshUserData();
                         setShowUpgradePlanPopup(false)
+                        // handleContinue()
                     }}
 
 
