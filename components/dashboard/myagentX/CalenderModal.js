@@ -8,6 +8,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnac
 import axios from "axios";
 import { Scopes } from "./Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
+import { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 function CalendarModal(props) {
   const {
@@ -42,6 +43,7 @@ function CalendarModal(props) {
   //stores google auth details //token, id, etc;
 
   const [googleAuthDetails, setGoogleAuthDetails] = useState(null);
+  const [googleConnectCalendarLoader, setGoogleConnectCalendarLoader] = useState(false);
 
   // console.log("Status of ghl loader is", gHLCalenderLoader);
 
@@ -312,11 +314,7 @@ function CalendarModal(props) {
         window.removeEventListener("message", listener);
 
         try {
-          setShowSnack({
-            message: `Loading ...`,
-            type: SnackbarTypes.Loading,
-            isVisible: true
-          })
+          setGoogleConnectCalendarLoader(true);
           const res = await fetch(
             `/api/google/exchange-token?code=${event.data.code}`
           );
@@ -339,6 +337,7 @@ function CalendarModal(props) {
               ...userInfo,
             };
             setGoogleAuthDetails(googleLoginData);
+            setGoogleConnectCalendarLoader(false);
             // console.log("Google login details are", googleLoginData);
 
             // handleGoogleCalLogin({
@@ -347,6 +346,7 @@ function CalendarModal(props) {
             // });
           }
         } catch (err) {
+          setGoogleConnectCalendarLoader(false);
           console.error("Google OAuth error:", err);
         }
       }
@@ -420,13 +420,9 @@ function CalendarModal(props) {
             });
           }}
         />
-        <button className="flex self-end"
-          onClick={onClose}
-        >
-          <Image src={'/otherAssets/crossIcon.png'}
-            height={30} width={30} alt="*"
-          />
-        </button>
+        <div className="flex self-end">
+          <CloseBtn2 onClick={onClose} />
+        </div>
         <h2 className="text-lg font-semibold mb-4">
           Select a Calendar
         </h2>
@@ -440,8 +436,12 @@ function CalendarModal(props) {
               Google Calendar
               {/* <span className="text-gray-500 text-sm">(coming soon)</span> */}
             </p>
-            {googleCalenderLoader ? (
-              <CircularProgress size={45} />
+            {(googleCalenderLoader || googleConnectCalendarLoader) ? (
+              <div className="
+              text-purple border w-11/12 rounded border rounded-lg
+              flex items-center justify-center h-[31vh]">
+                <CircularProgress size={45} />
+              </div>
             ) : (
               <button
                 // disabled={true}
@@ -1012,22 +1012,14 @@ function CalendarModal(props) {
               }}>
                 Add Google Calendar
               </div>
-              <button
-                className="outline-none"
+              <CloseBtn2
                 onClick={() => {
                   setShowAddNewGoogleCalender(false);
                   setCalenderTitle("");
                   setSelectTimeZone("");
                   setSelectedTimeDurationLocal("");
                 }}
-              >
-                <Image
-                  src={"/assets/blackBgCross.png"}
-                  height={20}
-                  width={20}
-                  alt="*"
-                />
-              </button>
+              />
             </div>
 
             <div

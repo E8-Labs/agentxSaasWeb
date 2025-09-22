@@ -20,3 +20,21 @@ const CloseBtn = ({ onClick, showWhiteCross }) => {
 }
 
 export default CloseBtn
+
+export const CloseBtn2 = ({ onClick }) => {
+    return (
+        <div>
+            <button
+                className="outline-none"
+                onClick={onClick}
+            >
+                <Image
+                    src={"/assets/blackBgCross.png"}
+                    height={20}
+                    width={20}
+                    alt="*"
+                />
+            </button>
+        </div>
+    )
+}
