@@ -38,10 +38,12 @@ function CalendarModal(props) {
   const [showAddNewCalender, setShowAddNewCalender] = useState(false);
   const [showAddNewGoogleCalender, setShowAddNewGoogleCalender] = useState(false);
   const [showAddNewGHLCalender, setShowAddNewGHLCalender] = useState(false);
+  const [gHLConnectLoader, setGHLConnectLoader] = useState(false);
 
   //stores google auth details //token, id, etc;
 
   const [googleAuthDetails, setGoogleAuthDetails] = useState(null);
+  const [googleConnectLoader, setGoogleConnectLoader] = useState(false);
 
   console.log("Status of ghl loader ", gHLCalenderLoader);
 
@@ -304,11 +306,12 @@ function CalendarModal(props) {
         window.removeEventListener("message", listener);
 
         try {
-          setShowSnack({
-            message: `Loading ...`,
-            type: SnackbarTypes.Loading,
-            isVisible: true
-          })
+          // setShowSnack({
+          //   message: `Loading ...`,
+          //   type: SnackbarTypes.Loading,
+          //   isVisible: true
+          // })
+          setGoogleConnectLoader(true);
           const res = await fetch(
             `/api/google/exchange-token?code=${event.data.code}`
           );
@@ -331,6 +334,7 @@ function CalendarModal(props) {
               ...userInfo,
             };
             setGoogleAuthDetails(googleLoginData);
+            setGoogleConnectLoader(false);
             // console.log("Google login details are", googleLoginData);
 
             // handleGoogleCalLogin({
@@ -340,6 +344,7 @@ function CalendarModal(props) {
           }
         } catch (err) {
           console.error("Google OAuth error:", err);
+          setGoogleConnectLoader(false);
         }
       }
     };
@@ -431,8 +436,14 @@ function CalendarModal(props) {
             }}>
               Google Calendar
             </p>
-            {googleCalenderLoader ? (
-              <CircularProgress size={45} />
+            {(googleCalenderLoader || googleConnectLoader) ? (
+              <div
+                className="
+              text-purple border w-11/12 rounded border rounded-lg
+              flex items-center justify-center h-[31vh]"
+              >
+                <CircularProgress size={45} />
+              </div>
             ) : (
               <button
                 // disabled={true}
