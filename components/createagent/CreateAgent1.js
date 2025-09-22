@@ -89,7 +89,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const getSelectedUser = () => {
     let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
     if (U) {
+      console.log("found selected user")
       setSelectedUser(JSON.parse(U))
+    }else{
+    console.log("slected user not found")
     }
   }
 
