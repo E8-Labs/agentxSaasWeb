@@ -180,17 +180,28 @@ const Pipeline1 = ({ handleContinue }) => {
   const getPipelines = async () => {
     try {
       console.log("Trigered getpipelines")
-      const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+
+      let selectedUserLocalData = localStorage.getItem("selectedUser")
+      if (!selectedUserLocalData) {
+        selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      }
+      // const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
       let selectedUser = null;
       console.log("Selected user local data is", selectedUserLocalData);
       if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
         selectedUser = JSON.parse(selectedUserLocalData);
-        // console.log("Selected user details are", selectedUser);
+        console.log("Selected user details are", selectedUser);
       }
       let ApiPath = Apis.getPipelines + "?liteResource=true"
 
-      if(selectedUser){
-        ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
+      if (selectedUser) {
+        // ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
+        if (selectedUser?.subAccountData?.id) {
+          ApiPath = ApiPath + "&userId=" + selectedUser?.subAccountData?.id;
+        } else {
+          ApiPath = ApiPath + "&userId=" + selectedUser?.id;
+        }
+
       }
 
       console.log("ApiPath is", ApiPath);
