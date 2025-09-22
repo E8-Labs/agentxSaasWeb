@@ -88,11 +88,12 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const getSelectedUser = () => {
     let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    console.log("selected user in localstorage is", U)
     if (U) {
       console.log("found selected user")
       setSelectedUser(JSON.parse(U))
     }else{
-    console.log("slected user not found")
+      console.log("slected user not found")
     }
   }
 
@@ -518,7 +519,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       //code for sending the user  id if from agency subaccount flow
       let userId = null;
 
-      if (selectedUser) {
+      if (selectedUser ) {
 
         console.log("Subaccount data recieved on createagent_1 screen is", selectedUser);
         userId = selectedUser.subAccountData.id;

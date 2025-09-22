@@ -380,10 +380,10 @@ function UpgradePlanContent({
         const checkScreenHeight = () => {
             setIsSmallScreen(window.innerHeight < 800);
         };
-        
+
         checkScreenHeight();
         window.addEventListener('resize', checkScreenHeight);
-        
+
         return () => window.removeEventListener('resize', checkScreenHeight);
     }, []);
 
@@ -799,14 +799,14 @@ function UpgradePlanContent({
                             minHeight: "60vh"
                         }}
                     >
-                        <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
+                        <div className="flex flex-row justify-end w-full items-center pe-5 pt-2">
                             <button onClick={() => {
                                 handleClose()
                             }}>
                                 <Image
                                     src={"/assets/crossIcon.png"}
-                                    height={40}
-                                    width={40}
+                                    height={23}
+                                    width={23}
                                     alt="*"
                                 />
                             </button>
@@ -837,7 +837,7 @@ function UpgradePlanContent({
                                 />
                             </div>
 
-                            <div className={`flex flex-col w-[75%] md:h-[100%] h-[100%] items-start flex-1 px-6 py-2 ${isSmallScreen ? 'overflow-auto' : 'md:overflow-none'}`}
+                            <div className={`flex flex-col w-[75%] md:h-[100%] h-[100%] items-start flex-1 px-6  ${isSmallScreen ? 'overflow-auto' : 'md:overflow-none'}`}
                                 style={{
                                     maxHeight: isSmallScreen ? 'calc(100vh - 120px)' : 'none',
                                     scrollbarWidth: 'none'
@@ -845,23 +845,16 @@ function UpgradePlanContent({
                             >
 
                                 {/* Header Section */}
-                                <div className='w-full -mt-4'>
-                                    <div className='text-xl font-[600] mb-2'>
-                                        Upgrade Your Plan
-                                    </div>
-                                    <div className='text-[15px] font-semibold'>
-                                        Upgrade for premium features and support
-                                    </div>
-                                </div>
 
-                                {/* Content Section */}
-                                <div className='w-full flex-1'
-                                    style={{
-                                        scrollbarWidth: 'none',
-                                        overflowY: isSmallScreen ? 'auto' : 'visible',
-                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none'
-                                    }}
-                                >
+                                <div className='flex flex-row justify-between mt-2 w-full'>
+                                    <div className='w-full '>
+                                        <div className='text-xl font-[600] mb-1'>
+                                            Upgrade Your Plan
+                                        </div>
+                                        <div className='text-[15px] font-semibold'>
+                                            Upgrade for premium features and support
+                                        </div>
+                                    </div>
 
                                     <div className='w-full flex flex-row items-end justify-end'>
 
@@ -907,6 +900,19 @@ function UpgradePlanContent({
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+
+
+                                {/* Content Section */}
+                                <div className='w-full flex-1'
+                                    style={{
+                                        scrollbarWidth: 'none',
+                                        overflowY: isSmallScreen ? 'auto' : 'visible',
+                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none'
+                                    }}
+                                >
+
+
 
 
                                     <div className='text-lg font-semibold'>
@@ -1063,7 +1069,7 @@ function UpgradePlanContent({
                                         {/* Only show Order Summary if a plan is selected */}
                                         {currentSelectedPlan && (
                                             <div className={`w-[50%] flex flex-col items-start ${haveCards ? "text-black" : "text-[#8a8a8a]"}`}>
-                                                <div className=' text-xl font-semibold '>   
+                                                <div className=' text-xl font-semibold '>
                                                     Order Summary
                                                 </div>
                                                 <div className="flex flex-row items-start justify-between w-full mt-6">
@@ -1108,15 +1114,7 @@ function UpgradePlanContent({
                                                 )}
 
                                                 <div className='w-full h-[1px] bg-gray-200 my-2'></div>
-                                                {/* Total Section - Inside Order Summary */}
-                                                <div className='flex flex-row w-full justify-between items-center mt-1'>
-                                                    <div className=" text-3xl font-semibold  ">
-                                                        Total:
-                                                    </div>
-                                                    <div className=" text-3xl font-semibold  ">
-                                                        {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
-                                                    </div>
-                                                </div>
+
                                             </div>
                                         )}
                                     </div>
@@ -1177,7 +1175,19 @@ function UpgradePlanContent({
                                 </div>
 
                                 {/* Upgrade Button - Fixed at bottom with equal padding */}
-                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3'>
+                                {/* Total Section - Inside Order Summary */}
+                                <div className='flex w-full'>
+                                    <div className='w-1/2 '></div>
+                                    <div className='flex flex-row w-1/2 justify-between items-center mt-1 ps-4'>
+                                        <div className=" text-3xl font-semibold  ">
+                                            Total:
+                                        </div>
+                                        <div className=" text-3xl font-semibold  ">
+                                            {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3 pb-2'>
                                     {
                                         subscribeLoader ? (
                                             <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">

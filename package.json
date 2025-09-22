@@ -2,6 +2,10 @@
   "name": "agentx",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22.14.0",
+    "npm": ">=11.5.2"
+  },
   "scripts": {
     "dev": "next dev",
     "start": "next start",
