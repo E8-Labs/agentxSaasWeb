@@ -208,7 +208,6 @@ const Userleads = ({
   //render status
   const isFirstRender = useRef(true);
 
-  const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
 
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null);
@@ -254,15 +253,9 @@ const Userleads = ({
   const [selectedPipeline, setSelectedPipeline] = useState("");
   const filterRef = useRef(null);
 
-  const [user, setUser] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-
-
-  useEffect(() => {
-    let data = getUserLocalData()
-    setUser(data.user)
-  }, [])
+  // User data is now available from Redux
 
   const handleChange = (event) => {
     const selectedValue = event.target.value;
@@ -2146,7 +2139,7 @@ const Userleads = ({
                   style={styles.paragraph}
                   // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
-                    if (user?.planCapabilities.maxLeads > user?.currentUsage.maxLeads) {
+                    if (reduxUser?.planCapabilities.maxLeads > reduxUser?.currentUsage.maxLeads) {
 
                       handleShowAddLeadModal(true);
                     } else {

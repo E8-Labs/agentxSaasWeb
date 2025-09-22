@@ -27,7 +27,7 @@ import TagsInput from "./TagsInput";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "./AgentSelectSnackMessage";
-import { getUserLocalData, SnackMessageTitles } from "@/components/constants/constants";
+import { SnackMessageTitles } from "@/components/constants/constants";
 import IntroVideoModal from "@/components/createagent/IntroVideoModal";
 import VideoCard from "@/components/createagent/VideoCard";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
@@ -125,14 +125,8 @@ const Leads1 = () => {
   const [totalBatches, setTotalBatches] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const [user, setUser] = useState(null); 
-
-  useEffect(()=>{
-    let data = getUserLocalData()
-    if(data){
-      setUser(data.user)
-    }
-  },[])
+  // Get user data from Redux
+  const { user, token, getAuthHeaders } = useUser();
 
 
   // //test code
@@ -690,12 +684,8 @@ const Leads1 = () => {
 
     setLoader(true);
 
-    const localData = localStorage.getItem("User");
-    let AuthToken = null;
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      AuthToken = UserDetails.token;
-    }
+    // Use Redux token
+    const AuthToken = token;
 
     const ApiPath = Apis.createLead;
     const BATCH_SIZE = 250
@@ -734,7 +724,7 @@ const Leads1 = () => {
       tagsValue: resumeData?.tags || tagsValue,
       enrich: resumeData?.enrich ?? isEnrichToggle,
       startIndex,
-      AuthToken,
+      token, // Use Redux token instead of AuthToken
       setUploading,
       setUploadProgress,
       setCurrentBatch,
@@ -845,12 +835,8 @@ const Leads1 = () => {
     try {
       setShowaddCreateListLoader(true);
 
-      const localData = localStorage.getItem("User");
-      let AuthToken = null;
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
-      }
+      // Use Redux token
+      const AuthToken = token;
 
       // //console.log;
 
@@ -918,7 +904,6 @@ const Leads1 = () => {
   //   setIsEnrich(checked);
   // };
 
-  const { user: reduxUser} = useUser();
 
   return (
     <div className="w-full">
@@ -978,7 +963,7 @@ const Leads1 = () => {
           ) : (
             <div className="h-screen">
               <div className = "p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-                {`${reduxUser?.currentUsage?.maxLeads}/ ${reduxUser?.planCapabilities?.maxLeads >= 100000000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxLeads || 0}`} used`}
+                {`${user?.currentUsage?.maxLeads || 0}/${user?.planCapabilities?.maxLeads >= 100000000 ? "Unlimited" : `${user?.planCapabilities?.maxLeads || 0}`} used`}
               </div>
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image

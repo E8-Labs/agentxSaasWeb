@@ -9,7 +9,7 @@ export const uploadBatchSequence = async ({
   tagsValue,
   enrich,
   startIndex,
-  AuthToken,
+  token, // Changed from AuthToken to token
   setUploading,
   setUploadProgress,
   setCurrentBatch,
@@ -34,7 +34,7 @@ export const uploadBatchSequence = async ({
         enrich
       }, {
         headers: {
-          Authorization: "Bearer " + AuthToken,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         }
       });
