@@ -858,35 +858,35 @@ function UpgradePlanContent({
 
                                     <div className='w-full flex flex-row items-end justify-end'>
 
-                                        <div className='flex flex-col items-start'>
-                                            <div className='flex flex-row items-center gap-5'>
+                                        <div className='flex flex-col items-center plan-duration-container'>
+                                            {/* Discount labels row */}
+                                            <div className='flex flex-row items-center mb-1' style={{ gap: '8px' }}>
                                                 {
                                                     duration.map((item) => (
-                                                        <div key={item.id}
-                                                            className={`px-1 py-0.5 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
-                                                        >
+                                                        <div key={`discount-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>
                                                             {item.save ? (
-                                                                <div
-                                                                    className={`text-[11px] font-meduim ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
-                                                                >
-                                                                    Save {item.save}
+                                                                <div className={`bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px] rounded-tl-xl rounded-tr-xl px-2 py-0.5`}>
+                                                                    <div
+                                                                        className={`text-[11px] font-medium whitespace-nowrap ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400"}`}
+                                                                    >
+                                                                        Save {item.save}
+                                                                    </div>
                                                                 </div>
                                                             ) : (
-                                                                <div className='w-[4.2vw]'></div>
+                                                                <div style={{ height: '24px' }}></div>
                                                             )}
                                                         </div>
-                                                    ))}
+                                                    ))
+                                                }
                                             </div>
 
-                                            <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-1 py-0.5 rounded-full'>
+                                            {/* Duration buttons row */}
+                                            <div className='flex flex-row items-center border bg-neutral-100 px-1 py-0.5 rounded-full' style={{ gap: '8px' }}>
                                                 {
                                                     duration.map((item) => (
-                                                        <div key={item.id}
-                                                            className='flex-col'
-                                                        >
-
+                                                        <div key={`button-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>
                                                             <button
-                                                                className={`px-1 py-[3px] ${selectedDuration?.id === item.id ? "text-white text-[13px] font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                                className={`px-1 py-[3px] w-full ${selectedDuration?.id === item.id ? "text-white text-[13px] font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
                                                                 onClick={() => {
                                                                     setSelectedDuration(item);
                                                                     // getCurrentPlans();
