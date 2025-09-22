@@ -519,7 +519,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       //code for sending the user  id if from agency subaccount flow
       let userId = null;
 
-      if (selectedUser ) {
+      if (selectedUser && selectedUser?.id) {
 
         console.log("Subaccount data recieved on createagent_1 screen is", selectedUser);
         userId = selectedUser.subAccountData.id;

@@ -42,7 +42,9 @@ function UnlockAgentModal({
                             <div className='w-full flex flex-row items-start justify-end'>
                                 <CloseBtn
                                     onClick={
-                                        handleClose
+                                        ()=> {
+                                            handleClose()
+                                        }
                                     }
                                 />
                             </div>
@@ -92,7 +94,11 @@ function UnlockAgentModal({
 
                             <button className='text-purple mt-4 pb-8'
                                 style={{ fontSize: "15px", fontWeight: "500" }}
-                                onClick={handleClose}
+                                onClick={()=> {
+                                    ()=> {
+                                        handleClose()
+                                    }
+                                }}
                             >
                                 {buttonTitle}
                             </button>

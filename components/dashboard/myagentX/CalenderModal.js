@@ -1130,7 +1130,7 @@ function CalendarModal(props) {
                 textAlign: "start",
               }}
             >
-              Time Duration
+              Time duration
             </div>
 
             <div className="w-full mt-2">
