@@ -109,11 +109,11 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
 
 
   const decideTextToShowForCadenceType = (cadence) => {
-    if(cadence.communicationType === "call") {
+    if (cadence.communicationType === "call") {
       return "thenMake Call"
-    } else if(cadence.communicationType === "email") {
+    } else if (cadence.communicationType === "email") {
       return "then Send Email"
-    } else if(cadence.communicationType === "sms") {
+    } else if (cadence.communicationType === "sms") {
       return "then Send SMS"
     }
   }
@@ -156,198 +156,207 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
       </div>
 
       {/* {selectedAgent?.agentType !== "inbound" && ( */}
-        <div className="w-full">
-          <div className="flex flex-row justify-between items-center mt-4">
-            <div className="" style={{ fontWeight: "700", fontSize: 16.8 }}>
-              Stages
-            </div>
-
-            <button
-              className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-purple text-white px-4"
-              style={{
-                fontWeight: "500",
-                fontSize: 15,
-              }}
-              onClick={() => {
-                console.log("mainAgent details passed are", mainAgent);
-                // return;
-                localStorage.setItem(
-                  PersistanceKeys.LocalSavedAgentDetails,
-                  JSON.stringify(mainAgent)
-                );
-                localStorage.setItem(
-                  PersistanceKeys.selectedUser,
-                  JSON.stringify(selectedUser)
-                );
-                if (agentCadence.length === 0) {
-                  // router.push("/pipeline/update");
-                  window.location.href = "/pipeline/update";
-                  return;
-                }
-                setShowConfirmationPopup(true);
-                // if ((mainAgent.currentOngoingCadence || 0) > 0) {
-                //   setMessage({
-                //     message:
-                //       "This agent is assigned to leads, can’t update at this time.",
-                //     type: SnackbarTypes.Warning,
-                //   });
-                //   return;
-                // }
-                //console.log;
-
-                // router.push("/pipeline/update");
-              }}
-            >
-              Update
-              <EditIcon size={20} color="white" />
-            </button>
+      <div className="w-full">
+        <div className="flex flex-row justify-between items-center mt-4">
+          <div className="" style={{ fontWeight: "700", fontSize: 16.8 }}>
+            Stages
           </div>
-          <UpdateCadenceConfirmationPopup
-            showConfirmationPopuup={showConfirmationPopup}
-            setShowConfirmationPopup={setShowConfirmationPopup}
-            onContinue={() => {
-              localStorage.setItem("selectedUser",JSON.stringify(selectedUser))
-              setShowConfirmationPopup(false);
-              console.log("selectedAgent.id", selectedAgent.id);
-              console.log(
-                "selectedAgent.mainAgentId",
-                selectedAgent.mainAgentId
-              );
-              // router.push("/pipeline/update");
-              window.location.href = "/pipeline/update";
+
+          <button
+            className="flex flex-row items-center gap-2 h-[35px] rounded-md bg-purple text-white px-4"
+            style={{
+              fontWeight: "500",
+              fontSize: 15,
             }}
-          />
-          {initialLoader ? (
-            <div className="w-full flex flex-row items-center justify-center">
-              <CircularProgress size={25} />
-            </div>
-          ) : (
-            <div>
-              {agentCadence.map((stage, index) => (
-                <div key={index} className="mt-4">
-                  <div
-                    style={{
-                      border: "1px solid #00000020",
-                      borderRadius: "8px",
-                      padding: 15,
-                    }}
-                  >
-                    <button
-                      onClick={() => toggleStageDetails(stage)}
-                      className="w-full flex flex-row items-center justify-between"
-                    >
-                      <div>{stage?.cadence?.stage?.stageTitle || "-"}</div>
-                      <div>
-                        <div>
-                          {expandedStages.includes(stage?.cadence?.id) ? (
-                            <CaretUp size={20} weight="bold" />
-                          ) : (
-                            <CaretDown size={20} weight="bold" />
-                          )}
-                        </div>
-                      </div>
-                    </button>
-                    {expandedStages.includes(stage?.cadence?.id) && (
-                      <div
-                        style={{
-                          border: "1px solid #00000020",
-                          borderRadius: "5px",
-                          padding: 10,
-                          marginTop: 15,
-                        }}
-                      >
-                        <div
-                          className="flex flex-row items-center gap-8 pl-20"
-                          style={styles.paragraph2}
-                        >
-                          <div className="text-center">Days</div>
-                          <div className="text-center">Hours</div>
-                          <div className="text-center">Mins</div>
-                        </div>
+            onClick={() => {
+              console.log("mainAgent details passed are", mainAgent);
+              // return;
+              localStorage.setItem(
+                PersistanceKeys.LocalSavedAgentDetails,
+                JSON.stringify(mainAgent)
+              );
+              localStorage.setItem(
+                PersistanceKeys.selectedUser,
+                JSON.stringify(selectedUser)
+              );
+              if (agentCadence.length === 0) {
+                // router.push("/pipeline/update");
+                window.location.href = "/pipeline/update";
+                return;
+              }
+              setShowConfirmationPopup(true);
+              // if ((mainAgent.currentOngoingCadence || 0) > 0) {
+              //   setMessage({
+              //     message:
+              //       "This agent is assigned to leads, can’t update at this time.",
+              //     type: SnackbarTypes.Warning,
+              //   });
+              //   return;
+              // }
+              //console.log;
 
-                        {stage.calls.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="flex flex-col gap-2 items-ceter mt-2"
-                            >
-                              <div
-                                className="flex flex-row items-center gap-4"
-                                style={styles.paragraph}
-                              >
-                                <div>Wait</div>
-                                <div
-                                  className="flex flex-row items-center w-[240px]"
-                                  style={{ color: "#00000070" }}
-                                >
-                                  <div
-                                    className="text-center"
-                                    style={{
-                                      width: "33%",
-                                      border: "1px solid #00000020",
-                                      borderTopLeftRadius: "7px",
-                                      borderBottomLeftRadius: "7px",
-                                      padding: 5,
-                                    }}
-                                  >
-                                    {item.waitTimeDays}
-                                  </div>
-                                  <div
-                                    className="text-center"
-                                    style={{
-                                      width: "33%",
-                                      borderBottom: "1px solid #00000020",
-                                      borderTop: "1px solid #00000020",
-                                      padding: 5,
-                                    }}
-                                  >
-                                    {item.waitTimeHours}
-                                  </div>
-                                  <div
-                                    className="text-center"
-                                    style={{
-                                      width: "33%",
-                                      border: "1px solid #00000020",
-                                      borderTopRightRadius: "7px",
-                                      borderBottomRightRadius: "7px",
-                                      padding: 5,
-                                    }}
-                                  >
-                                    {item.waitTimeMinutes}
-                                  </div>
-                                </div>
-                                <div>, {decideTextToShowForCadenceType(item)}</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        <div className="flex flex-row items-center gap-2 mt-4">
-                          <p style={styles.paragraph}>Then move to</p>
-                          <div
-                            className="py-1 text-center px-2 flex flex-col justify-center"
-                            style={{
-                              width: "fit-centent",
-                              backgroundColor: "#15151520",
-                              fontWeight: "500",
-                              fontSize: 15,
-                              height: "33px",
-                              borderRadius: "7px",
-                              border: "1px solid #00000010",
-                            }}
-                          >
-                            {stage?.cadence?.moveToStage?.stageTitle ||
-                              "No stage selected"}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+              // router.push("/pipeline/update");
+            }}
+          >
+            Update
+            <EditIcon size={20} color="white" />
+          </button>
         </div>
+        <UpdateCadenceConfirmationPopup
+          showConfirmationPopuup={showConfirmationPopup}
+          setShowConfirmationPopup={setShowConfirmationPopup}
+          onContinue={() => {
+            localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
+            setShowConfirmationPopup(false);
+            console.log("selectedAgent.id", selectedAgent.id);
+            console.log(
+              "selectedAgent.mainAgentId",
+              selectedAgent.mainAgentId
+            );
+            if (selectedUser) {
+              let u = {
+                user: selectedUser,
+                isFrom: from,
+              }
+
+              localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify(u));
+            }
+            // router.push("/pipeline/update");
+            window.location.href = "/pipeline/update";
+          }
+          }
+        />
+        {initialLoader ? (
+          <div className="w-full flex flex-row items-center justify-center">
+            <CircularProgress size={25} />
+          </div>
+        ) : (
+          <div>
+            {agentCadence.map((stage, index) => (
+              <div key={index} className="mt-4">
+                <div
+                  style={{
+                    border: "1px solid #00000020",
+                    borderRadius: "8px",
+                    padding: 15,
+                  }}
+                >
+                  <button
+                    onClick={() => toggleStageDetails(stage)}
+                    className="w-full flex flex-row items-center justify-between"
+                  >
+                    <div>{stage?.cadence?.stage?.stageTitle || "-"}</div>
+                    <div>
+                      <div>
+                        {expandedStages.includes(stage?.cadence?.id) ? (
+                          <CaretUp size={20} weight="bold" />
+                        ) : (
+                          <CaretDown size={20} weight="bold" />
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                  {expandedStages.includes(stage?.cadence?.id) && (
+                    <div
+                      style={{
+                        border: "1px solid #00000020",
+                        borderRadius: "5px",
+                        padding: 10,
+                        marginTop: 15,
+                      }}
+                    >
+                      <div
+                        className="flex flex-row items-center gap-8 pl-20"
+                        style={styles.paragraph2}
+                      >
+                        <div className="text-center">Days</div>
+                        <div className="text-center">Hours</div>
+                        <div className="text-center">Mins</div>
+                      </div>
+
+                      {stage.calls.map((item, index) => {
+                        return (
+                          <div
+                            key={index}
+                            className="flex flex-col gap-2 items-ceter mt-2"
+                          >
+                            <div
+                              className="flex flex-row items-center gap-4"
+                              style={styles.paragraph}
+                            >
+                              <div>Wait</div>
+                              <div
+                                className="flex flex-row items-center w-[240px]"
+                                style={{ color: "#00000070" }}
+                              >
+                                <div
+                                  className="text-center"
+                                  style={{
+                                    width: "33%",
+                                    border: "1px solid #00000020",
+                                    borderTopLeftRadius: "7px",
+                                    borderBottomLeftRadius: "7px",
+                                    padding: 5,
+                                  }}
+                                >
+                                  {item.waitTimeDays}
+                                </div>
+                                <div
+                                  className="text-center"
+                                  style={{
+                                    width: "33%",
+                                    borderBottom: "1px solid #00000020",
+                                    borderTop: "1px solid #00000020",
+                                    padding: 5,
+                                  }}
+                                >
+                                  {item.waitTimeHours}
+                                </div>
+                                <div
+                                  className="text-center"
+                                  style={{
+                                    width: "33%",
+                                    border: "1px solid #00000020",
+                                    borderTopRightRadius: "7px",
+                                    borderBottomRightRadius: "7px",
+                                    padding: 5,
+                                  }}
+                                >
+                                  {item.waitTimeMinutes}
+                                </div>
+                              </div>
+                              <div>, {decideTextToShowForCadenceType(item)}</div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <div className="flex flex-row items-center gap-2 mt-4">
+                        <p style={styles.paragraph}>Then move to</p>
+                        <div
+                          className="py-1 text-center px-2 flex flex-col justify-center"
+                          style={{
+                            width: "fit-centent",
+                            backgroundColor: "#15151520",
+                            fontWeight: "500",
+                            fontSize: 15,
+                            height: "33px",
+                            borderRadius: "7px",
+                            border: "1px solid #00000010",
+                          }}
+                        >
+                          {stage?.cadence?.moveToStage?.stageTitle ||
+                            "No stage selected"}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       {/* )} */}
     </div>
   );
