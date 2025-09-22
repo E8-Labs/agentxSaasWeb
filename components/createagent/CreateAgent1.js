@@ -68,7 +68,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
-  const [selectedUser,setSelectedUser] = useState(null)
+  const [selectedUser, setSelectedUser] = useState(null)
   const [showMoreAgentsModal, setShowMoreAgentsModal] = useState(false)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [pendingAgentSelection, setPendingAgentSelection] = useState(null) // Track what selection was attempted
@@ -80,18 +80,18 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   // Removed address picker modal - no longer needed
 
-  useEffect(()=>{
-   getSelectedUser()
-  }
-   ,[])
+  useEffect(() => {
+    refreshUserData();
+    getSelectedUser()
+  }, [])
 
 
-   const getSelectedUser = () =>{
-     let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
-    if(U){
+  const getSelectedUser = () => {
+    let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    if (U) {
       setSelectedUser(JSON.parse(U))
     }
-   }
+  }
 
   useEffect(() => {
     setAddress(address?.label);
@@ -321,14 +321,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   //code for selecting inbound calls
   const handleInboundCallClick = () => {
     const newInboundState = !InBoundCalls;
-    
+
     // Always allow toggling OFF
     if (!newInboundState) {
       setInBoundCalls(false);
       setPendingAgentSelection(null);
       return;
     }
-    
+
     // Check limits when toggling ON
     const limitResult = checkAgentLimits('inbound', newInboundState, OutBoundCalls);
     if (limitResult.showModal) {
@@ -347,14 +347,14 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   //code for selecting outbound calls
   const handleOutBoundCallClick = () => {
     const newOutboundState = !OutBoundCalls;
-    
+
     // Always allow toggling OFF
     if (!newOutboundState) {
       setOutBoundCalls(false);
       setPendingAgentSelection(null);
       return;
     }
-    
+
     // Check limits when toggling ON
     const limitResult = checkAgentLimits('outbound', InBoundCalls, newOutboundState);
     if (limitResult.showModal) {
@@ -373,6 +373,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Comprehensive plan checking logic
   const checkAgentLimits = (agentType, wouldHaveInbound, wouldHaveOutbound) => {
     // console.log('🔍 [CREATE-AGENT] Checking agent limits');
+    console.log("Redux user", reduxUser)
 
     // Use Redux as primary source, localStorage as fallback
     const planData = reduxUser?.planCapabilities ? {
@@ -392,17 +393,19 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       costPerAdditionalAgent: user?.user?.planCapabilities?.costPerAdditionalAgent || 10
     };
 
+    console.log("Plan data is", planData)
+
     // Calculate agents that would be created
     let agentsToCreate = 0;
     if (wouldHaveInbound) agentsToCreate++;
     if (wouldHaveOutbound) agentsToCreate++;
-    
+
     // console.log('📊 [CREATE-AGENT] Agent calculation complete');
 
     // FREE PLAN LOGIC
     if (planData.isFreePlan) {
       // console.log('🆓 [CREATE-AGENT] Free plan detected');
-      
+
       // If user already has 1 agent, don't allow any more
       if (planData.currentAgents >= 1) {
         // console.log('🚫 [CREATE-AGENT] Free plan user has reached limit');
@@ -410,7 +413,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         setShowUnclockModal(true);
         return { showModal: true };
       }
-      
+
       // If user is trying to select both types at once on free plan
       if (agentsToCreate > 1) {
         // console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agent types');
@@ -418,27 +421,27 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         setShowUnclockModal(true);
         return { showModal: true };
       }
-      
+
       return { showModal: false };
     }
 
     // PAID PLAN LOGIC
     // console.log('💰 [CREATE-AGENT] Paid plan detected');
-    
+
     // Check if user has already reached their limit
     if (planData.currentAgents >= planData.maxAgents) {
       // console.log('🚫 [CREATE-AGENT] Paid plan user has reached limit');
       setShowMoreAgentsModal(true);
       return { showModal: true };
     }
-    
+
     // Check if the selection would exceed the limit
     if (planData.currentAgents + agentsToCreate > planData.maxAgents) {
       // console.log('🚫 [CREATE-AGENT] Selection would exceed limit');
       setShowMoreAgentsModal(true);
       return { showModal: true };
     }
-    
+
     // console.log('✅ [CREATE-AGENT] Selection allowed');
     return { showModal: false };
   };
@@ -459,25 +462,25 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     try {
       // console.log('🔄 [CREATE-AGENT] Refreshing user data after plan upgrade...');
       const profileResponse = await getProfileDetails();
-      
+
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = JSON.parse(localStorage.getItem("User") || '{}');
-        
+
         // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
-        
+
         // Update Redux with fresh data
         setReduxUser({
           token: localData.token,
           user: freshUserData
         });
-        
+
         // Update local state as well
         setUser({
           token: localData.token,
           user: freshUserData
         });
-        
+
         return true;
       }
       return false;
@@ -513,7 +516,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       let userId = null;
 
       if (selectedUser) {
-       
+
         console.log("Subaccount data recieved on createagent_1 screen is", selectedUser);
         userId = selectedUser.subAccountData.id;
       }
@@ -534,16 +537,16 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         agentType = "outbound";
       }
       formData.append("agentType", agentType);
-      
+
       // Include extra cost agreement information if user agreed to pay additional
       if (hasAgreedToExtraCost) {
         formData.append("hasAgreedToExtraCost", "true");
-        formData.append("extraCostAmount", reduxUser?.planCapabilities?.costPerAdditionalAgent || 
-                                           user?.user?.planCapabilities?.costPerAdditionalAgent || 
-                                           10);
+        formData.append("extraCostAmount", reduxUser?.planCapabilities?.costPerAdditionalAgent ||
+          user?.user?.planCapabilities?.costPerAdditionalAgent ||
+          10);
         // console.log('💰 [CREATE-AGENT] Including extra cost agreement in API call');
       }
-      
+
       if (selectedStatus) {
         if (selectedStatus.id === 5) {
           formData.append("status", otherStatus);
@@ -1014,7 +1017,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <UnlockAgentModal
                   open={showUnclockModal}
                   handleClose={(data) => {
-                    if(data){
+                    if (data) {
                       console.log('data', data)
                       setSelectedUser(data)
                     }
@@ -1023,7 +1026,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   desc={modalDesc}
                 />
 
-                <MoreAgentsPopup 
+                <MoreAgentsPopup
                   open={showMoreAgentsModal}
                   onClose={() => {
                     setShowMoreAgentsModal(false);
@@ -1042,8 +1045,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                     // console.log('💰 [CREATE-AGENT] User chose to add agent with additional cost');
                   }}
                   costPerAdditionalAgent={
-                    reduxUser?.planCapabilities?.costPerAdditionalAgent || 
-                    user?.user?.planCapabilities?.costPerAdditionalAgent || 
+                    reduxUser?.planCapabilities?.costPerAdditionalAgent ||
+                    user?.user?.planCapabilities?.costPerAdditionalAgent ||
                     10
                   }
                 />
@@ -1064,7 +1067,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           // Clear the pending selection and recheck limits
                           const pendingSelection = pendingAgentSelection;
                           setPendingAgentSelection(null);
-                          
+
                           // Apply the selection now that limits have been upgraded
                           setInBoundCalls(pendingSelection.inbound);
                           setOutBoundCalls(pendingSelection.outbound);
