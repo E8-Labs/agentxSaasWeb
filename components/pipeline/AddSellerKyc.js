@@ -764,7 +764,7 @@ const AddSellerKyc = ({
         <div className="h-[62vh]" style={{ scrollbarWidth: "none" }}>
           {/* header */}
           {/* <Header /> */}
-          {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
+          {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
           {/* Body */}
           <div className="flex flex-col items-center px-4 w-full">
             <div

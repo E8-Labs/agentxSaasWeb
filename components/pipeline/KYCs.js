@@ -783,7 +783,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               }}
             >
               <div className="flex flex-row justify-end items-center">
-                {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
+                {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                 <button
                   onClick={() => {
                     setAddSellerKyc(false);
@@ -1202,7 +1202,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
               }}
             >
               <div className="flex flex-row justify-end items-center">
-                {/* <Image src="/assets/agentX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
+                {/* <Image src="/assets/assignX.png" style={{ height: "29px", width: "122px", resize: "contain" }} height={29} width={122} alt='*' /> */}
                 <button
                   onClick={() => {
                     setAddBuyerKyc(false);

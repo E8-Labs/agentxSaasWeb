@@ -14,6 +14,8 @@ const ConfigureSideUI = ({
     basicsData,
     features,
     from,
+    handleClose,
+    handleResetValues,
 }) => {
 
     // console.log("Passed allwoed features are", allowedFeatures);
@@ -28,8 +30,18 @@ const ConfigureSideUI = ({
             }}
         >
             <div className="p-6 flex flex-col items-center h-[100%]">
+                <div className="flex justify-end w-full items-center h-[5%]">
+                    <CloseBtn
+                        // disabled={createPlanLoader}
+                        onClick={() => {
+                            handleClose();
+                            handleResetValues();
+                        }}
+                        showWhiteCross={true}
+                    />
+                </div>
                 <div
-                    className={`${from === "dashboard"? "w-[90%]" : "w-9/12"} h-[95%] flex flex-col items-center justify-start mt-[5vh] overflow-auto scrollbar-hide`}
+                    className={`${from === "dashboard" ? "w-[90%]" : "w-9/12"} h-[95%] flex flex-col items-center justify-start mt-[5vh] overflow-auto scrollbar-hide`}
                     style={{
                         scrollbarWidth: "none",
                         msOverflowStyle: "none",
@@ -66,7 +78,7 @@ const ConfigureSideUI = ({
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px] bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent"
                             >
-                                ${formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
+                                ${from === "dashboard" ? basicsData?.discountedPrice : formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>
                             <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {allowTrial && trialValidForDays ? <span>| {trialValidForDays} Day Free Trial</span> : ""}</button>

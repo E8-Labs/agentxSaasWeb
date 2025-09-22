@@ -51,7 +51,8 @@ function Page() {
     <div className="flex flex-col w-full items-center justify-center py-5 overflow-hidden">
       <div className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12"
       style={{backgroundColor: ''}}>
-        <Image src={"/assets/agentX.png"} height={30} width={130} alt="*"  style={{backgroundColor: ''}}/>
+        <Image src={"/assets/assignX.png"} height={30} width={130} alt="*"  style={{backgroundColor: ''}}/>
+        {/* /assets/agentX.png */}
 
         <div className="w-[100%]">
           <ProgressBar value={currentIndex > 0 ? 100 : 50} />

@@ -1,3 +1,4 @@
+import { PersistanceKeys } from '@/constants/Constants'
 import React, { useEffect } from 'react'
 
 const SubDuration = ({
@@ -71,31 +72,37 @@ export const LanguagesSelection = ({
     setLanguageTitle,
     languageTitle
 }) => {
+
     const languages = [
         {
             id: 1,
             title: "English or Spanish",
             value: "english",
-            label: "English"
+            label: "English and Spanish Compatible"
         },
         {
             id: 2,
             title: "Multilingual",
             value: "multilingual",
-            label: "Spanish"
+            label: "Multilingual Compatible"
         },
     ]
+
+    const languageLabel = {
+        EnglistSpanish: "English and Spanish Compatible",
+        Multilingual: "Multilingual Compatible"
+    }
 
     useEffect(() => {
         console.log("Language to show", selectedLanguage);
         if (selectedLanguage === true) {
             console.log("Select multilingual");
             setLanguage("multilingual")
-            setLanguageTitle("Spanish")
+            setLanguageTitle("Multilingual Compatible")
         } else if (selectedLanguage === false) {
             console.log("Select english");
             setLanguage("english")
-            setLanguageTitle("English")
+            setLanguageTitle("English and Spanish Compatible")
         }
     }, [selectedLanguage])
 

@@ -35,6 +35,7 @@ const SideUI = ({
                             handleClose();
                             handleResetValues();
                         }}
+                        showWhiteCross={true}
                     />
                 </div>
                 <div className="w-9/12 h-[80%] flex flex-col items-center justify-start pt-4">

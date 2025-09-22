@@ -1120,7 +1120,7 @@ return (
         <div className="w-full flex flex-row gap-3 items-center justify-center">
           <div className="w-9/12">
             <Image
-              src={"/assets/agentX.png"}
+              src={"/assets/assignX.png"}
               alt="profile"
               height={33}
               width={140}

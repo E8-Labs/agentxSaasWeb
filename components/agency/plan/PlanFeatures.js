@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Switch, Tooltip } from "@mui/material";
 import Image from "next/image";
 
@@ -12,12 +12,17 @@ export default function PlanFeatures({
     trialValidForDays,
     setTrialValidForDays,
     agencyAllowedFeatures,
-    upgradePlanClickModal
+    upgradePlanClickModal,
+    noOfSeats,
+    setNoOfSeats,
+    costPerAdditionalSeat,
+    setCostPerAdditionalSeat,
+    handleToggle
 }) {
 
-    const handleToggle = (key) => {
-        setFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
-    };
+    // const handleToggle = (key) => {
+    //     setFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
+    // };
 
 
 
@@ -25,76 +30,119 @@ export default function PlanFeatures({
 
 
     return (
-        <div className="w-full" style={{ borderTop: "2px solid #15151510", }}>
+        <div
+            className="w-full"
+            style={{ borderTop: "2px solid #15151510", }}
+        >
             <div className="pt-2" styles={{ fontSize: "15px", fontWeight: "700" }}>Features</div>
             <div className="flex flex-col gap-1 w-full mt-6">
                 {featuresList.map((item) => (
                     <div
                         key={item.stateKey}
-                        className="flex flex-row items-center justify-between w-full"
                     >
-                        <div className="flex flex-row items-center gap-2">
-                            <div styles={{ fontSize: "10px", fontWeight: "900" }}>{item.label}</div>
-                            {
-                                item.tooltip && (
-                                    <Tooltip
-                                        title={item.tooltip}
-                                        arrow
-                                        componentsProps={{
-                                            tooltip: {
-                                                sx: {
-                                                    backgroundColor: "#ffffff", // Ensure white background
-                                                    color: "#333", // Dark text color
-                                                    fontSize: "14px",
-                                                    padding: "10px 15px",
-                                                    borderRadius: "8px",
-                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        <div
+                            className="flex flex-row items-center justify-between w-full"
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                <div styles={{ fontSize: "10px", fontWeight: "900" }}>{item.label}</div>
+                                {
+                                    item.tooltip && (
+                                        <Tooltip
+                                            title={item.tooltip}
+                                            arrow
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "#ffffff", // Ensure white background
+                                                        color: "#333", // Dark text color
+                                                        fontSize: "14px",
+                                                        padding: "10px 15px",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                    },
                                                 },
-                                            },
-                                            arrow: {
-                                                sx: {
-                                                    color: "#ffffff", // Match tooltip background
+                                                arrow: {
+                                                    sx: {
+                                                        color: "#ffffff", // Match tooltip background
+                                                    },
                                                 },
-                                            },
-                                        }}
-                                    >
-                                        <Image
-                                            src="/otherAssets/infoLightDark.png"
-                                            alt="info"
-                                            width={14}
-                                            height={14}
-                                            className="cursor-pointer rounded-full"
-                                        />
-                                    </Tooltip>
-                                )
-                            }
-                            {
-                                !agencyAllowedFeatures[item.stateKey] && (
-                                    <button
-                                        className="text-sm text-white bg-purple rounded-lg px-2 py-1"
-                                        onClick={() => {
-                                            upgradePlanClickModal()
-                                        }}
-                                    >
-                                        Upgrade
-                                    </button>
-                                )
-                            }
-                        </div>
+                                            }}
+                                        >
+                                            <Image
+                                                src="/otherAssets/infoLightDark.png"
+                                                alt="info"
+                                                width={14}
+                                                height={14}
+                                                className="cursor-pointer rounded-full"
+                                            />
+                                        </Tooltip>
+                                    )
+                                }
+                                {
+                                    !agencyAllowedFeatures[item.stateKey] && (
+                                        <button
+                                            className="text-xs text-white bg-purple rounded-full px-2 py-[3px]"
+                                            onClick={() => {
+                                                upgradePlanClickModal()
+                                            }}
+                                        >
+                                            Upgrade
+                                        </button>
+                                    )
+                                }
+                            </div>
 
-                        <Switch
-                            checked={features[item.stateKey]}
-                            onChange={() => handleToggle(item.stateKey)}
-                            sx={{
-                                "& .MuiSwitch-switchBase.Mui-checked": {
-                                    color: "white",
-                                },
-                                "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                                    backgroundColor: "#7902DF",
-                                },
-                            }}
-                            disabled={!agencyAllowedFeatures[item.stateKey]}
-                        />
+                            <Switch
+                                checked={features[item.stateKey]}
+                                onChange={() => handleToggle(item.stateKey)}
+                                sx={{
+                                    "& .MuiSwitch-switchBase.Mui-checked": {
+                                        color: "white",
+                                    },
+                                    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                                        backgroundColor: "#7902DF",
+                                    },
+                                }}
+                                disabled={!agencyAllowedFeatures[item.stateKey]}
+                            />
+                        </div>
+                        {item.stateKey === "allowTeamSeats" && features.allowTeamSeats && (
+                            <div className="flex flex-row gap-2 mt-2">
+                                {/* Number of Seats */}
+                                <div className="w-1/2">
+                                    <label style={styles.regular}>Number of Seats</label>
+                                    <input
+                                        style={styles.inputs}
+                                        className="w-full border border-gray-200 rounded p-2 mt-1 outline-none focus:outline-none focus:ring-0"
+                                        placeholder="0"
+                                        value={noOfSeats}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/[^0-9]/g, "");
+                                            setNoOfSeats(value ? Number(value) : 0);
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Price Additional Seats */}
+                                <div className="w-1/2">
+                                    <label style={styles.regular}>Price Additional Seats</label>
+                                    <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
+                                        <div style={styles.inputs}>$</div>
+                                        <input
+                                            style={styles.inputs}
+                                            type="text"
+                                            className="w-full border-none outline-none focus:outline-none focus:ring-0"
+                                            placeholder="00"
+                                            value={costPerAdditionalSeat}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/[^0-9.]/g, "");
+                                                setCostPerAdditionalSeat(value ? Number(value) : 0);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
@@ -121,21 +169,27 @@ export default function PlanFeatures({
                     {customFeatures.map((feature, index) => (
                         <div
                             key={index}
-                            className="w-full border border-gray-200 rounded p-2 outline-none flex flex-row items-center">
-                            <input
-                                value={feature}
-                                onChange={(e) =>
-                                    handleChangeCustomFeature(index, e.target.value)
-                                }
-                                placeholder={`Custom Feature ${index + 1}`}
-                                className="w-[95%] border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                            />
-                            <button
-                                className="border-none outline-none felx flex-row justify-end pe-2"
-                                onClick={() => { handleRemoveCustomFeature(index) }}
-                            >
-                                <Image src="/assets/cross.png" alt="close" width={10} height={10} />
-                            </button>
+                            className="w-full">
+                            <div className="border border-gray-200 rounded-lg pe-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                                <input
+                                    style={styles.inputs}
+                                    type="text"
+                                    className={`w-full border-none rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                    value={feature}
+                                    onChange={(e) =>
+                                        handleChangeCustomFeature(index, e.target.value)
+                                    }
+                                    placeholder={`Custom Feature ${index + 1}`}
+                                />
+                                <div className="" style={styles.inputs}>
+                                    <button
+                                        className="border-none outline-none felx flex-row justify-end pe-2"
+                                        onClick={() => { handleRemoveCustomFeature(index) }}
+                                    >
+                                        <Image src="/assets/cross.png" alt="close" width={10} height={10} />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>

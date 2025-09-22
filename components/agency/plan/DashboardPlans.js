@@ -26,6 +26,7 @@ function DashboardPlans({
     const [moreDropdown, setmoreDropdown] = useState(null);
 
     const [plansList, setPlansList] = useState([]);
+    const [filteredList, setFilteredList] = useState([]);
 
     const [planType, setPlanType] = useState("monthly");
     const [open, setOpen] = useState(false);
@@ -46,8 +47,9 @@ function DashboardPlans({
     //agencyp plan cost
     const [agencyPlanCost, setAgencyPlanCost] = useState("");
 
-    const [delLoading, setDelLoading] = useState(false)
-    const [linkCopied, setLinkCopied] = useState(false);
+    const [delLoading, setDelLoading] = useState(false);
+    //search bar
+    const [searchValue, setSearchValue] = useState("")
 
 
 
@@ -197,6 +199,7 @@ function DashboardPlans({
 
         // Update state
         setPlansList(updatedPlans);
+        setFilteredList(updatedPlans)
     };
 
 
@@ -209,6 +212,7 @@ function DashboardPlans({
             const localPlans = localStorage.getItem("agencyMonthlyPlans");
             if (localPlans) {
                 setPlansList(JSON.parse(localPlans));
+                setFilteredList(JSON.parse(localPlans));
                 console.log("Plans list is", JSON.parse(localPlans));
             } //else {
             const Token = AuthToken();
@@ -228,6 +232,7 @@ function DashboardPlans({
             if (response) {
                 console.log("Response of get monthly plan api is", response.data);
                 setPlansList(response.data.data);
+                setFilteredList(response.data.data);
                 localStorage.setItem("agencyMonthlyPlans", JSON.stringify(response.data.data));
             }
         } catch (error) {
@@ -249,6 +254,7 @@ function DashboardPlans({
                 const d = JSON.parse(localXbarPlans);
                 console.log(d);
                 setPlansList(JSON.parse(localXbarPlans));
+                setFilteredList(JSON.parse(localXbarPlans));
             } //else {
             console.log("Passed here 1")
             const Token = AuthToken();
@@ -268,6 +274,7 @@ function DashboardPlans({
             if (response) {
                 console.log("Response of XBar Option api is", response.data);
                 setPlansList(response.data.data);
+                setFilteredList(response.data.data);
                 localStorage.setItem("XBarOptions", JSON.stringify(response.data.data));
             }
             // }
@@ -361,6 +368,25 @@ function DashboardPlans({
         }
     }
 
+    //search change
+    const handleSearchChange = (value) => {
+        setSearchValue(value);
+
+        if (!value) {
+      setFilteredList(plansList); // reset if empty
+        } else {
+            const lower = value.toLowerCase();
+            setFilteredList(
+        plansList.filter(
+                    (item) =>
+                        item.title?.toLowerCase().includes(lower)
+                        // item.email?.toLowerCase().includes(lower) || // optional
+                        // item.phone?.toLowerCase().includes(lower)   // optional
+                )
+            );
+        }
+    };
+
     return (
         <div className='w-full flex flex-col items-center '>
             {/* Code for snack msg */}
@@ -400,7 +426,7 @@ function DashboardPlans({
                     <div style={{
                         fontSize: 29, fontWeight: '700', color: 'white'
                     }}>
-                        Total Plans: {plansList?.length ? plansList.length : 0}
+                        Total Plans: {filteredList?.length ? filteredList.length : 0}
                     </div>
 
                     <button
@@ -416,7 +442,7 @@ function DashboardPlans({
 
                 </div>
 
-                <div className='w-full'>
+                <div className='w-full flex flex-row items-center justify-between'>
                     <div className='px-4 mt-6 flex flex-row gap-4 border-b' style={{ fontSize: "15", fontWeight: "500", width: "fit-content" }}>
                         <div
                             className={`pb-2 flex flex-row items-center px-4 ${planType === "monthly" ? "text-purple border-b-2 border-purple" : "text-black"} gap-4`}>
@@ -461,10 +487,31 @@ function DashboardPlans({
                             </button>
                         </div>
                     </div>
+                    <div className="flex flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
+                        <input
+                            style={{ fontSize: 15 }}
+                            type="text"
+                            placeholder="Search by name"
+                            className="flex-grow outline-none font-[500]  border-none focus:outline-none focus:ring-0 flex-shrink-0 rounded-full"
+                            value={searchValue}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // handleSearchChange(value);
+                                setSearchValue(value);
+                                handleSearchChange(value);
+                            }}
+                        />
+                        <Image
+                            src={"/otherAssets/searchIcon.png"}
+                            alt="Search"
+                            width={20}
+                            height={20}
+                        />
+                    </div>
                 </div>
 
                 {
-                    plansList?.length > 0 ? (
+                    filteredList?.length > 0 ? (
                         <>
                             <div className="w-full flex flex-row justify-between mt-4">
                                 <div className="w-3/12">
@@ -501,7 +548,7 @@ function DashboardPlans({
                                             <div className='w-full'>
 
                                                 <div>
-                                                    {plansList.slice().reverse().map((item) => (
+                                                    {filteredList.slice().reverse().map((item) => (
                                                         <div
                                                             key={item.id}
                                                             style={{ cursor: "pointer" }}
@@ -530,7 +577,7 @@ function DashboardPlans({
                                                                     showPlanDetails(item);
                                                                 }}>
                                                                 <div style={styles.text2}>
-                                                                    ${formatDecimalValue(item.discountedPrice) || 0}
+                                                                    ${formatFractional2(item.discountedPrice) || 0}
                                                                 </div>
                                                             </div>
                                                             <div className="w-2/12"
@@ -710,7 +757,7 @@ function DashboardPlans({
                             open={selectedPlanDetails !== null}
                             onClose={() => { setSelectedPlanDetails(null) }}
                         >
-                            <Box className="bg-transparent rounded-xl max-w-[80%] w-[40%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <Box className="bg-transparent rounded-xl max-w-[80%] w-[34%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                                 <ConfigureSideUI
                                     handleClose={() => { setSelectedPlanDetails(null) }}
                                     // handleResetValues={handleResetValues}
@@ -731,7 +778,7 @@ function DashboardPlans({
                 {/* Warning popup */}
                 <EditPlanWarning
                     open={false}
-                    // handleClose={handleClosePlanPopUp}
+                // handleClose={handleClosePlanPopUp}
                 />
 
             </div>

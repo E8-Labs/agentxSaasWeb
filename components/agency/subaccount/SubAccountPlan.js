@@ -279,7 +279,7 @@ const SubAccountPlan = ({ handleContinue }) => {
         {/* Progress bar */}
         <div className="w-full flex flex-row items-center gap-4 mt-4">
           <Image
-            src="/assets/agentX.png"
+            src="/assets/assignX.png"
             style={{ height: "29px", width: "122px", resize: "contain" }}
             height={29}
             width={122}

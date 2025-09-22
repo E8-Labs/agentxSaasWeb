@@ -339,7 +339,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
     return (
         <div
             // style={backgroundImage}
-            className={`overflow-hidden flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] p-8" : "w-[90%]"} max-h-[90vh]`}
+            className={`overflow-hidden flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-8 max-h-[100%]" : "w-[90%] max-h-[90vh]"}`}
         >
 
             <div
@@ -366,7 +366,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                             }}
                         >
                             {/*`AI Agents from just $1.50/day`*/}
-                            Grow Your Business
+                            Get an AI AaaS Agency
                         </div>
 
                         <div
@@ -376,7 +376,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                 color: '#808080'
                             }}
                         >
-                            {`AI Agents from just $1.50 per day — gets more done than coffee. Cheaper too. 😉`}
+                            {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
                         </div>
                     </div>
 
@@ -509,13 +509,24 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                                         : "-"}
                                                         </div>
 
-                                                        <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
-                                                            {item.capabilities?.affiliatePercent}% Rev Share
+                                                        <div className='text-center mt-1' style={{ fontSize: 15, fontWeight: '400' }}>
+                                                            {selectedDuration.title === "Monthly"
+                                                                ? "Billed Monthly"
+                                                                : selectedDuration.title === "Quarterly"
+                                                                    ? "Billed Quarterly"
+                                                                    : selectedDuration.title === "Yearly"
+                                                                        ? "Billed Yearly"
+                                                                        : "-"}
                                                         </div>
-
-                                                        <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
-                                                            ${item?.capabilities?.aiCreditRate?.toFixed(2)} per min
-                                                        </div>
+                                                        {/*
+                                                            <div className='text-center mt-1' style={{ fontSize: 17, fontWeight: '600' }}>
+                                                                {item.capabilities?.affiliatePercent}% Rev Share
+                                                            </div>
+    
+                                                            <div className='text-center ' style={{ fontSize: 15, fontWeight: '500' }}>
+                                                                ${item?.capabilities?.aiCreditRate?.toFixed(2)} per min
+                                                            </div>
+                                                        */}
 
                                                         <div className="mt-3 mb-3">
                                                             {subPlanLoader === item.id ? (
@@ -561,7 +572,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                                 item?.features?.map((item) => (
                                                                     <div key={item.text} className="flex flex-row items-center gap-2 mt-1">
                                                                         <Image
-                                                                            src="/svgIcons/greenTick.svg" //"/otherAssets/selectedTickBtn.png"
+                                                                            src="/otherAssets/selectedTickBtn.png" //"/svgIcons/greenTick.svg"
                                                                             height={16} width={16} alt="✓"
                                                                         />
                                                                         <div

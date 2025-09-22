@@ -445,7 +445,7 @@ const Page = ({ length = 6, onComplete }) => {
           <div className="w-full gap-3 h-[10%] flex flex-row items-end">
             <Image
               className=""
-              src="/assets/agentX.png"
+              src="/assets/assignX.png"
               style={{ height: "29px", width: "122px", resize: "contain" }}
               height={29}
               width={122}

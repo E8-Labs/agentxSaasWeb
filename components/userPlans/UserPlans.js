@@ -235,7 +235,7 @@ function UserPlans({ handleContinue, handleBack,from = ""}) {
 
                 <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
                     style={{ backgroundColor: '' }}>
-                    <Image src={"/assets/agentX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
+                    <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
 
                     <div className="w-[100%]">
                         <ProgressBar value={100} />

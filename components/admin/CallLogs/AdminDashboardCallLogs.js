@@ -507,7 +507,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           <AdminDashboardScheduledCalls />
         ) : activeTab === "All Calls" || activeTab === "Activity Logs" ? (
 
-          <div clasSName="w-full">
+          <div className="w-full">
             <div
               className={`h-[67vh] border overflow-y-auto w-full`}
               id="scrollableDiv1"

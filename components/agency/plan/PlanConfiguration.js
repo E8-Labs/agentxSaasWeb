@@ -15,6 +15,7 @@ import PlanFeatures from "./PlanFeatures";
 import ConfigureSideUI from "./ConfigureSideUI";
 import AgencyPlans from "@/components/plan/AgencyPlans";
 import getProfileDetails from "@/components/apis/GetProfile";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
@@ -132,7 +133,7 @@ export default function PlanConfiguration({
         },
         {
             label: "Allow Team Seats",
-            tooltip: "Num of seats Price Additional seats",
+            tooltip: "Allow sub accounts to add and invite teams.",
             stateKey: "allowTeamSeats",
         },
         {
@@ -144,7 +145,7 @@ export default function PlanConfiguration({
 
     //check for seats features
     useEffect(() => {
-        if (costPerAdditionalSeat.length > 0 && costPerAdditionalSeat > 0) {
+        if (costPerAdditionalSeat?.length > 0 && costPerAdditionalSeat > 0) {
             setFeatures({
                 ...features,
                 allowTeamSeats: true
@@ -272,6 +273,8 @@ export default function PlanConfiguration({
             console.log("dynamic features are", dynamicFeatures)
             setNoOfAgents(configurationData?.maxAgents);
             setNoOfContacts(configurationData?.maxLeads);
+            setCostPerAdditionalAgent(configurationData?.costPerAdditionalAgent);
+            setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
             setFeatures({
                 toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
                 calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
@@ -289,6 +292,30 @@ export default function PlanConfiguration({
 
     //reset values after plan added
     const handleResetValues = () => {
+        setNoOfAgents("");
+        setNoOfContacts("");
+        setCostPerAdditionalAgent("");
+        setCostPerAdditionalSeat("");
+        setLanguage("");
+        setLanguageTitle("");
+        setTrialValidForDays("");
+        setFeatures({
+            toolsActions: false,
+            calendars: false,
+            liveTransfer: false,
+            ragKnowledgeBase: false,
+            embedBrowserWebhookAgent: false,
+            apiKey: false,
+            voicemail: false,
+            twilio: false,
+            allowTrial: false,
+            allowTeamSeats: false,
+        });
+        setCustomFeatures([]);
+        setAllowedFeatures([]);
+        setShowUpgradePlanPopup(false);
+        setShowTrailWarning(false);
+        setCreatePlanLoader(false);
     }
 
     //function giving api data
@@ -503,6 +530,8 @@ export default function PlanConfiguration({
         setConfigurationData({
             maxAgents: noOfAgents,
             maxLeads: noOfAgents,
+            costPerAdditionalAgent: costPerAdditionalAgent,
+            costPerAdditionalSeat: costPerAdditionalSeat,
             language: language,
             features: features,
             trialValidForDays: trialValidForDays
@@ -546,6 +575,23 @@ export default function PlanConfiguration({
             setShowUpgradePlanPopup(false);
         }
     }
+    //switch btns for plan features
+    const handleToggle = (key) => {
+        setFeatures((prev) => {
+            const newState = { ...prev, [key]: !prev[key] };
+
+            // if allowTeamSeats just got enabled, scroll down
+            if (key === "allowTeamSeats" || key === "allowTrial" && !prev.allowTeamSeats && newState.allowTeamSeats) {
+                setTimeout(() => {
+                    if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollBy({ top: 40, behavior: "smooth" });
+                    }
+                }, 100);
+            }
+
+            return newState;
+        });
+    };
 
     return (
         <Modal
@@ -608,7 +654,16 @@ export default function PlanConfiguration({
                                         placeholder="0"
                                         value={noOfAgents}
                                         onChange={(e) => {
-                                            setNoOfAgents(e.target.value);
+                                            const value = e.target.value;
+                                            // Allow only digits and one optional period
+                                            const sanitized = value.replace(/[^0-9.]/g, '');
+
+                                            // Prevent multiple periods
+                                            const valid = sanitized.split('.')?.length > 2
+                                                ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                : sanitized;
+                                            // setOriginalPrice(valid);
+                                            setNoOfAgents(valid ? Number(valid) : 0);
                                         }}
                                     />
                                 </div>
@@ -616,46 +671,84 @@ export default function PlanConfiguration({
                                 {/* Tag Option */}
                                 <div className="w-1/2">
                                     <label style={styles.labels}>Price Additional Agents</label>
-                                    <input
-                                        style={styles.inputs}
-                                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                                        placeholder="0"
-                                        value={costPerAdditionalAgent}
-                                        onChange={(e) => {
-                                            setCostPerAdditionalAgent(e.target.value);
-                                        }}
-                                    />
-                                </div>
-                            </div>
-                            <div className="w-full flex flex-row items-center justify-center gap-2">
-                                {/* Plan Name */}
-                                <div className="w-1/2">
-                                    <label style={styles.labels}>Number of Seats</label>
-                                    <input
-                                        style={styles.inputs}
-                                        className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                        placeholder="0"
-                                        value={noOfSeats}
-                                        onChange={(e) => {
-                                            setNoOfSeats(e.target.value);
-                                        }}
-                                    />
-                                </div>
+                                    <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                                        <div className="" style={styles.inputs}>
+                                            $
+                                        </div>
+                                        <input
+                                            style={styles.inputs}
+                                            type="text"
+                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                            placeholder="00"
+                                            value={costPerAdditionalAgent}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // Allow only digits and one optional period
+                                                const sanitized = value.replace(/[^0-9.]/g, '');
 
-                                {/* Tag Option */}
-                                <div className="w-1/2">
-                                    <label style={styles.labels}>Price Additional Seats</label>
-                                    <input
-                                        style={styles.inputs}
-                                        className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                                        placeholder="0"
-                                        value={costPerAdditionalSeat}
-                                        onChange={(e) => {
-                                            setCostPerAdditionalSeat(e.target.value);
-                                        }}
-                                    />
+                                                // Prevent multiple periods
+                                                const valid = sanitized.split('.')?.length > 2
+                                                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                    : sanitized;
+                                                // setOriginalPrice(valid);
+                                                setCostPerAdditionalAgent(valid ? Number(valid) : 0);
+                                            }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
+                            {/*
+                                <div className="w-full flex flex-row items-center justify-center gap-2">
+                                    <div className="w-1/2">
+                                        <label style={styles.labels}>Number of Seats</label>
+                                        <input
+                                            style={styles.inputs}
+                                            className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
+                                            placeholder="0"
+                                            value={noOfSeats}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // Allow only digits and one optional period
+                                                const sanitized = value.replace(/[^0-9.]/g, '');
+    
+                                                // Prevent multiple periods
+                                                const valid = sanitized.split('.')?.length > 2
+                                                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                    : sanitized;
+                                                // setOriginalPrice(valid);
+                                                setNoOfSeats(valid ? Number(valid) : 0);
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label style={styles.labels}>Price Additional Seats</label>
+                                        <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                                            <div className="" style={styles.inputs}>
+                                                $
+                                            </div>
+                                            <input
+                                                style={styles.inputs}
+                                                type="text"
+                                                className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                placeholder="00"
+                                                value={costPerAdditionalSeat}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    // Allow only digits and one optional period
+                                                    const sanitized = value.replace(/[^0-9.]/g, '');
+    
+                                                    // Prevent multiple periods
+                                                    const valid = sanitized.split('.')?.length > 2
+                                                        ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                        : sanitized;
+                                                    // setOriginalPrice(valid);
+                                                    setCostPerAdditionalSeat(valid ? Number(valid) : 0);
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            */}
                             <div className="w-full">
                                 <label style={styles.labels}>Number of Contacts</label>
                                 <input
@@ -688,6 +781,11 @@ export default function PlanConfiguration({
                                 trialValidForDays={trialValidForDays}
                                 setTrialValidForDays={setTrialValidForDays}
                                 upgradePlanClickModal={handleUpgradePlanModalClick}
+                                noOfSeats={noOfSeats}
+                                setNoOfSeats={setNoOfSeats}
+                                costPerAdditionalSeat={costPerAdditionalSeat}
+                                setCostPerAdditionalSeat={setCostPerAdditionalSeat}
+                                handleToggle={handleToggle}
                             />
 
                         </div>
@@ -755,14 +853,23 @@ export default function PlanConfiguration({
                         onClose={() => {
                             setShowUpgradePlanPopup(false);
                         }}
-                     >
+                    >
                         <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                            <AgencyPlans
-                                isFrom={"addPlan"}
-                                handleCloseModal={(d) => {
-                                    handleCloseModal(d)
-                                }}
-                            />
+                            <div className="w-full flex flex-row items-center justify-end px-4 pt-4 h-[5%]">
+                                <CloseBtn
+                                    onClick={() => {
+                                        setShowUpgradePlanPopup(false);
+                                    }}
+                                />
+                            </div>
+                            <div className="w-full h-[95%]">
+                                <AgencyPlans
+                                    isFrom={"addPlan"}
+                                    handleCloseModal={(d) => {
+                                        handleCloseModal(d)
+                                    }}
+                                />
+                            </div>
                         </Box>
                     </Modal>
 
