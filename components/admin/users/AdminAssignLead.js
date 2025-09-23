@@ -359,13 +359,7 @@ const AdminAssignLead = ({
       // return;
       if (filters && selectedAll) {
         Apidata = {
-          pipelineId: SelectedAgents[0].pipeline.id,
-          mainAgentIds: SelectedAgents.map((item) => item.id),
-          leadIds: leadIs,
-          startTimeDifFromNow: timer,
-          batchSize: batchSize,
-          selectedAll: selectedAll,
-          dncCheck: isDncChecked,
+          ...Apidata,
           ...filters,
         };
       }
