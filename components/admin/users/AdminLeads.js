@@ -1704,6 +1704,7 @@ const AdminLeads = ({
                             userProfile={userLocalDetails}
                             selectedUser={selectedUser}
                             totalLeads={totalLeads}
+                            sheetId={sheetId}
                           />
                         </div>
 

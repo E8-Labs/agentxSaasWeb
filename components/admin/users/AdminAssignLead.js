@@ -43,7 +43,8 @@ const AdminAssignLead = ({
   filters = null,
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
-  selectedUser = { selectedUser }
+  selectedUser = { selectedUser },
+  sheetId
 }) => {
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
@@ -347,20 +348,29 @@ const AdminAssignLead = ({
 
       // console.log("apidata is", Apidata)
       // return;
-      if (filters && selectedAll) {
+      if (selectedAll === true) {
         Apidata = {
           pipelineId: SelectedAgents[0].pipeline.id,
           mainAgentIds: SelectedAgents.map((item) => item.id),
-          leadIds: leadIs,
+          leadIds: [],
           startTimeDifFromNow: timer,
           batchSize: batchSize,
           selectedAll: selectedAll,
-          dncCheck: isDncChecked,
+          dncCheck: isDncChecked ? true : false,
+          sheetId: sheetId,
+        }
+      }
+
+      // console.log("apidata is", Apidata)
+      // return;
+      if (filters && selectedAll) {
+        Apidata = {
+          ...Apidata,
           ...filters,
         };
       }
 
-      //console.log;
+      console.log("Api data sending in assignlead api is", Apidata);
       // return;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
