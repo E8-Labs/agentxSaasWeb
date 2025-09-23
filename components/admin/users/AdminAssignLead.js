@@ -356,7 +356,7 @@ const AdminAssignLead = ({
         };
       }
 
-      //console.log;
+      console.log("Api data sending in assign leads api is", Apidata);
       // return;
       const localData = localStorage.getItem("User");
       let AuthToken = null;
