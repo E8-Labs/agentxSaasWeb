@@ -42,7 +42,8 @@ const AdminAssignLead = ({
   filters = null,
   totalLeads = 0,
   userProfile, // this is the .user object doesn't include token
-  selectedUser = { selectedUser }
+  selectedUser = { selectedUser },
+  sheetId
 }) => {
   // //console.log;
   // console.log("leadIs length is:",leadIs.length)
@@ -129,7 +130,7 @@ const AdminAssignLead = ({
       console.log("ApiPath of get get agents", ApiPath)
       // return
       const response = await axios.get(ApiPath, {
-        headers: {  
+        headers: {
           Authorization: "Bearer " + AuthToken,
           "Content-Type": "application/json",
         },
@@ -340,6 +341,19 @@ const AdminAssignLead = ({
         selectedAll: selectedAll,
         dncCheck: isDncChecked ? true : false,
       };
+
+      if (selectedAll === true) {
+        Apidata = {
+          pipelineId: SelectedAgents[0].pipeline.id,
+          mainAgentIds: SelectedAgents.map((item) => item.id),
+          leadIds: [],
+          startTimeDifFromNow: timer,
+          batchSize: batchSize,
+          selectedAll: selectedAll,
+          dncCheck: isDncChecked ? true : false,
+          sheetId: sheetId,
+        }
+      }
 
       // console.log("apidata is", Apidata)
       // return;
