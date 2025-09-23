@@ -26,8 +26,9 @@ import AgentSelectSnackMessage, {
     SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { calculatePlanPrice, getMonthlyPrice, getTotalPrice, checkReferralCode, getNextChargeDate } from "./UserPlanServices";
+import { useUser } from '@/hooks/redux-hooks';
 // import Apis from '../Apis/Apis';
-
+import getProfileDetails from "../apis/GetProfile";     
 const UserAddCard = ({
     handleClose,
     togglePlan,
@@ -41,7 +42,7 @@ const UserAddCard = ({
     const elements = useElements();
     ////console.log
     ////console.log
-
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
     const [inviteCode, setInviteCode] = useState("");
     // referral code validation states
     const [referralStatus, setReferralStatus] = useState("idle"); // idle | loading | valid | invalid
@@ -253,6 +254,36 @@ const UserAddCard = ({
         }
     };
 
+
+
+    const refreshUserData = async () => {
+        try {
+            console.log('🔄 [subscribe plan] Refreshing user data after plan upgrade...');
+            const profileResponse = await getProfileDetails();
+
+            if (profileResponse?.data?.status === true) {
+                const freshUserData = profileResponse.data.data;
+                const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+
+                console.log('🔄 [subscribe plan] Fresh user data received after upgrade');
+                // Update Redux with fresh data
+                setReduxUser({
+                    token: localData.token,
+                    user: freshUserData
+                });
+
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('🔴 [subscribe plan] Error refreshing user data:', error);
+            return false;
+        }
+    };
+
+
+
     //function to subscribe plan
     const handleSubscribePlan = async () => {
         try {
@@ -288,6 +319,8 @@ const UserAddCard = ({
             if (response) {
                 console.log("Response of subscribe plan api is", response.data);
                 if (response.data.status === true) {
+                    //refresh user data from redux
+                    refreshUserData();
                     handleClose(response.data);
                     if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true);
                 }

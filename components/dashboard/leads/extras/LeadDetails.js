@@ -1454,7 +1454,7 @@ const LeadDetails = ({
                           </div>
                           {
                             selectedLeadsDetails?.phone && (
-                              <div className="flex flex-row gap-2 justify-center items-center">
+                              <div className="flex flex-row gap-2 justify-center items-center -mt-2">
                                 {/* <div className="w-4 h-4 filter invert brightness-0"> */}
                                 <Image
                                   src="/otherAssets/phone.png"

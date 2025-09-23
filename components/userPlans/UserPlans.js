@@ -83,7 +83,7 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
     // Function to refresh user data after plan upgrade
     const refreshUserData = async () => {
         try {
-            // console.log('🔄 [CREATE-AGENT] Refreshing user data after plan upgrade...');
+            console.log('🔄 [subscribe plan] Refreshing user data after plan upgrade...');
             const profileResponse = await getProfileDetails();
 
             if (profileResponse?.data?.status === true) {
@@ -91,7 +91,7 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
                 const localData = JSON.parse(localStorage.getItem("User") || '{}');
 
 
-                console.log('🔄 [User plans] Fresh user data received after upgrade');
+                console.log('🔄 [subscribe plan] Fresh user data received after upgrade');
                 // Update Redux with fresh data
                 setReduxUser({
                     token: localData.token,
@@ -102,7 +102,7 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
             }
             return false;
         } catch (error) {
-            console.error('🔴 [User plans] Error refreshing user data:', error);
+            console.error('🔴 [subscribe plan] Error refreshing user data:', error);
             return false;
         }
     };
@@ -482,7 +482,7 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
                     handleClose={async (result) => {
                         setShowUpgradePlanPopup(false);
                         if (result) {
-                            // console.log('🎉 [CREATE-AGENT] Plan upgraded successfully');
+                            // console.log('🎉 [subscribe plan] Plan upgraded successfully');
                             // Refresh user data after upgrade to get new plan capabilities
                             await refreshUserData();
                             
