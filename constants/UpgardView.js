@@ -204,6 +204,7 @@ function UpgardView({
             }
 
             <UnlockPremiunFeatures
+                title={title}
                 open={showUnlockPremiumFeaturesPopup}
                 handleClose={() => {
                     setShowUnlockPremiumFeaturesPopup(false)
