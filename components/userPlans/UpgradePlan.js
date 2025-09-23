@@ -14,6 +14,7 @@ import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import getProfileDetails from '../apis/GetProfile'
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { duration } from '@/utilities/PlansService'
+import CloseBtn from '../globalExtras/CloseBtn'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -34,6 +35,9 @@ const CardForm = ({
 }) => {
     return (
         <div className='w-full flex flex-col gap-2 mt-2'>
+        <CloseBtn  
+        onClick={onCancel}
+         />
             <div className='w-full'>
                 <div
                     className="px-3 py-1 border relative flex items-center"
