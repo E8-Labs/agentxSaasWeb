@@ -215,7 +215,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
             );
             if (selectedUser) {
               let u = {
-                user: selectedUser,
+                subAccountData: selectedUser,
                 isFrom: from,
               }
 

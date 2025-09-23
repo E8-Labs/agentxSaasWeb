@@ -1536,7 +1536,7 @@ const LeadDetails = ({
                                     }}
                                   >
                                     <button
-                                      className={`flex flex-row border items-center gap-1 px-3 py-2 text-purple rounded-lg`}
+                                      className={`flex flex-row border items-center gap-1 px-2 py-2 text-purple rounded-lg`}
                                       onClick={() => setShowSMSModal(true)}
                                       disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
                                     >
@@ -1546,7 +1546,7 @@ const LeadDetails = ({
                                         width={18}
                                         alt="Send SMS"
                                       />
-                                      <span className="text-sm font-medium">
+                                      <span className="text-[12px] font-[400]">
                                         Send SMS
                                       </span>
                                     </button>
