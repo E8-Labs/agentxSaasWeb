@@ -46,7 +46,7 @@ function VoiceMailTab({
   useEffect(() => {
     let data = getUserLocalData()
     setUser(data.user)
-  },[])
+  }, [])
 
 
 
@@ -301,8 +301,13 @@ function VoiceMailTab({
       />
       {
         agent?.voicemail == null ? (
-          user?.planCapabilities.allowVoicemailSettings === false ? (
+          user?.agencyCapabilities?.allowVoicemail === false ? (
 
+            <UpgardView
+              title={"Enable Voicemail"}
+              subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
+            />
+          ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
             <UpgardView
               title={"Enable Voicemail"}
               subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}

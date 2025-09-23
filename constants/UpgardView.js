@@ -1,5 +1,6 @@
 import getProfileDetails from '@/components/apis/GetProfile';
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures';
 import { useUser } from '@/hooks/redux-hooks';
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js';
@@ -21,13 +22,16 @@ function UpgardView({
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false);
     const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] = useState(false);
+    const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = useState(false);
     const { user: reduxUser, setUser: setReduxUser } = useUser();
     //store local user data
     let localUserData = null;
 
     useEffect(() => {
         fetchLocalUserData();
-        const Data = localUserData?.agencyCapabilities
+        const Data = localUserData?.agencyCapabilities;
+        console.log("Title passed to upgrade view is", title)
+        console.log("Plan capabilities in upgrade view is", Data)
         if (localUserData?.userRole === "AgencySubAccount") {
             if (title === "Enable Live Transfer") {
                 if (!Data?.allowLiveCallTransfer) {
@@ -86,8 +90,8 @@ function UpgardView({
     };
 
 
-      // Function to refresh user data after plan upgrade
-      const refreshUserData = async () => {
+    // Function to refresh user data after plan upgrade
+    const refreshUserData = async () => {
         try {
             // console.log('🔄 [CREATE-AGENT] Refreshing user data after plan upgrade...');
             const profileResponse = await getProfileDetails();
@@ -140,7 +144,7 @@ function UpgardView({
                 />
             </div>
 
-            {
+            {/*
                 showUnlockPremiumFeaturesBtn && (
                     <div
                         className='font-semibold text-center'
@@ -150,20 +154,14 @@ function UpgardView({
                     >
                         Contact Your Agency
                     </div>
-                )}
+                )*/}
             <div
                 className='font-semibold text-center'
                 style={{
                     fontSize: "clamp(10px, 14vw, 18px)",
                 }}
             >
-                {
-                    showUnlockPremiumFeaturesBtn ? (
-                        "Unlock Premium Features"
-                    ) : (
-                        title
-                    )
-                }
+                {title}
             </div>
             <div
                 className='font-normal text-center w-full sm:w-[85%] md:w-[75%] leading-relaxed max-w-2xl'
@@ -172,16 +170,7 @@ function UpgardView({
                     lineHeight: "1.5"
                 }}
             >
-                {
-                    showUnlockPremiumFeaturesBtn ? (
-                        <div>
-                            This feature is only available on premium plans.<br />
-                            Your agency will need to enable this for you. You can request this below.
-                        </div>
-                    ) : (
-                        subTitle
-                    )
-                }
+                {subTitle}
             </div>
 
             {
@@ -193,8 +182,7 @@ function UpgardView({
                             fontSize: "clamp(10px, 13px, 16px)"
                         }}
                         onClick={() => {
-                            alert("Request Feature from Agency")
-                            console.warn("Request Feature from Agency")
+                            setShowUnlockPremiumFeaturesPopup(true)
                         }}
                     >
                         Request Feature
@@ -214,6 +202,13 @@ function UpgardView({
                     </button>
                 )
             }
+
+            <UnlockPremiunFeatures
+                open={showUnlockPremiumFeaturesPopup}
+                handleClose={() => {
+                    setShowUnlockPremiumFeaturesPopup(false)
+                }}
+            />
 
 
             <Elements stripe={stripePromise}>

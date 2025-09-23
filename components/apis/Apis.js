@@ -280,6 +280,10 @@ const Apis = {
   getCronConfig: `${BasePath}api/admin/cron/config`,
   restartCronJob: `${BasePath}api/admin/cron/restart`,
 
+
+  //subaccount section apis
+  requestFeatureFromAgency: `${BasePath}api/user/requestFeature`,
+
 };
 
 export default Apis;

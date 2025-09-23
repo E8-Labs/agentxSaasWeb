@@ -920,7 +920,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               {/* Phone number input here */}
               {
-                userData?.planCapabilities?.allowLiveCallTransfer === true ? (
+                (userData?.agencyCapabilities?.allowLiveCallTransfer === true && userData?.planCapabilities?.allowLiveCallTransfer === true) ? (
                   <div>
                     <div className="w-full">
                       <div style={styles.headingStyle}>

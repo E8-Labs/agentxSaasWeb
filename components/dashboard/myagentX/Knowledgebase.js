@@ -63,7 +63,14 @@ function Knowledgebase({ user, agent
   }
 
   function GetNoKbView() {
-    if (user?.planCapabilities.allowKnowledgeBases === false) {
+    if (user?.agencyCapabilities?.allowKnowledgeBases === false) {
+      return (
+        <UpgardView
+          title={"Add Knowledge Base"}
+          subTitle={"Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more."}
+        />
+      )
+    } else if (user?.planCapabilities?.allowKnowledgeBases === false) {
       return (
         <UpgardView
           title={"Add Knowledge Base"}

@@ -13,15 +13,21 @@ import {
 } from '../store/slices/userSlice';
 
 export const usePlanCapabilities = () => {
+  const localData = localStorage.getItem("User");
+  let agencyCapabilities = null;
+  if(localData){
+    const localUserData = JSON.parse(localData);
+    agencyCapabilities = localUserData?.user?.agencyCapabilities;
+  }
   const reduxUser = useSelector(selectUser);
   const plan = useSelector(selectUserPlan);
   const planCapabilities = useSelector(selectPlanCapabilities);
   const currentUsage = useSelector(selectCurrentUsage);
   const maxAgents = useSelector(selectMaxAgents);
   const currentAgents = useSelector(selectCurrentAgents);
-  const allowVoicemail = useSelector(selectAllowVoicemail);
-  const allowToolsAndActions = useSelector(selectAllowToolsAndActions);
-  const allowKnowledgeBases = useSelector(selectAllowKnowledgeBases);
+  const allowVoicemail = useSelector(selectAllowVoicemail); //agencyCapabilities?.allowVoicemail || useSelector(selectAllowVoicemail);
+  const allowToolsAndActions = useSelector(selectAllowToolsAndActions); //agencyCapabilities?.allowToolsAndActions || useSelector(selectAllowToolsAndActions);
+  const allowKnowledgeBases = useSelector(selectAllowKnowledgeBases); //agencyCapabilities?.allowKnowledgeBases || useSelector(selectAllowKnowledgeBases);
   const isTrial = useSelector(selectIsTrial);
 
   // Minimal logging to prevent memory leaks

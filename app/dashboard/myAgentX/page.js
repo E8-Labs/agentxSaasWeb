@@ -105,7 +105,7 @@ const DuplicateButton = dynamic(
 function Page() {
   // Redux hooks for plan management
   const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser();
-  
+
   // Add flags to prevent infinite loops
   const [isInitializing, setIsInitializing] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -113,7 +113,7 @@ function Page() {
   // useEffect(() => {
   //   console.log("reduxUser on myAgentX page", reduxUser)
   // }, [reduxUser])
-  const { 
+  const {
     canCreateAgent,
     allowVoicemail,
     allowToolsAndActions,
@@ -421,7 +421,7 @@ function Page() {
 
     // Prefetch the createagent route for faster navigation
     router.prefetch('/createagent');
-    
+
     // Cleanup function for component unmount
   }, [])
 
@@ -431,19 +431,19 @@ function Page() {
     try {
       // console.log('🔄 [DASHBOARD] Fetching fresh profile data...');
       const profileResponse = await getProfileDetails();
-      
+
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = getUserLocalData();
-        
+
         // console.log('🔄 [DASHBOARD] Syncing profile to Redux - userId:', freshUserData?.id);
-        
+
         // Update Redux with fresh data
         setReduxUser({
           token: localData.token,
           user: freshUserData
         });
-        
+
         // Only update localStorage if not skipped (to prevent loops during initialization)
         if (!skipLocalStorage) {
           const updatedUserData = {
@@ -462,28 +462,28 @@ function Page() {
   // Handle successful plan upgrade - refresh user data
   const handleUpgradeSuccess = async () => {
     // console.log('🎉 [DASHBOARD] Plan upgrade successful! Fetching fresh profile data...');
-    
+
     try {
       // Always fetch fresh profile data after upgrade
       // console.log('🔄 [DASHBOARD] Calling getProfileDetails API for latest plan info...');
       const profileResponse = await getProfileDetails();
-      
+
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = getUserLocalData();
-        
+
         // console.log('✅ [DASHBOARD] Fresh profile data received - maxAgents:', freshUserData?.planCapabilities?.maxAgents);
-        
+
         const updatedUserData = {
           token: localData.token,
           user: freshUserData
         };
-        
+
         // Update both Redux and localStorage
         setReduxUser(updatedUserData);
         localStorage.setItem("User", JSON.stringify(updatedUserData));
         setUser(updatedUserData);
-        
+
         // console.log('🎊 [DASHBOARD] User data successfully refreshed after upgrade!');
       } else {
         console.error('🔴 [DASHBOARD] Failed to get fresh profile data after upgrade');
@@ -500,7 +500,7 @@ function Page() {
       // console.log('🛑 [DASHBOARD] Initialization already in progress or completed');
       return;
     }
-    
+
     setIsInitializing(true);
     attempts++;
     // console.log(`🔄 [DASHBOARD] Initializing user data - attempt ${attempts}`);
@@ -510,10 +510,10 @@ function Page() {
       if (data) {
         const userData = JSON.parse(data);
         // console.log(`✅ [DASHBOARD] User found on attempt ${attempts}`);
-        
+
         // Set local state (from test branch)
         setUser(userData);
-        
+
         // Load into Redux if not already there (from our branch)
         if (userData && !reduxUser) {
           // console.log('🔄 [DASHBOARD] Loading localStorage to Redux');
@@ -522,15 +522,15 @@ function Page() {
             user: userData.user
           });
         }
-        
+
         // Only sync profile if we haven't already initialized
         // Skip localStorage update during initialization to prevent loops
         if (!hasInitialized) {
           await syncProfileToRedux(true);
         }
-        
+
         setHasInitialized(true);
-        
+
       } else if (attempts < maxAttempts) {
         // console.log(`⚠️ [DASHBOARD] User not found on attempt ${attempts}, retrying in 500ms...`);
         setIsInitializing(false); // Allow retry
@@ -2261,7 +2261,7 @@ function Page() {
     searchLoader = false
   ) => {
     setPaginationLoader(true);
-    
+
     // Clear previous data if it's a new search to prevent memory buildup
     if (search && searchLoader) {
       setMainAgentsList([]);
@@ -2400,7 +2400,7 @@ function Page() {
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
     event.preventDefault();
-    
+
     // Combined plan checking - use Redux as primary, localStorage as fallback
     // console.log('🎯 [DASHBOARD] Combined plan check for new agent');
 
@@ -2421,7 +2421,7 @@ function Page() {
     } else {
       // Fallback to localStorage logic (from test branch)
       // console.log('🔶 [DASHBOARD] Fallback to localStorage plan capabilities');
-      
+
       // Check if user is on free plan and has reached their limit
       if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
         if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
@@ -2438,7 +2438,7 @@ function Page() {
         return
       }
     }
-    
+
     // User can create agent - proceed to creation
     // console.log('✅ [DASHBOARD] User can create agent - proceeding to /createagent')
     const data = {
@@ -4010,8 +4010,8 @@ function Page() {
                                   {
                                     item.value === "multi" && (
                                       // Combined check - Redux first, localStorage fallback
-                                      (reduxUser?.planCapabilities ? 
-                                        !isFeatureAllowed('allowLanguageSelection') : 
+                                      (reduxUser?.planCapabilities ?
+                                        !isFeatureAllowed('allowLanguageSelection') :
                                         user?.user?.planCapabilities?.allowLanguageSelection === false
                                       )
                                     ) && (
@@ -4864,7 +4864,12 @@ function Page() {
                 </div>
               </div>
             ) : activeTab === "Actions" ? (
-              !allowToolsAndActions ? (
+              user?.agencyCapabilities?.allowToolsAndActions === false ? (
+                <UpgardView
+                  title={"Unlock Actions"}
+                  subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
+                />
+              ) : !allowToolsAndActions ? (
                 <UpgardView
                   title={"Unlock Actions"}
                   subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
@@ -4901,7 +4906,12 @@ function Page() {
                 />
               </div>
             ) : activeTab === "Knowledge" ? (
-              !allowKnowledgeBases ? (
+              user?.agencyCapabilities?.allowKnowledgeBases === false ? (
+                <UpgardView
+                  title={"Unlock Knowledge Base"}
+                  subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
+                />
+              ) : !allowKnowledgeBases ? (
                 <UpgardView
                   title={"Unlock Knowledge Base"}
                   subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
@@ -4914,7 +4924,12 @@ function Page() {
                 </div>
               )
             ) : activeTab === "Voicemail" ? (
-              !allowVoicemail ? (
+              user?.agencyCapabilities?.allowVoicemail === false ? (
+                <UpgardView
+                  title={"Unlock Voicemail"}
+                  subTitle={"Upgrade to enable voicemail features for your outbound agents."}
+                />
+              ) : !allowVoicemail ? (
                 <UpgardView
                   title={"Unlock Voicemail"}
                   subTitle={"Upgrade to enable voicemail features for your outbound agents."}
