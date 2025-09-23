@@ -23,6 +23,7 @@ import EditAgencyName from "../agencyExtras.js/EditAgencyName";
 import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 import { CheckStripe, convertTime } from "../agencyServices/CheckAgencyData";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
+import SubAccountFilters from "./SubAccountFilters";
 
 
 function AgencySubacount({
@@ -67,12 +68,27 @@ function AgencySubacount({
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [searchValue, setSearchValue] = useState("")
 
-  const [linkCopied, setLinkCopied] = useState(false);
+  //subaccount filters variables
+  //balance spent
+  const [minSpent, setMinSpent] = useState("");
+  const [maxSpent, setMaxSpent] = useState("");
+  const [maxBalance, setMaxBalance] = useState("");
+  const [minBalance, setMinBalance] = useState("");
+  //plan id
+  const [selectPlanId, setSelectPlanId] = useState(null);
+  //account status
+  const [accountStatus, setAccountStatus] = useState("");
+
+  //applied filters list
+  const [appliedFilters, setAppliedFilters] = useState(null);
+  //local plans
+  const [plansList, setPlansList] = useState([]);
 
 
   useEffect(() => {
     getLocalData();
     getSubAccounts();
+    fetchPlans();
   }, []);
 
   //dropdown popover functions
@@ -151,14 +167,43 @@ function AgencySubacount({
   };
 
   // /code for getting the subaccouts list
-  const getSubAccounts = async () => {
+  const getSubAccounts = async (filterData = null) => {
     console.log("Trigered get subaccounts");
+    if (filterData) {
+      console.log("Trigered get subaccounts to filter", filterData);
+    }
     try {
       setInitialLoader(true);
+
       let ApiPAth = Apis.getAgencySubAccount;
+      const queryParams = [];
+
       if (selectedAgency) {
-        ApiPAth = ApiPAth + `?userId=${selectedAgency.id}`
+        queryParams.push(`userId=${selectedAgency.id}`);
       }
+
+      if (filterData) {
+        Object.entries({
+          minSpent: filterData.minSpent,
+          maxSpent: filterData.maxSpent,
+          minBalance: filterData.minBalance,
+          maxBalance: filterData.maxBalance,
+          profile_status: filterData.accountStatus,
+          planId: filterData.selectPlanId,
+        }).forEach(([key, value]) => {
+          if (value !== "" && value !== null && value !== undefined) {
+            queryParams.push(`${key}=${value}`);
+          }
+        });
+      }
+
+      // minSpent=100000&minBalance=430&maxSpent=6000&maxBalance=1000
+
+      if (queryParams.length > 0) {
+        ApiPAth += "?" + queryParams.join("&");
+      }
+
+
       console.log("Api path for dashboard monthly plans api is", ApiPAth)
       const Token = AuthToken();
       // console.log(Token);
@@ -174,6 +219,11 @@ function AgencySubacount({
         setSubAccountsList(response.data.data);
         setFilteredList(response.data.data);
         setInitialLoader(false);
+        if (filterData) {
+          setShowFilterModal(false)
+          setShowSnackMessage(response.data.message);
+          setShowSnackType(SnackbarTypes.Success);
+        }
       }
     } catch (error) {
       console.error("Error occured in getsub accounts is", error);
@@ -307,6 +357,15 @@ function AgencySubacount({
     }
   }
 
+  //fetch local plans
+  const fetchPlans = async () => {
+    const localPlans = localStorage.getItem("agencyMonthlyPlans");
+    if (localPlans) {
+      setPlansList(JSON.parse(localPlans));
+      console.log("Plans list is", JSON.parse(localPlans));
+    }
+  }
+
   //search change
   const handleSearchChange = (value) => {
     setSearchValue(value);
@@ -421,19 +480,85 @@ function AgencySubacount({
               height={20}
             />
           </div>
-          <button
-            className="flex-shrink-0"
-            onClick={() => {
-              setShowFilterModal(true);
-            }}
-          >
-            <Image
-              src={"/otherAssets/filterBtn.png"}
-              height={36}
-              width={36}
-              alt="Search"
-            />
-          </button>
+          <div className="w-[75vw] flex flex-row items-center gap-4">
+            <div className="flex flex-row items-center gap-4 flex-shrink-0 w-[90%]">
+              <button
+                className="flex-shrink-0 outline-none"
+                onClick={() => {
+                  setShowFilterModal(true);
+                }}
+              >
+                <Image
+                  src={"/otherAssets/filterBtn.png"}
+                  height={36}
+                  width={36}
+                  alt="Search"
+                />
+              </button>
+
+              {/* Filter Pills Row */}
+              <div
+                className="flex flex-row items-center gap-2 flex-shrink-0 overflow-auto w-[90%]"
+                style={{
+                  scrollbarWidth: "none", // Firefox
+                  msOverflowStyle: "none", // IE/Edge
+                }}
+              >
+                {appliedFilters && Object.entries(appliedFilters).map(([key, value]) => {
+                  if (!value) return null;
+
+                  const labels = {
+                    minSpent: "Min Spent",
+                    maxSpent: "Max Spent",
+                    minBalance: "Min Balance",
+                    maxBalance: "Max Balance",
+                    selectPlanId: "Plan",
+                    accountStatus: "Status",
+                  };
+
+                  let displayValue = value;
+                  if (key === "selectPlanId") {
+                    const plan = plansList?.find((p) => p.id === value);
+                    displayValue = plan ? plan.title : value;
+                  }
+
+                  return (
+                    <div
+                      key={key}
+                      className="flex-shrink-0 px-4 py-2 bg-[#402FFF10] text-purple rounded-[25px] flex flex-row items-center gap-2"
+                    >
+                      <div className="text-[15px] font-medium">
+                        {labels[key] || key}: {displayValue}
+                      </div>
+                      <button
+                        className="outline-none flex-shrink-0"
+                        onClick={() => {
+                          const { [key]: removed, ...newFilters } = appliedFilters;
+                          setAppliedFilters(newFilters);
+
+                          if (key === "minSpent") setMinSpent("");
+                          if (key === "maxSpent") setMaxSpent("");
+                          if (key === "minBalance") setMinBalance("");
+                          if (key === "maxBalance") setMaxBalance("");
+                          if (key === "selectPlanId") setSelectPlanId(null);
+                          if (key === "accountStatus") setAccountStatus("");
+
+                          getSubAccounts(newFilters);
+                        }}
+                      >
+                        <Image
+                          src={"/otherAssets/crossIcon.png"}
+                          height={16}
+                          width={16}
+                          alt="remove"
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="w-full flex flex-row justify-between mt-2 px-10 mt-10">
@@ -769,6 +894,31 @@ function AgencySubacount({
           }}
           selectedAgency={selectedAgency}
         // handleCloseModal={() => { handleCloseModal() }}
+        />
+
+        {/* Code for filters modal */}
+        <SubAccountFilters
+          open={showFilterModal}
+          handleClose={() => { setShowFilterModal(false) }}
+          initialLoader={initialLoader}
+          handleApplyFilters={(data) => {
+            setAppliedFilters(data);
+            setShowFilterModal(false);
+            console.log("FilterData is", data)
+            getSubAccounts(data);
+          }}
+          minSpent={minSpent}
+          maxSpent={maxSpent}
+          maxBalance={maxBalance}
+          minBalance={minBalance}
+          selectPlanId={selectPlanId}
+          accountStatus={accountStatus}
+          setMinSpent={setMinSpent}
+          setMaxSpent={setMaxSpent}
+          setMaxBalance={setMaxBalance}
+          setMinBalance={setMinBalance}
+          setSelectPlanId={setSelectPlanId}
+          setAccountStatus={setAccountStatus}
         />
 
         {/* Code for subaccount modal */}
