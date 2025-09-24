@@ -92,6 +92,9 @@ import AskToUpgrade from "@/constants/AskToUpgrade";
 import getProfileDetails from "@/components/apis/GetProfile";
 import { useUser } from "@/hooks/redux-hooks";
 import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
+import WebAgentModal from "@/components/dashboard/myagentX/WebAgentModal";
+import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal";
+import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -341,6 +344,43 @@ function Page() {
   const [subTitle, setSubTitle] = useState(null)
 
   const [showAskToUpgradeModal, setShowAskToUPgradeModal] = useState(false)
+
+  // Web Agent Modal states
+  const [showWebAgentModal, setShowWebAgentModal] = useState(false)
+  const [showNewSmartListModal, setShowNewSmartListModal] = useState(false)
+  const [showAllSetModal, setShowAllSetModal] = useState(false)
+  const [selectedAgentForWebAgent, setSelectedAgentForWebAgent] = useState(null)
+
+  // Web Agent Modal handlers
+  const handleWebAgentClick = (agent) => {
+    setSelectedAgentForWebAgent(agent);
+    setShowWebAgentModal(true);
+  };
+
+  const handleOpenAgentInNewTab = () => {
+    if (selectedAgentForWebAgent) {
+      const modelId = encodeURIComponent(selectedAgentForWebAgent?.modelIdVapi || "");
+      const name = encodeURIComponent(selectedAgentForWebAgent?.name || "");
+      window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+    }
+    setShowWebAgentModal(false);
+    setShowAllSetModal(true);
+  };
+
+  const handleShowNewSmartList = () => {
+    setShowWebAgentModal(false);
+    setShowNewSmartListModal(true);
+  };
+
+  const handleSmartListCreated = (smartListData) => {
+    setShowNewSmartListModal(false);
+    setShowAllSetModal(true);
+  };
+
+  const handleCloseAllSetModal = () => {
+    setShowAllSetModal(false);
+    setSelectedAgentForWebAgent(null);
+  };
 
   const playVoice = (url) => {
     if (audio) {
@@ -3728,16 +3768,7 @@ function Page() {
                       setTitle("Unlock your Web Agent")
                       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
                     } else {
-
-                      // console.log("Selected agent name to pass s", showDrawerSelectedAgent.name);
-                      // return;
-                      // window.open(`/web-agent/?modelId=${showDrawerSelectedAgent?.modelIdVapi}&name=${showDrawerSelectedAgent.name}`, "_blank");
-                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                      // window.open(`/web-agent/${showDrawerSelectedAgent?.modelIdVapi}?name=${showDrawerSelectedAgent.name}`, "_blank");
-                      const modelId = encodeURIComponent(showDrawerSelectedAgent?.modelIdVapi || "");
-                      const name = encodeURIComponent(showDrawerSelectedAgent?.name || "");
-
-                      window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
+                      handleWebAgentClick(showDrawerSelectedAgent);
                     }
                   }}
                   >
@@ -5707,6 +5738,31 @@ function Page() {
           />
         )
       }
+
+      {/* Web Agent Modals */}
+      <WebAgentModal
+        open={showWebAgentModal}
+        onClose={() => setShowWebAgentModal(false)}
+        agentName={selectedAgentForWebAgent?.name || ""}
+        modelId={selectedAgentForWebAgent?.modelIdVapi || ""}
+        agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
+        onOpenAgent={handleOpenAgentInNewTab}
+        onShowNewSmartList={handleShowNewSmartList}
+      />
+
+      <NewSmartListModal
+        open={showNewSmartListModal}
+        onClose={() => setShowNewSmartListModal(false)}
+        agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
+        onSuccess={handleSmartListCreated}
+      />
+
+      <AllSetModal
+        open={showAllSetModal}
+        onClose={handleCloseAllSetModal}
+        agentName={selectedAgentForWebAgent?.name || ""}
+        onOpenAgent={handleOpenAgentInNewTab}
+      />
     </div >
   );
 }
