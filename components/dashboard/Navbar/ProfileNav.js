@@ -1133,8 +1133,15 @@ return (
           {showLinks().map((item) => (
             <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
               <Link
-                sx={{ cursor: "pointer", textDecoration: "none" }}
+                sx={{ 
+                  cursor: "pointer", 
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "none"
+                  }
+                }}
                 href={item.href}
+                underline="none"
               // onClick={(e) => handleOnClick(e, item.href)}
               >
                 <div
@@ -1192,6 +1199,13 @@ return (
               textOverflow: "ellipsis",
               textDecoration: "none",
             }}
+            sx={{
+              textDecoration: "none",
+              "&:hover": {
+                textDecoration: "none"
+              }
+            }}
+            underline="none"
           >
             {userDetails?.user?.thumb_profile_image ? (
               <img

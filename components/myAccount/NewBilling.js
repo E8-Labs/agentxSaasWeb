@@ -1110,11 +1110,11 @@ function NewBilling() {
             // Compare specific features that are boolean capabilities
             const capabilityFeatures = [
                 { key: 'allowPrioritySupport', name: 'Priority Support' },
-                { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
-                { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
                 { key: 'allowLeadSource', name: 'Lead Source' },
                 { key: 'allowKnowledgeBases', name: 'RAG Knowledge Base' },
-                { key: 'allowSuccessManager', name: 'Success Manager' }
+                { key: 'allowSuccessManager', name: 'Success Manager' },
+                { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
+                { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
                 // { key: 'allowToolsAndActions', name: 'Tools & Actions' },
                 // { key: 'allowVoicemail', name: 'Voicemail' },
                 // { key: 'allowTwilio', name: 'Twilio' },
@@ -1696,10 +1696,10 @@ function NewBilling() {
 
                                 {item.id === currentPlan && (
                                     <div
-                                        className="mt-4 flex px-3 py-1.5 bg-purple rounded-full text-white"
+                                        className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
                                         style={{
-                                            fontSize: 12,
-                                            fontWeight: "600",
+                                            fontSize: 11,
+                                            fontWeight: "500",
                                             width: "fit-content",
                                         }}
                                     >

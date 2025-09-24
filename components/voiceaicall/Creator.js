@@ -670,7 +670,7 @@ const Creator = ({ agentId, name }) => {
               profileLoader ? (
                 <CircularProgress size={15} />
               ) : (
-                <div>
+                <div className="border border-[#ffffff] rounded-full">
                   {agentImage(agentDetails?.data?.data?.agent)}
                 </div>
               )

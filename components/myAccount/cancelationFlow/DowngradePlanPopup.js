@@ -73,13 +73,15 @@ function DowngradePlanPopup({
                                 >
                                     {`You’ll loose access to`}
                                 </div>
-                                <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-4">
+
+                                <div className="flex flex-wrap gap-y-3 w-full mt-4">
                                     {features.map((item, index) => (
-                                        <div key={index} className="flex flex-row items-center gap-2">
+                                        <div key={index} className="flex flex-row items-center gap-2 flex-1 basis-1/2 min-w-0">
                                             <Image src="/svgIcons/selectedTickBtn.svg"
                                                 height={24} width={24} alt="cross"
+                                                className="flex-shrink-0"
                                             />
-                                            <div className="text-[13px] font-normal">
+                                            <div className="text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
                                                 {item}
                                             </div>
                                         </div>

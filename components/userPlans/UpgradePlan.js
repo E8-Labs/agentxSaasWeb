@@ -1002,8 +1002,19 @@ function UpgradePlanContent({
                                                 ) : (
 
                                                     <div className='flex flex-col gap-2 mt-2 items-start w-full' >
+                                                    <div className='w-full flex flex-row items-center justify-between'>
                                                         <div className='text-lg font-semibold flex flex-row items-start justify-between'>
                                                             Payment
+                                                        </div>
+
+                                                        <button
+                                                            onClick={() => {
+                                                                setShowAddCard(true);
+                                                            }}
+                                                            className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
+                                                        >
+                                                            + Add Payment
+                                                        </button>
                                                         </div>
                                                         {cards.map((item) => (
                                                             <div className="w-full" key={item.id}>
@@ -1054,14 +1065,6 @@ function UpgradePlanContent({
                                                             </div>
                                                         ))}
 
-                                                        <button
-                                                            onClick={() => {
-                                                                setShowAddCard(true);
-                                                            }}
-                                                            className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
-                                                        >
-                                                            + Add Payment
-                                                        </button>
 
                                                     </div>
                                                 )
