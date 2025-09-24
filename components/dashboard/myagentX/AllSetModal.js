@@ -80,7 +80,7 @@ const AllSetModal = ({
             color: 'text.primary'
           }}
         >
-          You're All Set!
+          {`You're All Set!`}
         </Typography>
 
         {/* Open Agent Button */}
