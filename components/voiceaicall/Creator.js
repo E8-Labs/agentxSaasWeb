@@ -455,7 +455,7 @@ const Creator = ({ agentId, name }) => {
       console.log("Current assistant overrides:", overridesToUse);
       console.log("Cleaned overrides for VAPI:", cleanedOverrides);
       console.log("Using overrides for VAPI start:", cleanedOverrides ? cleanedOverrides : agentId);
-      vapi.start(cleanedOverrides ? cleanedOverrides : agentId)
+      vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
     } else {
       console.error("Vapi instance not initialized");
     }
