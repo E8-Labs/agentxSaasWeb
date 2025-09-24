@@ -11,7 +11,8 @@ function DowngradePlanPopup({
     onConfirm,
     downgradeTitle,
     features,
-    subscribePlanLoader
+    subscribePlanLoader,
+    isFrom
 }) {
 
     const [confirmChecked, setConfirmChecked] = useState(false)
@@ -73,17 +74,41 @@ function DowngradePlanPopup({
                                 >
                                     {`You’ll loose access to`}
                                 </div>
-                                <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-4">
-                                    {features.map((item, index) => (
-                                        <div key={index} className="flex flex-row items-center gap-2">
-                                            <Image src="/svgIcons/selectedTickBtn.svg"
-                                                height={24} width={24} alt="cross"
-                                            />
-                                            <div className="text-[13px] font-normal">
-                                                {item}
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div
+                                    className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-4 max-h-[300px] overflow-y-auto"
+                                    style={{
+                                        scrollbarWidth: "none",
+                                        msOverflowStyle: "none",
+                                        "&::-webkit-scrollbar": {
+                                            display: "none",
+                                        },
+                                    }}
+                                >
+                                    {
+                                        isFrom ? (
+                                            features?.map((item, index) => (
+                                                <div key={index} className="flex flex-row items-center gap-2">
+                                                    <Image src="/svgIcons/selectedTickBtn.svg"
+                                                        height={24} width={24} alt="cross"
+                                                    />
+                                                    <div className="text-[13px] font-normal">
+                                                        {item?.text}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            features?.map((item, index) => (
+                                                <div key={index} className="flex flex-row items-center gap-2">
+                                                    <Image src="/svgIcons/selectedTickBtn.svg"
+                                                        height={24} width={24} alt="cross"
+                                                    />
+                                                    <div className="text-[13px] font-normal">
+                                                        {item}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )
+                                    }
                                 </div>
 
 

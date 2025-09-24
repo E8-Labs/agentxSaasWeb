@@ -465,6 +465,7 @@ function AgencyPlansPayments({
                         // setTogglePlan(planType);
                         setCurrentPlan(togglePlan);
                         planTitleTag();
+                        setShowDowngradePlanPopup(false)
                     }
                     // localStorage.setItem("User", JSON.stringify(localDetails));
                     setSuccessSnack("Your plan successfully updated");
@@ -1281,6 +1282,7 @@ function AgencyPlansPayments({
                         downgradeTitle={selectedPlan?.title}
                         features={selectedPlan?.features}
                         subscribePlanLoader={subscribePlanLoader}
+                        isFrom={true}
                     />
                 )
             }
