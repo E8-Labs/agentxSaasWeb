@@ -92,6 +92,7 @@ const Apis = {
   deleteLead: `${BasePath}api/leads/deleteLead`,
   getProfileData: `${BasePath}api/user/myProfile`,
   getUserByAgentVapiId: `${BasePath}api/agent/getUserByAgent`,
+  getUserByAgentVapiIdWithLeadDetails: `${BasePath}api/agent/getUserByAgentWithLeadDetails`,
   getCardsList: `${BasePath}api/user/getPaymentMethods`,
   makeDefaultCard: `${BasePath}api/user/setDefaultPaymentMethod`,
   getPaymentHistory: `${BasePath}api/user/getTransactionsHistory`,

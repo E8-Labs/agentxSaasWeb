@@ -34,6 +34,16 @@ import Vapi from "@vapi-ai/web";
 import { VoiceWavesComponent } from "../askSky/askskycomponents/voice-waves";
 import { AudioWaveActivity } from "../askSky/askskycomponents/AudioWaveActivity";
 import { agentImage } from "@/utilities/agentUtilities";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+
+// Shadcn UI Components
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
@@ -78,6 +88,20 @@ const Creator = ({ agentId, name }) => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+  const [vapiAgent, setVapiAgent] = useState(null);
+  const [assistantOverrides, setAssistantOverrides] = useState(null);
+  
+  // Modal and form states
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+  const [smartListFields, setSmartListFields] = useState({});
+  const [smartListData, setSmartListData] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   //agent details by id
   const [agentDetails, setAgentDetails] = useState(null);
@@ -88,6 +112,8 @@ const Creator = ({ agentId, name }) => {
   //fetch user profile data
   useEffect(() => {
     getUserByAgentId()
+    // Load saved form data on component mount
+    loadSavedFormData()
   }, []);
 
   // User loading messages to fake feedback...
@@ -141,12 +167,17 @@ const Creator = ({ agentId, name }) => {
   const getUserByAgentId = async () => {
     try {
       setProfileLoader(true);
-      const response = await axios.get(
-        `${Apis.getUserByAgentVapiId}/${agentId}`
-      );
+      const response = await callApiGet(`${Apis.getUserByAgentVapiId}/${agentId}`)
+      // await axios.get(
+      //   `${Apis.getUserByAgentVapiId}/${agentId}`
+      // );
       console.log("Response of getagent details by id is", response);
       if (response) {
         setAgentDetails(response)
+        setVapiAgent(response?.data?.data?.agent)
+        setAssistantOverrides(response?.data?.data?.assistantOverrides)
+        setSmartListData(response?.data?.data?.smartList)
+        console.log("Smart list data:", response?.data?.data?.smartList);
       }
       setProfileLoader(false);
     } catch (error) {
@@ -157,17 +188,195 @@ const Creator = ({ agentId, name }) => {
     }
   }
 
+  const callApiGet = async(path) => {
+    const response = await axios.get(
+      path
+    );
+    return response;
+  }
+  const callApiPost = async(path, data) => {
+    
+    const response = await axios.post(
+      path,
+      data
+    );
+    return response
+  }
+
+  // Form handling functions
+  const handleFormDataChange = (field, value) => {
+    console.log(`Updating form field ${field} with value:`, value);
+    const newFormData = {
+      ...formData,
+      [field]: value
+    };
+    setFormData(newFormData);
+    
+    // Save to localStorage
+    localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
+      formData: newFormData,
+      smartListFields: smartListFields
+    }));
+  };
+
+  const handleSmartListFieldChange = (field, value) => {
+    console.log(`Updating smart list field ${field} with value:`, value);
+    const newSmartListFields = {
+      ...smartListFields,
+      [field]: value
+    };
+    setSmartListFields(newSmartListFields);
+    
+    // Save to localStorage
+    localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
+      formData: formData,
+      smartListFields: newSmartListFields
+    }));
+  };
+
+  // Load saved form data from localStorage
+  const loadSavedFormData = () => {
+    try {
+      const savedData = localStorage.getItem(`leadForm_${agentId}`);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        console.log("Loading saved form data:", parsedData);
+        setFormData(parsedData.formData || {
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+        });
+        setSmartListFields(parsedData.smartListFields || {});
+      }
+    } catch (error) {
+      console.error("Error loading saved form data:", error);
+    }
+  };
+
+  const handleModalClose = () => {
+    console.log("Closing lead modal");
+    setShowLeadModal(false);
+    // Keep form data persistent - don't clear on close
+  };
+
+  const handleModalOpen = () => {
+    console.log("Opening lead modal");
+    loadSavedFormData(); // Load saved data when opening
+    setShowLeadModal(true);
+  };
+
+  const handleClearForm = () => {
+    console.log("Clearing form data");
+    localStorage.removeItem(`leadForm_${agentId}`);
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    });
+    setSmartListFields({});
+    console.log("Form data cleared successfully");
+  };
+
+  const handleFormSubmit = async () => {
+    console.log("Submitting form data:", { formData, smartListFields });
+    setIsSubmitting(true);
+    
+    try {
+      // Prepare extraColumns from smart list fields
+      const extraColumns = {};
+      Object.entries(smartListFields).forEach(([key, value]) => {
+        if (value && value.trim()) {
+          extraColumns[key] = value;
+        }
+      });
+
+      // Prepare lead_details object
+      const leadDetails = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        email: formData.email,
+        extraColumns: extraColumns
+      };
+
+      console.log("Sending lead details:", leadDetails);
+
+      // Call API with lead details
+      const response = await callApiPost(
+        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
+        { lead_details: leadDetails }
+      );
+
+      console.log("API response:", response);
+
+      if (response && response.data && response.data.data) {
+        const { totalSecondsAvailable } = response.data.data.user;
+        console.log("User total seconds available:", totalSecondsAvailable);
+
+        if (totalSecondsAvailable < 120) {
+          console.log("Insufficient balance, showing error");
+          setSnackbarMessage("Insufficient Balance");
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
+          return;
+        }
+        // Update assistant overrides with new data
+        const newAssistantOverrides = response.data.data.assistantOverrides;
+        if (newAssistantOverrides) {
+          setAssistantOverrides(newAssistantOverrides);
+          console.log("Updated assistant overrides:", newAssistantOverrides);
+          
+          // Keep form data persistent - don't clear after submission
+          console.log("Form submitted successfully, keeping data persistent");
+          
+          // Close modal and start call with new overrides
+          handleModalClose();
+          handleStartCallWithOverrides(newAssistantOverrides);
+        } else {
+          // Keep form data persistent - don't clear after submission
+          console.log("Form submitted successfully, keeping data persistent");
+          
+          // Close modal and start call with existing overrides
+          handleModalClose();
+          handleStartCall();
+        }
+      }
+
+      
+      
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setSnackbarMessage("Error submitting lead details. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Handle button click
   const handleInitiateVapi = () => {
-    handleStartCall();
+    console.log("handleInitiateVapi called");
+    console.log("Smart list data:", smartListData);
+    
+    // Check if agent has smartList attached
+    if (smartListData && smartListData.id) {
+      console.log("Agent has smart list, showing modal");
+      handleModalOpen();
+    } else {
+      console.log("No smart list found, starting call directly");
+      handleStartCall();
+    }
   };
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY);
     console.log("vapInstance", API_KEY);
     setVapi(vapiInstance);
-    vapiInstance.on("call-start", () => {
-      console.log("📞 CALL-START: Call started");
+    vapiInstance.on("call-start", (call) => {
+      console.log("📞 CALL-START: Call started", call);
       setLoading(false);
       setOpen(true);
     });
@@ -204,30 +413,19 @@ const Creator = ({ agentId, name }) => {
   }, []);
 
   async function handleStartCall(voice) {
+    console.log("handleStartCall called with voice:", voice);
     try {
-      // Check if user has sufficient minutes before starting call
-
-      const response = agentDetails;
-
-      if (response.data.status && response.data.data.user) {
-        const { totalSecondsAvailable } = response.data.data.user;
-
-        if (totalSecondsAvailable < 120) {
-          setSnackbarMessage("Insufficient Balance");
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
-          return;
-        }
-      }
-
+     
       setOpen(true);
-      console.log("trying to start call");
+      console.log("Setting up call UI and starting call");
       setLoading(true);
       setloadingMessage("");
 
       if (voice) {
+        console.log("Setting voice interface");
         setVoiceOpen(true);
       } else {
+        console.log("Setting chat interface");
         setChatOpen(true);
       }
 
@@ -240,14 +438,47 @@ const Creator = ({ agentId, name }) => {
     }
   }
 
-  async function startCall() {
+  async function startCall(overrides = null) {
     console.log("starting call");
     if (vapi) {
-      vapi.start(agentId);
+      // Use overrides passed as parameter (from form submission) or fall back to state
+      const overridesToUse = overrides || assistantOverrides;
+      
+      // Remove variableValues field before passing to VAPI
+      let cleanedOverrides = overridesToUse;
+      if (overridesToUse && overridesToUse.variableValues !== undefined) {
+        cleanedOverrides = { ...overridesToUse };
+        delete cleanedOverrides.variableValues;
+        console.log("Removed variableValues from overrides:", cleanedOverrides);
+      }
+      
+      console.log("Current assistant overrides:", overridesToUse);
+      console.log("Cleaned overrides for VAPI:", cleanedOverrides);
+      console.log("Using overrides for VAPI start:", cleanedOverrides ? cleanedOverrides : agentId);
+      vapi.start(cleanedOverrides ? cleanedOverrides : agentId)
     } else {
       console.error("Vapi instance not initialized");
     }
   }
+
+  // Function to start call with specific overrides from form submission
+  const handleStartCallWithOverrides = async (newOverrides) => {
+    console.log("handleStartCallWithOverrides called with overrides:", newOverrides);
+    try {
+      setOpen(true);
+      console.log("Setting up call UI and starting call with new overrides");
+      setLoading(true);
+      setloadingMessage("");
+
+      // Start call with the new overrides directly
+      await startCall(newOverrides);
+    } catch (error) {
+      console.error("Error starting call with overrides:", error);
+      setSnackbarMessage("Error starting call. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
 
   async function handleCloseCall() {
     await vapi?.stop();
@@ -650,6 +881,213 @@ const Creator = ({ agentId, name }) => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Lead Details Modal */}
+      <Modal
+        open={showLeadModal}
+        onClose={handleModalClose}
+        closeAfterTransition
+        BackdropProps={{
+          sx: {
+            backgroundColor: "#00000020",
+            // //backdropFilter: "blur(5px)",
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            borderRadius: 2,
+            border: "none",
+            outline: "none",
+            scrollbarWidth: "none",
+            backgroundColor: "white",
+          }}
+        >
+          <div
+            className="w-full flex flex-col items-center h-full justify-between"
+            style={{ backgroundColor: "white" }}
+          >
+            <div className="w-full">
+              <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
+                <div style={{ fontWeight: "500", fontSize: 15 }}>
+                  Lead Details
+                </div>
+                <button
+                  onClick={handleModalClose}
+                >
+                  <Image
+                    src={"/assets/cross.png"}
+                    height={15}
+                    width={15}
+                    alt="*"
+                  />
+                </button>
+              </div>
+
+              <div className="px-4 w-full">
+                {/* Basic Fields */}
+                <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                  <span style={{ fontWeight: "500", fontSize: 15 }}>Contact Information</span>
+                </div>
+                
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <input
+                      value={formData.firstName}
+                      onChange={(e) => handleFormDataChange('firstName', e.target.value)}
+                      placeholder="First Name"
+                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 15,
+                        border: "1px solid #00000020",
+                      }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <input
+                      value={formData.lastName}
+                      onChange={(e) => handleFormDataChange('lastName', e.target.value)}
+                      placeholder="Last Name"
+                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 15,
+                        border: "1px solid #00000020",
+                      }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <PhoneInput
+                      country={"us"}
+                      value={formData.phone}
+                      onChange={(value) => handleFormDataChange('phone', value)}
+                      placeholder="Enter Phone Number"
+                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl"
+                      style={{
+                        borderRadius: "12px",
+                        outline: "none",
+                        boxShadow: "none",
+                        border: "1px solid #00000020",
+                      }}
+                      inputStyle={{
+                        width: "100%",
+                        borderWidth: "0px",
+                        backgroundColor: "transparent",
+                        paddingLeft: "60px",
+                        paddingTop: "12px",
+                        paddingBottom: "12px",
+                        height: "53px",
+                        outline: "none",
+                        boxShadow: "none",
+                        fontWeight: "500",
+                        fontSize: 15,
+                      }}
+                      buttonStyle={{
+                        border: "none",
+                        backgroundColor: "transparent",
+                        outline: "none",
+                      }}
+                      dropdownStyle={{
+                        maxHeight: "150px",
+                        overflowY: "auto",
+                      }}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleFormDataChange('email', e.target.value)}
+                      placeholder="Email"
+                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                      style={{
+                        fontWeight: "500",
+                        fontSize: 15,
+                        border: "1px solid #00000020",
+                      }}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Smart List Fields */}
+                {smartListData && smartListData.columns && smartListData.columns.length > 0 && (
+                  <>
+                    <div className="mt-8" style={{ fontWeight: "500", fontSize: 15 }}>
+                      Additional Information
+                    </div>
+                    <div className="mt-4 space-y-4">
+                      {smartListData.columns.map((column, index) => (
+                        <div key={index}>
+                          <input
+                            value={smartListFields[column.columnName] || ''}
+                            onChange={(e) => handleSmartListFieldChange(column.columnName, e.target.value)}
+                            placeholder={column.columnName.charAt(0).toUpperCase() + column.columnName.slice(1)}
+                            className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                            style={{
+                              fontWeight: "500",
+                              fontSize: 15,
+                              border: "1px solid #00000020",
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="w-full pb-8 px-4 mt-4">
+              <div className="flex flex-row gap-3">
+                <button
+                  className="h-[50px] rounded-xl text-gray-600 border border-gray-300 flex-1"
+                  style={{
+                    fontWeight: "600",
+                    fontSize: 16.8,
+                  }}
+                  onClick={handleClearForm}
+                >
+                  Clear Form
+                </button>
+                {isSubmitting ? (
+                  <div className="flex flex-row items-center justify-center flex-1 h-[50px]">
+                    <CircularProgress
+                      size={25}
+                      sx={{ color: "#7902DF" }}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    className={`h-[50px] rounded-xl text-white flex-1 ${
+                      formData.firstName && formData.lastName && formData.email && formData.phone
+                        ? "bg-purple"
+                        : "bg-gray-400"
+                    }`}
+                    style={{
+                      fontWeight: "600",
+                      fontSize: 16.8,
+                    }}
+                    onClick={handleFormSubmit}
+                    disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
+                  >
+                    Continue
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
 
       {/* Snackbar for error messages */}
       <Snackbar
