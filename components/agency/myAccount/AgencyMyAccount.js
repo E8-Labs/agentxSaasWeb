@@ -18,6 +18,8 @@ import AgencySendFeedback from "./AgencySendFeedback";
 import AgencyInviteAgentX from "./AgencyInviteAgentX";
 import AgencyBarServices from "./AgencyBarServices";
 import AgencyBasicInfo from "./AgencyBasicInfo";
+import AgencyPlansPayments from "./AgencyPlansPayments";
+import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
 
 function AgencyMyAccount({
   selectedAgency
@@ -36,35 +38,34 @@ function AgencyMyAccount({
     },
     {
       id: 2,
-      heading: "Billing",
-      subHeading: "Manage your billing and payment methods",
+      heading: "Plans & Payment",
+      subHeading: "Manage your plans and payment method ",
       icon: "/otherAssets/walletIcon.png",
     },
-
-    // {
-    //   id: 3,
-    //   heading: "Support",
-    //   subHeading: "Get in touch with our team and get help",
-    //   icon: "/otherAssets/headPhoneIcon.png",
-    // },
-    // {
-    //   id: 4,
-    //   heading: "Send Feedback",
-    //   subHeading: "Report bugs, new features and more",
-    //   icon: "/otherAssets/feedbackIcon.png",
-    // },
-    // {
-    //   id: 5,
-    //   heading: "Invite Agents",
-    //   subHeading: "Get 60 minutes ",
-    //   icon: "/otherAssets/inviteAgentIcon.png",
-    // },
-    // {
-    //   id: 6,
-    //   heading: "Bar Plans",
-    //   subHeading: "Our version of the genius bar",
-    //   icon: "/assets/X.svg",
-    // },
+    {
+      id: 3,
+      heading: "Billing",
+      subHeading: "Manage your billing transactions",
+      icon: "/otherAssets/billingIcon.png",
+    },
+    {
+      id: 4,
+      heading: "Terms & Condition",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
+    {
+      id: 5,
+      heading: "Privacy Policy",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
+    {
+      id: 6,
+      heading: "Cancellation & Refund",
+      subHeading: "",
+      icon: "/svgIcons/info.svg",
+    },
   ];
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
@@ -99,14 +100,16 @@ function AgencyMyAccount({
       case 1:
         return <AgencyBasicInfo selectedAgency={selectedAgency} />;
       case 2:
+        return <AgencyPlansPayments selectedAgency={selectedAgency} />;
+      case 3:
         return <AgencyBilling selectedAgency={selectedAgency} />;
 
-      case 3:
-        return <AgencySupport />;
-      case 4:
-        return <AgencySendFeedback />;
-      case 5:
-        return <AgencyInviteAgentX />;
+      // case 3:
+      //   return <AgencySupport />;
+      // case 4:
+      //   return <AgencySendFeedback />;
+      // case 5:
+      //   return <AgencyInviteAgentX />;
       // case 6:
       //   return <AgencyBarServices />;
       default:
@@ -143,8 +146,27 @@ function AgencyMyAccount({
                 }}
                 onClick={() => {
                   //   setSelectedManu(index + 1);
-                  setTabSelected(index + 1);
-                  setParamsInSearchBar(index + 1);
+                  if (item.id === 4) {
+                    window.open(
+                      termsAndConditionUrl,
+                      "_blank"
+                    );
+                    return
+                  } else if (item.id === 5) {
+                    window.open(
+                      "/privacy-policy",
+                      "_blank"
+                    );
+                    return
+                  } else if (item.id === 6) {
+                    window.open(
+                      CancellationAndRefundUrl,
+                      "_blank"
+                    );
+                    return
+                  }
+                  setTabSelected(item.id);
+                  setParamsInSearchBar(item.id);
                 }}
               >
                 <div
@@ -189,7 +211,7 @@ function AgencyMyAccount({
         </div>
 
         <div
-          className="w-8/12 "
+          className="w-full"
           style={{
             overflow: "auto",
             height: "92vh",

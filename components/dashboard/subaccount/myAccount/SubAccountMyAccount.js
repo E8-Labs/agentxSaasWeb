@@ -20,6 +20,7 @@ import SubAccountInviteAgentX from "./SubAccountInviteAgentX";
 import SubAccountBarServices from "./SubAccountBarServices";
 import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
+import SubAccountPlansAndPayments from "./SubAccountPlansAndPayments";
 
 function SubAccountMyAccount() {
   let searchParams = useSearchParams();
@@ -38,24 +39,30 @@ function SubAccountMyAccount() {
     },
     {
       id: 2,
-      heading: "Billing",
-      subHeading: "Manage your billing and payment methods",
+      heading: "Plans & Payment",
+      subHeading: "Manage your plans and payment method ",
       icon: "/otherAssets/walletIcon.png",
     },
     {
       id: 3,
+      heading: "Billing",
+      subHeading: "Manage your billing transactions",
+      icon: "/otherAssets/walletIcon.png",
+    },
+    {
+      id: 4,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
     },
     {
-      id: 4,
+      id: 5,
       heading: "My Phone Numbers",
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
     {
-      id: 5,
+      id: 6,
       heading: "Invite Agents",
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
@@ -73,25 +80,25 @@ function SubAccountMyAccount() {
     //   icon: "/otherAssets/feedbackIcon.png",
     // },
     {
-      id: 6,
+      id: 7,
       heading: "Twilio Trust Hub",
       subHeading: "Caller ID & compliance for trusted calls",
       icon: "/svgIcons/twilioHub.svg",
     },
     {
-      id: 7,
+      id: 8,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 8,
+      id: 9,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 9,
+      id: 10,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -107,42 +114,48 @@ function SubAccountMyAccount() {
     },
     {
       id: 2,
-      heading: "Billing",
-      subHeading: "Manage your billing and payment methods",
+      heading: "Plans & Payment",
+      subHeading: "Manage your plans and payment method ",
       icon: "/otherAssets/walletIcon.png",
     },
     {
       id: 3,
+      heading: "Billing",
+      subHeading: "Manage your billing transactions",
+      icon: "/otherAssets/walletIcon.png",
+    },
+    {
+      id: 4,
       heading: "Bar Services",
       subHeading: "Our version of the genius bar",
       icon: "/assets/X.svg",
     },
     {
-      id: 4,
+      id: 5,
       heading: "My Phone Numbers",
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
     {
-      id: 5,
+      id: 6,
       heading: "Invite Agents",
       subHeading: "Get 60 minutes ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
     {
-      id: 6,
+      id: 7,
       heading: "Terms & Condition",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 7,
+      id: 8,
       heading: "Privacy Policy",
       subHeading: "",
       icon: "/svgIcons/info.svg",
     },
     {
-      id: 8,
+      id: 9,
       heading: "Cancellation & Refund",
       subHeading: "",
       icon: "/svgIcons/info.svg",
@@ -175,7 +188,7 @@ function SubAccountMyAccount() {
 
   useEffect(() => {
     const tab = searchParams.get("tab"); // Get the value of 'tab'
-    let number = Number(tab) || 5;
+    let number = Number(tab) || 6;
     // //console.log;
     const userData = localStorage.getItem("User");
     if (userData) {
@@ -184,7 +197,7 @@ function SubAccountMyAccount() {
     }
     setTabSelected(number);
     if (!tab) {
-      setParamsInSearchBar(5);
+      setParamsInSearchBar(6);
     }
   }, []);
 
@@ -206,22 +219,26 @@ function SubAccountMyAccount() {
       case 1:
         return <SubAccountBasicInfo />;
       case 2:
-        return <SubAccountBilling
+        return <SubAccountPlansAndPayments
           selectedUser={selectedUserData}
         />;
       case 3:
+        return <SubAccountBilling
+          selectedUser={selectedUserData}
+        />;
+      case 4:
         return <SubAccountBarServices
           selectedUser={selectedUserData} />;
-      case 4:
+      case 5:
 
         return <SubAccountMyPhoneNumber />;
       // <SubAccountBarServices
       //   selectedUser={selectedUserData} />;
-      case 5:
+      case 6:
         return <InviteAgentX selectedUser={selectedUserData} isSubAccount={true} />;
       // case 6:
       //   return <SubAccountInviteAgentX />;
-      case 6:
+      case 7:
         return <TwilioTrustHub />;
       default:
         return <div>Please select an option.</div>;
