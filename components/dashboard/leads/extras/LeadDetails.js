@@ -687,9 +687,9 @@ const LeadDetails = ({
       });
 
       if (response) {
-        // //console.log;
+        console.log("response of del tag api is", response)
         if (response.data.status === true) {
-          // //console.log;
+          console.log("response of del tag api is true")
 
           const updatedTags = selectedLeadsDetails.tags.filter(
             (item) => item !== tag
@@ -701,7 +701,7 @@ const LeadDetails = ({
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is:", error);
+      console.error("Error occured in api is:", error);
     } finally {
       setDelTagLoader(null);
     }

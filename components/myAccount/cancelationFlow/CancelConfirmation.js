@@ -9,28 +9,28 @@ function CancelConfirmation({
     handleContinue
 }) {
 
-    const [confirmChecked,setConfirmChecked] = useState(false)
+    const [confirmChecked, setConfirmChecked] = useState(false)
     const [features, setFeatures] = useState([])
-    const [nxtCharge,setNxtChage] = useState(null)
+    const [nxtCharge, setNxtChage] = useState(null)
     const [currentPlan, setCurrentPlan] = useState(null)
     const [loading, setLoading] = useState(true)
 
     const { user: reduxUser } = useUser()
 
 
-    useEffect(()=>{
+    useEffect(() => {
         getUserData()
         loadCurrentPlanFeatures()
-    },[])
+    }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log('🔍 [CANCELATION FLOW] Redux User:', reduxUser)
-    },[reduxUser])
+    }, [reduxUser])
 
-    const getUserData = () =>{
+    const getUserData = () => {
         let data = localStorage.getItem("User")
 
-        if(data){
+        if (data) {
             let u = JSON.parse(data)
             let date = u.user.nextChargeDate
 
@@ -39,15 +39,15 @@ function CancelConfirmation({
         }
     }
 
-    
+
 
     const loadCurrentPlanFeatures = async () => {
         try {
             setLoading(true)
-            
+
             // Get current user plan - try Redux first, fallback to localStorage
             let userPlan = reduxUser?.plan;
-            
+
             // If Redux doesn't have plan data or shows Free plan, check localStorage  
             if (!userPlan || userPlan.name === 'Free') {
                 const localData = localStorage.getItem("User");
@@ -57,21 +57,21 @@ function CancelConfirmation({
                     console.log('🔄 [CANCELATION FLOW] Using localStorage plan data:', userPlan);
                 }
             }
-            
+
             if (userPlan) {
                 setCurrentPlan(userPlan)
-                
+
                 // Get all plans to find the current plan details
                 const allPlans = await getUserPlans()
                 const currentPlanDetails = allPlans.find(plan => plan.id === userPlan.planId)
                 console.log('🔍 [CANCELATION FLOW] All plans:', allPlans)
                 console.log('🔍 [CANCELATION FLOW] User plan:', userPlan)
                 console.log('🔍 [CANCELATION FLOW] Current plan details:', currentPlanDetails)
-                
+
                 if (currentPlanDetails) {
                     // Get free plan for comparison (cancellation means going to free)
                     let freePlan = allPlans.find(plan => plan.name === 'Free' || plan.isFree === 1)
-                    
+
                     // If free plan doesn't have proper capabilities, create a fallback
                     if (freePlan && !freePlan.capabilities) {
                         freePlan = {
@@ -90,16 +90,16 @@ function CancelConfirmation({
                         };
                         console.log('🔧 [CANCELATION FLOW] Added capabilities to free plan:', freePlan);
                     }
-                    
+
                     // Use getFeaturesToLose function to get actual features that will be lost
                     const featuresToLose = getFeaturesToLose(currentPlanDetails, freePlan)
-                    
+
                     // Convert to the format expected by the UI
                     const planFeatures = featuresToLose.map((feature, index) => ({
                         id: index + 1,
                         title: feature
                     }))
-                    
+
                     setFeatures(planFeatures)
                 } else {
                     // Fallback to default features if plan details not found
@@ -158,7 +158,7 @@ function CancelConfirmation({
                 <div
                     className="text-center text-base font-normal"
                 >
-                    {`Canceling means you’ll lose access to the features below starting [${nxtCharge||""}]. Still want to move forward?`}
+                    {`Canceling means you’ll lose access to the features below starting [${nxtCharge || ""}]. Still want to move forward?`}
                 </div>
 
                 <div
@@ -166,7 +166,7 @@ function CancelConfirmation({
                 >
                     {`You'll lose access to`}
                 </div>
-                
+
                 {loading ? (
                     <div className="flex items-center justify-center w-full mt-4 h-[33vh]">
                         <div className="text-center">
@@ -175,15 +175,15 @@ function CancelConfirmation({
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-3 w-full mt-4 max-h-[33vh] overflow-y-auto">
-                        {features.map((item, idx) => (
-                            <div key={item.id} className="flex flex-row items-center gap-2">
-                                <Image src={'/svgIcons/selectedTickBtn.svg'}
+                    <div className="flex flex-wrap gap-y-3 w-full mt-4">
+                        {features.map((item, index) => (
+                            <div key={index} className="flex flex-row items-center gap-2 flex-1 basis-1/2 min-w-0">
+                                <Image src="/svgIcons/selectedTickBtn.svg"
                                     height={24} width={24} alt="cross"
                                     className="flex-shrink-0"
                                 />
-                                <div className="text-base font-normal text-gray-700">
-                                    {item.title}
+                                <div className="text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
+                                    {item}
                                 </div>
                             </div>
                         ))}
@@ -194,7 +194,7 @@ function CancelConfirmation({
             </div>
 
             <div className='flex flex-row items-center w-full justify-start mt-3 gap-2'>
-                <button onClick={()=>{
+                <button onClick={() => {
                     setConfirmChecked(!confirmChecked)
                 }}>
                     {confirmChecked ? (
@@ -231,7 +231,7 @@ function CancelConfirmation({
                     outline: "none",
                 }}
 
-                disabled = {!confirmChecked}
+                disabled={!confirmChecked}
 
                 onClick={() => {
                     let nextAction = "finalStep"

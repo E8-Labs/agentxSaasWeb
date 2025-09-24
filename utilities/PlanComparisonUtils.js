@@ -82,11 +82,11 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
         // Compare specific features that are boolean capabilities
         const capabilityFeatures = [
             { key: 'allowPrioritySupport', name: 'Priority Support' },
-            { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
-            { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
             { key: 'allowLeadSource', name: 'Lead Source' }, 
             { key: 'allowKnowledgeBases', name: 'RAG Knowledge Base' },
-            { key: 'allowSuccessManager', name: 'Success Manager' }
+            { key: 'allowSuccessManager', name: 'Success Manager' },
+            { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
+            { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' }
         ];
 
         capabilityFeatures.forEach(feature => {
@@ -125,11 +125,11 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
                 "Team Seats", 
                 "AI Credits", 
                 "Priority Support",
-                "Zoom Support Webinar",
-                "GHL Subaccount & Snapshots",
                 "Lead Source",
                 "RAG Knowledge Base",
-                "Success Manager"
+                "Success Manager",
+                "Zoom Support Webinar",
+                "GHL Subaccount & Snapshots"
             );
         }
     }
