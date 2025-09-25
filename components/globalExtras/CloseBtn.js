@@ -5,13 +5,14 @@ const CloseBtn = ({ onClick, showWhiteCross }) => {
     return (
         <div>
             <button
-                className='cursor-pointer px-3 py-3 rounded-full bg-[#00000010]'
+                className='cursor-pointer px-2 py-2 rounded-full bg-[#00000010]'
                 onClick={onClick}
             >
                 <Image
-                    alt="close"
-                    src="/assets/cross.png"
-                    width={15} height={15}
+                    src={"/assets/crossIcon.png"}
+                    height={10}
+                    width={10}
+                    alt="*"
                     style={{ filter: showWhiteCross ? "invert(1)" : "invert(0)" }}
                 />
             </button>

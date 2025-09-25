@@ -266,16 +266,16 @@ function Page() {
       if (response) {
         setKeyLoader(false);
 
+        console.log("response.data.data", response.data.data);
         if (response.data.status) {
-          // //console.log;
           setMyKeys(response.data.data);
         } else {
-          // //console.log;
+          console.log("response.data.message", response.data.message);
         }
       }
     } catch (e) {
       setKeyLoader(false);
-      // //console.log;
+      console.log("error in get my api keys", e);
     }
   };
 
@@ -311,22 +311,22 @@ function Page() {
         setGenrateeyLoader(false);
         setGenrateeyLoader2(false);
 
+        console.log("response.data.data", response.data.data);
         if (response.data.status) {
-          // //console.log;
           setShowCopySnak("Api key generated successfully");
           setMyKeys((prevKeys) => [...prevKeys, response.data.data]);
         } else {
-          // console.log(
-          //   "get genrate api keys api message is",
-          //   response.data.message
-          // );
+          console.log(
+            "get genrate api keys api message is",
+            response.data.message
+          );
         }
       }
     } catch (e) {
       setGenrateeyLoader2(false);
       setGenrateeyLoader(false);
 
-      // //console.log;
+      console.log("error in genrate api key", e);
     }
   };
 

@@ -1184,7 +1184,7 @@ function NewBilling() {
     };
 
     const handleUpgradeClick = () => {
-        if (currentPlan && !selectedPlan.discountPrice) { // if user try to downgrade on free plan
+        if (currentPlan && selectedPlan.name === 'Free') { // if user try to downgrade on free plan
             setShowCancelPoup(true)
         } else { //if(currentFullPlan?.discountPrice < !selectedPlan.discountPrice){
 

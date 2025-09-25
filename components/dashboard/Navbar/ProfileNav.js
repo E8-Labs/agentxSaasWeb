@@ -1301,7 +1301,7 @@ return (
 
 
     <CallPausedPopup
-      open={showCallPausedPopup}
+      open={true} //{showCallPausedPopup}
       onClose={() => setShowCallPausedPopup(false)}
     />
 
