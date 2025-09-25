@@ -442,7 +442,6 @@ export default function AddMonthlyPlan({
                         } else {
                           setSnackBannerMsg(null);
                         }
-                        const UpdatedValue = handlePricePerMinInputValue(value);
                         // setDiscountedPrice(UpdatedValue);
                         // const value = e.target.value;
                         // Allow only digits and one optional period
@@ -452,7 +451,8 @@ export default function AddMonthlyPlan({
                         const valid = sanitized.split('.')?.length > 2
                           ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                           : sanitized;
-                        setDiscountedPrice(valid);
+                        const UpdatedValue = handlePricePerMinInputValue(valid);
+                        setDiscountedPrice(UpdatedValue);
                       }}
                     />
                   </div>

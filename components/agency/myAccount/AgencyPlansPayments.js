@@ -1198,13 +1198,7 @@ function AgencyPlansPayments({
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        {selectedDuration.title === "Monthly"
-                                            ? `$${item.originalPrice} / month`
-                                            : selectedDuration.title === "Quarterly"
-                                                ? `$${item.originalPrice} / quarter`
-                                                : selectedDuration.title === "Yearly"
-                                                    ? `$${item.originalPrice} / year`
-                                                    : "-"}
+                                        ${item.originalPrice}/mo
                                     </div>
 
                                     {/*
@@ -1215,10 +1209,6 @@ function AgencyPlansPayments({
 
                                     <div className="text-sm font-normal text-[#8a8a8a] text-left mb-4">
                                         {item.description}
-                                    </div>
-
-                                    <div className="text-[16px] font-semibold">
-                                        Features
                                     </div>
 
                                     {/* Features section - only show features with thumb = true */}

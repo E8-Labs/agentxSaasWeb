@@ -380,7 +380,7 @@ const AgencyAddCard = ({
                         <Image
                             alt="*"
                             src={"/otherAssets/paymentCircle.png"}
-                            height={320} width={320}
+                            height={370} width={370}
                         />
                     </div>
                     <div className="mb-12 LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
@@ -433,7 +433,7 @@ const AgencyAddCard = ({
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-row gap-2 w-full mt-8">
+                        <div className="flex flex-row gap-2 w-full mt-4">
                             <div className="w-6/12">
                                 <div
                                     style={{
@@ -484,14 +484,18 @@ const AgencyAddCard = ({
                                         color: "#4F5B76",
                                     }}
                                 >
-                                    CVC
+                                    CVV
                                 </div>
                                 <div
                                     className="mt-2 px-3 py-1 border"
                                     style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                                 >
                                     <CardCvcElement
-                                        options={elementOptions}
+                                        // options={elementOptions}
+                                        options={{
+                                            ...elementOptions,
+                                            placeholder: "CVV", // 👈 add this
+                                        }}
                                         style={{
                                             width: "100%",
                                             padding: "8px",
@@ -521,7 +525,7 @@ const AgencyAddCard = ({
                         {/* Optional input field for agent x invite code */}
 
                         <div
-                            className="mt-8"
+                            className="mt-4"
                             style={{
                                 fontWeight: "400",
 
@@ -670,11 +674,11 @@ const AgencyAddCard = ({
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>{scalePlanValue()}</div>
                         </div>
-                        <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
+                        <div className="mt-6 h-[1px] w-full bg-[#00000035]"></div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
-                            <div>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>
+                            <div className="flex flex-col items-end">
+                                <div style={{ fontWeight: "600", fontSize: 22, }}>
                                     {scalePlanValue()}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
@@ -721,6 +725,7 @@ const AgencyAddCard = ({
                             <a
                                 href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
                                 style={{ textDecoration: "underline", color: "#7902DF" }} // Underline and color styling
+                                className="ms-1 me-1"
                                 target="_blank" // Opens in a new tab (optional)
                                 rel="noopener noreferrer" // Security for external links
                             >
