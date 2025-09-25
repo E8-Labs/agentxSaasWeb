@@ -80,13 +80,35 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
         }
 
         // Compare specific features that are boolean capabilities
+        // Compare specific features that are boolean capabilities
         const capabilityFeatures = [
             { key: 'allowPrioritySupport', name: 'Priority Support' },
-            { key: 'allowLeadSource', name: 'Lead Source' }, 
+            { key: 'allowLeadSource', name: 'Lead Source' },
             { key: 'allowKnowledgeBases', name: 'RAG Knowledge Base' },
             { key: 'allowSuccessManager', name: 'Success Manager' },
             { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
-            { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' }
+            { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
+            { key: 'allowToolsAndActions', name: 'Tools & Actions' },
+            { key: 'allowVoicemail', name: 'Voicemail' },
+            { key: 'allowTwilioIntegration', name: 'Twilio' },
+            // { key: 'allowEmbedBrowserWebhookAgent', name: 'Embed / Browser / Webhook Agent' },
+            // { key: 'allowAIPoweredCRM', name: 'AI Powered CRM' },
+            // { key: 'allowAdvancedLLMs', name: 'Advanced LLMs' },
+            // { key: 'allowPhoneNumbers', name: 'Phone Numbers' },
+            // { key: 'allowAIAaaSAcademy', name: 'AI AaaS Academy' },
+            // { key: 'allowWebhookAgents', name: 'Webhook Agents' },
+            // { key: 'allowDiscordSupport', name: 'Discord Support' },
+            // { key: 'allowLeadEnrichment', name: 'Lead Enrichment' },
+            // { key: 'allowTwilioTrustHub', name: 'Twilio Trust Hub' },
+            // { key: 'allowAIPoweredEmails', name: 'AI Powered Emails' },
+            { key: 'allowPriorityCalling', name: 'Priority Calling' },
+            // { key: 'allowCustomVoicemails', name: 'Custom Voicemails' },
+            { key: 'allowLiveCallTransfer', name: 'Live Call Transfer' },
+            // { key: 'allowAIPowerediMessage', name: 'AI Powered iMessage' },
+            // { key: 'allowUnlimitedTeamSeats', name: 'Unlimited Team Seats' },
+            { key: 'allowLanguageSelection', name: 'Multilingual' },
+            { key: 'allowTextMessages', name: 'Text Messages' },
+            { key: 'allowCalendarIntegration', name: 'Calendar' },
         ];
 
         capabilityFeatures.forEach(feature => {

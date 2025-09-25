@@ -17,7 +17,7 @@ export const GoogleOAuth = ({
             client_id: NEXT_PUBLIC_GOOGLE_CLIENT_ID,
             redirect_uri: REDIRECT_URI,
             response_type: "code",
-            scope: Scopes.join(" "), //"openid email profile https://www.googleapis.com/auth/calendar",
+            scope: Scopes.join(" "),
             access_type: "offline",
             prompt: "consent",
         }).toString();

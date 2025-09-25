@@ -508,15 +508,15 @@ function UpgradePlanContent({
 
 
         // Handle free plan case
-        if (item.isFree && (!currentUserPlan.planId || currentUserPlan.price <= 0)) {
-            return true;
-        }
+        // if (item.isFree && (!currentUserPlan.planId || currentUserPlan.price <= 0)) {
+        //     return true;
+        // }
 
         // Handle paid plans
         if (item.id === currentUserPlan.planId) {
             return true;
         }
-
+        return false;
         // Fallback comparison by name
         return item.name === currentUserPlan.name;
     };

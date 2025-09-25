@@ -94,10 +94,9 @@ function UnlockAgentModal({
 
                             <button className='text-purple mt-4 pb-8'
                                 style={{ fontSize: "15px", fontWeight: "500" }}
-                                onClick={()=> {
+                                onClick={
                                     ()=> {
                                         handleClose()
-                                    }
                                 }}
                             >
                                 {buttonTitle}
