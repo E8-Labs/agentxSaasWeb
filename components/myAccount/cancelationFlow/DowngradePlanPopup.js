@@ -15,6 +15,8 @@ function DowngradePlanPopup({
     isFrom
 }) {
 
+    console.log("Features of plans passed are", features)
+
     const [confirmChecked, setConfirmChecked] = useState(false)
     const [nxtCharge, setNxtChage] = useState(null)
 

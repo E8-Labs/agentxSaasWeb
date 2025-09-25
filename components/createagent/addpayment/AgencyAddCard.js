@@ -332,6 +332,22 @@ const AgencyAddCard = ({
         }
     }
 
+    const commitmentCalculation = () => {
+        console.log("Scale plan value passed is", selectedPlan);
+        if (!selectedPlan || !selectedPlan.originalPrice) {
+            return "-";
+        }
+        if (selectedPlan.duration === "monthly") {
+            return "$" + (selectedPlan.originalPrice * 12).toFixed(2);
+        } else if (selectedPlan.duration === "quarterly") {
+            return "$" + ((selectedPlan.originalPrice / 3) * 4).toFixed(2);
+        } else if (selectedPlan.duration === "yearly") {
+            return "$" + ((selectedPlan.originalPrice / 12) * 1).toFixed(2);
+        } else {
+            return "-";
+        }
+    }
+
     const PayAsYouGoPlanTypes = {
         Plan30Min: "Plan30",
         Plan120Min: "Plan120",
@@ -625,9 +641,12 @@ const AgencyAddCard = ({
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Scale Plan
+                                    {selectedPlan.title}
                                 </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan.duration} subscription</div>
+                                {/*
+                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan.duration} subscription</div>
+                                */}
+                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Total Annual Commitment: {commitmentCalculation()}</div>
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>{scalePlanValue()}</div>
                         </div>
@@ -692,14 +711,13 @@ const AgencyAddCard = ({
                             */}
                         </div>
                         <div
-                            className="flex flex-row items-center gap-2 w-full justify-center mt-2"
+                            // className="flex flex-row items-center gap-2 w-full justify-center mt-2"
+                            className="mt-2 text-center"
                             style={{
                                 fontWeight: "400",
                                 fontSize: 13
                             }}>
-                            <div>
-                                By continuing you agree to our
-                            </div>
+                            By continuing you agree to our
                             <a
                                 href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
                                 style={{ textDecoration: "underline", color: "#7902DF" }} // Underline and color styling
@@ -708,7 +726,7 @@ const AgencyAddCard = ({
                             >
                                 Terms & Conditions
                             </a>
-                            <div> agree to a 12-month license term. Payments are billed {selectedPlan.duration} as selected. </div>
+                            agree to a 12-month license term. Payments are billed {selectedPlan.duration} as selected.
                         </div>
                     </div>
                 </div>

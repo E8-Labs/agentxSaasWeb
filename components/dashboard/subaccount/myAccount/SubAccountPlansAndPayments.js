@@ -44,7 +44,8 @@ function SubAccountPlansAndPayments({
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
     const [currentPlan, setCurrentPlan] = useState(null);
-    const [currentPlanSequenceId, setCurrentPlanSequenceId] = useState(null); //compare this id tp show upgrade down grade
+    const [currentPlanSequenceId, setCurrentPlanSequenceId] = useState(null);
+    const [currentPlanDetails, setCurrentPlanDetails] = useState(null);
     const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
     const [redeemLoader, setRedeemLoader] = useState(false);
 
@@ -183,6 +184,7 @@ function SubAccountPlansAndPayments({
         const monthlyMatch = monthlyPlans.find(p => p.id === currentPlan);
         if (monthlyMatch) {
             // console.log("Matching monthly plan is", monthlyMatch)
+            setCurrentPlanDetails(monthlyMatch);
             setCurrentPlanSequenceId(monthlyMatch.sequenceId); // or monthlyMatch.planId if that's your field
             return;
         }
@@ -191,6 +193,7 @@ function SubAccountPlansAndPayments({
         const quarterlyMatch = quaterlyPlans.find(p => p.id === currentPlan);
         if (quarterlyMatch) {
             // console.log("Matching quarterlyMatch plan is", quarterlyMatch)
+            setCurrentPlanDetails(quarterlyMatch);
             setCurrentPlanSequenceId(quarterlyMatch.sequenceId);
             return;
         }
@@ -199,6 +202,7 @@ function SubAccountPlansAndPayments({
         const yearlyMatch = yearlyPlans.find(p => p.id === currentPlan);
         if (yearlyMatch) {
             // console.log("Matching yearlyMatch plan is", yearlyMatch)
+            setCurrentPlanDetails(yearlyMatch);
             setCurrentPlanSequenceId(yearlyMatch.sequenceId);
             return;
         }
@@ -345,6 +349,7 @@ function SubAccountPlansAndPayments({
                 // //console.log;
                 setTogglePlan(togglePlan);
                 setCurrentPlan(togglePlan);
+                // setCurrentPlanDetails(response?.data?.data?.plan);
                 setSelectedPlan(plan);
                 // sequenceIdDetecter(plan)
             }
@@ -473,8 +478,9 @@ function SubAccountPlansAndPayments({
         // }
         // setTogglePlan(prevId => (prevId === item.id ? null : item.id));
         setTogglePlan(item.id);
-        setSelectedPlan((prevId) => (prevId === item ? null : item));
+        setSelectedPlan(item);
         planTitleTag();
+        // setSelectedPlan((prevId) => (prevId === item ? null : item));
         // setTogglePlan(prevId => (prevId === id ? null : id));
     };
 
@@ -558,6 +564,7 @@ function SubAccountPlansAndPayments({
                         setTogglePlan(togglePlan);
                         setSelectedPlan(response2?.data?.data?.plan);
                         setCurrentPlan(togglePlan);
+                        // setCurrentPlanDetails(response2?.data?.data?.plan);
                         setCurrentPlanSequenceId(response2?.data?.data?.plan?.sequenceId);
                         planTitleTag()
                         setShowDowngradePlanPopup(false)
@@ -655,6 +662,7 @@ function SubAccountPlansAndPayments({
                     setGiftPopup(false);
                     setTogglePlan(null);
                     setCurrentPlan(null);
+                    // setCurrentPlanDetails(null);
                     setSelectedPlan(null);
                     setCurrentPlanSequenceId(null);
                     setShowConfirmCancelPlanPopup2(true);
@@ -721,6 +729,7 @@ function SubAccountPlansAndPayments({
                     setGiftPopup(false);
                     setTogglePlan(togglePlan);
                     setCurrentPlan(togglePlan);
+                    // setCurrentPlanDetails(response2?.data?.data?.plan);
                     setCurrentPlanSequenceId(response2?.data?.data?.plan?.sequenceId);
                     setSelectedPlan(response2?.data?.data?.plan);
                     if (response2.data.status === true) {
@@ -823,7 +832,7 @@ function SubAccountPlansAndPayments({
         console.log("Toggle plan id is", selectedPlan?.sequenceId);
         console.log("Current plan sequence id is", currentPlanSequenceId);
 
-        if (!selectedPlan?.sequenceId) return "Select a Plan";
+        // if (!selectedPlan?.sequenceId) return "Select other Plan";
 
         // if (togglePlan === currentPlan) {
         //     console.log("Plan status is Current");
@@ -1434,7 +1443,7 @@ function SubAccountPlansAndPayments({
                         handleClose={() => { setShowDowngradePlanPopup(false) }}
                         onConfirm={() => { handleSubscribePlan() }}
                         downgradeTitle={selectedPlan?.title}
-                        features={selectedPlan?.features}
+                        features={currentPlanDetails?.features}
                         subscribePlanLoader={subscribePlanLoader}
                         isFrom={true}
                     />

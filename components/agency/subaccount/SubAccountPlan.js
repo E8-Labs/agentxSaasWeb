@@ -431,7 +431,7 @@ const SubAccountPlan = ({ handleContinue }) => {
                                   {item.planDescription}
                                 </div>
                                 <div className="flex flex-row items-center">
-                                  {item.originalPrice && (
+                                  {item.originalPrice && item.originalPrice > 0 && (
                                     <div style={styles.originalPrice}>
                                       ${item.originalPrice}
                                     </div>

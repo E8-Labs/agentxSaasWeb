@@ -40,6 +40,7 @@ function AgencyPlansPayments({
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
     const [currentPlan, setCurrentPlan] = useState(null);
+    const [currentPlanDetails, setCurrentPlanDetails] = useState(null);
     const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
     const [redeemLoader, setRedeemLoader] = useState(false);
 
@@ -150,6 +151,10 @@ function AgencyPlansPayments({
         getProfile();
     }, [plans])
 
+    useEffect(() => {
+        sequenceIdDetecter();
+    }, [currentPlan])
+
     //for updating the plan duration tab use the loginc to useeffect on currentplans change compare the title of available plans with the duration of current plan and selet that plan
     //get plans apis
     const getPlans = async () => {
@@ -240,6 +245,7 @@ function AgencyPlansPayments({
                 // //console.log;
                 setTogglePlan(togglePlan);
                 setCurrentPlan(togglePlan);
+                // setCurrentPlanDetails(response?.data?.data?.plan)
                 let userPlanDuration = response?.data?.data?.plan?.duration;
                 console.log('response?.data?.data?.plan', plans)
 
@@ -466,6 +472,7 @@ function AgencyPlansPayments({
                         // }
                         // setTogglePlan(planType);
                         setCurrentPlan(togglePlan);
+                        // setCurrentPlanDetails(selectedPlan);
                         planTitleTag();
                         setShowDowngradePlanPopup(false)
                     }
@@ -563,6 +570,7 @@ function AgencyPlansPayments({
                     setGiftPopup(false);
                     setTogglePlan(null);
                     setCurrentPlan(null);
+                    // setCurrentPlanDetails(null);
                     setShowConfirmCancelPlanPopup2(true);
                     let user = userLocalData
                     user.plan.status = "cancelled"
@@ -627,6 +635,7 @@ function AgencyPlansPayments({
                     setGiftPopup(false);
                     setTogglePlan(togglePlan);
                     setCurrentPlan(togglePlan);
+                    // setCurrentPlanDetails(selectedPlan);
                     if (response2.data.status === true) {
                         setSuccessSnack("You've claimed an extra 30 mins");
                     } else if (response2.data.status === false) {
@@ -763,6 +772,39 @@ function AgencyPlansPayments({
 
         // fallback
         return "Cancel Subscription";
+    };
+
+    //some code for squence id detecter
+    const sequenceIdDetecter = () => {
+        console.log("Sequence id detecter triggered");
+        // console.log("Detecter Current plan is", currentPlan)
+        // console.log("Detecter monthly plans are", monthlyPlans)
+        // Search inside monthly plans
+        const monthlyMatch = monthlyPlans.find(p => p.id === currentPlan);
+        if (monthlyMatch) {
+            // console.log("Matching monthly plan is", monthlyMatch)
+            setCurrentPlanDetails(monthlyMatch);
+            // setCurrentPlanSequenceId(monthlyMatch.sequenceId); // or monthlyMatch.planId if that's your field
+            return;
+        }
+
+        // Search inside quarterly plans
+        const quarterlyMatch = quaterlyPlans.find(p => p.id === currentPlan);
+        if (quarterlyMatch) {
+            // console.log("Matching quarterlyMatch plan is", quarterlyMatch)
+            setCurrentPlanDetails(quarterlyMatch);
+            // setCurrentPlanSequenceId(quarterlyMatch.sequenceId);
+            return;
+        }
+
+        // Search inside yearly plans
+        const yearlyMatch = yearlyPlans.find(p => p.id === currentPlan);
+        if (yearlyMatch) {
+            // console.log("Matching yearlyMatch plan is", yearlyMatch)
+            setCurrentPlanDetails(yearlyMatch);
+            // setCurrentPlanSequenceId(yearlyMatch.sequenceId);
+            return;
+        }
     };
 
 
@@ -1282,7 +1324,7 @@ function AgencyPlansPayments({
                         handleClose={() => { setShowDowngradePlanPopup(false) }}
                         onConfirm={() => { handleSubscribePlan() }}
                         downgradeTitle={selectedPlan?.title}
-                        features={selectedPlan?.features}
+                        features={currentPlanDetails?.features}
                         subscribePlanLoader={subscribePlanLoader}
                         isFrom={true}
                     />

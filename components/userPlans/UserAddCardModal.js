@@ -656,7 +656,7 @@ const UserAddCard = ({
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                             <div className="flex flex-col items-end ">
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    ${getTotalPrice(selectedPlan).toLocaleString()}
+                                    ${getTotalPrice(selectedPlan)}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>
@@ -708,7 +708,6 @@ const UserAddCard = ({
                             >
                                 Terms & Conditions
                             </a>
-                            <div> agree to a 12-month license term. Payments are billed {selectedPlan?.billingCycle || selectedPlan?.duration} as selected. </div>
                         </div>
                     </div>
                 </div>
