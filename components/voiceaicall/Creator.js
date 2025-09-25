@@ -455,6 +455,12 @@ const Creator = ({ agentId, name }) => {
       console.log("Current assistant overrides:", overridesToUse);
       console.log("Cleaned overrides for VAPI:", cleanedOverrides);
       console.log("Using overrides for VAPI start:", cleanedOverrides ? cleanedOverrides : agentId);
+      if(agentDetails?.data?.data?.smartList){//change this to check if agent has smart list attached
+        vapi.start(agentDetails?.data?.data?.agent?.id, cleanedOverrides ? cleanedOverrides : null)
+      }else{
+        console.log("Agent has no smart list, starting call directly");
+        vapi.start(agentId)
+      }
       vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
     } else {
       console.error("Vapi instance not initialized");
