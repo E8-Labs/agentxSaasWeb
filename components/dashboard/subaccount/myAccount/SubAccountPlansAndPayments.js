@@ -44,6 +44,7 @@ function SubAccountPlansAndPayments({
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
     const [currentPlan, setCurrentPlan] = useState(null);
+    const [currentPlanSequenceId, setCurrentPlanSequenceId] = useState(null); //compare this id tp show upgrade down grade
     const [cancelPlanLoader, setCancelPlanLoader] = useState(false);
     const [redeemLoader, setRedeemLoader] = useState(false);
 
@@ -76,7 +77,23 @@ function SubAccountPlansAndPayments({
     const [showDowngradePlanPopup, setShowDowngradePlanPopup] = useState(false);
 
     const [plans, setPlans] = useState([])
-    const [initialLoader, setInitialLoader] = useState(false)
+    const [initialLoader, setInitialLoader] = useState(false);
+
+    //variables
+    const textFieldRef = useRef(null);
+    const [selectReason, setSelectReason] = useState("");
+    const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
+    const [otherReasonInput, setOtherReasonInput] = useState("");
+
+    //separate plans list variables
+    const [monthlyPlans, setMonthlyPlans] = useState([]);
+    const [quaterlyPlans, setQuaterlyPlans] = useState([]);
+    const [yearlyPlans, setYearlyPlans] = useState([]);
+    const [duration, setDuration] = useState([]);
+    const [selectedDuration, setSelectedDuration] = useState([]);
+
+    //delreason extra variables
+    const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
 
     useEffect(() => {
         let screenWidth = 1000;
@@ -87,6 +104,41 @@ function SubAccountPlansAndPayments({
         setScreenWidth(screenWidth);
     }, []);
 
+    //check current plan and set the selected duration data
+    // useEffect(() => {
+    //     console.log("Selected plan is", selectedPlan)
+    //     if (currentPlan) {
+    //         if (selectedPlan?.id === "monthly") {
+    //             setSelectedDuration(duration[0])
+    //         }
+    //         else if (selectedPlan?.id === "quarterly") {
+    //             setSelectedDuration(duration[1])
+    //         }
+    //         else if (selectedPlan?.id === "yearly") {
+    //             setSelectedDuration(duration[2])
+    //         }
+    //     }
+    // }, [currentPlan, plans])
+
+    useEffect(() => {
+        if (!currentPlan) return;
+
+        //current plan id is
+        console.log("Current plan id is", currentPlan);
+
+        // Check inside monthly plans
+        if (monthlyPlans.some(p => p.id === currentPlan)) {
+            setSelectedDuration(duration[0]);
+        }
+        // Check inside quarterly plans
+        else if (quaterlyPlans.some(p => p.id === currentPlan)) {
+            setSelectedDuration(duration[1]);
+        }
+        // Check inside yearly plans
+        else if (yearlyPlans.some(p => p.id === currentPlan)) {
+            setSelectedDuration(duration[2]);
+        }
+    }, [currentPlan, plans]);
 
 
     //cancel plan reasons
@@ -114,8 +166,8 @@ function SubAccountPlansAndPayments({
     ];
 
     useEffect(() => {
-        getProfile();
         getPlans()
+        getProfile();
         getPaymentHistory();
         getCardsList();
     }, []);
@@ -143,6 +195,61 @@ function SubAccountPlansAndPayments({
             if (response) {
                 console.log("Response of get plans api is", response.data.data);
                 setPlans(response.data.data.monthlyPlans);
+
+                //separate plans
+                const apiPlansListMonthly = response.data.data.monthlyPlans;
+
+                const monthly = [];
+                const quarterly = [];
+                const yearly = [];
+                const availableDurations = []; // summary array
+
+                apiPlansListMonthly.forEach(plan => {
+                    switch (plan.duration) {
+                        case "monthly":
+                            monthly.push(plan);
+                            break;
+                        case "quarterly":
+                            quarterly.push(plan);
+                            break;
+                        case "yearly":
+                            yearly.push(plan);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+                //add plan id's
+                let planCounter = 1;
+
+                [monthly, quarterly, yearly].forEach(group => {
+                    group.forEach(plan => {
+                        plan.sequenceId = planCounter++; //create new subacc and then test
+                    });
+                });
+
+                // build the durations array dynamically
+                if (monthly.length > 0) {
+                    availableDurations.push({ id: 1, title: "Monthly" });
+                }
+                if (quarterly.length > 0) {
+                    availableDurations.push({ id: 2, title: "Quarterly" });
+                }
+                if (yearly.length > 0) {
+                    availableDurations.push({ id: 3, title: "Yearly" });
+                }
+
+
+                console.log("Monthly Plans:", monthly);
+                console.log("Quarterly Plans:", quarterly);
+                console.log("Yearly Plans:", yearly);
+                console.log("Available Durations:", availableDurations);
+                setDuration(availableDurations);
+                setMonthlyPlans(monthly);
+                setQuaterlyPlans(quarterly);
+                setYearlyPlans(yearly);
+                setInitialLoader(false);
                 setInitialLoader(false);
             }
 
@@ -151,6 +258,24 @@ function SubAccountPlansAndPayments({
             console.error("Error occured in getting subaccount plans", error);
         }
     }
+
+    //get current plans
+    const getCurrentPlans = (item) => {
+        console.log("Item passed in bartender is", item)
+        if (item.title === "Monthly") {
+            console.log("Returning monthly plans are", monthlyPlans)
+            return monthlyPlans;
+        }
+        if (item.title === "Quarterly") {
+            console.log("Returning quarterly plans are", quaterlyPlans)
+            return quaterlyPlans;
+        }
+        if (item.title === "Yearly") {
+            console.log("Returning yearly plans are", yearlyPlans)
+            return yearlyPlans;
+        }
+        return [];
+    };
 
     const getProfile = async () => {
         try {
@@ -179,6 +304,7 @@ function SubAccountPlansAndPayments({
                 console.log("Response of get profile api is", response);
                 let plan = response?.data?.data?.plan;
                 console.log('response?.data?.data?.plan', response?.data?.data?.plan)
+                console.log('response?.data?.data?.plan?.sequenceId', response?.data?.data?.plan?.sequenceId) //i am not getting any suequence id update in the useeffect where we add duration in select duration
 
                 let togglePlan = plan?.planId;
 
@@ -186,6 +312,8 @@ function SubAccountPlansAndPayments({
                 // //console.log;
                 setTogglePlan(togglePlan);
                 setCurrentPlan(togglePlan);
+                setSelectedPlan(plan);
+                setCurrentPlanSequenceId(plan?.sequenceId);
             }
         } catch (error) {
             // console.error("Error in getprofile api is", error);
@@ -395,7 +523,9 @@ function SubAccountPlansAndPayments({
                         //   planType = 4;
                         // }
                         setTogglePlan(togglePlan);
+                        setSelectedPlan(response2?.data?.data?.plan);
                         setCurrentPlan(togglePlan);
+                        setCurrentPlanSequenceId(response2?.data?.data?.plan?.sequenceId);
                         planTitleTag()
                         setShowDowngradePlanPopup(false)
                     }
@@ -492,6 +622,8 @@ function SubAccountPlansAndPayments({
                     setGiftPopup(false);
                     setTogglePlan(null);
                     setCurrentPlan(null);
+                    setSelectedPlan(null);
+                    setCurrentPlanSequenceId(null);
                     setShowConfirmCancelPlanPopup2(true);
                     let user = userLocalData
                     user.plan.status = "cancelled"
@@ -556,6 +688,8 @@ function SubAccountPlansAndPayments({
                     setGiftPopup(false);
                     setTogglePlan(togglePlan);
                     setCurrentPlan(togglePlan);
+                    setCurrentPlanSequenceId(response2?.data?.data?.plan?.sequenceId);
+                    setSelectedPlan(response2?.data?.data?.plan);
                     if (response2.data.status === true) {
                         setSuccessSnack("You've claimed an extra 30 mins");
                     } else if (response2.data.status === false) {
@@ -585,14 +719,7 @@ function SubAccountPlansAndPayments({
         }
     };
 
-    //variables
-    const textFieldRef = useRef(null);
-    const [selectReason, setSelectReason] = useState("");
-    const [showOtherReasonInput, setShowOtherReasonInput] = useState(false);
-    const [otherReasonInput, setOtherReasonInput] = useState("");
 
-    //delreason extra variables
-    const [cancelReasonLoader, setCancelReasonLoader] = useState(false);
     //function to select the cancel plan reason
     const handleSelectReason = async (item) => {
         // //console.log;
@@ -660,9 +787,10 @@ function SubAccountPlansAndPayments({
     const planTitleTag = () => {
 
         console.log("Current plan id is", currentPlan);
-        console.log("Toggle plan id is", togglePlan);
+        console.log("Toggle plan id is", selectedPlan?.sequenceId);
+        console.log("Current plan sequence id is", currentPlanSequenceId);
 
-        if (!togglePlan) return "Select a Plan";
+        if (!selectedPlan?.sequenceId) return "Select a Plan";
 
         // if (togglePlan === currentPlan) {
         //     console.log("Plan status is Current");
@@ -670,13 +798,13 @@ function SubAccountPlansAndPayments({
         // }
 
         // check if selected togglePlan is higher id than currentPlan → Upgrade
-        if (togglePlan > currentPlan) {
+        if (selectedPlan?.sequenceId > currentPlanSequenceId) {
             console.log("Plan status is Upgrade");
             return "Upgrade";
         }
 
         // check if selected togglePlan is lower id than currentPlan → Downgrade
-        if (togglePlan < currentPlan) {
+        if (selectedPlan?.sequenceId < currentPlanSequenceId) {
             console.log("Plan status is Downgrade");
             return "Downgrade";
         }
@@ -1012,6 +1140,25 @@ function SubAccountPlansAndPayments({
                 </button>
             ))*/}
 
+            <div className="w-full flex flex-row justify-end mt-4">
+                <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+                >
+                    {
+                        duration?.map((item) => (
+                            <button key={item.id}
+                                className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                onClick={() => {
+                                    setSelectedDuration(item);
+                                    getCurrentPlans(item);
+                                }}
+                            >
+                                {item.title}
+                            </button>
+                        ))
+                    }
+                </div>
+            </div>
+
             <div className="w-full flex flex-row gap-4"
                 style={{
                     overflowX: "auto",
@@ -1023,7 +1170,7 @@ function SubAccountPlansAndPayments({
                     flexShrink: 0,
                     alignItems: "stretch", // This makes all cards the same height
                 }}>
-                {plans?.map((item, index) => (
+                {getCurrentPlans(selectedDuration)?.map((item, index) => (
                     <button
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0"

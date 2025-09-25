@@ -149,6 +149,8 @@ function AgencyPlansPayments({
     useEffect(() => {
         getProfile();
     }, [plans])
+
+    //for updating the plan duration tab use the loginc to useeffect on currentplans change compare the title of available plans with the duration of current plan and selet that plan
     //get plans apis
     const getPlans = async () => {
         try {
@@ -1155,11 +1157,11 @@ function AgencyPlansPayments({
 
                                     <div className="text-xl font-bold text-left mb-2">
                                         {selectedDuration.title === "Monthly"
-                                            ? "Billed Monthly"
+                                            ? `$${item.originalPrice} / month`
                                             : selectedDuration.title === "Quarterly"
-                                                ? "Billed Quarterly"
+                                                ? `$${item.originalPrice} / quarter`
                                                 : selectedDuration.title === "Yearly"
-                                                    ? "Billed Yearly"
+                                                    ? `$${item.originalPrice} / year`
                                                     : "-"}
                                     </div>
 
