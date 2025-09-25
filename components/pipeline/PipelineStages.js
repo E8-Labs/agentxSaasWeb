@@ -35,6 +35,8 @@ import { getUserLocalData, UpgradeTag } from "../constants/constants";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import UpgradePlan from '../userPlans/UpgradePlan';
+import { useUser } from "@/hooks/redux-hooks";
+import getProfileDetails from "../apis/GetProfile";
 
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
@@ -147,7 +149,9 @@ const PipelineStages = ({
 
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
 
-  const [user, setUser] = useState(null)
+  // Use Redux for user data instead of local state
+  const { user: userData, setUser: setUserData, token } = useUser();
+  const [user, setUser] = useState(userData); // Keep local state for compatibility
 
   const ACTIONS = [
     { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
@@ -250,13 +254,26 @@ const PipelineStages = ({
 
 
   useEffect(() => {
+    console.log("🔥 PIPELINESTAGES - useEffect triggered with userData:", {
+      userId: userData?.id,
+      planType: userData?.plan?.type,
+      planName: userData?.plan?.name,
+      allowTextMessages: userData?.planCapabilities?.allowTextMessages
+    });
 
-    let data = getUserLocalData()
-    // console.log('user local data', data)
-    setUser(data.user)
+    // Use Redux userData instead of localStorage
+    if (userData) {
+      setUser(userData);
+    } else {
+      // Fallback to localStorage only if Redux has no data
+      let data = getUserLocalData();
+      console.log('🔥 PIPELINESTAGES - Fallback to localStorage:', data);
+      setUser(data.user);
+    }
+
     getMyTeam();
-    getNumbers()
-  }, [stages]);
+    getNumbers();
+  }, [stages, userData]);
 
 
   useEffect(() => {
@@ -2223,7 +2240,53 @@ const PipelineStages = ({
             <Elements stripe={stripePromise}>
               <UpgradePlan
                 open={showUpgradeModal}
-                handleClose={() => setShowUpgradeModal(false)}
+                handleClose={async (result) => {
+                  console.log("🔥 PIPELINESTAGES - UpgradePlan handleClose called with result:", result);
+
+                  setShowUpgradeModal(false);
+
+                  if (result) {
+                    console.log("🔥 PIPELINESTAGES - Upgrade successful, refreshing user data...");
+
+                    try {
+                      // Get fresh user data
+                      const profileResponse = await getProfileDetails();
+                      console.log("🔥 PIPELINESTAGES - getProfileDetails response:", profileResponse);
+
+                      if (profileResponse?.data?.status === true) {
+                        const freshUserData = profileResponse.data.data;
+                        console.log("🔥 PIPELINESTAGES - Fresh user data:", {
+                          userId: freshUserData?.id,
+                          planType: freshUserData?.plan?.type,
+                          planName: freshUserData?.plan?.name,
+                          allowTextMessages: freshUserData?.planCapabilities?.allowTextMessages
+                        });
+
+                        // Update both Redux and local state
+                        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+                        const updatedUserData = {
+                          token: localData.token || token,
+                          user: freshUserData
+                        };
+
+                        console.log("🔥 PIPELINESTAGES - About to call setUserData (Redux)");
+                        setUserData(updatedUserData);
+                        setUser(freshUserData); // Update local state immediately
+                        console.log("🔥 PIPELINESTAGES - User data update completed");
+
+                        // Verify localStorage was updated
+                        setTimeout(() => {
+                          const localStorageData = localStorage.getItem("User");
+                          console.log("🔥 PIPELINESTAGES - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
+                        }, 100);
+                      } else {
+                        console.error("🔥 PIPELINESTAGES - Failed to get profile details");
+                      }
+                    } catch (error) {
+                      console.error("🔥 PIPELINESTAGES - Error refreshing user data:", error);
+                    }
+                  }
+                }}
                 plan={selectedPlan}
                 currentFullPlan={null}
               />
