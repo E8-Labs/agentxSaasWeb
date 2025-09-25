@@ -215,15 +215,6 @@ export const models = [
     responseTime: "1550 ms",
   },
   {
-    name: 'GPT-5 Mini',
-    provider: 'openai',
-    model: 'gpt-5-mini',
-    value: "gpt-5-mini",
-    icon: "/svgIcons/chatgptIcon.svg",
-    disabled: false,
-    responseTime: "1450 ms",
-  },
-  {
     name: "GPT-4o",
     provider: "openai",
     value: "gpt-4o-mini",

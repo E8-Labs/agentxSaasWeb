@@ -3043,33 +3043,51 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           },
                         }}
                       >
-                        {models.map((model, index) => (
-                          <MenuItem
-                            key={index}
-                            onClick={() => handleGptManuSelect(model)}
-                            disabled={model.disabled}
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              padding: "8px 12px",
-                              borderRadius: "8px",
-                              transition: "background 0.2s",
-                              "&:hover": {
-                                backgroundColor: model.disabled
-                                  ? "inherit"
-                                  : "#F5F5F5",
-                              },
-                              opacity: model.disabled ? 0.6 : 1,
-                            }}
-                          >
-                            <Avatar
-                              src={model.icon}
-                              sx={{ width: 24, height: 24 }}
-                            />
-                            {model.name}
-                          </MenuItem>
-                        ))}
+                          {models.map((model, index) => (
+                            <MenuItem
+                              key={index}
+                              onClick={() => handleGptManuSelect(model)}
+                              disabled={model.disabled}
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
+                                gap: "10px",
+                                padding: "8px 12px",
+                                borderRadius: "8px",
+                                transition: "background 0.2s",
+                                "&:hover": {
+                                  backgroundColor: model.disabled
+                                    ? "inherit"
+                                    : "#F5F5F5",
+                                },
+                                opacity: model.disabled ? 0.6 : 1,
+                              }}
+                            >
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <Avatar
+                                  src={model.icon}
+                                  sx={{ width: 24, height: 24 }}
+                                />
+                                <span style={{ fontSize: "14px", fontWeight: "500" }}>
+                                  {model.name}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  backgroundColor: "#7902DF05",
+                                  color: "#7902DF",
+                                  padding: "4px 8px",
+                                  borderRadius: "12px",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  minWidth: "fit-content",
+                                }}
+                              >
+                                {model.responseTime}
+                              </div>
+                            </MenuItem>
+                          ))}
                       </Menu>
                     </div>
                   )}

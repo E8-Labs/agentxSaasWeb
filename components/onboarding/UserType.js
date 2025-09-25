@@ -208,6 +208,26 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
       userType: "LoanOfficerAgent",
       roundedImage: false,
     },
+    {
+      id: 14,
+      title: "Reception Agent",
+      agentType: "Reception Agent",
+      // icon: "/usertype/avt2.png",
+      icon: "/agencyIcons/agentsView/receptionAgent.jpg",
+      areaOfFocusTitle: "What area do you focus on?",
+      userType: "ReceptionAgent",
+      roundedImage: false,
+    },
+    {
+      id: 15,
+      title: "General Agent",
+      agentType: "General Agent",
+      // icon: "/usertype/avt2.png",
+      icon: "/agencyIcons/agentsView/generalAgent.jpg",
+      areaOfFocusTitle: "What area do you focus on?",
+      userType: "GeneralAgent",
+      roundedImage: false,
+    },
 
     {
       id: 100,
