@@ -16,10 +16,16 @@ import dynamic from "next/dynamic.js";
 import React, { useState } from "react";
 import { PersistanceKeys } from "@/constants/Constants.js";
 import getProfileDetails from "@/components/apis/GetProfile.js";
+import { useUser } from "@/hooks/redux-hooks.js";
 
 const Page = () => {
   const router = useRouter();
   const [index, setIndex] = useState(0);
+
+  // Redux user state
+  const { user: userData, setUser: setUserData, token } = useUser();
+
+  console.log("🔥 PIPELINE-UPDATE - Current userData from Redux:", userData);
   let components = [Pipeline1];
 
   let CurrentComp = components[index];
@@ -59,12 +65,11 @@ const Page = () => {
         mainAgentId = Data.id;
       }
 
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const Data = JSON.parse(localData);
-        //////console.log;
-        AuthToken = Data.token;
+      // Use Redux token instead of localStorage
+      let AuthToken = token;
+      if (!AuthToken) {
+        console.error("🔥 PIPELINE-UPDATE - No token available");
+        return;
       }
 
       //console.log;
@@ -95,18 +100,53 @@ const Page = () => {
       if (response) {
         //console.log;
         if (response.data.status === true) {
-          console.log('response of update cadence api is ', response)
+          console.log('🔥 PIPELINE-UPDATE - Update cadence API successful:', response);
+
           localStorage.removeItem("AddCadenceDetails");
           localStorage.removeItem(PersistanceKeys.selectedUser);
-          await getProfileDetails();
-          const LocalData = localStorage.getItem("User");
-          if(LocalData){
-            const userData = JSON.parse(LocalData);
-            if(userData.user.userType === "admin"){
-              router.push("/admin");
-              return;
+
+          // Refresh user data properly
+          console.log("🔥 PIPELINE-UPDATE - Refreshing user data...");
+          try {
+            const profileResponse = await getProfileDetails();
+            console.log("🔥 PIPELINE-UPDATE - getProfileDetails response:", profileResponse);
+
+            if (profileResponse?.data?.status === true) {
+              const freshUserData = profileResponse.data.data;
+              const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+              console.log("🔥 PIPELINE-UPDATE - Fresh user data:", freshUserData);
+
+              // Update Redux and localStorage with fresh data
+              const updatedUserData = {
+                token: localData.token || token,
+                user: freshUserData
+              };
+
+              console.log("🔥 PIPELINE-UPDATE - About to call setUserData (Redux)");
+              setUserData(updatedUserData);
+              console.log("🔥 PIPELINE-UPDATE - Redux update completed");
+
+              // Verify localStorage was updated
+              setTimeout(() => {
+                const localStorageData = localStorage.getItem("User");
+                console.log("🔥 PIPELINE-UPDATE - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
+              }, 100);
+
+              // Route based on updated user data
+              if (freshUserData.userType === "admin") {
+                console.log("🔥 PIPELINE-UPDATE - Routing to admin");
+                router.push("/admin");
+                return;
+              }
+            } else {
+              console.error("🔥 PIPELINE-UPDATE - Failed to get profile details");
             }
+          } catch (error) {
+            console.error("🔥 PIPELINE-UPDATE - Error refreshing user data:", error);
           }
+
+          console.log("🔥 PIPELINE-UPDATE - Routing to dashboard");
           router.push("/dashboard/myAgentX");
         } else {
           // setLoader(false);

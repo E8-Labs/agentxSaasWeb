@@ -168,6 +168,9 @@ function UpgradePlanContent({
     currentFullPlan,
     selectedPlan = null // Pre-selected plan from previous screen
 }) {
+    console.log("🚀 UpgradePlanContent received handleClose:", typeof handleClose);
+    console.log("🚀 UpgradePlanContent handleClose function:", handleClose);
+    console.log("🚀 UpgradePlanContent handleClose toString:", handleClose?.toString());
 
     const stripeReact = useStripe();
     const elements = useElements();
@@ -744,15 +747,26 @@ function UpgradePlanContent({
                 setsubscribeLoader(false);
 
                 // Call getProfileDetails to refresh the profile
-                let user
-                if (selectedUser) {
-                    user = await AdminGetProfileDetails(selectedUser?.subAccountData.id) // refresh admin profile
-                } else {
-                    user = getProfileDetails()
-                }
+                // let user
+                // if (selectedUser) {
+                //     user = await AdminGetProfileDetails(selectedUser?.subAccountData.id) // refresh admin profile
+                // } else {
+                //     user = getProfileDetails()
+                // }
 
                 // Pass true to indicate successful upgrade
-                handleClose(true)
+                console.log("Subscribe api called successfully")
+                console.log("About to call handleClose with result:", true);
+                console.log("handleClose function type:", typeof handleClose);
+                console.log("handleClose function:", handleClose);
+                console.log("handleClose.toString():", handleClose.toString());
+                try {
+                    const result = await handleClose(true);
+                    console.log("handleClose returned:", result);
+                    console.log("handleClose completed successfully");
+                } catch (error) {
+                    console.error("Error in handleClose:", error);
+                }
             }
         } catch (error) {
             console.error("Error occurred in subscription:", error);
