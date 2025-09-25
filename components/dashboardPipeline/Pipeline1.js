@@ -4029,6 +4029,7 @@ const Pipeline1 = () => {
             title={"You've Hit Your pipeline Limit"}
             subTitle={"Upgrade to add more pipelines"}
             buttonTitle={"No Thanks"}
+            functionality="pipeline"
           />
           {/* Modal for lead details */}
           {showDetailsModal && (

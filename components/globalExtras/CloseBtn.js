@@ -9,10 +9,9 @@ const CloseBtn = ({ onClick, showWhiteCross }) => {
                 onClick={onClick}
             >
                 <Image
-                    src={"/assets/crossIcon.png"}
-                    height={10}
-                    width={10}
-                    alt="*"
+                    alt="close"
+                    src="/assets/cross.png"
+                    width={15} height={15}
                     style={{ filter: showWhiteCross ? "invert(1)" : "invert(0)" }}
                 />
             </button>

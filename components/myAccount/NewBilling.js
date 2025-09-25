@@ -1791,6 +1791,7 @@ function NewBilling() {
                 open={showSmartRefillUpgradeModal}
                 handleClose={() => setShowSmartRefillUpgradeModal(false)}
                 onUpgradeSuccess={handleSmartRefillUpgrade}
+                functionality={"smartRefill"}
             />
 
 

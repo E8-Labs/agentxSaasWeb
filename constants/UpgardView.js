@@ -11,6 +11,7 @@ function UpgardView({
     title,
     subTitle,
     userData,
+    onUpgradeSuccess,
     // handleContinue
 }) {
 
@@ -99,14 +100,17 @@ function UpgardView({
             if (profileResponse?.data?.status === true) {
                 const freshUserData = profileResponse.data.data;
                 const localData = JSON.parse(localStorage.getItem("User") || '{}');
-
-
+                
                 console.log('🔄 [Upgrade view] Fresh user data received after upgrade');
                 // Update Redux with fresh data
                 setReduxUser({
                     token: localData.token,
                     user: freshUserData
                 });
+
+                if (onUpgradeSuccess) {
+                    onUpgradeSuccess(freshUserData);
+                }
 
                 return true;
             }

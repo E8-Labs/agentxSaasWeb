@@ -3453,7 +3453,10 @@ function Page() {
         onUpgradeSuccess={handleUpgradeSuccess}
         title={title || "Unlock More Agents"}
         subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
-        buttonTitle={"No Thanks"}
+        buttonTitle={"No Thanks"}f
+        functionality="webAgent"
+
+
       />
 
       <MoreAgentsPopup

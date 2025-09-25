@@ -31,16 +31,23 @@ const CardForm = ({
     referralMessage,
     addCardLoader,
     handleAddCard,
-    onCancel
+    onCancel,
+    haveCards
 }) => {
     return (
         <div className='w-full flex flex-col gap-2 mt-2'>
-        <CloseBtn  
-        onClick={onCancel}
-         />
+            {
+                haveCards ? (
+                    <div className="w-full flex justify-end">
+                        <CloseBtn
+                            onClick={onCancel}
+                        />
+                    </div>
+                ) : null
+            }
             <div className='w-full'>
                 <div
-                    className="px-3 py-1 border relative flex items-center"
+                    className="px-3 py-1 relative flex items-center"
                     style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                 >
                     <div className="flex-1 w-full">
@@ -774,7 +781,7 @@ function UpgradePlanContent({
                 className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
                 sx={styles.paymentModal}
             >
-                <div className="flex flex-row justify-center w-full ">
+                <div className="flex flex-col justify-center w-full h-full">
                     <AgentSelectSnackMessage
                         isVisible={credentialsErr}
                         hide={() => setCredentialsErr(false)}
@@ -797,8 +804,8 @@ function UpgradePlanContent({
                             backgroundColor: "#ffffff",
                             padding: 0,
                             borderRadius: "13px",
-                            maxHeight: "90vh",
-                            height: "auto",
+                            // maxHeight: "95vh",
+                            height: "90vh",
                             minHeight: "60vh"
                         }}
                     >
@@ -842,7 +849,7 @@ function UpgradePlanContent({
 
                             <div className={`flex flex-col w-[75%] md:h-[100%] h-[100%] items-start flex-1 px-6  ${isSmallScreen ? 'overflow-auto' : 'md:overflow-none'}`}
                                 style={{
-                                    maxHeight: isSmallScreen ? 'calc(100vh - 120px)' : 'none',
+                                    // maxHeight: isSmallScreen ? 'calc(100vh - 120px)' : 'none',
                                     scrollbarWidth: 'none'
                                 }}
                             >
@@ -975,7 +982,7 @@ function UpgradePlanContent({
 
                                     <div className='flex flex-row items-start w-full gap-10 mt-2'>
                                         <div
-                                            className='w-[50%] flex flex-col items-start h-[24vh] overflow-y-auto' style={{ scrollbarWidth: 'none' }}
+                                            className='w-[50%] flex flex-col items-start h-[33vh] border overflow-y-auto' style={{ scrollbarWidth: 'none' }}
                                         >
 
                                             {
@@ -997,23 +1004,24 @@ function UpgradePlanContent({
                                                         onCancel={() => {
                                                             setShowAddCard(false);
                                                         }}
+                                                        haveCards={haveCards}
                                                     />
                                                 ) : (
 
                                                     <div className='flex flex-col gap-2 mt-2 items-start w-full' >
-                                                    <div className='w-full flex flex-row items-center justify-between'>
-                                                        <div className='text-lg font-semibold flex flex-row items-start justify-between'>
-                                                            Payment
-                                                        </div>
+                                                        <div className='w-full flex flex-row items-center justify-between'>
+                                                            <div className='text-lg font-semibold flex flex-row items-start justify-between'>
+                                                                Payment
+                                                            </div>
 
-                                                        <button
-                                                            onClick={() => {
-                                                                setShowAddCard(true);
-                                                            }}
-                                                            className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
-                                                        >
-                                                            + Add Payment
-                                                        </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setShowAddCard(true);
+                                                                }}
+                                                                className='text-xs font-medium mt-4 text-purple hover:text-purple-700'
+                                                            >
+                                                                + Add Payment
+                                                            </button>
                                                         </div>
                                                         {cards.map((item) => (
                                                             <div className="w-full" key={item.id}>
@@ -1193,7 +1201,7 @@ function UpgradePlanContent({
                                         </div>
                                     </div>
                                 </div>
-                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3 pb-2'>
+                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3 pb-5'>
                                     {
                                         subscribeLoader ? (
                                             <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
@@ -1235,7 +1243,7 @@ function UpgradePlanContent({
 const styles = {
     paymentModal: {
         height: "auto",
-        maxHeight: "90vh",
+        maxHeight: "95vh",
         bgcolor: "transparent",
         mx: "auto",
         my: "5vh",
