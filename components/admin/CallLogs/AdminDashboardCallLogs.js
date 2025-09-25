@@ -582,12 +582,14 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Status</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Date</div>
+                      <div className="min-w-[400px] flex-shrink-0">
+                        <div style={styles.text}>Date/Time</div>
                       </div>
-                      <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Time</div>
-                      </div>
+                      {/*
+                        <div className="min-w-[200px] flex-shrink-0">
+                          <div style={styles.text}>Time</div>
+                        </div>
+                      */}
                       <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
                         <div style={styles.text}>More</div>
                       </div>
@@ -659,16 +661,18 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                                 {item?.callOutcome ? item?.callOutcome : "Ongoing"}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0">
+                            <div className="min-w-[400px] flex-shrink-0">
                               <div style={styles.text2}>
-                                {GetFormattedDateString(item?.createdAt)}
+                                {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                               </div>
                             </div>
-                            <div className="min-w-[200px] flex-shrink-0">
-                              <div style={styles.text2}>
-                                {GetFormattedTimeString(item?.createdAt)}
+                            {/*
+                              <div className="min-w-[200px] flex-shrink-0">
+                                <div style={styles.text2}>
+                                  
+                                </div>
                               </div>
-                            </div>
+                            */}
                             <div className="min-w-[150px] flex-shrink-0 sticky right-0 bg-white z-10">
                               <button
                                 onClick={() => {
