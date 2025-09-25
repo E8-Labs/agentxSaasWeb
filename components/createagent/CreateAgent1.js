@@ -461,11 +461,20 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     }
   };
 
+  useEffect(() => {
+    //add interval here
+    console.log("reduxUser is", reduxUser)
+      let user = localStorage.getItem("User")
+      console.log("local user is", user)
+  }, [reduxUser])
+
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
+    console.log('🔄 REFRESH USER DATA STARTED');
     try {
-      // console.log('🔄 [CREATE-AGENT] Refreshing user data after plan upgrade...');
+      console.log('🔄 Calling getProfileDetails...');
       const profileResponse = await getProfileDetails();
+      console.log('🔄 getProfileDetails response:', profileResponse);
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
@@ -473,17 +482,17 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
         // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
 
-        // Update Redux with fresh data
-        setReduxUser({
+        // Update Redux and localStorage with fresh data
+        console.log("updating redux user", freshUserData)
+        const updatedUserData = {
           token: localData.token,
           user: freshUserData
-        });
+        };
+
+        setReduxUser(updatedUserData);
 
         // Update local state as well
-        setUser({
-          token: localData.token,
-          user: freshUserData
-        });
+        setUser(updatedUserData);
 
         return true;
       }
@@ -1020,10 +1029,32 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 <UnlockAgentModal
                   open={showUnclockModal}
-                  handleClose={(data) => {
+                  handleClose={async (data) => {
+                    setShowUnclockModal(false)
                     if (data) {
                       console.log('data', data)
-                      setSelectedUser(data)
+                      // setSelectedUser(data)
+                      console.log("plan upgraded successfully")
+                        // Refresh user data after upgrade to get new plan capabilities
+                        const refreshSuccess = await refreshUserData();
+                        console.log("refreshSuccess:", refreshSuccess);
+                        if (refreshSuccess) {
+                          console.log('User data refreshed successfully after upgrade');
+                          // If there was a pending selection, apply it now with the new plan limits
+                          if (pendingAgentSelection) {
+                            console.log('Retrying pending selection with new plan limits...');
+                            // Clear the pending selection and recheck limits
+                            const pendingSelection = pendingAgentSelection;
+                            setPendingAgentSelection(null);
+
+                            // Apply the selection now that limits have been upgraded
+                            setInBoundCalls(pendingSelection.inbound);
+                            setOutBoundCalls(pendingSelection.outbound);
+                            console.log("Applied pending selection after upgrade");
+                          }
+                        } else {
+                          console.error("Failed to refresh user data after upgrade");
+                        }
                     }
                     setShowUnclockModal(false)
                   }}
@@ -1038,9 +1069,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   }}
                   onUpgrade={() => {
                     setShowMoreAgentsModal(false);
+                    setShowUnclockModal(false); // Ensure unlock modal is closed
                     setShowUpgradePlanModal(true);
                     // Keep the pending selection so it can be applied after upgrade
-                    // console.log('🔄 [CREATE-AGENT] User chose to upgrade plan');
+                    console.log('🔄 [CREATE-AGENT] User chose to upgrade plan');
                   }}
                   onAddAgent={() => {
                     // Handle "Add Agent with price" - apply the pending selection
@@ -1058,25 +1090,37 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                 <UpgradePlan
                   open={showUpgradePlanModal}
                   handleClose={async (result) => {
-                    setShowUpgradePlanModal(false);
-                    if (result) {
-                      // console.log('🎉 [CREATE-AGENT] Plan upgraded successfully');
-                      // Refresh user data after upgrade to get new plan capabilities
-                      const refreshSuccess = await refreshUserData();
-                      if (refreshSuccess) {
-                        // console.log('✅ [CREATE-AGENT] User data refreshed successfully after upgrade');
-                        // If there was a pending selection, apply it now with the new plan limits
-                        if (pendingAgentSelection) {
-                          // console.log('🔄 [CREATE-AGENT] Retrying pending selection with new plan limits...');
-                          // Clear the pending selection and recheck limits
-                          const pendingSelection = pendingAgentSelection;
-                          setPendingAgentSelection(null);
+                    console.log("🔥 HANDLECLOSE CALLED WITH RESULT:", result);
+                    console.log("🔥 HANDLECLOSE FUNCTION STARTED");
+                    try {
+                      setShowUpgradePlanModal(false);
+                      setShowUnclockModal(false); // Also close the unlock modal
+                      console.log("in UpgradePlan result is", result)
+                      if (result) {
+                        console.log("plan upgraded successfully")
+                        // Refresh user data after upgrade to get new plan capabilities
+                        const refreshSuccess = await refreshUserData();
+                        console.log("refreshSuccess:", refreshSuccess);
+                        if (refreshSuccess) {
+                          console.log('User data refreshed successfully after upgrade');
+                          // If there was a pending selection, apply it now with the new plan limits
+                          if (pendingAgentSelection) {
+                            console.log('Retrying pending selection with new plan limits...');
+                            // Clear the pending selection and recheck limits
+                            const pendingSelection = pendingAgentSelection;
+                            setPendingAgentSelection(null);
 
-                          // Apply the selection now that limits have been upgraded
-                          setInBoundCalls(pendingSelection.inbound);
-                          setOutBoundCalls(pendingSelection.outbound);
+                            // Apply the selection now that limits have been upgraded
+                            setInBoundCalls(pendingSelection.inbound);
+                            setOutBoundCalls(pendingSelection.outbound);
+                            console.log("Applied pending selection after upgrade");
+                          }
+                        } else {
+                          console.error("Failed to refresh user data after upgrade");
                         }
                       }
+                    } catch (error) {
+                      console.error("Error in UpgradePlan handleClose:", error);
                     }
                   }}
                 />

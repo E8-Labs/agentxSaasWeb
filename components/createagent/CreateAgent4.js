@@ -35,6 +35,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser();
 
+  // Log current userData state
+  console.log("🔥 CREATEAGENT4 - Current userData from Redux:", userData);
+  console.log("🔥 CREATEAGENT4 - Agency capabilities:", userData?.agencyCapabilities);
+  console.log("🔥 CREATEAGENT4 - Plan capabilities:", userData?.planCapabilities);
+
   //agent type
   const [agentType, setAgentType] = useState("");
   //variable for video card
@@ -932,10 +937,25 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
                         userData={userData}
                         onUpgradeSuccess={(userData) => {
-                          console.log("Upgrade successful", userData);
+                          console.log("🔥 CREATEAGENT4 - LT:Upgrade successful", userData);
+                          console.log("🔥 CREATEAGENT4 - UserData type check:", {
+                            hasToken: userData?.hasOwnProperty('token'),
+                            hasUser: userData?.hasOwnProperty('user'),
+                            isFullFormat: userData?.hasOwnProperty('token') && userData?.hasOwnProperty('user'),
+                            dataStructure: Object.keys(userData || {})
+                          });
+
+                          console.log("🔥 CREATEAGENT4 - About to call setUpdatedUserData");
                           setUpdatedUserData(userData);
+                          console.log("🔥 CREATEAGENT4 - About to call setUserData (Redux)");
                           setUserData(userData);
-                          // console.log("Upgrade successful");
+                          console.log("🔥 CREATEAGENT4 - Both setters called successfully");
+
+                          // Verify localStorage was updated
+                          setTimeout(() => {
+                            const localStorageData = localStorage.getItem("User");
+                            console.log("🔥 CREATEAGENT4 - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
+                          }, 100);
                         }}
                       // handleContinue={handleContinue}
                       />
@@ -1020,10 +1040,25 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                             subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
                             userData={userData}
                             onUpgradeSuccess={(userData) => {
-                              console.log("Upgrade successful", userData);
+                              console.log("🔥 CREATEAGENT4 - Second LT:Upgrade successful", userData);
+                              console.log("🔥 CREATEAGENT4 - Second - UserData type check:", {
+                                hasToken: userData?.hasOwnProperty('token'),
+                                hasUser: userData?.hasOwnProperty('user'),
+                                isFullFormat: userData?.hasOwnProperty('token') && userData?.hasOwnProperty('user'),
+                                dataStructure: Object.keys(userData || {})
+                              });
+
+                              console.log("🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData");
                               setUpdatedUserData(userData);
+                              console.log("🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)");
                               setUserData(userData);
-                              // console.log("Upgrade successful");
+                              console.log("🔥 CREATEAGENT4 - Second - Both setters called successfully");
+
+                              // Verify localStorage was updated
+                              setTimeout(() => {
+                                const localStorageData = localStorage.getItem("User");
+                                console.log("🔥 CREATEAGENT4 - Second - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
+                              }, 100);
                             }}
                           // handleContinue={handleContinue}
                           />

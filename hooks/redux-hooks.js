@@ -56,7 +56,30 @@ export const useUser = () => {
   }, [user, token, dispatch]);
 
   const actions = {
-    setUser: (userData) => dispatch(setUser(userData)),
+    setUser: (userData) => {
+      // Check if userData has both user and token properties
+      let dataToSave;
+
+      if (userData && userData.hasOwnProperty('token') && userData.hasOwnProperty('user')) {
+        // Full user data with token - save as is
+        dataToSave = userData;
+      } else if (userData && !userData.hasOwnProperty('token')) {
+        // Only user data provided - preserve existing token
+        const existingData = JSON.parse(localStorage.getItem('User') || '{}');
+        dataToSave = {
+          token: existingData.token || null,
+          user: userData
+        };
+      } else {
+        // Fallback - save as is
+        dataToSave = userData;
+      }
+
+      // Update localStorage
+      localStorage.setItem('User', JSON.stringify(dataToSave));
+      // Update Redux
+      dispatch(setUser(dataToSave));
+    },
     setToken: (token) => dispatch(setToken(token)),
     updateProfile: (profileData) => dispatch(updateUserProfile(profileData)),
     setAgencyUuid: (uuid) => dispatch(setAgencyUuid(uuid)),
