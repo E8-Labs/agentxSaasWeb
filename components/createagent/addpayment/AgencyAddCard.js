@@ -708,6 +708,7 @@ const AgencyAddCard = ({
                             >
                                 Terms & Conditions
                             </a>
+                            <div> agree to a 12-month license term. Payments are billed {selectedPlan.duration} as selected. </div>
                         </div>
                     </div>
                 </div>

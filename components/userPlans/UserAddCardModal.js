@@ -28,7 +28,7 @@ import AgentSelectSnackMessage, {
 import { calculatePlanPrice, getMonthlyPrice, getTotalPrice, checkReferralCode, getNextChargeDate } from "./UserPlanServices";
 import { useUser } from '@/hooks/redux-hooks';
 // import Apis from '../Apis/Apis';
-import getProfileDetails from "../apis/GetProfile";     
+import getProfileDetails from "../apis/GetProfile";
 const UserAddCard = ({
     handleClose,
     togglePlan,
@@ -708,6 +708,7 @@ const UserAddCard = ({
                             >
                                 Terms & Conditions
                             </a>
+                            <div> agree to a 12-month license term. Payments are billed {selectedPlan?.billingCycle || selectedPlan?.duration} as selected. </div>
                         </div>
                     </div>
                 </div>
