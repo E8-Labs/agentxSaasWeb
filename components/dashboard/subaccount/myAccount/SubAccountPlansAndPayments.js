@@ -124,7 +124,7 @@ function SubAccountPlansAndPayments({
         if (!currentPlan) return;
 
         //current plan id is
-        console.log("Current plan id is", currentPlan);
+        console.log("Current plan id is", selectedPlan);
 
         // Check inside monthly plans
         if (monthlyPlans.some(p => p.id === currentPlan)) {
@@ -138,6 +138,8 @@ function SubAccountPlansAndPayments({
         else if (yearlyPlans.some(p => p.id === currentPlan)) {
             setSelectedDuration(duration[2]);
         }
+
+        sequenceIdDetecter();
     }, [currentPlan, plans]);
 
 
@@ -171,6 +173,37 @@ function SubAccountPlansAndPayments({
         getPaymentHistory();
         getCardsList();
     }, []);
+
+    //some code for squence id detecter
+    const sequenceIdDetecter = () => {
+        console.log("Sequence id detecter triggered");
+        // console.log("Detecter Current plan is", currentPlan)
+        // console.log("Detecter monthly plans are", monthlyPlans)
+        // Search inside monthly plans
+        const monthlyMatch = monthlyPlans.find(p => p.id === currentPlan);
+        if (monthlyMatch) {
+            // console.log("Matching monthly plan is", monthlyMatch)
+            setCurrentPlanSequenceId(monthlyMatch.sequenceId); // or monthlyMatch.planId if that's your field
+            return;
+        }
+
+        // Search inside quarterly plans
+        const quarterlyMatch = quaterlyPlans.find(p => p.id === currentPlan);
+        if (quarterlyMatch) {
+            // console.log("Matching quarterlyMatch plan is", quarterlyMatch)
+            setCurrentPlanSequenceId(quarterlyMatch.sequenceId);
+            return;
+        }
+
+        // Search inside yearly plans
+        const yearlyMatch = yearlyPlans.find(p => p.id === currentPlan);
+        if (yearlyMatch) {
+            // console.log("Matching yearlyMatch plan is", yearlyMatch)
+            setCurrentPlanSequenceId(yearlyMatch.sequenceId);
+            return;
+        }
+    };
+
 
     //get plans apis
     const getPlans = async () => {
@@ -313,7 +346,7 @@ function SubAccountPlansAndPayments({
                 setTogglePlan(togglePlan);
                 setCurrentPlan(togglePlan);
                 setSelectedPlan(plan);
-                setCurrentPlanSequenceId(plan?.sequenceId);
+                // sequenceIdDetecter(plan)
             }
         } catch (error) {
             // console.error("Error in getprofile api is", error);
@@ -1305,15 +1338,15 @@ function SubAccountPlansAndPayments({
 
                                 {item.id === currentPlan && (
                                     <div
-                                    className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
-                                    style={{
-                                        fontSize: 9,
-                                        fontWeight: "600",
-                                        width: "fit-content",
-                                    }}
-                                >
-                                    Current Plan
-                                </div>
+                                        className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                                        style={{
+                                            fontSize: 9,
+                                            fontWeight: "600",
+                                            width: "fit-content",
+                                        }}
+                                    >
+                                        Current Plan
+                                    </div>
                                 )}
                             </div>
                         </div>
