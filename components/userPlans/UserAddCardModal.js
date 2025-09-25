@@ -656,7 +656,7 @@ const UserAddCard = ({
                             <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                             <div className="flex flex-col items-end ">
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    ${getTotalPrice(selectedPlan)}
+                                    ${getTotalPrice(selectedPlan).toLocaleString()}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
                             </div>
