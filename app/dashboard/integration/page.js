@@ -320,12 +320,13 @@ function Page() {
             "get genrate api keys api message is",
             response.data.message
           );
+          setShowCopySnak(response?.data?.message || "Failed to generate API key");
         }
       }
     } catch (e) {
       setGenrateeyLoader2(false);
       setGenrateeyLoader(false);
-
+      setShowCopySnak(e.message || "Failed to generate API key");
       console.log("error in genrate api key", e);
     }
   };

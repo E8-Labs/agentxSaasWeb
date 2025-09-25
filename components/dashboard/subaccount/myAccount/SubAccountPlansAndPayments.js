@@ -1158,15 +1158,15 @@ function SubAccountPlansAndPayments({
 
                                 {item.id === currentPlan && (
                                     <div
-                                        className="mt-4 flex px-3 py-1.5 bg-purple rounded-full text-white"
-                                        style={{
-                                            fontSize: 12,
-                                            fontWeight: "600",
-                                            width: "fit-content",
-                                        }}
-                                    >
-                                        Current Plan
-                                    </div>
+                                    className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                                    style={{
+                                        fontSize: 9,
+                                        fontWeight: "600",
+                                        width: "fit-content",
+                                    }}
+                                >
+                                    Current Plan
+                                </div>
                                 )}
                             </div>
                         </div>

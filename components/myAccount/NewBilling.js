@@ -1696,15 +1696,15 @@ function NewBilling() {
 
                                 {item.id === currentPlan && (
                                     <div
-                                        className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
-                                        style={{
-                                            fontSize: 11,
-                                            fontWeight: "500",
-                                            width: "fit-content",
-                                        }}
-                                    >
-                                        Current Plan
-                                    </div>
+                                    className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                                    style={{
+                                        fontSize: 9,
+                                        fontWeight: "600",
+                                        width: "fit-content",
+                                    }}
+                                >
+                                    Current Plan
+                                </div>
                                 )}
                             </div>
                         </div>

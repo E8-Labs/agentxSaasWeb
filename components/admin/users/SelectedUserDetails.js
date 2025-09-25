@@ -18,6 +18,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import ResetTrial from './ResetTrial'
+import UserActivityLogs from './UserActivityLogs'
 
 function SelectedUserDetails({
     selectedUser,
@@ -96,6 +97,7 @@ function SelectedUserDetails({
     const [pauseToggleBtn, setPauseToggleBtn] = useState(false);
 
     const [selectedDate, setSelectedDate] = useState(null)
+    const [showActivityLogs, setShowActivityLogs] = useState(false)
 
     useEffect(() => {
         console.log("selected user", selectedUser);
@@ -513,6 +515,19 @@ function SelectedUserDetails({
                 </div>
             </div>
 
+            {/* View Details Button - Bottom Left */}
+            <div className="absolute bottom-4 left-4">
+                <button
+                    className="text-white bg-purple outline-none rounded-xl px-4 py-2 flex items-center gap-2"
+                    style={{ height: "40px" }}
+                    onClick={() => {
+                        setShowActivityLogs(true);
+                    }}
+                >
+                    <Image src={"/svgIcons/selectedCallIcon.svg"} height={16} width={16} alt="*" />
+                    View Details
+                </button>
+            </div>
 
             {/* Code to del user */}
             <Modal
@@ -675,6 +690,14 @@ function SelectedUserDetails({
                     </div>
                 </Box>
             </Modal>
+
+            {/* User Activity Logs Modal */}
+            <UserActivityLogs
+                open={showActivityLogs}
+                onClose={() => setShowActivityLogs(false)}
+                userId={selectedUser?.id}
+                userName={selectedUser?.name}
+            />
 
         </div>
     )
