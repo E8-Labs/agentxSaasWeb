@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "build": "set NODE_OPTIONS=--max-old-space-size=4096 && next build",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{js,jsx,md}\""
   },
   "dependencies": {
     "@date-io/dayjs": "^3.2.0",

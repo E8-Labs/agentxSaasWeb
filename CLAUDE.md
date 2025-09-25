@@ -51,6 +51,7 @@ All plans should be written inside `planning`. Consult the `CLAUDE.md` file ther
 When debugging/troubleshooting, please run the `debugger` agent first, followed by the `error-detective` agent.
 
 #### Memories
+
 - **Always use strict mode** - no `any` types
 - **File naming**: Use kebab-case (`foo-bar.ts`)
 - Write tests for new functions and components when necessary

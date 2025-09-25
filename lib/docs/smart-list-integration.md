@@ -7,11 +7,13 @@ The Smart List Integration feature allows agents to be associated with custom le
 ## Key Concepts
 
 ### Smart List Types
+
 - **`general`** - Upload-based lead sheets (default for CSV imports)
 - **`inbound`** - Inbound lead collections
 - **`manual`** - Manually created smart lists for agent association
 
 ### Agent Integration
+
 - Each agent can have **one** associated smart list
 - Each smart list can be associated with **multiple** agents
 - Only `manual` type smart lists can be associated with agents
@@ -21,16 +23,17 @@ The Smart List Integration feature allows agents to be associated with custom le
 
 ### AgentModel Table - New Columns
 
-| Column | Type | Default | Description |
-|--------|------|---------|-------------|
-| `smartListEnabled` | BOOLEAN | `false` | Enable/disable smart list for agent |
-| `supportButtonText` | STRING(10) | `'Get Help'` | Customizable button text (max 10 chars) |
-| `supportButtonAvatar` | STRING | `NULL` | URL for support button avatar (1:1 ratio) |
-| `smartListId` | INTEGER | `NULL` | Foreign key to LeadSheetModels |
+| Column                | Type       | Default      | Description                               |
+| --------------------- | ---------- | ------------ | ----------------------------------------- |
+| `smartListEnabled`    | BOOLEAN    | `false`      | Enable/disable smart list for agent       |
+| `supportButtonText`   | STRING(10) | `'Get Help'` | Customizable button text (max 10 chars)   |
+| `supportButtonAvatar` | STRING     | `NULL`       | URL for support button avatar (1:1 ratio) |
+| `smartListId`         | INTEGER    | `NULL`       | Foreign key to LeadSheetModels            |
 
 ### LeadSheetModel - Type Field Enhanced
 
 The `type` field now supports dynamic values:
+
 - `'general'` - Upload-based lead sheets
 - `'inbound'` - Inbound leads
 - `'manual'` - Agent smart lists
@@ -50,6 +53,7 @@ npm run db:migrate
 **Endpoint:** `POST /agentx/api/lead/addSmartList`
 
 **Enhanced Parameters:**
+
 ```json
 {
   "sheetName": "Customer Support Form",
@@ -57,11 +61,12 @@ npm run db:migrate
   "tags": ["support", "urgent"],
   "inbound": false,
   "enrich": false,
-  "agentId": 123  // NEW: Optional agent association
+  "agentId": 123 // NEW: Optional agent association
 }
 ```
 
 **Behavior:**
+
 - If `agentId` provided: Sets `type: 'manual'` and associates with agent
 - If `inbound: true`: Sets `type: 'inbound'`
 - Otherwise: Sets `type: 'general'` (default)
@@ -71,9 +76,11 @@ npm run db:migrate
 **Endpoint:** `GET /agentx/api/lead/getSheets?type={type}`
 
 **Parameters:**
+
 - `type` (optional): Filter by smart list type
 
 **Examples:**
+
 ```javascript
 // Get all sheets
 GET /agentx/api/lead/getSheets
@@ -92,6 +99,7 @@ GET /agentx/api/lead/getSheets?type=general
 **Purpose:** Specifically for agent association dropdowns
 
 **Response:**
+
 ```json
 {
   "status": true,
@@ -103,8 +111,8 @@ GET /agentx/api/lead/getSheets?type=general
       "type": "manual",
       "enrich": false,
       "createdAt": "2025-01-15T10:30:00.000Z",
-      "tags": [{"tag": "support"}],
-      "columns": [{"columnName": "Full Name"}]
+      "tags": [{ "tag": "support" }],
+      "columns": [{ "columnName": "Full Name" }]
     }
   ]
 }
@@ -115,17 +123,19 @@ GET /agentx/api/lead/getSheets?type=general
 **Endpoint:** `POST /agentx/api/agent/updateAgentSupportButton`
 
 **Parameters:**
+
 ```json
 {
   "agentId": 123,
-  "supportButtonText": "Chat Now",     // Optional, max 10 chars
-  "smartListEnabled": true,             // Optional
-  "smartListId": 456,                   // Optional, must be manual type
-  "media": "<file>"                     // Optional, avatar image upload
+  "supportButtonText": "Chat Now", // Optional, max 10 chars
+  "smartListEnabled": true, // Optional
+  "smartListId": 456, // Optional, must be manual type
+  "media": "<file>" // Optional, avatar image upload
 }
 ```
 
 **Features:**
+
 - Updates only provided parameters
 - Validates smart list exists and is type 'manual'
 - Handles image upload for support button avatar
@@ -136,17 +146,20 @@ GET /agentx/api/lead/getSheets?type=general
 **Endpoint:** `GET /agentx/api/agent/getUserByAgent/:modelIdVapi`
 
 **Enhanced Response:**
+
 ```json
 {
   "status": true,
   "message": "User details retrieved successfully",
   "data": {
-    "user": { /* user data */ },
+    "user": {
+      /* user data */
+    },
     "agent": {
       "smartListEnabled": true,
       "supportButtonText": "Get Help",
       "supportButtonAvatar": "https://...",
-      "smartListId": 123,
+      "smartListId": 123
       /* other agent fields */
     },
     "smartList": {
@@ -155,11 +168,11 @@ GET /agentx/api/lead/getSheets?type=general
       "type": "manual",
       "enrich": false,
       "columns": [
-        {"columnName": "Full Name"},
-        {"columnName": "phone"},
-        {"columnName": "email"}
+        { "columnName": "Full Name" },
+        { "columnName": "phone" },
+        { "columnName": "email" }
       ],
-      "tags": [{"tag": "support"}]
+      "tags": [{ "tag": "support" }]
     }
   }
 }
@@ -170,6 +183,7 @@ GET /agentx/api/lead/getSheets?type=general
 ### Frontend Integration Flow
 
 1. **Create Smart List**
+
    ```javascript
    // Create smart list associated with agent
    POST /agentx/api/lead/addSmartList
@@ -181,6 +195,7 @@ GET /agentx/api/lead/getSheets?type=general
    ```
 
 2. **Configure Agent Settings**
+
    ```javascript
    // Update agent support button
    POST /agentx/api/agent/updateAgentSupportButton
@@ -193,15 +208,16 @@ GET /agentx/api/lead/getSheets?type=general
    ```
 
 3. **Get Available Smart Lists**
+
    ```javascript
    // Populate dropdown for agent association
-   GET /agentx/api/lead/getManualSmartLists
+   GET / agentx / api / lead / getManualSmartLists
    ```
 
 4. **Retrieve Agent Configuration**
    ```javascript
    // Get agent with smart list for embed widget
-   GET /agentx/api/agent/getUserByAgent/vapi-model-id
+   GET / agentx / api / agent / getUserByAgent / vapi - model - id
    ```
 
 ### Embed Widget Integration
@@ -240,37 +256,39 @@ LeadSheetModel (one-to-many) → LeadSheetTagModel
 const smartListResponse = await fetch('/agentx/api/lead/addSmartList', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    sheetName: "Website Inquiry Form",
-    columns: ["Full Name", "phone", "email", "Budget", "Timeline"],
-    tags: ["website", "inquiry"],
-    agentId: 123
-  })
+    sheetName: 'Website Inquiry Form',
+    columns: ['Full Name', 'phone', 'email', 'Budget', 'Timeline'],
+    tags: ['website', 'inquiry'],
+    agentId: 123,
+  }),
 })
 
 // 2. Configure support button
-const buttonResponse = await fetch('/agentx/api/agent/updateAgentSupportButton', {
-  method: 'POST',
-  headers: { 'Authorization': `Bearer ${token}` },
-  body: formData // includes supportButtonText, smartListEnabled, avatar
-})
+const buttonResponse = await fetch(
+  '/agentx/api/agent/updateAgentSupportButton',
+  {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData, // includes supportButtonText, smartListEnabled, avatar
+  },
+)
 ```
 
 ### Getting Smart Lists for Dropdown
 
 ```javascript
 const smartLists = await fetch('/agentx/api/lead/getManualSmartLists', {
-  headers: { 'Authorization': `Bearer ${token}` }
-})
-.then(res => res.json())
+  headers: { Authorization: `Bearer ${token}` },
+}).then((res) => res.json())
 
 // Populate dropdown
-const dropdown = smartLists.data.map(list => ({
+const dropdown = smartLists.data.map((list) => ({
   value: list.id,
-  label: list.sheetName
+  label: list.sheetName,
 }))
 ```
 
@@ -337,11 +355,13 @@ const dropdown = smartLists.data.map(list => ({
 ## Troubleshooting
 
 ### Migration Issues
+
 - Ensure MySQL server is running before migration
 - Check database connection settings in `.env`
 - Verify user permissions for DDL operations
 
 ### API Issues
+
 - Verify JWT token is valid and not expired
 - Check agent exists and user has permission
 - Ensure smart list type is 'manual' for association
