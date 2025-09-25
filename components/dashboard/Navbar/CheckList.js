@@ -55,10 +55,14 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
     // Check calendar plan capabilities
     const checkCalendarPlanCapabilities = () => {
         const user = reduxUser || userDetails?.user;
+        console.log("user", user);
         if (!user) return true;
 
         const currentCalendars = user?.currentUsage?.maxCalendars || 0;
         const maxCalendars = user?.planCapabilities?.maxCalendars || 1;
+
+        console.log("currentCalendars", currentCalendars);
+        console.log("maxCalendars", maxCalendars);
 
         return currentCalendars < maxCalendars;
     };

@@ -1,5 +1,6 @@
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
+import { Scopes } from "@/components/dashboard/myagentX/Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
 import axios from "axios";
 
@@ -24,7 +25,7 @@ export const AddCalendarApi = async (calendarValues
             // formData.append("mainAgentId", "");
             formData.append("accessToken", calendarValues?.accessToken);
             formData.append("refreshToken", calendarValues?.refreshToken);
-            formData.append("scope", PersistanceKeys.addCalendarScope);
+            formData.append("scope", Scopes.join(" "));
             formData.append("expiryDate", calendarValues?.expiryDate);
             // formData.append("googleUserId", calendarValues?.id); // here google id was undefined
             formData.append("googleUserId", calendarValues?.googleUserId);

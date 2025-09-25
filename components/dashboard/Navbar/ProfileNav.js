@@ -379,7 +379,7 @@ const ProfileNav = () => {
 
   useEffect(() => {
     getUserProfile();
-    
+
     // Initialize socket connection after getting user profile
     const initializeSocket = () => {
       const userData = localStorage.getItem("User");
@@ -387,24 +387,24 @@ const ProfileNav = () => {
         console.log('🔌 Initializing socket connection...');
         setSocketStatus('connecting');
         socketService.connect();
-        
+
         // Monitor socket status
         const checkStatus = () => {
           const status = socketService.getConnectionStatus();
           setSocketStatus(status);
         };
-        
+
         // Check status every 2 seconds
         const statusInterval = setInterval(checkStatus, 2000);
-        
+
         // Cleanup interval on unmount
         return () => clearInterval(statusInterval);
       }
     };
-    
+
     // Small delay to ensure localStorage is ready
     const cleanup = setTimeout(initializeSocket, 1000);
-    
+
     // Cleanup socket on unmount
     return () => {
       socketService.disconnect();
@@ -622,14 +622,15 @@ const ProfileNav = () => {
 
   //function to getprofile
   const getProfile = async () => {
-    console.log('trying to get profile from nav')
+    console.log('🔍 [getProfile] Starting getProfile function')
 
     try {
       let response = await getProfileDetails();
+      console.log('🔍 [getProfile] API response received:', response);
       getShowWalkThrough();
-      // //console.log;
+
       if (response?.status == 404) {
-        //console.log;
+        console.log('❌ [getProfile] 404 status - user not found');
         // logout();
         // router.push("/");
         return;
@@ -638,27 +639,25 @@ const ProfileNav = () => {
       // //console.log;
 
       const userlocalData = localStorage.getItem("User");
+      console.log('🔍 [getProfile] Local storage data exists:', !!userlocalData);
       if (userlocalData) {
         // setUserDetails(response.data.data);
         //removed this bcz i am getting data from localstorage and api data is creating issues here
         // setUserDetails(userlocalData);
       }
-      // //console.log;
 
       let Data = response?.data?.data;
-      // Data.totalSecondsAvailable  = 100
-
-
+      console.log('🔍 [getProfile] Extracted data from response:', Data);
 
       console.log(
-        "Available seconds are Profile Nav",
+        "🔍 [getProfile] Available seconds:",
         Data?.totalSecondsAvailable
       );
 
       if (response) {
-        // //console.log;
+        console.log('✅ [getProfile] Response exists, processing...');
         if (response?.data) {
-          console.log("Response of get profile api is", response);
+          console.log("🔍 [getProfile] Response data exists:", response);
           setUserType(response?.data?.data.userType);
           let userPlan = response?.data?.data?.plan;
           const user = response?.data?.data;
@@ -666,26 +665,30 @@ const ProfileNav = () => {
 
 
 
+          console.log("🔍 [getProfile] User details:", {
+            userType: response?.data?.data.userType,
+            userPlan: userPlan,
+            userRole: Data?.userRole,
+            isBalanceLow: isBalanceLow,
+            totalSecondsAvailable: user.totalSecondsAvailable,
+            cardsLength: Data?.cards?.length,
+            needsChargeConfirmation: Data?.needsChargeConfirmation,
+            callsPausedUntilSubscription: Data?.callsPausedUntilSubscription,
+            paymentFailed: Data?.paymentFailed
+          });
+
           if (response?.data?.data.userType != "admin") {
-            console.log('User is not an admin', userPlan)
-            // if (
-            //   Data?.userRole === "AgencySubAccount" &&
-            //   (Data?.plan == null ||
-            //     (Data?.plan && Data?.plan?.status !== "active"))
-            // )
+            console.log('🔍 [getProfile] User is not an admin, checking plan...', { userPlan, userRole: Data?.userRole })
 
             if (!userPlan) {
+              console.log('❌ [getProfile] No user plan found, redirecting to /plan');
               router.push("/plan")
               return
             }
-            //else if ((userPlan.price <= 0 && isBalanceLow)) {
-            // console.log('User is on a free plan')
-            // setShowPlansPopup(true);
-            // setShowUpgradePlanModal(true)
-
+            console.log('✅ [getProfile] User has a plan, continuing...');
 
           }
-          else if (
+          if (
             Data?.userRole === "AgencySubAccount" &&
             (Data?.plan == null ||
               (Data?.plan &&
@@ -696,6 +699,13 @@ const ProfileNav = () => {
                 Data?.plan?.status === "active" &&
                 isBalanceLow))
           ) {
+            console.log("🔍 [getProfile] AgencySubAccount condition triggered", {
+              userRole: Data?.userRole,
+              plan: Data?.plan,
+              planStatus: Data?.plan?.status,
+              isBalanceLow: isBalanceLow
+            });
+
             const fromDashboard = { fromDashboard: true };
             localStorage.setItem(
               "fromDashboard",
@@ -703,11 +713,22 @@ const ProfileNav = () => {
             );
             router.push("/subaccountInvite/subscribeSubAccountPlan");
           } else if (Data?.userRole !== "AgencySubAccount") {
+            console.log("🔍 [getProfile] Non-AgencySubAccount user, checking conditions...", {
+              userRole: Data?.userRole,
+              cardsLength: Data?.cards?.length,
+              needsChargeConfirmation: Data?.needsChargeConfirmation,
+              callsPausedUntilSubscription: Data?.callsPausedUntilSubscription,
+              paymentFailed: Data?.paymentFailed,
+              isBalanceLow: isBalanceLow
+            });
+
             if (
               (Data.cards.length === 0) &&
               (Data.needsChargeConfirmation === false) &&
               (!Data.callsPausedUntilSubscription)
             ) {
+              console.log("🔍 [getProfile] First time user condition - no cards, showing upgrade modal");
+
               // if user comes first time then show plans popup
               // setShowPlansPopup(true);
               setShowUpgradePlanModal(true)
@@ -718,8 +739,8 @@ const ProfileNav = () => {
               && (Data.needsChargeConfirmation === false) &&
               (!Data.callsPausedUntilSubscription)
             ) {
+              console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
-
             } else if (
 
               // Data?.plan == null ||
@@ -733,10 +754,11 @@ const ProfileNav = () => {
               // && (Data.needsChargeConfirmation === false) &&
               // (!Data.callsPausedUntilSubscription)
             ) {
+              console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
             } else {
-              console.log('no plans condition is true')
+              console.log('🔍 [getProfile] No specific condition met - hiding all modals/bars')
               setShowPlansPopup(false);
               setShowUpgradePlanModal(false)
 
@@ -745,7 +767,7 @@ const ProfileNav = () => {
             }
 
           } else {
-            console.log('no condition is true')
+            console.log('🔍 [getProfile] Admin user or other condition - hiding all modals/bars')
             setShowPlansPopup(false);
             setShowUpgradePlanModal(false)
 
@@ -755,313 +777,310 @@ const ProfileNav = () => {
 
           let plan = response?.data?.data?.plan;
           let togglePlan = plan?.type;
-          let planType = null;
-          if (togglePlan === "Plan30") {
-            planType = 1;
-          } else if (togglePlan === "Plan120") {
-            planType = 2;
-          } else if (togglePlan === "Plan360") {
-            planType = 3;
-          } else if (togglePlan === "Plan720") {
-            planType = 4;
-          }
+          let planType = togglePlan;
 
+
+          console.log('🔍 [getProfile] Final planType set to:', planType);
           setTogglePlan(planType);
+        } else {
+          console.log('❌ [getProfile] No response.data found');
         }
       } else {
-        //console.log;
-        //Logout user
-        console.log('User is not logged in Line 742 ProfileNav')
+        console.log('❌ [getProfile] No response received - logging out user');
         logout("API failure/no response from getProfile");
         router.push("/");
       }
-    
-  } catch (error) {
-    console.error("Error occured in api is error", error);
-  }
-};
 
-const handleOnClick = (e, href) => {
-  localStorage.removeItem("openBilling");
-
-  // if (!userDetails.user.plan) {
-  //   getProfile();
-  // }
-
-  // e.preventDefault();
-  // router.push(href);
-};
-
-//function to subsscribe plan
-
-//function to select plan
-const handleTogglePlanClick = (item) => {
-  setTogglePlan(item.id);
-  setSelectedPlan((prevId) => (prevId === item ? null : item));
-};
-
-//functiion to get cards list
-const getCardsList = async () => {
-  try {
-    setSubscribePlanLoader(true);
-
-    const localData = localStorage.getItem("User");
-
-    let AuthToken = null;
-
-    if (localData) {
-      const Data = JSON.parse(localData);
-      AuthToken = Data.token;
+    } catch (error) {
+      console.error("❌ [getProfile] Error occurred:", error);
     }
+  };
 
-    // //console.log;
+  const handleOnClick = (e, href) => {
+    localStorage.removeItem("openBilling");
 
-    //Talabat road
+    // if (!userDetails.user.plan) {
+    //   getProfile();
+    // }
 
-    const ApiPath = Apis.getCardsList;
+    // e.preventDefault();
+    // router.push(href);
+  };
 
-    // //console.log;
+  //function to subsscribe plan
 
-    const response = await axios.get(ApiPath, {
-      headers: {
-        Authorization: `Bearer ${AuthToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+  //function to select plan
+  const handleTogglePlanClick = (item) => {
+    setTogglePlan(item.id);
+    setSelectedPlan((prevId) => (prevId === item ? null : item));
+  };
 
-    if (response) {
+  //functiion to get cards list
+  const getCardsList = async () => {
+    try {
+      setSubscribePlanLoader(true);
+
+      const localData = localStorage.getItem("User");
+
+      let AuthToken = null;
+
+      if (localData) {
+        const Data = JSON.parse(localData);
+        AuthToken = Data.token;
+      }
+
       // //console.log;
-      if (response.data.status === true) {
-        if (response.data.data.length === 0) {
-          setAddPaymentPopup(true);
+
+      //Talabat road
+
+      const ApiPath = Apis.getCardsList;
+
+      // //console.log;
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: `Bearer ${AuthToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        // //console.log;
+        if (response.data.status === true) {
+          if (response.data.data.length === 0) {
+            setAddPaymentPopup(true);
+          }
         }
       }
-    }
-  } catch (error) {
-    // //console.log;
-  } finally {
-    // //console.log;
-    // setGetCardLoader(false);
-  }
-};
-
-const handleSubscribePlan = async () => {
-  try {
-    // let cards = [];
-
-    // cards = await getCardsList();
-    // if (cards.length == 0) {
-    //   setAddPaymentPopup(true);
-    //   return;
-    // }
-    // return;
-    let planType = null;
-
-    //// //console.log;
-
-    if (togglePlan === 1) {
-      planType = "Plan30";
-    } else if (togglePlan === 2) {
-      planType = "Plan120";
-    } else if (togglePlan === 3) {
-      planType = "Plan360";
-    } else if (togglePlan === 4) {
-      planType = "Plan720";
-    }
-
-    // //console.log;
-
-    setSubscribePlanLoader(true);
-    let AuthToken = null;
-    let localDetails = null;
-    const localData = localStorage.getItem("User");
-    if (localData) {
-      const LocalDetails = JSON.parse(localData);
-      localDetails = LocalDetails;
-      AuthToken = LocalDetails.token;
-    }
-    // if (localDetails.user.cards.length == 0) {
-    //   setAddPaymentPopup(true);
-    //   return;
-    // }
-
-    // //console.log;
-
-    const ApiData = {
-      plan: planType,
-      payNow: true,
-    };
-
-    // //console.log;
-
-    const ApiPath = Apis.subscribePlan;
-    // //console.log;
-
-    // return
-
-    const response = await axios.post(ApiPath, ApiData, {
-      headers: {
-        Authorization: "Bearer " + AuthToken,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response) {
+    } catch (error) {
       // //console.log;
-      if (response.data.status === true) {
-        localDetails.user.plan = response.data.data;
-        // //console.log;
-        // getProfile();
-        localStorage.setItem("User", JSON.stringify(localDetails));
-        setSuccessSnack(response.data.message);
-        setShowSuccessSnack(true);
-        setShowPlansPopup(false);
-        console.log("Should triger the intro video")
-        getShowWalkThrough();
-        getProfile();
-      } else if (response.data.status === false) {
-        setErrorSnack(response.data.message);
-        setShowErrorSnack(true);
-      }
+    } finally {
+      // //console.log;
+      // setGetCardLoader(false);
     }
-  } catch (error) {
-    // console.error("Error occured in api is:", error);
-  } finally {
-    setSubscribePlanLoader(false);
-  }
-};
+  };
 
-const handleClose = async (data) => {
-  // //console.log;
-  if (data.status === true) {
-    let newCard = data.data;
-    setAddPaymentPopup(false);
-    await getProfile();
-    // setCards([newCard, ...cards]);
-    setSubscribePlanLoader(false)
-  }
-};
+  const handleSubscribePlan = async () => {
+    try {
+      // let cards = [];
 
-const styles = {
-  paymentModal: {
-    // height: "auto",
-    bgcolor: "transparent",
-    // p: 2,
-    mx: "auto",
-    // my: "50vh",
-    // transform: "translateY(-50%)",
-    borderRadius: 2,
-    border: "none",
-    outline: "none",
-    height: "100svh",
-  },
-  cardStyles: {
-    fontSize: "14",
-    fontWeight: "500",
-    border: "1px solid #00000020",
-  },
-  pricingBox: {
-    position: "relative",
-    // padding: '10px',
-    borderRadius: "10px",
-    // backgroundColor: '#f9f9ff',
-    display: "inline-block",
-    width: "100%",
-  },
-  triangleLabel: {
-    position: "absolute",
-    top: "0",
-    right: "0",
-    width: "0",
-    height: "0",
-    borderTop: "50px solid #7902DF", // Increased height again for more padding
-    borderLeft: "50px solid transparent",
-  },
-  labelText: {
-    position: "absolute",
-    top: "10px", // Adjusted to keep the text centered within the larger triangle
-    right: "5px",
-    color: "white",
-    fontSize: "10px",
-    fontWeight: "bold",
-    transform: "rotate(45deg)",
-  },
-  content: {
-    textAlign: "left",
-    paddingTop: "10px",
-  },
-  originalPrice: {
-    textDecoration: "line-through",
-    color: "#7902DF65",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  discountedPrice: {
-    color: "#000000",
-    fontWeight: "bold",
-    fontSize: 18,
-    marginLeft: "10px",
-    whiteSpace: "nowrap",
-  },
-};
+      // cards = await getCardsList();
+      // if (cards.length == 0) {
+      //   setAddPaymentPopup(true);
+      //   return;
+      // }
+      // return;
+      let planType = null;
 
-const showLinks = () => {
-  if (userType && userType == "admin") {
-    return adminLinks;
-  } else {
-    return links;
-  }
-};
+      //// //console.log;
 
-const SnackBarForUpgradePlan = () => {
-  return (
+      if (togglePlan === 1) {
+        planType = "Plan30";
+      } else if (togglePlan === 2) {
+        planType = "Plan120";
+      } else if (togglePlan === 3) {
+        planType = "Plan360";
+      } else if (togglePlan === 4) {
+        planType = "Plan720";
+      }
 
-    <div
-      style={{
-        position: 'fixed',
-        top: 20,
-        left: '55%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-      }}
-      className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
-    >
-      <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
-        height={24} width={24} alt="*"
-      />
-      {
-        !showUpgradePlanBar ? (
-          <div style={{ fontSize: 13, fontWeight: '700', }}>
-            {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
-              className="text-purple underline cursor-pointer"
-              onClick={() => {
-                window.open('/dashboard/myAccount?tab=2')
-              }}
-            >
-              Turn on Smart Refill
-            </span>  or  <span
-              className="text-purple underline cursor-pointer"
-              onClick={() => {
-                window.open('/dashboard/myAccount?tab=2')
-              }}
-            > Upgrade
-            </span>.
-          </div>
+      // //console.log;
 
-        ) : (
-          <div>
+      setSubscribePlanLoader(true);
+      let AuthToken = null;
+      let localDetails = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const LocalDetails = JSON.parse(localData);
+        localDetails = LocalDetails;
+        AuthToken = LocalDetails.token;
+      }
+      // if (localDetails.user.cards.length == 0) {
+      //   setAddPaymentPopup(true);
+      //   return;
+      // }
 
-            <div style={{ fontSize: 15, fontWeight: '700', }}>Your subscription payment could not be processed.</div>
-            <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>Your calls are paused and will resume once your subscription has renewed <span
-              className="text-purple underline cursor-pointer"
-              onClick={() => {
-                window.open('/dashboard/myAccount?tab=2')
-              }}
-            > Upgrade
-            </span>.
+      // //console.log;
+
+      const ApiData = {
+        plan: planType,
+        payNow: true,
+      };
+
+      // //console.log;
+
+      const ApiPath = Apis.subscribePlan;
+      // //console.log;
+
+      // return
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: "Bearer " + AuthToken,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response) {
+        // //console.log;
+        if (response.data.status === true) {
+          localDetails.user.plan = response.data.data;
+          // //console.log;
+          // getProfile();
+          localStorage.setItem("User", JSON.stringify(localDetails));
+          setSuccessSnack(response.data.message);
+          setShowSuccessSnack(true);
+          setShowPlansPopup(false);
+          console.log("Should triger the intro video")
+          getShowWalkThrough();
+          getProfile();
+        } else if (response.data.status === false) {
+          setErrorSnack(response.data.message);
+          setShowErrorSnack(true);
+        }
+      }
+    } catch (error) {
+      // console.error("Error occured in api is:", error);
+    } finally {
+      setSubscribePlanLoader(false);
+    }
+  };
+
+  const handleClose = async (data) => {
+    // //console.log;
+    if (data.status === true) {
+      let newCard = data.data;
+      setAddPaymentPopup(false);
+      await getProfile();
+      // setCards([newCard, ...cards]);
+      setSubscribePlanLoader(false)
+    }
+  };
+
+  const styles = {
+    paymentModal: {
+      // height: "auto",
+      bgcolor: "transparent",
+      // p: 2,
+      mx: "auto",
+      // my: "50vh",
+      // transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+      height: "100svh",
+    },
+    cardStyles: {
+      fontSize: "14",
+      fontWeight: "500",
+      border: "1px solid #00000020",
+    },
+    pricingBox: {
+      position: "relative",
+      // padding: '10px',
+      borderRadius: "10px",
+      // backgroundColor: '#f9f9ff',
+      display: "inline-block",
+      width: "100%",
+    },
+    triangleLabel: {
+      position: "absolute",
+      top: "0",
+      right: "0",
+      width: "0",
+      height: "0",
+      borderTop: "50px solid #7902DF", // Increased height again for more padding
+      borderLeft: "50px solid transparent",
+    },
+    labelText: {
+      position: "absolute",
+      top: "10px", // Adjusted to keep the text centered within the larger triangle
+      right: "5px",
+      color: "white",
+      fontSize: "10px",
+      fontWeight: "bold",
+      transform: "rotate(45deg)",
+    },
+    content: {
+      textAlign: "left",
+      paddingTop: "10px",
+    },
+    originalPrice: {
+      textDecoration: "line-through",
+      color: "#7902DF65",
+      fontSize: 18,
+      fontWeight: "600",
+    },
+    discountedPrice: {
+      color: "#000000",
+      fontWeight: "bold",
+      fontSize: 18,
+      marginLeft: "10px",
+      whiteSpace: "nowrap",
+    },
+  };
+
+  const showLinks = () => {
+    if (userType && userType == "admin") {
+      return adminLinks;
+    } else {
+      return links;
+    }
+  };
+
+  const SnackBarForUpgradePlan = () => {
+    return (
+
+      <div
+        style={{
+          position: 'fixed',
+          top: 20,
+          left: '55%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+        }}
+        className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
+      >
+        <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
+          height={24} width={24} alt="*"
+        />
+        {
+          !showUpgradePlanBar ? (
+            <div style={{ fontSize: 13, fontWeight: '700', }}>
+              {`Action needed! Your calls are paused: You don't have enough minutes to run calls.`} <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              >
+                Turn on Smart Refill
+              </span>  or  <span
+                className="text-purple underline cursor-pointer"
+                onClick={() => {
+                  window.open('/dashboard/myAccount?tab=2')
+                }}
+              > Upgrade
+              </span>.
             </div>
 
-            {/*
+          ) : (
+            <div>
+
+              <div style={{ fontSize: 15, fontWeight: '700', }}>
+                {userDetails?.user?.plan?.name === "Free" ? "Your free AI Credits have expired" : `Your subscription payment could not be processed.`}
+              </div>
+              <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
+                {userDetails?.user?.plan?.name === "Free" ?"Please Upgrade or wait for next renewal date" :"Please Upgrade or wait for next renewal date" }
+                <span
+                  className="text-purple underline cursor-pointer"
+                  onClick={() => {
+                    window.open('/dashboard/myAccount?tab=2')
+                  }}
+                > Upgrade
+                </span>.
+              </div>
+
+              {/*
                 {`Action needed!  Your payment method failed, please add a new`} <span
                   className="text-purple underline cursor-pointer"
                   onClick={() => {
@@ -1072,274 +1091,273 @@ const SnackBarForUpgradePlan = () => {
                 </span>.
               */}
 
-          </div>
-        )
-      }
-
-    </div>
-
-  )
-}
-
-return (
-  <div>
-    <AgentSelectSnackMessage
-      isVisible={showsuccessSnack}
-      hide={() => setShowSuccessSnack(false)}
-      message={successSnack}
-      type={SnackbarTypes.Success}
-    />
-    <AgentSelectSnackMessage
-      isVisible={showerrorSnack}
-      hide={() => setShowErrorSnack(false)}
-      message={errorSnack}
-      type={SnackbarTypes.Error}
-    />
-
-    {/* For Walkthrough Watched Popup */}
-    {/* Intro modal */}
-    <IntroVideoModal
-      open={walkthroughWatched}
-      onClose={() => setWalkthroughWatched(false)}
-      videoTitle="Welcome to AgentX"
-      videoDescription="This short video will show you where everything is. Enjoy!"
-      videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
-      showLoader={updateProfileLoader}
-    />
-
-    <div className="w-full flex flex-col items-center justify-between h-screen">
-      <div
-        className="w-full pt-5 flex flex-col items-center"
-        style={{
-          // height: "90vh",
-          overflow: "auto",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <div className="w-full flex flex-row gap-3 items-center justify-center">
-          <div className="w-9/12">
-            <Image
-              src={"/assets/assignX.png"}
-              alt="profile"
-              height={33}
-              width={140}
-              objectFit="contain"
-            />
-          </div>
-        </div>
-
-        <div className="w-full mt-8 flex flex-col items-center gap-3">
-          {showLinks().map((item) => (
-            <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-              <Link
-                sx={{ 
-                  cursor: "pointer", 
-                  textDecoration: "none",
-                  "&:hover": {
-                    textDecoration: "none"
-                  }
-                }}
-                href={item.href}
-                underline="none"
-              // onClick={(e) => handleOnClick(e, item.href)}
-              >
-                <div
-                  className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                  style={{}}
-                >
-                  <Image
-                    src={
-                      pathname === item.href
-                        ? item.selected
-                        : item.uneselected
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                  />
-                  <div
-                    className={
-                      pathname === item.href ? "text-purple" : "text-black"
-                    }
-                    style={{
-                      fontSize: 15,
-                      fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                    }}
-                  >
-                    {item.name}
-                  </div>
-                </div>
-              </Link>
             </div>
-          ))}
-        </div>
+          )
+        }
 
-        {/* <div>
+      </div>
+
+    )
+  }
+
+  return (
+    <div>
+      <AgentSelectSnackMessage
+        isVisible={showsuccessSnack}
+        hide={() => setShowSuccessSnack(false)}
+        message={successSnack}
+        type={SnackbarTypes.Success}
+      />
+      <AgentSelectSnackMessage
+        isVisible={showerrorSnack}
+        hide={() => setShowErrorSnack(false)}
+        message={errorSnack}
+        type={SnackbarTypes.Error}
+      />
+
+      {/* For Walkthrough Watched Popup */}
+      {/* Intro modal */}
+      <IntroVideoModal
+        open={walkthroughWatched}
+        onClose={() => setWalkthroughWatched(false)}
+        videoTitle="Welcome to AgentX"
+        videoDescription="This short video will show you where everything is. Enjoy!"
+        videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
+        showLoader={updateProfileLoader}
+      />
+
+      <div className="w-full flex flex-col items-center justify-between h-screen">
+        <div
+          className="w-full pt-5 flex flex-col items-center"
+          style={{
+            // height: "90vh",
+            overflow: "auto",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          <div className="w-full flex flex-row gap-3 items-center justify-center">
+            <div className="w-9/12">
+              <Image
+                src={"/assets/assignX.png"}
+                alt="profile"
+                height={33}
+                width={140}
+                objectFit="contain"
+              />
+            </div>
+          </div>
+
+          <div className="w-full mt-8 flex flex-col items-center gap-3">
+            {showLinks().map((item) => (
+              <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
+                <Link
+                  sx={{
+                    cursor: "pointer",
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "none"
+                    }
+                  }}
+                  href={item.href}
+                  underline="none"
+                // onClick={(e) => handleOnClick(e, item.href)}
+                >
+                  <div
+                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    style={{}}
+                  >
+                    <Image
+                      src={
+                        pathname === item.href
+                          ? item.selected
+                          : item.uneselected
+                      }
+                      height={24}
+                      width={24}
+                      alt="icon"
+                    />
+                    <div
+                      className={
+                        pathname === item.href ? "text-purple" : "text-black"
+                      }
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          {/* <div>
           <button onClick={requestNotificationPermission}>
             Req Not
           </button>
         </div> */}
-      </div>
-      {/* Lower body */}
-      <div className="w-full">
-        {/* Code for Check list menu bar */}
-        <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
-
-        <div
-          className="w-full flex flex-row items-start justify-start pt-2"
-          style={{
-            borderTop: "1px solid #00000010",
-          }}
-        >
-          <Link
-            href={"/dashboard/myAccount"}
-            className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
-            style={{
-              textOverflow: "ellipsis",
-              textDecoration: "none",
-            }}
-            sx={{
-              textDecoration: "none",
-              "&:hover": {
-                textDecoration: "none"
-              }
-            }}
-            underline="none"
-          >
-            {userDetails?.user?.thumb_profile_image ? (
-              <img
-                src={userDetails?.user?.thumb_profile_image}
-                alt="*"
-                style={{
-                  objectFit: "fill",
-                  height: "34px",
-                  width: "34px",
-                  borderRadius: "50%",
-                }}
-              />
-            ) : (
-              <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                {userDetails?.user?.name.slice(0, 1).toUpperCase()}
-              </div>
-            )}
-
-            <div>
-              <div
-                className="truncate"
-                style={{
-                  fontSize: 15,
-                  fontWeight: "500",
-                  color: "",
-                  width: "100px",
-                  color: "black",
-                }}
-              >
-                {userDetails?.user?.name?.split(" ")[0]}
-              </div>
-              <div
-                className="truncate w-[120px]"
-                style={{
-                  fontSize: 15,
-                  fontWeight: "500",
-                  color: "#15151560",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {userDetails?.user?.email}
-              </div>
-            </div>
-            
-            {/* Socket Connection Status Indicator */}
-            <div className="absolute top-2 right-2">
-              <div 
-                className={`w-2 h-2 rounded-full ${
-                  socketStatus === 'connected' ? 'bg-green-500' : 
-                  socketStatus === 'connecting' ? 'bg-yellow-500' : 
-                  'bg-red-500'
-                }`}
-                title={`Socket: ${socketStatus}`}
-              />
-            </div>
-          </Link>
-
-
-          {
-            !showAssignBanner && (
-              <div
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  bottom: 0
-                }}>
-                <DashboardSlider
-                  needHelp={showHelpModal} />
-              </div>
-            )
-          }
-
-
-          <LeadProgressBanner
-            title="Assigning Leads"
-            uploading={showAssignBanner}
-            uploadProgress={bannerProgress}
-          />
         </div>
+        {/* Lower body */}
+        <div className="w-full">
+          {/* Code for Check list menu bar */}
+          <div>{userDetails && <CheckList userDetails={userDetails} setWalkthroughWatched={setWalkthroughWatched} />}</div>
+
+          <div
+            className="w-full flex flex-row items-start justify-start pt-2"
+            style={{
+              borderTop: "1px solid #00000010",
+            }}
+          >
+            <Link
+              href={"/dashboard/myAccount"}
+              className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
+              style={{
+                textOverflow: "ellipsis",
+                textDecoration: "none",
+              }}
+              sx={{
+                textDecoration: "none",
+                "&:hover": {
+                  textDecoration: "none"
+                }
+              }}
+              underline="none"
+            >
+              {userDetails?.user?.thumb_profile_image ? (
+                <img
+                  src={userDetails?.user?.thumb_profile_image}
+                  alt="*"
+                  style={{
+                    objectFit: "fill",
+                    height: "34px",
+                    width: "34px",
+                    borderRadius: "50%",
+                  }}
+                />
+              ) : (
+                <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+                  {userDetails?.user?.name.slice(0, 1).toUpperCase()}
+                </div>
+              )}
+
+              <div>
+                <div
+                  className="truncate"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "500",
+                    color: "",
+                    width: "100px",
+                    color: "black",
+                  }}
+                >
+                  {userDetails?.user?.name?.split(" ")[0]}
+                </div>
+                <div
+                  className="truncate w-[120px]"
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "500",
+                    color: "#15151560",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {userDetails?.user?.email}
+                </div>
+              </div>
+
+              {/* Socket Connection Status Indicator */}
+              <div className="absolute top-2 right-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${socketStatus === 'connected' ? 'bg-green-500' :
+                    socketStatus === 'connecting' ? 'bg-yellow-500' :
+                      'bg-red-500'
+                    }`}
+                  title={`Socket: ${socketStatus}`}
+                />
+              </div>
+            </Link>
+
+
+            {
+              !showAssignBanner && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    bottom: 0
+                  }}>
+                  <DashboardSlider
+                    needHelp={showHelpModal} />
+                </div>
+              )
+            }
+
+
+            <LeadProgressBanner
+              title="Assigning Leads"
+              uploading={showAssignBanner}
+              uploadProgress={bannerProgress}
+            />
+          </div>
+        </div>
+
+        {
+          (showUpgradePlanBar || showFailedPaymentBar) && (
+            <SnackBarForUpgradePlan
+            />
+          )
+        }
+
+
       </div>
 
-      {
-        (showUpgradePlanBar || showFailedPaymentBar) && (
-          <SnackBarForUpgradePlan
-          />
-        )
-      }
-
-
-    </div>
 
 
 
+      <CallPausedPopup
+        open={showCallPausedPopup}
+        onClose={() => setShowCallPausedPopup(false)}
+      />
 
-    <CallPausedPopup
-      open={showCallPausedPopup}
-      onClose={() => setShowCallPausedPopup(false)}
-    />
-
-    {/* Subscribe Plan modal */}
-    <div>
       {/* Subscribe Plan modal */}
+      <div>
+        {/* Subscribe Plan modal */}
 
-      <Modal
-        open={false}  //showPlansPopup
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-          },
-        }}
-      >
-        <Box
-          className="lg:w-8/12 sm:w-full w-full flex justify-center items-center"
-          sx={{
-            ...styles.paymentModal,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh", // Full viewport height
+        <Modal
+          open={false}  //showPlansPopup
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 100,
+            sx: {
+              backgroundColor: "#00000020",
+            },
           }}
         >
-          <SupportFile upgardeAction={() => {
-            setShowPlansPopup(false);
-            setShowUpgradePlanModal(true);
-          }} cancelAction={() => {
-            setShowPlansPopup(false)
-          }}
-            metadata={{
-              renewal: userDetails?.user?.nextChargeDate || ''
-            }} />
-          {/* <div
+          <Box
+            className="lg:w-8/12 sm:w-full w-full flex justify-center items-center"
+            sx={{
+              ...styles.paymentModal,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh", // Full viewport height
+            }}
+          >
+            <SupportFile upgardeAction={() => {
+              setShowPlansPopup(false);
+              setShowUpgradePlanModal(true);
+            }} cancelAction={() => {
+              setShowPlansPopup(false)
+            }}
+              metadata={{
+                renewal: userDetails?.user?.nextChargeDate || ''
+              }} />
+            {/* <div
               className="flex flex-row justify-center w-full"
               style={{
                 maxHeight: "90vh", // Restrict modal height to 90% of the viewport
@@ -1565,88 +1583,88 @@ return (
                 </div>
               </div>
             </div> */}
-        </Box>
-      </Modal>
+          </Box>
+        </Modal>
 
-      <UpgradeModal
-        open={showUpgradePlanModal}
-        handleClose={() => setShowUpgradePlanModal(false)}
-        title={"You've Hit Your 20 Minute Limit"}
-        subTitle={"Upgrade to get more call time and keep your converstaions going"}
-        buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
-      />
-
-
-
-      {/* Add Payment Modal */}
-      <Modal
-        open={addPaymentPopUp} //addPaymentPopUp
-        // open={true}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
-          sx={styles.paymentModal}
-        >
-          <div className="flex flex-row justify-center w-full ">
-            <div
-              className="sm:w-7/12 w-full"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              <div className="flex flex-row justify-between items-center">
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: "600",
-                  }}
-                >
-                  Payment Details
-                </div>
-                <button onClick={() => setAddPaymentPopup(false)}>
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
-              </div>
-              <Elements stripe={stripePromise}>
-                <AddCardDetails
-                  //selectedPlan={selectedPlan}
-                  // stop={stop}
-                  // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
-                  handleClose={handleClose}
-                  togglePlan={togglePlan}
-                // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
-                />
-              </Elements>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* UpgradePlan Modal */}
-      <Elements stripe={stripePromise}>
-        <UpgradePlan
+        <UpgradeModal
           open={showUpgradePlanModal}
           handleClose={() => setShowUpgradePlanModal(false)}
+          title={"You've Hit Your 20 Minute Limit"}
+          subTitle={"Upgrade to get more call time and keep your converstaions going"}
+          buttonTitle={`No Thanks. Wait until ${GetFormattedDateString(userDetails?.user?.nextChargeDate)} for credits`}
         />
-      </Elements>
+
+
+
+        {/* Add Payment Modal */}
+        <Modal
+          open={addPaymentPopUp} //addPaymentPopUp
+          // open={true}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 100,
+            sx: {
+              backgroundColor: "#00000020",
+              // //backdropFilter: "blur(20px)",
+            },
+          }}
+        >
+          <Box
+            className="flex lg:w-8/12 sm:w-full w-full justify-center items-center"
+            sx={styles.paymentModal}
+          >
+            <div className="flex flex-row justify-center w-full ">
+              <div
+                className="sm:w-7/12 w-full"
+                style={{
+                  backgroundColor: "#ffffff",
+                  padding: 20,
+                  borderRadius: "13px",
+                }}
+              >
+                <div className="flex flex-row justify-between items-center">
+                  <div
+                    style={{
+                      fontSize: 22,
+                      fontWeight: "600",
+                    }}
+                  >
+                    Payment Details
+                  </div>
+                  <button onClick={() => setAddPaymentPopup(false)}>
+                    <Image
+                      src={"/assets/crossIcon.png"}
+                      height={40}
+                      width={40}
+                      alt="*"
+                    />
+                  </button>
+                </div>
+                <Elements stripe={stripePromise}>
+                  <AddCardDetails
+                    //selectedPlan={selectedPlan}
+                    // stop={stop}
+                    // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
+                    handleClose={handleClose}
+                    togglePlan={togglePlan}
+                  // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
+                  />
+                </Elements>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+
+        {/* UpgradePlan Modal */}
+        <Elements stripe={stripePromise}>
+          <UpgradePlan
+            open={showUpgradePlanModal}
+            handleClose={() => setShowUpgradePlanModal(false)}
+          />
+        </Elements>
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default ProfileNav;
