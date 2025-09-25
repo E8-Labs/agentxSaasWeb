@@ -823,7 +823,7 @@ const LastStep = ({
                 </div>
 
                 <div style={{ fontsize: 14, fontWeight: '500', color: 'black' }}>
-                  Avoid interruption when you are making calls and always make sure your AI has minutes to work with
+                  Avoid interruption when you are making calls and always make sure your AI has credits to work with
                 </div>
               </div>
             )

@@ -5,7 +5,6 @@ Follow these steps:
 ## PRE-REVIEW
 
 1. **Understand the Context**
-
    - Read the PR description carefully.
    - Review any linked issues, project boards, or documentation for context.
    - Understand the motivation behind the changes.

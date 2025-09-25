@@ -89,14 +89,15 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
       }
 
       let planType = null;
+      planType = selectedPlan.planType;
 
-      if (selectedPlan.name === "Starter") {
-        planType = "Plan120";
-      } else if (selectedPlan.name === "Growth") {
-        planType = "Plan360";
-      } else if (selectedPlan.name === "Scale") {
-        planType = "Plan720";
-      }
+      // if (selectedPlan.name === "Starter") {
+      //   planType = "Plan120";
+      // } else if (selectedPlan.name === "Growth") {
+      //   planType = "Plan360";
+      // } else if (selectedPlan.name === "Scale") {
+      //   planType = "Plan720";
+      // }
 
       setSubscribePlanLoader(true);
       let AuthToken = null;
@@ -193,9 +194,9 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
             >
               {selectedPlan?.name}
             </div>
-            <div className="text-black text-[14px] font-[400]">{selectedPlan?.mins} Mins | {selectedPlan?.calls} Calls*</div>
-            <div className="text-gray-500 text-[12px] font-[300] mb-2">Per Month, Billed Monthly</div>
-            <div className="text-3xl font-bold">{selectedPlan?.discountPrice}</div>
+            <div className="text-black text-[14px] font-[400]">{selectedPlan?.mints} AI Credits | {selectedPlan?.calls} Calls*</div>
+            <div className="text-gray-500 text-[12px] font-[300] mb-2">Total Amount</div>
+            <div className="text-3xl font-bold">${selectedPlan?.discountPrice}</div>
 
           </div>
 

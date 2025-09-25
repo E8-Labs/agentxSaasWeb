@@ -291,7 +291,7 @@ const LeadDetails = ({
 
     let data = localStorage.getItem("selectedUser")
     let selectedUser = null
-    if (data) {
+    if (data !== null || data !== "undefined") {
       selectedUser = JSON.parse(data)
       console.log("selected user data from local", selectedUser)
     }
@@ -1080,7 +1080,7 @@ const LeadDetails = ({
   };
 
 
-  const callTranscript = (item) => {
+  const callTranscript = (item,initialText) => {
     return (
       <div className="flex flex-col">
         <div className="flex mt-4 flex-row items-center gap-4">
@@ -1653,7 +1653,7 @@ const LeadDetails = ({
                             selectedLeadsDetails?.pipeline && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
-                                  src="/otherAssets/pipelineIcon.svg"
+                                  src="/assets/pipelineIcon.svg"
                                   height={20}
                                   width={20}
                                   alt="*"
@@ -2726,7 +2726,7 @@ const LeadDetails = ({
 
                                                           emailSmsTranscript(item)
                                                         ) : (
-                                                          callTranscript(item)
+                                                          callTranscript(item,initialText)
                                                         )
 
                                                       }

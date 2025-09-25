@@ -31,9 +31,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
   const router = useRouter();
   const selectRef = useRef(null);
-  
+
   // Redux user state
-  const { user: userData, token } = useUser();
+  const { user: userData, setUser: setUserData, token } = useUser();
 
   //agent type
   const [agentType, setAgentType] = useState("");
@@ -71,6 +71,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [shouldContinue, setShouldContinue] = useState(true);
   const [errorMessage, setErrorMessage] = useState(false);
   const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
+
+  const [updatedUserData, setUpdatedUserData] = useState(null);
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
@@ -920,88 +922,115 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
               {/* Phone number input here */}
               {
-                (userData?.agencyCapabilities?.allowLiveCallTransfer === true && userData?.planCapabilities?.allowLiveCallTransfer === true) ? (
-                  <div>
-                    <div className="w-full">
-                      <div style={styles.headingStyle}>
-                        What number should we forward live transfers to when a lead
-                        wants to talk to you?
-                      </div>
-                      <PhoneInput
-                        className="border outline-none bg-white"
-                        country={"us"} // restrict to US only
-                        onlyCountries={["us"]}
-                        disableDropdown={true}
-                        countryCodeEditable={false}
-                        disableCountryCode={false}
-                        value={callBackNumber}
-                        onChange={handleCallBackNumberChange}
-                        // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                        placeholder={"Enter Phone Number"}
-                        // disabled={loading} // Disable input if still loading
-                        style={{ borderRadius: "7px" }}
-                        inputStyle={{
-                          width: "100%",
-                          borderWidth: "0px",
-                          backgroundColor: "transparent",
-                          paddingLeft: "60px",
-                          paddingTop: "12px",
-                          paddingBottom: "12px",
-                        }}
-                        buttonStyle={{
-                          border: "none",
-                          backgroundColor: "transparent",
-                        }}
-                        dropdownStyle={{
-                          maxHeight: "150px",
-                          overflowY: "auto",
-                        }}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
-                      />
-                      <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
-                        {errorMessage}
-                      </div>
-                    </div>
-                    <div className="flex flex-row items-center gap-4 justify-start">
-                      <button onClick={handleToggleClick}>
-                        {toggleClick ? (
-                          <div
-                            className="bg-purple flex flex-row items-center justify-center rounded"
-                            style={{ height: "24px", width: "24px" }}
-                          >
-                            <Image
-                              src={"/assets/whiteTick.png"}
-                              height={8}
-                              width={10}
-                              alt="*"
-                            />
-                          </div>
-                        ) : (
-                          <div
-                            className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                            style={{ height: "24px", width: "24px" }}
-                          ></div>
-                        )}
-                      </button>
-                      <div
-                        style={{ color: "#151515", fontSize: 15, fontWeight: "500" }}
-                      >
-                        {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+
+                (userData?.userRole === "AgencySubAccount" && userData?.agencyCapabilities?.allowLiveCallTransfer === false)
+                  // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true) 
+                  ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <UpgardView
                         title={"Enable Live Transfer"}
                         subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
-                        userData={userData} 
-                        // handleContinue={handleContinue}
-                        />
+                        userData={userData}
+                        onUpgradeSuccess={(userData) => {
+                          console.log("Upgrade successful", userData);
+                          setUpdatedUserData(userData);
+                          setUserData(userData);
+                          // console.log("Upgrade successful");
+                        }}
+                      // handleContinue={handleContinue}
+                      />
                     </div>
-                  </div>
-                )
+
+                  ) : (
+                    userData?.planCapabilities?.allowLiveCallTransfer === true ? (
+                      <div>
+                        <div className="w-full">
+                          <div style={styles.headingStyle}>
+                            What number should we forward live transfers to when a lead
+                            wants to talk to you?
+                          </div>
+                          <PhoneInput
+                            className="border outline-none bg-white"
+                            country={"us"} // restrict to US only
+                            onlyCountries={["us"]}
+                            disableDropdown={true}
+                            countryCodeEditable={false}
+                            disableCountryCode={false}
+                            value={callBackNumber}
+                            onChange={handleCallBackNumberChange}
+                            // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                            placeholder={"Enter Phone Number"}
+                            // disabled={loading} // Disable input if still loading
+                            style={{ borderRadius: "7px" }}
+                            inputStyle={{
+                              width: "100%",
+                              borderWidth: "0px",
+                              backgroundColor: "transparent",
+                              paddingLeft: "60px",
+                              paddingTop: "12px",
+                              paddingBottom: "12px",
+                            }}
+                            buttonStyle={{
+                              border: "none",
+                              backgroundColor: "transparent",
+                            }}
+                            dropdownStyle={{
+                              maxHeight: "150px",
+                              overflowY: "auto",
+                            }}
+                          // defaultMask={locationLoader ? "Loading..." : undefined}
+                          />
+                          <div style={{ fontWeight: "500", fontSize: 11, color: "red" }}>
+                            {errorMessage}
+                          </div>
+                        </div>
+                        <div className="flex flex-row items-center gap-4 justify-start">
+                          <button onClick={handleToggleClick}>
+                            {toggleClick ? (
+                              <div
+                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              >
+                                <Image
+                                  src={"/assets/whiteTick.png"}
+                                  height={8}
+                                  width={10}
+                                  alt="*"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                style={{ height: "24px", width: "24px" }}
+                              ></div>
+                            )}
+                          </button>
+                          <div
+                            style={{ color: "#151515", fontSize: 15, fontWeight: "500" }}
+                          >
+                            {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      < div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                        <div className="w-full h-full flex items-center justify-center">
+                          <UpgardView
+                            title={"Enable Live Transfer"}
+                            subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
+                            userData={userData}
+                            onUpgradeSuccess={(userData) => {
+                              console.log("Upgrade successful", userData);
+                              setUpdatedUserData(userData);
+                              setUserData(userData);
+                              // console.log("Upgrade successful");
+                            }}
+                          // handleContinue={handleContinue}
+                          />
+                        </div>
+                      </div>
+                    )
+                  )
               }
 
               {/* <Body /> */}
@@ -1158,7 +1187,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           </Box>
         </Modal>
       </div>
-    </div>
+    </div >
   );
 };
 

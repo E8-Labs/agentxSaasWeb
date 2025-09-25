@@ -5,7 +5,7 @@ const CloseBtn = ({ onClick, showWhiteCross }) => {
     return (
         <div>
             <button
-                className='cursor-pointer px-3 py-3 rounded-full bg-[#00000010]'
+                className='cursor-pointer px-2 py-2 rounded-full bg-[#00000010]'
                 onClick={onClick}
             >
                 <Image

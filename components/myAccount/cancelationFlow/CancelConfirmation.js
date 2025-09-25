@@ -183,7 +183,7 @@ function CancelConfirmation({
                                     className="flex-shrink-0"
                                 />
                                 <div className="text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {item}
+                                    {item.title}
                                 </div>
                             </div>
                         ))}

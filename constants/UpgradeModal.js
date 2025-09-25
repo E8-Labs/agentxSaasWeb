@@ -9,6 +9,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import getProfileDetails from '@/components/apis/GetProfile';
+import { webAgentFeatures, pipelineFeatures, defaultFeatures } from './UpgradeModalFeatures';
 
 const UpgradeModal = ({
     title,
@@ -18,6 +19,8 @@ const UpgradeModal = ({
     handleClose,
     onUpgradeSuccess,
     selectedPlan = null, // Pre-selected plan from previous screen
+    features = null, // Dynamic features array for different functionalities
+    functionality = 'default', // Functionality type to determine which features to use
 }) => {
 
 
@@ -28,29 +31,26 @@ const UpgradeModal = ({
             : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
     const stripePromise = loadStripe(stripePublickKey);
 
+    // Get features based on functionality or use provided features
+    const getFeaturesByFunctionality = (func) => {
+        switch (func) {
+            case 'webAgent':
+                return webAgentFeatures;
+            case 'pipeline':
+                return pipelineFeatures;
+            case 'smartRefill':
+                return webAgentFeatures; //smart refill features are same as web agent features
+            default:
+                return defaultFeatures;
+        }
+    };
 
-
-    const benifits1 = [
-        { id: 1, title: "More Mins of AI Credits", subTitle: "" },
-        { id: 2, title: "Unlimited AI Agents", subTitle: "" },
-        { id: 3, title: "Unlimited Team", subTitle: "" },
-        { id: 4, title: "LLMs", subTitle: "(AgentX, OpenAI, Llama, Gemini)" },
-        { id: 5, title: "AI Powered CRM", subTitle: "(Copilot)" },
-        { id: 6, title: "Lead Enrichment", subTitle: "(Perplexity)" },
-        { id: 7, title: "10,000+ Integrations", subTitle: "(Zapier + Make)" },
-        { id: 8, title: "Custom Voicemails", subTitle: "" },
-    ];
-
-    const benifits2 = [
-        { id: 1, title: "Geo-Based Phone Number Access", subTitle: "" },
-        { id: 2, title: "DNC Check", subTitle: "" },
-        { id: 3, title: "Lead Source", subTitle: "(Coming soon)" },
-        { id: 4, title: "AI Powered Message", subTitle: "(Coming soon)" },
-        { id: 5, title: "AI Powered Email", subTitle: "" },
-        { id: 6, title: "Zoom Support", subTitle: "" },
-        { id: 7, title: "Priority Support", subTitle: "(Email/SMS)" },
-        { id: 8, title: "Tech Support", subTitle: "" },
-    ];
+    // Use provided features, or get features by functionality, or use default
+    const allFeatures = features || getFeaturesByFunctionality(functionality);
+    
+    // Split features into two columns (first 8 and remaining)
+    const benifits1 = allFeatures.slice(0, 8);
+    const benifits2 = allFeatures.slice(8);
 
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
 
@@ -129,9 +129,6 @@ const UpgradeModal = ({
                                                     <div style={{ fontSize: "15px", fontWeight: "500" }}>
                                                         {item.title}
                                                     </div>
-                                                    <div style={{ fontSize: "13px", fontWeight: "400", color: "#8A8A8A" }}>
-                                                        {item.subTitle}
-                                                    </div>
                                                 </div>
                                             ))
                                         }
@@ -151,9 +148,6 @@ const UpgradeModal = ({
                                                     />
                                                     <div style={{ fontSize: "15px", fontWeight: "500" }}>
                                                         {item.title}
-                                                    </div>
-                                                    <div style={{ fontSize: "13px", fontWeight: "400", color: "#8A8A8A" }}>
-                                                        {item.subTitle}
                                                     </div>
                                                 </div>
                                             ))

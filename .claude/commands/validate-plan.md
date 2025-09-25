@@ -3,6 +3,7 @@
 Validate that the actual implementation matches the original planning documents.
 
 ## Usage
+
 Planning directory to validate: `$ARGUMENTS`
 
 ---
@@ -18,6 +19,7 @@ Compare the actual implementation in the codebase against the planning documents
 ### Phase 1: Plan Document Analysis
 
 1. **Load Planning Documents**
+
    ```
    Read in order:
    - planning/[project]/index.md
@@ -65,6 +67,7 @@ Compare the actual implementation in the codebase against the planning documents
 ### Phase 2: Codebase Analysis
 
 1. **Verify File Structure**
+
    ```bash
    For each planned file/directory:
    - Check existence
@@ -107,15 +110,16 @@ Calculate weighted compliance score:
 
 ```javascript
 const scoring = {
-  criticalFeatures: 0.40,    // Core functionality
-  architecture: 0.25,         // Design compliance
-  apiCompleteness: 0.20,      // Endpoint implementation
-  testing: 0.10,              // Test coverage
-  documentation: 0.05         // Docs updates
-};
+  criticalFeatures: 0.4, // Core functionality
+  architecture: 0.25, // Design compliance
+  apiCompleteness: 0.2, // Endpoint implementation
+  testing: 0.1, // Test coverage
+  documentation: 0.05, // Docs updates
+}
 ```
 
 For each category:
+
 1. Count implemented items
 2. Calculate percentage complete
 3. Apply weight to category
@@ -152,7 +156,7 @@ For each category:
 
 ## OUTPUT REPORT FORMAT
 
-```markdown
+````markdown
 # Plan Implementation Validation Report
 
 **Planning Directory**: [path]
@@ -169,45 +173,54 @@ For each category:
 ## Compliance Breakdown
 
 ### 🎯 Critical Features (40% weight)
+
 **Score**: XX/100
 
 #### ✅ Implemented
+
 - [Feature 1]: Fully functional, passes validation
 - [Feature 2]: Complete with tests
 
 #### ⚠️ Partial Implementation
+
 - [Feature 3]: Missing error handling
   - **Gap**: No retry logic for API calls
   - **Fix**: Add exponential backoff per plan section 3.2
 
 #### ❌ Missing
+
 - [Feature 4]: Not found in codebase
   - **Impact**: Critical - blocks user workflow
   - **Location**: Should be in src/services/
 
 ### 🏗️ Architecture Compliance (25% weight)
+
 **Score**: XX/100
 
 #### Component Structure
+
 - ✅ Service layer properly separated
 - ✅ Repository pattern implemented
 - ❌ Missing facade pattern for external APIs
 
 #### Design Patterns
+
 - ✅ Singleton for database connection
 - ⚠️ Factory pattern incomplete (3 of 5 factories)
 
 ### 🔌 API Completeness (20% weight)
+
 **Score**: XX/100
 
-| Endpoint | Planned | Implemented | Status |
-|----------|---------|-------------|--------|
-| POST /api/users | ✅ | ✅ | Complete |
-| GET /api/users/:id | ✅ | ✅ | Complete |
-| PUT /api/users/:id | ✅ | ⚠️ | Missing validation |
-| DELETE /api/users/:id | ✅ | ❌ | Not implemented |
+| Endpoint              | Planned | Implemented | Status             |
+| --------------------- | ------- | ----------- | ------------------ |
+| POST /api/users       | ✅      | ✅          | Complete           |
+| GET /api/users/:id    | ✅      | ✅          | Complete           |
+| PUT /api/users/:id    | ✅      | ⚠️          | Missing validation |
+| DELETE /api/users/:id | ✅      | ❌          | Not implemented    |
 
 ### 🧪 Testing Coverage (10% weight)
+
 **Score**: XX/100
 
 - Unit Tests: XX% coverage (target: 80%)
@@ -215,6 +228,7 @@ For each category:
 - E2E Tests: ❌ Not implemented
 
 ### 📚 Documentation (5% weight)
+
 **Score**: XX/100
 
 - API Documentation: ⚠️ Partially complete
@@ -224,18 +238,21 @@ For each category:
 ## Deviation Analysis
 
 ### ✅ Justified Improvements
+
 1. **Used Zod instead of Joi for validation**
    - Reason: Better TypeScript integration
    - Impact: Positive - improved type safety
    - Documentation: Updated in ARCHITECTURE.md
 
 ### ❌ Unjustified Gaps
+
 1. **Missing user authentication module**
    - Impact: Critical - security risk
    - Required by: Phase 2, Step 3
    - No alternative implemented
 
 ### 🆕 Unplanned Additions
+
 1. **Added caching layer**
    - Benefit: Improved performance
    - Recommendation: Document in architecture
@@ -243,6 +260,7 @@ For each category:
 ## Validation Results
 
 ### Build & Type Checking
+
 ```bash
 npm run build
 ✅ Build successful
@@ -253,9 +271,12 @@ npm run typecheck
 - src/services/api.ts:78 - 'any' type used
 - src/utils/helpers.ts:23 - Implicit any parameter
 ```
+````
 
 ### Implementation Status Review
+
 According to implementation-status.md:
+
 - Phase 1: ✅ Complete
 - Phase 2: ⚠️ 70% complete (5/7 steps)
 - Phase 3: ❌ Not started
@@ -264,6 +285,7 @@ According to implementation-status.md:
 ## Priority Recommendations
 
 ### 🔴 Critical (Must Fix)
+
 1. **Implement user authentication**
    - File: src/services/auth.ts
    - Reference: Phase 2, Step 3
@@ -275,6 +297,7 @@ According to implementation-status.md:
    - Add missing type annotations
 
 ### 🟡 Important (Should Fix)
+
 1. **Complete API validation**
    - Add request validation to PUT endpoint
    - Implement DELETE endpoint
@@ -286,6 +309,7 @@ According to implementation-status.md:
    - Target 80% coverage
 
 ### 🟢 Nice to Have
+
 1. **Document unplanned changes**
    - Update ARCHITECTURE.md with caching details
    - Add decision log for Zod migration
@@ -308,6 +332,7 @@ To achieve 100% compliance:
 ## Next Steps
 
 1. **Immediate Actions**:
+
    ```bash
    # Fix type errors
    npm run typecheck
@@ -315,6 +340,7 @@ To achieve 100% compliance:
    ```
 
 2. **Resume Implementation**:
+
    ```bash
    # Continue from Phase 2, Step 6
    # Use plan-implementer agent:
@@ -328,12 +354,14 @@ To achieve 100% compliance:
 ---
 
 **Re-validation Command**:
+
 ```
 /validate-plan [same-path]
 ```
 
 **Full Compliance Target Date**: Based on remaining work, estimate X days for 100% compliance.
-```
+
+````
 
 ## VALIDATION LOGIC
 
@@ -344,9 +372,10 @@ function checkFileExists(plannedPath) {
   // Check if it's TypeScript when it should be
   // Verify exports match plan
 }
-```
+````
 
 ### Verify API Implementation
+
 ```javascript
 function validateEndpoint(spec) {
   // Search for route definition
@@ -357,6 +386,7 @@ function validateEndpoint(spec) {
 ```
 
 ### Database Schema Validation
+
 ```javascript
 function validateSchema(plannedSchema) {
   // Check migration files
@@ -369,6 +399,7 @@ function validateSchema(plannedSchema) {
 ## ERROR HANDLING
 
 If validation fails:
+
 1. Clearly state what couldn't be validated
 2. Provide the error encountered
 3. Suggest how to fix the validation issue

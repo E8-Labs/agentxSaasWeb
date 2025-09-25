@@ -95,6 +95,8 @@ import { usePlanCapabilities } from "@/hooks/use-plan-capabilities";
 import WebAgentModal from "@/components/dashboard/myagentX/WebAgentModal";
 import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal";
 import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
+import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
+import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -351,6 +353,13 @@ function Page() {
   const [showAllSetModal, setShowAllSetModal] = useState(false)
   const [selectedAgentForWebAgent, setSelectedAgentForWebAgent] = useState(null)
 
+  // Embed Modal states
+  const [showEmbedModal, setShowEmbedModal] = useState(false)
+  const [showEmbedSmartListModal, setShowEmbedSmartListModal] = useState(false)
+  const [showEmbedAllSetModal, setShowEmbedAllSetModal] = useState(false)
+  const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null)
+  const [embedCode, setEmbedCode] = useState('')
+
   // Web Agent Modal handlers
   const handleWebAgentClick = (agent) => {
     setSelectedAgentForWebAgent(agent);
@@ -380,6 +389,30 @@ function Page() {
   const handleCloseAllSetModal = () => {
     setShowAllSetModal(false);
     setSelectedAgentForWebAgent(null);
+  };
+
+  // Embed Modal handlers
+  const handleEmbedClick = (agent) => {
+    setSelectedAgentForEmbed(agent);
+    setShowEmbedModal(true);
+  };
+
+  const handleShowEmbedSmartList = () => {
+    setShowEmbedModal(false);
+    setShowEmbedSmartListModal(true);
+  };
+
+  const handleEmbedSmartListCreated = (smartListData) => {
+    setShowEmbedSmartListModal(false);
+    setShowEmbedAllSetModal(true);
+    // Generate embed code here
+    setEmbedCode(`<script src="https://your-domain.com/embed.js" data-agent-id="${selectedAgentForEmbed?.id}"></script>`);
+  };
+
+  const handleCloseEmbedAllSetModal = () => {
+    setShowEmbedAllSetModal(false);
+    setSelectedAgentForEmbed(null);
+    setEmbedCode('');
   };
 
   const playVoice = (url) => {
@@ -3420,7 +3453,10 @@ function Page() {
         onUpgradeSuccess={handleUpgradeSuccess}
         title={title || "Unlock More Agents"}
         subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
-        buttonTitle={"No Thanks"}
+        buttonTitle={"No Thanks"}f
+        functionality="webAgent"
+
+
       />
 
       <MoreAgentsPopup
@@ -3782,7 +3818,13 @@ function Page() {
                   <button
                     style={{ paddingLeft: "3px" }}
                     onClick={() => {
-                      handleCopy(showDrawerSelectedAgent?.modelIdVapi, baseUrl)
+                      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        setShowUpgradeModal(true)
+                        setTitle("Unlock your Web Agent")
+                        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                      } else {
+                        handleEmbedClick(showDrawerSelectedAgent);
+                      }
                     }}
                   >
                     <Image src={'/svgIcons/embedIcon.svg'}
@@ -5762,6 +5804,35 @@ function Page() {
         onClose={handleCloseAllSetModal}
         agentName={selectedAgentForWebAgent?.name || ""}
         onOpenAgent={handleOpenAgentInNewTab}
+      />
+
+      {/* Embed Modals */}
+      <EmbedModal
+        open={showEmbedModal}
+        onClose={() => setShowEmbedModal(false)}
+        agentName={selectedAgentForEmbed?.name || ""}
+        agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        onShowSmartList={handleShowEmbedSmartList}
+        onShowAllSet={() => {
+          setShowEmbedModal(false);
+          setShowEmbedAllSetModal(true);
+          setEmbedCode(`<script src="https://your-domain.com/embed.js" data-agent-id="${selectedAgentForEmbed?.id}"></script>`);
+        }}
+      />
+
+      <EmbedSmartListModal
+        open={showEmbedSmartListModal}
+        onClose={() => setShowEmbedSmartListModal(false)}
+        agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        onSuccess={handleEmbedSmartListCreated}
+      />
+
+      <AllSetModal
+        open={showEmbedAllSetModal}
+        onClose={handleCloseEmbedAllSetModal}
+        agentName={selectedAgentForEmbed?.name || ""}
+        isEmbedFlow={true}
+        embedCode={embedCode}
       />
     </div >
   );
