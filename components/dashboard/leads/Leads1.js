@@ -977,9 +977,11 @@ const Leads1 = () => {
             </div>
           ) : (
             <div className="h-screen">
-              <div className = "p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-                {`${reduxUser?.currentUsage?.maxLeads}/ ${reduxUser?.planCapabilities?.maxLeads >= 100000000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxLeads || 0}`} used`}
-              </div>
+              {reduxUser?.planCapabilities?.maxLeads < 10000000 && (
+                <div className = "p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                </div>
+              )}
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}

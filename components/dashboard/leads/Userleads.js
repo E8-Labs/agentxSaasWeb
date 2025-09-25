@@ -1704,11 +1704,11 @@ const Userleads = ({
           >
             <div className="flex fex-row items-center gap-2">
               <div style={{ fontWeight: "600", fontSize: 24 }}>Leads</div>
-              <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-
-                {`${reduxUser?.currentUsage?.maxLeads}/ ${reduxUser?.planCapabilities?.maxLeads >= 100000000 ? "Unlimited" : `${reduxUser?.planCapabilities?.maxLeads || 0}`} used`}
-
-              </div>
+              {reduxUser?.planCapabilities?.maxLeads < 10000000 && (
+                <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                </div>
+              )}
             </div>
             <div className="flex fex-row items-center gap-6">
               <button

@@ -634,11 +634,8 @@ function AdminAllCalls({ selectedUser }) {
         <div className="w-1/12">
           <div style={styles.text}>Status</div>
         </div>
-        <div className="w-1/12">
-          <div style={styles.text}>Date</div>
-        </div>
-        <div className="w-1/12">
-          <div style={styles.text}>Time</div>
+        <div className="w-2/12">
+          <div style={styles.text}>Date & Time</div>
         </div>
         <div className="w-1/12">
           <div style={styles.text}>More</div>
@@ -745,14 +742,9 @@ function AdminAllCalls({ selectedUser }) {
                         {item?.callOutcome ? item?.callOutcome : "Ongoing"}
                       </div>
                     </div>
-                    <div className="w-1/12">
+                    <div className="w-2/12">
                       <div style={styles.text2}>
-                        {GetFormattedDateString(item?.createdAt)}
-                      </div>
-                    </div>
-                    <div className="w-1/12">
-                      <div style={styles.text2}>
-                        {GetFormattedTimeString(item?.createdAt)}
+                        {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                       </div>
                     </div>
                     <div className="w-1/12">

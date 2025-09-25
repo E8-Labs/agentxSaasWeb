@@ -9,10 +9,13 @@ import ClaimNumber from '../myagentX/ClaimNumber';
 import CalendarModal from '../myagentX/CalenderModal';
 import { AddCalendarApi } from '@/apiservicescomponent/addcalendar/AddCalendarApi';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import UpgradeModal from '@/constants/UpgradeModal';
+import { useUser } from '@/hooks/redux-hooks';
 
 const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
     const router = useRouter();
+    const { user: reduxUser } = useUser();
 
     // console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(true);
@@ -46,6 +49,20 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
     const [selectGHLCalendar, setSelectGHLCalendar] = useState(null);
     const [gHLCalenderLoader, setGHLCalenderLoader] = useState(false);
 
+    //calendar upgrade modal
+    const [showCalendarUpgradeModal, setShowCalendarUpgradeModal] = useState(false);
+
+    // Check calendar plan capabilities
+    const checkCalendarPlanCapabilities = () => {
+        const user = reduxUser || userDetails?.user;
+        if (!user) return true;
+
+        const currentCalendars = user?.currentUsage?.maxCalendars || 0;
+        const maxCalendars = user?.planCapabilities?.maxCalendars || 1;
+
+        return currentCalendars < maxCalendars;
+    };
+
     const getChecklist = () => {
         const D = localStorage.getItem("User");
         if (D) {
@@ -66,11 +83,24 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
             console.log("percentage of check list is", percentage);   // Output: 60
 
+            // Get calendar usage info
+            const user = reduxUser || LocalData?.user;
+            const currentCalendars = user?.currentUsage?.maxCalendars || 0;
+            const maxCalendars = user?.planCapabilities?.maxCalendars || 1;
+            const calendarUsageText = maxCalendars >= 1000 ? "Unlimited" : `${currentCalendars}/${maxCalendars}`;
+
             setCheckList([
                 { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
                 { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
                 { id: 3, label: 'Intro video', status: LocalData?.user?.walkthroughWatched, route: "" },
-                { id: 4, label: 'Connect a calendar', status: T?.calendarCreated, route: "/pipeline" },
+                { 
+                    id: 4, 
+                    label: 'Connect a calendar', 
+                    status: T?.calendarCreated, 
+                    route: "/pipeline",
+                    usageText: calendarUsageText,
+                    isAtLimit: !checkCalendarPlanCapabilities()
+                },
                 { id: 5, label: 'Upload leads', status: T?.leadCreated, route: "/dashboard/leads" },
                 { id: 6, label: 'Start calling', status: T?.callsCreated, route: "/dashboard/leads" },
                 { id: 7, label: 'Claim a number', status: T?.numberClaimed, route: "" },
@@ -217,7 +247,11 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                                                         console.log("show video");
                                                         setWalkthroughWatched(true);
                                                     } else if (item.label === "Connect a calendar") {
-                                                        setShowAddCalendar(true);
+                                                        if (checkCalendarPlanCapabilities()) {
+                                                            setShowAddCalendar(true);
+                                                        } else {
+                                                            setShowCalendarUpgradeModal(true);
+                                                        }
                                                     } else if (item.label === "Claim a number") {
                                                         setShowClaimPopup(true);
                                                     } else {
@@ -247,13 +281,16 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                                                             height={20}
                                                             width={20}
                                                         />}
-                                                    <div
-                                                        // style={styles.text}
-                                                        // className={`${item.status === true ? "line-through" : ""} font-medium text-base sm:text-lg md:text-xl`}
-                                                        // className={`${item.status === true ? "line-through" : ""} font-medium text-sm sm:text-base md:text-lg lg:text-base xl:text-lg`}
-                                                        className={`${item.status === true ? "line-through" : ""} font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px]`}
-                                                    >
-                                                        {item.label}
+                                                    <div className="flex flex-col">
+                                                        <div
+                                                            // style={styles.text}
+                                                            // className={`${item.status === true ? "line-through" : ""} font-medium text-base sm:text-lg md:text-xl`}
+                                                            // className={`${item.status === true ? "line-through" : ""} font-medium text-sm sm:text-base md:text-lg lg:text-base xl:text-lg`}
+                                                            className={`${item.status === true ? "line-through" : ""} font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px]`}
+                                                        >
+                                                            {item.label}
+                                                        </div>
+                                                    
                                                     </div>
                                                 </div>
                                                 <CaretRight size={20} />
@@ -318,6 +355,21 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                     // setPreviousNumber={setPreviousNumber}
                     // previousNumber={previousNumber}
                     // AssignNumber={AssignNumber}
+                    />
+                )
+            }
+
+            {/* Code for calendar upgrade modal */}
+            {
+                showCalendarUpgradeModal && (
+                    <UpgradeModal
+                        open={showCalendarUpgradeModal}
+                        handleClose={() => {
+                            setShowCalendarUpgradeModal(false);
+                        }}
+                        title="You've Hit Your Calendar Limit"
+                        subTitle="Upgrade to add more Calendars"
+                        buttonTitle="No Thanks"
                     />
                 )
             }
