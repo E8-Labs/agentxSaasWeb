@@ -67,3 +67,4 @@ When debugging/troubleshooting, please run the `debugger` agent first, followed 
 - **File naming:** kebab-case files, PascalCase components, camelCase utilities
 - **Include focus states and ARIA attributes** for accessibility
 - **Desktop-first responsive design** with proper spacing scale
+- **ALWAYS validate UI changes with the chrome-devtools MCP server**
