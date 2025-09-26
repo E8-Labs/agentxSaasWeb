@@ -166,7 +166,8 @@ function UpgradePlanContent({
     handleClose,
     plan,
     currentFullPlan,
-    selectedPlan = null // Pre-selected plan from previous screen
+    selectedPlan = null, // Pre-selected plan from previous screen
+    setSelectedPlan = null  
 }) {
 
     const stripeReact = useStripe();
@@ -500,6 +501,7 @@ function UpgradePlanContent({
         setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         setCurrentSelectedPlan(item);
+        setSelectedPlan(item);
     };
 
     const isPlanCurrent = (item) => {
@@ -1082,7 +1084,7 @@ function UpgradePlanContent({
 
                                         {/* Only show Order Summary if a plan is selected */}
                                         {currentSelectedPlan && (
-                                            <div className={`w-[50%] flex flex-col items-start ${haveCards ? "text-black" : "text-[#8a8a8a]"}`}>
+                                            <div className={`w-[50%] flex flex-col items-start ${!haveCards || isAddingNewPaymentMethod ? "text-black" : "text-[#8a8a8a]"}`}>
                                                 <div className=' text-xl font-semibold '>
                                                     Order Summary
                                                 </div>
@@ -1279,7 +1281,8 @@ function UpgradePlan({
     handleClose,
     plan,
     currentFullPlan,
-    selectedPlan = null // Pre-selected plan from previous screen
+    selectedPlan = null, // Pre-selected plan from previous screen
+    setSelectedPlan = null
 }) {
     let stripePublickKey =
         process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1295,6 +1298,7 @@ function UpgradePlan({
                 plan={plan}
                 currentFullPlan={currentFullPlan}
                 selectedPlan={selectedPlan}
+                setSelectedPlan={setSelectedPlan}
             />
         </Elements>
     );

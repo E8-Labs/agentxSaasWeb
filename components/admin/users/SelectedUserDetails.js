@@ -292,7 +292,7 @@ function SelectedUserDetails({
     }
 
     return (
-        <div className='w-full flex flex-col items-center justify-center bg-red'>
+        <div className='w-full flex flex-col items-center justify-center '>
             <AgentSelectSnackMessage isVisible={showSnackMessage != null ? true : false} hide={() => { setShowSnackMessage(null) }}
                 type={SnackbarTypes.Success} message={showSnackMessage}
             />
@@ -474,7 +474,7 @@ function SelectedUserDetails({
                     </div>*/}
                                 </div>
                             </div>
-                            <div className={`flex flex-col items-center justify-center pt-2 ${agencyUser ? "h-[95vh]" : "h-[70vh]"} overflow-auto w-full`}>
+                            <div className={`flex flex-col items-center justify-center pt-2 ${agencyUser ? "h-[90vh]" : "h-[68vh]"} overflow-auto w-full`}>
                                 {
                                     selectedManu.name == "Leads" ? (
                                         <AdminLeads1 selectedUser={selectedUser} />

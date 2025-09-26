@@ -307,7 +307,7 @@ const AdminAssignLead = ({
     // return;
 
     try {
-      setLoader(true);
+      // setLoader(true); 
       console.log('calling api')
 
       let timer = null;
@@ -361,7 +361,7 @@ const AdminAssignLead = ({
         }
       }
 
-      // console.log("apidata is", Apidata)
+      console.log("apidata is", Apidata)
       // return;
       if (filters && selectedAll) {
         Apidata = {

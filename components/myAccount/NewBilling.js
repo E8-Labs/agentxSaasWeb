@@ -1770,6 +1770,7 @@ function NewBilling() {
             <Elements stripe={stripePromise}>
                 <UpgradePlan
                     selectedPlan={selectedPlan}
+                    setSelectedPlan={setSelectedPlan}
                     open={showUpgradeModal}
                     handleClose={async (upgradeResult) => {
                         setShowUpgradeModal(false);

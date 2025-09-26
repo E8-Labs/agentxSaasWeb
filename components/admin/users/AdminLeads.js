@@ -739,7 +739,7 @@ const AdminLeads = ({
             const data = response.data.data;
             if (offset == 0) {
               let sheetId = null;
-              if (data.length > 0) {
+              if ( data && data.length > 0) {
                 sheetId = data[0].sheetId;
                 setShowNoLeadsLabel(null);
               } else {
@@ -1704,7 +1704,7 @@ const AdminLeads = ({
                             userProfile={userLocalDetails}
                             selectedUser={selectedUser}
                             totalLeads={totalLeads}
-                            sheetId={sheetId}
+                            sheetId={SelectedSheetId}
                           />
                         </div>
 

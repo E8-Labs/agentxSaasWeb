@@ -1780,7 +1780,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   };
 
   return (
-    <div className="w-full flex flex-col items-start h-[77vh] mt-7">
+    <div className="w-full flex flex-col items-start h-full mt-7">
       {/* Slider code */}
       <div
         style={{
