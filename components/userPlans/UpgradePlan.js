@@ -205,6 +205,7 @@ function UpgradePlanContent({
     const [addCardSuccess, setAddCardSuccess] = useState(false);
     const [addCardFailure, setAddCardFailure] = useState(false);
     const [subscribeLoader, setsubscribeLoader] = useState(false);
+    const [makeDefaultCardLoader, setMakeDefaultCardLoader] = useState(false);
 
 
     const [CVC, setCVC] = useState(false);
@@ -679,6 +680,56 @@ function UpgradePlanContent({
         }
     };
 
+    //function to make default cards api
+    const makeDefaultCard = async (item) => {
+        setSelectedCard(item);
+        try {
+            setMakeDefaultCardLoader(true);
+
+            const localData = localStorage.getItem("User");
+            let AuthToken = null;
+
+            if (localData) {
+                const Data = JSON.parse(localData);
+                AuthToken = Data.token;
+            }
+
+            const ApiPath = Apis.makeDefaultCard;
+            const ApiData = {
+                paymentMethodId: item.id,
+            };
+
+            const response = await axios.post(ApiPath, ApiData, {
+                headers: {
+                    Authorization: "Bearer " + AuthToken,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response) {
+                if (response.data.status === true) {
+                    // Update cards state to reflect the change
+                    setCards(prevCards => 
+                        prevCards.map(card => ({
+                            ...card,
+                            isDefault: card.id === item.id
+                        }))
+                    );
+                    setAddCardSuccess(true);
+                    setAddCardErrtxt("Card set as default successfully");
+                } else {
+                    setAddCardFailure(true);
+                    setAddCardErrtxt(response.data.message || "Failed to set default card");
+                }
+            }
+        } catch (error) {
+            console.error("Error occurred in make default card api:", error);
+            setAddCardFailure(true);
+            setAddCardErrtxt("Error setting default card");
+        } finally {
+            setMakeDefaultCardLoader(false);
+        }
+    };
 
     //function to subscribe plan
     const handleSubscribePlan = async () => {
@@ -798,7 +849,7 @@ function UpgradePlanContent({
                         isVisible={addCardSuccess}
                         hide={() => setAddCardSuccess(false)}
                         type={SnackbarTypes.Success}
-                        message={"Card added successfully"}
+                        message={addCardErrtxt || "Card added successfully"}
                     />
                     <div
                         className="w-full flex flex-col border-white "
@@ -1030,6 +1081,8 @@ function UpgradePlanContent({
                                                             <div className="w-full" key={item.id}>
                                                                 <button
                                                                     className="w-full outline-none"
+                                                                    onClick={() => makeDefaultCard(item)}
+                                                                    disabled={makeDefaultCardLoader}
                                                                 >
                                                                     <div
                                                                         className={`flex items-center justify-between w-full px-2 py-1 border rounded-lg `}
@@ -1067,6 +1120,9 @@ function UpgradePlanContent({
                                                                                     item.isDefault && (
                                                                                         <span>{`(default)`}</span>
                                                                                     )}
+                                                                                {makeDefaultCardLoader && selectedCard?.id === item.id && (
+                                                                                    <CircularProgress size={12} style={{ marginLeft: '8px' }} />
+                                                                                )}
                                                                             </div>
                                                                         </div>
 

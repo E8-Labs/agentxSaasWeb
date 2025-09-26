@@ -662,7 +662,7 @@ const ProfileNav = () => {
           let userPlan = response?.data?.data?.plan;
           const user = response?.data?.data;
           const isBalanceLow = user.totalSecondsAvailable < 120;
-
+          setReduxUser(user);
 
 
           console.log("🔍 [getProfile] User details:", {

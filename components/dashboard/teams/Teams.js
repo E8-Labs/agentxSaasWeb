@@ -25,6 +25,7 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import UpgradeModal from "@/constants/UpgradeModal";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { useUser } from "@/hooks/redux-hooks";
 
 
 function Teams({
@@ -33,6 +34,8 @@ function Teams({
 }) {
   const timerRef = useRef(null);
   const router = useRouter();
+
+  const {user: reduxUser, setUser: setReduxUser} = useUser;
   //stores local data
   const [userLocalData, setUserLocalData] = useState(null);
 
