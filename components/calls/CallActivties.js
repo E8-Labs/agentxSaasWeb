@@ -887,8 +887,7 @@ function SheduledCalls({ user }) {
                         fontSize: 17,
                       }}
                     >
-                      {SelectedAgent?.name.slice(0, 1).toUpperCase() +
-                        SelectedAgent?.name.slice(1)}{" "}
+                      {getAgentNameForActiviti(SelectedAgent)}{" "}
                       call activity
                     </div>
                     <button
