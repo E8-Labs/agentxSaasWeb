@@ -38,6 +38,7 @@ export default function AssignLeadAnimation({
     filters,
     totalLeads,
     userProfile,
+    sheetId,
     //after lead assigned
     handleCloseAssignLeadModal
 }) {

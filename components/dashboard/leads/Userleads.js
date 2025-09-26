@@ -1779,6 +1779,7 @@ const Userleads = ({
                     filters={getFiltersObject()}
                     totalLeads={totalLeads}
                     userProfile={userLocalDetails} // this is the .user object doesn't include token
+                    sheetId={SelectedSheetId}
                   />
 
                   {/* <Modal
@@ -1881,7 +1882,7 @@ const Userleads = ({
                   </button>
                   {/* Show filters here in a row*/}
                   <div
-                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[70%] "
+                    className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto border"
                     style={{
                       scrollbarColor: "#00000000",
                       scrollbarWidth: "none",
@@ -1957,6 +1958,28 @@ const Userleads = ({
                 </div>
 
                 <div className="flex flex-row items-center gap-2">
+                  <button
+                    className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-purple hover:text-purple"
+                    style={{ fontWeight: 500,fontSize: 14 }}
+                  >
+                    <div className="transition-colors duration-150">
+                      Export
+                    </div>
+                    <Image
+                      src={"/otherAssets/exportIcon.png"}
+                      height={24}
+                      width={24}
+                      alt="Export"
+                      className="group-hover:hidden block transition-opacity duration-150"
+                    />
+                    <Image
+                      src={"/otherAssets/exportIconPurple.png"}
+                      height={24}
+                      width={24}
+                      alt="Export"
+                      className="hidden group-hover:block transition-opacity duration-150"
+                    />
+                  </button>
                   {selectedLeadsList.length >= 0 && (
                     <div>
                       {selectedAll ? (
