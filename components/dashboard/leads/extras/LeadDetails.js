@@ -1389,7 +1389,7 @@ const LeadDetails = ({
                                 </div>
                                 {/* Send Email Button */}
                                 <button
-                                  className="flex flex-row items-center gap-1 px-2 py-2 border text-purple rounded-lg  ml-4"
+                                  className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
                                   onClick={() => setShowEmailModal(true)}
                                   disabled={sendEmailLoader}
                                 >
@@ -1470,7 +1470,7 @@ const LeadDetails = ({
                                 </div>
                                 {selectedLeadsDetails?.cell != null && (
                                   <div
-                                    className="rounded-full font-medium justify-center items-center color-[#ffffff] p-1 px-2 bg-[#15151580]"
+                                    className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
                                     style={{ color: "white" }}
                                   >
                                     {selectedLeadsDetails?.cell}
@@ -1494,16 +1494,19 @@ const LeadDetails = ({
                                       !userLocalData?.plan?.capabilities?.sms || !userLocalData?.planCapabilities?.allowTextMessages
                                         ? (
                                           <div className="flex flex-col items-start gap-1">
-                                            <span>Upgrade Account to send SMS</span>
+                                            <span>
                                             <button
-                                              className="text-purple underline hover:text-purple-700 transition-colors text-left p-0 bg-transparent border-none"
-                                              onClick={() => {
-                                                console.log('Upgrade clicked from SMS tooltip');
-                                                setShowUpgradeModal(true);
-                                              }}
-                                            >
-                                              Upgrade
-                                            </button>
+                                                className="text-purple underline hover:text-purple-700 transition-colors text-left p-0 bg-transparent border-none ml-1"
+                                                onClick={() => {
+                                                  console.log('Upgrade clicked from SMS tooltip');
+                                                  setShowUpgradeModal(true);
+                                                }}
+                                              >
+                                                {`Upgrade `}
+                                              </button>
+                                               {' Account to send SMS - '}
+                                              
+                                            </span>
                                           </div>
                                         )
                                         : phoneNumbers.length == 0
@@ -1536,7 +1539,7 @@ const LeadDetails = ({
                                     }}
                                   >
                                     <button
-                                      className={`flex flex-row border items-center gap-1 px-2 py-2 text-purple rounded-lg`}
+                                      className={`flex flex-row border items-center gap-1 px-1 py-1 text-purple rounded-lg`}
                                       onClick={() => setShowSMSModal(true)}
                                       disabled={sendSMSLoader || !userLocalData?.planCapabilities?.allowTextMessages || phoneNumbers.length == 0}
                                     >
