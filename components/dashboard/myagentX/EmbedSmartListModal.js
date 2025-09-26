@@ -90,21 +90,66 @@ const EmbedSmartListModal = ({
     setCustomFields(newFields);
   };
 
-  const handleSave = async () => {
-    if (!sheetName.trim()) {
-      showSnackbar('Error', 'Please enter a smart list name', SnackbarTypes.Error);
-      return;
-    }
+  const updateSupportButton = async () => {
+    console.log('🔧 EMBED-SMARTLIST - Updating agent support button settings...');
 
     try {
-      setLoading(true);
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
       }
-      
+
+      const formData = new FormData();
+      formData.append('agentId', agentId);
+      if (logoFile) {
+        formData.append('media', logoFile);
+        console.log('🔧 EMBED-SMARTLIST - Adding logo file to update');
+      }
+      formData.append('supportButtonText', buttonLabel);
+      formData.append('smartListEnabled', 'true');
+
+      console.log('🔧 EMBED-SMARTLIST - Support button settings:', {
+        agentId,
+        buttonLabel,
+        smartListEnabled: true,
+        hasLogo: !!logoFile
+      });
+
+      const response = await axios.post(
+        'https://apimyagentx.com/agentxtest/api/agent/updateAgentSupportButton',
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${AuthToken}`
+          }
+        }
+      );
+
+      if (response.data?.status === true) {
+        console.log('🔧 EMBED-SMARTLIST - Support button updated successfully');
+        return true;
+      } else {
+        throw new Error(response.data?.message || 'Failed to update support button');
+      }
+    } catch (error) {
+      console.error('🔧 EMBED-SMARTLIST - Error updating support button:', error);
+      throw error;
+    }
+  };
+
+  const createSmartList = async () => {
+    console.log('🔧 EMBED-SMARTLIST - Creating new smart list...');
+
+    try {
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
       // Combine predefined fields with custom fields, excluding default columns
       const defaultColumns = ['First name', 'Last name', 'Email', 'Phone'];
       const filteredPredefinedFields = predefinedFields.filter(field => !defaultColumns.includes(field));
@@ -125,6 +170,8 @@ const EmbedSmartListModal = ({
         agentId: agentId
       };
 
+      console.log('🔧 EMBED-SMARTLIST - Creating smart list with payload:', payload);
+
       const response = await axios.post(
         'https://apimyagentx.com/agentxtest/api/leads/addSmartList',
         payload,
@@ -136,13 +183,43 @@ const EmbedSmartListModal = ({
         }
       );
 
-      if (response.data) {
-        onSuccess(response.data);
-        handleClose();
+      if (response.data?.status === true) {
+        console.log('🔧 EMBED-SMARTLIST - Smart list created successfully');
+        return response.data;
+      } else {
+        throw new Error(response.data?.message || 'Failed to create smart list');
       }
     } catch (error) {
-      console.error('Error creating smart list:', error);
-      showSnackbar('Error', 'Error creating smart list. Please try again.', SnackbarTypes.Error);
+      console.error('🔧 EMBED-SMARTLIST - Error creating smart list:', error);
+      throw error;
+    }
+  };
+
+  const handleSave = async () => {
+    if (!sheetName.trim()) {
+      showSnackbar('Error', 'Please enter a smart list name', SnackbarTypes.Error);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('🔧 EMBED-SMARTLIST - Starting save process...');
+
+      // Step 1: Update support button settings first (including logo and button text)
+      await updateSupportButton();
+
+      // Step 2: Create the smart list
+      const smartListResponse = await createSmartList();
+
+      // Step 3: Call success callback and close modal
+      if (smartListResponse) {
+        onSuccess(smartListResponse);
+        handleClose();
+      }
+
+    } catch (error) {
+      console.error('🔧 EMBED-SMARTLIST - Error in save process:', error);
+      showSnackbar('Error', error.message || 'Error saving settings. Please try again.', SnackbarTypes.Error);
     } finally {
       setLoading(false);
     }
@@ -171,34 +248,57 @@ const EmbedSmartListModal = ({
     },
   };
 
+  // Add CSS for hiding scrollbars
+  const scrollbarHideStyle = `
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+  `;
+
   if (!open) return null;
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      BackdropProps={{
-        timeout: 1000,
-        sx: {
-          backgroundColor: "#00000020",
-        },
-      }}
-    >
+    <>
+      <style>{scrollbarHideStyle}</style>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: "#00000020",
+          },
+        }}
+      >
       <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
         <div className="flex flex-row justify-center w-full">
-          <div
-            className="w-full"
-            style={{
-              backgroundColor: "#ffffff",
-              padding: 24,
-              borderRadius: "13px",
-              display: 'flex',
-              maxHeight: '90vh',
-            }}
-          >
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: "#ffffff",
+                padding: 24,
+                borderRadius: "13px",
+                display: 'flex',
+                maxHeight: '90vh',
+                overflow: 'hidden',
+              }}
+            >
             {/* Left Side - Configuration */}
-            <div style={{ flex: 1, paddingRight: 24 }}>
+            <div 
+              className="scrollbar-hide"
+              style={{ 
+                flex: 1, 
+                paddingRight: 24, 
+                overflowY: 'auto',
+                maxHeight: '90vh',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}>
             {/* Header */}
             <div className="flex flex-row justify-between items-center mb-3">
               <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
@@ -493,6 +593,7 @@ const EmbedSmartListModal = ({
         </div>
       </Box>
     </Modal>
+    </>
   );
 };
 

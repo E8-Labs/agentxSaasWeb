@@ -97,6 +97,7 @@ import NewSmartListModal from "@/components/dashboard/myagentX/NewSmartListModal
 import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
 import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
 import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
+import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -406,7 +407,11 @@ function Page() {
     setShowEmbedSmartListModal(false);
     setShowEmbedAllSetModal(true);
     // Generate embed code here
-    setEmbedCode(`<script src="https://your-domain.com/embed.js" data-agent-id="${selectedAgentForEmbed?.id}"></script>`);
+    const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`;
+          setEmbedCode(code);
   };
 
   const handleCloseEmbedAllSetModal = () => {
@@ -5818,7 +5823,11 @@ function Page() {
         onShowAllSet={() => {
           setShowEmbedModal(false);
           setShowEmbedAllSetModal(true);
-          setEmbedCode(`<script src="https://your-domain.com/embed.js" data-agent-id="${selectedAgentForEmbed?.id}"></script>`);
+          const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+  height: 100vh; border: none; background: transparent; z-index: 
+  9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
+  </iframe>`;
+          setEmbedCode(code);
         }}
       />
 

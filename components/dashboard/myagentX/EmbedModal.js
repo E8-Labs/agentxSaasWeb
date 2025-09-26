@@ -114,9 +114,10 @@ const EmbedModal = ({
     }
   };
 
-  const handleCopyEmbed = async () => {
+  const updateSupportButton = async () => {
+    console.log('🔧 EMBED-MODAL - Updating agent support button settings...');
+
     try {
-      setLoading(true);
       let AuthToken = null;
       const localData = localStorage.getItem("User");
       if (localData) {
@@ -128,12 +129,17 @@ const EmbedModal = ({
       formData.append('agentId', agentId);
       if (logoFile) {
         formData.append('media', logoFile);
+        console.log('🔧 EMBED-MODAL - Adding logo file to update');
       }
       formData.append('supportButtonText', buttonLabel);
       formData.append('smartListEnabled', requireForm.toString());
-      if (requireForm && selectedSmartList) {
-        formData.append('smartListId', selectedSmartList);
-      }
+
+      console.log('🔧 EMBED-MODAL - Support button settings:', {
+        agentId,
+        buttonLabel,
+        smartListEnabled: requireForm,
+        hasLogo: !!logoFile
+      });
 
       const response = await axios.post(
         'https://apimyagentx.com/agentxtest/api/agent/updateAgentSupportButton',
@@ -145,16 +151,81 @@ const EmbedModal = ({
         }
       );
 
-      if (response.data) {
-        if (requireForm && selectedSmartList) {
-          onShowSmartList();
-        } else {
-          onShowAllSet();
-        }
+      if (response.data?.status === true) {
+        console.log('🔧 EMBED-MODAL - Support button updated successfully');
+        return true;
+      } else {
+        throw new Error(response.data?.message || 'Failed to update support button');
       }
     } catch (error) {
-      console.error('Error updating support button:', error);
-      showSnackbar('Error', 'Error updating support button. Please try again.', SnackbarTypes.Error);
+      console.error('🔧 EMBED-MODAL - Error updating support button:', error);
+      throw error;
+    }
+  };
+
+  const attachSmartList = async () => {
+    console.log('🔧 EMBED-MODAL - Attaching smart list to agent...');
+
+    try {
+      let AuthToken = null;
+      const localData = localStorage.getItem("User");
+      if (localData) {
+        const UserDetails = JSON.parse(localData);
+        AuthToken = UserDetails.token;
+      }
+
+      const payload = {
+        agentId: agentId,
+        smartListId: selectedSmartList
+      };
+
+      console.log('🔧 EMBED-MODAL - Attaching smart list:', payload);
+
+      const response = await axios.post(
+        'https://apimyagentx.com/agentxtest/api/agent/attachSmartList',
+        payload,
+        {
+          headers: {
+            'Authorization': `Bearer ${AuthToken}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data?.status === true) {
+        console.log('🔧 EMBED-MODAL - Smart list attached successfully');
+        return true;
+      } else {
+        throw new Error(response.data?.message || 'Failed to attach smart list');
+      }
+    } catch (error) {
+      console.error('🔧 EMBED-MODAL - Error attaching smart list:', error);
+      throw error;
+    }
+  };
+
+  const handleCopyEmbed = async () => {
+    try {
+      setLoading(true);
+      console.log('🔧 EMBED-MODAL - Starting embed process...');
+
+      // Step 1: Always update support button settings first
+      await updateSupportButton();
+
+      // Step 2: If form is required and smart list is selected, attach the smart list
+      if (requireForm && selectedSmartList) {
+        console.log('🔧 EMBED-MODAL - Form required with selected smart list, attaching...');
+        await attachSmartList();
+        console.log('🔧 EMBED-MODAL - Smart list attached successfully, proceeding to all set modal...');
+        onShowAllSet(); // Go directly to "all set" modal after attaching existing smart list
+      } else {
+        console.log('🔧 EMBED-MODAL - No smart list attachment needed, proceeding to success...');
+        onShowAllSet();
+      }
+
+    } catch (error) {
+      console.error('🔧 EMBED-MODAL - Error in embed process:', error);
+      showSnackbar('Error', error.message || 'Error processing embed settings. Please try again.', SnackbarTypes.Error);
     } finally {
       setLoading(false);
     }

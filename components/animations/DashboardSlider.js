@@ -425,6 +425,8 @@ const styles = {
 
 
 export const GetHelpBtn = ({
+  text = "Get Help",
+  avatar = null,
   handleReopen
 }) => {
   return (
@@ -441,17 +443,18 @@ export const GetHelpBtn = ({
       />
 
       {/* Orb */}
-      <Image
-        src="/agentXOrb.gif"
-        height={46}
-        width={46}
-        alt="Orb"
-        className="relative z-0 bg-white shadow-lg rounded-full"
-      />
+      <div className="relative z-0 bg-white shadow-lg rounded-full w-[46px] h-[46px] overflow-hidden flex-shrink-0">
+        <Image
+          src={avatar || "/agentXOrb.gif"}
+          fill
+          alt="Orb"
+          className="object-cover"
+        />
+      </div>
 
       {/* Text */}
       <p className="text-[16px] font-bold text-purple cursor-pointer ms-2">
-        Get Help
+        {text}
       </p>
     </button>
   )
