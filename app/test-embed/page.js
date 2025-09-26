@@ -116,7 +116,7 @@ const TestEmbedPage = () => {
             ) : (
               <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <p className="text-gray-500">
-                  Enter an Assistant ID and click "Generate Embed Code" to get started
+                  {`Enter an Assistant ID and click "Generate Embed Code" to get started`}
                 </p>
               </div>
             )}
@@ -196,11 +196,11 @@ const TestEmbedPage = () => {
             Testing Tips
           </h3>
           <div className="space-y-2 text-sm text-yellow-800">
-            <p>• Make sure your assistant ID is valid and active in VAPI</p>
-            <p>• Test with both agents that have smart lists and those that don't</p>
-            <p>• Check browser console for detailed logs (look for 🔍 SUPPORT-WIDGET prefixed messages)</p>
-            <p>• Ensure microphone permissions are enabled for voice calls</p>
-            <p>• Test the form submission and call initiation flow</p>
+            <p>{`• Make sure your assistant ID is valid and active in VAPI`}</p>
+            <p>{`• Test with both agents that have smart lists and those that don't`}</p>
+            <p>{`• Check browser console for detailed logs (look for 🔍 SUPPORT-WIDGET prefixed messages)`}</p>
+            <p>{`• Ensure microphone permissions are enabled for voice calls`}</p>
+            <p>{`• Test the form submission and call initiation flow`}</p>
           </div>
         </div>
       </div>
