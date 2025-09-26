@@ -872,7 +872,7 @@ function UpgradePlanContent({
 
                                         <div className='flex flex-col items-center plan-duration-container'>
                                             {/* Discount labels row */}
-                                            <div className='flex flex-row items-center mb-1' style={{ gap: '8px' }}>
+                                            <div className='flex flex-row items-center mb-0' style={{ gap: '8px' }}>
                                                 {
                                                     duration.map((item) => (
                                                         <div key={`discount-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>
@@ -893,7 +893,7 @@ function UpgradePlanContent({
                                             </div>
 
                                             {/* Duration buttons row */}
-                                            <div className='flex flex-row items-center border bg-neutral-100 px-1 py-0.5 rounded-full' style={{ gap: '8px' }}>
+                                            <div className='flex flex-row items-center border bg-neutral-100 px-1 pb-0.5 rounded-full' style={{ gap: '8px' }}>
                                                 {
                                                     duration.map((item) => (
                                                         <div key={`button-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>
@@ -1095,7 +1095,7 @@ function UpgradePlanContent({
                                                             {currentSelectedPlan ? `${currentSelectedPlan?.name} Plan` : "No Plan Selected"}
                                                         </div>
                                                         <div className=' text-xs font-regular '>
-                                                            {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle} subscription` : ""}
+                                                            {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)} subscription` : ""}
                                                         </div>
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
