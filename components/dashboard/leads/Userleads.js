@@ -251,6 +251,10 @@ const Userleads = ({
   }, [searchLead]);
 
   useEffect(() => {
+    console.log("totalLeads is", totalLeads);
+  }, [totalLeads]);
+
+  useEffect(() => {
     // getLeads();
     const localPipelines = localStorage.getItem("pipelinesList");
     if (localPipelines) {
@@ -833,7 +837,7 @@ const Userleads = ({
         }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
       }
-      //console.log;
+      console.log("ApiPath is", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -851,7 +855,10 @@ const Userleads = ({
         if (currentRequestVersion === requestVersion.current) {
           if (response.data.status === true) {
             setShowFilterModal(false);
-            setTotalLeads(response.data.leadCount);
+            let count = response.data.leadCount;
+            if (offset == 0) {
+              setTotalLeads(count);
+            }
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
             let allLeads;
