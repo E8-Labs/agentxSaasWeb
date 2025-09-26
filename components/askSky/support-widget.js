@@ -240,22 +240,38 @@ export function SupportWidget({
         }
       });
 
-      // Prepare API data
-      const apiData = {
+      // Prepare lead_details object (matching web-agent format)
+      const leadDetails = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: formData.email,
         phone: formData.phone,
-        ...extraColumns
+        email: formData.email,
+        extraColumns: extraColumns
       };
 
-      console.log('🔍 SUPPORT-WIDGET - API Data being sent:', apiData);
+      console.log('🔍 SUPPORT-WIDGET - Sending lead details:', leadDetails);
 
-      // Call POST API to get assistant overrides
-      const response = await axios.post(`${Apis.getUserByAgentVapiId}/${assistantId}`, apiData);
+      // Call POST API to get assistant overrides (matching web-agent format)
+      const response = await axios.post(`${Apis.getUserByAgentVapiIdWithLeadDetails}/${assistantId}`, {
+        lead_details: leadDetails
+      });
 
       if (response?.data?.status === true) {
         console.log('🔍 SUPPORT-WIDGET - Form submitted successfully:', response.data);
+
+        // Check if user has sufficient balance
+        const { totalSecondsAvailable } = response.data.data.user;
+        console.log('🔍 SUPPORT-WIDGET - User total seconds available:', totalSecondsAvailable);
+
+        if (totalSecondsAvailable < 120) {
+          console.log('🔍 SUPPORT-WIDGET - Insufficient balance, showing error');
+          setSnackbarMessage("Insufficient Balance");
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
+          setIsSubmitting(false);
+          return;
+        }
+
         const newOverrides = response?.data?.data?.assistantOverrides;
 
         setShowLeadModal(false);
@@ -339,17 +355,27 @@ export function SupportWidget({
         };
       }
 
-      const payloadSize = new Blob([JSON.stringify(assistantOverrides)]).size;
+      // Remove variableValues field before passing to VAPI (matching web-agent)
+      let cleanedOverrides = assistantOverrides;
+      if (assistantOverrides && assistantOverrides.variableValues !== undefined) {
+        cleanedOverrides = { ...assistantOverrides };
+        delete cleanedOverrides.variableValues;
+        console.log("🔍 SUPPORT-WIDGET - Removed variableValues from overrides:", cleanedOverrides);
+      }
+
+      console.log("🔍 SUPPORT-WIDGET - Current assistant overrides:", assistantOverrides);
+      console.log("🔍 SUPPORT-WIDGET - Cleaned overrides for VAPI:", cleanedOverrides);
+
+      const payloadSize = new Blob([JSON.stringify(cleanedOverrides)]).size;
       console.log(`🔍 SUPPORT-WIDGET - Payload size: ${payloadSize} bytes`);
-      console.log('🔍 SUPPORT-WIDGET - Final assistantOverrides:', assistantOverrides)
 
       // Check if agent has smart list to determine which assistant ID to use
       if (smartListData?.id) {
-        console.log("🔍 SUPPORT-WIDGET - Agent has smart list, using agent ID from response");
-        vapi.start(agentUserDetails?.agent?.id || assistantId, assistantOverrides);
+        console.log("🔍 SUPPORT-WIDGET - Agent has smart list, using assistant ID:", assistantId);
+        vapi.start(assistantId, cleanedOverrides);
       } else {
         console.log("🔍 SUPPORT-WIDGET - No smart list, using provided assistant ID");
-        vapi.start(assistantId, assistantOverrides);
+        vapi.start(assistantId);
       }
     } else {
       console.error("Vapi instance not initialized");
