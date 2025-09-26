@@ -102,7 +102,11 @@ const CardForm = ({
                         style={{ backgroundColor: "rgba(255, 255, 255, 0.8)", borderRadius: "8px" }}
                     >
                         <CardCvcElement
-                            options={elementOptions}
+                            // options={elementOptions}
+                            options={{
+                                ...elementOptions,
+                                placeholder: "CVV", // 👈 add this
+                            }}
                             onReady={(element) => {
                                 cardCvcRef.current = element;
                             }}
@@ -167,7 +171,7 @@ function UpgradePlanContent({
     plan,
     currentFullPlan,
     selectedPlan = null, // Pre-selected plan from previous screen
-    setSelectedPlan = null  
+    setSelectedPlan = null
 }) {
 
     const stripeReact = useStripe();
@@ -709,7 +713,7 @@ function UpgradePlanContent({
             if (response) {
                 if (response.data.status === true) {
                     // Update cards state to reflect the change
-                    setCards(prevCards => 
+                    setCards(prevCards =>
                         prevCards.map(card => ({
                             ...card,
                             isDefault: card.id === item.id

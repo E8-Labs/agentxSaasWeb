@@ -468,7 +468,11 @@ const UserAddCard = ({
                                     style={{ borderRadius: "8px" }}
                                 >
                                     <CardCvcElement
-                                        options={elementOptions}
+                                        // options={elementOptions}
+                                        options={{
+                                            ...elementOptions,
+                                            placeholder: "CVV", // 👈 add this
+                                        }}
                                         style={{
                                             width: "100%",
                                             padding: "8px",

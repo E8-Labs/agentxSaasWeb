@@ -427,14 +427,18 @@ const AddCardDetails = ({
               color: "#4F5B76",
             }}
           >
-            CVC
+            CVV
           </div>
           <div
             className="mt-2 px-3 py-1 border"
             style={{ backgroundColor: "#ffffff", borderRadius: "8px" }}
           >
             <CardCvcElement
-              options={elementOptions}
+              // options={elementOptions}
+              options={{
+                ...elementOptions,
+                placeholder: "CVV", // 👈 add this
+              }}
               style={{
                 width: "100%",
                 padding: "8px",

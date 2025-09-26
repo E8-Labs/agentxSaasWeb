@@ -494,20 +494,14 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
 
                                                         {/* Pricing */}
                                                         <div className='text-center mt-4 text-transparent bg-clip-text bg-gradient-to-r from-[#7902DF] to-[#DF02BA]' style={{ fontSize: 34, fontWeight: '600' }}>
+                                                            ${formatDecimalValue(item.originalPrice)}
                                                             {/*selectedDuration.title === "Monthly"
-                                                                ? `$${item.originalPrice}`
+                                                                ? formatDecimalValue(item.originalPrice)
                                                                 : selectedDuration.title === "Quarterly"
-                                                                    ? `$${formatDecimalValue(item.originalPrice / 3)}`
+                                                                    ? formatDecimalValue(item.originalPrice)
                                                                     : selectedDuration.title === "Yearly"
-                                                                        ? `$${formatDecimalValue(item.originalPrice / 12)}`
-                                            : ""*/}
-                                                            ${selectedDuration.title === "Monthly"
-                                                                ? item.originalPrice
-                                                                : selectedDuration.title === "Quarterly"
-                                                                    ? formatDecimalValue(item.originalPrice / 3)
-                                                                    : selectedDuration.title === "Yearly"
-                                                                        ? formatDecimalValue(item.originalPrice / 12)
-                                                                        : "-"}
+                                                                        ? formatDecimalValue(item.originalPrice)
+                                                                        : "-"*/}
                                                         </div>
 
                                                         <div className='text-center mt-1' style={{ fontSize: 15, fontWeight: '400' }}>
@@ -516,7 +510,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                                 : selectedDuration.title === "Quarterly"
                                                                     ? "Billed Quarterly"
                                                                     : selectedDuration.title === "Yearly"
-                                                                        ? "Billed Yearly"
+                                                                        ? "Billed Annually"
                                                                         : "-"}
                                                         </div>
                                                         {/*

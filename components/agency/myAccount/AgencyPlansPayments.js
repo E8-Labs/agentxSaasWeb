@@ -751,6 +751,15 @@ function AgencyPlansPayments({
     };
 
     const getCurrentPlans = () => {
+        if (selectedDuration.id === 1) {
+            console.log("Monthly plans set are", monthlyPlans);
+        };
+        if (selectedDuration.id === 2) {
+            console.log("Quarterly plans set are", quaterlyPlans);
+        }
+        if (selectedDuration.id === 3) {
+            console.log("Yearly plans set are", yearlyPlans);
+        }
         if (selectedDuration.id === 1) return monthlyPlans;
         if (selectedDuration.id === 2) return quaterlyPlans;
         if (selectedDuration.id === 3) return yearlyPlans;
@@ -1231,7 +1240,7 @@ function AgencyPlansPayments({
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        ${item.originalPrice}/mo
+                                        ${formatDecimalValue(item.originalPrice)}/mo
                                     </div>
 
                                     {/*

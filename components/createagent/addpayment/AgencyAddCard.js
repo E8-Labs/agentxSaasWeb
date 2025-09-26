@@ -324,9 +324,9 @@ const AgencyAddCard = ({
         if (selectedPlan.duration === "monthly") {
             return "$" + (1 * selectedPlan.originalPrice);
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + (3 * (selectedPlan.originalPrice / 3)).toFixed(2);
+            return "$" + selectedPlan.originalPrice;
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + (12 * (selectedPlan.originalPrice / 12)).toFixed(2);
+            return "$" + selectedPlan.originalPrice;
         } else {
             return "-";
         }
@@ -338,11 +338,11 @@ const AgencyAddCard = ({
             return "-";
         }
         if (selectedPlan.duration === "monthly") {
-            return "$" + (selectedPlan.originalPrice * 12).toFixed(2);
+            return "$" + (selectedPlan.originalPrice * 12);
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + ((selectedPlan.originalPrice / 3) * 4).toFixed(2);
+            return "$" + (selectedPlan.originalPrice * 4);
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + ((selectedPlan.originalPrice / 12) * 1).toFixed(2);
+            return "$" + (selectedPlan.originalPrice * 1);
         } else {
             return "-";
         }
