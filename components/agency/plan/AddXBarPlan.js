@@ -8,6 +8,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import Image from "next/image";
 import { min } from "draft-js/lib/DefaultDraftBlockRenderMap";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddXBarPlan({
@@ -551,20 +552,12 @@ export default function AddXBarPlan({
           >
             <div className="p-6 flex flex-col items-center h-[100%]">
               <div className="flex justify-end w-full items-center h-[5%]">
-                <button
-                  // disabled={addPlanLoader}
+                <CloseBtn
                   onClick={() => {
                     handleResetValues();
                     handleClose("");
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    alt="*"
-                    height={14}
-                    width={14}
-                  />
-                </button>
+                />
               </div>
               {/*
                             (allowTrial && trialValidForDays) && (

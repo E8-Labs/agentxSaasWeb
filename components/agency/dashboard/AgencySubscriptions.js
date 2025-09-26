@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import Image from "next/image";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 import {
   XAxis,
@@ -1112,19 +1113,12 @@ function AgencySubscriptions({
                   Select Date
                 </div>
 
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowCustomRangePopup(null);
                     setSelectedSubRange("All Time")
                   }}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div className=" w-full flex flex-row items-center justify-between">

@@ -19,6 +19,7 @@ import { ArrowUpRight, X, Upload } from '@phosphor-icons/react';
 import axios from 'axios';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const EmbedModal = ({ 
   open, 
@@ -501,30 +502,16 @@ const EmbedModal = ({
             }}
           >
             {/* Close button for preview */}
-            <button
-              style={{
-                position: 'absolute',
-                top: 16,
-                right: 16,
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: 'none',
-                borderRadius: '50%',
-                width: 32,
-                height: 32,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: 'white',
-              }}
-              onClick={(e) => {
-                console.log('Cross button clicked');
-                e.stopPropagation();
-                onClose();
-              }}
-            >
-              <X size={16} />
-            </button>
+            <div style={{ position: 'absolute', top: 16, right: 16 }}>
+              <CloseBtn 
+                onClick={(e) => {
+                  console.log('Cross button clicked');
+                  e.stopPropagation();
+                  onClose();
+                }}
+                showWhiteCross={true}
+              />
+            </div>
 
             {/* Preview Button */}
             <button

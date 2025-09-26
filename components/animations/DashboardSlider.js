@@ -6,6 +6,7 @@ import { SupportWidget } from "../askSky/support-widget";
 import { Box, Modal } from "@mui/material";
 import VapiChatWidget from "../askSky/VapiChatWidget";
 import UpgradeModal from "@/constants/UpgradeModal";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const DashboardSlider = ({
   onTop = false,
@@ -245,25 +246,10 @@ const DashboardSlider = ({
               ))}
             </div>
           </div>
-          <button className="bg-purple"
-            style={{
-              // position: "absolute",
-              // bottom: 0,
-              // right: 12,
-              borderRadius: "50%",
-              padding: 10,
-              cursor: "pointer",
-
-            }}
+          <CloseBtn 
             onClick={handleClose}
-          >
-            <Image
-              src={"/svgIcons/crossWhite.svg"}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+            showWhiteCross={true}
+          />
         </div>
       )
     }
@@ -301,19 +287,10 @@ const DashboardSlider = ({
                 {renderViews()}
               </div>
 
-              <button
+              <CloseBtn 
                 onClick={handleClose}
-                style={{
-                  background: "transparent",
-                  color: "#fff",
-                  border: "none",
-                  fontSize: "20px",
-                  cursor: "pointer",
-                  lineHeight: 1,
-                }}
-              >
-                &times;
-              </button>
+                showWhiteCross={true}
+              />
             </motion.div>
           )}
         </AnimatePresence>

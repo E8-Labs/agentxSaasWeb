@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Switch, Tooltip } from "@mui/material";
 import Image from "next/image";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 export default function PlanFeatures({
     customFeatures,
@@ -182,12 +183,9 @@ export default function PlanFeatures({
                                     placeholder={`Custom Feature ${index + 1}`}
                                 />
                                 <div className="" style={styles.inputs}>
-                                    <button
-                                        className="border-none outline-none felx flex-row justify-end pe-2"
+                                    <CloseBtn
                                         onClick={() => { handleRemoveCustomFeature(index) }}
-                                    >
-                                        <Image src="/assets/cross.png" alt="close" width={10} height={10} />
-                                    </button>
+                                    />
                                 </div>
                             </div>
                         </div>

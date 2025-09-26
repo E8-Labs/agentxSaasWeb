@@ -98,6 +98,7 @@ import AllSetModal from "@/components/dashboard/myagentX/AllSetModal";
 import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
 import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
 import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -411,7 +412,7 @@ function Page() {
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`;
-          setEmbedCode(code);
+    setEmbedCode(code);
   };
 
   const handleCloseEmbedAllSetModal = () => {
@@ -3157,19 +3158,11 @@ function Page() {
                     justifyContent: "end",
                   }}
                 >
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowRenameAgentPopup(null);
                     }}
-                    className="outline-none absolute right-4"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
               </div>
 
@@ -3289,6 +3282,12 @@ function Page() {
                       </div>
                     )}
                   </div>
+
+                   <CloseBtn
+                    onClick={() => {
+                      setShowRenameAgentPopup(null);
+                    }}
+                  />
                   <button
                     onClick={() => {
                       setOpenTestAiModal(false);
@@ -3460,7 +3459,7 @@ function Page() {
         onUpgradeSuccess={handleUpgradeSuccess}
         title={title || "Unlock More Agents"}
         subTitle={subTitle || "Upgrade to add more agents to your team and scale your calling power"}
-        buttonTitle={"No Thanks"}f
+        buttonTitle={"No Thanks"} f
         functionality="webAgent"
 
 
@@ -5215,18 +5214,11 @@ function Page() {
                 >
                   Reassign Number
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowConfirmationModal(null);
                   }}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div

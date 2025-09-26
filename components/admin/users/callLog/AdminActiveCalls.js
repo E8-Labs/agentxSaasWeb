@@ -9,6 +9,7 @@ import { getAgentImageWithMemoji, getAgentsListImage } from "@/utilities/agentUt
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { getReadableStatus } from "@/utilities/UserUtility";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 function AdminActiveCalls({ selectedUser }) {
   const Limit = 30;
@@ -995,18 +996,11 @@ function AdminActiveCalls({ selectedUser }) {
                   Other Tags
                 </div>
                 <div>
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setExtraTagsModal(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/blackBgCross.png"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
               </div>
               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">

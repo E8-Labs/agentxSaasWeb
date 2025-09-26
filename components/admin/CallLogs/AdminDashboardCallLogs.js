@@ -28,6 +28,7 @@ import {
 } from "@/utilities/utility";
 import AdminCallDetails from "./AdminCallDetails";
 import { time } from "framer-motion";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 import AdminDashboardActiveCall from "./AdminDashboardActiveCall";
 import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
 import { PersistanceKeys } from "@/constants/Constants";
@@ -732,18 +733,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                     <div className="mt-2 w-full">
                       <div className="flex flex-row items-center justify-between w-full">
                         <div>Filter</div>
-                        <button
+                        <CloseBtn
                           onClick={() => {
                             setShowFilterModal(false);
                           }}
-                        >
-                          <Image
-                            src={"/assets/cross.png"}
-                            height={17}
-                            width={17}
-                            alt="*"
-                          />
-                        </button>
+                        />
                       </div>
 
                       <div className="flex flex-row items-start gap-4">

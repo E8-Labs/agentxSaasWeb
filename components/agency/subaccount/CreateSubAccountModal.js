@@ -12,6 +12,7 @@ import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import agents from '@/components/onboarding/extras/AgentsList';
 import SellSeatsModal from '@/components/onboarding/extras/SellSeatsModal';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 export default function CreateSubAccountModal({ onClose, onContinue, formData }) {
 
@@ -585,9 +586,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 />
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Create SubAccount</h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-2xl">
-                        &times;
-                    </button>
+                    <CloseBtn onClick={onClose} />
                 </div>
 
                 <div style={styles.headings}>

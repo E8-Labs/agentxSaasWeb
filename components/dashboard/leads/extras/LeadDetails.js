@@ -27,6 +27,7 @@ import parsePhoneNumberFromString from "libphonenumber-js";
 import moment from "moment";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../AgentSelectSnackMessage";
@@ -2031,18 +2032,11 @@ const LeadDetails = ({
                                   Other Tags
                                 </div>
                                 <div>
-                                  <button
+                                  <CloseBtn
                                     onClick={() => {
                                       setExtraTagsModal(false);
                                     }}
-                                  >
-                                    <Image
-                                      src={"/assets/blackBgCross.png"}
-                                      height={20}
-                                      width={20}
-                                      alt="*"
-                                    />
-                                  </button>
+                                  />
                                 </div>
                               </div>
                               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">

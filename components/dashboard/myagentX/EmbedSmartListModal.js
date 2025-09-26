@@ -16,6 +16,7 @@ import axios from 'axios';
 import TagsInput from '../leads/TagsInput';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const EmbedSmartListModal = ({
   open,
@@ -304,14 +305,7 @@ const EmbedSmartListModal = ({
               <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
                 {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Embed Agent
               </Typography>
-              <button onClick={handleClose}>
-                <Image
-                  src={"/assets/cross.png"}
-                  height={14}
-                  width={14}
-                  alt="*"
-                />
-              </button>
+              <CloseBtn onClick={handleClose} />
             </div>
 
             {/* Logo Section */}
@@ -524,30 +518,16 @@ const EmbedSmartListModal = ({
                 }}
               >
                 {/* Close button for preview */}
-                <button
-                  style={{
-                    position: 'absolute',
-                    top: 16,
-                    right: 16,
-                    background: 'rgba(255, 255, 255, 0.2)',
-                    border: 'none',
-                    borderRadius: '50%',
-                    width: 32,
-                    height: 32,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    color: 'white',
-                  }}
-                  onClick={(e) => {
-                    console.log('Cross button clicked');
-                    e.stopPropagation();
-                    handleClose();
-                  }}
-                >
-                  <X size={16} />
-                </button>
+                <div style={{ position: 'absolute', top: 16, right: 16 }}>
+                  <CloseBtn 
+                    onClick={(e) => {
+                      console.log('Cross button clicked');
+                      e.stopPropagation();
+                      handleClose();
+                    }}
+                    showWhiteCross={true}
+                  />
+                </div>
 
                 {/* Preview Button */}
                 <button
