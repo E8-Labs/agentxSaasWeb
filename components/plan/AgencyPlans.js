@@ -16,6 +16,7 @@ import SelectYearlypopup from './SelectYearlypopup';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { FalloutShelter } from '@phosphor-icons/react/dist/ssr';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
+import CloseBtn from '../globalExtras/CloseBtn';
 
 //code for add card
 let stripePublickKey =
@@ -435,7 +436,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                 // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                 >
                     <div
-                        className='w-9/12  flex flex-row items-start gap-3 mt-10 mb-12 h-[100%] overflow-hidden'
+                        className='w-full flex flex-row items-start gap-3 mt-10 mb-12 h-[100%] overflow-hidden'
                     >
                         {
                             loading ? (
@@ -659,49 +660,51 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                     </div>
 
 
-                    <div className='w-3/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border h-auto'>
-
-                        <div style={{ fontSize: 24, fontWeight: '700' }}>
-                            Whitelabel
-                        </div>
-
-                        <div style={{ fontSize: 20, fontWeight: '700' }}>
-                            Contact our team
-                        </div>
-
-                        <div
-                            style={{
-                                height: '358px',
-                                width: '100%',
-                                backgroundImage: "url('/svgIcons/contactTeamBg.svg')",
-                                backgroundSize: "cover",
-                                backgroundPosition: "center",
-                                borderRadius: 20,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                padding: 30,
-                                marginTop: 40
-                            }}
-                        >
-                            <div style={{ fontSize: 35, fontWeight: '700', color: 'white', marginTop: 40 }}>
-                                Run your agency SaaS
+                    {/*
+                        <div className='w-3/12 flex flex-col items-start gap-3 mt-10 p-6 rounded-2xl border h-auto'>
+    
+                            <div style={{ fontSize: 24, fontWeight: '700' }}>
+                                Whitelabel
                             </div>
-
-                            <button
-                                className='w-full pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple items-center
-
-                                '
+    
+                            <div style={{ fontSize: 20, fontWeight: '700' }}>
+                                Contact our team
+                            </div>
+    
+                            <div
                                 style={{
-                                    alignSelf: 'center'
+                                    height: '358px',
+                                    width: '100%',
+                                    backgroundImage: "url('/svgIcons/contactTeamBg.svg')",
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                    borderRadius: 20,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    padding: 30,
+                                    marginTop: 40
                                 }}
                             >
-                                Contact Our Team
-                            </button>
-
+                                <div style={{ fontSize: 35, fontWeight: '700', color: 'white', marginTop: 40 }}>
+                                    Run your agency SaaS
+                                </div>
+    
+                                <button
+                                    className='w-full pv-2 bg-white rounded-lg h-[55px] items-center mt-[50px] text-purple items-center
+    
+                                    '
+                                    style={{
+                                        alignSelf: 'center'
+                                    }}
+                                >
+                                    Contact Our Team
+                                </button>
+    
+                            </div>
+    
+    
                         </div>
-
-
-                    </div>
+                    */}
 
 
                 </div>
@@ -733,17 +736,12 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                 }}
                             >
                                 <div className="flex flex-row justify-end w-full items-center pe-4 pt-4">
-                                    <button onClick={() => {
-                                        setAddPaymentPopUp(false);
-                                        setIsContinueMonthly(false);
-                                    }}>
-                                        <Image
-                                            src={"/assets/crossIcon.png"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    <CloseBtn
+                                        onClick={() => {
+                                            setAddPaymentPopUp(false);
+                                            setIsContinueMonthly(false);
+                                        }}
+                                    />
                                 </div>
                                 <Elements stripe={stripePromise}>
                                     <AgencyAddCard

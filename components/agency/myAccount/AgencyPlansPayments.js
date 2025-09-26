@@ -24,6 +24,8 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import SmartRefillCard from "../agencyExtras.js/SmartRefillCard";
 import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 import DowngradePlanPopup from "@/components/myAccount/cancelationFlow/DowngradePlanPopup";
+import AgencyPlans from "@/components/plan/AgencyPlans";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -78,6 +80,9 @@ function AgencyPlansPayments({
 
     const [showDowngradePlanPopup, setShowDowngradePlanPopup] = useState(false);
 
+    //plans details
+    const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
+
 
     const duration = [
         {
@@ -97,6 +102,15 @@ function AgencyPlansPayments({
         },
     ]
 
+    const durationSaving = [
+        {
+            id: 1,
+            title: "save 20%",
+        }, {
+            id: 2,
+            title: "save 30%",
+        },
+    ]
 
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [quaterlyPlans, setQuaterlyPlans] = useState([]);
@@ -996,7 +1010,26 @@ function AgencyPlansPayments({
             {/* Code for smart refill */}
             <SmartRefillCard />
 
-            <div className="w-full flex flex-row justify-end">
+            <div className="w-full flex flex-col items-end mt-2">
+                <div className='flex flex-row items-center justify-end gap-2 px-2'>
+                    {
+                        durationSaving.map((item) => {
+                            return (
+                                <button
+                                    key={item.id}
+                                    className={`px-2 py-1 text-[#8A8A8A] rounded-tl-lg rounded-tr-lg`}
+                                    style={{ fontWeight: "600", fontSize: "13px" }}
+                                    onClick={() => {
+                                        setSelectedDuration(item);
+                                        getCurrentPlans();
+                                    }}
+                                >
+                                    {item.title}
+                                </button>
+                            )
+                        })
+                    }
+                </div>
                 <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
                 >
                     {
@@ -1247,19 +1280,44 @@ function AgencyPlansPayments({
                                     </div>
                                 </div>
 
-
-                                {item.id === currentPlan && (
-                                    <div
-                                        className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
-                                        style={{
-                                            fontSize: 9,
-                                            fontWeight: "600",
-                                            width: "fit-content",
-                                        }}
-                                    >
-                                        Current Plan
+                                <div className="flex flex-row items-center justify-between w-full">
+                                    <div>
+                                        {item.id === currentPlan && (
+                                            <div
+                                                className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                                                style={{
+                                                    fontSize: 9,
+                                                    fontWeight: "600",
+                                                    width: "fit-content",
+                                                }}
+                                            >
+                                                Current Plan
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                    <div>
+                                        <button
+                                            className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none"
+                                            style={{
+                                                color: '#7902DF',
+                                                width: 'fit-content',
+                                                textDecoration: 'none',
+                                                whiteSpace: 'nowrap',
+                                                fontWeight: 600,
+                                                fontSize: 12,
+                                                borderRadius: '9999px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                            }}
+                                            onClick={() => {
+                                                setShowPlanDetailsPopup(true);
+                                            }}
+                                        >
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </button>
@@ -1305,6 +1363,33 @@ function AgencyPlansPayments({
 
                 </div>
             )}
+
+            {/* Plans details */}
+            <Modal
+                open={showPlanDetailsPopup}
+                onClose={() => {
+                    setShowPlanDetailsPopup(false);
+                }}
+            >
+                <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-full flex flex-row items-center justify-end px-4 pt-4 h-[5%]">
+                        <CloseBtn
+                            onClick={() => {
+                                setShowPlanDetailsPopup(false);
+                            }}
+                        />
+                    </div>
+                    <div className="w-full h-[95%]">
+                        <AgencyPlans
+                            isFrom={"addPlan"}
+                            handleCloseModal={(d) => {
+                                setShowPlanDetailsPopup(false);
+                            }}
+                        />
+                    </div>
+                </Box>
+            </Modal>
+
 
             {/* Downgrade plan confirmation popup */}
             {

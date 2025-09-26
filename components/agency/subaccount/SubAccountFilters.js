@@ -74,7 +74,7 @@ const SubAccountFilters = ({
                     <div className='w-full h-[90%] overflow-auto scrollbar-hide'>
                         <div className="w-full flex flex-row items-center justify-between">
                             <div className="text-2xl font-bold">
-                                Filter SubAccounts
+                                Filter Sub Accounts
                             </div>
                             <CloseBtn onClick={handleClose} />
                         </div>
