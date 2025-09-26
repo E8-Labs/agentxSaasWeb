@@ -85,7 +85,7 @@ export default function PlanConfiguration({
         apiKey: false,
         voicemail: false,
         twilio: false,
-        allowTrial: false,
+        allowTrial: true,
         allowTeamSeats: false,
     });
 

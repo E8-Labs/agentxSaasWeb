@@ -340,7 +340,7 @@ const AgencyAddCard = ({
         if (selectedPlan.duration === "monthly") {
             return "$" + (selectedPlan.originalPrice * 12);
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + (selectedPlan.originalPrice * 4);
+            return "$" + (selectedPlan.originalPrice * 6);
         } else if (selectedPlan.duration === "yearly") {
             return "$" + (selectedPlan.originalPrice * 1);
         } else {

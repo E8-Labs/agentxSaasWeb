@@ -108,8 +108,17 @@ export const LanguagesSelection = ({
 
     //toggle plan duration
     const handleToggle = (item) => {
-        setLanguage(item.value)
-        setLanguageTitle(item.label)
+        if (item.value === language) {
+            setLanguage("")
+        } else {
+            setLanguage(item.value)
+        }
+
+        if (item.label === languageTitle) {
+            setLanguageTitle("")
+        } else {
+            setLanguageTitle(item.label)
+        }
     }
     return (
         <div className='w-full'>

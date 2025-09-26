@@ -324,7 +324,7 @@ export default function AddMonthlyPlan({
     // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-      <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <Box className="bg-none rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <AgentSelectSnackMessage
           isVisible={snackMsg !== null}
           message={snackMsg}
@@ -341,7 +341,7 @@ export default function AddMonthlyPlan({
           }}
           type={snackBannerMsgType}
         />
-        <div className="w-full flex flex-row h-[100%] items-start">
+        <div className="w-full flex flex-row h-[100%] items-start justify-center bg-none">
           {showTrailWarning && (
             <div className="absolute left-1/2 -translate-x-1/2 top-10">
               <Image
@@ -353,7 +353,7 @@ export default function AddMonthlyPlan({
               />
             </div>
           )}
-          <div className="w-6/12 h-[100%] p-6">
+          <div className="w-6/12 h-[100%] p-6 bg-white rounded-tl-xl rounded-bl-xl shadow-lg">
             <div
               ref={scrollContainerRef}
               className="overflow-y-auto w-full h-[90%] scrollbar-hide"
@@ -515,7 +515,7 @@ export default function AddMonthlyPlan({
                     <div>${formatFractional2(discountedPrice)}/ min</div>
                     {
                       discountedPrice && minutes && (
-                        <div>${formatFractional2(discountedPrice * minutes)}</div>
+                        <div>${formatDecimalValue(discountedPrice * minutes)}</div>
                       )
                     }
                   </div>
@@ -542,7 +542,7 @@ export default function AddMonthlyPlan({
                           ${formatFractional2(discountedPrice - agencyPlanCost)}/ min
                         </div>
                         <div>
-                          ${formatFractional2((discountedPrice - agencyPlanCost) * minutes)}
+                          ${formatDecimalValue((discountedPrice - agencyPlanCost) * minutes)}
                         </div>
                       </div>
                       <div
@@ -641,7 +641,7 @@ export default function AddMonthlyPlan({
             </div>
           </div>
           <div
-            className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
+            className="w-5/12 h-full rounded-tr-xl rounded-br-xl shadow-lg"
           >
             <SideUI
               tag={tag}

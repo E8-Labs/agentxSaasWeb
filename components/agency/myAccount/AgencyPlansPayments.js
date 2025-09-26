@@ -1263,7 +1263,7 @@ function AgencyPlansPayments({
                                         {item.features && item.features.length > 0 && (
                                             <div className="mt-6 flex-1">
                                                 <div className="flex flex-col gap-3">
-                                                    {item.features.map((feature, featureIndex) => (
+                                                    {item?.features?.slice(0, 6).map((feature, featureIndex) => (
                                                         <div key={featureIndex} className="flex flex-row items-start gap-1">
                                                             <Image
                                                                 src="/svgIcons/selectedTickBtn.svg"
@@ -1381,14 +1381,14 @@ function AgencyPlansPayments({
                 }}
             >
                 <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-full flex flex-row items-center justify-end px-4 pt-4 h-[5%]">
+                    <div className="w-full flex flex-row items-center justify-end px-6 pt-6 h-[10%]">
                         <CloseBtn
                             onClick={() => {
                                 setShowPlanDetailsPopup(false);
                             }}
                         />
                     </div>
-                    <div className="w-full h-[95%]">
+                    <div className="w-full h-[90%]">
                         <AgencyPlans
                             isFrom={"addPlan"}
                             handleCloseModal={(d) => {
