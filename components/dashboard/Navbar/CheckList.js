@@ -15,7 +15,7 @@ import { useUser } from '@/hooks/redux-hooks';
 const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
     const router = useRouter();
-    const { user: reduxUser } = useUser();
+    const { user: reduxUser,setUser: setReduxUser } = useUser();
 
     // console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(true);
@@ -54,17 +54,12 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
     // Check calendar plan capabilities
     const checkCalendarPlanCapabilities = () => {
-        const user = reduxUser || userDetails?.user;
+        console.log("checkCalendarPlanCapabilities");
+        const user = userDetails?.user
         console.log("user", user);
         if (!user) return true;
 
-        const currentCalendars = user?.currentUsage?.maxCalendars || 0;
-        const maxCalendars = user?.planCapabilities?.maxCalendars || 1;
-
-        console.log("currentCalendars", currentCalendars);
-        console.log("maxCalendars", maxCalendars);
-
-        return currentCalendars < maxCalendars;
+        return user?.planCapabilities?.allowCalendarIntegration;
     };
 
     const getChecklist = () => {
@@ -88,7 +83,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
             console.log("percentage of check list is", percentage);   // Output: 60
 
             // Get calendar usage info
-            const user = reduxUser || LocalData?.user;
+            const user =  LocalData?.user || reduxUser;
             const currentCalendars = user?.currentUsage?.maxCalendars || 0;
             const maxCalendars = user?.planCapabilities?.maxCalendars || 1;
             const calendarUsageText = maxCalendars >= 1000 ? "Unlimited" : `${currentCalendars}/${maxCalendars}`;
