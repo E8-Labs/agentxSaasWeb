@@ -512,6 +512,29 @@ function AdminActiveCalls({ selectedUser }) {
     }
   }
 
+  function formatName(name) {
+    if (typeof name !== "string" || name.length === 0) return "-";
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  }
+
+  function getAgentNameForActiviti(agent) {
+    // console.log("agents in getAgentNameForActiviti", agent)
+    const agents = agent?.agents || [];
+
+    if (agents?.length > 0) {
+      let name = agents[0]?.name || "-";
+
+      if (agents[0].agentType === "outbound") {
+        return formatName(name);
+      } else {
+        if (agents.length > 1) {
+          return formatName(name);
+        }
+      }
+    }
+    return "-";
+  }
+
   return (
     <div className="w-full items-start overflow-hidden">
       <Popover
@@ -638,7 +661,7 @@ function AdminActiveCalls({ selectedUser }) {
                             <div className="w-3/12 flex flex-row gap-4 items-center">
                               {getAgentImageWithMemoji(agent)}
                             
-                              <div style={styles.text2}>{agent.name}</div>
+                              <div style={styles.text2}>{getAgentNameForActiviti(agent)}</div>
                             </div>
                             {/*
                               <div className="w-2/12 ">

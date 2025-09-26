@@ -778,7 +778,7 @@ function UpgradePlanContent({
             }}
         >
             <Box
-                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none "
                 sx={styles.paymentModal}
             >
                 <div className="flex flex-col justify-center w-full h-full">
@@ -799,14 +799,14 @@ function UpgradePlanContent({
                         message={"Card added successfully"}
                     />
                     <div
-                        className="w-full flex flex-col border-white"
+                        className="w-full flex flex-col border-white "
                         style={{
                             backgroundColor: "#ffffff",
                             padding: 0,
                             borderRadius: "13px",
-                            // maxHeight: "95vh",
-                            height: "90vh",
-                            minHeight: "60vh"
+                            // height: "90vh",
+                            maxHeight: "90vh"
+                            // height:'auto'
                         }}
                     >
                         <div className="flex flex-row justify-end w-full items-center pe-5 pt-2">
@@ -822,9 +822,9 @@ function UpgradePlanContent({
                             </button>
                         </div>
 
-                        <div className="w-full flex flex-row items-start">
+                        <div className="w-full flex flex-row items-start pb-4">
                             <div
-                                className="LeftInnerDiv1 mt-[13vh] w-[20%]"
+                                className="flex h-[100vh] LeftInnerDiv1 flex items-center justify-start w-[20%] -mt-12"
                                 style={{
                                     backgroundColor: 'transparent',
                                     flexShrink: 0,
@@ -836,8 +836,8 @@ function UpgradePlanContent({
                                 <Image
                                     alt="*"
                                     src={"/otherAssets/paymentCircle2.png"}
-                                    height={200}
-                                    width={160}
+                                    height={240}
+                                    width={190}
                                     style={{
 
                                         borderTopRightRadius: '200px',
@@ -858,9 +858,9 @@ function UpgradePlanContent({
 
                                 <div className='flex flex-row justify-between mt-2 w-full'>
                                     <div className='w-full '>
-                                        <div className='text-xl font-[600] mb-1'>
+                                        <h1 className='text-4xl font-bold mb-1'>
                                             Upgrade Your Plan
-                                        </div>
+                                        </h1>
                                         <div className='text-[15px] font-semibold'>
                                             Upgrade for premium features and support
                                         </div>
@@ -914,11 +914,12 @@ function UpgradePlanContent({
 
 
                                 {/* Content Section */}
-                                <div className='w-full flex-1'
+                                <div className='w-full flex flex-col justify-between'
                                     style={{
                                         scrollbarWidth: 'none',
                                         overflowY: isSmallScreen ? 'auto' : 'visible',
-                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none'
+                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none',
+                                        height: '100%'
                                     }}
                                 >
 
@@ -1186,45 +1187,44 @@ function UpgradePlanContent({
                                         </div>
                                     )}
 
-                                </div>
-
-                                {/* Upgrade Button - Fixed at bottom with equal padding */}
-                                {/* Total Section - Inside Order Summary */}
-                                <div className='flex w-full'>
-                                    <div className='w-1/2 '></div>
-                                    <div className='flex flex-row w-1/2 justify-between items-center mt-1 ps-4'>
-                                        <div className=" text-3xl font-semibold  ">
-                                            Total:
-                                        </div>
-                                        <div className=" text-3xl font-semibold  ">
-                                            {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)).toLocaleString()}` : "$0"}
+                                    {/* Upgrade Button Section */}
+                                    <div className='flex w-full mt-auto'>
+                                        <div className='w-1/2 '></div>
+                                        <div className='flex flex-row w-1/2 justify-between items-center mt-1 ps-4'>
+                                            <div className=" text-3xl font-semibold  ">
+                                                Total:
+                                            </div>
+                                            <div className=" text-3xl font-semibold  ">
+                                                {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)).toLocaleString()}` : "$0"}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3 pb-5'>
-                                    {
-                                        subscribeLoader ? (
-                                            <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
-                                                <CircularProgress size={25} />
-                                            </div>
-                                        ) : (
-                                            <button
-                                                className={`w-1/2 flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                ${isUpgradeButtonEnabled()
-                                                        ? "text-white bg-purple hover:bg-purple-700"
-                                                        : "text-black bg-[#00000050] cursor-not-allowed"
-                                                    }`}
-                                                disabled={!isUpgradeButtonEnabled()}
-                                                onClick={() => {
-                                                    if (isUpgradeButtonEnabled()) {
-                                                        handleSubscribePlan();
-                                                    }
-                                                }}
-                                            >
-                                                Upgrade
-                                            </button>
-                                        )
-                                    }
+                                    <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3'>
+                                        {
+                                            subscribeLoader ? (
+                                                <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
+                                                    <CircularProgress size={25} />
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    className={`w-1/2 flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                    ${isUpgradeButtonEnabled()
+                                                            ? "text-white bg-purple hover:bg-purple-700"
+                                                            : "text-black bg-[#00000050] cursor-not-allowed"
+                                                        }`}
+                                                    disabled={!isUpgradeButtonEnabled()}
+                                                    onClick={() => {
+                                                        if (isUpgradeButtonEnabled()) {
+                                                            handleSubscribePlan();
+                                                        }
+                                                    }}
+                                                >
+                                                    Upgrade
+                                                </button>
+                                            )
+                                        }
+                                    </div>
+
                                 </div>
 
                             </div>

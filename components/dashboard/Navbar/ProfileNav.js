@@ -724,6 +724,7 @@ const ProfileNav = () => {
 
             if (
               (Data.cards.length === 0) &&
+              Data.plan.price !== 0 &&
               (Data.needsChargeConfirmation === false) &&
               (!Data.callsPausedUntilSubscription)
             ) {
@@ -1067,10 +1068,10 @@ const ProfileNav = () => {
             <div>
 
               <div style={{ fontSize: 15, fontWeight: '700', }}>
-                {userDetails?.user?.plan?.name === "Free" ? "Your free AI Credits have expired" : `Your subscription payment could not be processed.`}
+                {userDetails?.user?.plan?.price === 0 ? "Your free AI Credits have expired" : `Your subscription payment could not be processed.`}
               </div>
               <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
-                {userDetails?.user?.plan?.name === "Free" ?"Please Upgrade or wait for next renewal date" :"Please Upgrade or wait for next renewal date" }
+                {userDetails?.user?.plan?.price === 0 ?"Please Upgrade or wait for next renewal date" :"Please update your payment method to continue making calls" }
                 <span
                   className="text-purple underline cursor-pointer"
                   onClick={() => {
