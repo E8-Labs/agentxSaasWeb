@@ -563,14 +563,14 @@ function SheduledCalls({ user }) {
   }
 
   function getAgentNameForActiviti(agent) {
-    const agents = agent.agents || [];
-    if (agents.length > 0) {
+    const agents = agent?.agents || [];
+    if (agents?.length > 0) {
       let name = agents[0]?.name || "-";
 
       if (agents[0].agentType === "outbound") {
         return formatName(name);
       } else {
-        if (agents.length > 1) {
+        if (agents?.length > 1) {
           return formatName(name);
         }
       }
@@ -579,8 +579,8 @@ function SheduledCalls({ user }) {
   }
 
   function getAgentImageForActiviti(agent) {
-    const agents = agent.agents || [];
-    if (agents.length > 0) {
+      const agents = agent?.agents || [];
+    if (agents?.length > 0) {
       let img
       if (agents[0].agentType === "outbound") {
         img = agents[0]?.thumb_profile_image;
@@ -609,7 +609,7 @@ function SheduledCalls({ user }) {
           )
         }
       } else {
-        if (agents.length > 1) {
+        if (agents?.length > 1) {
           img = agents[1]?.thumb_profile_image;
           if (img) {
             return (
