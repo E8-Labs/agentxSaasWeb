@@ -59,6 +59,8 @@ const stripePromise = loadStripe(stripePublickKey);
 const ProfileNav = () => {
   // const [user, setUser] = useState(null)
 
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+
   const [plans, setPlans] = useState([]);
   const router = useRouter();
   const pathname = usePathname();

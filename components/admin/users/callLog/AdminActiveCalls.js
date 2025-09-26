@@ -829,9 +829,10 @@ function AdminActiveCalls({ selectedUser }) {
                         color: "#00000070",
                       }}
                     >
-                      <div className="w-3/12">Name</div>
+                      <div className="w-2/12">Name</div>
                       <div className="w-2/12">Phone Number</div>
-                      <div className="w-3/12">Address</div>
+                      <div className="w-2/12">Address</div>
+                      <div className="w-2/12">List Name</div>
                       <div className="w-2/12">Tag</div>
                       <div className="w-2/12">Stage</div>
                     </div>
@@ -891,7 +892,7 @@ function AdminActiveCalls({ selectedUser }) {
                                   className="flex flex-row items-center mt-4"
                                   style={{ fontSize: 15, fontWeight: 500 }}
                                 >
-                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                  <div className="w-2/12 flex flex-row items-center gap-2 truncate">
                                     <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
                                       {item?.firstName?.charAt(0).toUpperCase()}
                                     </div>
@@ -904,8 +905,11 @@ function AdminActiveCalls({ selectedUser }) {
                                   <div className="w-2/12 truncate">
                                     {item?.phone || "-"}
                                   </div>
-                                  <div className="w-3/12 truncate">
+                                  <div className="w-2/12 truncate">
                                     {item?.address || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {SelectedItem?.Sheet?.sheetName || "-"}
                                   </div>
                                   <div className="w-2/12">
                                     {item.tags.length > 0 ? (
