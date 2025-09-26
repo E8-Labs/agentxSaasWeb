@@ -47,6 +47,7 @@ import UpgradeModal from "@/constants/UpgradeModal";
 import SupportFile from "@/components/agency/plan/SupportFile";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { GetFormattedDateString } from "@/utilities/utility";
+import { useUser } from "@/hooks/redux-hooks";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
