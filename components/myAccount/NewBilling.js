@@ -38,6 +38,7 @@ import UpgradeModal from "@/constants/UpgradeModal";
 import { useUser } from "@/hooks/redux-hooks";
 import Link from "next/link";
 import { getFeaturesToLose } from "@/utilities/PlanComparisonUtils";
+import { DurationView } from "../plan/DurationView";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1506,63 +1507,31 @@ function NewBilling() {
                     View Details
                 </Link>
                 <div className="flex flex-col items-end  w-full mt-4">
-                    <div className='flex flex-col items-start'>
-                        <div className='flex flex-row items-center gap-8'>
-                            {
-                                duration.map((item) => (
-                                    <div key={item.id}
-                                        className={`px-1 py-0.5 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
-                                    >
-                                        {item.save ? (
-                                            <div
-                                                className={`text-[11px] font-meduim ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
-                                            >
-                                                Save {item.save}
-                                            </div>
-                                        ) : (
-                                            <div className='w-[2vw]'></div>
-                                        )}
-                                    </div>
-                                ))}
-                        </div>
-                    </div>
-                    <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
-                        {
-                            duration.map((item) => (
-                                <div key={item.id}
-                                    className='flex-col'
-                                >
-                                    <button
-                                        className={`px-2 py-[3px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-s shadow-purple rounded-full" : "text-black"}`}
-                                        onClick={() => {
-                                            setSelectedDuration(item);
+                    <DurationView
+                        selectedDuration={selectedDuration}
+                        handleDurationChange={(item) => {
+                            setSelectedDuration(item);
 
-                                            // Auto-select matching plan when switching billing cycles
-                                            if (currentFullPlan) {
-                                                let targetPlans = [];
-                                                if (item.id === 1) {
-                                                    targetPlans = monthlyPlans;
-                                                } else if (item.id === 2) {
-                                                    targetPlans = quaterlyPlans;
-                                                } else if (item.id === 3) {
-                                                    targetPlans = yearlyPlans;
-                                                }
+                            // Auto-select matching plan when switching billing cycles
+                            if (currentFullPlan) {
+                                let targetPlans = [];
+                                if (item.id === 1) {
+                                    targetPlans = monthlyPlans;
+                                } else if (item.id === 2) {
+                                    targetPlans = quaterlyPlans;
+                                } else if (item.id === 3) {
+                                    targetPlans = yearlyPlans;
+                                }
 
-                                                const matchingPlan = findMatchingPlan(currentFullPlan, targetPlans);
-                                                if (matchingPlan) {
-                                                    setTogglePlan(matchingPlan.id);
-                                                    setToggleFullPlan(matchingPlan);
-                                                    setSelectedPlan(matchingPlan);
-                                                }
-                                            }
-                                        }}
-                                    >
-                                        {item.title}
-                                    </button>
-                                </div>
-                            ))
-                        }
-                    </div>
+                                const matchingPlan = findMatchingPlan(currentFullPlan, targetPlans);
+                                if (matchingPlan) {
+                                    setTogglePlan(matchingPlan.id);
+                                    setToggleFullPlan(matchingPlan);
+                                    setSelectedPlan(matchingPlan);
+                                }
+                            }
+                        }}
+                    />
                 </div>
             </div>
 

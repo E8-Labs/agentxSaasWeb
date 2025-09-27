@@ -1960,7 +1960,7 @@ const Userleads = ({
                 <div className="flex flex-row items-center gap-2">
                   <button
                     className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-purple hover:text-purple"
-                    style={{ fontWeight: 500,fontSize: 14 }}
+                    style={{ fontWeight: 400,fontSize: 14 }}
                   >
                     <div className="transition-colors duration-150">
                       Export
