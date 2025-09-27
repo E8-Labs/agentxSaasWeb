@@ -69,10 +69,10 @@ const AddScoringModal = ({
       console.log('Templates response:', response.data);
 
       if (response.data && response.data.templates) {
-        setTemplates(response.data.templates);
+        setTemplates(response.data.templates || []);
       } else if (response.data) {
         // Handle case where templates might be directly in response.data
-        setTemplates(response.data);
+        setTemplates(response.data || []);
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
