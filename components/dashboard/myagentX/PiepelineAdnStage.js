@@ -110,7 +110,7 @@ const PipelineAndStage = ({ selectedAgent, UserPipeline, mainAgent, selectedUser
 
   const decideTextToShowForCadenceType = (cadence) => {
     if (cadence.communicationType === "call") {
-      return "thenMake Call"
+      return "then Make Call"
     } else if (cadence.communicationType === "email") {
       return "then Send Email"
     } else if (cadence.communicationType === "sms") {

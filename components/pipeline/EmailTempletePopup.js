@@ -177,10 +177,12 @@ function EmailTempletePopup({
         !tempName?.trim() ||
         !subject?.trim() ||
         !body?.trim() ||
-        ccEmails.length === 0 ||
+       (!ccEmails || ccEmails.length === 0) ||
         saveEmailLoader ||
         invalidEmails.length > 0
     );
+
+    console.log('ccEmails', ccEmails)
 
 
     useEffect(() => {
