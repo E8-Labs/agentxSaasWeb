@@ -8,6 +8,7 @@ import {
 import { ArrowUpRight, X, Copy } from '@phosphor-icons/react';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const AllSetModal = ({ 
   open, 
@@ -85,14 +86,10 @@ const AllSetModal = ({
           <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
             {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Browser Agent
           </Typography>
-          <button onClick={onClose}>
-            <Image
-              src={"/assets/crossIcon.png"}
-              height={40}
-              width={40}
-              alt="*"
-            />
-          </button>
+          <CloseBtn
+             onClick={onClose}
+          />
+         
         </Box>
 
         {/* Animated Orb */}

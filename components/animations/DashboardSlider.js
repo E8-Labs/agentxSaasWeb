@@ -248,7 +248,7 @@ const DashboardSlider = ({
           </div>
           <CloseBtn 
             onClick={handleClose}
-            showWhiteCross={true}
+            showWhiteCross={false}
           />
         </div>
       )
@@ -289,7 +289,7 @@ const DashboardSlider = ({
 
               <CloseBtn 
                 onClick={handleClose}
-                showWhiteCross={true}
+                // showWhiteCross={true}
               />
             </motion.div>
           )}

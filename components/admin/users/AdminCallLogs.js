@@ -38,7 +38,7 @@ function AdminCallLogs({ selectedUser }) {
       </div>
 
       <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities", "Scheduled"].map((tab) => (
+        {["All Calls", "Call Activities",].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}

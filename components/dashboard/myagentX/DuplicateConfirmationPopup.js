@@ -1,6 +1,7 @@
 import { Box, CircularProgress, Modal } from '@mui/material';
 import Image from 'next/image';
 import React, { useState } from 'react'
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const DuplicateConfirmationPopup = ({
     open,
@@ -53,17 +54,9 @@ const DuplicateConfirmationPopup = ({
                                         justifyContent: "end",
                                     }}
                                 >
-                                    <button
+                                    <CloseBtn
                                         onClick={handleClose}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                    />
                                 </div>
                             </div>
 

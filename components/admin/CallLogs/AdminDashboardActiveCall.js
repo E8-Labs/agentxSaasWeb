@@ -9,7 +9,8 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { PersistanceKeys } from "@/constants/Constants";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
-import { getReadableStatus } from "@/utilities/UserUtility";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+// import { getReadableStatus } from "@/utilities/UserUtility";
 
 function AdminDashboardActiveCall({ isFromAgency }) {
   const Limit = 30;
@@ -121,6 +122,21 @@ function AdminDashboardActiveCall({ isFromAgency }) {
 
     setFilteredSelectedLeadsList(filtered);
   };
+
+  function getCallStatusWithSchedule(item) {
+    const currentTime = moment();
+    const startTime = moment(item.startTime);
+
+    // Check if the call is scheduled in the future
+    if (item.startTime && startTime.isAfter(currentTime)) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD');
+      return `Scheduled - ${formattedDate}`;
+    }
+
+    // Return the regular readable status for past or current calls
+    // return getReadableStatus(item.status); 
+  }
 
   //code to get agents
   const getAgents = async (passedData) => {
@@ -561,20 +577,6 @@ function AdminDashboardActiveCall({ isFromAgency }) {
     }
   }
 
-  function getCallStatusWithSchedule(item) {
-    const currentTime = moment();
-    const startTime = moment(item.startTime);
-
-    // Check if the call is scheduled in the future
-    if (item.startTime && startTime.isAfter(currentTime)) {
-      // Format the date as "Scheduled - Sep 05" or similar
-      const formattedDate = startTime.format('MMM DD');
-      return `Scheduled - ${formattedDate}`;
-    }
-
-    // Return the regular readable status for past or current calls
-    return getReadableStatus(item.status);
-  }
 
   return (
     <div className="w-full items-start overflow-hidden">
@@ -672,6 +674,9 @@ function AdminDashboardActiveCall({ isFromAgency }) {
         </div>
         <div className="w-2/12">
           <div style={styles.text}>Agent</div>
+        </div>
+        <div className="w-2/12">
+          <div style={styles.text}>List Name</div>
         </div>
         <div className="w-1/12">
 
@@ -877,6 +882,11 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                                     )
                                   }</div>
                                 </div>
+                                <div className="w-2/12">
+                                  <div style={styles.text2}>
+                                    {item.Sheet?.sheetName || "-"}
+                                  </div>
+                                </div>
                                 <div className="w-1/12">
                                   <button
                                     style={styles.text2}
@@ -1062,9 +1072,10 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                             color: "#00000070",
                           }}
                         >
-                          <div className="w-3/12">Name</div>
+                          <div className="w-2/12">Name</div>
                           <div className="w-2/12">Phone Number</div>
-                          <div className="w-3/12">Address</div>
+                          <div className="w-2/12">Address</div>
+                          <div className="w-2/12">List Name</div>
                           <div className="w-2/12">Tag</div>
                           <div className="w-2/12">Stage</div>
                         </div>
@@ -1087,7 +1098,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                                   className="flex flex-row items-center mt-4"
                                   style={{ fontSize: 15, fontWeight: "500" }}
                                 >
-                                  <div className="w-3/12 flex flex-row items-center gap-2 truncate">
+                                  <div className="w-2/12 flex flex-row items-center gap-2 truncate">
                                     <div className="h-[40px] w-[40px] rounded-full bg-black flex items-center justify-center text-white flex-shrink-0">
                                       {item?.LeadModel?.firstName
                                         ?.charAt(0)
@@ -1107,8 +1118,11 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                                   <div className="w-2/12 truncate">
                                     {item?.LeadModel.phone || "-"}
                                   </div>
-                                  <div className="w-3/12 truncate">
+                                  <div className="w-2/12 truncate">
                                     {item?.LeadModel.address || "-"}
+                                  </div>
+                                  <div className="w-2/12 truncate">
+                                    {item?.Sheet?.sheetName || "-"}
                                   </div>
                                   <div className="w-2/12 truncate flex flex-row items-center gap-2">
                                     {item?.tags?.length > 0 ? (
@@ -1424,18 +1438,9 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                   Other Tags
                 </div>
                 <div>
-                  <button
-                    onClick={() => {
-                      setExtraTagsModal(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/blackBgCross.png"}
-                      height={20}
-                      width={20}
-                      alt="*"
-                    />
-                  </button>
+                 <CloseBtn  onClick={() => {
+                    setExtraTagsModal(false);
+                  }}/>
                 </div>
               </div>
               <div className="flex flex-row items-center gap-4 flex-wrap mt-2">

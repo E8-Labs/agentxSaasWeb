@@ -38,19 +38,18 @@ export function logout(reason = "Unknown reason") {
 }
 
 
-export  function getReadableStatus(status) {
-  console.log("status",status)
-  if (status === BatchStatus.PausedForNonPayment) {
-    return "Paused - No Payment";
-  }
-  if (status === BatchStatus.PausedForUpdateCadence) {
-    return "Paused - Update Cadence";
+
+function getCallStatusWithSchedule(item) {
+  const currentTime = moment();
+  const startTime = moment(item.startTime);
+
+  // Check if the call is scheduled in the future
+  if (item.startTime && startTime.isAfter(currentTime)) {
+    // Format the date as "Scheduled - Sep 05" or similar
+    const formattedDate = startTime.format('MMM DD');
+    return `Scheduled - ${formattedDate}`;
   }
 
-  if (status === BatchStatus.PausedForNoPhoneNumber) {
-    return "Paused - No Number";
-  }
-
-
-  return status;
+  // Return the regular readable status for past or current calls
+  return getReadableStatus(item.status);
 }

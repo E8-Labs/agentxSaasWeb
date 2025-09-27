@@ -7,6 +7,7 @@ import axios from 'axios';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import Apis from '../../apis/Apis';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const WebAgentModal = ({ 
   open, 
@@ -185,20 +186,13 @@ const WebAgentModal = ({
           <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
             {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Browser Agent
           </h2>
-          <button
+         <CloseBtn
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
             style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-          >
-            <Image
-              src={"/assets/crossIcon.png"}
-              height={40}
-              width={40}
-              alt="*"
-            />
-          </button>
+          />
         </div>
 
         {/* Require Form Section */}

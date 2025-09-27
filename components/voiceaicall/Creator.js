@@ -44,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
@@ -163,6 +164,54 @@ const Creator = ({ agentId, name }) => {
     return () => mediaQuery.removeEventListener("change", handleResize); // Cleanup listener on component unmount
   }, []);
 
+  // Function to remove duplicates from analysisPlan structure
+  const removeDuplicatesFromAnalysisPlan = (assistantOverrides) => {
+    if (!assistantOverrides || !assistantOverrides.analysisPlan) {
+      return assistantOverrides;
+    }
+
+    const analysisPlan = assistantOverrides.analysisPlan;
+    
+    // Remove duplicates from structuredDataPlan.schema.required array
+    if (analysisPlan.structuredDataPlan && 
+        analysisPlan.structuredDataPlan.schema && 
+        analysisPlan.structuredDataPlan.schema.required && 
+        Array.isArray(analysisPlan.structuredDataPlan.schema.required)) {
+      
+      const originalLength = analysisPlan.structuredDataPlan.schema.required.length;
+      analysisPlan.structuredDataPlan.schema.required = [...new Set(analysisPlan.structuredDataPlan.schema.required)];
+      const newLength = analysisPlan.structuredDataPlan.schema.required.length;
+      
+      if (originalLength !== newLength) {
+        console.log(`Removed ${originalLength - newLength} duplicate values from analysisPlan.structuredDataPlan.schema.required`);
+      }
+    }
+
+    // Ensure unique properties in structuredDataPlan.schema.properties
+    if (analysisPlan.structuredDataPlan && 
+        analysisPlan.structuredDataPlan.schema && 
+        analysisPlan.structuredDataPlan.schema.properties && 
+        typeof analysisPlan.structuredDataPlan.schema.properties === 'object') {
+      
+      const uniqueProperties = {};
+      const seenKeys = new Set();
+      
+      for (const [key, value] of Object.entries(analysisPlan.structuredDataPlan.schema.properties)) {
+        if (!seenKeys.has(key)) {
+          uniqueProperties[key] = value;
+          seenKeys.add(key);
+        } else {
+          console.warn(`Duplicate property key found in analysisPlan.structuredDataPlan.schema.properties: ${key}`);
+        }
+      }
+      
+      analysisPlan.structuredDataPlan.schema.properties = uniqueProperties;
+      console.log(`Ensured unique properties in analysisPlan.structuredDataPlan.schema.properties. Total properties: ${Object.keys(uniqueProperties).length}`);
+    }
+
+    return assistantOverrides;
+  };
+
   //get user details by agentId
   const getUserByAgentId = async () => {
     try {
@@ -175,7 +224,11 @@ const Creator = ({ agentId, name }) => {
       if (response) {
         setAgentDetails(response)
         setVapiAgent(response?.data?.data?.agent)
-        setAssistantOverrides(response?.data?.data?.assistantOverrides)
+        
+        // Clean assistantOverrides to remove duplicates
+        const cleanedOverrides = removeDuplicatesFromAnalysisPlan(response?.data?.data?.assistantOverrides);
+        setAssistantOverrides(cleanedOverrides)
+        
         setSmartListData(response?.data?.data?.smartList)
         console.log("Smart list data:", response?.data?.data?.smartList);
       }
@@ -325,8 +378,10 @@ const Creator = ({ agentId, name }) => {
         // Update assistant overrides with new data
         const newAssistantOverrides = response.data.data.assistantOverrides;
         if (newAssistantOverrides) {
-          setAssistantOverrides(newAssistantOverrides);
-          console.log("Updated assistant overrides:", newAssistantOverrides);
+          // Clean assistantOverrides to remove duplicates
+          const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
+          setAssistantOverrides(cleanedNewOverrides);
+          console.log("Updated assistant overrides:", cleanedNewOverrides);
           
           // Keep form data persistent - don't clear after submission
           console.log("Form submitted successfully, keeping data persistent");
@@ -925,16 +980,8 @@ const Creator = ({ agentId, name }) => {
                 <div style={{ fontWeight: "500", fontSize: 15 }}>
                   Lead Details
                 </div>
-                <button
-                  onClick={handleModalClose}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={15}
-                    width={15}
-                    alt="*"
-                  />
-                </button>
+                  <CloseBtn  onClick={handleModalClose}/>
+                 
               </div>
 
               <div className="px-4 w-full">
