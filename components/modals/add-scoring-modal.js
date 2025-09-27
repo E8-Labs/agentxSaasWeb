@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import AddScoringModalBase from "../ui/add-scoring-modal";
 import axios from "axios";
 import Apis from "../apis/Apis";
+import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
 
 const PREDEFINED_QUESTIONS = [
   "Are they currently working with another agent?",
@@ -39,56 +40,19 @@ const AddScoringModal = ({
   const [templates, setTemplates] = useState([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
 
-  // Fetch scoring templates
-  const fetchTemplates = async () => {
-    if (!agentId) return;
-
-    setTemplatesLoading(true);
-    try {
-      let AuthToken = null;
-      const localData = localStorage.getItem("User");
-      if (localData) {
-        const UserDetails = JSON.parse(localData);
-        AuthToken = UserDetails.token;
-      }
-
-      console.log('Fetching templates for agentId:', agentId);
-      console.log('Auth token:', AuthToken);
-      console.log('API URL:', Apis.getScoringTemplates);
-
-      const response = await axios.get(
-        Apis.getScoringTemplates,
-        {
-          headers: {
-            'Authorization': `Bearer ${AuthToken}`,
-          },
-        }
-      );
-
-      console.log('Templates response:', response.data);
-
-      if (response.data && response.data.templates && Array.isArray(response.data.templates)) {
-        setTemplates(response.data.templates);
-      } else if (response.data && Array.isArray(response.data)) {
-        // Handle case where templates might be directly in response.data
-        setTemplates(response.data || []);
-      } else {
-        console.warn('Templates response is not an array:', response.data);
-        setTemplates([]);
-      }
-    } catch (error) {
-      console.error("Error fetching templates:", error);
-      setTemplates([]); // Ensure templates is always an array
-    } finally {
-      setTemplatesLoading(false);
-    }
-  };
 
   // Fetch templates when modal opens
   useEffect(() => {
     if (open && agentId) {
-      fetchTemplates();
+      fetchTemplates({
+        agentId: agentId,
+        setTemplates: setTemplates,
+        setTemplatesLoading: setTemplatesLoading,
+        // Don't auto-select in modal - let user choose from dropdown
+        setSelectedTemplate: null
+      });
     }
   }, [open, agentId]);
 
@@ -202,30 +166,76 @@ const AddScoringModal = ({
   };
 
   const handleTemplateSelect = (templateId) => {
-    if (!templateId) return;
+    console.log('Template selected:', templateId);
+    console.log('Available templates:', templates);
 
-    const template = templates.find(t => t.id === templateId);
-    if (template) {
+    setSelectedTemplateId(templateId);
+
+    if (!templateId) {
+      // Reset to default when no template selected
+      const agentName = selectedAgent?.name || "Agent";
+      const defaultTemplateName = `${agentName}'s Scoring`;
+
       setFormData({
-        templateName: template.templateName || "",
+        templateName: defaultTemplateName,
+        description: "",
+        maxPoints: 10,
+      });
+
+      setQuestions([
+        { question: "", points: "", showSuggestions: false },
+        { question: "", points: "", showSuggestions: false },
+        { question: "", points: "", showSuggestions: false },
+        { question: "", points: "", showSuggestions: false }
+      ]);
+      return;
+    }
+
+    const template = templates.find(t => t.id === templateId || t.id === parseInt(templateId));
+    console.log('Found template:', template);
+    console.log('Template structure:', JSON.stringify(template, null, 2));
+
+    if (template) {
+      // Generate new template name based on agent and source template
+      const agentName = selectedAgent?.name || "Agent";
+      const newTemplateName = `${agentName}'s ${template.templateName}`;
+
+      setFormData({
+        templateName: newTemplateName,
         description: template.description || "",
         maxPoints: template.maxPoints || 10,
       });
 
-      if (template.questions && template.questions.length > 0) {
-        const templateQuestions = template.questions.map(q => ({
-          question: q.question || "",
-          points: q.points?.toString() || "",
-          showSuggestions: false
-        }));
+      if (template.questions && Array.isArray(template.questions) && template.questions.length > 0) {
+        console.log('Template questions found:', template.questions);
+        const templateQuestions = template.questions.map((q, index) => {
+          console.log(`Question ${index}:`, q);
+          return {
+            question: q.question || q.text || "",
+            points: (q.points || q.score || "").toString(),
+            showSuggestions: false
+          };
+        });
 
         // Ensure we have at least 4 questions
         while (templateQuestions.length < 4) {
           templateQuestions.push({ question: "", points: "", showSuggestions: false });
         }
 
+        console.log('Setting questions to:', templateQuestions);
         setQuestions(templateQuestions);
+      } else {
+        console.log('No questions in template or questions is not an array. Template questions:', template.questions);
+        // If template has no questions, start with 4 empty ones
+        setQuestions([
+          { question: "", points: "", showSuggestions: false },
+          { question: "", points: "", showSuggestions: false },
+          { question: "", points: "", showSuggestions: false },
+          { question: "", points: "", showSuggestions: false }
+        ]);
       }
+    } else {
+      console.log('Template not found for ID:', templateId, 'Available templates:', templates.map(t => ({id: t.id, name: t.templateName})));
     }
   };
 
@@ -323,8 +333,9 @@ const AddScoringModal = ({
         {/* Header with Template Dropdown in top right */}
         <div className="flex items-center justify-end">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Select from Template</span>
+            <span className="text-sm text-gray-600">Select</span>
             <select
+              value={selectedTemplateId}
               onChange={(e) => handleTemplateSelect(e.target.value)}
               className="outline-none focus:outline-none focus:ring-0 border rounded"
               style={{
@@ -335,7 +346,7 @@ const AddScoringModal = ({
               disabled={templatesLoading}
             >
               <option value="">
-                {templatesLoading ? 'Loading templates...' : 'Select from Template'}
+                {templatesLoading ? 'Loading templates...' : 'Select'}
               </option>
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>

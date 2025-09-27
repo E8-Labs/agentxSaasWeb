@@ -3,6 +3,9 @@ import { fetchTemplates } from '@/services/leadScoringSerevices/FetchTempletes'
 import { CircularProgress, Select, MenuItem, FormControl, Box } from '@mui/material';
 import AddScoringModal from '@/components/modals/add-scoring-modal';
 import { AuthToken } from '@/components/agency/plan/AuthDetails';
+import Apis from '@/components/apis/Apis';
+import axios from 'axios';
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 
 function LeadScoring({
     showDrawerSelectedAgent,
@@ -15,191 +18,205 @@ function LeadScoring({
     const [templatesLoading, setTemplatesLoading] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState('')
     const [showAddScoringModal, setShowAddScoringModal] = useState(false)
+    const [snackbar, setSnackbar] = useState({
+        isVisible: false,
+        title: '',
+        message: '',
+        type: SnackbarTypes.Error
+    });
     
 
 
     useEffect(() => {
-        if (activeTab === "Actions") {
+        if (activeTab === "Actions" && showDrawerSelectedAgent?.id) {
             fetchTemplates({
                 agentId: showDrawerSelectedAgent?.id,
                 setTemplates: setTemplates,
                 setTemplatesLoading: setTemplatesLoading,
+                setSelectedTemplate: (templateId) => {
+                    console.log('Setting selected template in LeadScoring:', templateId);
+                    setSelectedTemplate(templateId);
+                }
             });
+
+            // Also fetch agent's current scoring template
+            fetchAgentScoring();
         }
-    }, [activeTab]);
+    }, [activeTab, showDrawerSelectedAgent?.id]);
+
+    // Fetch agent's current scoring configuration
+    const fetchAgentScoring = async () => {
+        if (!showDrawerSelectedAgent?.id) return;
+
+        try {
+            const token = AuthToken();
+            const response = await axios.get(
+                `${Apis.getAgentScoring}/${showDrawerSelectedAgent.id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.data && response.data.status === true) {
+                const agentScoring = response.data.data;
+                if (agentScoring && agentScoring.id) {
+                    setSelectedTemplate(agentScoring.id);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching agent scoring:', error);
+        }
+    };
     
 
     console.log("templates", templates)
 
+    const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
+        setSnackbar({
+            isVisible: true,
+            title,
+            message,
+            type
+        });
+    };
 
-    const templeteSeleclt = async (template) => {
+    const hideSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, isVisible: false }));
+    };
+
+    const handleTemplateSelect = async (templateId) => {
+        if (!templateId) {
+            setSelectedTemplate('');
+            return;
+        }
+
+        const template = templates.find(t => t.id === templateId);
+        if (!template) return;
+
+        setSelectedTemplate(templateId);
+
         try {
             const token = AuthToken();
-            const path = `${Apis.copyAgentScoring}/${showDrawerSelectedAgent?.id}`
-
+            const path = `${Apis.copyAgentScoring}/${showDrawerSelectedAgent?.id}`;
 
             const response = await axios.post(path, {
                 agentId: showDrawerSelectedAgent?.id,
                 templateId: template.id,
-            },
-                {
-                    headers: {
-                        "Authorization": "Bearer " + token,
-                        "Content-Type": "application/json",
-                    }
-                });
+            }, {
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json",
+                }
+            });
+
             if (response) {
                 if (response.data.status === true) {
-                    setShowSuccessSnack(response.data.message);
-                    setShowSuccessSnack(true);
+                    showSnackbar('Success', response.data.message || 'Template applied successfully', SnackbarTypes.Success);
+                    // Refresh templates and agent scoring after applying
+                    fetchTemplates({
+                        agentId: showDrawerSelectedAgent?.id,
+                        setTemplates: setTemplates,
+                        setTemplatesLoading: setTemplatesLoading,
+                    });
+                    fetchAgentScoring(); // Refresh agent's current scoring
                 } else {
-                    setShowErrorSnack(response.data.message);
-                    setShowSuccessSnack(false);
+                    showSnackbar('Error', response.data.message || 'Failed to apply template', SnackbarTypes.Error);
+                    setSelectedTemplate(''); // Reset selection on error
                 }
             }
         } catch (error) {
-            console.log(error);
+            console.error('Error applying template:', error);
+            showSnackbar('Error', 'Failed to apply template. Please try again.', SnackbarTypes.Error);
         }
-    }
+    };
 
     return (
 
         <div className="mt-2">
-            <div className="space-y-6">
+            <div className="space-y-4">
                 {/* Lead Scoring Header */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                            {showDrawerSelectedAgent?.profile_image ? (
-                                <img
-                                    src={showDrawerSelectedAgent.profile_image}
-                                    alt="Agent"
-                                    className="w-10 h-10 rounded-full object-cover"
-                                />
-                            ) : (
-                                <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium">
-                                    {showDrawerSelectedAgent?.name?.[0]?.toUpperCase() || "A"}
-                                </div>
-                            )}
-                        </div>
-                        <h2 className="text-xl font-semibold text-gray-900">Lead Scoring</h2>
-                    </div>
+                    <h2 className="text-xl font-semibold text-gray-900">Lead Scoring</h2>
                     <button
                         onClick={() => setShowAddScoringModal(true)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-medium"
+                        className="text-purple-600 hover:text-purple-700 text-sm font-medium underline"
                     >
                         + Add Score
                     </button>
                 </div>
 
-                {
-                    templatesLoading ? (
-                        <div className="flex justify-center items-center py-8">
-                            <CircularProgress />
-                        </div>
-                    ) : (
-                        templates.length > 0 ? (
-                            <div className="space-y-4">
-                                {/* Templates Dropdown */}
-                                <div className="bg-white border border-gray-200 rounded-lg p-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-lg font-semibold text-gray-900">Scoring Templates</h3>
-                                        <button
-                                            onClick={() => setShowAddScoringModal(true)}
-                                            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded text-sm font-medium"
+                {/* Templates Dropdown - Simple Version */}
+                {templatesLoading ? (
+                    <div className="flex justify-center items-center py-4">
+                        <CircularProgress size={20} />
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <Box className="w-full">
+                            <FormControl className="w-full">
+                                <Select
+                                    value={selectedTemplate}
+                                    onChange={(e) => handleTemplateSelect(e.target.value)}
+                                    displayEmpty
+                                    className="border-none rounded-lg outline-none"
+                                    renderValue={(selected) => {
+                                        if (selected === '' || !templates.length) {
+                                            return <div className="text-gray-500">Choose a template</div>;
+                                        }
+                                        const selectedTemplateObj = templates.find(t => t.id === selected);
+                                        return <div className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</div>;
+                                    }}
+                                    sx={{
+                                        backgroundColor: "#FFFFFF",
+                                        "& .MuiOutlinedInput-notchedOutline": {
+                                            border: "1px solid #E5E7EB",
+                                        },
+                                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                                            border: "1px solid #D1D5DB",
+                                        },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                            border: "1px solid #7902DF",
+                                        },
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            style: {
+                                                maxHeight: "30vh",
+                                                overflow: "auto",
+                                                scrollbarWidth: "none",
+                                                borderRadius: "8px",
+                                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                                            },
+                                        },
+                                    }}
+                                >
+                                    <MenuItem value="">
+                                        <div className="text-gray-500">Choose a template</div>
+                                    </MenuItem>
+                                    {templates.map((template) => (
+                                        <MenuItem
+                                            key={template.id}
+                                            value={template.id}
+                                            sx={{
+                                                '&:hover': {
+                                                    backgroundColor: '#F3F4F6',
+                                                },
+                                            }}
                                         >
-                                            + New Template
-                                        </button>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Select Template
-                                            </label>
-                                            <Box className="w-full">
-                                                <FormControl className="w-full">
-                                                    <Select
-                                                        value={selectedTemplate}
-                                                        onChange={(e) => setSelectedTemplate(e.target.value)}
-                                                        displayEmpty
-                                                        className="border-none rounded-lg outline-none"
-                                                        renderValue={(selected) => {
-                                                            if (selected === '') {
-                                                                return <div className="text-gray-500">Choose a template</div>;
-                                                            }
-                                                            const template = templates.find(t => t.id === selected);
-                                                            return template ? template.templateName : selected;
-                                                        }}
-                                                        sx={{
-                                                            backgroundColor: "#FFFFFF",
-                                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                                border: "1px solid #E5E7EB",
-                                                            },
-                                                            "&:hover .MuiOutlinedInput-notchedOutline": {
-                                                                border: "1px solid #D1D5DB",
-                                                            },
-                                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                                border: "1px solid #7902DF",
-                                                            },
-                                                        }}
-                                                        MenuProps={{
-                                                            PaperProps: {
-                                                                style: {
-                                                                    maxHeight: "30vh",
-                                                                    overflow: "auto",
-                                                                    scrollbarWidth: "none",
-                                                                    borderRadius: "8px",
-                                                                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-                                                                },
-                                                            },
-                                                        }}
-                                                    >
-                                                        <MenuItem value="">
-                                                            <div className="text-gray-500">Choose a template</div>
-                                                        </MenuItem>
-                                                        {templates.map((template) => (
-                                                            <MenuItem
-                                                                key={template.id}
-                                                                value={template.id}
-                                                                sx={{
-                                                                    '&:hover': {
-                                                                        backgroundColor: '#F3F4F6',
-                                                                    },
-                                                                }}
-                                                            >
-                                                                <div className="w-full">
-                                                                    <div className="font-medium text-gray-900">
-                                                                        {template.templateName}
-                                                                    </div>
-                                                                </div>
-                                                            </MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                </FormControl>
-                                            </Box>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="border border-gray-200 rounded-lg">
-                                <div className="p-6 text-center">
-                                    <div className="text-gray-500 mb-4">
-                                        No scoring configuration found for this agent
-                                    </div>
-                                    <button
-                                        onClick={() => setShowAddScoringModal(true)}
-                                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-medium"
-                                    >
-                                        Create Scoring Configuration
-                                    </button>
-                                </div>
-                            </div>
-                        )
-                    )
-                }
+                                            <div className="w-full">
+                                                <div className="font-medium text-gray-900">
+                                                    {template.templateName}
+                                                </div>
+                                            </div>
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </div>
+                )}
 
             </div>
 
@@ -218,6 +235,15 @@ function LeadScoring({
                         setTemplatesLoading: setTemplatesLoading,
                     });
                 }}
+            />
+
+            {/* Snackbar for notifications */}
+            <AgentSelectSnackMessage
+                isVisible={snackbar.isVisible}
+                title={snackbar.title}
+                message={snackbar.message}
+                type={snackbar.type}
+                hide={hideSnackbar}
             />
         </div >
     )
