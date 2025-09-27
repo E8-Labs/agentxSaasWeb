@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Typography,
   Switch,
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
-  Button,
-  TextField,
-  IconButton,
-  Chip,
-  CircularProgress,
 } from '@mui/material';
 import { ArrowUpRight, X } from '@phosphor-icons/react';
 import axios from 'axios';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
+import Apis from '../../apis/Apis';
 
 const WebAgentModal = ({ 
   open, 
@@ -66,23 +56,24 @@ const WebAgentModal = ({
         const UserDetails = JSON.parse(localData);
         AuthToken = UserDetails.token;
       }
-      
+
       const response = await axios.get(
-        'https://apimyagentx.com/agentxtest/api/leads/getSheets?type=manual',
+        `${Apis.getSheets}?type=manual`,
         {
           headers: {
-            
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${AuthToken}`
           }
         }
       );
-      
+
       console.log("get sheets response is", response);
       if (response.data && response.data.data && response.data.data.length > 0) {
         setSmartLists(response.data.data);
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
+      showSnackbar('Error', 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
     } finally {
       setLoading(false);
     }
@@ -103,9 +94,16 @@ const WebAgentModal = ({
     // If form is required and a smart list is selected, attach it to the agent first
     if (requireForm && selectedSmartList) {
       try {
-        const token = localStorage.getItem('token');
+        let AuthToken = null;
+        const localData = localStorage.getItem("User");
+        if (localData) {
+          const UserDetails = JSON.parse(localData);
+          AuthToken = UserDetails.token;
+        }
+
+        // Note: This API endpoint might need to be added to Apis.js
         const response = await axios.post(
-          'https://apimyagentx.com/agentxtest/api/agent/attachSmartList',
+          `${Apis.attachSmartList}`, // Using a placeholder - update Apis.js if needed
           {
             agentId: agentId,
             smartListId: selectedSmartList
@@ -113,13 +111,14 @@ const WebAgentModal = ({
           {
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${AuthToken}`
             }
           }
         );
-        
+
         if (response.data) {
           // Success - now open the agent
+          showSnackbar('Success', 'Smart list attached successfully!', SnackbarTypes.Success);
           onOpenAgent();
         }
       } catch (error) {
@@ -135,6 +134,19 @@ const WebAgentModal = ({
 
   const handleNewSmartList = () => {
     onShowNewSmartList();
+  };
+
+  const styles = {
+    modalsStyle: {
+      height: "auto",
+      bgcolor: "transparent",
+      mx: "auto",
+      // my: "50vh",
+      // transform: "translateY(-50%)",
+      borderRadius: 2,
+      border: "none",
+      outline: "none",
+    },
   };
 
   if (!open) return null;
@@ -153,7 +165,6 @@ const WebAgentModal = ({
         justifyContent: 'center',
         zIndex: 1300,
       }}
-      onClick={onClose}
     >
       <div
         style={{
@@ -164,15 +175,23 @@ const WebAgentModal = ({
           maxHeight: '90vh',
           overflow: 'auto',
           boxShadow: '0px 11px 15px -7px rgba(0,0,0,0.2), 0px 24px 38px 3px rgba(0,0,0,0.14), 0px 9px 46px 8px rgba(0,0,0,0.12)',
+          position: 'relative',
+          zIndex: 1,
+          pointerEvents: 'auto'
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
             {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Browser Agent
-          </Typography>
-          <button onClick={onClose}>
+          </h2>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+          >
             <Image
               src={"/assets/crossIcon.png"}
               height={40}
@@ -180,20 +199,20 @@ const WebAgentModal = ({
               alt="*"
             />
           </button>
-        </Box>
+        </div>
 
         {/* Require Form Section */}
-        <Box sx={{ 
-          mb: 3, 
-          p: 2, 
-          backgroundColor: '#f8f9fa', 
-          borderRadius: 2,
+        <div style={{
+          marginBottom: 24,
+          padding: 16,
+          backgroundColor: '#f8f9fa',
+          borderRadius: 8,
           border: '1px solid #e9ecef'
         }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <div style={{ fontWeight: 'bold', fontSize: '16px' }}>
               Require users to complete a form?
-            </Typography>
+            </div>
             <Switch
               checked={requireForm}
               onChange={handleToggleChange}
@@ -209,63 +228,119 @@ const WebAgentModal = ({
                 },
               }}
             />
-          </Box>
-          <Typography variant="body2" color="text.secondary">
+          </div>
+          <div style={{ fontSize: '14px', color: '#666' }}>
             This prompts users to fill out a form before they engage in a conversation with your AI.
-          </Typography>
-        </Box>
+          </div>
+        </div>
 
         {/* Smart List Selection */}
         {requireForm && (
-          <Box sx={{ mb: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="body1" sx={{ fontWeight: 'medium', color: 'rgba(0, 0, 0, 0.5)' }}>
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontWeight: 'medium', color: 'rgba(0, 0, 0, 0.5)', fontSize: '16px' }}>
                 Select Smart List
-              </Typography>
+              </div>
               <button
                 className="text-purple underline text-transform-none font-medium"
-                onClick={handleNewSmartList}
+                onClick={(e) => {
+                  console.log('New Smartlist button clicked');
+                  e.stopPropagation();
+                  handleNewSmartList();
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  position: 'relative',
+                  zIndex: 10
+                }}
               >
                 New Smartlist
               </button>
-            </Box>
-            
+            </div>
+
             {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-                <CircularProgress size={24} />
-              </Box>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
+                <div>Loading...</div>
+              </div>
             ) : smartLists.length > 0 ? (
-              <FormControl fullWidth>
-                <InputLabel>Select</InputLabel>
-                <Select
-                  value={selectedSmartList}
-                  onChange={(e) => setSelectedSmartList(e.target.value)}
-                  label="Select"
-                >
-                  {smartLists.map((list, index) => (
-                    <MenuItem key={index} value={list.id}>
-                      {list.sheetName}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <select
+                value={selectedSmartList}
+                onChange={(e) => setSelectedSmartList(e.target.value)}
+                style={{
+                  border: "1px solid #E5E7EB",
+                  fontSize: '14px',
+                  padding: '12px',
+                  backgroundColor: '#fff',
+                  width: '100%',
+                  borderRadius: '6px',
+                  outline: 'none'
+                }}
+              >
+                <option value="">Select</option>
+                {smartLists.map((list, index) => (
+                  <option key={list.id || index} value={list.id}>
+                    {list.sheetName}
+                  </option>
+                ))}
+              </select>
             ) : (
-              <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+              <div style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}>
                 No smart lists available. Create a new one to get started.
-              </Typography>
+              </div>
             )}
-          </Box>
+          </div>
         )}
 
-        {/* Open Agent Button */}
-        <button
-          className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleOpenAgent}
-          disabled={requireForm && !selectedSmartList}
-        >
-          Open agent in new tab
-          <ArrowUpRight size={16} className="ml-2 inline" />
-        </button>
+        {/* Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, marginTop: 24 }}>
+          <button
+            onClick={(e) => {
+              console.log('Cancel button clicked');
+              e.stopPropagation();
+              onClose();
+            }}
+            style={{
+              padding: '8px 16px',
+              color: '#6b7280',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              position: 'relative',
+              zIndex: 10
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={(e) => {
+              console.log('Open agent button clicked');
+              e.stopPropagation();
+              handleOpenAgent();
+            }}
+            disabled={requireForm && !selectedSmartList}
+            style={{
+              padding: '8px 24px',
+              backgroundColor: requireForm && !selectedSmartList ? '#d1d5db' : '#7c3aed',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: requireForm && !selectedSmartList ? 'not-allowed' : 'pointer',
+              fontWeight: '500',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              position: 'relative',
+              zIndex: 10
+            }}
+          >
+            Open agent in new tab
+            <ArrowUpRight size={16} style={{ marginLeft: 8 }} />
+          </button>
+        </div>
         
         {/* Snackbar */}
         <AgentSelectSnackMessage

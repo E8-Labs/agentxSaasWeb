@@ -46,6 +46,7 @@ const Apis = {
   getLeads: `${BasePath}api/leads/getLeads`,
   getSheets: `${BasePath}api/leads/getSheets`,
   getAgents: `${BasePath}api/agent/getAgents`,
+  attachSmartList: `${BasePath}api/agent/attachSmartList`,
   assignLeadToPipeLine: `${BasePath}api/pipeline/assignLeadsToPipeline`,
   uniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
   CheckEmail: `${BasePath}api/user/checkEmailExists`,
