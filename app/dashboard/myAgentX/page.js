@@ -101,6 +101,8 @@ import EmbedModal from "@/components/dashboard/myagentX/EmbedModal";
 import EmbedSmartListModal from "@/components/dashboard/myagentX/EmbedSmartListModal";
 import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
+import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -365,6 +367,7 @@ function Page() {
   const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null)
   const [embedCode, setEmbedCode] = useState('')
 
+
   // Web Agent Modal handlers
   const handleWebAgentClick = (agent) => {
     setSelectedAgentForWebAgent(agent);
@@ -395,6 +398,8 @@ function Page() {
     setShowAllSetModal(false);
     setSelectedAgentForWebAgent(null);
   };
+
+
 
   // Embed Modal handlers
   const handleEmbedClick = (agent) => {
@@ -4980,50 +4985,12 @@ function Page() {
                   />
 
                   {/* Lead Scoring Section */}
-                  <div className="mt-2">
-                    <div className="space-y-6">
-                      {/* Lead Scoring Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                            {showDrawerSelectedAgent?.profile_image ? (
-                              <img
-                                src={showDrawerSelectedAgent.profile_image}
-                                alt="Agent"
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium">
-                                {showDrawerSelectedAgent?.name?.[0]?.toUpperCase() || "A"}
-                              </div>
-                            )}
-                          </div>
-                          <h2 className="text-xl font-semibold text-gray-900">Lead Scoring</h2>
-                        </div>
-                        <button
-                          onClick={() => setShowAddScoringModal(true)}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-medium"
-                        >
-                          + Add Score
-                        </button>
-                      </div>
-
-                      {/* Placeholder Content */}
-                      <div className="border border-gray-200 rounded-lg">
-                        <div className="p-6 text-center">
-                          <div className="text-gray-500 mb-4">
-                            No scoring configuration found for this agent
-                          </div>
-                          <button
-                            onClick={() => setShowAddScoringModal(true)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-medium"
-                          >
-                            Create Scoring Configuration
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                    <LeadScoring
+                      activeTab={activeTab}
+                      showDrawerSelectedAgent={showDrawerSelectedAgent}
+                      setShowAddScoringModal={setShowAddScoringModal}
+                     
+                    />
                 </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
@@ -5887,16 +5854,7 @@ function Page() {
         embedCode={embedCode}
       />
 
-      <AddScoringModal
-        open={showAddScoringModal}
-        onClose={() => setShowAddScoringModal(false)}
-        onSubmit={(scoringData) => {
-          console.log('Scoring data:', scoringData);
-          setShowAddScoringModal(false);
-        }}
-        selectedAgent={showDrawerSelectedAgent}
-        agentId={showDrawerSelectedAgent?.id}
-      />
+     
     </div >
   );
 }

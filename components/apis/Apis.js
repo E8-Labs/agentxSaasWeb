@@ -290,6 +290,7 @@ const Apis = {
   getAgentScoring: `${BasePath}api/agent/scoring`,
   createAgentScoring: `${BasePath}api/agent/scoring`,
   deleteAgentScoring: `${BasePath}api/agent/scoring`,
+  copyAgentScoring: `${BasePath}api/agent/scoring`,
 
 };
 
