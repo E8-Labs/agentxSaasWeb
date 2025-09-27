@@ -786,7 +786,7 @@ function AgencyBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className="w-full flex flex-row items-center justify-between mt-4 px-10"
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -798,7 +798,7 @@ function AgencyBilling({
                 </div>
                 <div className="w-2/12 items-start">
                   <div
-                    className="p-2 flex flex-row gap-2 items-center"
+                    className="px-2 py-1 flex flex-row gap-2 items-center"
                     style={{
                       backgroundColor: "#01CB7610",
                       borderRadius: 20,
@@ -826,7 +826,7 @@ function AgencyBilling({
                 </div>
                 <div className="w-3/12">
                   <div style={styles.text2}>
-                    {GetFormattedDateString(item?.createdAt)}
+                    {/*GetFormattedDateString(item?.createdAt)*/}{moment(item?.createdAt).format("MMMM DD YYYY hh:mma")}
                   </div>
                 </div>
               </div>

@@ -512,7 +512,7 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Credit</div>
-                    <div>${formatFractional2(discountedPrice)}/ min</div>
+                    <div>${formatFractional2(discountedPrice)}/Credit</div>
                     {
                       discountedPrice && minutes && (
                         <div>${formatDecimalValue(discountedPrice * minutes)}</div>
@@ -524,7 +524,7 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Cost</div>
-                    <div>{agencyPlanCost && `$${formatFractional2(agencyPlanCost)}`}/ min</div>
+                    <div>{agencyPlanCost && `$${formatFractional2(agencyPlanCost)}`}/Credit</div>
                     {
                       discountedPrice && minutes && (
                         <div>${formatDecimalValue(agencyPlanCost * minutes)}</div>
@@ -653,6 +653,7 @@ export default function AddMonthlyPlan({
               handleClose={handleClose}
               minutes={minutes}
               handleResetValues={handleResetValues}
+              originalPrice={originalPrice}
             />
           </div>
         </div>

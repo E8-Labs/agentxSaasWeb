@@ -12,7 +12,8 @@ const SideUI = ({
     allowTrial,
     handleClose,
     handleResetValues,
-    minutes
+    minutes,
+    originalPrice
 }) => {
     
     const price = discountedPrice * minutes;
@@ -70,6 +71,9 @@ const SideUI = ({
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px] bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent"
                             >
+                                {/*
+                                    <span className='text-[#00000010]'>${formatFractional2(originalPrice) || "0"}</span>
+                                */}
                                 ${formatFractional2(price) || "0"}
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{planDescription || "Desc text goes here"}</div>

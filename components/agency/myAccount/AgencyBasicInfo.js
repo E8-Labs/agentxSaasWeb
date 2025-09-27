@@ -563,7 +563,7 @@ function AgencyBasicInfo({
             setWebsiteUrl(event.target.value)
           }}
           type="text"
-          placeholder="Email"
+          placeholder="Website"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
       </div>

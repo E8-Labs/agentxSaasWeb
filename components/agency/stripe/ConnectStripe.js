@@ -154,30 +154,29 @@ const ConnectStripe = () => {
                                     />
                                 ) : (
                                     <div className='flex flex-col items-center w-5/12 py-[10svh]  border-2 border-white rounded-xl bg-[#ffffff90]'>
-                                        <div style={{ fontWeight: "600", fontSize: "38px", marginBottom: 20 }}>
+                                        <div style={{ fontWeight: "600", fontSize: "38px", marginBottom: 10 }}>
                                             {`Congrats!`}
                                         </div>
+                                        
                                         <Image
-                                            className=""
-                                            src="/agencyIcons/congratsOrb.jpg"
-                                            // style={{ resize: "contain" }}
+                                            src={"/agentXOrb.gif"}
                                             height={250}
-                                            width={220}
-                                            alt="*"
+                                            width={250}
+                                            alt="gif"
                                         />
-                                        <div style={{ fontWeight: "700", fontSize: "17px", color: "#000000" }}>
+                                        <div style={{ fontWeight: "500", fontSize: "15px", color: "#000000" }}>
                                             Your agency account is created.
                                         </div>
-                                        <div style={{ fontWeight: "700", fontSize: "17px", color: "#000000" }}>
+                                        <div style={{ fontWeight: "500", fontSize: "15px", color: "#000000" }}>
                                             Lets add your Stripe detail for payouts.
                                         </div>
                                         {
                                             loader ?
-                                                <div className='mt-16'>
+                                                <div className='mt-4'>
                                                     <CircularProgress size={30} />
                                                 </div> :
                                                 <button
-                                                    className='bg-purple text-white p-2 rounded-md w-20vw mt-16'
+                                                    className='bg-purple text-white p-2 rounded-md w-20vw mt-4 h-[40px]'
                                                     style={styles.btnText}
                                                     onClick={() => {
                                                         if (agencydata?.canAcceptPaymentsAgencyccount) {
@@ -187,7 +186,7 @@ const ConnectStripe = () => {
                                                         }
                                                     }}
                                                 >
-                                                    Add Stripe Details
+                                                    Add Stripe
                                                 </button>
                                         }
                                     </div>

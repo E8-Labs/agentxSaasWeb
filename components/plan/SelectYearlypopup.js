@@ -48,7 +48,7 @@ const SelectYearlypopup = ({
                                 </div>
                             </div>
                             <div style={{ fontSize: 15, fontWeight: "500", color: "#00000060" }}>
-                                All annual plans get 16% discount compared to monthly plans
+                                All annual plans get 30% discount compared to monthly plans
                             </div>
                         </div>
                     </div>

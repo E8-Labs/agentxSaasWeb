@@ -29,6 +29,7 @@ import { PersistanceKeys } from "@/constants/Constants";
 import BackgroundVideo from "@/components/general/BackgroundVideo";
 import { color } from "framer-motion";
 import { getAgencyUUIDForAPI, clearAgencyUUID } from "@/utilities/AgencyUtility";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AgencySignUp = ({
   handleContinue,
@@ -501,14 +502,14 @@ const AgencySignUp = ({
       style={{ width: "100%" }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] py-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
-      style={{backgroundColor: ''}}>
-        <div className="w-full flex flex-row items-center justify-start gap-2 mt-4">
+      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+        style={{ backgroundColor: '' }}>
+        <div className="w-full flex flex-row items-center justify-start gap-2">
           <div className="w-6/12">
             <div className="flex flex-col items-start w-full h-[90%]">
               <div
-                className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
-                style={{ textAlign: "left" }}
+                className="mt-6 w-11/12"
+                style={{ textAlign: "left", fontSize: 22, fontWeight: "600", }}
               >
                 Create Your AI Agency
               </div>
@@ -529,7 +530,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Name"
-                  className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                  className="border border-[#00000010] px-2 outline-none focus:outline-none focus:ring-0 h-[40px]"
                   ref={(el) => (inputsFields.current[0] = el)}
                   style={{ ...styles.inputStyle, marginTop: "8px" }}
                   value={userName}
@@ -557,7 +558,7 @@ const AgencySignUp = ({
                   }}
                 />
 
-                <div className="flex flex-row items-center w-full justify-between mt-6">
+                <div className="flex flex-row items-center w-full justify-between mt-4">
                   <div style={styles.headingStyle}>
                     {`What's your email address`}
                   </div>
@@ -601,7 +602,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Email address"
-                  className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+                  className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0"
                   style={{ ...styles.inputStyle, marginTop: "8px" }}
                   value={userEmail}
                   onChange={(e) => {
@@ -657,7 +658,7 @@ const AgencySignUp = ({
                   }}
                 />
 
-                <div className="flex flex-row items-center justify-between w-full mt-6">
+                <div className="flex flex-row items-center justify-between w-full mt-4">
                   <div style={styles.headingStyle}>
                     {`What's your phone number`}
                   </div>
@@ -742,7 +743,7 @@ const AgencySignUp = ({
                       width: "100%",
                       borderWidth: "0px",
                       backgroundColor: "transparent",
-                      paddingLeft: "60px",
+                      paddingLeft: "30px",
                       paddingTop: "20px",
                       paddingBottom: "20px",
                     }}
@@ -766,9 +767,9 @@ const AgencySignUp = ({
                   />
                 </div>
 
-                <div className="flex flex-row items-center gap-4 w-full">
+                <div className="flex flex-row items-center gap-4 w-full mt-4">
                   <div className="w-6/12">
-                    <div style={styles.headingStyle} className="mt-6">
+                    <div style={styles.headingStyle}>
                       {`Agency Name`}
                     </div>
                     <input
@@ -778,7 +779,7 @@ const AgencySignUp = ({
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Agency Name"
-                      className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
+                      className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0 w-full"
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
                       value={company}
                       onChange={(e) => {
@@ -792,7 +793,7 @@ const AgencySignUp = ({
                     />
                   </div>
                   <div className="w-6/12">
-                    <div style={styles.headingStyle} className="mt-6">
+                    <div style={styles.headingStyle}>
                       Website (optional)
                     </div>
                     <input
@@ -802,7 +803,7 @@ const AgencySignUp = ({
                       spellCheck="false"
                       enterKeyHint="done"
                       placeholder="Website"
-                      className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0 w-full"
+                      className="border border-[#00000010] rounded px-2 h-[40px] outline-none focus:outline-none focus:ring-0 w-full"
                       style={{ ...styles.inputStyle, marginTop: "8px" }}
                       value={website}
                       onChange={(e) => {
@@ -817,7 +818,7 @@ const AgencySignUp = ({
                   </div>
                 </div>
 
-                <div style={styles.headingStyle} className="mt-6 mb-2">
+                <div style={styles.headingStyle} className="mt-4 mb-2">
                   Agency Size
                 </div>
                 <FormControl fullWidth>
@@ -832,6 +833,7 @@ const AgencySignUp = ({
                       return selected.label;
                     }}
                     sx={{
+                      height: "40px",
                       border: "1px solid #00000020", // Default border
                       "&:hover": {
                         border: "1px solid #00000020", // Same border on hover
@@ -844,6 +846,7 @@ const AgencySignUp = ({
                       },
                       "&.MuiSelect-select": {
                         py: 0, // Optional padding adjustments
+                        height: "40px",
                       },
                     }}
                     MenuProps={{
@@ -909,7 +912,7 @@ const AgencySignUp = ({
                   }}
                 >
                   <Box
-                    className="lg:w-8/12 sm:w-full sm:w-10/12 w-full"
+                    className="lg:w-7/12 sm:w-full sm:w-10/12 w-full"
                     sx={styles.verifyPopup}
                   >
                     <div className="flex flex-row justify-center w-full">
@@ -921,26 +924,19 @@ const AgencySignUp = ({
                           borderRadius: "13px",
                         }}
                       >
-                        <div className="flex flex-row justify-end">
-                          <button onClick={handleClose}>
-                            <Image
-                              src={"/assets/crossIcon.png"}
-                              height={40}
-                              width={40}
-                              alt="*"
-                            />
-                          </button>
+                        <div className="flex flex-row justify-between items-center">
+                          <div
+                            style={{
+                              fontSize: 26,
+                              fontWeight: "700",
+                            }}
+                          >
+                            Verify phone number
+                          </div>
+                          <CloseBtn onClick={handleClose} />
                         </div>
                         <div
-                          style={{
-                            fontSize: 26,
-                            fontWeight: "700",
-                          }}
-                        >
-                          Verify phone number
-                        </div>
-                        <div
-                          className="mt-8"
+                          className="mt-4"
                           style={{ ...styles.inputStyle, color: "#00000060" }}
                         >
                           Enter code that was sent to number ending with *

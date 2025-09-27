@@ -41,9 +41,9 @@ function DowngradePlanPopup({
         // }}
         >
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-            <Box className="bg-white m-h-[90svh] overflow-auto rounded-xl w-6/12 md:w-5/12 lg:w-[30%] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="w-full ">
-                    <div className='w-full flex flex-col items-center justify-center px-8 pt-4'>
+            <Box className="bg-white max-h-[90vh] overflow-auto rounded-xl w-6/12 md:w-6/12 lg:w-[40%] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="w-full flex flex-col items-center justify-between h-[100%]">
+                    <div className='w-full flex flex-col items-center justify-center px-4 pt-4 h-[90%]'>
                         <div className='w-full flex flex-row items-start justify-end'>
                             <CloseBtn
                                 onClick={
@@ -58,13 +58,13 @@ function DowngradePlanPopup({
                                 height={48} width={48} alt='*'
                             />
                             <div
-                                className="text-center mt-2 text-xl font-semibold"
+                                className="text-center text-xl font-semibold"
 
                             >
                                 {downgradeTitle}
                             </div>
 
-                            <div className="flex flex-col items-center justify-center w-full mt-4">
+                            <div className="flex flex-col items-center justify-center w-full">
                                 <div
                                     className="text-center text-base font-normal"
                                 >
@@ -72,12 +72,13 @@ function DowngradePlanPopup({
                                 </div>
 
                                 <div
-                                    className="text-center text-base font-normal mt-3"
+                                    className="text-center text-base font-normal mt-2"
                                 >
                                     {`You’ll loose access to`}
                                 </div>
+
                                 <div
-                                    className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-4 max-h-[300px] overflow-y-auto"
+                                    className='max-h-[300px] overflow-y-auto w-full'
                                     style={{
                                         scrollbarWidth: "none",
                                         msOverflowStyle: "none",
@@ -86,92 +87,96 @@ function DowngradePlanPopup({
                                         },
                                     }}
                                 >
-                                    {
-                                        isFrom ? (
-                                            features?.map((item, index) => (
-                                                <div key={index} className="flex flex-row items-center gap-2">
-                                                    <Image src="/svgIcons/selectedTickBtn.svg"
-                                                        height={24} width={24} alt="cross"
-                                                    />
-                                                    <div className="text-[13px] font-normal">
-                                                        {item?.text}
+                                    <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-2">
+                                        {
+                                            isFrom ? (
+                                                features?.map((item, index) => (
+                                                    <div key={index} className="flex flex-row items-center gap-2">
+                                                        <Image src="/svgIcons/selectedTickBtn.svg"
+                                                            height={16} width={16} alt="cross"
+                                                        />
+                                                        <div className="text-[13px] font-normal">
+                                                            {item?.text}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            features?.map((item, index) => (
-                                                <div key={index} className="flex flex-row items-center gap-2">
-                                                    <Image src="/svgIcons/selectedTickBtn.svg"
-                                                        height={24} width={24} alt="cross"
-                                                    />
-                                                    <div className="text-[13px] font-normal">
-                                                        {item}
+                                                ))
+                                            ) : (
+                                                features?.map((item, index) => (
+                                                    <div key={index} className="flex flex-row items-center gap-2">
+                                                        <Image src="/svgIcons/selectedTickBtn.svg"
+                                                            height={16} width={16} alt="cross"
+                                                        />
+                                                        <div className="text-[13px] font-normal">
+                                                            {item}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))
-                                        )
-                                    }
-                                </div>
-
-
-                            </div>
-
-                            <div className='flex flex-row items-center w-full justify-start mt-3 gap-2'>
-                                <button onClick={() => {
-                                    setConfirmChecked(!confirmChecked)
-                                }}>
-                                    {confirmChecked ? (
-                                        <div
-                                            className="bg-purple flex flex-row items-center justify-center rounded"
-                                            style={{ height: "24px", width: "24px" }}
-                                        >
-                                            <Image
-                                                src={"/assets/whiteTick.png"}
-                                                height={8}
-                                                width={10}
-                                                alt="*"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                            style={{ height: "24px", width: "24px" }}
-                                        ></div>
-                                    )}
-                                </button>
-
-                                <div className='text-xs font-normal'>
-                                    {`I confirm that i’ll lose access to features.`}
-                                </div>
-                            </div>
-
-                            {
-                                subscribePlanLoader ? (
-                                    <div className="w-full flex flex-row items-center justify-center mt-5 h-[50px]">
-                                        <CircularProgress size={30} />
+                                                ))
+                                            )
+                                        }
                                     </div>
-                                ) : (
-                                    <button
-                                        className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[50px] ${!confirmChecked ? "bg-btngray text-black" : "bg-purple text-white"}`}
-                                        style={{
-                                            fontWeight: "400",
-                                            fontSize: 15.8,
-                                            outline: "none",
-                                        }}
+                                    <div className='flex flex-row items-center w-full justify-start mt-2 gap-2'>
+                                        <button onClick={() => {
+                                            setConfirmChecked(!confirmChecked)
+                                        }}>
+                                            {confirmChecked ? (
+                                                <div
+                                                    className="bg-purple flex flex-row items-center justify-center rounded"
+                                                    style={{ height: "24px", width: "24px" }}
+                                                >
+                                                    <Image
+                                                        src={"/assets/whiteTick.png"}
+                                                        height={8}
+                                                        width={10}
+                                                        alt="*"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                                    style={{ height: "24px", width: "24px" }}
+                                                ></div>
+                                            )}
+                                        </button>
 
-                                        disabled={!confirmChecked}
+                                        <div className='text-xs font-normal'>
+                                            {`I confirm that i’ll lose access to features.`}
+                                        </div>
+                                    </div>
+                                </div>
 
-                                        onClick={() => {
-                                            onConfirm()
-                                        }}
-                                    >
-                                        Confirm Cancellation
-                                    </button>
-                                )
-                            }
+
+                            </div>
+
+
 
 
                         </div >
+                    </div>
+                    <div className='h-[10%] w-full pb-4 px-4'>
+                    {
+                        subscribePlanLoader ? (
+                            <div className="w-full flex flex-row items-center justify-center mt-5 h-[40px]">
+                                <CircularProgress size={30} />
+                            </div>
+                        ) : (
+                            <button
+                                className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[40px] ${!confirmChecked ? "bg-btngray text-black" : "bg-purple text-white"}`}
+                                style={{
+                                    fontWeight: "400",
+                                    fontSize: 15.8,
+                                    outline: "none",
+                                }}
+
+                                disabled={!confirmChecked}
+
+                                onClick={() => {
+                                    onConfirm()
+                                }}
+                            >
+                                Confirm Cancellation
+                            </button>
+                        )
+                    }
                     </div>
                 </div>
             </Box>

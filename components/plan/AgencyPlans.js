@@ -43,10 +43,10 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
 
     const durationSaving = [
         {
-            id: 1,
+            id: 2,
             title: "save 20%",
         }, {
-            id: 2,
+            id: 3,
             title: "save 30%",
         },
     ]
@@ -347,6 +347,8 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                 className="flex flex-col items-center w-full scrollbar-hide"
                 style={{
                     overflow: "auto", // Prevent scrolling on the entire modal
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none",
                 }}
             >
                 <AgentSelectSnackMessage
@@ -388,7 +390,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                     return (
                                         <button
                                             key={item.id}
-                                            className={`px-2 py-1 text-[#8A8A8A] rounded-tl-lg rounded-tr-lg`}
+                                            className={`px-2 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none" : "text-[#8A8A8A]"} rounded-tl-lg rounded-tr-lg`}
                                             style={{ fontWeight: "600", fontSize: "13px" }}
                                             onClick={() => {
                                                 setSelectedDuration(item);
@@ -450,7 +452,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                         onClick={() => handleTogglePlanClick(item, index)}
                                         onMouseEnter={() => { setHoverPlan(item) }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
-                                        className={`w-4/12 rounded-2xl hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
+                                        className={`w-4/12 rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
                                         style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
                                     >
                                         <div className='flex flex-col items-center h-auto w-full'>

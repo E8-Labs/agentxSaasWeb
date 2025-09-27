@@ -1380,15 +1380,15 @@ function AgencyPlansPayments({
                     setShowPlanDetailsPopup(false);
                 }}
             >
-                <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-full flex flex-row items-center justify-end px-6 pt-6 h-[10%]">
+                <Box className="bg-white rounded-xl w-[70%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-full flex flex-row items-center justify-end px-6 pt-6 h-[8%]">
                         <CloseBtn
                             onClick={() => {
                                 setShowPlanDetailsPopup(false);
                             }}
                         />
                     </div>
-                    <div className="w-full h-[90%]">
+                    <div className="w-full h-[88%] mt-4">
                         <AgencyPlans
                             isFrom={"addPlan"}
                             handleCloseModal={(d) => {

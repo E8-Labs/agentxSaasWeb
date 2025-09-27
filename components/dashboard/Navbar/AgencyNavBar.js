@@ -439,7 +439,7 @@ const AgencyNavBar = () => {
           }}
         >
           <div className="w-full flex flex-row gap-3 items-center justify-center">
-            <div className="w-9/12 flex flex-col items-end">
+            <div className="w-10/12 flex flex-col items-end">
               <div className="w-full">
                 {/*userDetails?.user?.name || "Agency Name"*/}
                 <EditAgencyName />
@@ -462,7 +462,7 @@ const AgencyNavBar = () => {
             }}
           >
             {agencyLinks.map((item) => (
-              <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
+              <div key={item.id} className="w-full flex flex-col pl-3">
                 <Link
                   sx={{ cursor: "pointer", textDecoration: "none" }}
                   href={item.href}
@@ -475,7 +475,7 @@ const AgencyNavBar = () => {
                 // }}
                 >
                   <div
-                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                    className="w-full flex flex-row gap-2 items-center py-1 rounded-full"
                     style={{}}
                   >
                     <Image

@@ -376,11 +376,18 @@ const AgencyAddCard = ({
 
             <div className="w-full flex flex-row items-center " style={{ backgroundColor: 'transparent' }}>
                 <div className="flex w-[55%] flex-row items-center LeftDiv" style={{ backgroundColor: 'transparent' }}>
-                    <div className="LeftInnerDiv1" style={{ backgroundColor: 'transparent', flexShrink: 0 }}>
+                    <div className="LeftInnerDiv1" style={{ backgroundColor: 'transparent', flexShrink: 0, width: "320px" }}>
                         <Image
                             alt="*"
-                            src={"/otherAssets/paymentCircle.png"}
-                            height={370} width={370}
+                            src={"/otherAssets/paymentCircle2.png"}
+                            height={240}
+                            width={190}
+                            style={{
+
+                                borderTopRightRadius: '200px',
+                                borderBottomRightRadius: '200px',
+                                boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)' // purple shadow
+                            }}
                         />
                     </div>
                     <div className="mb-12 LeftInnerDiv2" style={{ width: '75%', marginLeft: '-100px' }}>
@@ -667,7 +674,7 @@ const AgencyAddCard = ({
                        */}
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                             <div>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                <div className="capitalize" style={{ fontWeight: "600", fontSize: 15 }}>
                                     Total Billed {selectedPlan.duration}
                                 </div>
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
@@ -731,7 +738,7 @@ const AgencyAddCard = ({
                             >
                                 Terms & Conditions
                             </a>
-                            agree to a 12-month license term. Payments are billed {selectedPlan.duration} as selected.
+                            and agree to a 12-month license term. Payments are billed {selectedPlan.duration} as selected.
                         </div>
                     </div>
                 </div>
