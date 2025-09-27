@@ -266,6 +266,7 @@ const AddScoringModal = ({
 
       const submissionData = {
         agentId: agentId,
+        isTemplate: true,
         templateName: formData.templateName.trim(),
         description: formData.description.trim(),
         maxPoints: formData.maxPoints,
