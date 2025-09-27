@@ -32,7 +32,7 @@ class ErrorBoundary extends Component {
           <div className="max-w-2xl text-center">
             <h1 className="text-3xl font-bold text-red-600 mb-4">Something went wrong</h1>
             <p className="text-gray-600 mb-6">
-              We're sorry, but an unexpected error occurred. Please try refreshing the page.
+              {`We're sorry, but an unexpected error occurred. Please try refreshing the page.`}
             </p>
 
             {isDevelopment && this.state.error && (
