@@ -232,6 +232,14 @@ const Apis = {
   templets : `${BasePath}api/templates`,
   gmailAccount :`${BasePath}api/mail/accounts`,
   connectGmailAccount:`${BasePath}api/mail/connect-gmail`,
+
+  // Cron Jobs API
+  getCronStatus: `${BasePath}api/admin/cron/status`,
+  getCronSummary: `${BasePath}api/admin/cron/summary`,
+  getStuckCronJobs: `${BasePath}api/admin/cron/stuck`,
+  getCronJobStatus: `${BasePath}api/admin/cron/status`,
+  getCronConfig: `${BasePath}api/admin/cron/config`,
+  restartCronJob: `${BasePath}api/admin/cron/restart`,
 };
 
 export default Apis;

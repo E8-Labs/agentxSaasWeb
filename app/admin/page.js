@@ -13,6 +13,7 @@ import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import PhoneVerificationCodesList from "@/components/admin/verificationCodesList/PhoneVerificationCodesList";
 import AdminUpcomingCharges from "@/components/admin/upcomingCharges/AdminUpcomingCharges";
 import AdminPaymentsNeedingRefund from "@/components/admin/paymentsNeedingRefund/AdminPaymentsNeedingRefund";
+import AdminCronJobs from "@/components/admin/cronJobs/AdminCronJobs";
 
 function Page() {
   const router = useRouter();
@@ -60,6 +61,12 @@ function Page() {
     },
     {
       id: 8,
+      name: "Cron Jobs",
+      value: 'cron-jobs',
+
+    },
+    {
+      id: 9,
       name: "Logout",
     },
   ];
@@ -130,6 +137,8 @@ function Page() {
           <AdminUpcomingCharges />
         ) : selectedManu.name === "Payments Needing Refund" ? (
           <AdminPaymentsNeedingRefund />
+        ) : selectedManu.name === "Cron Jobs" ? (
+          <AdminCronJobs isActive={selectedManu.name === "Cron Jobs"} />
         ) : (
           <div>
             <Dashboard />
