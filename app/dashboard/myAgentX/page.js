@@ -36,6 +36,8 @@ import GuarduanSetting from "@/components/pipeline/advancedsettings/GuardianSett
 import PiepelineAdnStage from "@/components/dashboard/myagentX/PiepelineAdnStage";
 import voicesList from "@/components/createagent/Voices";
 import UserCalender from "@/components/dashboard/myagentX/UserCallender";
+// import LeadScoringTab from "@/components/dashboard/myagentX/LeadScoringTab";
+import AddScoringModal from "@/components/modals/add-scoring-modal";
 import CircularLoader from "@/utilities/CircularLoader";
 import imageCompression from "browser-image-compression";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
@@ -167,6 +169,7 @@ function Page() {
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null);
   const [activeTab, setActiveTab] = useState("Agent Info");
+  const [showAddScoringModal, setShowAddScoringModal] = useState(false);
   const [mainAgentsList, setMainAgentsList] = useState([]);
   const [canGetMore, setCanGetMore] = useState(false);
   const [paginationLoader, setPaginationLoader] = useState(false);
@@ -4954,7 +4957,7 @@ function Page() {
                   subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
                 />
               ) :
-                <div>
+                <div className="w-full">
                   <div
                     className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
                     style={
@@ -4964,6 +4967,7 @@ function Page() {
                     }
                   ></div>
 
+                  {/* Calendar Section */}
                   <UserCalender
                     calendarDetails={calendarDetails}
                     setUserDetails={setMainAgentsList}
@@ -4975,6 +4979,51 @@ function Page() {
                     setShowUpgradeModal={setShowUpgradeModal}
                   />
 
+                  {/* Lead Scoring Section */}
+                  <div className="mt-2">
+                    <div className="space-y-6">
+                      {/* Lead Scoring Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                            {showDrawerSelectedAgent?.profile_image ? (
+                              <img
+                                src={showDrawerSelectedAgent.profile_image}
+                                alt="Agent"
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-medium">
+                                {showDrawerSelectedAgent?.name?.[0]?.toUpperCase() || "A"}
+                              </div>
+                            )}
+                          </div>
+                          <h2 className="text-xl font-semibold text-gray-900">Lead Scoring</h2>
+                        </div>
+                        <button
+                          onClick={() => setShowAddScoringModal(true)}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-medium"
+                        >
+                          + Add Score
+                        </button>
+                      </div>
+
+                      {/* Placeholder Content */}
+                      <div className="border border-gray-200 rounded-lg">
+                        <div className="p-6 text-center">
+                          <div className="text-gray-500 mb-4">
+                            No scoring configuration found for this agent
+                          </div>
+                          <button
+                            onClick={() => setShowAddScoringModal(true)}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded font-medium"
+                          >
+                            Create Scoring Configuration
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
@@ -5836,6 +5885,17 @@ function Page() {
         agentName={selectedAgentForEmbed?.name || ""}
         isEmbedFlow={true}
         embedCode={embedCode}
+      />
+
+      <AddScoringModal
+        open={showAddScoringModal}
+        onClose={() => setShowAddScoringModal(false)}
+        onSubmit={(scoringData) => {
+          console.log('Scoring data:', scoringData);
+          setShowAddScoringModal(false);
+        }}
+        selectedAgent={showDrawerSelectedAgent}
+        agentId={showDrawerSelectedAgent?.id}
       />
     </div >
   );

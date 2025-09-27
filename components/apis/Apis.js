@@ -285,6 +285,12 @@ const Apis = {
   //subaccount section apis
   requestFeatureFromAgency: `${BasePath}api/user/requestFeature`,
 
+  // Scoring APIs
+  getScoringTemplates: `${BasePath}api/agent/scoring-templates`,
+  getAgentScoring: `${BasePath}api/agent/scoring`,
+  createAgentScoring: `${BasePath}api/agent/scoring`,
+  deleteAgentScoring: `${BasePath}api/agent/scoring`,
+
 };
 
 export default Apis;
