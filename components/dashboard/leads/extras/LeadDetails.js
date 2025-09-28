@@ -60,7 +60,7 @@ import DeleteCallLogConfimation from "./DeleteCallLogConfimation";
 import EmailTempletePopup from "@/components/pipeline/EmailTempletePopup";
 import SMSTempletePopup from "@/components/pipeline/SMSTempletePopup";
 import { getA2PNumbers, getGmailAccounts } from "@/components/pipeline/TempleteServices";
-import { UpgradeTag } from "@/components/constants/constants";
+import { UpgradeTagWithModal } from "@/components/constants/constants";
 
 const LeadDetails = ({
   showDetailsModal,

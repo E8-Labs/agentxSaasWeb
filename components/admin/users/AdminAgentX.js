@@ -75,6 +75,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import DuplicateButton from "@/components/animation/DuplicateButton";
 import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/DuplicateConfirmationPopup";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
 
@@ -2599,12 +2600,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     setErrorMessage("");
                   }}
                 >
-                  <Image
-                    src={"/otherAssets/crossIcon.png"}
-                    height={24}
-                    width={24}
-                    alt="*"
-                  />
+                  <CloseBtn onClick={() => {}} />
                 </button>
               </div>
 
@@ -4322,19 +4318,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     justifyContent: "end",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      setDelAgentModal(false);
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => setDelAgentModal(false)} />
                 </div>
               </div>
 
@@ -4498,19 +4482,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     justifyContent: "end",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      setShowRenameAgentPopup(null);
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => setShowRenameAgentPopup(null)} />
                 </div>
               </div>
 
@@ -4593,7 +4565,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <button onClick={() => {
                     setShowWarningModal(false);
                   }} className='outline-none'>
-                    <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
+                    <CloseBtn onClick={() => setShowWarningModal(false)} />
                   </button>
                 </div>
               </div> */}
@@ -4607,18 +4579,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 >
                   Reassign Number
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowConfirmationModal(null);
                   }}
-                >
-                  <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={20}
-                    width={20}
-                    alt="*"
-                  />
-                </button>
+                />
+
               </div>
 
               <div
@@ -4737,19 +4703,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     justifyContent: "end",
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      handleCloseScriptModal();
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={() => handleCloseScriptModal()} />
                 </div>
               </div>
 
@@ -5133,18 +5087,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               }}
             >
               <div className="flex flex-row justify-end">
-                <button
-                  onClick={() => {
-                    setIntroVideoModal(false);
-                  }}
-                >
-                  <Image
-                    src={"/assets/crossIcon.png"}
-                    height={40}
-                    width={40}
-                    alt="*"
-                  />
-                </button>
+                <CloseBtn onClick={() => setIntroVideoModal(false)} />
               </div>
 
               <div
@@ -5198,14 +5141,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             >
               <div>
                 <div className="flex flex-row justify-end">
-                  <button onClick={handleCloseClaimPopup}>
-                    <Image
-                      src={"/assets/crossIcon.png"}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <CloseBtn onClick={handleCloseClaimPopup} />
                 </div>
                 <div
                   style={{

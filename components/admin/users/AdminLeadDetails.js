@@ -42,6 +42,7 @@ import { Phone } from "lucide-react";
 import NoVoicemailView from "@/components/dashboard/myagentX/NoVoicemailView";
 import { TranscriptViewer } from "@/components/calls/TranscriptViewer";
 import { callStatusColors } from "@/constants/Constants";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AdminLeadDetails = ({
     showDetailsModal,
@@ -1426,18 +1427,10 @@ const AdminLeadDetails = ({
                                                                         Other Tags
                                                                     </div>
                                                                     <div>
-                                                                        <button
-                                                                            onClick={() => {
+                                                                       <CloseBtn onClick={() => {
                                                                                 setExtraTagsModal(false);
                                                                             }}
-                                                                        >
-                                                                            <Image
-                                                                                src={"/assets/blackBgCross.png"}
-                                                                                height={20}
-                                                                                width={20}
-                                                                                alt="*"
-                                                                            />
-                                                                        </button>
+                                                                        />
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex flex-row items-center gap-4 flex-wrap mt-2">

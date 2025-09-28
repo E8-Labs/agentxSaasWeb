@@ -8,7 +8,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from "../leads/AgentSelectSnac
 import axios from "axios";
 import { Scopes } from "./Scopes";
 import { PersistanceKeys } from "@/constants/Constants";
-import { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 function CalendarModal(props) {
   const {
@@ -421,7 +421,7 @@ function CalendarModal(props) {
           }}
         />
         <div className="flex self-end">
-          <CloseBtn2 onClick={onClose} />
+          <CloseBtn onClick={onClose} />
         </div>
         <h2 className="text-lg font-semibold mb-4">
           Select a Calendar
@@ -1012,7 +1012,7 @@ function CalendarModal(props) {
               }}>
                 Add Google Calendar
               </div>
-              <CloseBtn2
+              <CloseBtn
                 onClick={() => {
                   setShowAddNewGoogleCalender(false);
                   setCalenderTitle("");
