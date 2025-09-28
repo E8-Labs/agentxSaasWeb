@@ -1190,7 +1190,7 @@ function UpgradePlanContent({
                                                 </button>
 
                                                 <div
-                                                    className="flex flex-row items-center gap-2"
+                                                    className="flex flex-row items-center gap-1"
                                                     style={{
                                                         fontWeight: "500",
                                                         fontSize: 15

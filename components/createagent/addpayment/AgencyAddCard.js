@@ -450,7 +450,7 @@ const AgencyAddCard = ({
                                         color: "#4F5B76",
                                     }}
                                 >
-                                    Exp
+                                    Exp Date
                                 </div>
                                 <div
                                     className="mt-2 px-3 py-1 border"

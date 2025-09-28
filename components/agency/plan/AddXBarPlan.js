@@ -315,7 +315,7 @@ export default function AddXBarPlan({
     },
     originalPrice: {
       // textDecoration: "line-through",
-      color: "#7902DF",
+      color: "#00000020",
       fontSize: 18,
       fontWeight: "600",
     },
@@ -336,7 +336,7 @@ export default function AddXBarPlan({
     // }}
     >
       {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-      <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="bg-none max-w-[80%] w-[95%] h-[90vh] border-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <AgentSelectSnackMessage
           isVisible={snackMsg !== null}
           message={snackMsg}
@@ -355,8 +355,8 @@ export default function AddXBarPlan({
           type={snackBannerMsgType}
         />
 
-        <div className="w-full flex flex-row h-[100%] items-start">
-          <div className="w-6/12 h-[100%] p-6">
+        <div className="w-full flex flex-row h-[100%] items-start justify-center">
+          <div className="w-6/12 h-[100%] p-6 bg-white rounded-tl-xl rounded-bl-xl shadow-lg">
             <div
               className="overflow-y-auto h-[90%] scrollbar-hide"
               style={{
@@ -517,7 +517,7 @@ export default function AddXBarPlan({
                   handleResetValues();
                   handleClose("");
                 }}
-                className="text-purple-600 font-semibold border rounded-lg w-[12vw] text-center"
+                className="text-purple-600 font-semibold border rounded-lg w-[12vw] text-center h-[40px]"
               >
                 Cancel
               </button>
@@ -525,7 +525,7 @@ export default function AddXBarPlan({
                 <CircularProgress size={30} />
               ) : (
                 <button
-                  className={` ${shouldContinue() ? "bg-[#00000050]" : "bg-purple "} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg`}
+                  className={` ${shouldContinue() ? "bg-[#00000050]" : "bg-purple "} w-[12vw] hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg h-[40px]`}
                   // onClick={handleAddPlanClick}
                   onClick={() => {
                     if (isEditPlan) {
@@ -543,20 +543,22 @@ export default function AddXBarPlan({
           </div>
 
           <div
-            className="w-6/12 h-full rounded-tr-xl rounded-br-xl"
+            className="w-5/12 h-full rounded-tr-xl rounded-br-xl shadow-lg"
             style={{
-              backgroundImage: "url('/agencyIcons/addPlanBg4.png')",
+              // backgroundImage: "url('/agencyIcons/addPlanBg4.png')",
+              backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
           >
-            <div className="p-6 flex flex-col items-center h-[100%]">
+            <div className="p-4 flex flex-col items-center h-[100%]">
               <div className="flex justify-end w-full items-center h-[5%]">
                 <CloseBtn
                   onClick={() => {
                     handleResetValues();
                     handleClose("");
                   }}
+                  showWhiteCross={true}
                 />
               </div>
               {/*
@@ -620,7 +622,7 @@ export default function AddXBarPlan({
                         </div>
                         {tag ? (
                           <div
-                            className="rounded-full bg-purple text-white p-3 py-2"
+                            className="rounded-full bg-purple text-white p-3 py-1"
                             style={{ fontSize: 14, fontWeight: "500" }}
                           >
                             {tag}

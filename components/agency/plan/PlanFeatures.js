@@ -171,7 +171,7 @@ export default function PlanFeatures({
                         <div
                             key={index}
                             className="w-full">
-                            <div className="border border-gray-200 rounded-lg pe-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                            <div className="border border-gray-200 rounded-lg pe-2 py-0 mt-1 flex flex-row items-center w-full">
                                 <input
                                     style={styles.inputs}
                                     type="text"
@@ -183,9 +183,17 @@ export default function PlanFeatures({
                                     placeholder={`Custom Feature ${index + 1}`}
                                 />
                                 <div className="" style={styles.inputs}>
-                                    <CloseBtn
+                                    <button
+                                        className='cursor-pointer px-2 py-2 rounded-full bg-[#00000010]'
                                         onClick={() => { handleRemoveCustomFeature(index) }}
-                                    />
+                                    >
+                                        <Image
+                                            alt="close"
+                                            src="/assets/cross.png"
+                                            width={10} height={10}
+                                        // style={{ filter: showWhiteCross ? "invert(1)" : "invert(0)" }}
+                                        />
+                                    </button>
                                 </div>
                             </div>
                         </div>

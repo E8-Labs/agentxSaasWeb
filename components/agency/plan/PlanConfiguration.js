@@ -555,7 +555,7 @@ export default function PlanConfiguration({
                 voicemail: dynamicFeatures?.allowVoicemail,
                 twilio: dynamicFeatures?.allowTwilioIntegration,
                 allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
-                allowTrial: false,
+                allowTrial: true,
             });
         }
     }

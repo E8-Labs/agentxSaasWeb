@@ -566,9 +566,9 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
     }
 
     return (
-        <div className='h-[85vh]'>
+        <div className=''>
 
-            <div className='overflow-y-auto h-[92%] scrollbar-hide'
+            <div className='overflow-y-auto scrollbar-hide'
                 style={{
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
@@ -784,7 +784,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                     width: "100%",
                                     borderWidth: "0px",
                                     backgroundColor: "transparent",
-                                    paddingLeft: "60px",
+                                    paddingLeft: "35px",
                                     paddingTop: "20px",
                                     paddingBottom: "20px",
                                 }}
@@ -857,7 +857,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                                         cursor: "pointer",
                                     }}
                                 >
-                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={20} height={20} className="cursor-pointer rounded-full"
+                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={15} height={15} className="cursor-pointer rounded-full"
                                     // onClick={() => setIntroVideoModal2(true)}
                                     />
                                 </div>
@@ -974,7 +974,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
 
                         <Tooltip
-                            title="Automatically refill minutes when they run low. Keeps your sub-account calls going without interruption."
+                            title="Automatically refill creadits when they run low. Keeps your sub account activities going without interruption."
                             arrow
                             componentsProps={{
                                 tooltip: {
@@ -1167,11 +1167,11 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                 */}
             </div>
 
-            <div className="flex justify-between mt-4">
-                <button onClick={onClose} className="w-1/4 text-center text-purple border rounded-lg py-2">Cancel</button>
+            <div className="flex justify-between mt-8">
+                <button onClick={onClose} className="w-1/4 text-center text-purple border rounded-lg h-[40px]">Cancel</button>
                 <button
                     disabled={shouldContinue}
-                    className={`w-1/3 hover:bg-purple-700 px-6 py-2 rounded-lg ${shouldContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
+                    className={`w-1/3 hover:bg-purple-700 px-6 h-[40px] rounded-lg ${shouldContinue ? "bg-[#00000020] text-black" : "bg-purple text-white"}`}
                     onClick={() => { handleContinue() }}
                 >
                     Continue

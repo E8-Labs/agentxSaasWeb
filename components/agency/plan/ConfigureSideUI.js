@@ -29,7 +29,7 @@ const ConfigureSideUI = ({
                 backgroundPosition: "center",
             }}
         >
-            <div className="p-6 flex flex-col items-center h-[100%]">
+            <div className="p-4 flex flex-col items-center h-[100%]">
                 <div className="flex justify-end w-full items-center h-[5%]">
                     <CloseBtn
                         // disabled={createPlanLoader}
@@ -76,9 +76,17 @@ const ConfigureSideUI = ({
                             <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>{basicsData?.title || "Title"}</div>
                             <div
                                 style={{ fontWeight: "700", fontSize: "35px" }}
-                                className="text-center mt-4 font-bold text-[35px] bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent"
+                                className="text-center mt-4 font-bold text-[35px]"
                             >
-                                ${from === "dashboard" ? basicsData?.discountedPrice : formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
+                                <span className='text-[#00000020]' style={{ fontWeight: "700", fontSize: "30px" }}>
+                                    {/*
+                                        ${formatFractional2(originalPrice) || ""}
+                                    */}
+                                    ${from === "dashboard" ? basicsData?.originalPrice : formatFractional2(basicsData?.originalPrice) || ""}
+                                </span>
+                                <span className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2" style={{ fontWeight: "700", fontSize: "35px" }}>
+                                    ${from === "dashboard" ? basicsData?.discountedPrice : formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
+                                </span>
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>
                             <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {allowTrial && trialValidForDays ? <span>| {trialValidForDays} Day Free Trial</span> : ""}</button>

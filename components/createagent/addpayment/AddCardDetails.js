@@ -386,7 +386,7 @@ const AddCardDetails = ({
               color: "#4F5B76",
             }}
           >
-            Exp
+            Exp Date
           </div>
           <div
             className="mt-2 px-3 py-1 border"
@@ -529,7 +529,7 @@ const AddCardDetails = ({
           )}
         </button>
         <div
-          className="flex flex-row items-center gap-2"
+          className="flex flex-row items-center gap-1"
           style={{
             fontWeight: "500",
             fontSize: 15
