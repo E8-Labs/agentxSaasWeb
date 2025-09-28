@@ -26,6 +26,7 @@ import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
 import DowngradePlanPopup from "@/components/myAccount/cancelationFlow/DowngradePlanPopup";
 import AgencyPlans from "@/components/plan/AgencyPlans";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -82,6 +83,9 @@ function AgencyPlansPayments({
 
     //plans details
     const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
+
+    //variables for update plan
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
 
     const duration = [
@@ -1372,6 +1376,27 @@ function AgencyPlansPayments({
 
                 </div>
             )}
+
+            {/* Upgrade plans modal */}
+            <Elements stripe={stripePromise}>
+                <UpgradePlan
+                    selectedPlan={selectedPlan}
+                    setSelectedPlan={setSelectedPlan}
+                    open={showUpgradeModal}
+                    handleClose={async (upgradeResult) => {
+                        setShowUpgradeModal(false);
+
+                        // If upgrade was successful, refresh profile and state
+                        if (upgradeResult) {
+                            setSuccessSnack("Upgraded to " + selectedPlan.name + " Plan");
+                            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
+                            getProfile();
+                        }
+                    }}
+                    plan={selectedPlan}
+                    currentFullPlan={currentPlanDetails}
+                />
+            </Elements>
 
             {/* Plans details */}
             <Modal

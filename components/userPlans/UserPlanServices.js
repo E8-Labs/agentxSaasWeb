@@ -22,11 +22,14 @@ export const downgradeToGrowthFeatures = [
     "Unlimited Team Seats",
 ]
 
-export const getUserPlans = async () => {
+export const getUserPlans = async (from) => {
     try {
         let token = AuthToken()
 
-        let path = Apis.getPlans
+        let path = Apis.getPlans;
+        if (from === "SubAccount") {
+            path = Apis.getSubAccountPlans;
+        }
         console.log('path of get plans', path)
         const response = await axios.get(path, {
             headers: {
@@ -54,10 +57,10 @@ export const initiateCancellation = async () => {
     try {
         let token = AuthToken()
 
-        const response = await axios.post(Apis.initiateCancelation,{}, {
+        const response = await axios.post(Apis.initiateCancelation, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
             }
         })
 
@@ -80,10 +83,10 @@ export const pauseSubscription = async () => {
         let token = AuthToken()
         // console.log('token', token)
 
-        const response = await axios.post(Apis.pauseSubscription,{}, {
+        const response = await axios.post(Apis.pauseSubscription, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
 
             }
         })
@@ -100,7 +103,7 @@ export const pauseSubscription = async () => {
 
     } catch (error) {
         console.log('error in pause api', error)
-        
+
     }
 }
 
@@ -109,10 +112,10 @@ export const claimGift = async () => {
         let token = AuthToken()
         // console.log('token', token)
 
-        const response = await axios.post(Apis.claimGiftMins,{}, {
+        const response = await axios.post(Apis.claimGiftMins, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
 
             }
         })
@@ -139,10 +142,10 @@ export const getDiscount = async () => {
 
         console.log('trying to obtain offer')
 
-        const response = await axios.post(Apis.continueToDiscount,{}, {
+        const response = await axios.post(Apis.continueToDiscount, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
             }
         })
 
@@ -166,10 +169,10 @@ export const completeCancelation = async () => {
 
         console.log('trying to obtain offer')
 
-        const response = await axios.post(Apis.completeCancelatiton,{}, {
+        const response = await axios.post(Apis.completeCancelatiton, {}, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
             }
         })
 
@@ -194,12 +197,12 @@ export const purchaseMins = async (mins) => {
 
         console.log('trying to obtain offer')
 
-        const response = await axios.post(Apis.purchaseDiscountedMins,{
-            requestedMinutes:mins
+        const response = await axios.post(Apis.purchaseDiscountedMins, {
+            requestedMinutes: mins
         }, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
             }
         })
 
@@ -224,12 +227,12 @@ export const checkReferralCode = async (code) => {
 
         console.log('trying to obtain offer')
 
-        const response = await axios.post(Apis.validateReferralCode,{
-            referralCode:code
+        const response = await axios.post(Apis.validateReferralCode, {
+            referralCode: code
         }, {
             headers: {
                 "Authorization": 'Bearer ' + token,
-                "Content-Type":'application/json'
+                "Content-Type": 'application/json'
             }
         })
 
@@ -256,9 +259,9 @@ export const calculatePlanPrice = (selectedPlan) => {
     if (selectedPlan.billingCycle === "monthly") {
         return "$" + (1 * selectedPlan.discountPrice);
     } else if (selectedPlan.billingCycle === "quarterly") {
-        return "$" + (3 * ( selectedPlan.discountPrice)).toFixed(2);
+        return "$" + (3 * (selectedPlan.discountPrice)).toFixed(2);
     } else if (selectedPlan.billingCycle === "yearly") {
-        return "$" + (12 * ( selectedPlan.discountPrice)).toFixed(2);
+        return "$" + (12 * (selectedPlan.discountPrice)).toFixed(2);
     } else {
         return "-";
     }
@@ -269,13 +272,13 @@ export const getMonthlyPrice = (selectedPlan) => {
     if (!selectedPlan) {
         return 0;
     }
-    
-    const price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice ||  0;
+
+    const price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
     const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
 
 
-    console.log("selected plan in monthly plan func is",selectedPlan)
-    
+    console.log("selected plan in monthly plan func is", selectedPlan)
+
     if (billingCycle === "monthly") {
         return price;
     } else if (billingCycle === "quarterly") {
@@ -292,10 +295,10 @@ export const getTotalPrice = (selectedPlan) => {
     if (!selectedPlan) {
         return 0;
     }
-    
+
     const price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
     const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
-    
+
     if (billingCycle === "monthly") {
         return price;
     } else if (billingCycle === "quarterly") {

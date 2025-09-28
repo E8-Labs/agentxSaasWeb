@@ -172,7 +172,8 @@ function UpgradePlanContent({
     plan,
     currentFullPlan,
     selectedPlan = null, // Pre-selected plan from previous screen
-    setSelectedPlan = null
+    setSelectedPlan = null,
+    from
 }) {
 
     const stripeReact = useStripe();
@@ -415,7 +416,7 @@ function UpgradePlanContent({
     }
 
     const getPlans = async () => {
-        let plansList = await getUserPlans()
+        let plansList = await getUserPlans(from)
         if (plansList) {
 
             const monthly = [];
@@ -1306,7 +1307,8 @@ function UpgradePlan({
     plan,
     currentFullPlan,
     selectedPlan = null, // Pre-selected plan from previous screen
-    setSelectedPlan = null
+    setSelectedPlan = null,
+    from = "User"
 }) {
     let stripePublickKey =
         process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1323,6 +1325,7 @@ function UpgradePlan({
                 currentFullPlan={currentFullPlan}
                 selectedPlan={selectedPlan}
                 setSelectedPlan={setSelectedPlan}
+                from={from}
             />
         </Elements>
     );
