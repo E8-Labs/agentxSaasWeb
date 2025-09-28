@@ -6,17 +6,17 @@ import {
   FormControl,
   Select,
   MenuItem,
-  InputLabel,
-  Button,
+
+
   TextField,
   IconButton,
-  Chip,
+
   CircularProgress,
   Modal,
-  Fade,
+
 } from '@mui/material';
-import { ArrowUpRight, X, Upload } from '@phosphor-icons/react';
-import axios from 'axios';
+import { ArrowUpRight, X } from '@phosphor-icons/react';
+
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
@@ -269,10 +269,10 @@ const EmbedModal = ({
       <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
         <div className="flex flex-row justify-center w-full">
           <div
-            className="w-full"
+            className="w-full px-[24px] pt-[24px] pb-[10px]"
             style={{
               backgroundColor: "#ffffff",
-              padding: 24,
+             
               borderRadius: "13px",
               display: 'flex',
               maxHeight: '90vh',
@@ -315,7 +315,20 @@ const EmbedModal = ({
                     className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-purple transition-all duration-300 rounded-lg p-2"
                     onClick={() => fileInputRef.current?.click()}
                   >
-                    <Image src={"/otherAssets/uploadIcon.png"} height={24} width={24} alt="*" />
+                    <Image
+                      className="transition-all duration-200 hover:hidden"
+                      src={"/otherAssets/uploadIcon.png"}
+                      height={24}
+                      width={24}
+                      alt="Upload"
+                    />
+                    <Image
+                      className="transition-all duration-200 hidden hover:inline"
+                      src={"/otherAssets/uploadIconPurple.png"}
+                      height={24}
+                      width={24}
+                      alt="Upload Hover"
+                    />
                     <span className="ml-1">Change Logo</span>
                   </button>
                   <input
@@ -329,23 +342,10 @@ const EmbedModal = ({
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <div style={{ width: 40, marginRight: 12 }}></div>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', marginLeft: -6 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', marginLeft: -6,flexDirection: 'row', alignItems: 'center',display: 'flex' }}>
+                  <Image src={"/assets/infoIcon.png"} height={12} width={12} alt="*" className="mr-1" />
                     Ensure Image is a 1:1 dimension for better quality
                   </Typography>
-                  <div style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    backgroundColor: '#e0e0e0',
-                    marginLeft: 4,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '8px',
-                    color: '#666'
-                  }}>
-                    i
-                  </div>
                 </Box>
               </Box>
 
@@ -394,15 +394,14 @@ const EmbedModal = ({
                     onChange={handleToggleChange}
                     onClick={(e) => e.stopPropagation()}
                     sx={{
-                      '& .MuiSwitch-switchBase.Mui-checked': {
-                        color: '#9c27b0',
-                        '& + .MuiSwitch-track': {
-                          backgroundColor: '#9c27b0',
-                        },
+                      "& .MuiSwitch-switchBase.Mui-checked": {
+                        color: "#7902DF",
                       },
-                      '& .MuiSwitch-track': {
-                        backgroundColor: '#ccc',
+                      "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                      {
+                        backgroundColor: "#7902DF",
                       },
+                      margin: 0,
                     }}
                   />
                 </Box>
@@ -434,8 +433,7 @@ const EmbedModal = ({
                       <CircularProgress size={24} />
                     </Box>
                   ) : smartLists.length > 0 ? (
-                    <FormControl fullWidth>
-                      <InputLabel>Select</InputLabel>
+                    <FormControl className='w-full h-[50px]'>
                       <Select
                         value={selectedSmartList}
                         onChange={(e) => {
@@ -443,7 +441,34 @@ const EmbedModal = ({
                           setSelectedSmartList(e.target.value);
                         }}
                         onClick={(e) => e.stopPropagation()}
-                        label="Select"
+                      
+                        sx={{
+                          height: "48px",
+                          borderRadius: "13px",
+                          border: "1px solid #00000020", // Default border
+                          "&:hover": {
+                            border: "1px solid #00000020", // Same border on hover
+                          },
+                          "& .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove the default outline
+                          },
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            border: "none", // Remove outline on focus
+                          },
+                          "&.MuiSelect-select": {
+                            py: 0, // Optional padding adjustments
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: "30vh", // Limit dropdown height
+                              overflow: "auto", // Enable scrolling in dropdown
+                              scrollbarWidth: "none",
+                              // borderRadius: "10px"
+                            },
+                          },
+                        }}
                       >
                         {smartLists.map((list, index) => (
                           <MenuItem key={index} value={list.id}>
@@ -486,7 +511,7 @@ const EmbedModal = ({
             </div>
 
             {/* Right Side - Preview */}
-            <div style={{ flex: 1, position: 'relative', marginRight: -24, marginTop: -24, marginBottom: -24 }}>
+            <div style={{ flex: 1, position: 'relative', marginRight: -24, marginTop: -24, marginBottom: -10 }}>
               <div
                 style={{
                   backgroundImage: 'url(/agencyIcons/bg-embed-agent.png)',
@@ -511,7 +536,6 @@ const EmbedModal = ({
                       e.stopPropagation();
                       onClose();
                     }}
-                    showWhiteCross={true}
                   />
                 </div>
 
@@ -531,8 +555,8 @@ const EmbedModal = ({
                 >
                   <div
                     style={{
-                      width: 24,
-                      height: 24,
+                      width: 30,
+                      height: 30,
                       borderRadius: '50%',
                       backgroundImage: logoPreview ? `url(${logoPreview})` : 'url(/thumbOrbSmall.png)',
                       backgroundSize: 'cover',

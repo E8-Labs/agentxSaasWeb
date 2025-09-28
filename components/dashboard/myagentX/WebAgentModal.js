@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
+  FormControl,
+  MenuItem,
+  Select,
   Switch,
 } from '@mui/material';
 import { ArrowUpRight, X } from '@phosphor-icons/react';
@@ -212,9 +215,9 @@ const WebAgentModal = ({
               onChange={handleToggleChange}
               sx={{
                 '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: '#9c27b0',
+                  color: '#7902DF',
                   '& + .MuiSwitch-track': {
-                    backgroundColor: '#9c27b0',
+                    backgroundColor: '#7902DF',
                   },
                 },
                 '& .MuiSwitch-track': {
@@ -260,7 +263,8 @@ const WebAgentModal = ({
                 <div>Loading...</div>
               </div>
             ) : smartLists.length > 0 ? (
-              <select
+             <FormControl className='w-full h-[50px]'>
+              <Select
                 value={selectedSmartList}
                 onChange={(e) => setSelectedSmartList(e.target.value)}
                 style={{
@@ -272,14 +276,42 @@ const WebAgentModal = ({
                   borderRadius: '6px',
                   outline: 'none'
                 }}
+                   sx={{
+                    height: "48px",
+                    borderRadius: "13px",
+                    border: "1px solid #00000020", // Default border
+                    "&:hover": {
+                      border: "1px solid #00000020", // Same border on hover
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      border: "none", // Remove the default outline
+                    },
+                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                      border: "none", // Remove outline on focus
+                    },
+                    "&.MuiSelect-select": {
+                      py: 0, // Optional padding adjustments
+                    },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: "30vh", // Limit dropdown height
+                        overflow: "auto", // Enable scrolling in dropdown
+                        scrollbarWidth: "none",
+                        // borderRadius: "10px"
+                      },
+                    },
+                  }}
               >
-                <option value="">Select</option>
+              
                 {smartLists.map((list, index) => (
-                  <option key={list.id || index} value={list.id}>
+                  <MenuItem key={list.id || index} value={list.id}>
                     {list.sheetName}
-                  </option>
+                  </MenuItem>
                 ))}
-              </select>
+              </Select>
+              </FormControl>
             ) : (
               <div style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}>
                 No smart lists available. Create a new one to get started.
