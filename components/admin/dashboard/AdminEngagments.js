@@ -7,6 +7,7 @@ import axios from 'axios';
 import { CalendarPicker } from '../users/CalendarPicker';
 import { Box, Modal } from '@mui/material';
 import moment from 'moment';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 function AdminEngagments() {
 
@@ -489,19 +490,12 @@ function AdminEngagments() {
                                     Select Date
                                 </div>
 
-                                <button
+                                <CloseBtn
                                     onClick={() => {
                                         setShowCustomRangePopup(false);
                                         setselectedDateRange("All Time")
                                     }}
-                                >
-                                    <Image
-                                        src={"/assets/blackBgCross.png"}
-                                        height={20}
-                                        width={20}
-                                        alt="*"
-                                    />
-                                </button>
+                                />
                             </div>
                             <div className=" w-full flex flex-row items-center justify-between">
                                 <div

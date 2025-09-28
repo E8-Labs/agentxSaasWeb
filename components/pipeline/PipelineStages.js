@@ -28,10 +28,11 @@ import { getAgentsListImage } from "@/utilities/agentUtilities";
 import { getA2PNumbers, getTempletes } from "./TempleteServices";
 import EmailTempletePopup from "./EmailTempletePopup";
 import SMSTempletePopup from "./SMSTempletePopup";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
 import AuthSelectionPopup from "./AuthSelectionPopup";
 import { PersistanceKeys } from "@/constants/Constants";
-import { getUserLocalData, UpgradeTag } from "../constants/constants";
+import { getUserLocalData, UpgradeTagWithModal } from "../constants/constants";
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import UpgradePlan from '../userPlans/UpgradePlan';
@@ -1070,19 +1071,7 @@ const PipelineStages = ({
                                           </div>
                                         </div>
                                         {rowIndex > 0 && (
-                                          <button
-                                            className="ms-2 mt-2"
-                                            onClick={() =>
-                                              removeRow(index, row.id)
-                                            }
-                                          >
-                                            <Image
-                                              src="/assets/blackBgCross.png"
-                                              height={20}
-                                              width={20}
-                                              alt="*"
-                                            />
-                                          </button>
+                                          <CloseBtn onClick={() => removeRow(index, row.id)} />
                                         )}
                                       </div>
                                     </div>
@@ -1180,7 +1169,10 @@ const PipelineStages = ({
                                                     user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
 
                                                     <button className="ml-2">
-                                                      <UpgradeTag />
+                                                      <UpgradeTagWithModal 
+                                                      reduxUser={userData}
+                                                      setReduxUser={setUserData}
+                                                      />
                                                     </button>
                                                   }
 
@@ -1370,20 +1362,7 @@ const PipelineStages = ({
                                     justifyContent: "end",
                                   }}
                                 >
-                                  <button
-                                    onClick={() => {
-                                      setShowRenamePopup(false);
-                                      // handleCloseStagePopover();
-                                    }}
-                                    className="outline-none"
-                                  >
-                                    <Image
-                                      src={"/assets/crossIcon.png"}
-                                      height={40}
-                                      width={40}
-                                      alt="*"
-                                    />
-                                  </button>
+                                  <CloseBtn onClick={() => setShowRenamePopup(false)} />
                                 </div>
                               </div>
 
@@ -1483,18 +1462,7 @@ const PipelineStages = ({
                                   Delete stage
                                 </div>
 
-                                <button
-                                  onClick={() => {
-                                    setShowDelStagePopup(null);
-                                  }}
-                                >
-                                  <Image
-                                    src={"/assets/crossIcon.png"}
-                                    height={40}
-                                    width={40}
-                                    alt="*"
-                                  />
-                                </button>
+                                <CloseBtn onClick={() => setShowDelStagePopup(null)} />
                               </div>
 
                               {selectedStage?.hasLeads ? (
@@ -1814,19 +1782,7 @@ const PipelineStages = ({
                           justifyContent: "end",
                         }}
                       >
-                        <button
-                          onClick={() => {
-                            handleCloseAddStage();
-                          }}
-                          className="outline-none"
-                        >
-                          <Image
-                            src={"/assets/crossIcon.png"}
-                            height={40}
-                            width={40}
-                            alt="*"
-                          />
-                        </button>
+                        <CloseBtn onClick={() => handleCloseAddStage()} />
                       </div>
                     </div>
 

@@ -89,7 +89,7 @@ import DuplicateConfirmationPopup from "@/components/dashboard/myagentX/Duplicat
 import TestEmbed from "@/app/test-embed/page";
 import UpgradeModal from "@/constants/UpgradeModal";
 import UpgardView from "@/constants/UpgardView";
-import { getUserLocalData, UpgradeTag } from "@/components/constants/constants";
+import { getUserLocalData, UpgradeTagWithModal } from "@/components/constants/constants";
 import AskToUpgrade from "@/constants/AskToUpgrade";
 import getProfileDetails from "@/components/apis/GetProfile";
 import { useUser } from "@/hooks/redux-hooks";
@@ -4102,10 +4102,10 @@ function Page() {
                                         user?.user?.planCapabilities?.allowLanguageSelection === false
                                       )
                                     ) && (
-                                      <UpgradeTag
-                                        title="Unlock Language Selection"
-                                        subTitle="Upgrade to unlock language selection"
-                                        buttonTitle="No Thanks"
+                                      <UpgradeTagWithModal
+                                       
+                                        reduxUser={reduxUser}
+                                        setReduxUser={setReduxUser}
                                       />
                                     )
                                   }
@@ -4913,7 +4913,10 @@ function Page() {
                           </button>
                         </div>
                       ) : (
-                        <UpgradeTag />
+                          <UpgradeTagWithModal 
+                            reduxUser={reduxUser}
+                            setReduxUser={ setReduxUser }
+                          />
                       )
                     }
                   </div>

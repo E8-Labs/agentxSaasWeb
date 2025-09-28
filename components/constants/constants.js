@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const KycCategory = {
   CategoryNeeds: "need",
   CategoryMotivation: "motivation",
@@ -154,10 +156,83 @@ export const getUserLocalData = () =>{
 }
 
 
-export const UpgradeTag = () => {
+export const UpgradeTag = ({ onClick, className = "",reduxUser,setReduxUser }) => {
   return (
-    <div className="bg-[#7902df10] items-cetner gap-2 p-2 rounded-lg text-purple text-[12px]">
+    <div 
+      className={`bg-[#7902df10] items-center gap-2 p-2 rounded-lg text-purple text-[12px] cursor-pointer hover:bg-[#7902df20] transition-colors ${className}`}
+      onClick={onClick}
+    >
       Upgrade
     </div >
   )
 }
+
+// Wrapper component that handles upgrade modal functionality
+export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser  }) => {
+  const [showUpgradeModal, setShowUpgradeModal] = React.useState(false);
+  
+  // Import necessary components dynamically to avoid circular dependencies
+  const getProfileDetails = require("@/components/apis/GetProfile").default;
+  const UpgradePlan = require("@/components/userPlans/UpgradePlan").default;
+  
+
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    try {
+      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        
+        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
+        
+        // Update Redux with fresh data
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+        
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
+  const handleUpgradeClick = () => {
+    setShowUpgradeModal(true);
+  };
+
+  const handleModalClose = async (upgradeResult) => {
+    setShowUpgradeModal(false);
+    
+    // If upgrade was successful, refresh user data
+    if (upgradeResult) {
+      console.log('🎉 [UPGRADE-TAG] Upgrade successful, refreshing user data...');
+      await refreshUserData();
+    }
+  };
+
+  return (
+    <>
+      <UpgradeTag 
+        onClick={handleUpgradeClick}
+        className={className}
+      />
+      
+      <UpgradePlan
+        open={showUpgradeModal}
+        handleClose={handleModalClose}
+        plan={null}
+        currentFullPlan={reduxUser?.user?.plan}
+      />
+    </>
+  );
+};

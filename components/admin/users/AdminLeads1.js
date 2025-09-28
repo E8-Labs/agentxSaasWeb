@@ -39,7 +39,7 @@ import EnrichConfirmModal from "@/components/dashboard/leads/EnrichCofirmModal";
 import getProfileDetails from "@/components/apis/GetProfile";
 import ConfirmPerplexityModal from "@/components/dashboard/leads/extras/CofirmPerplexityModal";
 import AdminLeads from "./AdminLeads";
-import { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
+import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
 
 const AdminLeads1 = ({ selectedUser }) => {
   const addColRef = useRef(null);
@@ -1217,7 +1217,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <CloseBtn2 onClick={() => { setShowUploadLeadModal(false) }} />
+                  <CloseBtn onClick={() => { setShowUploadLeadModal(false) }} />
                 </div>
                 <div className="mt-2" style={styles.subHeadingStyle}>
                   Leads
