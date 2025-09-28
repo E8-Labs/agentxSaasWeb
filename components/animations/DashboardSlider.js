@@ -229,7 +229,7 @@ const DashboardSlider = ({
                       alt="*"
                     />
                     <div
-                      className="text-black hover:text-purple"
+                      className="text-black hover:text-purple whitespace-nowrap"
                       style={{ fontSize: 15, fontWeight: "500" }}
                     >
                       {item.label}
@@ -286,11 +286,6 @@ const DashboardSlider = ({
                 style={{ flex: 1, }}>
                 {renderViews()}
               </div>
-
-              <CloseBtn 
-                onClick={handleClose}
-                // showWhiteCross={true}
-              />
             </motion.div>
           )}
         </AnimatePresence>
