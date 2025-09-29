@@ -30,6 +30,8 @@ export const getUserPlans = async (from) => {
         let path = Apis.getPlans;
         if (from === "SubAccount") {
             path = Apis.getSubAccountPlans;
+        } else if (from === "agency") {
+            path = Apis.getPlansForAgency;
         }
         console.log('path of get plans', path)
         const response = await axios.get(path, {

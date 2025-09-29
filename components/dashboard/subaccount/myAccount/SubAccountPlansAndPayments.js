@@ -100,6 +100,9 @@ function SubAccountPlansAndPayments({
     //variables for upgrade plan popup
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
+    //plans details
+    const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
+
     useEffect(() => {
         let screenWidth = 1000;
         if (typeof window !== "undefined") {
@@ -1349,18 +1352,43 @@ function SubAccountPlansAndPayments({
                                 </div>
 
 
-                                {item.id === currentPlan && (
-                                    <div
-                                        className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
-                                        style={{
-                                            fontSize: 9,
-                                            fontWeight: "600",
-                                            width: "fit-content",
-                                        }}
-                                    >
-                                        Current Plan
+                                <div className="flex flex-row items-center justify-between w-full">
+                                    <div>
+                                        {item.id === currentPlan && (
+                                            <div
+                                                className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                                                style={{
+                                                    fontSize: 9,
+                                                    fontWeight: "600",
+                                                    width: "fit-content",
+                                                }}
+                                            >
+                                                Current Plan
+                                            </div>
+                                        )}
                                     </div>
-                                )}
+                                    <div>
+                                        <button
+                                            className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline outline-none border-none"
+                                            style={{
+                                                color: '#7902DF',
+                                                width: 'fit-content',
+                                                textDecoration: 'none',
+                                                whiteSpace: 'nowrap',
+                                                fontWeight: 600,
+                                                fontSize: 12,
+                                                borderRadius: '9999px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                            }}
+                                            onClick={() => {
+                                                setShowPlanDetailsPopup(true);
+                                            }}
+                                        >
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </button>

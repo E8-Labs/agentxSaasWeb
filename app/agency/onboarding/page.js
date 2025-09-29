@@ -48,8 +48,8 @@ function Page() {
     setCurrentIndex((prev) => prev + 1);
   };
   return (
-    <div className="flex flex-col w-full items-center justify-center py-5 overflow-hidden">
-      <div className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12"
+    <div className="flex flex-col w-full items-center justify-center py-5 overflow-y-auto">
+      <div className="flex w-full flex-row items-center justify-start gap-2 mt-4  sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
       style={{backgroundColor: ''}}>
         <Image src={"/assets/assignX.png"} height={30} width={130} alt="*"  style={{backgroundColor: ''}}/>
         {/* /assets/agentX.png */}

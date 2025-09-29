@@ -1366,7 +1366,8 @@ function AgencyPlansPayments({
                                 } else if (title === "Downgrade") {
                                     setShowDowngradePlanPopup(true)
                                 } else {
-                                    handleSubscribePlan()
+                                    // handleSubscribePlan()
+                                    setShowUpgradeModal(true);
                                 }
                             }}
                         >
@@ -1388,13 +1389,14 @@ function AgencyPlansPayments({
 
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            setSuccessSnack("Upgraded to " + selectedPlan.name + " Plan");
+                            setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             getProfile();
                         }
                     }}
                     plan={selectedPlan}
                     currentFullPlan={currentPlanDetails}
+                    from={"agency"}
                 />
             </Elements>
 
@@ -1413,7 +1415,7 @@ function AgencyPlansPayments({
                             }}
                         />
                     </div>
-                    <div className="w-full h-[88%] mt-4">
+                    <div className="w-full h-[88%] mt-4 overflow-y-auto">
                         <AgencyPlans
                             isFrom={"addPlan"}
                             handleCloseModal={(d) => {

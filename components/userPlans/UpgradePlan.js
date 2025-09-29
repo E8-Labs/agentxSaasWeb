@@ -443,7 +443,7 @@ function UpgradePlanContent({
             } else {
                 console.log("Current plan upgrade type is Simple user")
                 plansList.forEach(plan => {
-                    switch (plan.billingCycle) {
+                    switch (plan.billingCycle || plan.duration) {
                         case "monthly":
                             monthly.push(plan);
                             if (!plan.discountPrice) {
@@ -803,6 +803,10 @@ function UpgradePlanContent({
                 ApiData = {
                     planId: currentSelectedPlan?.id
                 }
+            } else if (from === "agency") {
+                ApiData = {
+                    planId: currentSelectedPlan?.id
+                }
             }
 
             // Add payment method ID if we have one
@@ -816,6 +820,8 @@ function UpgradePlanContent({
 
             let ApiPath = Apis.subscribePlan;
             if (from === "SubAccount") {
+                ApiPath = Apis.subAgencyAndSubAccountPlans;
+            } else if (from === "agency") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
             console.log("Api data", ApiData);
@@ -1008,7 +1014,7 @@ function UpgradePlanContent({
                                                             </div>
 
                                                             <div className='text-[15px] font-semibold'>
-                                                                {`$${item.discountPrice || item.discountedPrice}`}
+                                                                {`$${item.discountPrice || item.discountedPrice || item.originalPrice}`}
                                                             </div>
                                                         </div>
 
@@ -1153,7 +1159,7 @@ function UpgradePlanContent({
                                                         {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {currentSelectedPlan ? `${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration)} x ${currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice}` : ""}
+                                                        {currentSelectedPlan ? `${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration)} x ${currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice}` : ""}
                                                     </div>
                                                 </div>
 
@@ -1165,7 +1171,7 @@ function UpgradePlanContent({
                                                         <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(currentSelectedPlan)}</div>
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)}` : "$0"}
+                                                        {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}` : "$0"}
                                                     </div>
                                                 </div>
 
@@ -1251,7 +1257,7 @@ function UpgradePlanContent({
                                                 Total:
                                             </div>
                                             <div className=" text-3xl font-semibold  ">
-                                                {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice)).toLocaleString()}` : "$0"}
+                                                {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)).toLocaleString()}` : "$0"}
                                             </div>
                                         </div>
                                     </div>

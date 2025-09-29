@@ -340,15 +340,15 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
     return (
         <div
             // style={backgroundImage}
-            className={`overflow-hidden flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-8 max-h-[100%]" : "w-[90%] max-h-[90vh]"}`}
+            className={`flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-8 max-h-[100%]" : "w-[90%] h-[90%]"}`}
         >
 
             <div
-                className="flex flex-col items-center w-full scrollbar-hide"
+                className="flex flex-col items-center w-full "
                 style={{
-                    overflow: "auto", // Prevent scrolling on the entire modal
-                    scrollbarWidth: "none",
-                    msOverflowStyle: "none",
+                    // overflow: "hidden", // Prevent scrolling on the entire modal
+                    // scrollbarWidth: "none",
+                    // msOverflowStyle: "none",scrollbar-hide
                 }}
             >
                 <AgentSelectSnackMessage

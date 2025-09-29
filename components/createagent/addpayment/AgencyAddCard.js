@@ -25,6 +25,8 @@ import Apis from "@/components/apis/Apis";
 import AgentSelectSnackMessage, {
     SnackbarTypes,
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
+import moment from "moment";
 // import Apis from '../Apis/Apis';
 
 const AgencyAddCard = ({
@@ -322,11 +324,11 @@ const AgencyAddCard = ({
             return "-";
         }
         if (selectedPlan.duration === "monthly") {
-            return "$" + (1 * selectedPlan.originalPrice);
+            return "$" + formatDecimalValue(1 * selectedPlan.originalPrice);
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + selectedPlan.originalPrice;
+            return "$" + formatDecimalValue(selectedPlan.originalPrice);
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + selectedPlan.originalPrice;
+            return "$" + formatDecimalValue(selectedPlan.originalPrice);
         } else {
             return "-";
         }
@@ -338,15 +340,33 @@ const AgencyAddCard = ({
             return "-";
         }
         if (selectedPlan.duration === "monthly") {
-            return "$" + (selectedPlan.originalPrice * 12);
+            return "$" + formatDecimalValue(selectedPlan.originalPrice * 12);
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + (selectedPlan.originalPrice * 6);
+            return "$" + formatDecimalValue(selectedPlan.originalPrice * 6);
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + (selectedPlan.originalPrice * 1);
+            return "$" + formatDecimalValue(selectedPlan.originalPrice * 1);
         } else {
             return "-";
         }
     }
+
+    const timeCalculator = () => {
+        const duration = selectedPlan?.duration;
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        console.log("End date is", endDate.setMonth(endDate.getMonth() + 1));
+        if(duration === "monthly"){
+            return endDate.setMonth(endDate.getMonth() + 1);
+        } else if (duration === "quarterly") {
+            return endDate.setMonth(endDate.getMonth() + 4);
+        } else if (duration === "yearly") {
+            return endDate.setMonth(endDate.getMonth() + 12);
+        } else {
+            return "-";
+        }
+        
+    }
+
 
     const PayAsYouGoPlanTypes = {
         Plan30Min: "Plan30",
@@ -677,7 +697,7 @@ const AgencyAddCard = ({
                                 <div className="capitalize" style={{ fontWeight: "600", fontSize: 15 }}>
                                     Total Billed {selectedPlan.duration}
                                 </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date June 14, 2026</div>
+                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {moment(timeCalculator()).format("MMMM DD YYYY")}</div>{/* hh:mma */}
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>{scalePlanValue()}</div>
                         </div>
