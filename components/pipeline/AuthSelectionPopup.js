@@ -33,12 +33,7 @@ function AuthSelectionPopup({
 
 
 
-    useEffect(() => {
-        if (open)
-            getAccounts()
-    }, [open])
-
-
+    
 
     //google calendar click
     const handleGoogleOAuthClick = () => {
