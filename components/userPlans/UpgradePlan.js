@@ -1261,32 +1261,34 @@ function UpgradePlanContent({
                                             </div>
                                         </div>
                                     </div>
-                                    <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3'>
-                                        {
-                                            subscribeLoader ? (
-                                                <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
-                                                    <CircularProgress size={25} />
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    className={`w-1/2 flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${isUpgradeButtonEnabled()
-                                                            ? "text-white bg-purple hover:bg-purple-700"
-                                                            : "text-black bg-[#00000050] cursor-not-allowed"
-                                                        }`}
-                                                    disabled={!isUpgradeButtonEnabled()}
-                                                    onClick={() => {
-                                                        if (isUpgradeButtonEnabled()) {
-                                                            handleSubscribePlan();
-                                                        }
-                                                    }}
-                                                >
-                                                    Upgrade
-                                                </button>
-                                            )
-                                        }
-                                    </div>
 
+
+                                </div>
+
+                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3'>
+                                    {
+                                        subscribeLoader ? (
+                                            <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
+                                                <CircularProgress size={25} />
+                                            </div>
+                                        ) : (
+                                            <button
+                                                className={`w-1/2 flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                    ${isUpgradeButtonEnabled()
+                                                        ? "text-white bg-purple hover:bg-purple-700"
+                                                        : "text-black bg-[#00000050] cursor-not-allowed"
+                                                    }`}
+                                                disabled={!isUpgradeButtonEnabled()}
+                                                onClick={() => {
+                                                    if (isUpgradeButtonEnabled()) {
+                                                        handleSubscribePlan();
+                                                    }
+                                                }}
+                                            >
+                                                Upgrade
+                                            </button>
+                                        )
+                                    }
                                 </div>
 
                             </div>

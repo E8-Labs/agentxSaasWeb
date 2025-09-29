@@ -33,14 +33,7 @@ import { getAvailabePhoneNumbers } from "../globalExtras/GetAvailableNumbers";
 import AuthSelectionPopup from "./AuthSelectionPopup";
 import { PersistanceKeys } from "@/constants/Constants";
 import { getUserLocalData, UpgradeTagWithModal } from "../constants/constants";
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
-import UpgradePlan from '../userPlans/UpgradePlan';
 import { useUser } from "@/hooks/redux-hooks";
-import getProfileDetails from "../apis/GetProfile";
-
-// Initialize Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 
 const PipelineStages = ({
@@ -104,9 +97,6 @@ const PipelineStages = ({
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
-  //code for upgrade plan modal
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(null);
 
   //code for input arrays
   const [inputs, setInputs] = useState([
@@ -187,7 +177,7 @@ const PipelineStages = ({
 
   const handleSelectAdd = async (stageIndex, value) => {
     if (user?.planCapabilities.allowTextMessages === false && value == "sms") {
-      setShowUpgradeModal(true);
+      // Upgrade modal is now handled by UpgradeTagWithModal component
       return
     }
     if (value != "call") {
@@ -195,9 +185,9 @@ const PipelineStages = ({
       setSelectedType(value)
       // if (temp && temp.length > 0) {
       if (value === "email") {
-        if(gmailAccounts.length > 0){
+        if (gmailAccounts.length > 0) {
           setShowEmailTempPopup(true)
-        }else{
+        } else {
           setShowAuthSelectionPopup(true)
         }
         // setShowAuthSelectionPopup(true)
@@ -291,18 +281,18 @@ const PipelineStages = ({
   }, [showEmailTemPopup])
 
   useEffect(() => {
-      getAccounts()
+    getAccounts()
   }, [])
 
   const getAccounts = async () => {
     setAccountLoader(true)
     let response = await getGmailAccounts()
     if (response) {
-        console.log("Gmail acounts list is", response);
-        setGmailAccounts(response)
+      console.log("Gmail acounts list is", response);
+      setGmailAccounts(response)
     }
     setAccountLoader(false)
-}
+  }
 
   const getTemp = async () => {
     // setTempLoader(selectedType)
@@ -315,14 +305,14 @@ const PipelineStages = ({
   const getNumbers = async () => {
 
     let data = localStorage.getItem("selectedUser")
-    if(!data){
+    if (!data) {
       data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     }
-    let selectedUser  = null
+    let selectedUser = null
     // console.log('data', data)
-    if(data != "undefined"){
-       selectedUser = JSON.parse(data)
-      console.log("selected user data from local",selectedUser)
+    if (data != "undefined") {
+      selectedUser = JSON.parse(data)
+      console.log("selected user data from local", selectedUser)
     }
     console.log('trying to get a2p numbers')
     setPhoneLoading(true)
@@ -1189,17 +1179,17 @@ const PipelineStages = ({
                                                   {
                                                     user?.planCapabilities.allowTextMessages === false && a.label == "Text" &&
 
-                                                    <button className="ml-2">
-                                                      <UpgradeTagWithModal 
+
+                                                    <UpgradeTagWithModal
                                                       reduxUser={userData}
                                                       setReduxUser={setUserData}
-                                                      />
-                                                    </button>
+                                                    />
+
                                                   }
 
                                                 </div>
                                                 {
-                                                  shouldDisable(a)  && user?.planCapabilities.allowTextMessages != false && a.label == "Text" && (
+                                                  shouldDisable(a) && user?.planCapabilities.allowTextMessages != false && a.label == "Text" && (
                                                     <Image
                                                       src={"/otherAssets/redInfoIcon.png"}
                                                       height={16}
@@ -2213,61 +2203,6 @@ const PipelineStages = ({
               </Box>
             </Modal>
 
-            {/* Upgrade Plan Modal */}
-            <Elements stripe={stripePromise}>
-              <UpgradePlan
-                open={showUpgradeModal}
-                handleClose={async (result) => {
-                  console.log("🔥 PIPELINESTAGES - UpgradePlan handleClose called with result:", result);
-
-                  setShowUpgradeModal(false);
-
-                  if (result) {
-                    console.log("🔥 PIPELINESTAGES - Upgrade successful, refreshing user data...");
-
-                    try {
-                      // Get fresh user data
-                      const profileResponse = await getProfileDetails();
-                      console.log("🔥 PIPELINESTAGES - getProfileDetails response:", profileResponse);
-
-                      if (profileResponse?.data?.status === true) {
-                        const freshUserData = profileResponse.data.data;
-                        console.log("🔥 PIPELINESTAGES - Fresh user data:", {
-                          userId: freshUserData?.id,
-                          planType: freshUserData?.plan?.type,
-                          planName: freshUserData?.plan?.name,
-                          allowTextMessages: freshUserData?.planCapabilities?.allowTextMessages
-                        });
-
-                        // Update both Redux and local state
-                        const localData = JSON.parse(localStorage.getItem("User") || '{}');
-                        const updatedUserData = {
-                          token: localData.token || token,
-                          user: freshUserData
-                        };
-
-                        console.log("🔥 PIPELINESTAGES - About to call setUserData (Redux)");
-                        setUserData(updatedUserData);
-                        setUser(freshUserData); // Update local state immediately
-                        console.log("🔥 PIPELINESTAGES - User data update completed");
-
-                        // Verify localStorage was updated
-                        setTimeout(() => {
-                          const localStorageData = localStorage.getItem("User");
-                          console.log("🔥 PIPELINESTAGES - localStorage after update:", localStorageData ? JSON.parse(localStorageData) : null);
-                        }, 100);
-                      } else {
-                        console.error("🔥 PIPELINESTAGES - Failed to get profile details");
-                      }
-                    } catch (error) {
-                      console.error("🔥 PIPELINESTAGES - Error refreshing user data:", error);
-                    }
-                  }
-                }}
-                plan={selectedPlan}
-                currentFullPlan={null}
-              />
-            </Elements>
           </div>
         )}
       </Droppable>
