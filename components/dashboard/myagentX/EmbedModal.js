@@ -20,6 +20,7 @@ import { ArrowUpRight, X } from '@phosphor-icons/react';
 import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
+import axios from 'axios';
 
 const EmbedModal = ({
   open,
