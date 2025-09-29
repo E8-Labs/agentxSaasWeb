@@ -639,7 +639,7 @@ const Page = () => {
                       //     moment(statsDetails?.formattedAvDuration).format("HH:MM:SS")
                       //     : "-"
                       // }
-                      value={statsDetails?.formattedAvDuration ?? "-"}
+                      value={statsDetails?.formattedAvDuration && statsDetails?.formattedAvDuration != "N/A"  ? statsDetails?.formattedAvDuration : "-" }
                       borderSide="border-l-2"
                     />
 
@@ -647,24 +647,24 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/creditsUsedIcons.png"
                       title="Credits Used"
-                      value={statsDetails?.creditsUsed || 0}
+                      value={statsDetails?.creditsUsed}
                       borderSide="border-t-2"
                     />
 
                     {/* Card: Emails Sent */}
                     <Card
                       icon="/otherAssets/emailSentIcon.png"
-                      title="Email Sent"
-                      value={statsDetails?.emailsSent || 0}
+                      title="Emails Sent"
+                      value={statsDetails?.emailsSent}
                       borderSide="border-l-2 border-t-2"
                     />
 
                     {/* Card: Texts send */}
                     <Card
                       icon="/otherAssets/smsSentIcon.png"
-                      title="Text Sent"
+                      title="Texts Sent"
                       
-                      value={statsDetails?.smsSents || 0}
+                      value={statsDetails?.smsSents}
                       borderSide="border-l-2 border-t-2"
                     />
                   </div>

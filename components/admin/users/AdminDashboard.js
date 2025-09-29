@@ -627,7 +627,8 @@ const AdminDashboard = ({ selectedUser }) => {
                     <Card
                       icon="/svgIcons/avgDurationIcon.svg"
                       title="Avg Convo Duration"
-                      value={statsDetails?.formattedAvDuration || "-"}
+                      value={statsDetails?.formattedAvDuration && statsDetails?.formattedAvDuration != "N/A" ? statsDetails?.formattedAvDuration : "-"}
+
                       borderSide="border-l-2"
                     />
 
@@ -635,7 +636,7 @@ const AdminDashboard = ({ selectedUser }) => {
                     <Card
                       icon="/otherAssets/creditsUsedIcons.png"
                       title="Credits Used"
-                      value={statsDetails?.creditsUsed || 0}
+                      value={statsDetails?.creditsUsed}
                       borderSide="border-t-2"
                     />
 
@@ -643,7 +644,7 @@ const AdminDashboard = ({ selectedUser }) => {
                     <Card
                       icon="/otherAssets/emailSentIcon.png"
                       title="Emails Sent"
-                      value={statsDetails?.emailsSent || 0}
+                      value={statsDetails?.emailsSent}
                       borderSide="border-l-2 border-t-2"
                     />
 
@@ -652,7 +653,7 @@ const AdminDashboard = ({ selectedUser }) => {
                       icon="/otherAssets/smsSentIcon.png"
                       title="Texts Sent"
 
-                      value={statsDetails?.smsSents || 0}
+                      value={statsDetails?.smsSents}
                       borderSide="border-l-2 border-t-2"
                     />
                   </div>
