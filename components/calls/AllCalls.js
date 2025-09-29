@@ -29,6 +29,7 @@ import {
 } from "@/utilities/utility";
 import { Api } from "@mui/icons-material";
 import LeadLoading from "../dashboard/leads/LeadLoading";
+import { getStatus } from "@/services/leadScoringSerevices/callLogServices/CallLogServices";
 
 function AllCalls({ user }) {
   const LimitPerPage = 20;
