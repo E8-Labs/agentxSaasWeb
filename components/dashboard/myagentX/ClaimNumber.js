@@ -42,6 +42,7 @@ const ClaimNumber = ({
 
   // function for purchasing number api
   const handlePurchaseNumber = async () => {
+    
     try {
       setPurchaseLoader(true);
       let AuthToken = null;
@@ -78,19 +79,6 @@ const ClaimNumber = ({
       for (let [key, value] of formData.entries()) {
         console.log(`${key} === ${value}`);
       }
-
-      //for testing
-      // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
-      // setOpenPurchaseSuccessModal(true);
-      // if (setSelectNumber) {
-      //     setSelectNumber(selectedPurchasedNumber.phoneNumber);
-      // }
-      // setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-      // if (setOpenCalimNumDropDown) {
-      //     setOpenCalimNumDropDown(false);
-      // }
-
-      // return
 
       const response = await axios.post(ApiPath, formData, {
         headers: {

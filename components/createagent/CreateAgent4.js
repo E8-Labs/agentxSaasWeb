@@ -335,6 +335,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
+    
     try {
       let AuthToken = null;
 
@@ -758,6 +759,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           selectedNumber={selectedPurchasedNumber}
                           handleContinue={() => {
                             setOpenPurchaseSuccessModal(false);
+                            getAvailabePhoneNumbers();
                           }}
                         />
                       </div>
