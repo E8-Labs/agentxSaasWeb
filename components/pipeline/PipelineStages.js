@@ -25,7 +25,7 @@ import AgentSelectSnackMessage, {
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getTeamsList } from "../onboarding/services/apisServices/ApiService";
 import { getAgentsListImage } from "@/utilities/agentUtilities";
-import { getA2PNumbers, getTempletes } from "./TempleteServices";
+import { getA2PNumbers, getGmailAccounts, getTempletes } from "./TempleteServices";
 import EmailTempletePopup from "./EmailTempletePopup";
 import SMSTempletePopup from "./SMSTempletePopup";
 import CloseBtn, { CloseBtn2 } from "@/components/globalExtras/CloseBtn";
@@ -153,6 +153,8 @@ const PipelineStages = ({
   // Use Redux for user data instead of local state
   const { user: userData, setUser: setUserData, token } = useUser();
   const [user, setUser] = useState(userData); // Keep local state for compatibility
+  const [gmailAccounts, setGmailAccounts] = useState([])
+  const [accountLoader, setAccountLoader] = useState(false)
 
   const ACTIONS = [
     { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
@@ -193,7 +195,12 @@ const PipelineStages = ({
       setSelectedType(value)
       // if (temp && temp.length > 0) {
       if (value === "email") {
-        setShowAuthSelectionPopup(true)
+        if(gmailAccounts.length > 0){
+          setShowEmailTempPopup(true)
+        }else{
+          setShowAuthSelectionPopup(true)
+        }
+        // setShowAuthSelectionPopup(true)
       } else {
         setShowSmsTempPopup(true)
 
@@ -282,6 +289,20 @@ const PipelineStages = ({
       getTemp()
     }
   }, [showEmailTemPopup])
+
+  useEffect(() => {
+      getAccounts()
+  }, [])
+
+  const getAccounts = async () => {
+    setAccountLoader(true)
+    let response = await getGmailAccounts()
+    if (response) {
+        console.log("Gmail acounts list is", response);
+        setGmailAccounts(response)
+    }
+    setAccountLoader(false)
+}
 
   const getTemp = async () => {
     // setTempLoader(selectedType)
@@ -1900,7 +1921,7 @@ const PipelineStages = ({
                         </div>
                         <textarea
                           className="h-[50px] px-2 outline-none focus:ring-0 w-full mt-1 rounded-lg"
-                          placeholder="Ex: Does the human express interest getting a CMA "
+                          placeholder="Ex: Does the human express interestting a CMA "
                           style={{
                             border: "1px solid #00000020",
                             fontWeight: "500",

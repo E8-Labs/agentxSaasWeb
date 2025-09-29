@@ -663,6 +663,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                 item
                               );
                               // AssignNumber
+                            }else{
+                              AssignNumber();
                             }
                           }}
                         >
