@@ -3182,6 +3182,7 @@ const LeadDetails = ({
         onSendEmail={sendEmailToLead}
         isLeadEmail={true}
         leadEmail={selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.[0]?.email}
+        leadId={selectedLeadsDetails?.id}
       />
 
       {/* SMS Template Modal */}
@@ -3198,6 +3199,7 @@ const LeadDetails = ({
         onSendSMS={sendSMSToLead}
         isLeadSMS={true}
         leadPhone={selectedLeadsDetails?.phone}
+        leadId={selectedLeadsDetails?.id}
       />
 
       {/* Upgrade Plan Modal */}

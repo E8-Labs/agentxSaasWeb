@@ -26,6 +26,7 @@ function SMSTempletePopup({
     onSendSMS = null,
     isLeadSMS = false,
     leadPhone = null,
+    leadId = null,
 
 }) {
 
@@ -101,7 +102,8 @@ function SMSTempletePopup({
                 const smsData = {
                     content: body,
                     phone: leadPhone,
-                    smsPhoneNumberId:selectedPhone.id
+                    smsPhoneNumberId:selectedPhone.id,
+                    leadId:leadId
 
                 };
                 onSendSMS(smsData);
