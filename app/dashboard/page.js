@@ -514,7 +514,7 @@ const Page = () => {
                               color: "#fff",
                             }}
                           >
-                            {(userDetails?.totalSecondsAvailable / 60).toFixed(1)} AI credits
+                            {(userDetails?.totalSecondsAvailable / 60).toFixed(1)} AI Credits
                           </div>
                         </div>
                       </div>
@@ -651,7 +651,7 @@ const Page = () => {
                       borderSide="border-t-2"
                     />
 
-                    {/* Card: Email Sent */}
+                    {/* Card: Emails Sent */}
                     <Card
                       icon="/otherAssets/emailSentIcon.png"
                       title="Email Sent"
@@ -659,7 +659,7 @@ const Page = () => {
                       borderSide="border-l-2 border-t-2"
                     />
 
-                    {/* Card: Text send */}
+                    {/* Card: Texts send */}
                     <Card
                       icon="/otherAssets/smsSentIcon.png"
                       title="Text Sent"

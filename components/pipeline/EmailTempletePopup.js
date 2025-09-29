@@ -563,7 +563,7 @@ function EmailTempletePopup({
                         />
                         <div className='flex flex-row items-center justify-between '>
                             <div className='text-xl font-semibold color-black'>
-                                {isLeadEmail ? 'Send Email to Lead' : (((isEditing && !IsdefaultCadence) || selectedTemp) ? 'Edit Email' : 'Email')}
+                                {isLeadEmail ? `Send Email to ${leadEmail}` : (((isEditing && !IsdefaultCadence) || selectedTemp) ? 'Edit Email' : 'Email')}
                             </div>
 
                             <FormControl>
@@ -650,13 +650,14 @@ function EmailTempletePopup({
                                     {selectedGoogleAccount?.email}
                                 </span>
                             </div>
-                            {isLeadEmail && leadEmail && (
+
+                            {/*{isLeadEmail && leadEmail && (
                                 <div className="text-[15px] font-[400] text-[#00000080] mt-4">
                                     To: <span className="text-[#00000050] ml-2">
                                         {leadEmail}
                                     </span>
                                 </div>
-                            )}
+                            )}*/}
 
                             <button
                                 onClick={(event) => setShowChangeManu(event.currentTarget)}

@@ -334,7 +334,7 @@ const AdminDashboard = ({ selectedUser }) => {
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
 
- 
+
 
             <div className="h-[95%] w-full flex flex-row justify-center bg-white rounded-xl">
               <div className="w-full h-[100%]">
@@ -492,7 +492,7 @@ const AdminDashboard = ({ selectedUser }) => {
                               color: "#fff",
                             }}
                           >
-                              Balance
+                            Balance
                           </div>
 
                           <div
@@ -630,7 +630,34 @@ const AdminDashboard = ({ selectedUser }) => {
                       value={statsDetails?.formattedAvDuration || "-"}
                       borderSide="border-l-2"
                     />
+
+                    {/* Card: credits used */}
+                    <Card
+                      icon="/otherAssets/creditsUsedIcons.png"
+                      title="Credits Used"
+                      value={statsDetails?.creditsUsed || 0}
+                      borderSide="border-t-2"
+                    />
+
+                    {/* Card: Email Sent */}
+                    <Card
+                      icon="/otherAssets/emailSentIcon.png"
+                      title="Emails Sent"
+                      value={statsDetails?.emailsSent || 0}
+                      borderSide="border-l-2 border-t-2"
+                    />
+
+                    {/* Card: Text send */}
+                    <Card
+                      icon="/otherAssets/smsSentIcon.png"
+                      title="Texts Sent"
+
+                      value={statsDetails?.smsSents || 0}
+                      borderSide="border-l-2 border-t-2"
+                    />
                   </div>
+
+
 
 
                 </div>
