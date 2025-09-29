@@ -2,6 +2,7 @@ import axios from "axios"
 import { AuthToken } from "../agency/plan/AuthDetails"
 import Apis from "../apis/Apis"
 
+//use the dynamic values here  @arslan
 
 export const downgradeToStarterFeatures = [
     "10 AI Agents",

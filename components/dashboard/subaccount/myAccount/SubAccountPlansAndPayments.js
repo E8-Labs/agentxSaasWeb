@@ -1321,7 +1321,7 @@ function SubAccountPlansAndPayments({
                                         {item.features && item.features.length > 0 && (
                                             <div className="mt-6 flex-1">
                                                 <div className="flex flex-col gap-3">
-                                                    {item.features.map((feature, featureIndex) => (
+                                                    {item.features.slice(0, 6).map((feature, featureIndex) => (
                                                         <div key={featureIndex} className="flex flex-row items-start gap-1">
                                                             <Image
                                                                 src="/svgIcons/selectedTickBtn.svg"
@@ -1452,7 +1452,7 @@ function SubAccountPlansAndPayments({
 
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            setSuccessSnack("Upgraded to " + selectedPlan.name + " Plan");
+                            setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             getProfile();
                         }

@@ -418,29 +418,49 @@ function UpgradePlanContent({
     const getPlans = async () => {
         let plansList = await getUserPlans(from)
         if (plansList) {
-
+            console.log("Plans list found is", plansList);
             const monthly = [];
             const quarterly = [];
             const yearly = [];
             let freePlan = null;
-            plansList.forEach(plan => {
-                switch (plan.billingCycle) {
-                    case "monthly":
-                        monthly.push(plan);
-                        if (!plan.discountPrice) {
-                            freePlan = plan;
-                        }
-                        break;
-                    case "quarterly":
-                        quarterly.push(plan);
-                        break;
-                    case "yearly":
-                        yearly.push(plan);
-                        break;
-                    default:
-                        break;
-                }
-            });
+            if (from === "SubAccount") {
+                console.log("Current plan upgrade type is subaccount")
+                plansList?.monthlyPlans?.forEach(plan => {
+                    switch (plan.duration) {
+                        case "monthly":
+                            monthly.push(plan);
+                            break;
+                        case "quarterly":
+                            quarterly.push(plan);
+                            break;
+                        case "yearly":
+                            yearly.push(plan);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            } else {
+                console.log("Current plan upgrade type is Simple user")
+                plansList.forEach(plan => {
+                    switch (plan.billingCycle) {
+                        case "monthly":
+                            monthly.push(plan);
+                            if (!plan.discountPrice) {
+                                freePlan = plan;
+                            }
+                            break;
+                        case "quarterly":
+                            quarterly.push(plan);
+                            break;
+                        case "yearly":
+                            yearly.push(plan);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
 
             if (freePlan) {
                 quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
@@ -779,6 +799,11 @@ function UpgradePlanContent({
             let ApiData = {
                 plan: planType,
             };
+            if (from === "SubAccount") {
+                ApiData = {
+                    planId: currentSelectedPlan?.id
+                }
+            }
 
             // Add payment method ID if we have one
             if (paymentMethodId) {
@@ -789,7 +814,10 @@ function UpgradePlanContent({
                 ApiData.userId = selectedUser?.subAccountData?.id;
             }
 
-            const ApiPath = Apis.subscribePlan;
+            let ApiPath = Apis.subscribePlan;
+            if (from === "SubAccount") {
+                ApiPath = Apis.subAgencyAndSubAccountPlans;
+            }
             console.log("Api data", ApiData);
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
@@ -929,9 +957,9 @@ function UpgradePlanContent({
 
                                         <DurationView
                                             selectedDuration={selectedDuration}
-                                            handleDurationChange={(item)=>setSelectedDuration(item)}
+                                            handleDurationChange={(item) => setSelectedDuration(item)}
                                         />
-                                    </div>  
+                                    </div>
                                 </div>
 
 
@@ -976,16 +1004,16 @@ function UpgradePlanContent({
                                                     >
                                                         <div className='w-full flex flex-row items-center justify-between'>
                                                             <div className='text-[15px] font-semibold'>
-                                                                {item.name}
+                                                                {item.name || item.title}
                                                             </div>
 
                                                             <div className='text-[15px] font-semibold'>
-                                                                {`$${item.discountPrice}`}
+                                                                {`$${item.discountPrice || item.discountedPrice}`}
                                                             </div>
                                                         </div>
 
                                                         <div className='text-[13px] font-[500] mt-1'>
-                                                            {item.details}
+                                                            {item.details || item.description}
                                                         </div>
 
                                                         <div className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
@@ -1117,21 +1145,22 @@ function UpgradePlanContent({
                                                 <div className="flex flex-row items-start justify-between w-full mt-6">
                                                     <div>
                                                         <div className=' text-lg font-semibold'>
-                                                            {currentSelectedPlan ? `${currentSelectedPlan?.name} Plan` : "No Plan Selected"}
+                                                            {currentSelectedPlan ? `${currentSelectedPlan?.name || currentSelectedPlan?.title} Plan` : "No Plan Selected"}
                                                         </div>
-                                                        <div className=' text-xs font-regular '>
-                                                            {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)} subscription` : ""}
+                                                        <div className=' text-xs font-regular capitalize'>
+                                                            {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration} subscription` : ""}
                                                         </div>
+                                                        {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {currentSelectedPlan ? `${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "")} x ${currentSelectedPlan?.discountPrice}` : ""}
+                                                        {currentSelectedPlan ? `${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration)} x ${currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice}` : ""}
                                                     </div>
                                                 </div>
 
                                                 <div className="flex flex-row items-start justify-between w-full mt-6">
                                                     <div>
-                                                        <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                            {` Total Billed ${currentSelectedPlan?.billingCycle}`}
+                                                        <div className='capitalize' style={{ fontWeight: "600", fontSize: 15 }}>
+                                                            {` Total Billed ${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration}`}
                                                         </div>
                                                         <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(currentSelectedPlan)}</div>
                                                     </div>
@@ -1222,7 +1251,7 @@ function UpgradePlanContent({
                                                 Total:
                                             </div>
                                             <div className=" text-3xl font-semibold  ">
-                                                {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || "") * (currentSelectedPlan?.discountPrice)).toLocaleString()}` : "$0"}
+                                                {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice)).toLocaleString()}` : "$0"}
                                             </div>
                                         </div>
                                     </div>
