@@ -25,6 +25,10 @@ const EmbedSmartListModal = ({
   agentId,
   onSuccess
 }) => {
+
+
+  const textInputRef = useRef(null);
+
   const [sheetName, setSheetName] = useState('');
   const [customFields, setCustomFields] = useState(['', '']);
   const [tagsValue, setTagsValue] = useState([]);
@@ -276,8 +280,8 @@ const EmbedSmartListModal = ({
           },
         }}
       >
-      <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
-        <div className="flex flex-row justify-center w-full">
+        <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
+          <div className="flex flex-row justify-center w-full">
             <div
               className="w-full"
               style={{
@@ -289,290 +293,287 @@ const EmbedSmartListModal = ({
                 overflow: 'hidden',
               }}
             >
-            {/* Left Side - Configuration */}
-            <div 
-              className="scrollbar-hide"
-              style={{ 
-                flex: 1, 
-                paddingRight: 24, 
-                overflowY: 'auto',
-                maxHeight: '90vh',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}>
-            {/* Header */}
-            <div className="flex flex-row justify-between items-center mb-3">
-              <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-                {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Embed Agent
-              </Typography>
-              <CloseBtn onClick={handleClose} />
-            </div>
+              {/* Left Side - Configuration */}
+              <div
+                className="scrollbar-hide"
+                style={{
+                  flex: 1,
+                  paddingRight: 24,
+                  overflowY: 'auto',
+                  maxHeight: '90vh',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none'
+                }}
+              >
+                {/* Logo Section */}
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        backgroundImage: logoPreview ? `url(${logoPreview})` : 'url(/thumbOrbSmall.png)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        marginRight: 12,
+                        border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                      }}
+                    />
+                    <button
+                      className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-purple transition-all duration-300 rounded-lg p-2"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Image
+                        className="transition-all duration-200 hover:hidden"
+                        src={"/otherAssets/uploadIcon.png"}
+                        height={24}
+                        width={24}
+                        alt="Upload"
+                      />
+                      <Image
+                        className="transition-all duration-200 hidden hover:inline"
+                        src={"/otherAssets/uploadIconPurple.png"}
+                        height={24}
+                        width={24}
+                        alt="Upload Hover"
+                      />
+                      <span className="ml-1">Change Logo</span>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ display: 'none' }}
+                    />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: 40, marginRight: 12 }}></div>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', marginLeft: -6, flexDirection: 'row', alignItems: 'center', display: 'flex' }}>
+                      <Image src={"/assets/infoIcon.png"} height={12} width={12} alt="*" className="mr-1" />
+                      Ensure Image is a 1:1 dimension for better quality
+                    </Typography>
+                  </Box>
+                </Box>
 
-            {/* Logo Section */}
-            <Box sx={{ mb: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                {/* Button Label */}
+                <Box sx={{ mb: 3 }}>
+                  <div className="flex flex-row justify-between items-center mb-1">
+                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                      Button Label
+                    </Typography>
+                    <div style={{ marginLeft: '16px', fontSize: '12px', color: '#666' }}>
+                      {buttonLabel ? buttonLabel.length : 0}/10
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <input
+                      ref={textInputRef}
+                      type="text"
+                      value={buttonLabel}
+                      onChange={(e) => setButtonLabel(e.target.value)}
+                      placeholder="Get Help"
+                      maxLength={10}
+                      className="outline-none focus:outline-none focus:ring-0 border rounded-lg p-3"
+                      style={{
+                        fontSize: '14px',
+                        width: '100%',
+                        border: '1px solid #00000020'
+                      }}
+                    />
+                  </div>
+                </Box>
+
+
+                {/* Require Form Section */}
+                <Box sx={{
+                  mb: 3,
+                  p: 2,
+                  backgroundColor: '#f8f9fa',
+                  borderRadius: 2,
+                  border: '1px solid #e9ecef'
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                      Require users to complete a form?
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    This prompts users to fill out a form before they engage in a conversation with your AI.
+                  </Typography>
+                </Box>
+
+                {/* Smart List Section */}
+                <div className="mb-4">
+                  <div style={{ fontSize: 14, fontWeight: '500', color: '#333', marginBottom: 8 }}>
+                    List Name
+                  </div>
+                  <input
+                    className="outline-none focus:outline-none focus:ring-0 border rounded w-full"
+                    style={{
+                      border: "1px solid #E5E7EB",
+                      fontSize: '14px',
+                      padding: '12px',
+                      backgroundColor: '#fff'
+                    }}
+                    placeholder="My smartlist"
+                    value={sheetName}
+                    onChange={(e) => setSheetName(e.target.value)}
+                  />
+                </div>
+
+                {/* Create Fields */}
+                <div className="mb-6">
+                  <div style={{ fontSize: 14, fontWeight: '500', color: '#333', marginBottom: 12 }}>
+                    Create Fields
+                  </div>
+
+                  {/* Predefined Fields */}
+                  {predefinedFields.map((field, index) => (
+                    <input
+                      key={`predefined-${index}`}
+                      className="outline-none focus:outline-none focus:ring-0 border rounded w-full mb-3"
+                      style={{
+                        border: "1px solid #E5E7EB",
+                        color: "#666",
+                        fontSize: '14px',
+                        backgroundColor: '#F9FAFB',
+                        padding: '12px'
+                      }}
+                      value={field}
+                      disabled
+                    />
+                  ))}
+
+                  {/* Custom Fields */}
+                  {customFields.map((field, index) => (
+                    <div key={`custom-${index}`} className="flex items-center mb-3 gap-3">
+                      <input
+                        className="outline-none focus:outline-none focus:ring-0 border rounded flex-1"
+                        style={{
+                          border: "1px solid #E5E7EB",
+                          fontSize: '14px',
+                          padding: '12px'
+                        }}
+                        placeholder="Custom Field"
+                        value={field}
+                        onChange={(e) => handleCustomFieldChange(index, e.target.value)}
+                      />
+                      <button
+                        className="outline-none border-none p-1 rounded-full hover:bg-gray-100 w-8 h-8 flex items-center justify-center"
+                        onClick={() => handleRemoveCustomField(index)}
+                      >
+                        <X size={16} color="#666" />
+                      </button>
+                    </div>
+                  ))}
+
+                  <button
+                    className="flex items-center text-purple font-medium hover:bg-purple hover:bg-opacity-5 p-2 -ml-2 rounded"
+                    onClick={handleAddCustomField}
+                    style={{ fontSize: 14 }}
+                  >
+                    <Plus size={16} className="mr-1" />
+                    New Field
+                  </button>
+                </div>
+
+                {/* Tags */}
+                <div className="mb-6">
+                  <div style={{ fontSize: 14, fontWeight: '500', color: '#333', marginBottom: 12 }}>
+                    Tags
+                  </div>
+                  <TagsInput setTags={setTagsValue} tags={tagsValue} />
+                </div>
+
+                {/* Save Button */}
+                <button
+                  className="w-full py-3 px-4 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                  onClick={handleSave}
+                  disabled={loading || !sheetName.trim()}
+                >
+                  {loading ? <CircularProgress size={20} color="inherit" /> : 'Save Changes'}
+                </button>
+
+              </div>
+
+              {/* Right Side - Preview */}
+              <div style={{ flex: 1, position: 'relative', marginRight: -24, marginTop: -24, marginBottom: -24 }}>
                 <div
                   style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '50%',
-                    backgroundImage: logoPreview ? `url(${logoPreview})` : 'url(/thumbOrbSmall.png)',
+                    backgroundImage: 'url(/agencyIcons/bg-embed-agent.png)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    marginRight: 12,
-                    border: logoPreview ? 'none' : '1px solid #e0e0e0',
-                  }}
-                />
-                <button
-                  className="text-purple underline text-transform-none font-medium flex items-center"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload size={16} className="mr-1" />
-                  Change Logo
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoChange}
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ display: 'none' }}
-                />
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ width: 40, marginRight: 12 }}></div>
-                <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', marginLeft: -6 }}>
-                  Ensure Image is a 1:1 dimension for better quality
-                </Typography>
-                <div style={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  backgroundColor: '#e0e0e0',
-                  marginLeft: 4,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '8px',
-                  color: '#666'
-                }}>
-                  i
-                </div>
-              </Box>
-            </Box>
-
-            {/* Button Label */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="body1" sx={{ fontWeight: 'medium', mb: 1 }}>
-                Button Label
-              </Typography>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <input
-                  type="text"
-                  value={buttonLabel}
-                  onChange={(e) => setButtonLabel(e.target.value)}
-                  placeholder="Get Help"
-                  maxLength={10}
-                  className="outline-none focus:outline-none focus:ring-0 border rounded-lg p-3"
-                  style={{
-                    fontSize: '14px',
-                    width: '100%',
-                    border: '1px solid #00000020'
-                  }}
-                />
-                <span style={{ marginLeft: '16px', fontSize: '12px', color: '#666' }}>
-                  {buttonLabel ? buttonLabel.length : 0}/10
-                </span>
-              </div>
-            </Box>
-
-            {/* Require Form Section */}
-            <Box sx={{
-              mb: 3,
-              p: 2,
-              backgroundColor: '#f8f9fa',
-              borderRadius: 2,
-              border: '1px solid #e9ecef'
-            }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                  Require users to complete a form?
-                </Typography>
-              </Box>
-              <Typography variant="body2" color="text.secondary">
-                This prompts users to fill out a form before they engage in a conversation with your AI.
-              </Typography>
-            </Box>
-
-            {/* Smart List Section */}
-            <div className="mb-4">
-              <div style={{ fontSize: 14, fontWeight: '500', color: '#333', marginBottom: 8 }}>
-                List Name
-              </div>
-              <input
-                className="outline-none focus:outline-none focus:ring-0 border rounded w-full"
-                style={{
-                  border: "1px solid #E5E7EB",
-                  fontSize: '14px',
-                  padding: '12px',
-                  backgroundColor: '#fff'
-                }}
-                placeholder="My smartlist"
-                value={sheetName}
-                onChange={(e) => setSheetName(e.target.value)}
-              />
-            </div>
-
-        {/* Create Fields */}
-        <div className="mb-6">
-          <div style={{ fontSize: 14, fontWeight: '500', color: '#333', marginBottom: 12 }}>
-            Create Fields
-          </div>
-
-          {/* Predefined Fields */}
-          {predefinedFields.map((field, index) => (
-            <input
-              key={`predefined-${index}`}
-              className="outline-none focus:outline-none focus:ring-0 border rounded w-full mb-3"
-              style={{
-                border: "1px solid #E5E7EB",
-                color: "#666",
-                fontSize: '14px',
-                backgroundColor: '#F9FAFB',
-                padding: '12px'
-              }}
-              value={field}
-              disabled
-            />
-          ))}
-
-          {/* Custom Fields */}
-          {customFields.map((field, index) => (
-            <div key={`custom-${index}`} className="flex items-center mb-3 gap-3">
-              <input
-                className="outline-none focus:outline-none focus:ring-0 border rounded flex-1"
-                style={{
-                  border: "1px solid #E5E7EB",
-                  fontSize: '14px',
-                  padding: '12px'
-                }}
-                placeholder="Custom Field"
-                value={field}
-                onChange={(e) => handleCustomFieldChange(index, e.target.value)}
-              />
-              <button
-                className="outline-none border-none p-1 rounded-full hover:bg-gray-100 w-8 h-8 flex items-center justify-center"
-                onClick={() => handleRemoveCustomField(index)}
-              >
-                <X size={16} color="#666" />
-              </button>
-            </div>
-          ))}
-
-          <button
-            className="flex items-center text-purple font-medium hover:bg-purple hover:bg-opacity-5 p-2 -ml-2 rounded"
-            onClick={handleAddCustomField}
-            style={{ fontSize: 14 }}
-          >
-            <Plus size={16} className="mr-1" />
-            New Field
-          </button>
-        </div>
-
-        {/* Tags */}
-        <div className="mb-6">
-          <div style={{ fontSize: 14, fontWeight: '500', color: '#333', marginBottom: 12 }}>
-            Tags
-          </div>
-          <TagsInput setTags={setTagsValue} tags={tagsValue} />
-        </div>
-
-            {/* Save Button */}
-            <button
-              className="w-full py-3 px-4 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-              onClick={handleSave}
-              disabled={loading || !sheetName.trim()}
-            >
-              {loading ? <CircularProgress size={20} color="inherit" /> : 'Save Changes'}
-            </button>
-
-            </div>
-
-            {/* Right Side - Preview */}
-            <div style={{ flex: 1, position: 'relative', marginRight: -24, marginTop: -24, marginBottom: -24 }}>
-              <div
-                style={{
-                  backgroundImage: 'url(/agencyIcons/bg-embed-agent.png)',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                  borderRadius: '0 8px 8px 0',
-                  height: '100%',
-                  minHeight: 400,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Close button for preview */}
-                <div style={{ position: 'absolute', top: 16, right: 16 }}>
-                  <CloseBtn 
-                    onClick={(e) => {
-                      console.log('Cross button clicked');
-                      e.stopPropagation();
-                      handleClose();
-                    }}
-                    showWhiteCross={true}
-                  />
-                </div>
-
-                {/* Preview Button */}
-                <button
-                  style={{
-                    backgroundColor: 'white',
-                    border: 'none',
-                    borderRadius: 25,
-                    padding: '12px 20px',
+                    borderRadius: '0 8px 8px 0',
+                    height: '100%',
+                    minHeight: 400,
                     display: 'flex',
                     alignItems: 'center',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                    cursor: 'pointer',
+                    justifyContent: 'center',
                     position: 'relative',
+                    overflow: 'hidden',
                   }}
                 >
-                  <div
+                  {/* Close button for preview */}
+                  <div style={{ position: 'absolute', top: 16, right: 16 }}>
+                    <CloseBtn
+                      onClick={(e) => {
+                        console.log('Cross button clicked');
+                        e.stopPropagation();
+                        handleClose();
+                      }}
+                      showWhiteCross={true}
+                    />
+                  </div>
+
+                  {/* Preview Button */}
+                  <button
                     style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: '50%',
-                      backgroundImage: logoPreview ? `url(${logoPreview})` : 'url(/thumbOrbSmall.png)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
-                      marginRight: 8,
-                      border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                      backgroundColor: 'white',
+                      border: 'none',
+                      borderRadius: 25,
+                      padding: '12px 20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                      cursor: 'pointer',
+                      position: 'relative',
                     }}
-                  />
-                  <span style={{ color: '#333', fontWeight: '500' }}>{buttonLabel}</span>
-                </button>
+                  >
+                    <div
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: '50%',
+                        backgroundImage: logoPreview ? `url(${logoPreview})` : 'url(/thumbOrbSmall.png)',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        marginRight: 8,
+                        border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                      }}
+                    />
+                    <span style={{ color: '#333', fontWeight: '500' }}>{buttonLabel}</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Snackbar */}
+              <AgentSelectSnackMessage
+                isVisible={snackbar.isVisible}
+                title={snackbar.title}
+                message={snackbar.message}
+                type={snackbar.type}
+                hide={hideSnackbar}
+              />
             </div>
-        
-        {/* Snackbar */}
-        <AgentSelectSnackMessage
-          isVisible={snackbar.isVisible}
-          title={snackbar.title}
-          message={snackbar.message}
-          type={snackbar.type}
-          hide={hideSnackbar}
-        />
           </div>
-        </div>
-      </Box>
-    </Modal>
+        </Box>
+      </Modal>
     </>
   );
 };

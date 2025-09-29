@@ -523,6 +523,14 @@ function AllCalls({ user }) {
     ],
   });
 
+  const getStatus = (item) => {
+    if (item.communicationType == "sms" || item.communicationType == "email") {
+      return item?.deliveryStatus ? item?.deliveryStatus : "Ongoing";
+    } else {
+      return item.callOutcome;
+    }
+  };
+
   return (
     <div className="w-full items-start overflow-hidden">
       {initialLoader && filteredCallDetails.length == 0 ? (
@@ -640,23 +648,26 @@ function AllCalls({ user }) {
               <div style={styles.text}>Name</div>
             </div>
 
-            <div className="w-2/12">
+            <div className="w-1/12">
               <div style={styles.text}>Agent</div>
             </div>
 
-            <div className="w-2/12">
+            <div className="w-1/12">
               <div style={styles.text}>Contact Number</div>
             </div>
-            <div className="w-2/12 ">
+            <div className="w-1/12 ">
               <div style={styles.text}>Pipeline</div>
             </div>
             <div className="w-1/12">
               <div style={styles.text}>Stage</div>
             </div>
             <div className="w-1/12">
+              <div style={styles.text}>Procomunication Type</div>
+            </div>
+            <div className="w-1/12">
               <div style={styles.text}>Status</div>
             </div>
-            <div className="w-2/12">
+            <div className="w-1/12">
               <div style={styles.text}>Date</div>
             </div>
             <div className="w-1/12">
@@ -710,7 +721,7 @@ function AllCalls({ user }) {
                       className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                     >
                       <div
-                        className="w-2/12 flex flex-row gap-2 items-center cursor-pointer flex-shrink-0"
+                        className="w-2/12 flex flex-row gap-3 items-center cursor-pointer flex-shrink-0"
                         onClick={() => {
                           // //console.log;
                           setselectedLeadsDetails(item);
@@ -725,14 +736,14 @@ function AllCalls({ user }) {
                         </div>
                       </div>
                       <div
-                        className="w-2/12 flex flex-row gap-2 items-center flex-shrink-0"
+                        className="w-1/12 flex flex-row gap-2 items-center flex-shrink-0 truncat"
                       >
                         <div style={{ ...styles.text2, }}>
                           {item.agent?.name}
                         </div>
                       </div>
 
-                      <div className="w-2/12">
+                      <div className="w-1/1  truncate">
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
                           {item.LeadModel?.phone ? (
@@ -745,7 +756,7 @@ function AllCalls({ user }) {
                         </div>
                       </div>
 
-                      <div className="w-2/12 ">
+                      <div className="w-1/12 truncate">
                         <div style={styles.text2}>
                           {item.pipeline ? (
                             <div>{item.pipeline?.title}</div>
@@ -754,24 +765,31 @@ function AllCalls({ user }) {
                           )}
                         </div>
                       </div>
-                      <div className="w-1/12">
+
+                      <div className="w-1/12 truncate">
                         <div style={styles.text2}>
                           {item?.callStage?.stageTitle
                             ? item.callStage?.stageTitle
                             : "-"}
                         </div>
+
                       </div>
-                      <div className="w-1/12">
+                      <div className="w-1/12 truncate ">
                         <div style={styles.text2}>
-                          {item?.callOutcome ? item?.callOutcome : "Ongoing"}
+                          {item.procomunicationType ? item.procomunicationType : "-"}
                         </div>
                       </div>
-                      <div className="w-2/12">
+                      <div className="w-1/12 truncate">
+                        <div style={styles.text2}>
+                          {getStatus(item)}
+                        </div>
+                      </div>
+                      <div className="w-1/12 truncate">
                         <div style={styles.text2}>
                           {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                         </div>
                       </div>
-                      <div className="w-1/12">
+                      <div className="w-1/12 truncate">
                         <button
                           onClick={() => {
                             // //console.log;
