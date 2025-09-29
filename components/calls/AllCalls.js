@@ -523,14 +523,6 @@ function AllCalls({ user }) {
     ],
   });
 
-  const getStatus = (item) => {
-    if (item.communicationType == "sms" || item.communicationType == "email") {
-      return item?.deliveryStatus ? item?.deliveryStatus : "Ongoing";
-    } else {
-      return item.callOutcome;
-    }
-  };
-
   return (
     <div className="w-full items-start overflow-hidden">
       {initialLoader && filteredCallDetails.length == 0 ? (
@@ -661,8 +653,8 @@ function AllCalls({ user }) {
             <div className="w-1/12">
               <div style={styles.text}>Stage</div>
             </div>
-            <div className="w-1/12">
-              <div style={styles.text}>Procomunication Type</div>
+            <div className="w-2/12">
+              <div style={styles.text}>Communication Type</div>
             </div>
             <div className="w-1/12">
               <div style={styles.text}>Status</div>
@@ -747,7 +739,7 @@ function AllCalls({ user }) {
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
                           {item.LeadModel?.phone ? (
-                            <div>
+                            <div className="truncate">
                               {formatPhoneNumber(item?.LeadModel?.phone)}
                             </div>
                           ) : (
@@ -774,9 +766,9 @@ function AllCalls({ user }) {
                         </div>
 
                       </div>
-                      <div className="w-1/12 truncate ">
+                      <div className="w-2/12 truncate ">
                         <div style={styles.text2}>
-                          {item.procomunicationType ? item.procomunicationType : "-"}
+                          {item.communicationType ? (item.communicationType.charAt(0).toUpperCase() + item.communicationType.slice(1)) : "-"}
                         </div>
                       </div>
                       <div className="w-1/12 truncate">

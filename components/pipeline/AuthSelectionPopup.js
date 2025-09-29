@@ -38,15 +38,7 @@ function AuthSelectionPopup({
             getAccounts()
     }, [open])
 
-    const getAccounts = async () => {
-        setAccountLoader(true)
-        let response = await getGmailAccounts()
-        if (response) {
-            console.log("Gmail acounts list is", response);
-            setGmailAccounts(response)
-        }
-        setAccountLoader(false)
-    }
+
 
     //google calendar click
     const handleGoogleOAuthClick = () => {
