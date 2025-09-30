@@ -125,10 +125,14 @@ const ClaimNumber = ({
         },
       });
 
+      console.log("Response of purchase number is", response)
       if (response) {
         // //console.log;
         if (response.data.status === true) {
+          console.log("Response of purchase number is true")
           setOpenPurchaseSuccessModal(true);
+          console.log("Previous number is", previousNumber)
+          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
 
           UserDetails.user.checkList.checkList.numberClaimed = true;
           localStorage.setItem("User", JSON.stringify(D));
@@ -144,11 +148,11 @@ const ClaimNumber = ({
           if (setSelectNumber) {
             setSelectNumber(selectedPurchasedNumber.phoneNumber);
           }
-          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+          
           // setShowClaimPopup(false);
-          if (setOpenCalimNumDropDown) {
-            setOpenCalimNumDropDown(false);
-          }
+          // if (setOpenCalimNumDropDown) {
+          //   setOpenCalimNumDropDown(false);
+          // }
         } else if (response.data.status === false) {
           setOpenPurchaseErrSnack(response.data.message);
           setIsSnackVisible(true);
