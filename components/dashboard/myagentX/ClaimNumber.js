@@ -55,7 +55,7 @@ const ClaimNumber = ({
   };
 
   const handleClose = (data) => {
-    console.log("data of add card",data)
+    console.log("data of add card", data)
     if (data) {
       setShowAddCard(false);
       handlePurchaseNumber()
@@ -133,6 +133,9 @@ const ClaimNumber = ({
           setOpenPurchaseSuccessModal(true);
           console.log("Previous number is", previousNumber)
           setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+          if (setSelectNumber) {
+            setSelectNumber(selectedPurchasedNumber.phoneNumber);
+          }
 
           UserDetails.user.checkList.checkList.numberClaimed = true;
           localStorage.setItem("User", JSON.stringify(D));
@@ -144,15 +147,6 @@ const ClaimNumber = ({
             "purchasedNumberDetails",
             JSON.stringify(response.data.data)
           );
-          // handleContinue();
-          if (setSelectNumber) {
-            setSelectNumber(selectedPurchasedNumber.phoneNumber);
-          }
-          
-          // setShowClaimPopup(false);
-          // if (setOpenCalimNumDropDown) {
-          //   setOpenCalimNumDropDown(false);
-          // }
         } else if (response.data.status === false) {
           setOpenPurchaseErrSnack(response.data.message);
           setIsSnackVisible(true);
