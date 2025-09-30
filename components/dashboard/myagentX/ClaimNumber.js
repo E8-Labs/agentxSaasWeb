@@ -42,7 +42,7 @@ const ClaimNumber = ({
 
   // function for purchasing number api
   const handlePurchaseNumber = async () => {
-    
+
     try {
       setPurchaseLoader(true);
       let AuthToken = null;
@@ -92,10 +92,11 @@ const ClaimNumber = ({
         // //console.log;
         if (response.data.status === true) {
           setOpenPurchaseSuccessModal(true);
-          
-            UserDetails.user.checkList.checkList.numberClaimed = true;
-            localStorage.setItem("User", JSON.stringify(D));
-          
+          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
+
+          UserDetails.user.checkList.checkList.numberClaimed = true;
+          localStorage.setItem("User", JSON.stringify(D));
+
           window.dispatchEvent(
             new CustomEvent("UpdateCheckList", { detail: { update: true } })
           );
@@ -105,13 +106,13 @@ const ClaimNumber = ({
           );
           // handleContinue();
           if (setSelectNumber) {
-            setSelectNumber(selectedPurchasedNumber.phoneNumber);
+            setSelectNumber(selectedPurchasedNumber);
           }
-          setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
-          // setShowClaimPopup(false);
-          if (setOpenCalimNumDropDown) {
-            setOpenCalimNumDropDown(false);
-          }
+
+          // // setShowClaimPopup(false);
+          // if (setOpenCalimNumDropDown) {
+          //   setOpenCalimNumDropDown(false);
+          // }
         } else if (response.data.status === false) {
           setOpenPurchaseErrSnack(response.data.message);
           setIsSnackVisible(true);

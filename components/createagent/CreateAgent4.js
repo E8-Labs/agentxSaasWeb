@@ -718,7 +718,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   handleCloseClaimPopup={handleCloseClaimPopup}
                   setOpenCalimNumDropDown={setOpenCalimNumDropDown}
                   setSelectNumber={setSelectNumber}
-                  setPreviousNumber={setPreviousNumber}
+                  setPreviousNumber={(numbers) => {
+                    console.log("Numbers are", numbers)
+                    setPreviousNumber(numbers)
+                  }}
                   previousNumber={previousNumber}
                 />
               )}
