@@ -561,7 +561,7 @@ const ProfileNav = () => {
     },
     {
       id: 5,
-      name: "Call Log",
+      name: "Activity",//"Call Log",
       href: "/dashboard/callLog",
       selected: "/svgIcons/selectedCallIcon.svg",
       uneselected: "/svgIcons/unSelectedCallIcon.svg",

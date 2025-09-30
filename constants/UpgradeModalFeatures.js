@@ -28,14 +28,15 @@ export const pipelineFeatures = [
     { id: 6, title: "Send Text Messages", subTitle: "" },
     { id: 7, title: "Twilio Trust Hub", subTitle: "" },
     { id: 8, title: "Tools and Actions", subTitle: "" },
-    { id: 9, title: "Calendar (GHL, Cal, Google)", subTitle: "" },
-    { id: 10, title: "Priority Calling", subTitle: "" },
+    
     { id: 11, title: "Organize Leads by Pipeline", subTitle: "" },
     { id: 12, title: "Dedicate Agents per Pipeline", subTitle: "" },
     { id: 13, title: "Automate Actions per Pipeline", subTitle: "" },
     { id: 14, title: "Custom Call & Nurture Flows", subTitle: "" },
     { id: 15, title: "Track Performance Separately", subTitle: "" },
     { id: 16, title: "Better Control & Scalability", subTitle: "" },
+    { id: 17, title: "Calendar (GHL, Cal, Google)", subTitle: "" },
+    { id: 18, title: "Priority Calling", subTitle: "" },
 ];
 
 // Add more feature sets for other functionalities as needed

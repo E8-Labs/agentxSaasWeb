@@ -16,7 +16,7 @@ import moment from "moment";
 function Page() {
   // //console.log;
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState("All Calls");
+  const [activeTab, setActiveTab] = useState("Activity Logs");
 
   //nedd help popup
   const [needHelp, setNeedHelp] = useState(false);
@@ -55,7 +55,7 @@ function Page() {
       </div>
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities"].map((tab) => (//, "Scheduled"
+        {["Activity Logs", "Campaign Activity"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -71,7 +71,7 @@ function Page() {
       </div>
 
       <div className="w-full">
-        {activeTab === "All Calls" ? (
+        {activeTab === "Activity Logs" ? (
           <AllCalls user={user} />
         ) : activeTab === "Scheduled" ? (
           <SheduledCalls user={user} />
