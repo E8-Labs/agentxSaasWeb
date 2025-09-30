@@ -33,6 +33,7 @@ import { Scopes } from "./Scopes";
 import { getUserLocalData } from "@/components/constants/constants";
 import UpgradeModal from "@/constants/UpgradeModal";
 import getProfileDetails from "@/components/apis/GetProfile";
+import { useUser } from "@/hooks/redux-hooks";
 
 const UserCalender = ({
   calendarDetails,
@@ -112,6 +113,7 @@ const UserCalender = ({
   const [mcpDescription, setMcpDescription] = useState("");
 
   const [user, setUser] = useState(null)
+  const {user: reduxUser, setUser: setReduxUser, token: reduxToken} = useUser()
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
 
@@ -560,7 +562,10 @@ const UserCalender = ({
           </div>
           {allCalendars.length > 0 &&
             <button className="text-[13px] font-[500] text-purple" onClick={() => {
-              if (user?.currentUsage.maxCalendars < user?.planCapabilities.maxCalendars) {
+              console.log("Redux token", reduxToken)
+              console.log(`User Capabilities ${JSON.stringify(reduxUser.planCapabilities)} `)
+              if (!reduxUser.planCapabilities.allowCalendarIntegration) {
+                
                 setShowUpgradeModal(true)
               } else {
                 setShowCalendarConfirmation(true)
