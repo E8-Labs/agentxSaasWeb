@@ -279,6 +279,7 @@ const ClaimNumber = ({
                     className="border border-[#00000010] outline-none p-3 rounded-lg w-full mx-2 focus:outline-none focus:ring-0"
                     type=""
                     placeholder="Ex: 619, 213, 313"
+                    maxLength={3}
                     value={findNumber}
                     onChange={(e) => {
                       setFindeNumberLoader(true);
