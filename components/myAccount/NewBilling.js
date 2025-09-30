@@ -113,7 +113,6 @@ function NewBilling() {
     const [currentFullPlan, setCurrentFullPlan] = useState(null)
     const [toggleFullPlan, setToggleFullPlan] = useState(null)
     const [isPaused, setIsPaused] = useState(false)
-    const [currentPlanOrder, setCurrentPlanOrder] = useState(null);
 
     const [showUpgradeModal, setShowUpgradeModal] = useState(false)
     const [showDowngradeModal, setShowDowngradeModal] = useState(false)
@@ -175,10 +174,6 @@ function NewBilling() {
             let planFromList = filteredPlans.find(plan => plan.id === currentPlan);
 
             console.log('filtered current plan is', planFromList)
-            if (planFromList) {
-                const planOrder = planFromList.displayOrder;
-                setCurrentPlanOrder(planOrder);
-            }
             const monthly = [];
             const quarterly = [];
             const yearly = [];
@@ -410,7 +405,6 @@ function NewBilling() {
             setToggleFullPlan(reduxUser.plan)
             setSelectedPlan(reduxUser.plan)
             setCurrentPlan(reduxUser.plan.planId)
-            setCurrentPlanOrder(reduxUser.plan.displayOrder)
         }
 
         if (currentFullPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
@@ -688,7 +682,6 @@ function NewBilling() {
                 // console.log
                 if (response.data.status === true) {
                     console.log("✅ [NEW-BILLING] Plan subscription successful:", response.data.data);
-                    setCurrentPlanOrder(selectedPlan.displayOrder)
                     // Refresh profile and update all state
                     await refreshProfileAndState();
 
@@ -1007,19 +1000,13 @@ function NewBilling() {
                 setCurrentPlan(plan?.planId);
                 setTogglePlan(plan?.planId);
 
-                // Update plan order for comparison
-                if (plan?.displayOrder) {
-                    setCurrentPlanOrder(plan.displayOrder);
-                }
-
                 // Update pause status
                 setIsPaused(plan?.pauseExpiresAt != null ? true : false);
 
                 console.log('✅ [NEW-BILLING] Profile refreshed successfully:', {
                     planId: plan?.planId,
                     planType: plan?.type,
-                    planPrice: plan?.price,
-                    displayOrder: plan?.displayOrder
+                    planPrice: plan?.price
                 });
 
                 // Dispatch events to update other components
@@ -1037,11 +1024,6 @@ function NewBilling() {
         }
         return false;
     };
-
-    useEffect(() => {
-        console.log("currentPlan", currentFullPlan)
-        console.log("currentPlanOrder", currentPlanOrder)
-    }, [currentPlanOrder])
 
     // Function to get features that would be lost when downgrading
     // const getFeaturesToLose = (currentPlan, targetPlan) => {
