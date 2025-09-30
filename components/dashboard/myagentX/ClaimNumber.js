@@ -94,6 +94,7 @@ const ClaimNumber = ({
           setOpenPurchaseSuccessModal(true);
           setPreviousNumber([...previousNumber, selectedPurchasedNumber]);
 
+          
           UserDetails.user.checkList.checkList.numberClaimed = true;
           localStorage.setItem("User", JSON.stringify(D));
 
@@ -104,10 +105,7 @@ const ClaimNumber = ({
             "purchasedNumberDetails",
             JSON.stringify(response.data.data)
           );
-          // handleContinue();
-          if (setSelectNumber) {
-            setSelectNumber(selectedPurchasedNumber);
-          }
+         
 
           // // setShowClaimPopup(false);
           // if (setOpenCalimNumDropDown) {
