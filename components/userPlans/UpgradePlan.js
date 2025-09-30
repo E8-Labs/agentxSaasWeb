@@ -902,7 +902,7 @@ function UpgradePlanContent({
                             // height:'auto'
                         }}
                     >
-                        <div className="flex flex-row justify-end w-full items-center pe-5 pt-2">
+                        <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
                             <button onClick={() => {
                                 handleClose()
                             }}>
@@ -915,7 +915,7 @@ function UpgradePlanContent({
                             </button>
                         </div>
 
-                        <div className="w-full flex flex-row items-start pb-4">
+                        <div className="w-full flex flex-row items-start pb-4 h-full">
                             <div
                                 className="flex h-[100vh] LeftInnerDiv1 flex items-center justify-start w-[20%] -mt-12"
                                 style={{
@@ -970,18 +970,14 @@ function UpgradePlanContent({
 
 
                                 {/* Content Section */}
-                                <div className='w-full flex flex-col justify-between'
+                                <div className='w-full flex flex-col items-start justify-between'
                                     style={{
                                         scrollbarWidth: 'none',
                                         overflowY: isSmallScreen ? 'auto' : 'visible',
-                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none',
-                                        height: '100%'
+                                        // maxHeight: isSmallScreen ? 'calc(100vh - 800px)' : 'none',
+                                        height: '60vh'
                                     }}
                                 >
-
-
-
-
                                     <div className='text-lg font-semibold'>
                                         Select Plan
                                     </div>

@@ -67,6 +67,10 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
 
 
     useEffect(() => {
+        console.log("reduxUser", reduxUser)
+        if(reduxUser.plan){
+            handleContinue()
+        }
         getPlans()
     }, [])
 
