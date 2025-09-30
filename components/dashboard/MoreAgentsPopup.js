@@ -64,17 +64,17 @@ const MoreAgentsPopup = ({
 
           {/* Avatars */}
           <div className="flex justify-center mb-6">
-            <div className="flex -space-x-6">
-              <div className=" rounded-full bg-white flex items-center justify-center pt-4">
+            <div className="flex space-x-0.5">
+              <div className=" rounded-full  flex items-center justify-center pt-6">
                 <img
                   src="/otherAssets/axel.png"
-                  height={90}
-                  width={90}
+                  height={70}
+                  width={70}
                   alt="Axel"
                   className="rounded-full"
                 />
               </div>
-              <div className=" rounded-full bg-white flex items-center justify-center ">
+              <div className=" rounded-full flex items-center justify-center ">
                 <img
                   src="/otherAssets/kala.png "
                   height={120}
@@ -83,11 +83,11 @@ const MoreAgentsPopup = ({
                   className="rounded-full"
                 />
               </div>
-              <div className=" rounded-full bg-white flex items-center justify-center ">
+              <div className=" rounded-full  flex items-center justify-center pt-4">
                 <img
                   src="/otherAssets/max.png"
-                  height={95}
-                  width={95}
+                  height={70}
+                  width={70}
                   alt="Max"
                   className="rounded-full"
                 />
