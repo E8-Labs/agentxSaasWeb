@@ -871,7 +871,7 @@ function UpgradePlanContent({
             }}
         >
             <Box
-                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none "
+                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
                 sx={styles.paymentModal}
             >
                 <div className="flex flex-col justify-center w-full h-full">
@@ -892,7 +892,7 @@ function UpgradePlanContent({
                         message={addCardErrtxt || "Card added successfully"}
                     />
                     <div
-                        className="w-full flex flex-col border-white "
+                        className="w-full flex flex-col border-white"
                         style={{
                             backgroundColor: "#ffffff",
                             padding: 0,
@@ -915,15 +915,13 @@ function UpgradePlanContent({
                             </button>
                         </div>
 
-                        <div className="w-full flex flex-row items-start pb-4 h-full">
+
+                        <div className="w-full flex flex-row items-stretch pb-4 content-div">
+                            {/* Left AgentX Logo */}
                             <div
-                                className="flex h-[100vh] LeftInnerDiv1 flex items-center justify-start w-[20%] -mt-12"
+                                className="flex flex-col LeftInnerDiv1 items-start justify-center w-[20%]"
                                 style={{
-                                    backgroundColor: 'transparent',
                                     flexShrink: 0,
-                                    // boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
-                                    // borderTopRightRadius: '100%',
-                                    // borderBottomRightRadius:'100%',
                                 }}
                             >
                                 <Image
@@ -932,7 +930,6 @@ function UpgradePlanContent({
                                     height={240}
                                     width={190}
                                     style={{
-
                                         borderTopRightRadius: '200px',
                                         borderBottomRightRadius: '200px',
                                         boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)' // purple shadow
