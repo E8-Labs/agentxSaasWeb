@@ -3293,10 +3293,14 @@ function Page() {
 
                    <CloseBtn
                     onClick={() => {
-                      setShowRenameAgentPopup(null);
+                      // setShowRenameAgentPopup(null);
+                      setOpenTestAiModal(false);
+                      setName("");
+                      setPhone("");
+                      setErrorMessage("");
                     }}
                   />
-                  <button
+                  {/* <button
                     onClick={() => {
                       setOpenTestAiModal(false);
                       setName("");
@@ -3310,7 +3314,7 @@ function Page() {
                       width={24}
                       alt="*"
                     />
-                  </button>
+                  </button> */}
                 </div>
 
                 <div

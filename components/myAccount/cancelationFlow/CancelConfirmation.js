@@ -141,107 +141,110 @@ function CancelConfirmation({
 
 
     return (
-        <div className='flex flex-col items-center gap-2 h-full py-4'>
-
-            <Image className='-mt-5'
-                src={"/otherAssets/IconAccount.png"}
-                height={48} width={48} alt='*'
-            />
-            <div
-                className="text-center mt-2 text-xl font-semibold"
-
-            >
-                Confirm Your Cancellation
-            </div>
-
-            <div className="flex flex-col items-center justify-center w-full mt-4">
-                <div
-                    className="text-center text-base font-normal"
-                >
-                    {`Canceling means you’ll lose access to the features below starting [${nxtCharge || ""}]. Still want to move forward?`}
-                </div>
-
-                <div
-                    className="text-center text-base font-normal mt-3"
-                >
-                    {`You'll lose access to`}
-                </div>
-
-                {loading ? (
-                    <div className="flex items-center justify-center w-full mt-4 h-[33vh]">
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple mx-auto mb-2"></div>
-                            <div className="text-sm text-gray-600">Loading features...</div>
-                        </div>
+        <div className='flex flex-col h-full'>
+            {/* Scrollable content area */}
+            <div className='flex-1 overflow-y-auto overflow-x-hidden min-h-0' style={{ scrollbarWidth: 'none' }}>
+                <div className='flex flex-col items-center px-1 lg:px-0 pb-3 lg:pb-4'>
+                    <Image
+                        src={"/otherAssets/IconAccount.png"}
+                        height={48} width={48} alt='*'
+                        className="h-10 w-10 lg:h-12 lg:w-12"
+                    />
+                    <div
+                        className="text-center mt-1 lg:mt-2 text-lg lg:text-xl font-semibold"
+                    >
+                        Confirm Your Cancellation
                     </div>
-                ) : (
-                    <div className="flex flex-wrap gap-y-3 w-full mt-4">
-                        {features.map((item, index) => (
-                            <div key={index} className="flex flex-row items-center gap-2 flex-1 basis-1/2 min-w-0">
-                                <Image src="/svgIcons/selectedTickBtn.svg"
-                                    height={24} width={24} alt="cross"
-                                    className="flex-shrink-0"
-                                />
-                                <div className="text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
-                                    {item.title}
+
+                    <div className="flex flex-col items-center justify-center w-full mt-1 lg:mt-2">
+                        <div
+                            className="text-center text-sm lg:text-base font-normal leading-tight lg:leading-normal"
+                        >
+                            {`Canceling means you'll lose access to the features below starting [${nxtCharge || ""}]. Still want to move forward?`}
+                        </div>
+
+                        <div
+                            className="text-center text-sm lg:text-base font-normal mt-2 lg:mt-3"
+                        >
+                            {`You'll lose access to`}
+                        </div>
+
+                        {loading ? (
+                            <div className="flex items-center justify-center w-full mt-3 lg:mt-4 py-6 lg:py-8">
+                                <div className="text-center">
+                                    <div className="animate-spin rounded-full h-6 w-6 lg:h-8 lg:w-8 border-b-2 border-purple mx-auto mb-2"></div>
+                                    <div className="text-xs lg:text-sm text-gray-600">Loading features...</div>
                                 </div>
                             </div>
-                        ))}
+                        ) : (
+                            <div className="flex flex-wrap gap-y-2 lg:gap-y-3 w-full mt-3 lg:mt-4">
+                                {features.map((item, index) => (
+                                    <div key={index} className="flex flex-row items-center gap-1.5 lg:gap-2 flex-1 basis-1/2 min-w-0">
+                                        <Image src="/svgIcons/selectedTickBtn.svg"
+                                            height={24} width={24} alt="cross"
+                                            className="flex-shrink-0 h-5 w-5 lg:h-6 lg:w-6"
+                                        />
+                                        <div className="text-xs lg:text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
+                                            {item.title}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                )}
-
-
-            </div>
-
-            <div className='flex flex-row items-center w-full justify-start mt-3 gap-2'>
-                <button onClick={() => {
-                    setConfirmChecked(!confirmChecked)
-                }}>
-                    {confirmChecked ? (
-                        <div
-                            className="bg-purple flex flex-row items-center justify-center rounded"
-                            style={{ height: "24px", width: "24px" }}
-                        >
-                            <Image
-                                src={"/assets/whiteTick.png"}
-                                height={8}
-                                width={10}
-                                alt="*"
-                            />
-                        </div>
-                    ) : (
-                        <div
-                            className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                            style={{ height: "24px", width: "24px" }}
-                        ></div>
-                    )}
-                </button>
-
-                <div className='text-xs font-normal'>
-                    I confirm that my account will be cancelled and lose access.
                 </div>
             </div>
 
+            {/* Fixed bottom section with checkbox and button */}
+            <div className='flex-shrink-0 flex flex-col w-full gap-2 lg:gap-3 pt-3 lg:pt-4 border-t border-gray-200 bg-white'>
+                <div className='flex flex-row items-center w-full justify-start gap-2'>
+                    <button onClick={() => {
+                        setConfirmChecked(!confirmChecked)
+                    }}>
+                        {confirmChecked ? (
+                            <div
+                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                style={{ height: "20px", width: "20px" }}
+                            >
+                                <Image
+                                    src={"/assets/whiteTick.png"}
+                                    height={8}
+                                    width={10}
+                                    alt="*"
+                                    className="h-2 w-2.5"
+                                />
+                            </div>
+                        ) : (
+                            <div
+                                className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                style={{ height: "20px", width: "20px" }}
+                            ></div>
+                        )}
+                    </button>
 
-            <button
-                className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[50px] ${!confirmChecked ? "bg-gray-300 text-black" : "bg-purple text-white"}`}
-                style={{
-                    fontWeight: "400",
-                    fontSize: 15.8,
-                    outline: "none",
-                }}
+                    <div className='text-xs font-normal'>
+                        I confirm that my account will be cancelled and lose access.
+                    </div>
+                </div>
 
-                disabled={!confirmChecked}
+                <button
+                    className={`w-full flex items-center rounded-lg justify-center border h-[44px] lg:h-[50px] ${!confirmChecked ? "bg-gray-300 text-black" : "bg-purple text-white"}`}
+                    style={{
+                        fontWeight: "400",
+                        fontSize: 14,
+                        outline: "none",
+                    }}
 
-                onClick={() => {
-                    let nextAction = "finalStep"
-                    handleContinue(nextAction)
-                }}
-            >
-                Confirm Cancellation
-            </button>
+                    disabled={!confirmChecked}
 
-
+                    onClick={() => {
+                        let nextAction = "finalStep"
+                        handleContinue(nextAction)
+                    }}
+                >
+                    Confirm Cancellation
+                </button>
+            </div>
         </div >
     )
 }

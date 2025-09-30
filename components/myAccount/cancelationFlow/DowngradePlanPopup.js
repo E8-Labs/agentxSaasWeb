@@ -41,17 +41,17 @@ function DowngradePlanPopup({
         // }}
         >
             {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-            <Box className="bg-white max-h-[90vh] overflow-auto rounded-xl w-6/12 md:w-6/12 lg:w-[40%] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <Box className="bg-white max-h-[90vh] overflow-auto rounded-xl w-6/12 md:w-6/12 lg:w-[28%] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="w-full flex flex-col items-center justify-between h-[100%]">
-                    <div className='w-full flex flex-col items-center justify-center px-4 pt-4 h-[90%]'>
-                        <div className='w-full flex flex-row items-start justify-end'>
+                    <div className='w-full flex flex-col items-center justify-center px-4 pt-4 h-[90%] '>
+                        <div className='w-full flex flex-row items-start justify-end  '>
                             <CloseBtn
                                 onClick={
                                     handleClose
                                 }
                             />
                         </div>
-                        <div className='flex flex-col items-center gap-2 h-full py-4'>
+                        <div className='flex flex-col items-center gap-2 h-full py-4 '>
 
                             <Image className='-mt-5'
                                 src={"/otherAssets/IconAccount.png"}
@@ -64,7 +64,7 @@ function DowngradePlanPopup({
                                 {downgradeTitle}
                             </div>
 
-                            <div className="flex flex-col items-center justify-center w-full">
+                            <div className="flex flex-col items-center justify-center w-full ">
                                 <div
                                     className="text-center text-base font-normal"
                                 >
@@ -78,7 +78,7 @@ function DowngradePlanPopup({
                                 </div>
 
                                 <div
-                                    className='max-h-[300px] overflow-y-auto w-full'
+                                    className='max-h-[300px] overflow-y-auto  '
                                     style={{
                                         scrollbarWidth: "none",
                                         msOverflowStyle: "none",
@@ -87,11 +87,11 @@ function DowngradePlanPopup({
                                         },
                                     }}
                                 >
-                                    <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-2">
+                                    <div className="grid grid-cols-2 gap-x-2 gap-y-3 w-full mt-2 place-items-center">
                                         {
                                             isFrom ? (
                                                 features?.map((item, index) => (
-                                                    <div key={index} className="flex flex-row items-center gap-2">
+                                                    <div key={index} className="flex flex-row items-center gap-2 w-full">
                                                         <Image src="/svgIcons/selectedTickBtn.svg"
                                                             height={16} width={16} alt="cross"
                                                         />
@@ -102,7 +102,7 @@ function DowngradePlanPopup({
                                                 ))
                                             ) : (
                                                 features?.map((item, index) => (
-                                                    <div key={index} className="flex flex-row items-center gap-2">
+                                                    <div key={index} className="flex flex-row items-center gap-2 w-full">
                                                         <Image src="/svgIcons/selectedTickBtn.svg"
                                                             height={16} width={16} alt="cross"
                                                         />
