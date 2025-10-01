@@ -163,43 +163,45 @@ const Integrations = ({ selectedAgency }) => {
                 }
             </div>
 
-            <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-11/12 mt-4 bg-[#D9D9D917]'>
-                <div>
-                    <div style={styles.heading}>
-                        Upsell phone numbers.
+            {/*
+                <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-11/12 mt-4 bg-[#D9D9D917]'>
+                    <div>
+                        <div style={styles.heading}>
+                            Upsell phone numbers.
+                        </div>
+                        <div style={styles.subHeading}>
+                            Easily upsell phone numbers
+                        </div>
                     </div>
-                    <div style={styles.subHeading}>
-                        Easily upsell phone numbers
-                    </div>
-                </div>
-                <div className="flex flex-row items-center gap-2">
-                    <div className='text-md font-[500]'>
-                        {agencyData?.phonePrice?.price && allowUpSellPhone && (
-                            `$${agencyData?.phonePrice?.price}`
-                        )
-                        }
-                    </div>
-                    <Switch
-                        checked={allowUpSellPhone}
-                        onChange={(e) => {
-                            const checked = e.target.checked;
-                            setAllowUpSellPhone(checked);
-
-                            if (allowUpSellPhone === false) {
-                                setAddUpSellPhone(true);
+                    <div className="flex flex-row items-center gap-2">
+                        <div className='text-md font-[500]'>
+                            {agencyData?.phonePrice?.price && allowUpSellPhone && (
+                                `$${agencyData?.phonePrice?.price}`
+                            )
                             }
-                        }}
-                        sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                            },
-                        }}
-                    />
+                        </div>
+                        <Switch
+                            checked={allowUpSellPhone}
+                            onChange={(e) => {
+                                const checked = e.target.checked;
+                                setAllowUpSellPhone(checked);
+    
+                                if (allowUpSellPhone === false) {
+                                    setAddUpSellPhone(true);
+                                }
+                            }}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#7902DF',
+                                },
+                            }}
+                        />
+                    </div>
                 </div>
-            </div>
+            */}
 
             {/* Trust products */}
             <div

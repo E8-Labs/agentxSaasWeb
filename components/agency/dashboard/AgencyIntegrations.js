@@ -38,13 +38,13 @@ function AgencyIntegrations({ selectedAgency }) {
     return (
         <div
             className='flex flex-col items-center w-full h-[100svh] overflow-hidden'
-            // style={{
-            //     backgroundImage: "url('/agencyIcons/DreamySilkWaves.png')",
-            //     backgroundSize: "cover",
-            //     backgroundPosition: "center",
-            //     height: "100svh",
-            //     width: "100%"
-            // }}
+        // style={{
+        //     backgroundImage: "url('/agencyIcons/DreamySilkWaves.png')",
+        //     backgroundSize: "cover",
+        //     backgroundPosition: "center",
+        //     height: "100svh",
+        //     width: "100%"
+        // }}
         >
             <div className='flex w-full flex-row items-center justify-between px-5 py-5 border-b'>
 
@@ -118,9 +118,7 @@ function AgencyIntegrations({ selectedAgency }) {
                         <ConnectStripe selectedAgency={selectedAgency} />
                     </div>
                 ) : currentTab === 3 ? (
-                    <div className='w-7/12'>
-                        <UPSell />
-                    </div>
+                    <UPSell />
                 ) : currentTab === 4 ? (
                     <div className='w-full'>
                         <AgencySupportAndWidget />
