@@ -44,6 +44,7 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import { LeadProgressBanner } from "./extras/LeadProgressBanner";
 import { uploadBatchSequence } from "./extras/UploadBatch";
 import { useUser } from "@/hooks/redux-hooks";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const Leads1 = () => {
   const addColRef = useRef(null);
@@ -125,14 +126,14 @@ const Leads1 = () => {
   const [totalBatches, setTotalBatches] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(null);
 
-  useEffect(()=>{
+  useEffect(() => {
     let data = getUserLocalData()
-    if(data){
+    if (data) {
       setUser(data.user)
     }
-  },[])
+  }, [])
 
 
   // //test code
@@ -918,7 +919,7 @@ const Leads1 = () => {
   //   setIsEnrich(checked);
   // };
 
-  const { user: reduxUser} = useUser();
+  const { user: reduxUser } = useUser();
 
   return (
     <div className="w-full">
@@ -978,7 +979,7 @@ const Leads1 = () => {
           ) : (
             <div className="h-screen">
               {reduxUser?.planCapabilities?.maxLeads < 10000000 && (
-                <div className = "p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
+                <div className="p-6" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
                   {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
                 </div>
               )}
@@ -1093,19 +1094,12 @@ const Leads1 = () => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowAddLeadModal(false);
                       setSelectedFile(null);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div className="mt-2" style={styles.subHeadingStyle}>
                   Import Leads
@@ -1716,18 +1710,11 @@ const Leads1 = () => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowPopUp(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div
                   className="w-full text-center mt-2"

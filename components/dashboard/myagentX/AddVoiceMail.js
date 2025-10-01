@@ -9,6 +9,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnac
 import { PersistanceKeys } from '@/constants/Constants';
 import { UserTypes } from '@/constants/UserTypes';
 import { PromptTagInput } from '@/components/pipeline/tagInputs/PromptTagInput';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 function AddVoiceMail({
     showAddNewPopup,
@@ -156,13 +157,11 @@ function AddVoiceMail({
                             <div style={{ fontSize: 18, fontWeight: "700" }}>
                                 New Voicemail
                             </div>
-                            <button
+                            <CloseBtn
                                 onClick={() => {
                                     setShowAddNewPopup(false);
                                 }}
-                            >
-                                <CloseIcon />
-                            </button>
+                            />
                         </div>
 
                         <div style={{ fontSize: 18, fontWeight: "700" }}>

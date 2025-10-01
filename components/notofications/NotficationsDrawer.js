@@ -15,6 +15,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from "../dashboard/leads/AgentSelectSnackMessage";
 import { getSupportUrlFor } from "@/utilities/UserUtility";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 function NotficationsDrawer({ close }) {
   const router = useRouter();
@@ -722,17 +723,11 @@ function NotficationsDrawer({ close }) {
                 Notifications
               </div>
             </div>
-            <button
+            <CloseBtn
               onClick={() => {
                 setShowNotificationDrawer(false);
               }}
-            >
-              <img
-                src="/svgIcons/cross.svg"
-                style={{ height: 28, width: 28 }}
-                alt="Close"
-              />
-            </button>
+            />
           </div>
 
           <div

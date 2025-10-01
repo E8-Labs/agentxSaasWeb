@@ -53,6 +53,7 @@ import { AuthToken, userLocalData } from "@/components/agency/plan/AuthDetails";
 import UpgradeModal from "@/constants/UpgradeModal";
 import { getUserLocalData } from "@/components/constants/constants";
 import { useUser } from "@/hooks/redux-hooks";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -2371,18 +2372,11 @@ const Userleads = ({
                   <div className="w-full flex flex-col items-center justify-start ">
                     <div className="flex flex-row items-center justify-between w-full">
                       <div>Filter</div>
-                      <button
+                      <CloseBtn
                         onClick={() => {
                           setShowFilterModal(false);
                         }}
-                      >
-                        <Image
-                          src={"/assets/cross.png"}
-                          height={17}
-                          width={17}
-                          alt="*"
-                        />
-                      </button>
+                      />
                     </div>
                     <div className="mt-2 w-full overflow-auto h-[85%]">
                       <div className="flex flex-row items-start gap-4">
@@ -2681,7 +2675,7 @@ const Userleads = ({
                           <div style={{ fontWeight: "500", fontSize: 15 }}>
                             New SmartList
                           </div>
-                          <button
+                          <CloseBtn
                             onClick={() => {
                               setShowAddNewSheetModal(false);
                               setNewSheetName("");
@@ -2694,14 +2688,7 @@ const Userleads = ({
                                 { id: 6, value: "" },
                               ]);
                             }}
-                          >
-                            <Image
-                              src={"/assets/cross.png"}
-                              height={15}
-                              width={15}
-                              alt="*"
-                            />
-                          </button>
+                          />
                         </div>
 
                         <div className="px-4 w-full">

@@ -233,13 +233,15 @@ export const getDiscount = async () => {
     }
 }
 
-export const completeCancelation = async () => {
+export const completeCancelation = async (reason) => {
     try {
         let token = AuthToken()
 
         console.log('trying to obtain offer')
 
-        const response = await axios.post(Apis.completeCancelatiton, {}, {
+        const response = await axios.post(Apis.completeCancelatiton, {
+            cancellationReason: reason
+        }, {
             headers: {
                 "Authorization": 'Bearer ' + token,
                 "Content-Type": 'application/json'

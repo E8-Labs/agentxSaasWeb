@@ -64,7 +64,11 @@ function CancelationFinalStep({
 
     const handleCancel = async () => {
         setloading(true)
-        let response = await completeCancelation()
+        let response = null;
+        if (selectReason === "Others") {
+            response = await completeCancelation(otherReasonInput)
+        } else
+             response = await completeCancelation(selectReason)
         console.log('data', response)
 
         setShowSnak({

@@ -30,6 +30,7 @@ import {
 import { Api } from "@mui/icons-material";
 import LeadLoading from "../dashboard/leads/LeadLoading";
 import { getStatus } from "@/services/leadScoringSerevices/callLogServices/CallLogServices";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 function AllCalls({ user }) {
   const LimitPerPage = 20;
@@ -840,18 +841,11 @@ function AllCalls({ user }) {
                   <div className="mt-2 w-full">
                     <div className="flex flex-row items-center justify-between w-full">
                       <div>Filter</div>
-                      <button
+                      <CloseBtn
                         onClick={() => {
                           setShowFilterModal(false);
                         }}
-                      >
-                        <Image
-                          src={"/assets/cross.png"}
-                          height={17}
-                          width={17}
-                          alt="*"
-                        />
-                      </button>
+                      />
                     </div>
 
                     <div className="flex flex-row items-start gap-4">

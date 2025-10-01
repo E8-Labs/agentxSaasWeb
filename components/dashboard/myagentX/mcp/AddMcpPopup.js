@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 export default function AddMcpPopup({
     open,
@@ -71,9 +72,9 @@ export default function AddMcpPopup({
                             <div className='text-[17px] font-[600] text-black'>
                                 Add Tool
                             </div>
-                            <button onClick={handleClose} className='cursor-pointer px-3 py-3 rounded-full bg-[#00000005]'>
-                                <Image src="/assets/cross.png" alt="close" width={15} height={15} />
-                            </button>
+                            <CloseBtn
+                                onClick={handleClose}
+                            />
                         </div>
 
                         <div className='w-full flex flex-col gap-2 mt-4'>
