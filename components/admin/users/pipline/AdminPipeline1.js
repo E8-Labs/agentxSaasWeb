@@ -56,6 +56,7 @@ import AdminLeadDetails from "../AdminLeadDetails";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import DashboardSlider from "@/components/animations/DashboardSlider";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef();
