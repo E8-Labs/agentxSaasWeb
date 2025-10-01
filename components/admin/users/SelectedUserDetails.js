@@ -19,6 +19,7 @@ import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import ResetTrial from './ResetTrial'
 import UserActivityLogs from './UserActivityLogs'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 function SelectedUserDetails({
     selectedUser,
@@ -565,11 +566,18 @@ function SelectedUserDetails({
                                 <div style={{ fontWeight: "500", fontSize: 17 }}>
                                     Delete User
                                 </div>
-                                <CloseBtn
-                                    onClick={() => {
-                                        setShowDeleteModal(false);
+                                <div
+                                    style={{
+                                        direction: "row",
+                                        display: "flex",
+                                        justifyContent: "end",
                                     }}
-                                />
+                                >
+                                    <CloseBtn
+                                        onClick={() => {
+                                            setShowDeleteModal(false);
+                                        }}
+                                    />
                                 </div>
                             </div>
 

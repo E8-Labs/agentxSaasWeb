@@ -3,7 +3,7 @@ import { Modal, Box } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CloseBtn } from '../globalExtras/CloseBtn';
+import CloseBtn from '../globalExtras/CloseBtn';
 
 const MoreAgentsPopup = ({ 
   open, 
