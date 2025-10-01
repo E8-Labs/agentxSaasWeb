@@ -141,9 +141,11 @@ function CancelConfirmation({
 
 
     return (
-        <div className='flex flex-col h-full'>
+        <div className='grid grid-rows-[1fr_auto] h-full gap-2 lg:gap-3'>
             {/* Scrollable content area */}
-            <div className='flex-1 overflow-y-auto overflow-x-hidden min-h-0' style={{ scrollbarWidth: 'none' }}>
+            <div className='overflow-y-auto overflow-x-hidden' style={{ 
+                scrollbarWidth: 'none'
+            }}>
                 <div className='flex flex-col items-center px-1 lg:px-0 pb-3 lg:pb-4'>
                     <Image
                         src={"/otherAssets/IconAccount.png"}

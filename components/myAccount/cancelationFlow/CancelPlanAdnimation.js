@@ -199,7 +199,7 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[70%]   bg-white p-6 border-none outline-none"
+                                className="rounded-lg w-[70%] bg-white p-6 border-none outline-none"
                             // style={styles.motionDiv}
                             >
                                 <div className="">
@@ -259,10 +259,10 @@ export default function CancelPlanAnimation({
                                 animate="center"
                                 exit="exit"
                                 transition={{ duration: 0 }}
-                                className="rounded-lg w-[70%] bg-white max-h-[90vh] lg:max-h-[80vh] p-3 lg:p-6 border-none outline-none flex flex-col"
+                                className="rounded-lg w-[70%] bg-white h-[90vh] lg:h-[80vh] p-3 lg:p-6 border-none outline-none flex flex-col"
                             // style={styles.motionDiv}
                             >
-                                <div className="flex flex-col h-full">
+                                <div className="flex flex-col h-full min-h-0">
                                     <div className="flex flex-row justify-end flex-shrink-0">
                                         <CloseBtn
                                             onClick={() => {
@@ -271,11 +271,12 @@ export default function CancelPlanAnimation({
                                             }}
                                         />
                                     </div>
-                                    <CancelConfirmation
-                                        handleContinue={handleContinue}
-                                        setShowSnak={setShowSnak}
-                                    />
-
+                                    <div className="flex-1 min-h-0">
+                                        <CancelConfirmation
+                                            handleContinue={handleContinue}
+                                            setShowSnak={setShowSnak}
+                                        />
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
