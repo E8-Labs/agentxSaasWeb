@@ -1680,18 +1680,11 @@ const AdminLeads1 = ({ selectedUser }) => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowPopUp(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div
                   className="w-full text-center mt-2"

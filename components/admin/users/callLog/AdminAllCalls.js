@@ -28,6 +28,7 @@ import {
   GetTimezone,
 } from "@/utilities/utility";
 import AdminLeadDetails from "../AdminLeadDetails";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 function AdminAllCalls({ selectedUser }) {
   const LimitPerPage = 20;
@@ -821,18 +822,11 @@ function AdminAllCalls({ selectedUser }) {
               <div className="mt-2 w-full">
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>Filter</div>
-                  <button
-                    onClick={() => {
-                      setShowFilterModal(false);
-                    }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={17}
-                      width={17}
-                      alt="*"
-                    />
-                  </button>
+                 <CloseBtn
+                  onClick={() => {
+                    setShowFilterModal(false);
+                  }}
+                 />
                 </div>
 
                 <div className="flex flex-row items-start gap-4">

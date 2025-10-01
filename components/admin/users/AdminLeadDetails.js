@@ -790,13 +790,11 @@ const AdminLeadDetails = ({
                                                 <div style={{ fontSize: 18, fontWeight: "700" }}>
                                                     More Info
                                                 </div>
-                                                <button
+                                                <CloseBtn
                                                     onClick={() => {
                                                         setShowDetailsModal(false);
                                                     }}
-                                                >
-                                                    <CloseIcon />
-                                                </button>
+                                                />
                                             </div>
                                             <div>
                                                 <div className="flex flex-row items-start justify-between mt-4  w-full">

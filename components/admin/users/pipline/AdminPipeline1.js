@@ -3606,19 +3606,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                   Add Pipeline
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setCreatePipeline(false);
                     handlePipelineClosePopover();
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={14}
-                    width={14}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
               <div className="w-full">
                 <div style={{ fontWeight: "500", fontSize: 15, marginTop: 10 }}>
@@ -3741,20 +3734,13 @@ const AdminPipeline1 = ({ selectedUser }) => {
                 <div style={{ fontWeight: "600", fontSize: 22 }}>
                   Rearrange Stages
                 </div>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setShowStagesPopup(false);
                     handleCloseStagePopover();
                     setShowReorderBtn(false);
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={14}
-                    width={14}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div

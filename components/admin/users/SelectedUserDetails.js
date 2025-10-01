@@ -565,26 +565,11 @@ function SelectedUserDetails({
                                 <div style={{ fontWeight: "500", fontSize: 17 }}>
                                     Delete User
                                 </div>
-                                <div
-                                    style={{
-                                        direction: "row",
-                                        display: "flex",
-                                        justifyContent: "end",
+                                <CloseBtn
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
                                     }}
-                                >
-                                    <button
-                                        onClick={() => {
-                                            setShowDeleteModal(false);
-                                        }}
-                                        className="outline-none"
-                                    >
-                                        <Image
-                                            src={"/svgIcons/crossIcon.svg"}
-                                            height={40}
-                                            width={40}
-                                            alt="*"
-                                        />
-                                    </button>
+                                />
                                 </div>
                             </div>
 
@@ -649,14 +634,11 @@ function SelectedUserDetails({
                         </div>
 
 
-                        <button onClick={() => {
-                            setShowAddMinutesModal(false)
-                        }}>
-                            <Image src={"/svgIcons/cross.svg"}
-                                height={24}
-                                width={24} alt='*'
-                            />
-                        </button>
+                        <CloseBtn
+                            onClick={() => {
+                                setShowAddMinutesModal(false);
+                            }}
+                        />
 
                     </div>
 

@@ -617,10 +617,14 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                             }
                             <div className="min-w-[200px] flex-shrink-0 flex flex-row gap-2 items-center">
                               <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                                {item.user?.name.slice(0, 1).toUpperCase()}
+                                {item.user?.name?.slice(0, 1).toUpperCase()}
                               </div>
                               <div style={styles.text2}>
-                                {item.user?.name}
+                                {item.user?.name
+                                  ? item.user.name.length > 10
+                                    ? item.user.name.slice(0, 10) + "..."
+                                    : item.user.name
+                                  : ""}
                               </div>
                             </div>
                             <div className="min-w-[200px] flex-shrink-0">
