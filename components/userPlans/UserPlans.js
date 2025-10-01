@@ -183,18 +183,19 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
     const getPlans = async () => {
         let plansList = await getUserPlans(isFrom);
-        // console.log("Plans list found is", plansList)
+        console.log("Plans list found is", plansList)
         if (plansList) {
+            console.log("isFrom is", isFrom)
             // Filter features in each plan to only show features where thumb = false
             let filteredPlans = [];
 
-            if (!isFrom === "SubAccount") {
+            if (isFrom !== "SubAccount") {
                 filteredPlans = plansList.map(plan => ({
                     ...plan,
                     features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
                 }));
             }
-
+            console.log("Filtered plans are", filteredPlans)
             const monthly = [];
             const quarterly = [];
             const yearly = [];
@@ -218,6 +219,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                     }
                 });
             } else {
+                console.log("else condition is running", filteredPlans)
                 filteredPlans.forEach(plan => {
                     switch (plan.billingCycle) {
                         case "monthly":
