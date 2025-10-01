@@ -314,10 +314,25 @@ function EmailTempletePopup({
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        // only pdf
-        // const pdfs = files.filter((f) => f.type === "application/pdf");
+        const maxSizeInBytes = 10 * 1024 * 1024; // 10MB in bytes
+        
+        // Calculate current total size of existing attachments
+        const currentTotalSize = attachments.reduce((total, file) => total + file.size, 0);
+        
+        // Check if adding new files would exceed the limit
+        const newFilesTotalSize = files.reduce((total, file) => total + file.size, 0);
+        const wouldExceedLimit = currentTotalSize + newFilesTotalSize > maxSizeInBytes;
+        
+        if (wouldExceedLimit) {
+            setShowSnackBar({
+                message: "File size can't be more than 10MB",
+                type: SnackbarTypes.Error,
+            });
+            return;
+        }
+        
         setAttachments((prev) => [...prev, ...files]);
-        setAttachmentsChanged(true)
+        setAttachmentsChanged(true);
     };
 
     const removeAttachment = (index) => {
@@ -809,7 +824,7 @@ function EmailTempletePopup({
                             />
                         </div>
 
-                        <div className="mt-3">
+                        <div className="mt-3 flex flex-row items-center justify-between">
                             <label className="flex flex-row items-center gap-2 cursor-pointer">
                                 <div className="text-[15px] font-[500] text-purple underline">
                                     Add Attachments
@@ -826,13 +841,21 @@ function EmailTempletePopup({
                                 image/*,
                                 application/pdf,
                                 application/msword,
-                                application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                                application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                text/csv,
+                                text/plain,
+                                image/webp,
+                                application/vnd.ms-excel,
+                                application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
                               "
                                     multiple
                                     className="hidden"
                                     onChange={handleFileChange}
                                 />
                             </label>
+                            <div className="text-[12px] font-[400] text-[#00000060]">
+                                Max Size 10 MB
+                            </div>
                         </div>
 
                         <div className="mt-2 flex flex-col gap-1">
