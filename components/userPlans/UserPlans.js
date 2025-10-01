@@ -16,7 +16,7 @@ import getProfileDetails from '../apis/GetProfile';
 import { useUser } from '@/hooks/redux-hooks';
 
 
-function UserPlans({ handleContinue, handleBack, from = "" }) {
+function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader }) {
 
     const router = useRouter();
 
@@ -123,13 +123,22 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
 
             // //console.log;
 
-            const ApiData = {
-                plan: planType,
+            let ApiData = {
+                plan: selectedPlan?.id,
             };
+
+            if (isFrom === "SubAccount") {
+                ApiData = {
+                    planId: "id"
+                }
+            }
 
             // //console.log;
 
-            const ApiPath = Apis.subscribePlan;
+            let ApiPath = Apis.subscribePlan;
+            if (isFrom === "SubAccount") {
+                ApiPath = Apis.subAgencyAndSubAccountPlans;
+            }
             // //console.log;
             console.log("Api data", ApiData);
             const response = await axios.post(ApiPath, ApiData, {
@@ -162,36 +171,61 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
 
 
     const getPlans = async () => {
-        let plansList = await getUserPlans()
+        let plansList = await getUserPlans(isFrom);
+        // console.log("Plans list found is", plansList)
         if (plansList) {
             // Filter features in each plan to only show features where thumb = false
-            const filteredPlans = plansList.map(plan => ({
-                ...plan,
-                features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
-            }));
+            let filteredPlans = [];
+
+            if (!isFrom === "SubAccount") {
+                filteredPlans = plansList.map(plan => ({
+                    ...plan,
+                    features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
+                }));
+            }
 
             const monthly = [];
             const quarterly = [];
             const yearly = [];
             let freePlan = null;
-            filteredPlans.forEach(plan => {
-                switch (plan.billingCycle) {
-                    case "monthly":
-                        monthly.push(plan);
-                        if (!plan.discountPrice) {
-                            freePlan = plan;
-                        }
-                        break;
-                    case "quarterly":
-                        quarterly.push(plan);
-                        break;
-                    case "yearly":
-                        yearly.push(plan);
-                        break;
-                    default:
-                        break;
-                }
-            });
+            console.log("Status f is from is", isFrom)
+            if (isFrom == "SubAccount") {
+                console.log("My condition should run 😲")
+                plansList?.monthlyPlans?.forEach(plan => {
+                    switch (plan.duration) {
+                        case "monthly":
+                            monthly.push(plan);
+                            break;
+                        case "quarterly":
+                            quarterly.push(plan);
+                            break;
+                        case "yearly":
+                            yearly.push(plan);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            } else {
+                filteredPlans.forEach(plan => {
+                    switch (plan.billingCycle) {
+                        case "monthly":
+                            monthly.push(plan);
+                            if (!plan.discountPrice) {
+                                freePlan = plan;
+                            }
+                            break;
+                        case "quarterly":
+                            quarterly.push(plan);
+                            break;
+                        case "yearly":
+                            yearly.push(plan);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            }
 
             if (freePlan) {
                 quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
@@ -383,16 +417,16 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
                                     <div className='flex flex-col items-center rounded-lg gap-2 bg-white w-full h-full'>
                                         {/* Header section - fixed height */}
                                         <div className='flex flex-col items-center w-full flex-shrink-0'>
-                                            <div className='text-3xl font-semibold mt-2'>
-                                                {item.name}
+                                            <div className='text-3xl font-semibold mt-2 capitalize'>
+                                                {item.name || item.title}
                                             </div>
 
                                             <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                ${item.discountPrice || 0}
+                                                ${item.discountPrice || item.discountedPrice}
                                             </div>
 
                                             <div className='text-[14px] font-normal text-black/50 '>
-                                                {item.details}
+                                                {item.details || item.description}
                                             </div>
 
                                             <div
@@ -401,13 +435,19 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
                                                     e.preventDefault();
                                                     e.stopPropagation();
                                                     handleTogglePlanClick(item, index);
-                                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                                        // Monthly plan selected - show yearly plan modal
-                                                        setSelectedMonthlyPlan(item);
-                                                        setShowYearlyPlanModal(true);
+                                                    if (isFrom == "SubAccount") {
+                                                        setTimeout(() => {
+                                                            setAddPaymentPopUp(true)
+                                                        }, 300)
                                                     } else {
-                                                        // Quarterly or Yearly plan - proceed directly
-                                                        setAddPaymentPopUp(true)
+                                                        if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                                            // Monthly plan selected - show yearly plan modal
+                                                            setSelectedMonthlyPlan(item);
+                                                            setShowYearlyPlanModal(true);
+                                                        } else {
+                                                            // Quarterly or Yearly plan - proceed directly
+                                                            setAddPaymentPopUp(true)
+                                                        }
                                                     }
                                                 }}
                                             >
@@ -485,7 +525,7 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
                             // console.log('🎉 [subscribe plan] Plan upgraded successfully');
                             // Refresh user data after upgrade to get new plan capabilities
                             await refreshUserData();
-                            
+
                             handleContinue()
                         }
                     }}
@@ -545,6 +585,7 @@ function UserPlans({ handleContinue, handleBack, from = "" }) {
                                 <UserAddCard
                                     handleClose={handleClose}
                                     selectedPlan={selectedPlan}
+                                    isFrom={isFrom}
                                 // togglePlan={togglePlan}
                                 />
                             </Elements>

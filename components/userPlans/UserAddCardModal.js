@@ -33,7 +33,7 @@ const UserAddCard = ({
     handleClose,
     togglePlan,
     setAddPaymentSuccessPopUp,
-
+    isFrom,
     selectedUser,
     fromAdmin = false,
     selectedPlan
@@ -289,6 +289,10 @@ const UserAddCard = ({
         try {
             let planType = selectedPlan?.planType;
 
+            console.log("selected plan isnnnhhhhh", selectedPlan)
+            console.log("selected plan isnnnhhhhh", selectedPlan.id)
+            // return
+
 
             setAddCardLoader(true);
             let AuthToken = null;
@@ -300,15 +304,25 @@ const UserAddCard = ({
 
             // //console.log;
 
-            const ApiData = {
+            let ApiData = {
                 plan: planType,
             };
 
+            if (isFrom == "SubAccount") {
+                ApiData = {
+                    planId: selectedPlan.id
+                }
+            }
+
             // //console.log;
 
-            const ApiPath = Apis.subscribePlan;
+            let ApiPath = Apis.subscribePlan;
+            if (isFrom == "SubAccount") {
+                ApiPath = Apis.subAgencyAndSubAccountPlans;
+            }
             // //console.log;
             console.log("Api data", ApiData);
+            console.log("Api path", ApiPath);
             const response = await axios.post(ApiPath, ApiData, {
                 headers: {
                     Authorization: "Bearer " + AuthToken,
@@ -317,7 +331,7 @@ const UserAddCard = ({
             });
 
             if (response) {
-                console.log("Response of subscribe plan api is", response.data);
+                console.log("Response of subscribe plan api on user add card is", response.data);
                 if (response.data.status === true) {
                     //refresh user data from redux
                     refreshUserData();
@@ -326,7 +340,7 @@ const UserAddCard = ({
                 }
             }
         } catch (error) {
-            // console.error("Error occured in api is:", error);
+            console.error("Error occured in subacribe plan api on user add card is:", error);
         } finally {
             setAddCardLoader(false);
         }
