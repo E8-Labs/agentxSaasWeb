@@ -383,7 +383,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
                 <div className='flex flex-row gap-5 w-full h-auto mt-4 pb-8'>
                     {
-                        getCurrentPlans()?.map((item, index) => (
+                        getCurrentPlans()?.length > 0 && getCurrentPlans()?.map((item, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleTogglePlanClick(item, index)}
