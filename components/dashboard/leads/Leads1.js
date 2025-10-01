@@ -1250,18 +1250,11 @@ const Leads1 = () => {
                 }}
               >
                 <div className="flex flex-row justify-end">
-                  <button
+                  <CloseBtn
                     onClick={() => {
                       setShowUploadLeadModal(false);
                     }}
-                  >
-                    <Image
-                      src={"/assets/cross.png"}
-                      height={14}
-                      width={14}
-                      alt="*"
-                    />
-                  </button>
+                  />
                 </div>
                 <div className="mt-2" style={styles.subHeadingStyle}>
                   Leads

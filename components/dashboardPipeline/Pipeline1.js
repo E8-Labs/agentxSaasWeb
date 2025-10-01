@@ -60,6 +60,7 @@ import DashboardSlider from "../animations/DashboardSlider";
 import ConfigurePopup from "./ConfigurePopup";
 import { getUserLocalData } from "../constants/constants";
 import UpgradeModal from "@/constants/UpgradeModal";
+import CloseBtn from "../globalExtras/CloseBtn";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -3942,20 +3943,13 @@ const Pipeline1 = () => {
                     <div style={{ fontWeight: "600", fontSize: 22 }}>
                       Rearrange Stages
                     </div>
-                    <button
+                    <CloseBtn
                       onClick={() => {
                         setShowStagesPopup(false);
                         handleCloseStagePopover();
                         setShowReorderBtn(false);
                       }}
-                    >
-                      <Image
-                        src={"/assets/cross.png"}
-                        height={14}
-                        width={14}
-                        alt="*"
-                      />
-                    </button>
+                    />
                   </div>
 
                   <div
