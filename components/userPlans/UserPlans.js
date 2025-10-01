@@ -447,6 +447,13 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                     e.stopPropagation();
                                                     handleTogglePlanClick(item, index);
 
+                                                    if (isFrom == "SubAccount") {
+                                                        setTimeout(() => {
+                                                            setAddPaymentPopUp(true)
+                                                        }, 300)
+                                                        return;
+                                                    }
+
                                                     // If opened from billing modal, callback with selected plan
                                                     if (from === 'billing-modal' && onPlanSelected) {
                                                         onPlanSelected(item);
