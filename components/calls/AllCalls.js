@@ -654,13 +654,13 @@ function AllCalls({ user }) {
             <div className="w-1/12">
               <div style={styles.text}>Stage</div>
             </div>
-            <div className="w-2/12">
-              <div style={styles.text}>Communication Type</div>
+            <div className="w-1/12">
+              <div style={styles.text}>Type</div>
             </div>
             <div className="w-1/12">
               <div style={styles.text}>Status</div>
             </div>
-            <div className="w-1/12">
+            <div className="w-2/12">
               <div style={styles.text}>Date</div>
             </div>
             <div className="w-1/12">
@@ -767,7 +767,7 @@ function AllCalls({ user }) {
                         </div>
 
                       </div>
-                      <div className="w-2/12 truncate ">
+                      <div className="w-1/12 truncate ">
                         <div style={styles.text2}>
                           {item.communicationType ? (item.communicationType.charAt(0).toUpperCase() + item.communicationType.slice(1)) : "-"}
                         </div>
@@ -777,7 +777,7 @@ function AllCalls({ user }) {
                           {getStatus(item)}
                         </div>
                       </div>
-                      <div className="w-1/12 truncate">
+                      <div className="w-2/12 truncate">
                         <div style={styles.text2}>
                           {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                         </div>
