@@ -49,7 +49,7 @@ import LeadLoading from "./LeadLoading";
 import { pipeline } from "zod";
 import AssignLeadAnimation from "./assignLeadSlideAnimation/AssignLeadAnimation";
 import DashboardSlider from "@/components/animations/DashboardSlider";
-import { userLocalData } from "@/components/agency/plan/AuthDetails";
+import { AuthToken, userLocalData } from "@/components/agency/plan/AuthDetails";
 import UpgradeModal from "@/constants/UpgradeModal";
 import { getUserLocalData } from "@/components/constants/constants";
 import { useUser } from "@/hooks/redux-hooks";
@@ -138,6 +138,8 @@ const Userleads = ({
   const [filtersSelected, setFiltersSelected] = useState([]);
 
   const [noStageSelected, setNoStageSelected] = useState(false);
+
+  const [exportLoading, setExportLoading] = useState(false);
 
   const fromCalendarRef = useRef(null);
   const toCalendarRef = useRef(null);
@@ -1684,6 +1686,41 @@ const Userleads = ({
     }
   }
 
+  async function handleExportLeads() {
+    if (!SelectedSheetId) {
+      setSnackMessage("Select a sheet to export");
+      setShowSnackMessage(true);
+      setMessageType(SnackbarTypes.Error);
+      return;
+    }
+    try {
+      setExportLoading(true);
+      let path = Apis.exportLeads + "?sheetId=" + SelectedSheetId;
+
+      const response = await axios.get(path, {
+        headers: {
+          Authorization: "Bearer " + AuthToken(),
+
+        },
+      });
+      if (response.data) {
+        console.log("response.data", response.data);
+        if (response.data.status === true) {
+          window.open(response.data.downloadUrl, "_blank");
+        } else {
+          setSnackMessage(response.data.message);
+          setShowSnackMessage(true);
+          setMessageType(SnackbarTypes.Error);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error exporting leads:", error);
+    } finally {
+      setExportLoading(false);
+    }
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
@@ -1958,28 +1995,38 @@ const Userleads = ({
                 </div>
 
                 <div className="flex flex-row items-center gap-2">
-                  <button
-                    className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-purple hover:text-purple"
-                    style={{ fontWeight: 400,fontSize: 14 }}
-                  >
-                    <div className="transition-colors duration-150">
-                      Export
-                    </div>
-                    <Image
-                      src={"/otherAssets/exportIcon.png"}
-                      height={24}
-                      width={24}
-                      alt="Export"
-                      className="group-hover:hidden block transition-opacity duration-150"
-                    />
-                    <Image
-                      src={"/otherAssets/exportIconPurple.png"}
-                      height={24}
-                      width={24}
-                      alt="Export"
-                      className="hidden group-hover:block transition-opacity duration-150"
-                    />
-                  </button>
+                  {
+                    exportLoading ? (
+                      <CircularProgress size={24} sx={{ color: "#7902DF" }} />
+                    ) : (
+                      <button
+                        className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-purple hover:text-purple"
+                        style={{ fontWeight: 400, fontSize: 14 }}
+                        onClick={() => {
+                          handleExportLeads();
+                        }}
+                        disabled={exportLoading}
+                      >
+                        <div className="transition-colors duration-150">
+                          Export
+                        </div>
+                        <Image
+                          src={"/otherAssets/exportIcon.png"}
+                          height={24}
+                          width={24}
+                          alt="Export"
+                          className="group-hover:hidden block transition-opacity duration-150"
+                        />
+                        <Image
+                          src={"/otherAssets/exportIconPurple.png"}
+                          height={24}
+                          width={24}
+                          alt="Export"
+                          className="hidden group-hover:block transition-opacity duration-150"
+                        />
+                      </button>
+                    )}
+
                   {selectedLeadsList.length >= 0 && (
                     <div>
                       {selectedAll ? (

@@ -292,6 +292,8 @@ const Apis = {
   createAgentScoring: `${BasePath}api/agent/scoring`,
   deleteAgentScoring: `${BasePath}api/agent/scoring`,
   copyAgentScoring: `${BasePath}api/agent/scoring`,
+  
+  exportLeads: `${BasePath}api/leads/export-csv`,
 
 };
 

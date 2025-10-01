@@ -1130,7 +1130,7 @@ function UpgradePlanContent({
 
                                         {/* Only show Order Summary if a plan is selected */}
                                         {currentSelectedPlan && (
-                                            <div className={`w-[50%] flex flex-col items-start ${!haveCards || isAddingNewPaymentMethod ? "text-black" : "text-[#8a8a8a]"}`}>
+                                            <div className={`w-[50%] flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? "text-black" : "text-[#8a8a8a]"}`}>
                                                 <div className=' text-xl font-semibold '>
                                                     Order Summary
                                                 </div>

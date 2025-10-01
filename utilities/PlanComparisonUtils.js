@@ -89,7 +89,7 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
             { key: 'allowZoomSupport', name: 'Zoom Support Webinar' },
             { key: 'allowGHLSubaccounts', name: 'GHL Subaccount & Snapshots' },
             { key: 'allowToolsAndActions', name: 'Tools & Actions' },
-            { key: 'allowVoicemail', name: 'Voicemail' },
+            { key: 'allowVoicemail', name: 'Custom Voicemails' },
             { key: 'allowTwilioIntegration', name: 'Twilio' },
             // { key: 'allowEmbedBrowserWebhookAgent', name: 'Embed / Browser / Webhook Agent' },
             // { key: 'allowAIPoweredCRM', name: 'AI Powered CRM' },
