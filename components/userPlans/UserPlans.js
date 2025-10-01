@@ -190,7 +190,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
             let filteredPlans = [];
 
             if (isFrom !== "SubAccount") {
-                filteredPlans = plansList.map(plan => ({
+                filteredPlans = plansList?.map(plan => ({
                     ...plan,
                     features: plan.features ? plan.features.filter(feature => !feature.thumb) : []
                 }));
@@ -341,7 +341,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                     <div className='flex flex-col items-start'>
                         <div className='flex flex-row items-center gap-10'>
                             {
-                                duration.map((item) => (
+                                duration?.map((item) => (
                                     <div key={item.id}
                                         className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
                                     >
@@ -360,7 +360,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
                         <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
                             {
-                                duration.map((item) => (
+                                duration?.map((item) => (
                                     <div key={item.id}
                                         className='flex-col'
                                     >
@@ -383,7 +383,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
                 <div className='flex flex-row gap-5 w-full h-auto mt-4 pb-8'>
                     {
-                        getCurrentPlans().map((item, index) => (
+                        getCurrentPlans()?.map((item, index) => (
                             <button
                                 key={index}
                                 onClick={() => handleTogglePlanClick(item, index)}
@@ -489,7 +489,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
                                             <div className='flex flex-col items-start w-full flex-1 pr-2'>
                                                 {
-                                                    item.features.map((feature, featureIndex) => (
+                                                    item.features?.map((feature, featureIndex) => (
                                                         <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
                                                             <Image src="/svgIcons/selectedTickBtn.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
                                                             <div className='flex flex-col items-start gap-1 w-full min-w-0 text-left'>
