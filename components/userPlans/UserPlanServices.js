@@ -23,9 +23,58 @@ export const downgradeToGrowthFeatures = [
     "Unlimited Team Seats",
 ]
 
+const PLANS_CACHE_KEY = 'userPlans_cache';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+const getCachedPlans = (from) => {
+    try {
+        const cacheKey = `${PLANS_CACHE_KEY}_${from || 'default'}`;
+        const cached = localStorage.getItem(cacheKey);
+
+        if (!cached) {
+            return null;
+        }
+
+        const { data, timestamp } = JSON.parse(cached);
+        const now = Date.now();
+        const age = now - timestamp;
+
+        return {
+            data,
+            isStale: age > CACHE_DURATION,
+            age
+        };
+    } catch (error) {
+        console.log('error reading cached plans', error);
+        return null;
+    }
+};
+
+const setCachedPlans = (data, from) => {
+    try {
+        const cacheKey = `${PLANS_CACHE_KEY}_${from || 'default'}`;
+        const cacheData = {
+            data,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+    } catch (error) {
+        console.log('error caching plans', error);
+    }
+};
+
 export const getUserPlans = async (from) => {
     try {
-        let token = AuthToken()
+        const cached = getCachedPlans(from);
+
+        // If cache exists and is fresh (< 5 minutes), return cached data
+        if (cached && !cached.isStale) {
+            console.log(`Returning cached plans (${Math.floor(cached.age / 1000)}s old)`);
+            return cached.data;
+        }
+
+        // If cache is stale or doesn't exist, make API call
+        let token = AuthToken();
 
         let path = Apis.getPlans;
         if (from === "SubAccount") {
@@ -33,25 +82,43 @@ export const getUserPlans = async (from) => {
         } else if (from === "agency") {
             path = Apis.getPlansForAgency;
         }
-        console.log('path of get plans', path)
+        console.log('path of get plans', path);
+
         const response = await axios.get(path, {
             headers: {
                 "Authorization": 'Bearer ' + token
             }
-        })
-
+        });
 
         if (response) {
             if (response.data.status == true) {
-                console.log('user plans are', response.data)
-                return response.data.data
+                console.log('user plans are', response.data);
+                const plansData = response.data.data;
+
+                // Cache the fresh data
+                setCachedPlans(plansData, from);
+
+                return plansData;
             } else {
-                return null
+                // If API fails but we have stale cache, return it
+                if (cached) {
+                    console.log('API failed, returning stale cached plans');
+                    return cached.data;
+                }
+                return null;
             }
         }
 
     } catch (error) {
-        console.log('error in get plans api', error)
+        console.log('error in get plans api', error);
+
+        // If API fails but we have cached data (even if stale), return it
+        const cached = getCachedPlans(from);
+        if (cached) {
+            console.log('API error, returning cached plans as fallback');
+            return cached.data;
+        }
+        return null;
     }
 }
 

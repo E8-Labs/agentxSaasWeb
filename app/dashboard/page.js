@@ -514,7 +514,7 @@ const Page = () => {
                               color: "#fff",
                             }}
                           >
-                            {(userDetails?.totalSecondsAvailable / 60).toFixed(1)} AI Credits
+                            {(userDetails?.totalSecondsAvailable / 60).toFixed(2)} AI Credits
                           </div>
                         </div>
                       </div>

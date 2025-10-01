@@ -16,7 +16,7 @@ import getProfileDetails from '../apis/GetProfile';
 import { useUser } from '@/hooks/redux-hooks';
 
 
-function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader }) {
+function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader, onPlanSelected }) {
 
     const router = useRouter();
 
@@ -67,6 +67,13 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
 
     useEffect(() => {
+        console.log("reduxUser", reduxUser)
+        // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
+        if(reduxUser.plan && from !== "billing-modal"){
+            if(handleContinue){
+                handleContinue()
+            }
+        }
         getPlans()
     }, [])
 
@@ -74,7 +81,9 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         console.log("Card added details are here", data);
         if (data) {
             // const userProfile = await getProfileDetails();
-            handleContinue()
+            if(handleContinue){
+                handleContinue()
+            }
         }
         setAddPaymentPopUp(false);
         // handleSubscribePlan()
@@ -158,7 +167,9 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                     } else {
                         console.log('handle continue ')
 
-                        handleContinue()
+                        if(handleContinue){
+                            handleContinue()
+                        }
                     }
                 }
             }
@@ -294,8 +305,8 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
 
     return (
-        <div className='flex flex-col items-center w-full h-[100vh] bg-white'>
-            <div className='flex flex-col items-center w-[90%]  h-full overflow-y-auto'
+        <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
+            <div className='flex flex-col items-center w-[90%] h-full overflow-y-auto'
                 style={{
                     scrollbarWidth: 'none'
                 }}
@@ -435,19 +446,20 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                     e.preventDefault();
                                                     e.stopPropagation();
                                                     handleTogglePlanClick(item, index);
-                                                    if (isFrom == "SubAccount") {
-                                                        setTimeout(() => {
-                                                            setAddPaymentPopUp(true)
-                                                        }, 300)
+
+                                                    // If opened from billing modal, callback with selected plan
+                                                    if (from === 'billing-modal' && onPlanSelected) {
+                                                        onPlanSelected(item);
+                                                        return;
+                                                    }
+
+                                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                                        // Monthly plan selected - show yearly plan modal
+                                                        setSelectedMonthlyPlan(item);
+                                                        setShowYearlyPlanModal(true);
                                                     } else {
-                                                        if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                                            // Monthly plan selected - show yearly plan modal
-                                                            setSelectedMonthlyPlan(item);
-                                                            setShowYearlyPlanModal(true);
-                                                        } else {
-                                                            // Quarterly or Yearly plan - proceed directly
-                                                            setAddPaymentPopUp(true)
-                                                        }
+                                                        // Quarterly or Yearly plan - proceed directly
+                                                        setAddPaymentPopUp(true)
                                                     }
                                                 }}
                                             >
@@ -525,8 +537,10 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                             // console.log('🎉 [subscribe plan] Plan upgraded successfully');
                             // Refresh user data after upgrade to get new plan capabilities
                             await refreshUserData();
-
-                            handleContinue()
+                            
+                            if(handleContinue){
+                                handleContinue()
+                            }
                         }
                     }}
 

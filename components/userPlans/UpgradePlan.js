@@ -871,7 +871,7 @@ function UpgradePlanContent({
             }}
         >
             <Box
-                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none "
+                className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
                 sx={styles.paymentModal}
             >
                 <div className="flex flex-col justify-center w-full h-full">
@@ -892,38 +892,31 @@ function UpgradePlanContent({
                         message={addCardErrtxt || "Card added successfully"}
                     />
                     <div
-                        className="w-full flex flex-col border-white "
+                        className="w-full flex flex-col border-white"
                         style={{
                             backgroundColor: "#ffffff",
                             padding: 0,
                             borderRadius: "13px",
-                            // height: "90vh",
-                            maxHeight: "90vh"
-                            // height:'auto'
+                            maxHeight: "85vh",
+                            height: "auto"
                         }}
                     >
-                        <div className="flex flex-row justify-end w-full items-center pe-5 pt-2">
-                            <button onClick={() => {
+                        <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
+                        <CloseBtn
+                            onClick={() => {
+                                // setShowRenameAgentPopup(null);
                                 handleClose()
-                            }}>
-                                <Image
-                                    src={"/assets/crossIcon.png"}
-                                    height={23}
-                                    width={23}
-                                    alt="*"
-                                />
-                            </button>
+                            }}
+                        />
                         </div>
 
-                        <div className="w-full flex flex-row items-start pb-4">
+
+                        <div className="w-full flex flex-row items-stretch pb-4 content-div h-full overflow-hidden">
+                            {/* Left AgentX Logo */}
                             <div
-                                className="flex h-[100vh] LeftInnerDiv1 flex items-center justify-start w-[20%] -mt-12"
+                                className="flex flex-col LeftInnerDiv1 items-start justify-center w-[20%]"
                                 style={{
-                                    backgroundColor: 'transparent',
                                     flexShrink: 0,
-                                    // boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
-                                    // borderTopRightRadius: '100%',
-                                    // borderBottomRightRadius:'100%',
                                 }}
                             >
                                 <Image
@@ -932,7 +925,6 @@ function UpgradePlanContent({
                                     height={240}
                                     width={190}
                                     style={{
-
                                         borderTopRightRadius: '200px',
                                         borderBottomRightRadius: '200px',
                                         boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)' // purple shadow
@@ -940,16 +932,17 @@ function UpgradePlanContent({
                                 />
                             </div>
 
-                            <div className={`flex flex-col w-[75%] md:h-[100%] h-[100%] items-start flex-1 px-6  ${isSmallScreen ? 'overflow-auto' : 'md:overflow-none'}`}
+                            <div className='flex flex-col w-[75%] items-start flex-1 px-6 pb-4'
                                 style={{
-                                    // maxHeight: isSmallScreen ? 'calc(100vh - 120px)' : 'none',
-                                    scrollbarWidth: 'none'
+                                    scrollbarWidth: 'none',
+                                    maxHeight: '100%',
+                                    overflow: 'hidden'
                                 }}
                             >
 
                                 {/* Header Section */}
 
-                                <div className='flex flex-row justify-between mt-2 w-full'>
+                                <div className='flex flex-row justify-between mt-2 w-full flex-shrink-0'>
                                     <div className='w-full '>
                                         <h1 className='text-4xl font-bold mb-1'>
                                             Upgrade Your Plan
@@ -970,18 +963,11 @@ function UpgradePlanContent({
 
 
                                 {/* Content Section */}
-                                <div className='w-full flex flex-col justify-between'
+                                <div className='w-full flex flex-col items-start flex-1 min-h-0 overflow-y-auto'
                                     style={{
-                                        scrollbarWidth: 'none',
-                                        overflowY: isSmallScreen ? 'auto' : 'visible',
-                                        maxHeight: isSmallScreen ? 'calc(100vh - 300px)' : 'none',
-                                        height: '100%'
+                                        scrollbarWidth: 'none'
                                     }}
                                 >
-
-
-
-
                                     <div className='text-lg font-semibold'>
                                         Select Plan
                                     </div>
@@ -1171,7 +1157,7 @@ function UpgradePlanContent({
                                                         <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(currentSelectedPlan)}</div>
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {currentSelectedPlan ? `$${GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}` : "$0"}
+                                                        {currentSelectedPlan ? `$${(GetMonthCountFronBillingCycle(currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration) * (currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)).toLocaleString()}` : "$0"}
                                                     </div>
                                                 </div>
 
@@ -1199,8 +1185,8 @@ function UpgradePlanContent({
                                 </div>
                                 {/* Terms and Conditions - Only show when adding new payment method */}
 
-                                {/* Upgrade Button Section */}
-                                <div className='flex w-full mt-auto'>
+                                {/* Upgrade Button Section - Fixed at bottom */}
+                                <div className='flex w-full flex-shrink-0 mt-4'>
                                     <div className='w-1/2 '>
                                         {isAddingNewPaymentMethod && (
                                             <div className="w-full">
@@ -1265,7 +1251,7 @@ function UpgradePlanContent({
                                 </div>
 
 
-                                <div className='w-full flex flex-row items-end justify-end md:mt-6 mt-3'>
+                                <div className='w-full flex flex-row items-end justify-end flex-shrink-0 mt-3'>
                                     {
                                         subscribeLoader ? (
                                             <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
@@ -1310,8 +1296,8 @@ const styles = {
         maxHeight: "95vh",
         bgcolor: "transparent",
         mx: "auto",
-        my: "5vh",
-        transform: "translateY(0)",
+        my: "50vh",
+        transform: "translateY(-50%)",
         borderRadius: 2,
         outline: "none",
         overflow: "hidden",

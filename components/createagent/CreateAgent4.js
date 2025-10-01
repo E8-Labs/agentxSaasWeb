@@ -595,8 +595,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               <div
                 className="border rounded-lg"
                 style={{
-                  height: "clamp(50px, 60px, 70px)",
-                  fontSize: "clamp(12px, 2.5vw, 16px)"
+                  height: "clamp(40px, 45px, 50px)",
+                  fontSize: "clamp(11px, 2vw, 13px)"
                 }}
               >
                 <Box className="w-full h-full">
@@ -638,9 +638,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           key={index}
                           style={{
                             ...styles.dropdownMenu,
-                            fontSize: "clamp(12px, 2.5vw, 16px)",
-                            padding: "clamp(8px, 1.5vw, 16px)",
-                            minHeight: "clamp(40px, 55px, 65px)",
+                            fontSize: "clamp(11px, 2vw, 13px)",
+                            padding: "clamp(4px, 0.8vw, 8px)",
+                            minHeight: "clamp(30px, 35px, 40px)",
                           }}
                           value={
                             item?.phoneNumber?.startsWith("+")
@@ -821,15 +821,15 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 style={{
                   scrollbarWidth: "none",
                   overflowY: "hidden",
-                  height: "clamp(50px,60px , 70px)",
+                  height: "clamp(40px, 45px, 50px)",
                   flexShrink: 0,
                   paddingBottom: "3px",
-                  gap: "clamp(8px, 2vw, 16px)",
+                  gap: "clamp(5px, 1.2vw, 10px)",
                 }}
               >
                 <div
                   className="flex flex-row items-center min-w-full"
-                  style={{ gap: "clamp(8px, 2vw, 16px)" }}
+                  style={{ gap: "clamp(5px, 1.2vw, 10px)" }}
                 >
                   {previousNumber.map((item, index) => (
                     <button
@@ -837,9 +837,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                       style={{
                         ...styles.callBackStyles,
-                        width: "clamp(120px, 28vw, 280px)",
-                        height: "clamp(35px, 45px, 55px)",
-                        fontSize: "clamp(11px, 2.2vw, 17px)",
+                        width: "clamp(100px, 22vw, 220px)",
+                        height: "clamp(30px, 35px, 40px)",
+                        fontSize: "clamp(9px, 1.8vw, 13px)",
                         border:
                           userSelectedNumber === item
                             ? "2px solid #7902DF"
@@ -848,10 +848,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           userSelectedNumber === item
                             ? "#402FFF15"
                             : "#fff",
-                        minWidth: "clamp(100px, 22vw, 180px)",
-                        maxWidth: "280px",
+                        minWidth: "clamp(85px, 18vw, 150px)",
+                        maxWidth: "220px",
                         whiteSpace: "nowrap",
-                        padding: "clamp(8px, 1.5vw, 16px)",
+                        padding: "clamp(5px, 0.8vw, 10px)",
                       }}
                       onClick={() => handleSelectedNumberClick(item)}
                     >
@@ -862,19 +862,19 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
                     style={{
                       ...styles.callBackStyles,
-                      width: "clamp(110px, 25vw, 250px)",
-                      height: "clamp(35px, 45px, 55px)",
-                      fontSize: "clamp(11px, 2.2vw, 17px)",
+                      width: "clamp(100px, 22vw, 200px)",
+                      height: "clamp(30px, 35px, 40px)",
+                      fontSize: "clamp(9px, 1.8vw, 13px)",
                       border: useOfficeNumber
                         ? "2px solid #7902DF"
                         : "1px solid #15151550",
                       backgroundColor: useOfficeNumber
                         ? "#402FFF15"
                         : "#fff",
-                      minWidth: "clamp(90px, 20vw, 160px)",
-                      maxWidth: "250px",
+                      minWidth: "clamp(85px, 18vw, 150px)",
+                      maxWidth: "200px",
                       whiteSpace: "nowrap",
-                      padding: "clamp(5px, 8vw, 11px)",
+                      padding: "clamp(5px, 0.8vw, 9px)",
                     }}
                     onClick={handleOfficeNumberClick}
                   >

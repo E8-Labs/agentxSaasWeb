@@ -39,6 +39,7 @@ import { useUser } from "@/hooks/redux-hooks";
 import Link from "next/link";
 import { getFeaturesToLose } from "@/utilities/PlanComparisonUtils";
 import { DurationView } from "../plan/DurationView";
+import UserPlans from "../userPlans/UserPlans";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -47,7 +48,7 @@ let stripePublickKey =
 const stripePromise = loadStripe(stripePublickKey);
 
 function NewBilling() {
-    const { updateProfile } = useUser();
+    const { user: reduxUser, updateProfile } = useUser();
     //stroes user cards list
     const [cards, setCards] = useState([]);
 
@@ -113,7 +114,6 @@ function NewBilling() {
     const [currentFullPlan, setCurrentFullPlan] = useState(null)
     const [toggleFullPlan, setToggleFullPlan] = useState(null)
     const [isPaused, setIsPaused] = useState(false)
-    const [currentPlanOrder, setCurrentPlanOrder] = useState(null);
 
     const [showUpgradeModal, setShowUpgradeModal] = useState(false)
     const [showDowngradeModal, setShowDowngradeModal] = useState(false)
@@ -123,6 +123,16 @@ function NewBilling() {
     // Smart Refill Upgrade Modal state
     const [showSmartRefillUpgradeModal, setShowSmartRefillUpgradeModal] = useState(false)
 
+    // State for UserPlans modal
+    const [showUserPlansModal, setShowUserPlansModal] = useState(false)
+
+    // Debug modal state
+    useEffect(() => {
+        console.log('showUserPlansModal state changed:', showUserPlansModal);
+    }, [showUserPlansModal]);
+
+
+    
 
     useEffect(() => {
         const d = localStorage.getItem("User");
@@ -175,10 +185,6 @@ function NewBilling() {
             let planFromList = filteredPlans.find(plan => plan.id === currentPlan);
 
             console.log('filtered current plan is', planFromList)
-            if (planFromList) {
-                const planOrder = planFromList.displayOrder;
-                setCurrentPlanOrder(planOrder);
-            }
             const monthly = [];
             const quarterly = [];
             const yearly = [];
@@ -398,13 +404,29 @@ function NewBilling() {
             reason: "Others",
         },
     ];
-    // Auto-select billing cycle and plan based on current user plan
+
+    // Track if initial plan selection has been done
+    const [initialPlanSelectionDone, setInitialPlanSelectionDone] = useState(false);
+
+    // Auto-select billing cycle and plan based on current user plan (only on initial load)
     useEffect(() => {
+        // Only run this once when plans are loaded and we haven't done initial selection
+        if (initialPlanSelectionDone) {
+            return;
+        }
+
         console.log('Auto-select useEffect triggered');
         console.log('currentFullPlan:', currentFullPlan);
         console.log('monthlyPlans length:', monthlyPlans.length);
         console.log('quaterlyPlans length:', quaterlyPlans.length);
         console.log('yearlyPlans length:', yearlyPlans.length);
+
+        if(reduxUser && reduxUser.plan){
+            setTogglePlan(reduxUser.plan.planId)
+            setToggleFullPlan(reduxUser.plan)
+            setSelectedPlan(reduxUser.plan)
+            setCurrentPlan(reduxUser.plan.planId)
+        }
 
         if (currentFullPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
             const billingCycle = getBillingCycleFromPlan(currentFullPlan);
@@ -447,10 +469,13 @@ function NewBilling() {
             } else {
                 console.log('No matching plan found');
             }
+
+            // Mark that we've done the initial selection
+            setInitialPlanSelectionDone(true);
         } else {
             console.log('Conditions not met for auto-selection');
         }
-    }, [currentFullPlan, monthlyPlans, quaterlyPlans, yearlyPlans]);
+    }, [currentFullPlan, monthlyPlans, quaterlyPlans, yearlyPlans, initialPlanSelectionDone]);
 
     // Add state to hold the profile plan before matching
     const [profilePlan, setProfilePlan] = useState(null);
@@ -681,7 +706,6 @@ function NewBilling() {
                 // console.log
                 if (response.data.status === true) {
                     console.log("✅ [NEW-BILLING] Plan subscription successful:", response.data.data);
-                    setCurrentPlanOrder(selectedPlan.displayOrder)
                     // Refresh profile and update all state
                     await refreshProfileAndState();
 
@@ -1000,19 +1024,13 @@ function NewBilling() {
                 setCurrentPlan(plan?.planId);
                 setTogglePlan(plan?.planId);
 
-                // Update plan order for comparison
-                if (plan?.displayOrder) {
-                    setCurrentPlanOrder(plan.displayOrder);
-                }
-
                 // Update pause status
                 setIsPaused(plan?.pauseExpiresAt != null ? true : false);
 
                 console.log('✅ [NEW-BILLING] Profile refreshed successfully:', {
                     planId: plan?.planId,
                     planType: plan?.type,
-                    planPrice: plan?.price,
-                    displayOrder: plan?.displayOrder
+                    planPrice: plan?.price
                 });
 
                 // Dispatch events to update other components
@@ -1030,11 +1048,6 @@ function NewBilling() {
         }
         return false;
     };
-
-    useEffect(() => {
-        console.log("currentPlan", currentFullPlan)
-        console.log("currentPlanOrder", currentPlanOrder)
-    }, [currentPlanOrder])
 
     // Function to get features that would be lost when downgrading
     // const getFeaturesToLose = (currentPlan, targetPlan) => {
@@ -1193,13 +1206,13 @@ function NewBilling() {
     const handleUpgradeClick = () => {
         if (currentPlan && selectedPlan.name === 'Free') { // if user try to downgrade on free plan
             setShowCancelPoup(true)
-        } else { //if(currentFullPlan?.discountPrice < !selectedPlan.discountPrice){
+        } else {
+            const planComparison = comparePlans(currentFullPlan, selectedPlan);
+            console.log('🔍 [PLAN-CHANGE] Comparison result:', planComparison);
 
-            if (currentFullPlan?.displayOrder <= selectedPlan?.displayOrder) {
+            if (planComparison === 'upgrade') {
                 setShowUpgradeModal(true)
-            } else {
-                // setShowDowngradeModal(true)
-
+            } else if (planComparison === 'downgrade') {
                 // Set title based on target plan
                 setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`);
 
@@ -1211,12 +1224,81 @@ function NewBilling() {
                     setShowDowngradeModal(true)
                 }
             }
+            // If 'same', do nothing (user selected their current plan in different billing cycle)
         }
     }
 
     // Function to check if user is on free plan
     const isFreePlan = () => {
         return currentFullPlan && (currentFullPlan.price === 0 || currentFullPlan.isFree);
+    };
+
+    // Helper function to compare plans based on monthly price
+    // Returns: 'upgrade' | 'downgrade' | 'same'
+    const comparePlans = (currentPlan, targetPlan) => {
+        if (!currentPlan || !targetPlan) {
+            return null; // Changed from 'same' to null to indicate loading state
+        }
+
+        // Get monthly prices (discountPrice is already per-month for all billing cycles)
+        const currentPrice = currentPlan.discountPrice || currentPlan.price || 0;
+        const targetPrice = targetPlan.discountPrice || targetPlan.price || 0;
+
+        console.log('🔍 [PLAN-COMPARE] Current plan:', currentPlan.name, 'Price:', currentPrice, 'Billing:', currentPlan.billingCycle);
+        console.log('🔍 [PLAN-COMPARE] Target plan:', targetPlan.name, 'Price:', targetPrice, 'Billing:', targetPlan.billingCycle);
+
+        // If same plan (by ID), it's the same
+        if (currentPlan.id === targetPlan.id || currentPlan.planId === targetPlan.id) {
+            return 'same';
+        }
+
+        // If target is free plan and current is paid, it's a downgrade
+        if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
+            return 'downgrade';
+        }
+
+        // If current is free and target is paid, it's an upgrade
+        if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
+            return 'upgrade';
+        }
+
+        // Get billing cycle order (monthly < quarterly < yearly)
+        const billingCycleOrder = {
+            'monthly': 1,
+            'quarterly': 2,
+            'yearly': 3
+        };
+
+        const currentBillingOrder = billingCycleOrder[currentPlan.billingCycle] || 1;
+        const targetBillingOrder = billingCycleOrder[targetPlan.billingCycle] || 1;
+
+        // If same name/tier but different billing cycle
+        if (currentPlan.name === targetPlan.name) {
+            // Longer billing cycle is considered an upgrade (more commitment)
+            if (targetBillingOrder > currentBillingOrder) {
+                return 'upgrade';
+            } else if (targetBillingOrder < currentBillingOrder) {
+                return 'downgrade';
+            } else {
+                return 'same';
+            }
+        }
+
+        // Compare prices
+        if (targetPrice > currentPrice) {
+            return 'upgrade';
+        } else if (targetPrice < currentPrice) {
+            return 'downgrade';
+        } else {
+            // Same price, different plans - consider billing cycle
+            if (targetBillingOrder > currentBillingOrder) {
+                return 'upgrade';
+            } else if (targetBillingOrder < currentBillingOrder) {
+                return 'downgrade';
+            } else {
+                return 'same';
+            }
+        }
     };
 
     // Handler for smart refill disabled click
@@ -1234,9 +1316,10 @@ function NewBilling() {
     // Function to determine button text and action
     const getButtonConfig = () => {
         console.log("currentPlan", currentFullPlan)
-        console.log("currentPlanOrder", currentPlanOrder)
-        // If no plan is selected or current plan is same as selected plan, show Cancel
-        if ((!selectedPlan || currentPlan === togglePlan)) {
+        console.log("selectedPlan", selectedPlan)
+
+        // If no plan is selected, show loading or disabled state
+        if (!selectedPlan) {
             return {
                 text: "Cancel Subscription",
                 action: () => handleCancelClick(),
@@ -1246,8 +1329,39 @@ function NewBilling() {
             };
         }
 
-        // If user has selected a plan higher than current plan, show Upgrade
-        if (selectedPlan?.displayOrder >= currentFullPlan?.displayOrder) {
+        // Compare plans based on price
+        const planComparison = comparePlans(currentFullPlan, selectedPlan);
+        console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison);
+
+        // If still loading (currentFullPlan not ready), don't show any button
+        if (planComparison === null) {
+            return null; // Will hide the button section while loading
+        }
+
+        // If current plan is same as selected plan (by ID), show Cancel
+        if (currentPlan === togglePlan) {
+            return {
+                text: "Cancel Subscription",
+                action: () => handleCancelClick(),
+                isLoading: cancelInitiateLoader,
+                className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
+                style: {}
+            };
+        }
+
+        // If it's the same plan tier (shouldn't happen with proper selection logic)
+        if (planComparison === 'same') {
+            return {
+                text: "Cancel Subscription",
+                action: () => handleCancelClick(),
+                isLoading: cancelInitiateLoader,
+                className: "w-full text-base font-normal h-[50px] flex flex-col items-center justify-center text-black rounded-lg border",
+                style: {}
+            };
+        }
+
+        // If it's an upgrade, show Upgrade button
+        if (planComparison === 'upgrade') {
             return {
                 text: "Upgrade Plan",
                 action: () => handleUpgradeClick(),
@@ -1264,7 +1378,7 @@ function NewBilling() {
             };
         }
 
-        // Otherwise show Downgrade
+        // Otherwise it's a downgrade
         return {
             text: "Downgrade Plan",
             action: () => handleUpgradeClick(),
@@ -1488,24 +1602,7 @@ function NewBilling() {
             />
 
             {/* code for current plans available */}
-            <div className="w-full flex flex-row items-center justify-between">
-                <Link
-                    href="/plan"
-                    className="mt-4 flex px-3 py-1.5 font-semibold rounded-full cursor-pointer whitespace-nowrap hover:underline"
-                    style={{
-                        color: '#7902DF',
-                        width: 'fit-content',
-                        textDecoration: 'none',
-                        whiteSpace: 'nowrap',
-                        fontWeight: 600,
-                        fontSize: 12,
-                        borderRadius: '9999px',
-                        display: 'flex',
-                        alignItems: 'center'
-                    }}
-                >
-                    View Details
-                </Link>
+            <div className="w-full flex flex-row items-center justify-end">
                 <div className="flex flex-col items-end  w-full mt-4">
                     <DurationView
                         selectedDuration={selectedDuration}
@@ -1547,11 +1644,16 @@ function NewBilling() {
                     alignItems: "stretch", // This makes all cards the same height
                 }}>
                 {getCurrentPlans().map((item, index) => (
-                    <button
+                    <div
                         key={item.id}
-                        className="mt-4 outline-none flex-shrink-0"
+                        className="mt-4 outline-none flex-shrink-0 cursor-pointer"
                         style={{ width: "220px" }} // Fixed width for consistent card sizes
-                        onClick={(e) => handleTogglePlanClick(item)}
+                        onClick={(e) => {
+                            // Only handle click if it's not from the View Details button
+                            if (!e.target.closest('.view-details-btn')) {
+                                handleTogglePlanClick(item);
+                            }
+                        }}
                     >
                         <div
                             className="px-4 py-4 pb-4 flex flex-col gap-3 h-full"
@@ -1605,7 +1707,7 @@ function NewBilling() {
                                                                 fontWeight: "500",
                                                                 width: "fit-content",
                                                             }}>
-                                                                Renews at: {moment(userLocalData?.nextChargeDate).format("MM/DD/YYYY")}
+                                                                Renews at: {moment(reduxUser?.nextChargeDate).format("MM/DD/YYYY")}
                                                             </div>
                                                         )
                                                     }
@@ -1669,21 +1771,41 @@ function NewBilling() {
                                 </div>
 
 
-                                {item.id === currentPlan && (
+                                <div className="flex flex-row items-center justify-between w-full mt-4">
+                                    {item.id === currentPlan && (
+                                        <div
+                                            className="flex px-2 py-1 bg-purple rounded-full text-white"
+                                            style={{
+                                                fontSize: 9,
+                                                fontWeight: "600",
+                                                width: "fit-content",
+                                            }}
+                                        >
+                                            Current Plan
+                                        </div>
+                                    )}
+
                                     <div
-                                        className="mt-4 flex px-2 py-1 bg-purple rounded-full text-white"
+                                        className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline"
+                                        onClick={(e) => {
+                                            // e.stopPropagation();
+                                            console.log('View Details clicked, opening modal');
+                                            setShowUserPlansModal(true);
+                                        }}
                                         style={{
-                                            fontSize: 9,
-                                            fontWeight: "600",
-                                            width: "fit-content",
+                                            color: '#7902DF',
+                                            textDecoration: 'none',
+                                            fontWeight: 600,
+                                            fontSize: 10,
+                                            width: 'fit-content',
                                         }}
                                     >
-                                        Current Plan
+                                        View Details
                                     </div>
-                                )}
+                                </div>
                             </div>
                         </div>
-                    </button>
+                    </div>
                 ))}
             </div>
 
@@ -1691,6 +1813,18 @@ function NewBilling() {
                 {(() => {
                     const buttonConfig = getButtonConfig();
                     console.log('selected plan in button config', selectedPlan);
+
+                    // If buttonConfig is null (still loading), show loading spinner
+                    if (buttonConfig === null) {
+                        return (
+                            <div className="w-1/2">
+                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
+                                    <CircularProgress size={25} />
+                                </div>
+                            </div>
+                        );
+                    }
+
                     // Only show button if user has a paid plan or if they have selected a different plan
                     // Show cancel button if user is on paid plan and selected their own plan
                     if (currentFullPlan?.name === "Free" && selectedPlan?.name === "Free") {
@@ -1770,6 +1904,69 @@ function NewBilling() {
                 functionality={"smartRefill"}
             />
 
+            {/* UserPlans Modal */}
+            {showUserPlansModal && (
+                <Modal
+                    open={showUserPlansModal}
+                    onClose={() => {
+                        console.log('Modal onClose triggered');
+                        setShowUserPlansModal(false);
+                    }}
+                    closeAfterTransition
+                    BackdropProps={{
+                        timeout: 100,
+                        sx: {
+                            backgroundColor: "#00000020",
+                            backdropFilter: "blur(15px)",
+                        },
+                    }}
+                >
+                    <Box
+                        className="flex justify-center items-center border-none"
+                        sx={{
+                            bgcolor: "transparent",
+                            outline: "none",
+                            width: '100%',
+                            height: '100%',
+                        }}
+                    >
+                        <div className="flex flex-col bg-white rounded-lg overflow-hidden relative" style={{ width: '90%', height: '90%' }}>
+                            <button
+                                onClick={() => setShowUserPlansModal(false)}
+                                className="absolute top-5 right-5 z-10"
+                            >
+                                <Image
+                                    src={"/assets/crossIcon.png"}
+                                    height={40}
+                                    width={40}
+                                    alt="*"
+                                />
+                            </button>
+                            <Elements stripe={stripePromise}>
+                                <UserPlans
+                                    handleContinue={() => {
+                                        setShowUserPlansModal(false);
+                                        refreshProfileAndState();
+                                    }}
+                                    handleBack={() => setShowUserPlansModal(false)}
+                                    from="billing-modal"
+                                    onPlanSelected={(plan) => {
+                                        console.log('Plan selected from modal:', plan);
+                                        // Close UserPlans modal
+                                        setShowUserPlansModal(false);
+                                        // Set the selected plan
+                                        setSelectedPlan(plan);
+                                        setTogglePlan(plan.id);
+                                        setToggleFullPlan(plan);
+                                        // Open Upgrade modal
+                                        setShowUpgradeModal(true);
+                                    }}
+                                />
+                            </Elements>
+                        </div>
+                    </Box>
+                </Modal>
+            )}
 
             {/* Add Payment Modal */}
             <Modal

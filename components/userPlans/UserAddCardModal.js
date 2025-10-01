@@ -631,101 +631,105 @@ const UserAddCard = ({
                     </div>
                 </div>
                 <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg mt-5" style={{ backgroundColor: 'transparent' }}>
-                    <div className=" rounded-lg p-2 w-[90%] " style={{ backgroundColor: '#ffffff' }}>
+                    <div className="rounded-lg p-2 w-[90%] flex flex-col" style={{ backgroundColor: '#ffffff' }}>
                         <div style={{ fontSize: 22, fontWeight: "600" }}>Order Summary</div>
-                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                            <div>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    {selectedPlan?.name || 'Plan'}
+
+                        {/* Scrollable content area */}
+                        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                                <div>
+                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                        {selectedPlan?.name || 'Plan'}
+                                    </div>
+                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} subscription</div>
                                 </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} subscription</div>
+                                <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice(selectedPlan)}`}</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice(selectedPlan)}`}</div>
-                        </div>
 
-
-
-                        {inviteCode && (
-                            <div>
-                                <div className="flex flex-row items-start justify-between w-full mt-6">
-                                    <div>
-                                        <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                            Referral Code
-                                        </div>
-                                        <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
-                                            {referralMessage}
+                            {inviteCode && (
+                                <div>
+                                    <div className="flex flex-row items-start justify-between w-full mt-6">
+                                        <div>
+                                            <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                                Referral Code
+                                            </div>
+                                            <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>
+                                                {referralMessage}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
-
-                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                            <div>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    Total Billed {selectedPlan?.billingCycle || selectedPlan?.duration}
-                                </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
-                            </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice(selectedPlan)}`}</div>
-                        </div>
-                        <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
-                        <div className="flex flex-row items-start justify-between w-full mt-6">
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
-                            <div className="flex flex-col items-end ">
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                    ${getTotalPrice(selectedPlan)}
-                                </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
-                            {addCardLoader ? (
-                                <div className="flex flex-row justify-center items-center mt-8 w-full">
-                                    <CircularProgress size={30} />
-                                </div>
-                            ) : (
-                                <div className="flex flex-row justify-end items-center mt-8 w-full">
-                                    {CardAdded && CardExpiry && CVC ? (
-                                        <button
-                                            onClick={handleAddCard}
-                                            className="w-full h-[50px] rounded-xl px-8 text-white py-3"
-                                            style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
-                                        >
-                                            Continue
-                                        </button>
-                                    ) : (
-                                        <button
-                                            disabled={true}
-                                            className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
-                                            style={{ fontWeight: "600", fontSize: 17 }}
-                                        >
-                                            Continue
-                                        </button>
-                                    )}
-                                </div>
                             )}
-                            {/*
-                                <p className="text-[#15151580]">{textBelowContinue}</p>
-                            */}
-                        </div>
-                        <div
-                            className="flex flex-row items-center gap-2 w-full justify-center mt-2"
-                            style={{
-                                fontWeight: "400",
-                                fontSize: 13
-                            }}>
-                            <div>
-                                By continuing you agree to our
+
+                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                                <div>
+                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                        Total Billed {selectedPlan?.billingCycle || selectedPlan?.duration}
+                                    </div>
+                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
+                                </div>
+                                <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice(selectedPlan)}`}</div>
                             </div>
-                            <a
-                                href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                                style={{ textDecoration: "underline", color: "#7902DF" }} // Underline and color styling
-                                target="_blank" // Opens in a new tab (optional)
-                                rel="noopener noreferrer" // Security for external links
-                            >
-                                Terms & Conditions
-                            </a>
+                            <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
+                        </div>
+
+                        {/* Fixed bottom section */}
+                        <div className="flex-shrink-0 mt-4">
+                            
+                            <div className="flex flex-row items-start justify-between w-full mt-6 mb-2">
+                                <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
+                                <div className="flex flex-col items-end ">
+                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                        ${getTotalPrice(selectedPlan)}
+                                    </div>
+                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
+                                </div>
+                            </div>
+                            <div className="flex flex-col items-center w-full">
+                                {addCardLoader ? (
+                                    <div className="flex flex-row justify-center items-center w-full">
+                                        <CircularProgress size={30} />
+                                    </div>
+                                ) : (
+                                    <div className="w-full">
+                                        {CardAdded && CardExpiry && CVC ? (
+                                            <button
+                                                onClick={handleAddCard}
+                                                className="w-full h-[50px] rounded-xl px-8 text-white py-3"
+                                                style={{ backgroundColor: "#7902DF", fontWeight: "600", fontSize: 17 }}
+                                            >
+                                                Continue
+                                            </button>
+                                        ) : (
+                                            <button
+                                                disabled={true}
+                                                className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
+                                                style={{ fontWeight: "600", fontSize: 17 }}
+                                            >
+                                                Continue
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <div
+                                className="flex flex-row items-center gap-2 w-full justify-center mt-2"
+                                style={{
+                                    fontWeight: "400",
+                                    fontSize: 13
+                                }}>
+                                <div>
+                                    By continuing you agree to our
+                                </div>
+                                <a
+                                    href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
+                                    style={{ textDecoration: "underline", color: "#7902DF" }} // Underline and color styling
+                                    target="_blank" // Opens in a new tab (optional)
+                                    rel="noopener noreferrer" // Security for external links
+                                >
+                                    Terms & Conditions
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

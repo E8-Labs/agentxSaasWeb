@@ -17,7 +17,7 @@ export function logout(reason = "Unknown reason") {
   // Log the logout event with timestamp and reason
   const timestamp = new Date().toISOString();
   console.log(`🚪 USER LOGOUT TRIGGERED - Time: ${timestamp}, Reason: ${reason}`);
-  
+
   // localStorage.removeItem("User");
   // localStorage.removeItem("localAgentDetails");
   if (typeof document !== "undefined") {
@@ -37,19 +37,22 @@ export function logout(reason = "Unknown reason") {
   }
 }
 
-
-
-function getCallStatusWithSchedule(item) {
-  const currentTime = moment();
-  const startTime = moment(item.startTime);
-
-  // Check if the call is scheduled in the future
-  if (item.startTime && startTime.isAfter(currentTime)) {
-    // Format the date as "Scheduled - Sep 05" or similar
-    const formattedDate = startTime.format('MMM DD');
-    return `Scheduled - ${formattedDate}`;
+// Convert batch status to readable format
+export function getReadableStatus(status) {
+  switch (status) {
+    case BatchStatus.Active:
+      return "Active";
+    case BatchStatus.Paused:
+      return "Paused";
+    case BatchStatus.PausedForNonPayment:
+      return "Paused (Non Payment)";
+    case BatchStatus.PausedForUpdateCadence:
+      return "Paused (Cadence Updated)";
+    case BatchStatus.PausedForNoPhoneNumber:
+      return "Paused (No Phone)";
+    case BatchStatus.Completed:
+      return "Completed";
+    default:
+      return status || "Unknown";
   }
-
-  // Return the regular readable status for past or current calls
-  return getReadableStatus(item.status);
 }
