@@ -3,6 +3,7 @@ import { Modal, Box } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CloseBtn } from '../globalExtras/CloseBtn';
 
 const MoreAgentsPopup = ({ 
   open, 
@@ -50,50 +51,18 @@ const MoreAgentsPopup = ({
           }}
         >
           {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
-          >
-            <Image
-              src="/assets/crossIcon.png"
-              height={20}
-              width={20}
-              alt="Close"
-            />
-          </button>
-
+         <CloseBtn
+          onClick={onClose}
+         />
           {/* Avatars */}
-          <div className="flex justify-center mb-6">
-            <div className="flex space-x-0.5">
-              <div className=" rounded-full  flex items-center justify-center pt-6">
-                <img
-                  src="/otherAssets/axel.png"
-                  height={70}
-                  width={70}
-                  alt="Axel"
-                  className="rounded-full"
-                />
-              </div>
-              <div className=" rounded-full flex items-center justify-center ">
-                <img
-                  src="/otherAssets/kala.png "
-                  height={120}
-                  width={120}
-                  alt="Kala"
-                  className="rounded-full"
-                />
-              </div>
-              <div className=" rounded-full  flex items-center justify-center pt-4">
-                <img
-                  src="/otherAssets/max.png"
-                  height={70}
-                  width={70}
-                  alt="Max"
-                  className="rounded-full"
-                />
-              </div>
-            </div>
-          </div>
+         
+          <Image
+            src="/otherAssets/unlockAgents.png"
+            height={80}
+            width={150}
+            alt="Axel"
+          />
+          
 
           {/* Title */}
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">

@@ -201,7 +201,7 @@ const allIntegrations = [
     icon: "/svgIcons/SalesforceIcon.svg",
   },
   {
-    title: "Google",
+    title: "Gmail",
     url: "",
     description:
       "Connect Gmail to send automated emails and Google Calendar to schedule events for seamless lead management and follow-ups.",
