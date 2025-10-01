@@ -33,6 +33,7 @@ module.exports = {
           100: "#DBEAFE",
           800: "#1E40AF",
         },
+        scrollBarPurple: "#7902DF",
         purple: {
           DEFAULT: "#7902DF",
           100: "#F3E8FF", 

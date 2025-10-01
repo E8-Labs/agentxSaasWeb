@@ -25,10 +25,10 @@ export const PersistanceKeys = {
   isFromAdminOrAgency: "isFromAdminOrAgency",
   leadUploadState: "leadUploadState",
   adminDashboardData: 'aadminDashboardData',
-  SelectedAgent:'SelectedAgent',
-  CalendarAddedByGoogle:"CalendarAddedByGoogle",
-  isDefaultCadenceEditing : "isDefaultCadenceEditing",
-  
+  SelectedAgent: 'SelectedAgent',
+  CalendarAddedByGoogle: "CalendarAddedByGoogle",
+  isDefaultCadenceEditing: "isDefaultCadenceEditing",
+
   //vapi-widget call popup
   showVapiModal: "showVapiModal",
 
@@ -42,10 +42,10 @@ export const PersistanceKeys = {
 
   //stores ghl calendar
   localGHLs: "ghlCals",
-  AssigningLeads:"AssigningLeads",
-  LeadsAssigned:"LeadsAssigned",
+  AssigningLeads: "AssigningLeads",
+  LeadsAssigned: "LeadsAssigned",
 
-  SubaccoutDetails:"SubaccoutDetails",
+  SubaccoutDetails: "SubaccoutDetails",
 
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,
   GlobalConsultationUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,
@@ -252,3 +252,6 @@ export const CancellationAndRefundUrl = "https://www.google.com/url?q=https://ww
 export const next30Days = moment().add(30, "days").format("MM/DD/YYYY");
 
 
+export const ScrollBarCss = () => {
+  return "scrollbar scrollbar-track-scrollBarPurple scrollbar-thin scrollbar-thumb-transparent"
+}

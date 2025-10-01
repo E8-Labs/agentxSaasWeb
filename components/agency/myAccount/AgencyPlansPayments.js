@@ -27,6 +27,7 @@ import DowngradePlanPopup from "@/components/myAccount/cancelationFlow/Downgrade
 import AgencyPlans from "@/components/plan/AgencyPlans";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
+import { ScrollBarCss } from "@/constants/Constants";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1415,7 +1416,7 @@ function AgencyPlansPayments({
                             }}
                         />
                     </div>
-                    <div className="w-full h-[88%] mt-4 overflow-y-auto">
+                    <div className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}>
                         <AgencyPlans
                             isFrom={"addPlan"}
                             handleCloseModal={(d) => {
