@@ -712,7 +712,7 @@ const PipelineStages = ({
 
 
   const shouldDisable = (item) => {
-    if (item.value == "sms" && ((phoneNumbers.length === 0) && user?.planCapabilities.allowTextMessages === false)) {// 
+    if (item.value == "sms" && ((phoneNumbers.length === 0) || user?.planCapabilities.allowTextMessages === false)) {// 
       return true
     } else {
       return false
@@ -1137,7 +1137,7 @@ const PipelineStages = ({
                                     >
                                       <div>
                                         <MenuItem
-                                          // disabled={shouldDisable(a)}
+                                          disabled={shouldDisable(a)}
                                           key={a.value}
                                           sx={{
                                             width: 180,
