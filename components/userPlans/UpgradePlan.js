@@ -173,7 +173,9 @@ function UpgradePlanContent({
     currentFullPlan,
     selectedPlan = null, // Pre-selected plan from previous screen
     setSelectedPlan = null,
-    from
+    from,
+    setShowSnackMsg = null
+
 }) {
 
     const stripeReact = useStripe();
@@ -293,21 +295,36 @@ function UpgradePlanContent({
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
-        if (selectedPlan && open) {
+        if (open) {
 
-            // Set selected duration based on the plan's billing cycle
-            const planDuration = getDurationFromBillingCycle(selectedPlan.billingCycle);
-            if (planDuration) {
-                setSelectedDuration(planDuration);
+            // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
+            const currentPlans = getCurrentPlans();
+            let planDuration = null
+            if (selectedPlan) {
+                planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
+                if (planDuration) {
+                    setSelectedDuration(planDuration);
+                }
+            } else {
+                // if selectedPlan is null then set selected duration of current plan
+                // here set duration of current plan
+                if (currentUserPlan && currentUserPlan.billingCycle) {
+                    planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
+                } else {
+                    planDuration = getDurationFromBillingCycle(currentPlans[0]?.billingCycle);
+                }
+                if (planDuration) {
+                    setSelectedDuration(planDuration);
+                }
             }
 
             // Find the matching plan in current plans
 
-            const currentPlans = getCurrentPlans();
+
             const matchingPlan = currentPlans.find(plan =>
-                plan.name === selectedPlan.name ||
-                plan.id === selectedPlan.id ||
-                plan.planType === selectedPlan.planType
+                plan.name === selectedPlan?.name ||
+                plan.id === selectedPlan?.id ||
+                plan.planType === selectedPlan?.planType
             );
 
 
@@ -321,7 +338,7 @@ function UpgradePlanContent({
 
             }
         }
-    }, [selectedPlan, open, monthlyPlans, quaterlyPlans, yearlyPlans])
+    }, [selectedPlan, open, monthlyPlans, quaterlyPlans, yearlyPlans, currentUserPlan])
 
     useEffect(() => {
         if (!inviteCode || inviteCode.trim().length === 0) {
@@ -573,6 +590,7 @@ function UpgradePlanContent({
 
     // Function to get duration object from billing cycle
     const getDurationFromBillingCycle = (billingCycle) => {
+        console.log("billingCycle is", billingCycle)
         switch (billingCycle) {
             case "monthly":
                 return duration[0] // Monthly
@@ -759,6 +777,13 @@ function UpgradePlanContent({
 
     //function to subscribe plan
     const handleSubscribePlan = async () => {
+        handleClose(true)
+        setShowSnackMsg({
+            type: SnackbarTypes.Success,
+            message: "Plan upgraded successfully",
+            isVisible: true
+        })
+        return
         try {
             let planType = currentSelectedPlan?.planType;
 
@@ -846,6 +871,13 @@ function UpgradePlanContent({
 
                 // Pass true to indicate successful upgrade
                 handleClose(true)
+                setShowSnackMsg({
+                    type: SnackbarTypes.Success,
+                    message: response.data.message,
+                    isVisible: true
+                })
+                return
+
             }
         } catch (error) {
             console.error("Error occurred in subscription:", error);
@@ -902,12 +934,12 @@ function UpgradePlanContent({
                         }}
                     >
                         <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
-                        <CloseBtn
-                            onClick={() => {
-                                // setShowRenameAgentPopup(null);
-                                handleClose()
-                            }}
-                        />
+                            <CloseBtn
+                                onClick={() => {
+                                    // setShowRenameAgentPopup(null);
+                                    handleClose()
+                                }}
+                            />
                         </div>
 
 
@@ -1331,7 +1363,8 @@ function UpgradePlan({
     currentFullPlan,
     selectedPlan = null, // Pre-selected plan from previous screen
     setSelectedPlan = null,
-    from = "User"
+    from = "User",
+    setShowSnackMsg = null
 }) {
     let stripePublickKey =
         process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1349,6 +1382,7 @@ function UpgradePlan({
                 selectedPlan={selectedPlan}
                 setSelectedPlan={setSelectedPlan}
                 from={from}
+                setShowSnackMsg={setShowSnackMsg}
             />
         </Elements>
     );

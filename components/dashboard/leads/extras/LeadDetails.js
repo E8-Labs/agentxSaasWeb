@@ -170,6 +170,11 @@ const LeadDetails = ({
   const [sendSMSLoader, setSendSMSLoader] = useState(false);
 
   const [googleAccounts, setGoogleAccounts] = useState([])
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  });
 
   // Stripe configuration for upgrade modal
   let stripePublickKey =
@@ -1267,6 +1272,12 @@ const LeadDetails = ({
           },
         }}
       >
+        <AgentSelectSnackMessage
+          message={showSnackMsg.message}
+          type={showSnackMsg.type}
+          isVisible={showSnackMsg.isVisible}
+          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        />
         <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
           <div className="w-full flex flex-col items-center h-full">
             <AgentSelectSnackMessage
@@ -3207,6 +3218,7 @@ const LeadDetails = ({
         <UpgradePlan
           selectedPlan={selectedPlan}
           open={showUpgradeModal}
+          setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {
             setShowUpgradeModal(false);
             if (upgradeResult) {

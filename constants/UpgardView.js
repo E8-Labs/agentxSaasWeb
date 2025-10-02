@@ -6,12 +6,14 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js';
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { CircularProgress } from '@mui/material';
 
 function UpgardView({
     title,
     subTitle,
     userData,
     onUpgradeSuccess,
+    setShowSnackMsg,
     // handleContinue
 }) {
 
@@ -24,6 +26,7 @@ function UpgardView({
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false);
     const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] = useState(false);
     const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = useState(false);
+    const [loading, setLoading] = useState(false);
     const { user: reduxUser, setUser: setReduxUser } = useUser();
     //store local user data
     let localUserData = null;
@@ -100,7 +103,7 @@ function UpgardView({
             if (profileResponse?.data?.status === true) {
                 const freshUserData = profileResponse.data.data;
                 const localData = JSON.parse(localStorage.getItem("User") || '{}');
-                
+
                 console.log('🔄 [Upgrade view] Fresh user data received after upgrade');
                 // Update Redux with fresh data
                 setReduxUser({
@@ -123,32 +126,37 @@ function UpgardView({
 
 
     return (
-        <div
-            className='w-full h-full flex flex-col items-center justify-center px-4 sm:px-6'
-            style={{ gap: 4 }}
-        >
-            <div
-                className="flex items-center justify-center"
-                style={{
-                    width: "clamp(16px, 24px, 30px)",
-                    height: "clamp(16px, 24px, 30px)"
-                }}
-            >
-                <Image
-                    alt="*"
-                    src={"/otherAssets/starsIcon2.png"}
-                    fill={false}
-                    height={32}
-                    width={30}
-                    className="flex-shrink-0 object-contain"
-                    style={{
-                        maxWidth: "100%",
-                        height: "auto",
-                    }}
-                />
-            </div>
+        <>
+            {loading ? (
+                <CircularProgress size={30} />
+            ) : (
 
-            {/*
+                <div
+                    className='w-full h-full flex flex-col items-center justify-center px-4 sm:px-6'
+                    style={{ gap: 4 }}
+                >
+                    <div
+                        className="flex items-center justify-center"
+                        style={{
+                            width: "clamp(16px, 24px, 30px)",
+                            height: "clamp(16px, 24px, 30px)"
+                        }}
+                    >
+                        <Image
+                            alt="*"
+                            src={"/otherAssets/starsIcon2.png"}
+                            fill={false}
+                            height={32}
+                            width={30}
+                            className="flex-shrink-0 object-contain"
+                            style={{
+                                maxWidth: "100%",
+                                height: "auto",
+                            }}
+                        />
+                    </div>
+
+                    {/*
                 showUnlockPremiumFeaturesBtn && (
                     <div
                         className='font-semibold text-center'
@@ -159,77 +167,90 @@ function UpgardView({
                         Contact Your Agency
                     </div>
                 )*/}
-            <div
-                className='font-semibold text-center'
-                style={{
-                    fontSize: "clamp(10px, 14vw, 18px)",
-                }}
-            >
-                {title}
-            </div>
-            <div
-                className='font-normal text-center w-full sm:w-[85%] md:w-[75%] leading-relaxed max-w-2xl'
-                style={{
-                    fontSize: "clamp(10px, 14px, 18px)",
-                    lineHeight: "1.5"
-                }}
-            >
-                {subTitle}
-            </div>
-
-            {
-                showUnlockPremiumFeaturesBtn ? (
-                    <button
-                        className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4'
+                    <div
+                        className='font-semibold text-center'
                         style={{
-                            height: "clamp(35px, 45px, 55px)",
-                            fontSize: "clamp(10px, 13px, 16px)"
-                        }}
-                        onClick={() => {
-                            setShowUnlockPremiumFeaturesPopup(true)
+                            fontSize: "clamp(10px, 14vw, 18px)",
                         }}
                     >
-                        Request Feature
-                    </button>
-                ) : (
-                    <button
-                        className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4'
+                        {title}
+                    </div>
+                    <div
+                        className='font-normal text-center w-full sm:w-[85%] md:w-[75%] leading-relaxed max-w-2xl'
                         style={{
-                            height: "clamp(35px, 45px, 55px)",
-                            fontSize: "clamp(10px, 13px, 16px)"
-                        }}
-                        onClick={() => {
-                            setShowUpgradePlanPopup(true)
+                            fontSize: "clamp(10px, 14px, 18px)",
+                            lineHeight: "1.5"
                         }}
                     >
-                        Upgrade Plan
-                    </button>
-                )
-            }
+                        {subTitle}
+                    </div>
 
-            <UnlockPremiunFeatures
-                title={title}
-                open={showUnlockPremiumFeaturesPopup}
-                handleClose={() => {
-                    setShowUnlockPremiumFeaturesPopup(false)
-                }}
-            />
+                    {
+                        showUnlockPremiumFeaturesBtn ? (
+                            <button
+                                className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4'
+                                style={{
+                                    height: "clamp(35px, 45px, 55px)",
+                                    fontSize: "clamp(10px, 13px, 16px)"
+                                }}
+                                onClick={() => {
+                                    setShowUnlockPremiumFeaturesPopup(true)
+                                }}
+                            >
+                                Request Feature
+                            </button>
+                        ) : (
+                            <button
+                                className='flex flex-col text-white items-center justify-center w-[60%] sm:w-[50%] md:w-[45%] bg-purple rounded-lg font-medium hover:bg-purple/90 transition-colors shadow-lg hover:shadow-xl mt-4'
+                                style={{
+                                    height: "clamp(35px, 45px, 55px)",
+                                    fontSize: "clamp(10px, 13px, 16px)"
+                                }}
+                                onClick={() => {
+                                    setShowUpgradePlanPopup(true)
+                                }}
+                            >
+                                Upgrade Plan
+                            </button>
+                        )
+                    }
+
+                    <UnlockPremiunFeatures
+                        title={title}
+                        open={showUnlockPremiumFeaturesPopup}
+                        handleClose={() => {
+                            setShowUnlockPremiumFeaturesPopup(false)
+                        }}
+                    />
 
 
-            <Elements stripe={stripePromise}>
-                <UpgradePlan
-                    open={showUpgradePlanPopup}
-                    handleClose={async () => {
-                        await refreshUserData();
-                        setShowUpgradePlanPopup(false)
-                        // handleContinue()
-                    }}
+                    <Elements stripe={stripePromise}>
+                        <UpgradePlan
+                            open={showUpgradePlanPopup}
+                            setShowSnackMsg={setShowSnackMsg}
+                            setSelectedPlan={() => {
+                                console.log("setSelectedPlan is called")
+                            }}
+                            handleClose={async (data) => {
+                                setShowUpgradePlanPopup(false)
+                                if (data) {
+                                    setLoading(true)
+                                    await refreshUserData();
+                                    setLoading(false)
+                                }
+                                // handleContinue()
+                            }}
 
 
-                />
-            </Elements>
+                        />
+                    </Elements>
 
-        </div>
+
+
+
+                </div>
+            )}
+        </>
     )
 }
 

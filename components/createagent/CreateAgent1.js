@@ -92,7 +92,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     if (U) {
       console.log("found selected user")
       setSelectedUser(JSON.parse(U))
-    }else{
+    } else {
       console.log("slected user not found")
     }
   }
@@ -335,6 +335,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
     // Check limits when toggling ON
     const limitResult = checkAgentLimits('inbound', newInboundState, OutBoundCalls);
+    console.log("limitResult is", limitResult)
     if (limitResult.showModal) {
       // Store what the user was trying to select
       setPendingAgentSelection({
@@ -361,7 +362,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
     // Check limits when toggling ON
     const limitResult = checkAgentLimits('outbound', InBoundCalls, newOutboundState);
-    if (limitResult.showModal) {
+    console.log("limitResult is", limitResult)
+    if (limitResult?.showModal) {
       // Store what the user was trying to select
       setPendingAgentSelection({
         type: 'outbound',
@@ -376,7 +378,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   // Comprehensive plan checking logic
   const checkAgentLimits = (agentType, wouldHaveInbound, wouldHaveOutbound) => {
-    // console.log('🔍 [CREATE-AGENT] Checking agent limits');
+    console.log('🔍 [CREATE-AGENT] Checking agent limits');
     console.log("Redux user", reduxUser)
 
     // Use Redux as primary source, localStorage as fallback
@@ -404,30 +406,38 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     if (wouldHaveInbound) agentsToCreate++;
     if (wouldHaveOutbound) agentsToCreate++;
 
+    // check if user already view pay per month window from agents page and agree it by clicking on the button
+    const isAlreadyViewedPayPerMonthWindow = localStorage.getItem("AddAgentByPayingPerMonth");
+    console.log("isAlreadyViewedPayPerMonthWindow is", isAlreadyViewedPayPerMonthWindow)
+    if (isAlreadyViewedPayPerMonthWindow != null && isAlreadyViewedPayPerMonthWindow?.status === true) {
+      return true
+    }
+
     // console.log('📊 [CREATE-AGENT] Agent calculation complete');
 
     // FREE PLAN LOGIC
-    if (planData.isFreePlan) {
-      // console.log('🆓 [CREATE-AGENT] Free plan detected');
+    // no need to check for free plan here as we are compairing currentAgents with maxAgents
+    // if (planData.isFreePlan) {
+    //   console.log('🆓 [CREATE-AGENT] Free plan detected');
 
-      // If user already has 1 agent, don't allow any more
-      if (planData.currentAgents >= 1) {
-        // console.log('🚫 [CREATE-AGENT] Free plan user has reached limit');
-        setModalDesc("The free plan only allows for 1 AI Agent.");
-        setShowUnclockModal(true);
-        return { showModal: true };
-      }
+    //   // If user already has 1 agent, don't allow any more
+    //   if (planData.currentAgents >= 1 && planData.maxAgents > planData.currentAgents) {
+    //     console.log('🚫 [CREATE-AGENT] Free plan user has reached limit');
+    //     setModalDesc("The free plan only allows for 1 AI Agent.");
+    //     setShowUnclockModal(true);
+    //     return { showModal: true };
+    //   }
 
-      // If user is trying to select both types at once on free plan
-      if (agentsToCreate > 1) {
-        // console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agent types');
-        setModalDesc("The free plan only allows for 1 AI Agent.");
-        setShowUnclockModal(true);
-        return { showModal: true };
-      }
+    //   // If user is trying to select both types at once on free plan
+    //   if (agentsToCreate > 1) {
+    //     // console.log('🚫 [CREATE-AGENT] Free plan user trying to select both agent types');
+    //     setModalDesc("The free plan only allows for 1 AI Agent.");
+    //     setShowUnclockModal(true);
+    //     return { showModal: true };
+    //   }
 
-      return { showModal: false };
-    }
+    //   return { showModal: false };
+    // }
 
     // PAID PLAN LOGIC
     // console.log('💰 [CREATE-AGENT] Paid plan detected');
@@ -435,6 +445,18 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     // Check if user has already reached their limit
     if (planData.currentAgents >= planData.maxAgents) {
       // console.log('🚫 [CREATE-AGENT] Paid plan user has reached limit');
+      // if user is on free plan then show unlock modal
+      if (planData.isFreePlan) {
+        setShowUnclockModal(true);
+        setModalDesc("The free plan only allows for 1 AI Agent.");
+        return { showModal: true };
+      }
+      // if user already view pay per month window from agents page then no need to show more agents modal
+
+      if (isAlreadyViewedPayPerMonthWindow) {
+        console.log("no need to show more agents modal, user already view pay per month window from agents page")
+        return { showModal: false }
+      }
       setShowMoreAgentsModal(true);
       return { showModal: true };
     }
@@ -442,6 +464,16 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     // Check if the selection would exceed the limit
     if (planData.currentAgents + agentsToCreate > planData.maxAgents) {
       // console.log('🚫 [CREATE-AGENT] Selection would exceed limit');
+      // if user is on free plan then show unlock modal
+      if (planData.isFreePlan) {
+        setShowUnclockModal(true);
+        setModalDesc("The free plan only allows for 1 AI Agent.");
+        return { showModal: true };
+      }
+      // if user already view pay per month window from agents page then no need to show more agents modal
+      if (isAlreadyViewedPayPerMonthWindow) {
+        return
+      }
       setShowMoreAgentsModal(true);
       return { showModal: true };
     }
@@ -464,8 +496,8 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   useEffect(() => {
     //add interval here
     console.log("reduxUser is", reduxUser)
-      let user = localStorage.getItem("User")
-      console.log("local user is", user)
+    let user = localStorage.getItem("User")
+    console.log("local user is", user)
   }, [reduxUser])
 
   // Function to refresh user data after plan upgrade
@@ -1035,26 +1067,26 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                       console.log('data', data)
                       // setSelectedUser(data)
                       console.log("plan upgraded successfully")
-                        // Refresh user data after upgrade to get new plan capabilities
-                        const refreshSuccess = await refreshUserData();
-                        console.log("refreshSuccess:", refreshSuccess);
-                        if (refreshSuccess) {
-                          console.log('User data refreshed successfully after upgrade');
-                          // If there was a pending selection, apply it now with the new plan limits
-                          if (pendingAgentSelection) {
-                            console.log('Retrying pending selection with new plan limits...');
-                            // Clear the pending selection and recheck limits
-                            const pendingSelection = pendingAgentSelection;
-                            setPendingAgentSelection(null);
+                      // Refresh user data after upgrade to get new plan capabilities
+                      const refreshSuccess = await refreshUserData();
+                      console.log("refreshSuccess:", refreshSuccess);
+                      if (refreshSuccess) {
+                        console.log('User data refreshed successfully after upgrade');
+                        // If there was a pending selection, apply it now with the new plan limits
+                        if (pendingAgentSelection) {
+                          console.log('Retrying pending selection with new plan limits...');
+                          // Clear the pending selection and recheck limits
+                          const pendingSelection = pendingAgentSelection;
+                          setPendingAgentSelection(null);
 
-                            // Apply the selection now that limits have been upgraded
-                            setInBoundCalls(pendingSelection.inbound);
-                            setOutBoundCalls(pendingSelection.outbound);
-                            console.log("Applied pending selection after upgrade");
-                          }
-                        } else {
-                          console.error("Failed to refresh user data after upgrade");
+                          // Apply the selection now that limits have been upgraded
+                          setInBoundCalls(pendingSelection.inbound);
+                          setOutBoundCalls(pendingSelection.outbound);
+                          console.log("Applied pending selection after upgrade");
                         }
+                      } else {
+                        console.error("Failed to refresh user data after upgrade");
+                      }
                     }
                     setShowUnclockModal(false)
                   }}
@@ -1089,6 +1121,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
                 <UpgradePlan
                   open={showUpgradePlanModal}
+                  setSelectedPlan={()=>{
+                    console.log("setSelectedPlan is called")
+                    }}
                   handleClose={async (result) => {
                     console.log("🔥 HANDLECLOSE CALLED WITH RESULT:", result);
                     console.log("🔥 HANDLECLOSE FUNCTION STARTED");

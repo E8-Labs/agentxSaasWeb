@@ -26,6 +26,7 @@ import ClaimNumber from "../dashboard/myagentX/ClaimNumber";
 import { HowtoVideos, PersistanceKeys } from "@/constants/Constants";
 import UpgardView from "@/constants/UpgardView";
 import { useUser } from "@/hooks/redux-hooks";
+import AgentSelectSnackMessage, { SnackbarTypes } from "../dashboard/leads/AgentSelectSnackMessage";
 
 const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const timerRef = useRef(null);
@@ -78,6 +79,11 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [officeErrorMessage, setOfficeErrorMessage] = useState(false);
 
   const [updatedUserData, setUpdatedUserData] = useState(null);
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Error,
+    message: "",
+    isVisible: false
+  });
 
   useEffect(() => {
     const localData = localStorage.getItem("claimNumberData");
@@ -541,6 +547,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
       // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
+        <AgentSelectSnackMessage
+          message={showSnackMsg.message}
+          type={showSnackMsg.type}
+          isVisible={showSnackMsg.isVisible}
+          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        />
         <div>
           {/* Video Card */}
           <IntroVideoModal
@@ -941,6 +953,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   ? (
                     <div className="w-full h-full flex items-center justify-center">
                       <UpgardView
+                        setShowSnackMsg={setShowSnackMsg}
                         title={"Enable Live Transfer"}
                         subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
                         userData={userData}
@@ -1044,6 +1057,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       < div className="w-full h-[40vh] sm:h-[45vh] md:h-[50vh] flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
                         <div className="w-full h-full flex items-center justify-center">
                           <UpgardView
+                            setShowSnackMsg={setShowSnackMsg}
                             title={"Enable Live Transfer"}
                             subTitle={"Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation."}
                             userData={userData}

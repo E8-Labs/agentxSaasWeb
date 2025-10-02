@@ -2484,6 +2484,27 @@ function Page() {
     }
   };
 
+
+  //function to add new agent by more agents popup
+  const handleAddAgentByMoreAgentsPopup = () => {
+    setShowMoreAgentsPopup(false)
+    const data = {
+      status: true,
+    };
+    localStorage.setItem("fromDashboard", JSON.stringify(data));
+
+    localStorage.setItem("AddAgentByPayingPerMonth", JSON.stringify({
+      status: true,
+    }));
+    //remove data from local storage after 2 minutes
+    setTimeout(() => {
+      localStorage.removeItem("AddAgentByPayingPerMonth");
+      console.log("AddAgentByPayingPerMonth removed from local storage")
+    }, 2 * 60 * 1000);
+    router.push('/createagent');
+
+  }
+
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
     // event.preventDefault();
@@ -2534,6 +2555,7 @@ function Page() {
       status: true,
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
+    console.log("routing to createagent from add new agent function")
     router.push('/createagent')
   };
 
@@ -3102,7 +3124,7 @@ function Page() {
         {agentsListSeparated.length > 0 && (
           <Link
             className="w-full py-6 flex justify-center items-center"
-            href="/createagent"
+            href=""
             prefetch={true}
             style={{
               // marginTop: 40,
@@ -3296,7 +3318,7 @@ function Page() {
                     )}
                   </div>
 
-                   <CloseBtn
+                  <CloseBtn
                     onClick={() => {
                       // setShowRenameAgentPopup(null);
                       setOpenTestAiModal(false);
@@ -3490,12 +3512,10 @@ function Page() {
           setShowUpgradeModal(true);
         }}
         onAddAgent={() => {
-          const data = {
-            status: true,
-          };
-          localStorage.setItem("fromDashboard", JSON.stringify(data));
+          handleAddAgentByMoreAgentsPopup()
         }}
         costPerAdditionalAgent={reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}
+        from={"myAgentX"}
       />
 
       <AskToUpgrade
@@ -4112,7 +4132,7 @@ function Page() {
                                       )
                                     ) && (
                                       <UpgradeTagWithModal
-                                       
+
                                         reduxUser={reduxUser}
                                         setReduxUser={setReduxUser}
                                       />
@@ -4922,10 +4942,10 @@ function Page() {
                           </button>
                         </div>
                       ) : (
-                          <UpgradeTagWithModal 
-                            reduxUser={reduxUser}
-                            setReduxUser={ setReduxUser }
-                          />
+                        <UpgradeTagWithModal
+                          reduxUser={reduxUser}
+                          setReduxUser={setReduxUser}
+                        />
                       )
                     }
                   </div>
@@ -4997,12 +5017,12 @@ function Page() {
                   />
 
                   {/* Lead Scoring Section */}
-                    <LeadScoring
-                      activeTab={activeTab}
-                      showDrawerSelectedAgent={showDrawerSelectedAgent}
-                      setShowAddScoringModal={setShowAddScoringModal}
-                     
-                    />
+                  <LeadScoring
+                    activeTab={activeTab}
+                    showDrawerSelectedAgent={showDrawerSelectedAgent}
+                    setShowAddScoringModal={setShowAddScoringModal}
+
+                  />
                 </div>
             ) : activeTab === "Pipeline" ? (
               <div className="flex flex-col gap-4">
@@ -5866,7 +5886,7 @@ function Page() {
         embedCode={embedCode}
       />
 
-     
+
     </div >
   );
 }

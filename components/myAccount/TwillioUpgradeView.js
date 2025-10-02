@@ -3,13 +3,19 @@ import React, { useEffect, useState } from 'react'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import UpgradePlan from '../userPlans/UpgradePlan'
-
+import { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
+import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
 function TwillioUpgradeView() {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] = useState(false);
+    const [showSnackMsg, setShowSnackMsg] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false
+    });
     //store local user data
     let localUserData = null;
 
@@ -60,6 +66,12 @@ function TwillioUpgradeView() {
     return (
         <div className='flex flex-col items-center h-full'>
             <div className='flex flex-col items-start w-full p-6'>
+                <AgentSelectSnackMessage
+                    message={showSnackMsg.message}
+                    type={showSnackMsg.type}
+                    isVisible={showSnackMsg.isVisible}
+                    hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+                />
                 <div style={{ fontSize: 22, fontWeight: "700", color: "#000" }}>
                     Twilio Trust Hub
                 </div>
@@ -116,6 +128,7 @@ function TwillioUpgradeView() {
                     handleClose={() => setShowUpgradeModal(false)}
                     plan={null}
                     currentFullPlan={null}
+                    setShowSnackMsg={setShowSnackMsg}
                 />
             </Elements>
         </div>

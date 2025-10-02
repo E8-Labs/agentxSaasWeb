@@ -1661,6 +1661,9 @@ const ProfileNav = () => {
           <UpgradePlan
             open={showUpgradePlanModal}
             handleClose={() => setShowUpgradePlanModal(false)}
+            setShowSnackMsg={()=>{
+              console.log("setShowSnackMsg is called")
+            }}
           />
         </Elements>
       </div>

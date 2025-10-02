@@ -10,7 +10,8 @@ const MoreAgentsPopup = ({
   onClose,
   onUpgrade,
   onAddAgent,
-  costPerAdditionalAgent = 10
+  costPerAdditionalAgent = 10,
+  from = ""
 }) => {
   const router = useRouter();
 
@@ -20,9 +21,7 @@ const MoreAgentsPopup = ({
   };
 
   const handleAddAgent = () => {
-    onAddAgent();
-    onClose();
-    router.push('/createagent');
+   
   };
 
   return (
@@ -62,14 +61,14 @@ const MoreAgentsPopup = ({
 
             <Image
               src="/otherAssets/unlockAgents.png"
-              height={80}
-              width={150}
+              height={100}
+              width={300}
               alt="Axel"
             />
 
 
             {/* Title */}
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
+            <h2 className="text-2xl font-bold text-center text-gray-900 mb-4 -mt-3">
               Add Extra Agents
             </h2>
 
@@ -95,7 +94,7 @@ const MoreAgentsPopup = ({
               {/* Add Agent Button */}
               <Link
                 href="/createagent"
-                onClick={handleAddAgent}
+                onClick={onAddAgent}
                 className="w-full text-purple-600 hover:text-purple-700 font-semibold py-2 px-6 rounded-lg transition-colors block text-center"
                 prefetch={true}
               >
