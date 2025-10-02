@@ -806,7 +806,7 @@ const Page = () => {
               handleClose={() => {
                 setShowUpgradePlanPopup(false)
               }}
-              setShowSnackMsg={setShowSnackMsg}
+              // setShowSnackMsg={setShowSnackMsg}
 
             />
           </Elements>

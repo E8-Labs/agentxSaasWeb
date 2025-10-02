@@ -227,7 +227,7 @@ function UpgardView({
                     <Elements stripe={stripePromise}>
                         <UpgradePlan
                             open={showUpgradePlanPopup}
-                            setShowSnackMsg={setShowSnackMsg}
+                            // setShowSnackMsg={setShowSnackMsg}
                             setSelectedPlan={() => {
                                 console.log("setSelectedPlan is called")
                             }}
