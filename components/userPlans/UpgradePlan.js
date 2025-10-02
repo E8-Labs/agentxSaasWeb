@@ -174,7 +174,8 @@ function UpgradePlanContent({
     selectedPlan = null, // Pre-selected plan from previous screen
     setSelectedPlan = null,
     from,
-    setShowSnackMsg = null
+    setShowSnackMsg = null,
+    showSnackMsg = null
 
 }) {
 
@@ -255,6 +256,11 @@ function UpgradePlanContent({
 
     // Function to determine if upgrade button should be enabled
     const isUpgradeButtonEnabled = () => {
+
+        //disable if snack msg is visible
+        if (showSnackMsg?.isVisible) {
+            return true;
+        }
         // Must have a selected plan and it shouldn't be the current plan
         if (!currentSelectedPlan || isPlanCurrent(currentSelectedPlan)) {
             return false;
@@ -279,6 +285,7 @@ function UpgradePlanContent({
         if (haveCards && isAddingNewPaymentMethod) {
             return CardAdded && CardExpiry && CVC && agreeTerms;
         }
+      
 
         return false;
     };
@@ -777,12 +784,15 @@ function UpgradePlanContent({
 
     //function to subscribe plan
     const handleSubscribePlan = async () => {
-        // handleClose(true)
         // setShowSnackMsg({
         //     type: SnackbarTypes.Success,
         //     message: "Plan upgraded successfully",
         //     isVisible: true
         // })
+
+        // setTimeout(() => {
+        //     handleClose(true)
+        // }, 3000)
         // return
         try {
             let planType = currentSelectedPlan?.planType;
@@ -870,12 +880,15 @@ function UpgradePlanContent({
                 }
 
                 // Pass true to indicate successful upgrade
-                handleClose(true)
+                // handleClose(true)
                 setShowSnackMsg({
                     type: SnackbarTypes.Success,
                     message: response.data.message,
                     isVisible: true
                 })
+                setTimeout(() => {
+                    handleClose(true)
+                }, 3000)
                 return
 
             }
@@ -1364,7 +1377,7 @@ function UpgradePlan({
     selectedPlan = null, // Pre-selected plan from previous screen
     setSelectedPlan = null,
     from = "User",
-    setShowSnackMsg = null
+    // setShowSnackMsg = null
 }) {
     let stripePublickKey =
         process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1372,8 +1385,20 @@ function UpgradePlan({
             : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
     const stripePromise = loadStripe(stripePublickKey);
 
+    const [showSnackMsg, setShowSnackMsg] = useState({
+        type: SnackbarTypes.Success,
+        message: "",
+        isVisible: false
+    })
+
     return (
         <Elements stripe={stripePromise}>
+            <AgentSelectSnackMessage
+                message={showSnackMsg.message}
+                type={showSnackMsg.type}
+                isVisible={showSnackMsg.isVisible}
+                hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+            />
             <UpgradePlanContent
                 open={open}
                 handleClose={handleClose}
@@ -1383,6 +1408,7 @@ function UpgradePlan({
                 setSelectedPlan={setSelectedPlan}
                 from={from}
                 setShowSnackMsg={setShowSnackMsg}
+                showSnackMsg={showSnackMsg}
             />
         </Elements>
     );

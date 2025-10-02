@@ -1880,10 +1880,10 @@ function NewBilling() {
 
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            setShowSnack({
-                                message: "Upgraded to " + selectedPlan.name + " Plan",
-                                type: SnackbarTypes.Success
-                            });
+                            // setShowSnack({
+                            //     message: "Upgraded to " + selectedPlan.name + " Plan",
+                            //     type: SnackbarTypes.Success
+                            // });
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             await refreshProfileAndState();
                         }

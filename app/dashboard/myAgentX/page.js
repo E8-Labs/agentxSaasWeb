@@ -366,6 +366,11 @@ function Page() {
   const [showEmbedAllSetModal, setShowEmbedAllSetModal] = useState(false)
   const [selectedAgentForEmbed, setSelectedAgentForEmbed] = useState(null)
   const [embedCode, setEmbedCode] = useState('')
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  })
 
 
   // Web Agent Modal handlers
@@ -2939,6 +2944,13 @@ function Page() {
           message={showErrorSnack}
           type={SnackbarTypes.Error}
         />
+
+        <AgentSelectSnackMessage
+          message={showSnackMsg.message}
+          type={showSnackMsg.type}
+          isVisible={showSnackMsg.isVisible}
+          hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+        />
       </div>
 
       <div
@@ -4985,11 +4997,13 @@ function Page() {
             ) : activeTab === "Actions" ? (
               user?.agencyCapabilities?.allowToolsAndActions === false ? (
                 <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Actions"}
                   subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
                 />
               ) : !allowToolsAndActions ? (
                 <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Actions"}
                   subTitle={"Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools."}
                 />
@@ -5035,11 +5049,13 @@ function Page() {
             ) : activeTab === "Knowledge" ? (
               user?.agencyCapabilities?.allowKnowledgeBases === false ? (
                 <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Knowledge Base"}
                   subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
                 />
               ) : !allowKnowledgeBases ? (
                 <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Knowledge Base"}
                   subTitle={"Upgrade to enable custom knowledge bases and document uploads for your AI agents."}
                 />
@@ -5053,11 +5069,13 @@ function Page() {
             ) : activeTab === "Voicemail" ? (
               user?.agencyCapabilities?.allowVoicemail === false ? (
                 <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Voicemail"}
                   subTitle={"Upgrade to enable voicemail features for your outbound agents."}
                 />
               ) : !allowVoicemail ? (
                 <UpgardView
+                  setShowSnackMsg={setShowSnackMsg}
                   title={"Unlock Voicemail"}
                   subTitle={"Upgrade to enable voicemail features for your outbound agents."}
                 />

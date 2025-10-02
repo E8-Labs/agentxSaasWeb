@@ -3218,7 +3218,7 @@ const LeadDetails = ({
         <UpgradePlan
           selectedPlan={selectedPlan}
           open={showUpgradeModal}
-          setShowSnackMsg={setShowSnackMsg}
+          // setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {
             setShowUpgradeModal(false);
             if (upgradeResult) {
