@@ -1095,6 +1095,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 console.log("With api call");
                 setAssignLoader(true);
                 AssignNumber();
+                handleContinue();
               }
             }}
             handleBack={handleBack}
