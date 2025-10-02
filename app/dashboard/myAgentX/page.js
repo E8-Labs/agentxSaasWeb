@@ -2486,7 +2486,9 @@ function Page() {
 
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
-    event.preventDefault();
+    // event.preventDefault();
+    // setShowMoreAgentsPopup(true)
+    // return
 
     // Combined plan checking - use Redux as primary, localStorage as fallback
     // console.log('🎯 [DASHBOARD] Combined plan check for new agent');
@@ -2932,7 +2934,7 @@ function Page() {
           )}
 
           {
-            (reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxAgents < 1000) && (
+            (reduxUser?.planCapabilities?.maxAgents < 1000) && (
               <Tooltip
                 title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
                 arrow

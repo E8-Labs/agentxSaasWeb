@@ -21,6 +21,9 @@ export default function AddMcpPopup({
     const [mcpUrlError, setMcpUrlError] = useState("");
     const [descriptionChars, setDescriptionChars] = useState("");
 
+    const isAddDisabled = addMcpLoader || mcpUrlError || mcpName === "" || mcpDescription === "" || mcpUrl === "";
+
+
     //check the limit of description chars
     useEffect(() => {
         setDescriptionChars(mcpDescription?.length)
@@ -135,8 +138,11 @@ export default function AddMcpPopup({
                                     addMcpLoader ? (
                                         <CircularProgress size={20} />
                                     ) : (
-                                        <button className='w-1/2 bg-purple text-white rounded-md p-2 h-[55px] text-[15px] font-[500]'
+
+                                        <button
+                                            className={`w-1/2 rounded-md p-2 h-[55px] text-[15px] font-[500] ${isAddDisabled ? 'bg-[#00000020] text-black cursor-not-allowed' : 'bg-purple text-white'}`}
                                             onClick={handleAddMcp}
+                                            disabled={isAddDisabled}
                                         >
                                             Add
                                         </button>

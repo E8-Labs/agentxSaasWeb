@@ -406,7 +406,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     // //console.log;
     // const isInboundOnly = isInboundOnly()
     try {
-      setAssignLoader(true);
+      // setAssignLoader(true);
       // Use Redux token instead of localStorage
       if (!token) {
         console.error("No token available");
@@ -451,7 +451,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         console.log("Check 1")
         if (response.data.status === true) {
           setOpenCalimNumDropDown(false);
-          handleContinue();
+          // handleContinue();
           const calimNoData = {
             officeNo: officeNumber,
             userNumber: selectNumber,
@@ -595,12 +595,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
               <div
                 className="border rounded-lg"
                 style={{
-                  height: "clamp(40px, 45px, 50px)",
+                  height: "clamp(60px, 65px, 70px)",
                   fontSize: "clamp(11px, 2vw, 13px)"
                 }}
               >
                 <Box className="w-full h-full">
-                  <FormControl className="w-full h-full">
+                  <FormControl className="w-full h-full  justify-center">
                     <Select
                       ref={selectRef}
                       open={openCalimNumDropDown}
@@ -1093,6 +1093,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                 handleContinue();
               } else {
                 console.log("With api call");
+                setAssignLoader(true);
                 AssignNumber();
               }
             }}

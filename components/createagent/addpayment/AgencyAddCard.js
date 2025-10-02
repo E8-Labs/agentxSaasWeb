@@ -324,11 +324,11 @@ const AgencyAddCard = ({
             return "-";
         }
         if (selectedPlan.duration === "monthly") {
-            return "$" + formatDecimalValue(1 * selectedPlan.originalPrice);
+            return "$" + selectedPlan.originalPrice.toLocaleString();
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + formatDecimalValue(selectedPlan.originalPrice);
+            return "$" + (selectedPlan.originalPrice * 3).toLocaleString();
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + formatDecimalValue(selectedPlan.originalPrice);
+            return "$" + (selectedPlan.originalPrice * 12).toLocaleString();
         } else {
             return "-";
         }
@@ -340,11 +340,11 @@ const AgencyAddCard = ({
             return "-";
         }
         if (selectedPlan.duration === "monthly") {
-            return "$" + formatDecimalValue(selectedPlan.originalPrice * 12);
+            return "$" + selectedPlan.originalPrice.toLocaleString();
         } else if (selectedPlan.duration === "quarterly") {
-            return "$" + formatDecimalValue(selectedPlan.originalPrice * 6);
+            return "$" + (selectedPlan.originalPrice * 3).toLocaleString();
         } else if (selectedPlan.duration === "yearly") {
-            return "$" + formatDecimalValue(selectedPlan.originalPrice * 1);
+            return "$" + (selectedPlan.originalPrice * 12).toLocaleString();
         } else {
             return "-";
         }
@@ -365,6 +365,13 @@ const AgencyAddCard = ({
             return "-";
         }
         
+    }
+
+    const getMonthsCount = () => {
+        if (!selectedPlan) {
+            return 1;
+        }
+        return selectedPlan.duration === "monthly" ? 1 : selectedPlan.duration === "quarterly" ? 3 : 12;
     }
 
 
@@ -677,9 +684,9 @@ const AgencyAddCard = ({
                                 {/*
                                     <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan.duration} subscription</div>
                                 */}
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Total Annual Commitment: {commitmentCalculation()}</div>
+                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Total Annual Commitment: ${(selectedPlan?.originalPrice * 12)?.toLocaleString()}</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>{scalePlanValue()}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>${(selectedPlan?.originalPrice).toLocaleString()} * {getMonthsCount()}</div>
                         </div>
                         {/*
                          <div className="flex flex-row items-start justify-between w-full mt-6">
