@@ -763,7 +763,7 @@ const UserCalender = ({
                 setShowUpgradeModal(false)
               }}
 
-              title={"You've Hit Your Calendar Limit"}
+              title={"Unlock Calendar Access"}
               subTitle={"Upgrade to add more Calendars"}
               buttonTitle={"No Thanks"}
             />

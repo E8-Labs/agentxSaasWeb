@@ -1713,6 +1713,7 @@ const PipelineStages = ({
 
             <AuthSelectionPopup open={showAuthSelectionPopup}
               onClose={() => setShowAuthSelectionPopup(false)}
+              onSuccess={getAccounts}
               showEmailTemPopup={showEmailTemPopup}
               setShowEmailTempPopup={setShowEmailTempPopup}
               setSelectedGoogleAccount={(account) => {

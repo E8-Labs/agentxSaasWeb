@@ -366,7 +366,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                         handleClose={() => {
                             setShowCalendarUpgradeModal(false);
                         }}
-                        title="You've Hit Your Calendar Limit"
+                        title="Unlock Calendar Access"
                         subTitle="Upgrade to add more Calendars"
                         buttonTitle="No Thanks"
                     />

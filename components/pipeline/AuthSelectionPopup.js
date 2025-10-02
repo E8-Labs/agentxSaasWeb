@@ -89,6 +89,10 @@ function AuthSelectionPopup({
                         if (res.data.status == true) {
                             setSelectedGoogleAccount(res.data.data)
                             setShowEmailTempPopup(true)
+                            // Call onSuccess callback to refresh accounts list
+                            if (onSuccess) {
+                                onSuccess()
+                            }
                         } else {
                             setShowSnack({
                                 message: res.data.message,
