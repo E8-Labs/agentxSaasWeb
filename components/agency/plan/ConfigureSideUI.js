@@ -78,7 +78,7 @@ const ConfigureSideUI = ({
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px]"
                             >
-                                <span className='text-[#00000020]' style={{ fontWeight: "700", fontSize: "30px" }}>
+                                <span className='text-[#00000020] line-through' style={{ fontWeight: "700", fontSize: "30px" }}>
                                     {/*
                                         ${formatFractional2(originalPrice) || ""}
                                     */}

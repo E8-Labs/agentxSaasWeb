@@ -107,16 +107,17 @@ const ConnectStripe = () => {
 
     return (
         <div
-            className='h-screen w-full flex flex-row items-center justify-center'
-            style={{
-                height: '100svh',
-                width: '100%',
-                backgroundImage: "url('/agencyIcons/congratsBg.jpg')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
+            className='w-full flex flex-row items-center justify-center'
+        // style={{
+        //     height: '100svh',
+        //     width: '100%',
+        //     backgroundImage: "url('/agencyIcons/congratsBg.jpg')",
+        //     backgroundSize: "cover",
+        //     backgroundPosition: "center",
+        //     alignItems: 'center',
+        //     justifyContent: 'center',
+        // }}
+        >
             <AgentSelectSnackMessage
                 isVisible={snackMsg !== null}
                 message={snackMsg}
@@ -125,22 +126,6 @@ const ConnectStripe = () => {
                 }}
                 type={snackMsgType}
             />
-            {/*
-                <div className='flex flex-col items-start max-w-[90svw] p-6 gap-4 border-2 border-white rounded-xl bg-[#00000020]'>
-                            <div className="flex flex-row items-center gap-4">
-                                <div>Company: </div><div>{agencydata?.stripeAccount?.company?.name || "-"}</div>
-                            </div>
-                            <div className="flex flex-row items-center gap-4">
-                                <div>Business Profile: </div><div>{agencydata?.stripeAccount?.business_profile?.name || "-"}</div>
-                            </div>
-                            <div className="flex flex-row items-center gap-4">
-                                <div>Country: </div><div>{agencydata?.stripeAccount?.country || "-"}</div>
-                            </div>
-                            <div className="flex flex-row items-center gap-4">
-                                <div>Email Address: </div><div>{agencydata?.stripeAccount?.email || "-"}</div>
-                            </div>
-                        </div>
-            */}
             <div className='h-full w-full flex flex-row items-center justify-center'>
                 {
                     checkStripeStatusLoader ? (
@@ -153,42 +138,50 @@ const ConnectStripe = () => {
                                         stripeData={agencydata?.stripeAccount}
                                     />
                                 ) : (
-                                    <div className='flex flex-col items-center w-5/12 py-[10svh]  border-2 border-white rounded-xl bg-[#ffffff90]'>
-                                        <div style={{ fontWeight: "600", fontSize: "38px", marginBottom: 10 }}>
-                                            {`Congrats!`}
-                                        </div>
-                                        
-                                        <Image
-                                            src={"/agentXOrb.gif"}
-                                            height={250}
-                                            width={250}
-                                            alt="gif"
+                                    <div className="w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 mt-6">
+                                        <img
+                                            alt="*"
+                                            src={"/agencyIcons/stripeNotConnected.png"}
+                                            className="rounded-t-2xl"
+                                            style={{
+                                                height: "100%", width: "100%", objectFit: "cover",
+                                            }}
                                         />
-                                        <div style={{ fontWeight: "500", fontSize: "15px", color: "#000000" }}>
-                                            Your agency account is created.
+                                        <div className='flex flex-row items-center justify-center' style={{ marginTop: "-35px" }}>
+                                            <Image
+                                                alt="*"
+                                                src={"/agencyIcons/stripeLogo.png"}
+                                                height={70}
+                                                width={70}
+                                            />
                                         </div>
-                                        <div style={{ fontWeight: "500", fontSize: "15px", color: "#000000" }}>
-                                            Lets add your Stripe detail for payouts.
+                                        <div className='flex flex-col items-center justify-center p-4'>
+                                            <div style={{ fontWeight: "500", fontSize: "15px", color: "#000000" }}>
+                                                Your agency account is created.
+                                            </div>
+                                            <div style={{ fontWeight: "500", fontSize: "15px", color: "#000000" }}>
+                                                Lets add your Stripe detail for payouts.
+                                            </div>
+                                            {
+                                                loader ?
+                                                    <div className='mt-4'>
+                                                        <CircularProgress size={30} />
+                                                    </div> :
+                                                    <button
+                                                        className='bg-purple text-white p-2 rounded-md w-20vw mt-4 h-[40px]'
+                                                        style={styles.btnText}
+                                                        onClick={() => {
+                                                            if (agencydata?.canAcceptPaymentsAgencyccount) {
+                                                                setSnackMsg("Stripe already connected.");
+                                                            } else {
+                                                                handleVerifyClick();
+                                                            }
+                                                        }}
+                                                    >
+                                                        Add Stripe
+                                                    </button>
+                                            }
                                         </div>
-                                        {
-                                            loader ?
-                                                <div className='mt-4'>
-                                                    <CircularProgress size={30} />
-                                                </div> :
-                                                <button
-                                                    className='bg-purple text-white p-2 rounded-md w-20vw mt-4 h-[40px]'
-                                                    style={styles.btnText}
-                                                    onClick={() => {
-                                                        if (agencydata?.canAcceptPaymentsAgencyccount) {
-                                                            setSnackMsg("Stripe already connected.");
-                                                        } else {
-                                                            handleVerifyClick();
-                                                        }
-                                                    }}
-                                                >
-                                                    Add Stripe
-                                                </button>
-                                        }
                                     </div>
                                 )
                             }

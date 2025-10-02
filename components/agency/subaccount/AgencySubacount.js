@@ -793,7 +793,7 @@ function AgencySubacount({
               >
                 <Image
                   alt='*'
-                  src={"/agencyIcons/nosubAccount.png"}
+                  src={"/agencyIcons/subaccountPlaceholder.png"} //subaccountPlaceholder //nosubAccount
                   height={230}
                   width={420}
                 />
@@ -801,8 +801,8 @@ function AgencySubacount({
                   <div style={{ fontWeight: "600", fontSize: "22px" }} className="text-center">
                     No Sub-Account Added
                   </div>
-                  <div style={{ fontWeight: "600", fontSize: "15px" }} className="text-center">
-                    {`You don’t have any sub-accounts created yet`}
+                  <div style={{ fontWeight: "600", fontSize: "12px" }} className="text-center">
+                    {`Looks like you don’t have any sub-accounts`}
                   </div>
                   <button
                     disabled={twililoConectedStatus}
@@ -811,7 +811,7 @@ function AgencySubacount({
                       handleCheckPlans();
                     }}
                   >
-                    Create Sub Account
+                    Create Subaccount
                   </button>
                 </div>
               </div>

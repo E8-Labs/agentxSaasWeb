@@ -416,7 +416,7 @@ function DashboardPlans({
                 <div
                     className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6"
                     style={{
-                        backgroundImage: "url('/svgIcons/bg.svg')",
+                        backgroundImage: "url('/agencyIcons/plansBannerBg.png')",//plansBannerBg //svgIcons/bg.svg
                         backgroundSize: "cover",
                         backgroundPosition: "center",
                         // borderRadius:'20px'
@@ -436,7 +436,7 @@ function DashboardPlans({
                             handleAddPlan()
                         }}
                     >
-                        Create New Plan
+                        New Plan
                     </button>
 
 

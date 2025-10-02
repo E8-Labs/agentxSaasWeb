@@ -8,6 +8,8 @@ import axios from 'axios';
 
 const AgencySupportAndWidget = () => {
 
+  //settings data
+  const [settingsData, setSettingsData] = useState(null);
   //snack msg
   const [showSnackMessage, setShowSnackMessage] = useState(null);
   const [showSnackType, setShowSnackType] = useState(SnackbarTypes.Success);
@@ -59,16 +61,17 @@ const AgencySupportAndWidget = () => {
       if (response) {
         console.log("response of get user settings api is", response)
         const Data = response?.data?.data;
-        setAllowSuportWebCalendar(Data?.supportWebinar || false);
-        setSuportWebCalendar(Data?.supportWebinarUrl || "");
+        setAllowSuportWebCalendar(Data?.supportWebinarCalendar || false);
+        setSuportWebCalendar(Data?.supportWebinarCalendarUrl || "");
         setAllowSky(Data?.skyAgent || false);
         setSky(Data?.skyAgentId || "");
         setAllowFeedBack(Data?.giveFeedback || false);
-        setFeedBack(Data?.feedbackUrl || "");
+        setFeedBack(Data?.giveFeedbackUrl || "");
         setAllowHireTeam(Data?.hireTeam || false);
         setHireTeam(Data?.hireTeamUrl || "");
         setAllowBillingAndSupport(Data?.billingAndSupport || false);
         setBillingAndSupport(Data?.billingAndSupportUrl || "");
+        setSettingsData(Data);
         setInitialLoader(false);
       }
     } catch (err) {
@@ -83,8 +86,8 @@ const AgencySupportAndWidget = () => {
     if (from === "suportWebCalendar") {
       setAddSuportWebCalendarLoader(true);
       return {
-        supportWebinar: true,
-        supportWebinarUrl: suportWebCalendar,
+        supportWebinarCalendar: true,
+        supportWebinarCalendarUrl: suportWebCalendar,
       }
     } else if (from === "sky") {
       setAddSkyLoader(true);
@@ -96,7 +99,7 @@ const AgencySupportAndWidget = () => {
       setAddFeedBackLoader(true);
       return {
         giveFeedback: true,
-        feedbackUrl: feedBack,
+        giveFeedbackUrl: feedBack,
       }
     } else if (from === "hireTeam") {
       setAddHireTeamLoader(true);
@@ -131,6 +134,12 @@ const AgencySupportAndWidget = () => {
         if (response.data.status === true) {
           setShowSnackMessage(response.data.message);
           setShowSnackType(SnackbarTypes.Success);
+          setAddSuportWebCalendar(false);
+          setAddSky(false);
+          setAddFeedBack(false);
+          setAddHireTeam(false);
+          setAddBillingAndSupport(false);
+          setSettingsData(response.data.data);
         } else {
           setShowSnackMessage(response.data.message);
           setShowSnackType(SnackbarTypes.Error);
@@ -172,8 +181,8 @@ const AgencySupportAndWidget = () => {
             <div className="w-full border rounded-xl p-4 rounded-lg border rounded-xl">
               <div style={{ fontWeight: "600", fontSize: "22px", color: "#000000" }}>Support Widget</div>
               <div className='border-b'>
-                <div className='border rounded-lg p-4 bg-[#D9D9D917] mb-4 mt-4'>
-                  <div className='flex flex-row item-center justify-between w-full'>
+                <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
+                  <div className='flex flex-row items-center justify-between w-full'>
                     <div style={styles.subHeading}>
                       Support webinar calendar
                     </div>
@@ -201,55 +210,62 @@ const AgencySupportAndWidget = () => {
                       />
                     </div>
                   </div>
-                  <div className='flex flex-row item-center justify-between w-full mt-4'>
-                    <div style={styles.subHeading}>
-                      URL
-                    </div>
-                    <button className="flex flex-row items-center gap-2">
-                      <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                      <Image
-                        alt="*"
-                        src={"/assets/editPen.png"}
-                        height={16}
-                        width={16}
-                      />
-                    </button>
-                  </div>
-                </div>
-                {
-                  addSuportWebCalendar && (
-                    <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                      <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                        <input
-                          style={styles.inputs}
-                          type="text"
-                          className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                          placeholder="Enter your URL"
-                          value={suportWebCalendar}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setSuportWebCalendar(value);
-                          }}
-                        />
+                  {settingsData?.supportWebinarCalendarUrl && (
+                    <div className='flex flex-row items-center justify-between w-full mt-2'>
+                      <div style={styles.subHeading}>
+                        URL: {settingsData?.supportWebinarCalendarUrl || ""}
                       </div>
-                      {
-                        addSuportWebCalendarLoader ? (
-                          <div className="flex flex-row items-center justify-center w-[10%]">
-                            <CircularProgress size={30} />
-                          </div>
-                        ) : (
-                          <button onClick={() => { handleUserSettings("suportWebCalendar") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                            Save
-                          </button>
-                        )
-                      }
+                      <button
+                        className="flex flex-row items-center gap-2"
+                        onClick={() => {
+                          setAddSuportWebCalendar(true);
+                        }}
+                      >
+                        <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                        <Image
+                          alt="*"
+                          src={"/assets/editPen.png"}
+                          height={16}
+                          width={16}
+                        />
+                      </button>
                     </div>
-                  )
-                }
+                  )}
+                  {
+                    addSuportWebCalendar && (
+                      <div className="flex flex-row items-center justify-center gap-2 mt-2">
+                        <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                          <input
+                            style={styles.inputs}
+                            type="text"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                            placeholder="Enter your URL"
+                            value={suportWebCalendar}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setSuportWebCalendar(value);
+                            }}
+                          />
+                        </div>
+                        {
+                          addSuportWebCalendarLoader ? (
+                            <div className="flex flex-row items-center justify-center w-[10%]">
+                              <CircularProgress size={30} />
+                            </div>
+                          ) : (
+                            <button onClick={() => { handleUserSettings("suportWebCalendar") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                              Save
+                            </button>
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
               </div>
               <div className='border-b'>
-                <div className='border rounded-lg p-4 bg-[#D9D9D917] mb-4 mt-4'>
-                  <div className='flex flex-row item-center justify-between w-full'>
+                <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mt-4'>
+                  <div className='flex flex-row items-center justify-between w-full'>
                     <div style={styles.subHeading}>
                       Sky
                     </div>
@@ -277,55 +293,60 @@ const AgencySupportAndWidget = () => {
                       />
                     </div>
                   </div>
-                  <div className='flex flex-row item-center justify-between w-full mt-4'>
-                    <div style={styles.subHeading}>
-                      Agent ID
-                    </div>
-                    <button className="flex flex-row items-center gap-2">
-                      <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                      <Image
-                        alt="*"
-                        src={"/assets/editPen.png"}
-                        height={16}
-                        width={16}
-                      />
-                    </button>
-                  </div>
-                </div>
-                {
-                  addSky && (
-                    <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                      <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                        <input
-                          style={styles.inputs}
-                          type="text"
-                          className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                          placeholder="Enter your Agent ID"
-                          value={sky}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setSky(value);
-                          }}
-                        />
+                  {
+                    settingsData?.skyAgentId && (
+                      <div className='flex flex-row items-center justify-between w-full mt-2'>
+                        <div style={styles.subHeading}>
+                          Agent ID: {settingsData?.skyAgentId || ""}
+                        </div>
+                        <button className="flex flex-row items-center gap-2" onClick={() => {
+                          setAddSky(true);
+                        }}>
+                          <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                          <Image
+                            alt="*"
+                            src={"/assets/editPen.png"}
+                            height={16}
+                            width={16}
+                          />
+                        </button>
                       </div>
-                      {
-                        addSkyLoader ? (
-                          <div className="flex flex-row items-center justify-center w-[10%]">
-                            <CircularProgress size={30} />
-                          </div>
-                        ) : (
-                          <button onClick={() => { handleUserSettings("sky") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                            Save
-                          </button>
-                        )
-                      }
-                    </div>
-                  )
-                }
+                    )}
+                  {
+                    addSky && (
+                      <div className="flex flex-row items-center justify-center gap-2 mt-2">
+                        <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                          <input
+                            style={styles.inputs}
+                            type="text"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                            placeholder="Enter your Agent ID"
+                            value={sky}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setSky(value);
+                            }}
+                          />
+                        </div>
+                        {
+                          addSkyLoader ? (
+                            <div className="flex flex-row items-center justify-center w-[10%]">
+                              <CircularProgress size={30} />
+                            </div>
+                          ) : (
+                            <button onClick={() => { handleUserSettings("sky") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                              Save
+                            </button>
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
               </div>
               <div className='border-b'>
-                <div className='border rounded-lg p-4 bg-[#D9D9D917] mb-4 mt-4'>
-                  <div className='flex flex-row item-center justify-between w-full'>
+                <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
+                  <div className='flex flex-row items-center justify-between w-full'>
                     <div style={styles.subHeading}>
                       Give feedback
                     </div>
@@ -353,55 +374,60 @@ const AgencySupportAndWidget = () => {
                       />
                     </div>
                   </div>
-                  <div className='flex flex-row item-center justify-between w-full mt-4'>
-                    <div style={styles.subHeading}>
-                      URL
-                    </div>
-                    <button className="flex flex-row items-center gap-2">
-                      <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                      <Image
-                        alt="*"
-                        src={"/assets/editPen.png"}
-                        height={16}
-                        width={16}
-                      />
-                    </button>
-                  </div>
-                </div>
-                {
-                  addFeedBack && (
-                    <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                      <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                        <input
-                          style={styles.inputs}
-                          type="text"
-                          className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                          placeholder="Enter your URL"
-                          value={feedBack}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setFeedBack(value);
-                          }}
-                        />
+                  {
+                    settingsData?.giveFeedbackUrl && (
+                      <div className='flex flex-row items-center justify-between w-full mt-2'>
+                        <div style={styles.subHeading}>
+                          URL: {settingsData?.giveFeedbackUrl || ""}
+                        </div>
+                        <button className="flex flex-row items-center gap-2" onClick={() => {
+                          setAddFeedBack(true);
+                        }}>
+                          <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                          <Image
+                            alt="*"
+                            src={"/assets/editPen.png"}
+                            height={16}
+                            width={16}
+                          />
+                        </button>
                       </div>
-                      {
-                        addFeedBackLoader ? (
-                          <div className="flex flex-row items-center justify-center w-[10%]">
-                            <CircularProgress size={30} />
-                          </div>
-                        ) : (
-                          <button onClick={() => { handleUserSettings("feedBack") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                            Save
-                          </button>
-                        )
-                      }
-                    </div>
-                  )
-                }
+                    )}
+                  {
+                    addFeedBack && (
+                      <div className="flex flex-row items-center justify-center gap-2 mt-2">
+                        <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                          <input
+                            style={styles.inputs}
+                            type="text"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                            placeholder="Enter your URL"
+                            value={feedBack}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setFeedBack(value);
+                            }}
+                          />
+                        </div>
+                        {
+                          addFeedBackLoader ? (
+                            <div className="flex flex-row items-center justify-center w-[10%]">
+                              <CircularProgress size={30} />
+                            </div>
+                          ) : (
+                            <button onClick={() => { handleUserSettings("feedBack") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                              Save
+                            </button>
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
               </div>
               <div className='border-b'>
-                <div className='border rounded-lg p-4 bg-[#D9D9D917] mb-4 mt-4'>
-                  <div className='flex flex-row item-center justify-between w-full'>
+                <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
+                  <div className='flex flex-row items-center justify-between w-full'>
                     <div style={styles.subHeading}>
                       Hire team
                     </div>
@@ -429,55 +455,60 @@ const AgencySupportAndWidget = () => {
                       />
                     </div>
                   </div>
-                  <div className='flex flex-row item-center justify-between w-full mt-4'>
-                    <div style={styles.subHeading}>
-                      URL
-                    </div>
-                    <button className="flex flex-row items-center gap-2">
-                      <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                      <Image
-                        alt="*"
-                        src={"/assets/editPen.png"}
-                        height={16}
-                        width={16}
-                      />
-                    </button>
-                  </div>
-                </div>
-                {
-                  addHireTeam && (
-                    <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                      <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                        <input
-                          style={styles.inputs}
-                          type="text"
-                          className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                          placeholder="Enter your URL"
-                          value={hireTeam}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setHireTeam(value);
-                          }}
-                        />
+                  {
+                    settingsData?.hireTeamUrl && (
+                      <div className='flex flex-row items-center justify-between w-full mt-2'>
+                        <div style={styles.subHeading}>
+                          URL: {settingsData?.hireTeamUrl || ""}
+                        </div>
+                        <button className="flex flex-row items-center gap-2" onClick={() => {
+                          setAddHireTeam(true);
+                        }}>
+                          <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                          <Image
+                            alt="*"
+                            src={"/assets/editPen.png"}
+                            height={16}
+                            width={16}
+                          />
+                        </button>
                       </div>
-                      {
-                        addHireTeamLoader ? (
-                          <div className="flex flex-row items-center justify-center w-[10%]">
-                            <CircularProgress size={30} />
-                          </div>
-                        ) : (
-                          <button onClick={() => { alert("Work In Progress...") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                            Save
-                          </button>
-                        )
-                      }
-                    </div>
-                  )
-                }
+                    )}
+                  {
+                    addHireTeam && (
+                      <div className="flex flex-row items-center justify-center gap-2 mb-2">
+                        <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                          <input
+                            style={styles.inputs}
+                            type="text"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                            placeholder="Enter your URL"
+                            value={hireTeam}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setHireTeam(value);
+                            }}
+                          />
+                        </div>
+                        {
+                          addHireTeamLoader ? (
+                            <div className="flex flex-row items-center justify-center w-[10%]">
+                              <CircularProgress size={30} />
+                            </div>
+                          ) : (
+                            <button onClick={() => { handleUserSettings("hireTeam") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                              Save
+                            </button>
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
               </div>
               <div>
-                <div className='border rounded-lg p-4 bg-[#D9D9D917] mb-4 mt-4'>
-                  <div className='flex flex-row item-center justify-between w-full'>
+                <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
+                  <div className='flex flex-row items-center justify-between w-full'>
                     <div style={styles.subHeading}>
                       Billing and Support
                     </div>
@@ -505,51 +536,57 @@ const AgencySupportAndWidget = () => {
                       />
                     </div>
                   </div>
-                  <div className='flex flex-row item-center justify-between w-full mt-4'>
-                    <div style={styles.subHeading}>
-                      URL
-                    </div>
-                    <button className="flex flex-row items-center gap-2">
-                      <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                      <Image
-                        alt="*"
-                        src={"/assets/editPen.png"}
-                        height={16}
-                        width={16}
-                      />
-                    </button>
-                  </div>
-                </div>
-                {
-                  addBillingAndSupport && (
-                    <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                      <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                        <input
-                          style={styles.inputs}
-                          type="text"
-                          className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                          placeholder="Enter your URL"
-                          value={billingAndSupport}
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            setBillingAndSupport(value);
-                          }}
-                        />
+                  {
+                    settingsData?.billingAndSupportUrl && (
+                      <div className='flex flex-row items-center justify-between w-full mt-2'>
+                        <div style={styles.subHeading}>
+                          URL: {settingsData?.billingAndSupportUrl || ""}
+                        </div>
+                        <button className="flex flex-row items-center gap-2" onClick={() => {
+                          setAddBillingAndSupport(true);
+                        }}>
+                          <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
+                          <Image
+                            alt="*"
+                            src={"/assets/editPen.png"}
+                            height={16}
+                            width={16}
+                          />
+                        </button>
                       </div>
-                      {
-                        addBillingAndSupportLoader ? (
-                          <div className="flex flex-row items-center justify-center w-[10%]">
-                            <CircularProgress size={30} />
-                          </div>
-                        ) : (
-                          <button onClick={() => { alert("Work In Progress...") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                            Save
-                          </button>
-                        )
-                      }
-                    </div>
-                  )
-                }
+                    )
+                  }
+                  {
+                    addBillingAndSupport && (
+                      <div className="flex flex-row items-center justify-center gap-2 mb-2">
+                        <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                          <input
+                            style={styles.inputs}
+                            type="text"
+                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                            placeholder="Enter your URL"
+                            value={billingAndSupport}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setBillingAndSupport(value);
+                            }}
+                          />
+                        </div>
+                        {
+                          addBillingAndSupportLoader ? (
+                            <div className="flex flex-row items-center justify-center w-[10%]">
+                              <CircularProgress size={30} />
+                            </div>
+                          ) : (
+                            <button onClick={() => { handleUserSettings("billingAndSupport") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                              Save
+                            </button>
+                          )
+                        }
+                      </div>
+                    )
+                  }
+                </div>
               </div>
             </div>
           )

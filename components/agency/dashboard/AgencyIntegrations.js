@@ -5,11 +5,21 @@ import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
 import React, { useState } from 'react';
 import UPSell from '../integrations/UPSell';
 import AgencySupportAndWidget from '../integrations/AgencySupportAndWidget';
+import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import Image from 'next/image';
 
 function AgencyIntegrations({ selectedAgency }) {
 
     const [currentTab, setCurrentTab] = useState(1);
     const [linkCopied, setLinkCopied] = useState(false);
+
+    const DuplicateButton = dynamic(
+        () => import("@/components/animation/DuplicateButton"),
+        {
+            ssr: false,
+        }
+    );
 
     const tabs = [
         {
@@ -22,7 +32,7 @@ function AgencyIntegrations({ selectedAgency }) {
         },
         {
             id: 3,
-            tab: "UpSell"
+            tab: "Upsell"
         },
         {
             id: 4,
@@ -90,14 +100,51 @@ function AgencyIntegrations({ selectedAgency }) {
                             ))
                         }
                     </div>
-                    <button
-                        className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
-                        style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
-                        onClick={() => {
-                            copyAgencyOnboardingLink({ setLinkCopied })
-                        }}>
-                        {linkCopied ? "Link Copied" : "Copy Link"}
-                    </button>
+                    {/*
+                     <button
+                         className="bg-[#845EEE45] border-none outline-none rounded-2xl px-2 py-1"
+                         style={{ fontSize: 15, fontWeight: "500", whiteSpace: 'nowrap' }}
+                         onClick={() => {
+                             copyAgencyOnboardingLink({ setLinkCopied })
+                         }}>
+                         {linkCopied ? "Link Copied" : "Copy Link"}
+                     </button>
+                   */}
+                    <motion.div
+                        initial={{ x: '100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '100%' }}
+                        transition={{ duration: 0.3 }}
+                        className=" w-[420px] bg-white shadow-lg rounded-lg" //fixed top-0 right-0
+                    >
+                        <div className="w-full flex flex-row items-center justify-between px-4 py-2">
+                            <div className='flex flex-row items-center justify-center gap-2'>
+                                <Image
+                                    alt="*"
+                                    src={"/assets/newAssignX.png"}
+                                    height={54}
+                                    width={54}
+                                />
+                                <div>
+                                    <div style={{ fontSize: "16px", fontWeight: "bold" }}>
+                                        Copy Agency Link
+                                    </div>
+                                    <div style={{ fontSize: "12px", fontWeight: "400" }}>
+                                        Use this link to sign up users
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                className="flex flex-row items-center justify-center gap-2 bg-[#7804DF05] rounded-lg p-2"
+                                onClick={() => {
+                                    copyAgencyOnboardingLink({ setLinkCopied })
+                                }}
+                            >
+                                <Image alt="*" src={"/assets/copyIconPurple.png"} height={20} width={20} />
+                                <div className="text-purple" style={{ fontSize: "16px", fontWeight: "400" }}>{linkCopied ? "Link Copied" : "Copy Link"}</div>
+                            </button>
+                        </div>
+                    </motion.div>
                 </div>
             </div>
 
