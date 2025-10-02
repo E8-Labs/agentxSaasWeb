@@ -777,13 +777,13 @@ function UpgradePlanContent({
 
     //function to subscribe plan
     const handleSubscribePlan = async () => {
-        // handleClose(true)
-        // setShowSnackMsg({
-        //     type: SnackbarTypes.Success,
-        //     message: "Plan upgraded successfully",
-        //     isVisible: true
-        // })
-        // return
+        handleClose(true)
+        setShowSnackMsg({
+            type: SnackbarTypes.Success,
+            message: "Plan upgraded successfully",
+            isVisible: true
+        })
+        return
         try {
             let planType = currentSelectedPlan?.planType;
 
