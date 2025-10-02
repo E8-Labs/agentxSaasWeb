@@ -35,7 +35,8 @@ function Teams({
   const timerRef = useRef(null);
   const router = useRouter();
 
-  const {user: reduxUser, setUser: setReduxUser} = useUser;
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  console.log("reduxUser is", reduxUser)
   //stores local data
   const [userLocalData, setUserLocalData] = useState(null);
 
@@ -626,46 +627,50 @@ function Teams({
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
-          {reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
+          {(reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0)  && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
               {`${reduxUser?.currentUsage?.maxTeamMembers}/${reduxUser?.planCapabilities?.maxTeamMembers || 0} used`}
             </div>
           )}
 
-          <Tooltip
-            title={`Additional team seats are $${userLocalData?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
-            arrow
-            componentsProps={{
-              tooltip: {
-                sx: {
-                  backgroundColor: "#ffffff", // Ensure white background
-                  color: "#333", // Dark text color
-                  fontSize: "14px",
-                  padding: "10px 15px",
-                  borderRadius: "8px",
-                  boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                },
-              },
-              arrow: {
-                sx: {
-                  color: "#ffffff", // Match tooltip background
-                },
-              },
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12,
-                fontWeight: "600",
-                color: "#000000",
-                cursor: "pointer",
-              }}
-            >
-              <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
-              // onClick={() => setIntroVideoModal2(true)}
-              />
-            </div>
-          </Tooltip>
+          {
+            (reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxTeamMembers < 1000) && (
+              <Tooltip
+                title={`Additional team seats are $${userLocalData?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: "#ffffff", // Ensure white background
+                      color: "#333", // Dark text color
+                      fontSize: "14px",
+                      padding: "10px 15px",
+                      borderRadius: "8px",
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: "#ffffff", // Match tooltip background
+                    },
+                  },
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: "600",
+                    color: "#000000",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                  // onClick={() => setIntroVideoModal2(true)}
+                  />
+                </div>
+              </Tooltip>
+            )
+          }
 
         </div>
         <div className="flex flex-row items-center gap-2">
@@ -947,7 +952,7 @@ function Teams({
                     }}
 
                   >
-                    { maxTeamMembers <= currentMembers ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
+                    {maxTeamMembers <= currentMembers ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
 
