@@ -40,7 +40,11 @@ function VoiceMailTab({
 
   const [user, setUser] = useState(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  })
 
 
   useEffect(() => {
@@ -299,6 +303,12 @@ function VoiceMailTab({
           setShowMessage(null);
         }}
       />
+      <AgentSelectSnackMessage
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+      />
       {
         agent?.voicemail == null ? (
           user?.agencyCapabilities?.allowVoicemail === false ? (
@@ -306,11 +316,13 @@ function VoiceMailTab({
             <UpgardView
               title={"Enable Voicemail"}
               subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
+              setShowSnackMsg={setShowSnackMsg}
             />
           ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
             <UpgardView
               title={"Enable Voicemail"}
               subTitle={"Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail."}
+              setShowSnackMsg={setShowSnackMsg}
             />
           ) : (
             <NoVoicemailView

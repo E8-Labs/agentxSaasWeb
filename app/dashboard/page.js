@@ -23,6 +23,7 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import { Elements } from "@stripe/react-stripe-js";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { loadStripe } from "@stripe/stripe-js";
+import { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 const Page = () => {
   const router = useRouter();
@@ -51,7 +52,11 @@ const Page = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
-
+  const [showSnackMsg, setShowSnackMsg] = useState({
+    type: SnackbarTypes.Success,
+    message: "",
+    isVisible: false
+  });
 
   let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -303,6 +308,12 @@ const Page = () => {
   return (
     <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
 
+      <AgentSelectSnackMessage
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() => setShowSnackMsg({ type: null, message: "", isVisible: false })}
+      />
       {/* Slider code<div
         style={{
           position: "absolute",
@@ -795,7 +806,7 @@ const Page = () => {
               handleClose={() => {
                 setShowUpgradePlanPopup(false)
               }}
-
+              setShowSnackMsg={setShowSnackMsg}
 
             />
           </Elements>
