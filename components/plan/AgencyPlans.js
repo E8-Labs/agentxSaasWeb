@@ -421,6 +421,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                     </div>
                     <SelectYearlypopup
                         showYearlyPlan={showYearlyPlan}
+                        duration={selectedDuration?.title}
                         continueMonthly={continueMonthly}
                         continueYearlyPlan={() => {
                             continueYearlyPlan();
