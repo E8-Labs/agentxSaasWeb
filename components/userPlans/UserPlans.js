@@ -69,8 +69,8 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
     useEffect(() => {
         console.log("reduxUser", reduxUser)
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
-        if(reduxUser?.plan && from !== "billing-modal"){
-            if(handleContinue){
+        if (reduxUser?.plan && from !== "billing-modal") {
+            if (handleContinue) {
                 handleContinue()
             }
         }
@@ -81,7 +81,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         console.log("Card added details are here", data);
         if (data) {
             // const userProfile = await getProfileDetails();
-            if(handleContinue){
+            if (handleContinue) {
                 handleContinue()
             }
         }
@@ -167,7 +167,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                     } else {
                         console.log('handle continue ')
 
-                        if(handleContinue){
+                        if (handleContinue) {
                             handleContinue()
                         }
                     }
@@ -479,13 +479,21 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                         {/* Features container - scrollable */}
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
-                                            {index > 0 && (
-                                                <div className="w-full mb-3 flex-shrink-0">
-                                                    <div className="text-sm font-semibold text-black mb-2 text-left">
-                                                        Everything in {getCurrentPlans()[index - 1]?.name}, and:
+                                            {
+                                                isFrom === "SubAccount" ? (
+                                                    ""
+                                                ) : (
+                                                    <div>
+                                                        {index > 0 && (
+                                                            <div className="w-full mb-3 flex-shrink-0">
+                                                                <div className="text-sm font-semibold text-black mb-2 text-left">
+                                                                    Everything in {getCurrentPlans()[index - 1]?.name}, and:
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                            )}
+                                                )
+                                            }
 
                                             <div className='flex flex-col items-start w-full flex-1 pr-2'>
                                                 {
@@ -546,8 +554,8 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                             // console.log('🎉 [subscribe plan] Plan upgraded successfully');
                             // Refresh user data after upgrade to get new plan capabilities
                             await refreshUserData();
-                            
-                            if(handleContinue){
+
+                            if (handleContinue) {
                                 handleContinue()
                             }
                         }

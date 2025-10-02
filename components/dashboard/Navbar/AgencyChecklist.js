@@ -129,20 +129,26 @@ const AgencyChecklist = ({ userDetails }) => {
                                                 disabled={item.status === true}
                                             >
                                                 <div className='flex flex-row items-center gap-4'>
-                                                    {item.status === true ? <Image
-                                                        className='ms-2'
-                                                        src={"/agencyIcons/Check.jpg"}
-                                                        alt='*'
-                                                        height={20}
-                                                        width={20}
-                                                    /> :
+                                                    {item.status === true ?
                                                         <Image
                                                             className='ms-2'
-                                                            src={"/agencyIcons/unCheck.jpg"}
+                                                            src={"/agencyIcons/Check.jpg"}
                                                             alt='*'
                                                             height={20}
                                                             width={20}
-                                                        />}
+                                                        /> :
+                                                        <div className="h-[18px] w-[18px] rounded-full bg-btngray">
+                                                        </div>
+                                                    }
+                                                    {/*
+                                                        <Image
+                                                        className='ms-2'
+                                                        src={"/agencyIcons/unCheck.jpg"}
+                                                        alt='*'
+                                                        height={20}
+                                                        width={20}
+                                                    />
+                                                    */}
                                                     <div
                                                         // style={styles.text}
                                                         // className={`${item.status === true ? "line-through" : ""} font-medium text-base sm:text-lg md:text-xl`}

@@ -144,7 +144,7 @@ export default function AddMonthlyPlan({
     } else if (percentage > 50 && percentage <= 75) {
       return "orange";
     } else if (percentage > 75 && percentage < 100) {
-      return "yellow";
+      return "#CC5500";
     } else if (percentage >= 100) {
       return "#01CB76";
     }
@@ -539,7 +539,7 @@ export default function AddMonthlyPlan({
                       >
                         <div>Your Profit</div>
                         <div>
-                          ${formatFractional2(discountedPrice - agencyPlanCost)}/ min
+                          ${formatFractional2(discountedPrice - agencyPlanCost)}/Credit
                         </div>
                         <div>
                           ${formatDecimalValue((discountedPrice - agencyPlanCost) * minutes)}

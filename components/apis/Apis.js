@@ -294,6 +294,11 @@ const Apis = {
   copyAgentScoring: `${BasePath}api/agent/scoring`,
   
   exportLeads: `${BasePath}api/leads/export-csv`,
+  
+
+  //agency integrations
+  userSettings: `${BasePath}api/settings`,
+  getUserSettings: `${BasePath}api/settings`,
 
 };
 

@@ -31,14 +31,47 @@ const UPSell = () => {
     const [perplexityEnrichmentLoader, setPerplexityEnrichmentLoader] = useState(false);
     //agency data
     const [agencyData, setAgencyData] = useState("");
+    //initial loader
+    const [initialLoader, setInitialLoader] = useState(false);
 
     const handleTogglePhoneNumbers = (phoneNumbers) => {
         setPhoneNumbers(!phoneNumbers);
     }
 
     useEffect(() => {
+        getUserSettings();
         getLocalData();
     }, []);
+
+
+    //get user settings
+    const getUserSettings = async () => {
+        try {
+            setInitialLoader(true);
+            const ApiPath = Apis.userSettings;
+            const Auth = AuthToken();
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    "Authorization": "Bearer " + Auth,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response) {
+                console.log("response of get user settings api is", response)
+                const Data = response?.data?.data;
+                setPhonePrice(Data?.phonePrice)
+                setDncPrice(Data?.dncPrice)
+                setPerplexityEnrichmentPrice(Data?.enrichmentPrice)
+                setAllowUpSellPhone(Data?.upsellPhoneNumber);
+                setAllowDNC(Data?.upsellDnc);
+                setAllowPerplexityEnrichment(Data?.upsellEnrichment);
+                setInitialLoader(false);
+            }
+        } catch (err) {
+            console.log("Error occured in api is", err)
+            setInitialLoader(false);
+        }
+    }
 
     //get agency data
     const getLocalData = () => {
@@ -57,48 +90,64 @@ const UPSell = () => {
         }
     };
 
-    //save upsell phone
-    const handleSaveUpSell = async () => {
-        try {
-            console.log("Which data to send in api is not confirmed");
-            // return
+    //user settings api data
+    const userSettingData = (from) => {
+        console.log("Api will run for", from);
+        if (from === "phonePrice") {
             setSavePhoneLoader(true);
+            return {
+                upsellPhoneNumber: true,
+                phonePrice: phonePrice,
+            }
+        } else if (from === "dncPrice") {
+            setDNCLoader(true);
+            return {
+                upsellDnc: true,
+                dncPrice: dncPrice,
+            }
+        } else if (from === "enrichmentPrice") {
+            setPerplexityEnrichmentLoader(true);
+            return {
+                upsellEnrichment: true,
+                enrichmentPrice: perplexityEnrichmentPrice,
+            }
+        }
+    }
+
+    //user settings api
+    const handleUserSettings = async (from) => {
+        try {
             const Auth = AuthToken();
-            const ApiPath = Apis.addUpSellPhone;
-            const ApiData = {
-                price: phonePrice,
-            };
-            const response = await axios.post(ApiPath, ApiData, {
+            const ApiPath = Apis.userSettings;
+            const ApiData = userSettingData(from);
+            console.log("Api data sending in user setting api is", ApiData);
+            const response = await axios.put(ApiPath, ApiData, {
                 headers: {
-                    Authorization: "Bearer " + Auth,
+                    "Authorization": "Bearer " + Auth,
                     "Content-Type": "application/json",
                 },
             });
-
+            console.log("Response of user settings api is", response);
             if (response) {
-                await getProfileDetails();
-                console.log("Response of add upsell phone api is", response);
-                const d = response.data;
-                if (d.message === "notAdded") {
-                    setAllowUpSellPhone(false);
-                    setAddUpSellPhone(false);
-                } else {
-                    setAddUpSellPhone(false);
-                }
-                if (d.status === true) {
-                    getLocalData();
-                    setShowSnackMessage(d.message);
+                if (response.data.status === true) {
+                    setShowSnackMessage(response.data.message);
                     setShowSnackType(SnackbarTypes.Success);
+                } else {
+                    setShowSnackMessage(response.data.message);
+                    setShowSnackType(SnackbarTypes.Error);
                 }
                 setSavePhoneLoader(false);
+                setDNCLoader(false);
+                setPerplexityEnrichmentLoader(false);
             }
-        } catch (error) {
-            console.error("Error occured in api is", error);
-            setSavePhoneLoader(false);
-        } finally {
-            // setSaveLoader(false);
         }
-    };
+        catch (error) {
+            console.error("Error occured in user settings api is", error);
+            setSavePhoneLoader(false);
+            setDNCLoader(false);
+            setPerplexityEnrichmentLoader(false);
+        }
+    }
 
     return (
         <div className="flex flex-row justify-center h-[73vh] w-full overflow-y-auto">
@@ -111,264 +160,269 @@ const UPSell = () => {
                     type={showSnackType}
                     message={showSnackMessage}
                 />
-                <div className="w-full border rounded-xl p-4 rounded-lg border rounded-xl">
-                    <div style={{ fontWeight: "600", fontSize: "22px", color: "#000000" }}>Upsell Features</div>
-                    <div className='border-b'>
-                        <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
-                            <div>
-                                <div style={styles.heading}>
-                                    Phone Numbers.
+                {
+                    initialLoader ? (
+                        <div className="flex flex-row items-center justify-center w-full">
+                            <CircularProgress size={30} />
+                        </div>
+                    ) : (
+                        <div className="w-full border rounded-xl p-4 rounded-lg border rounded-xl">
+                            <div style={{ fontWeight: "600", fontSize: "22px", color: "#000000" }}>Upsell Features</div>
+                            <div className='border-b'>
+                                <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
+                                    <div>
+                                        <div style={styles.heading}>
+                                            Phone Numbers.
+                                        </div>
+                                        <div style={styles.subHeading}>
+                                            Easily upsell phone numbers
+                                        </div>
+                                        <div style={styles.subHeading}>
+                                            Your cost is ${phonePrice || 0}/mo for each number
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <Switch
+                                            checked={allowUpSellPhone}
+                                            onChange={(e) => {
+                                                const checked = e.target.checked;
+                                                setAllowUpSellPhone(checked);
+
+                                                if (allowUpSellPhone === false) {
+                                                    setAddUpSellPhone(true);
+                                                } else {
+                                                    setAddUpSellPhone(false);
+                                                }
+                                            }}
+                                            sx={{
+                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                    color: 'white',
+                                                },
+                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                    backgroundColor: '#7902DF',
+                                                },
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                                <div style={styles.subHeading}>
-                                    Easily upsell phone numbers
-                                </div>
-                                <div style={styles.subHeading}>
-                                    Your cost is {agencyData?.phonePrice?.price && (
-                                        `$${agencyData?.phonePrice?.price}`
+                                {
+                                    addUpSellPhone && (
+                                        <div className="flex flex-row items-center justify-center gap-2 mb-4">
+                                            <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
+                                                <div className="" style={styles.inputs}>
+                                                    $
+                                                </div>
+                                                <input
+                                                    style={styles.inputs}
+                                                    type="text"
+                                                    className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                    placeholder="Your Cost"
+                                                    value={phonePrice}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        // Allow only digits and one optional period
+                                                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                                                        // Prevent multiple periods
+                                                        const valid = sanitized.split('.')?.length > 2
+                                                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                            : sanitized;
+                                                        // setOriginalPrice(valid);
+                                                        setPhonePrice(valid ? Number(valid) : 0);
+                                                    }}
+                                                />
+                                            </div>
+                                            {
+                                                savePhoneLoader ? (
+                                                    <div className="flex flex-row items-center justify-center w-[10%]">
+                                                        <CircularProgress size={30} />
+                                                    </div>
+                                                ) : (
+                                                    <button onClick={() => { handleUserSettings("phonePrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                        Save
+                                                    </button>
+                                                )
+                                            }
+                                        </div>
                                     )
-                                    }/mo for each number
-                                </div>
+                                }
                             </div>
-                            <div className="flex flex-row items-center gap-2">
-                                <Switch
-                                    checked={allowUpSellPhone}
-                                    onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setAllowUpSellPhone(checked);
-
-                                        if (allowUpSellPhone === false) {
-                                            setAddUpSellPhone(true);
-                                        } else {
-                                            setAddUpSellPhone(false);
-                                        }
-                                    }}
-                                    sx={{
-                                        '& .MuiSwitch-switchBase.Mui-checked': {
-                                            color: 'white',
-                                        },
-                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                            backgroundColor: '#7902DF',
-                                        },
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        {
-                            addUpSellPhone && (
-                                <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                                    <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
-                                        <div className="" style={styles.inputs}>
-                                            $
+                            <div className='border-b'>
+                                <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
+                                    <div>
+                                        <div style={styles.heading}>
+                                            DNC
                                         </div>
-                                        <input
-                                            style={styles.inputs}
-                                            type="text"
-                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                            placeholder="Your Cost"
-                                            value={phonePrice}
+                                        <div style={styles.subHeading}>
+                                            Upsell seats to your members
+                                        </div>
+                                        <div style={styles.subHeading}>
+                                            Your cost is ${dncPrice || 0}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <Switch
+                                            checked={allowDNC}
                                             onChange={(e) => {
-                                                const value = e.target.value;
-                                                // Allow only digits and one optional period
-                                                const sanitized = value.replace(/[^0-9.]/g, '');
+                                                const checked = e.target.checked;
+                                                setAllowDNC(checked);
 
-                                                // Prevent multiple periods
-                                                const valid = sanitized.split('.')?.length > 2
-                                                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                                                    : sanitized;
-                                                // setOriginalPrice(valid);
-                                                setPhonePrice(valid ? Number(valid) : 0);
+                                                if (allowDNC === false) {
+                                                    setAddDNC(true);
+                                                } else {
+                                                    setAddDNC(false);
+                                                }
+                                            }}
+                                            sx={{
+                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                    color: 'white',
+                                                },
+                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                    backgroundColor: '#7902DF',
+                                                },
                                             }}
                                         />
                                     </div>
-                                    {
-                                        savePhoneLoader ? (
-                                            <div className="flex flex-row items-center justify-center w-[10%]">
-                                                <CircularProgress size={30} />
+                                </div>
+                                {
+                                    addDNC && (
+                                        <div className="flex flex-row items-center justify-center gap-2 mb-4">
+                                            <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
+                                                <div className="" style={styles.inputs}>
+                                                    $
+                                                </div>
+                                                <input
+                                                    style={styles.inputs}
+                                                    type="text"
+                                                    className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                    placeholder="Your Cost"
+                                                    value={dncPrice}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        // Allow only digits and one optional period
+                                                        const sanitized = value.replace(/[^0-9.]/g, '');
+
+                                                        // Prevent multiple periods
+                                                        const valid = sanitized.split('.')?.length > 2
+                                                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                            : sanitized;
+                                                        // setOriginalPrice(valid);
+                                                        setDncPrice(valid ? Number(valid) : 0);
+                                                    }}
+                                                />
                                             </div>
-                                        ) : (
-                                            <button onClick={handleSaveUpSell} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                                Save
-                                            </button>
-                                        )
-                                    }
-                                </div>
-                            )
-                        }
-                    </div>
-                    <div className='border-b'>
-                        <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
-                            <div>
-                                <div style={styles.heading}>
-                                    DNC
-                                </div>
-                                <div style={styles.subHeading}>
-                                    Upsell seats to your members
-                                </div>
-                                <div style={styles.subHeading}>
-                                    Your cost is $0
-                                </div>
-                            </div>
-                            <div className="flex flex-row items-center gap-2">
-                                <Switch
-                                    checked={allowDNC}
-                                    onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setAllowDNC(checked);
-
-                                        if (allowDNC === false) {
-                                            setAddDNC(true);
-                                        } else {
-                                            setAddDNC(false);
-                                        }
-                                    }}
-                                    sx={{
-                                        '& .MuiSwitch-switchBase.Mui-checked': {
-                                            color: 'white',
-                                        },
-                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                            backgroundColor: '#7902DF',
-                                        },
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        {
-                            addDNC && (
-                                <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                                    <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
-                                        <div className="" style={styles.inputs}>
-                                            $
+                                            {
+                                                dNCLoader ? (
+                                                    <div className="flex flex-row items-center justify-center w-[10%]">
+                                                        <CircularProgress size={30} />
+                                                    </div>
+                                                ) : (
+                                                    <button onClick={() => { handleUserSettings("dncPrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                        Save
+                                                    </button>
+                                                )
+                                            }
                                         </div>
-                                        <input
-                                            style={styles.inputs}
-                                            type="text"
-                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                            placeholder="Your Cost"
-                                            value={dncPrice}
+                                    )
+                                }
+                            </div>
+                            <div className='border-b'>
+                                <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
+                                    <div>
+                                        <div style={styles.heading}>
+                                            Perplexity Enrichment
+                                        </div>
+                                        <div style={styles.subHeading}>
+                                            Upsell perplexity enrichment
+                                        </div>
+                                        <div style={styles.subHeading}>
+                                            Your cost is ${perplexityEnrichmentPrice || 0}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <Switch
+                                            checked={allowPerplexityEnrichment}
                                             onChange={(e) => {
-                                                const value = e.target.value;
-                                                // Allow only digits and one optional period
-                                                const sanitized = value.replace(/[^0-9.]/g, '');
+                                                const checked = e.target.checked;
+                                                setAllowPerplexityEnrichment(checked);
 
-                                                // Prevent multiple periods
-                                                const valid = sanitized.split('.')?.length > 2
-                                                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                                                    : sanitized;
-                                                // setOriginalPrice(valid);
-                                                setDncPrice(valid ? Number(valid) : 0);
+                                                if (allowPerplexityEnrichment === false) {
+                                                    setAddPerplexityEnrichment(true);
+                                                } else {
+                                                    setAddPerplexityEnrichment(false);
+                                                }
+                                            }}
+                                            sx={{
+                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                    color: 'white',
+                                                },
+                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                    backgroundColor: '#7902DF',
+                                                },
                                             }}
                                         />
                                     </div>
-                                    {
-                                        dNCLoader ? (
-                                            <div className="flex flex-row items-center justify-center w-[10%]">
-                                                <CircularProgress size={30} />
-                                            </div>
-                                        ) : (
-                                            <button onClick={handleSaveUpSell} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                                Save
-                                            </button>
-                                        )
-                                    }
                                 </div>
-                            )
-                        }
-                    </div>
-                    <div className='border-b'>
-                        <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
-                            <div>
-                                <div style={styles.heading}>
-                                    Perplexity Enrichment
-                                </div>
-                                <div style={styles.subHeading}>
-                                    Upsell perplexity enrichment
-                                </div>
-                                <div style={styles.subHeading}>
-                                    Your cost is $0
-                                </div>
-                            </div>
-                            <div className="flex flex-row items-center gap-2">
-                                <Switch
-                                    checked={allowPerplexityEnrichment}
-                                    onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setAllowPerplexityEnrichment(checked);
+                                {
+                                    addPerplexityEnrichment && (
+                                        <div className="flex flex-row items-center justify-center gap-2 mb-4">
+                                            <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
+                                                <div className="" style={styles.inputs}>
+                                                    $
+                                                </div>
+                                                <input
+                                                    style={styles.inputs}
+                                                    type="text"
+                                                    className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                                                    placeholder="Your Cost"
+                                                    value={perplexityEnrichmentPrice}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        // Allow only digits and one optional period
+                                                        const sanitized = value.replace(/[^0-9.]/g, '');
 
-                                        if (allowPerplexityEnrichment === false) {
-                                            setAddPerplexityEnrichment(true);
-                                        } else {
-                                            setAddPerplexityEnrichment(false);
-                                        }
-                                    }}
-                                    sx={{
-                                        '& .MuiSwitch-switchBase.Mui-checked': {
-                                            color: 'white',
-                                        },
-                                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                            backgroundColor: '#7902DF',
-                                        },
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        {
-                            addPerplexityEnrichment && (
-                                <div className="flex flex-row items-center justify-center gap-2 mb-4">
-                                    <div className="border border-gray-200 rounded px-2 py-0  flex flex-row items-center w-[90%]">
-                                        <div className="" style={styles.inputs}>
-                                            $
+                                                        // Prevent multiple periods
+                                                        const valid = sanitized.split('.')?.length > 2
+                                                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                                                            : sanitized;
+                                                        // setOriginalPrice(valid);
+                                                        setPerplexityEnrichmentPrice(valid ? Number(valid) : 0);
+                                                    }}
+                                                />
+                                            </div>
+                                            {
+                                                perplexityEnrichmentLoader ? (
+                                                    <div className="flex flex-row items-center justify-center w-[10%]">
+                                                        <CircularProgress size={30} />
+                                                    </div>
+                                                ) : (
+                                                    <button onClick={() => { handleUserSettings("enrichmentPrice") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
+                                                        Save
+                                                    </button>
+                                                )
+                                            }
                                         </div>
-                                        <input
-                                            style={styles.inputs}
-                                            type="text"
-                                            className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                            placeholder="Your Cost"
-                                            value={perplexityEnrichmentPrice}
-                                            onChange={(e) => {
-                                                const value = e.target.value;
-                                                // Allow only digits and one optional period
-                                                const sanitized = value.replace(/[^0-9.]/g, '');
-
-                                                // Prevent multiple periods
-                                                const valid = sanitized.split('.')?.length > 2
-                                                    ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                                                    : sanitized;
-                                                // setOriginalPrice(valid);
-                                                setPerplexityEnrichmentPrice(valid ? Number(valid) : 0);
-                                            }}
-                                        />
-                                    </div>
-                                    {
-                                        perplexityEnrichmentLoader ? (
-                                            <div className="flex flex-row items-center justify-center w-[10%]">
-                                                <CircularProgress size={30} />
-                                            </div>
-                                        ) : (
-                                            <button onClick={handleSaveUpSell} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                                Save
-                                            </button>
-                                        )
-                                    }
-                                </div>
-                            )
-                        }
-                    </div>
-                    <div>
-                        <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
-                            <div>
-                                <div style={styles.heading}>
-                                    Leads
-                                </div>
-                                <div style={styles.subHeading}>
-                                    Upsell leads
-                                </div>
+                                    )
+                                }
                             </div>
-                            <div className="bg-purple text-white rounded-full w-[100px] h-[25px] flex flex-row items-center justify-center cursor-pointer" style={{ fontSize: "12px", fontWeight: "400" }}>
-                                Comming Soon
+                            <div>
+                                <div className='flex flex-row item-center justify-between border rounded-lg p-4 w-full mt-4 mb-4 bg-[#D9D9D917]'>
+                                    <div>
+                                        <div style={styles.heading}>
+                                            Leads
+                                        </div>
+                                        <div style={styles.subHeading}>
+                                            Upsell leads
+                                        </div>
+                                    </div>
+                                    <div className="bg-purple text-white rounded-full w-[100px] h-[25px] flex flex-row items-center justify-center cursor-pointer" style={{ fontSize: "12px", fontWeight: "400" }}>
+                                        Comming Soon
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    )
+                }
             </div>
         </div>
     )

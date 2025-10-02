@@ -686,7 +686,7 @@ const AgencyAddCard = ({
                                 */}
                                 <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Total Annual Commitment: ${(selectedPlan?.originalPrice * 12)?.toLocaleString()}</div>
                             </div>
-                            <div style={{ fontWeight: "600", fontSize: 15 }}>${(selectedPlan?.originalPrice).toLocaleString()} * {getMonthsCount()}</div>
+                            <div style={{ fontWeight: "600", fontSize: 15 }}>${formatDecimalValue(selectedPlan?.originalPrice)}</div>
                         </div>
                         {/*
                          <div className="flex flex-row items-start justify-between w-full mt-6">

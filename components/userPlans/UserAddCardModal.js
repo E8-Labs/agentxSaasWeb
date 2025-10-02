@@ -641,7 +641,7 @@ const UserAddCard = ({
                                     <div style={{ fontWeight: "600", fontSize: 15 }}>
                                         {selectedPlan?.name || 'Plan'}
                                     </div>
-                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} subscription</div>
+                                    <div className="capitalize" style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} Subscription</div>
                                 </div>
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice(selectedPlan)}`}</div>
                             </div>
@@ -713,7 +713,7 @@ const UserAddCard = ({
                                 )}
                             </div>
                             <div
-                                className="flex flex-row items-center gap-2 w-full justify-center mt-2"
+                                className="flex flex-row items-center gap-1 w-full justify-center mt-2"
                                 style={{
                                     fontWeight: "400",
                                     fontSize: 13
