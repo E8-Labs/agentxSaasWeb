@@ -23,7 +23,7 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import { Elements } from "@stripe/react-stripe-js";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { loadStripe } from "@stripe/stripe-js";
-import { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
+import AgentSelectSnackMessage, { SnackbarTypes } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 
 const Page = () => {
   const router = useRouter();
