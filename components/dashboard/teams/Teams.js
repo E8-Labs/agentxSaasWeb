@@ -627,14 +627,14 @@ function Teams({
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
-          {(reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0)  && (
+          {(reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0)  && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
               {`${reduxUser?.currentUsage?.maxTeamMembers}/${reduxUser?.planCapabilities?.maxTeamMembers || 0} used`}
             </div>
           )}
 
           {
-            (reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxTeamMembers < 1000) && (
+            (reduxUser?.plan.planId != null && reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxTeamMembers < 1000) && (
               <Tooltip
                 title={`Additional team seats are $${userLocalData?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
                 arrow

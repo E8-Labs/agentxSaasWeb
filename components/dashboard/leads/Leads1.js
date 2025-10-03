@@ -978,7 +978,7 @@ const Leads1 = () => {
             </div>
           ) : (
             <div className="h-screen">
-              {reduxUser?.planCapabilities?.maxLeads < 10000000 && reduxUser?.plan.price !== 0 && (
+              {reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxLeads < 10000000 && reduxUser?.plan.price !== 0 && (
                 <div className="p-6 flex flex-row items-center gap-2" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
                   <div>
                     {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
