@@ -1387,10 +1387,9 @@ function AgencyPlansPayments({
                     open={showUpgradeModal}
                     handleClose={async (upgradeResult) => {
                         setShowUpgradeModal(false);
-
                         // If upgrade was successful, refresh profile and state
                         if (upgradeResult) {
-                            setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
+                            // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
                             console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
                             getProfile();
                         }

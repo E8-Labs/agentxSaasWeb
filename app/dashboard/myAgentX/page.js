@@ -2961,14 +2961,14 @@ function Page() {
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
-          {reduxUser?.planCapabilities?.maxAgents < 1000 && (
+          {reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000 && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
               {`${agentsListSeparated.length}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
             </div>
           )}
-
+                
           {
-            (reduxUser?.planCapabilities?.maxAgents < 1000) && (
+            (reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000) && (
               <Tooltip
                 title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
                 arrow
