@@ -662,7 +662,7 @@ function AgencySubacount({
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       {/* (item.LeadModel?.phone) */}
-                      <div style={styles.text2}>${item.amountSpent || 0}</div>
+                      <div style={styles.text2}>${item.totalSpend || 0}</div>
                     </div>
                     <div className="w-1/12" onClick={() => { setSelectedUser(item); }}>
                       <div style={styles.text2}>

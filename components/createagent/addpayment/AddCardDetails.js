@@ -244,8 +244,9 @@ const AddCardDetails = ({
       const result2 = await addCardRes.json();
       console.log("Result is ", result2);
       setAddCardLoader(false);
-      if (result2.status) {
+      if (result2.status === true) {
         setAddCardSuccess(true);
+        // console.log("This is check 1 test")
         if (!togglePlan) handleClose(result);
         if (togglePlan) handleSubscribePlan();
       } else {

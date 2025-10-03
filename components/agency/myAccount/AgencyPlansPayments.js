@@ -290,12 +290,14 @@ function AgencyPlansPayments({
 
     //function to close the add card popup
     const handleClose = (data) => {
-        // //console.log;
-        if (data.status === true) {
-            let newCard = data.data;
+        console.log("Data recieved after add card is", data);
+        if (data?.setupIntent) {
+            let newCard = data.setupIntent;
             setAddPaymentPopup(false);
             setCards([newCard, ...cards]);
-            window.location.reload()
+            setSuccessSnack("Card Added.");
+            getCardsList();
+            // window.location.reload()
         }
     };
 
@@ -1490,7 +1492,7 @@ function AgencyPlansPayments({
                                     stop={stop}
                                     getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                                     handleClose={handleClose}
-                                    togglePlan={""}
+                                    // togglePlan={""}
                                 // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                                 />
                             </Elements>
