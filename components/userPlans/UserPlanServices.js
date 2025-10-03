@@ -66,17 +66,23 @@ const setCachedPlans = (data, from) => {
 export const getUserPlans = async (from) => {
     try {
         const cached = getCachedPlans(from);
+        const UserLocalData = getUserLocalData();
 
         // If cache exists and is fresh (< 5 minutes), return cached data
-        if (cached && !cached.isStale) {
-            console.log(`Returning cached plans (${Math.floor(cached.age / 1000)}s old)`);
-            return cached.data;
+        if (UserLocalData?.userRole === "AgencySubAccount") {
+            if (cached && !cached.isStale) {
+                console.log(`Returning cached plans (${Math.floor(cached.age / 1000)}s old)`);
+                return cached.data;
+            }
         }
 
         // If cache is stale or doesn't exist, make API call
         let token = AuthToken();
 
         let path = Apis.getPlans;
+        if (UserLocalData?.userRole === "AgencySubAccount") {
+            path = Apis.getSubAccountPlans;
+        }
         if (from === "SubAccount") {
             path = Apis.getSubAccountPlans;
         } else if (from === "agency") {
@@ -122,6 +128,16 @@ export const getUserPlans = async (from) => {
     }
 }
 
+//get user local details
+export const getUserLocalData = () => {
+    const Data = localStorage.getItem("User");
+    if (Data) {
+        const UD = JSON.parse(Data);
+        const userData = UD.user;
+        return userData;
+    }
+    return null;
+}
 
 export const initiateCancellation = async () => {
     try {

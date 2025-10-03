@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { calculatePlanPrice, checkReferralCode, getNextChargeDate, getUserPlans } from './UserPlanServices'
+import { calculatePlanPrice, checkReferralCode, getNextChargeDate, getUserLocalData, getUserPlans } from './UserPlanServices'
 import Apis from '../apis/Apis'
 import axios from 'axios'
 import { AuthToken } from '../agency/plan/AuthDetails'
@@ -285,7 +285,7 @@ function UpgradePlanContent({
         if (haveCards && isAddingNewPaymentMethod) {
             return CardAdded && CardExpiry && CVC && agreeTerms;
         }
-      
+
 
         return false;
     };
@@ -447,7 +447,8 @@ function UpgradePlanContent({
             const quarterly = [];
             const yearly = [];
             let freePlan = null;
-            if (from === "SubAccount") {
+            const UserLocalData = getUserLocalData();
+            if (from === "SubAccount" || UserLocalData?.userRole === "AgencySubAccount") {
                 console.log("Current plan upgrade type is subaccount")
                 plansList?.monthlyPlans?.forEach(plan => {
                     switch (plan.duration) {
@@ -831,40 +832,59 @@ function UpgradePlanContent({
                 console.log('Using existing payment method:', paymentMethodId);
             }
 
-            let ApiData = {
-                plan: planType,
-            };
-            if (from === "SubAccount") {
-                ApiData = {
-                    planId: currentSelectedPlan?.id
+            const UserLocalData = getUserLocalData();
+            let DataToSendInApi = null;
+            if (UserLocalData?.userRole === "AgencySubAccount") {
+                let formData = new FormData();
+                formData.append("planId", currentSelectedPlan?.id);
+                DataToSendInApi = formData;
+            } else {
+                let ApiData = {
+                    plan: planType,
+                };
+                if (from === "SubAccount") {
+                    ApiData = {
+                        planId: currentSelectedPlan?.id
+                    }
+                } else if (from === "agency") {
+                    ApiData = {
+                        planId: currentSelectedPlan?.id
+                    }
                 }
-            } else if (from === "agency") {
-                ApiData = {
-                    planId: currentSelectedPlan?.id
+
+                // Add payment method ID if we have one
+                if (paymentMethodId) {
+                    ApiData.paymentMethodId = paymentMethodId;
                 }
-            }
 
-            // Add payment method ID if we have one
-            if (paymentMethodId) {
-                ApiData.paymentMethodId = paymentMethodId;
-            }
-
-            if (selectedUser) {
-                ApiData.userId = selectedUser?.subAccountData?.id;
+                if (selectedUser) {
+                    ApiData.userId = selectedUser?.subAccountData?.id;
+                }
+                DataToSendInApi = ApiData;
             }
 
             let ApiPath = Apis.subscribePlan;
+            if (UserLocalData?.userRole === "AgencySubAccount") {
+                ApiPath = Apis.subAgencyAndSubAccountPlans;
+            }
             if (from === "SubAccount") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             } else if (from === "agency") {
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
-            console.log("Api data", ApiData);
-            const response = await axios.post(ApiPath, ApiData, {
-                headers: {
-                    Authorization: "Bearer " + AuthToken,
-                    "Content-Type": "application/json",
-                },
+            console.log("Api data for upgrade plan", DataToSendInApi);
+
+            //headers for api
+            let headers = {
+                Authorization: "Bearer " + AuthToken,
+            };
+
+            if (!(UserLocalData?.userRole === "AgencySubAccount")) {
+                headers["Content-Type"] = "application/json";
+            }
+
+            const response = await axios.post(ApiPath, DataToSendInApi, {
+                headers: headers,
             });
 
             if (response) {

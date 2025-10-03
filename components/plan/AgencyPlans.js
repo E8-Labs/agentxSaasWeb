@@ -392,10 +392,10 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                             key={item.id}
                                             className={`px-2 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none" : "text-[#8A8A8A]"} rounded-tl-lg rounded-tr-lg`}
                                             style={{ fontWeight: "600", fontSize: "13px" }}
-                                            onClick={() => {
-                                                setSelectedDuration(item);
-                                                getCurrentPlans();
-                                            }}
+                                            // onClick={() => {
+                                            //     setSelectedDuration(item);
+                                            //     getCurrentPlans();
+                                            // }}
                                         >
                                             {item.title}
                                         </button>
