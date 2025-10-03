@@ -150,7 +150,9 @@ export default function PlanFeatures({
             {
                 features?.allowTrial && (
                     <div className="w-full">
-                        <div className="mt-2" styles={styles.regular}>Duration of Trial</div>
+                        <div className="mt-2" styles={{
+                            fontSize: "15px", fontWeight: "500",
+                        }}>Duration of Trial</div>
                         <div className="w-full">
                             <input
                                 style={styles.inputs}
@@ -206,7 +208,7 @@ export default function PlanFeatures({
 
 const styles = {
     regular: {
-        fontSize: "15px", fontWeight: "500"
+        fontSize: "15px", fontWeight: "500",color: "#00000050"
     },
     inputs: {
         fontSize: "15px",

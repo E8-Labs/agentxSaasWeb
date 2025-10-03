@@ -974,7 +974,7 @@ export default function CreateSubAccountModal({ onClose, onContinue, formData })
                         </div>
 
                         <Tooltip
-                            title="Automatically refill creadits when they run low. Keeps your sub account activities going without interruption."
+                            title="Automatically refill credits when they run low. Keeps your sub account activities going without interruption."
                             arrow
                             componentsProps={{
                                 tooltip: {
