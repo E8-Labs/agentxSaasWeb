@@ -392,10 +392,10 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                             key={item.id}
                                             className={`px-2 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple outline-none border-none" : "text-[#8A8A8A]"} rounded-tl-lg rounded-tr-lg`}
                                             style={{ fontWeight: "600", fontSize: "13px" }}
-                                            // onClick={() => {
-                                            //     setSelectedDuration(item);
-                                            //     getCurrentPlans();
-                                            // }}
+                                        // onClick={() => {
+                                        //     setSelectedDuration(item);
+                                        //     getCurrentPlans();
+                                        // }}
                                         >
                                             {item.title}
                                         </button>
@@ -563,7 +563,18 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                         </div>
 
                                                         <div className='flex flex-col gap-2'>
-
+                                                            {
+                                                                item?.title?.toLowerCase() === "growth" ? (
+                                                                    <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
+                                                                        Every thing in Starter, and
+                                                                    </div>
+                                                                ) :
+                                                                    item?.title?.toLowerCase() === "scale" ? (
+                                                                        <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
+                                                                            Every thing in Growth, and
+                                                                        </div>
+                                                                    ) : ""
+                                                            }
                                                             {/* Features */}
                                                             {
                                                                 // planFeaturesAvailable[selectedDuration.id][index]?.map((label, labelIndex) => (
@@ -583,20 +594,30 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                                                 textOverflow: 'ellipsis',
                                                                             }}
                                                                         >
-                                                                            <div style={{
-                                                                                fontSize: 13,
-                                                                                fontWeight: '500',
-                                                                                textAlign: 'left',
-                                                                                borderWidth: 0,
-                                                                            }}>
+                                                                            <div
+                                                                                // style={{
+                                                                                //     fontSize: 13,
+                                                                                //     fontWeight: '500',
+                                                                                //     textAlign: 'left',
+                                                                                //     borderWidth: 0,
+                                                                                // }}
+                                                                                style={{
+                                                                                    ...styles.regularFont, textAlign: 'left',
+                                                                                    borderWidth: 0,
+                                                                                }}>
                                                                                 {item.text}
                                                                             </div>
-                                                                            <div style={{
-                                                                                fontSize: 13,
-                                                                                fontWeight: '500',
-                                                                                textAlign: 'left',
-                                                                                color: "#00000050"
-                                                                            }}>
+                                                                            <div
+                                                                                // style={{
+                                                                                //     fontSize: 13,
+                                                                                //     fontWeight: '500',
+                                                                                //     textAlign: 'left',
+                                                                                //     color: "#00000050"
+                                                                                // }}
+                                                                                style={{
+                                                                                    ...styles.regularFont, textAlign: 'left',
+                                                                                    borderWidth: 0, color: "#00000050"
+                                                                                }}>
                                                                                 {item.subtext}
                                                                             </div>
                                                                         </div>
@@ -838,4 +859,8 @@ const styles = {
         marginLeft: "10px",
         whiteSpace: "nowrap",
     },
+    regularFont: {
+        fontSize: 16,
+        fontWeight: '400'
+    }
 };
