@@ -14,9 +14,10 @@ export default function EnrichConfirmModal({
     setShowenrichConfirmModal,
     handleAddLead,
     processedData,
-    Loader
+    Loader,
+    creditCost,
 }) {
-    let totalCost = processedData?.length * 0.05
+    let totalCost =creditCost.pricePerLead * creditCost.leadCount //processedData?.length * creditCost.pricePerLead
     return (
         <Dialog
             open={showenrichConfirmModal}
@@ -75,7 +76,7 @@ export default function EnrichConfirmModal({
                 >
                     <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
                     <Typography sx={{ fontSize: "14px", color: "#000" }}>
-                        {`Enrichment is $0.05 / lead `}
+                        {`Enrichment is $${creditCost.pricePerLead} / lead `}
                     </Typography>
 
                    
@@ -115,7 +116,7 @@ export default function EnrichConfirmModal({
                         Total Leads
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        {processedData?.length}
+                        {creditCost.leadCount}
                     </Typography>
                 </Box>
 
@@ -130,7 +131,7 @@ export default function EnrichConfirmModal({
                         Cost Per Lead
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        $0.05
+                        ${creditCost.pricePerLead}
                     </Typography>
                 </Box>
 
@@ -147,7 +148,7 @@ export default function EnrichConfirmModal({
                         Total Cost
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        ${processedData?.length <= 10 ? "1" : totalCost.toFixed(2)}
+                        ${creditCost.leadCount <= 10 ? "1" : totalCost.toFixed(2)}
                     </Typography>
                 </Box>
             </DialogContent>

@@ -29,7 +29,7 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
 
       if (localData) {
         const Data = JSON.parse(localData);
-        // //console.log;
+        console.log("user Data", Data)
         localDetails = Data;
         Authtoken = Data.token;
         setUserLocalData(Data.user);
@@ -146,7 +146,7 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
         <button
           className="h-[53px] p-3 flex flex-row gap-2 rounded-lg bg-purple items-center justify-center text-white"
           onClick={() => {
-            if (userData?.user?.cards?.length > 0) {
+            if (userLocalData?.cards?.length == 0) {
               setShowAddCard(true)
             } else {
               if (userLocalData?.enrichCredits > 0) {

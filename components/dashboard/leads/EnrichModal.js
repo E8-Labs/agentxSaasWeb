@@ -6,6 +6,8 @@ import { getUserLocalData } from "@/components/constants/constants";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { loadStripe } from "@stripe/stripe-js";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 
 export default function EnrichModal({
     showenrichModal,
@@ -13,7 +15,10 @@ export default function EnrichModal({
     setShowenrichConfirmModal,
     handleAddLead,
     Loader,
-    setIsEnrichToggle
+    setIsEnrichToggle,
+    processedData,
+    setCreditCost,
+    creditCost,
 }) {
 
 
@@ -33,6 +38,26 @@ export default function EnrichModal({
             setUserData(data)
         }
     }, [])
+
+    useEffect(() => {
+
+
+        const getCreditCost = async () => {
+            console.log("processedData", processedData)
+
+            let data = {
+                leadCount: processedData.length,
+                type: "enrichment"
+            }
+
+            const creditCost = await calculateCreditCost(data)
+            console.log("creditCost", creditCost)
+            setCreditCost(creditCost)
+        }
+        if (showenrichModal) {
+            getCreditCost()
+        }
+    }, [showenrichModal])
 
     const handleEnrichFalse = () => {
         setIsEnrichToggle(false);
@@ -91,18 +116,11 @@ export default function EnrichModal({
                                 <div style={{ fontSize: 18, fontWeight: '700' }}>
                                     Lead Insight
                                 </div>
-                                <button
+                                <CloseBtn
                                     onClick={() => {
                                         handleEnrichFalse();
                                     }}
-                                >
-                                    <Image
-                                        src={"/assets/cross.png"}
-                                        height={14}
-                                        width={14}
-                                        alt="*"
-                                    />
-                                </button>
+                                />
                             </div>
 
                             <div className="w-full flex flex-col items-center justify-center mt-[90px] gap-4">
@@ -117,7 +135,7 @@ export default function EnrichModal({
                                 <div className="flex flex-row gap-2 items-center">
 
                                     <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
-                                        credit cost ($0.05/lead)
+                                        credit cost (${creditCost.pricePerLead}/lead)
                                     </div>
 
                                     <Tooltip
@@ -241,8 +259,8 @@ export default function EnrichModal({
                                     // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                                     handleClose={handleClose}
                                     togglePlan={""}
-                                    // fromAdmin={true}
-                                    // selectedUser={selectedUSer}
+                                // fromAdmin={true}
+                                // selectedUser={selectedUSer}
                                 // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                                 />
                             </Elements>
@@ -255,27 +273,27 @@ export default function EnrichModal({
     )
 }
 
-     const styles = {
+const styles = {
     paymentModal: {
-      height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
+        height: "auto",
+        bgcolor: "transparent",
+        // p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-50%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
     },
     claimPopup: {
-      height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
+        height: "auto",
+        bgcolor: "transparent",
+        // p: 2,
+        mx: "auto",
+        my: "50vh",
+        transform: "translateY(-55%)",
+        borderRadius: 2,
+        border: "none",
+        outline: "none",
     },
-  };
+};

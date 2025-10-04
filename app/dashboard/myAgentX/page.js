@@ -2561,7 +2561,7 @@ function Page() {
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     console.log("routing to createagent from add new agent function")
-    router.push('/createagent')
+    window.location.href = '/createagent'
   };
 
   const handlePopoverOpen = (event, item) => {

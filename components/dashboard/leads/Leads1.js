@@ -118,6 +118,7 @@ const Leads1 = () => {
   const [showenrichConfirmModal2, setShowenrichConfirmModal2] = useState(false);
   //enrich toggle value
   const [isEnrichToggle, setIsEnrichToggle] = useState(false);
+  const [creditCost, setCreditCost] = useState(0);
 
 
   // Add state for batch upload persistence and progress
@@ -1585,6 +1586,9 @@ const Leads1 = () => {
           setIsEnrichToggle={setIsEnrichToggle}
           handleAddLead={handleAddLead}
           Loader={Loader}
+          processedData={processedData}
+          setCreditCost={setCreditCost}
+          creditCost={creditCost}
         />
         <EnrichConfirmModal
           showenrichConfirmModal={showenrichConfirmModal}
@@ -1595,13 +1599,12 @@ const Leads1 = () => {
               setIsEnrich(value);
               setShowenrichModal(false);
               setShowenrichConfirmModal(false);
+              creditCost = {creditCost}
             }
-            // handleAddLead(value);
-
           }}
           processedData={processedData}
           Loader={Loader}
-        />
+          creditCost={creditCost} />
 
         <ConfirmPerplexityModal
           showConfirmPerplexity={showenrichConfirmModal2}

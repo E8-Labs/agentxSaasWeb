@@ -33,6 +33,7 @@ import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { GetTimezone } from "@/utilities/utility";
+import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -102,6 +103,22 @@ const AssignLead = ({
   useEffect(() => {
     setShouldContinue(SelectedAgents.length === 0);
   }, [SelectedAgents]);
+
+
+  const [creditCost, setCreditCost] = useState(0) //for credit cost
+
+
+  useEffect(() => {
+
+    const getCreditCost = async () => {
+      const creditCost = await calculateCreditCost({
+        leadCount: NoOfLeadsToSend,
+        type: "dnc"
+      })
+      setCreditCost(creditCost)
+    }
+    getCreditCost()
+  }, [])
 
 
   useEffect(() => {
@@ -622,6 +639,7 @@ const AssignLead = ({
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
+          creditCost={creditCost}
         />
       )}
       {/* Snackbar for invalid time */}

@@ -24,9 +24,10 @@ export default function DncConfirmationPopup({
   onCancel,
   onConfirm,
   leadsCount,
+  creditCost,
 }) {
   //console.log;
-  const totalCost = leadsCount < 34 ? 1 : leadsCount * 0.03;
+  const totalCost = leadsCount < 34 ? 1 : leadsCount * creditCost.pricePerLead;
 
   let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -161,7 +162,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              $0.03
+              ${creditCost.pricePerLead}
             </Typography>
           </Box>
 

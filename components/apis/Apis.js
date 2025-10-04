@@ -300,6 +300,8 @@ const Apis = {
   userSettings: `${BasePath}api/settings`,
   getUserSettings: `${BasePath}api/settings`,
 
+  calculateCreditCost: `${BasePath}api/user/calculate-charge`,
+
 };
 
 export default Apis;
