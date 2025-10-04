@@ -57,7 +57,7 @@ export default function DncConfirmationPopup({
     setCreditCost(credit)
     
   }
-  const totalCost = leadsCount < 34 ? 1 : leadsCount * creditCost?.pricePerLead;
+  const totalCost = leadsCount < 34 ? 1 : leadsCount * creditCost?.pricePerLead||0;
 
   useEffect(() => {
     getCreditCost()
@@ -123,7 +123,7 @@ export default function DncConfirmationPopup({
           >
             <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
             <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`DNC Checklist is $${creditCost?.pricePerLead}/number.`}
+              {`DNC Checklist is $${creditCost?.pricePerLead||0}/number.`}
             </Typography>
           </Box>
           <Box
@@ -173,7 +173,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${creditCost?.pricePerLead}
+              ${creditCost?.pricePerLead||0}
             </Typography>
           </Box>
 

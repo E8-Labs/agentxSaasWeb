@@ -259,7 +259,7 @@ function UpgradePlanContent({
 
         //disable if snack msg is visible
         if (showSnackMsg?.isVisible) {
-            return true;
+            return false;
         }
         // Must have a selected plan and it shouldn't be the current plan
         if (!currentSelectedPlan || isPlanCurrent(currentSelectedPlan)) {
