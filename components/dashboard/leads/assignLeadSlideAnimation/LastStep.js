@@ -292,6 +292,7 @@ const LastStep = ({
               setShowDncConfirmationPopup(false);
             }}
             leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
+            creditCost={creditCost}
           />
         )}
 

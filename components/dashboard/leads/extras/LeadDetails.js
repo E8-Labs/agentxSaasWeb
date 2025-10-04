@@ -61,6 +61,7 @@ import EmailTempletePopup from "@/components/pipeline/EmailTempletePopup";
 import SMSTempletePopup from "@/components/pipeline/SMSTempletePopup";
 import { getA2PNumbers, getGmailAccounts } from "@/components/pipeline/TempleteServices";
 import { UpgradeTagWithModal } from "@/components/constants/constants";
+import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -188,6 +189,8 @@ const LeadDetails = ({
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [currentFullPlan, setCurrentFullPlan] = useState(null);
 
+  const [creditCost, setCreditCost] = useState(null);
+
   useEffect(() => {
     const getData = async () => {
       let user = await getProfileDetails();
@@ -199,7 +202,21 @@ const LeadDetails = ({
 
     getNumbers()
     getData();
+    getCreditCost();
   }, []);
+
+
+  // get the credit cost
+  const getCreditCost = async () => {
+    let data = {
+      leadCount: 100,
+      type: "enrichment"
+    }
+    let creditCost = await calculateCreditCost(data);
+    if (creditCost) {
+      setCreditCost(creditCost);
+    }
+  }
 
   useEffect(() => {
     if (!selectedLead) return;
@@ -1668,7 +1685,7 @@ const LeadDetails = ({
                             selectedLeadsDetails?.pipeline && (
                               <div className="flex flex-row items-center gap-2">
                                 <Image
-                                  src="/assets/pipelineIcon.svg"
+                                  src="/otherAssets/pipeline2.png"
                                   height={20}
                                   width={20}
                                   alt="*"
@@ -2359,6 +2376,7 @@ const LeadDetails = ({
                           selectedLeadsDetails.enrichData ? (
                           <Perplexity
                             selectedLeadsDetails={selectedLeadsDetails}
+
                           />
                         ) : (
                           <NoPerplexity
@@ -2366,6 +2384,7 @@ const LeadDetails = ({
                             user={userLocalData}
                             handleEnrichLead={handleEnrichLead}
                             loading={loading}
+                            creditCost={creditCost}
                           />
                         ))}
 
@@ -2375,6 +2394,7 @@ const LeadDetails = ({
                         selectedLeadsDetails={selectedLeadsDetails}
                         handleEnrichLead={handleEnrichLead}
                         loading={loading}
+                        creditCost={creditCost}
                       />
 
                       {showKYCDetails && (

@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react';
 import { GoogleOAuth } from '../auth/socialllogins/AuthServices';
 import { GreetingTagInput } from './tagInputs/GreetingTagInput';
 import { PersistanceKeys } from '@/constants/Constants';
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 
 function EmailTempletePopup({
     open,
@@ -177,7 +178,7 @@ function EmailTempletePopup({
         !tempName?.trim() ||
         !subject?.trim() ||
         !body?.trim() ||
-    //    (!ccEmails || ccEmails.length === 0) ||
+        //    (!ccEmails || ccEmails.length === 0) ||
         saveEmailLoader ||
         invalidEmails.length > 0
     );
@@ -315,14 +316,14 @@ function EmailTempletePopup({
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         const maxSizeInBytes = 10 * 1024 * 1024; // 10MB in bytes
-        
+
         // Calculate current total size of existing attachments
         const currentTotalSize = attachments.reduce((total, file) => total + file.size, 0);
-        
+
         // Check if adding new files would exceed the limit
         const newFilesTotalSize = files.reduce((total, file) => total + file.size, 0);
         const wouldExceedLimit = currentTotalSize + newFilesTotalSize > maxSizeInBytes;
-        
+
         if (wouldExceedLimit) {
             setShowSnackBar({
                 message: "File size can't be more than 10MB",
@@ -330,7 +331,7 @@ function EmailTempletePopup({
             });
             return;
         }
-        
+
         setAttachments((prev) => [...prev, ...files]);
         setAttachmentsChanged(true);
     };
@@ -862,7 +863,12 @@ function EmailTempletePopup({
                             {attachments?.map((file, idx) => (
                                 <div key={idx} className="flex flex-row gap-4 items-center p-2 text-sm">
 
-                                    <span>{file.name || file.originalName}</span>
+                                    <div className="flex flex-col">
+                                        <span>{file.name || file.originalName}</span>
+                                    </div>
+                                    <span className="text-xs text-gray-500">
+                                        {formatDecimalValue(file.size/1024)} KB
+                                    </span>
                                     <button onClick={() => removeAttachment(idx)}>
                                         <Image src={'/assets/cross.png'} height={14} width={14} alt="remove" />
                                     </button>

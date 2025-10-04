@@ -5,7 +5,7 @@ import getProfileDetails from "@/components/apis/GetProfile";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { loadStripe } from "@stripe/stripe-js";
-function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
+function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading, creditCost }) {
 
 
   let stripePublickKey =
@@ -105,7 +105,7 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading }) {
 
       <div className="flex flex-row items-center gap-2">
         <div style={{ fontSize: 13, fontWeight: "500", color: "#00000060" }}>
-          credit cost ($0.05/lead)
+          credit cost (${creditCost?.pricePerLead}/lead)
         </div>
 
         <Tooltip

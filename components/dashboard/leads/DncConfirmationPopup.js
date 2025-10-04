@@ -17,6 +17,8 @@ import { getUserLocalData } from "@/components/constants/constants";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { Elements } from "@stripe/react-stripe-js";
 import Image from "next/image";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 
 export default function DncConfirmationPopup({
   open,
@@ -24,11 +26,8 @@ export default function DncConfirmationPopup({
   onCancel,
   onConfirm,
   leadsCount,
-  creditCost,
 }) {
   //console.log;
-  const totalCost = leadsCount < 34 ? 1 : leadsCount * creditCost.pricePerLead;
-
   let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
       ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
@@ -37,6 +36,7 @@ export default function DncConfirmationPopup({
 
   const [userData, setUserData] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)
+  const [creditCost, setCreditCost] = useState(null)
 
   useEffect(() => {
     let data = getUserLocalData()
@@ -45,14 +45,32 @@ export default function DncConfirmationPopup({
     }
   }, [])
 
+
+  const getCreditCost = async () => {
+    let batchSize = leadsCount
+    console.log("batchSize is", batchSize)
+    const credit = await calculateCreditCost({
+      leadCount: batchSize,
+      type: "dnc"
+    })
+    console.log("credit cost is", credit)
+    setCreditCost(credit)
+    
+  }
+  const totalCost = leadsCount < 34 ? 1 : leadsCount * creditCost?.pricePerLead;
+
+  useEffect(() => {
+    getCreditCost()
+  }, [])
+
   const handleClose = (data) => {
     console.log("data of add card", data)
     if (data) {
-        setShowAddCard(false);
-        onConfirm()
-        // setCards([newCard, ...cards]);
+      setShowAddCard(false);
+      onConfirm()
+      // setCards([newCard, ...cards]);
     }
-}
+  }
   return (
     <div>
       <Dialog
@@ -68,18 +86,11 @@ export default function DncConfirmationPopup({
         }}
       >
         {/* Close Button */}
-        <IconButton
-          onClick={onClose}
-          sx={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            color: "#000",
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-
+        <div className="flex w-full justify-end">
+          <CloseBtn
+            onClick={onClose}
+          />
+        </div>
         {/* Modal Title */}
         <DialogTitle sx={{ fontWeight: "bold", fontSize: "20px", mt: 1 }}>
           Confirm DNC Charges
@@ -112,7 +123,7 @@ export default function DncConfirmationPopup({
           >
             <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
             <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`DNC Checklist is $0.03/number.`}
+              {`DNC Checklist is $${creditCost?.pricePerLead}/number.`}
             </Typography>
           </Box>
           <Box
@@ -162,7 +173,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${creditCost.pricePerLead}
+              ${creditCost?.pricePerLead}
             </Typography>
           </Box>
 
@@ -297,27 +308,27 @@ export default function DncConfirmationPopup({
 }
 
 
-     const styles = {
-    paymentModal: {
-      height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-50%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
-    },
-    claimPopup: {
-      height: "auto",
-      bgcolor: "transparent",
-      // p: 2,
-      mx: "auto",
-      my: "50vh",
-      transform: "translateY(-55%)",
-      borderRadius: 2,
-      border: "none",
-      outline: "none",
-    },
-  };
+const styles = {
+  paymentModal: {
+    height: "auto",
+    bgcolor: "transparent",
+    // p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-50%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+  claimPopup: {
+    height: "auto",
+    bgcolor: "transparent",
+    // p: 2,
+    mx: "auto",
+    my: "50vh",
+    transform: "translateY(-55%)",
+    borderRadius: 2,
+    border: "none",
+    outline: "none",
+  },
+};

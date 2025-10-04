@@ -34,6 +34,7 @@ import AllowSmartRefillPopup from "../AllowSmartRefillPopup";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { GetTimezone } from "@/utilities/utility";
 import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -105,20 +106,8 @@ const AssignLead = ({
   }, [SelectedAgents]);
 
 
-  const [creditCost, setCreditCost] = useState(0) //for credit cost
+  const [creditCost, setCreditCost] = useState(null) //for credit cost
 
-
-  useEffect(() => {
-
-    const getCreditCost = async () => {
-      const creditCost = await calculateCreditCost({
-        leadCount: NoOfLeadsToSend,
-        type: "dnc"
-      })
-      setCreditCost(creditCost)
-    }
-    getCreditCost()
-  }, [])
 
 
   useEffect(() => {
@@ -639,7 +628,6 @@ const AssignLead = ({
             setShowDncConfirmationPopup(false);
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
-          creditCost={creditCost}
         />
       )}
       {/* Snackbar for invalid time */}
@@ -949,18 +937,11 @@ const AssignLead = ({
                     Back
                   </span>
                 </button>
-                <button
+                <CloseBtn
                   onClick={() => {
                     setLastStepModal(false);
                   }}
-                >
-                  <Image
-                    src={"/assets/cross.png"}
-                    height={14}
-                    width={14}
-                    alt="*"
-                  />
-                </button>
+                />
               </div>
 
               <div className="flex flex-row items-center justify-between mt-6">
