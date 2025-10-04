@@ -121,7 +121,7 @@ function DowngradePlanPopup({
                                             {confirmChecked ? (
                                                 <div
                                                     className="bg-purple flex flex-row items-center justify-center rounded"
-                                                    style={{ height: "15px", width: "15px" }}
+                                                    style={{ height: "17px", width: "17px" }}
                                                 >
                                                     <Image
                                                         src={"/assets/whiteTick.png"}
@@ -133,7 +133,7 @@ function DowngradePlanPopup({
                                             ) : (
                                                 <div
                                                     className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                                    style={{ height: "24px", width: "24px" }}
+                                                    style={{ height: "17px", width: "17px" }}
                                                 ></div>
                                             )}
                                         </button>

@@ -132,7 +132,7 @@ export const LanguagesSelection = ({
                             <button
                                 key={item.id}
                                 style={styles.regular}
-                                className={`outline-none ${languageTitle === "Multilingual Compatible" ? "border-2 border-purple" : language === "multilingual" ? "border-2 border-purple" : languageTitle.toLowerCase() === item.label.toLowerCase() || language.toLowerCase() === item.value.toLowerCase() ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[150px] rounded-lg text-center border`}
+                                className={`outline-none ${languageTitle === "Multilingual Compatible" ? "border-2 border-purple" : language === "multilingual" ? "border-2 border-purple" : languageTitle?.toLowerCase() === item.label?.toLowerCase() || language?.toLowerCase() === item.value?.toLowerCase() ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[150px] rounded-lg text-center border`}
                                 onClick={() => { handleToggle(item) }}
                             >
                                 {item.title}

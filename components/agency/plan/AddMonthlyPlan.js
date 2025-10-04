@@ -42,7 +42,7 @@ export default function AddMonthlyPlan({
   const [tag, setTag] = useState("");
   const [planDescription, setPlanDescription] = useState("");
   const [planDuration, setPlanDuration] = useState("");
-  const [originalPrice, setOriginalPrice] = useState(0);
+  const [originalPrice, setOriginalPrice] = useState("");
   const [discountedPrice, setDiscountedPrice] = useState("");
   const [minutes, setMinutes] = useState("");
   const [trialValidForDays, setTrialValidForDays] = useState("");
@@ -92,7 +92,7 @@ export default function AddMonthlyPlan({
       setPlanDescription(basicsData?.planDescription);
       const OriginalPrice = basicsData?.originalPrice;
       setOriginalPrice(
-        selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : 0
+        selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : ""
       );
       // if (OriginalPrice > 0) {
       // }

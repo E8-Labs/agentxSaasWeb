@@ -121,7 +121,7 @@ export default function SetPricing({
                                             color: "white",
                                         }}
                                     >
-                                        First {plan.hasTrial == true && (`| ${plan.trialValidForDays}`)} Days Free
+                                        First {plan.hasTrial == true && (`${plan.trialValidForDays}`)} Days Free
                                     </div>
                                 </div>
                             </div>

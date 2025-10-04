@@ -10,7 +10,9 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/Agent
 const UnlockPremiunFeatures = ({
     open,
     handleClose,
-    title
+    title,
+    from,
+    handleConfirmDownGrade
 }) => {
 
     const [requestLoader, setRequestLoader] = useState(false);
@@ -140,7 +142,13 @@ const UnlockPremiunFeatures = ({
                     {/* Header with Title and Close Button */}
                     <div className="flex items-center justify-between mb-6">
                         <div className="text-black text-2xl font-bold">
-                            Contact Your Agency
+                            {
+                                from === "agencyPayments" ? (
+                                    "⚠️ Sub Accounts Exceed Limit"
+                                ) : (
+                                    "Contact Your Agency"
+                                )
+                            }
                         </div>
                         <CloseBtn
                             onClick={() => { handleClose() }}
@@ -153,10 +161,22 @@ const UnlockPremiunFeatures = ({
                         <Image src={"/otherAssets/premiumFeatures.png"} alt="premium-feature" width={107} height={107} />
                         <div>
                             <div className="text-black text-xl font-bold">
-                                Unlock Premium Features
+                                {
+                                    from === "agencyPayments" ? (
+                                        "Action Needed"
+                                    ) : (
+                                        "Unlock Premium Features"
+                                    )
+                                }
                             </div>
                             <div className="text-md text-gray-600">
-                                This feature is only available on premium plans. Your agency will need to enable this for you. You can request this below.
+                                {
+                                    from === "agencyPayments" ? (
+                                        `The plan you’re trying to downgrade to includes fewer sub accounts and agents. Please remove the extra sub accounts before continuing.`
+                                    ) : (
+                                        "This feature is only available on premium plans. Your agency will need to enable this for you. You can request this below."
+                                    )
+                                }
                             </div>
                         </div>
                     </div>
@@ -170,10 +190,22 @@ const UnlockPremiunFeatures = ({
                             </div>
                         ) : (
                             <button
-                                onClick={requestFeatureFromAgency}
+                                onClick={() => {
+                                    if (from === "agencyPayments") {
+                                        handleConfirmDownGrade()
+                                    } else {
+                                        requestFeatureFromAgency()
+                                    }
+                                }}
                                 className="w-full bg-purple text-white py-3 px-6 rounded-xl text-[15px] font-bold transition-colors"
                             >
-                                Request Feature
+                                {
+                                    from === "agencyPayments" ? (
+                                        "Continue"
+                                    ) : (
+                                        "Request Feature"
+                                    )
+                                }
                             </button>
                         )
                     }

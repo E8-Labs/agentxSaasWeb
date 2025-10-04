@@ -78,12 +78,13 @@ const ConfigureSideUI = ({
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px]"
                             >
-                                <span className='text-[#00000020] line-through' style={{ fontWeight: "700", fontSize: "30px" }}>
-                                    {/*
-                                        ${formatFractional2(originalPrice) || ""}
-                                    */}
-                                    ${from === "dashboard" ? basicsData?.originalPrice : formatFractional2(basicsData?.originalPrice) || ""}
-                                </span>
+                                {
+                                    basicsData?.originalPrice && (
+                                        <span className='text-[#00000020] line-through' style={{ fontWeight: "700", fontSize: "30px" }}>
+                                            ${from === "dashboard" ? basicsData?.originalPrice : formatFractional2(basicsData?.originalPrice) || ""}
+                                        </span>
+                                    )
+                                }
                                 <span className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2" style={{ fontWeight: "700", fontSize: "35px" }}>
                                     ${from === "dashboard" ? basicsData?.discountedPrice : formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
                                 </span>

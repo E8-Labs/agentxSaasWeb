@@ -70,7 +70,7 @@ const SideUI = ({
                             <div
                                 className="text-center mt-4"
                             >
-                                <span className='text-[#00000020] line-through' style={{ fontWeight: "700", fontSize: "30px" }}>${formatFractional2(originalPrice) || ""}</span>
+                                {originalPrice && (<span className='text-[#00000020] line-through' style={{ fontWeight: "700", fontSize: "30px" }}>${formatFractional2(originalPrice) || ""}</span>)}
                                 <span className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2" style={{ fontWeight: "700", fontSize: "35px" }}>${formatFractional2(price) || "0"}</span>
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{planDescription || "Desc text goes here"}</div>

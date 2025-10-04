@@ -28,6 +28,7 @@ import AgencyPlans from "@/components/plan/AgencyPlans";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { ScrollBarCss } from "@/constants/Constants";
+import UnlockPremiunFeatures from "@/components/globalExtras/UnlockPremiunFeatures";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -38,8 +39,12 @@ const stripePromise = loadStripe(stripePublickKey);
 function AgencyPlansPayments({
     selectedAgency
 }) {
+
     //stroes user cards list
     const [cards, setCards] = useState([]);
+
+    //current subaccounts list
+    const [currentSubAccounts, setCurrentSubAccounts] = useState("");
 
     //userlocal data
     const [userLocalData, setUserLocalData] = useState(null);
@@ -81,6 +86,7 @@ function AgencyPlansPayments({
     const [initialLoader, setInitialLoader] = useState(false);
 
     const [showDowngradePlanPopup, setShowDowngradePlanPopup] = useState(false);
+    const [showDowngradePlanWarning, setShowDowngradePlanWarning] = useState(false);
 
     //plans details
     const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
@@ -159,10 +165,9 @@ function AgencyPlansPayments({
     ];
 
     useEffect(() => {
-        getPlans()
+        getCurrentSubAccounts();
+        getPlans();
         getPaymentHistory();
-
-
         getCardsList();
     }, []);
 
@@ -346,6 +351,25 @@ function AgencyPlansPayments({
             setGetCardLoader(false);
         }
     };
+
+    //get current subaccounts list
+    const getCurrentSubAccounts = async () => {
+        try {
+            let ApiPAth = Apis.getAgencySubAccount;
+            const Token = AuthToken();
+            const response = await axios.get(ApiPAth, {
+                headers: {
+                    Authorization: "Bearer " + Token,
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response) {
+                setCurrentSubAccounts(response.data.data);
+            }
+        } catch (err) {
+            console.log("Error occured in fetching subaccounts list", err)
+        }
+    }
 
     //function to make default cards api
     const makeDefaultCard = async (item) => {
@@ -1367,7 +1391,12 @@ function AgencyPlansPayments({
                                 if (title === "Cancel Subscription") {
                                     handleCancelPlanClick()
                                 } else if (title === "Downgrade") {
-                                    setShowDowngradePlanPopup(true)
+                                    console.log("Currenlty selectd plan is", selectedPlan?.capabilities?.maxSubAccounts);
+                                    if (selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
+                                        setShowDowngradePlanWarning(true)
+                                    } else {
+                                        setShowDowngradePlanPopup(true)
+                                    }
                                 } else {
                                     // handleSubscribePlan()
                                     setShowUpgradeModal(true);
@@ -1428,6 +1457,17 @@ function AgencyPlansPayments({
                 </Box>
             </Modal>
 
+            {/* Downgrade Plan Warning */}
+            <UnlockPremiunFeatures
+                open={showDowngradePlanWarning}
+                handleClose={() => { setShowDowngradePlanWarning(false) }}
+                handleConfirmDownGrade={() => {
+                    setShowDowngradePlanWarning(false);
+                    setShowDowngradePlanPopup(true);
+                    // handleSubscribePlan()
+                }}
+                from={"agencyPayments"}
+            />
 
             {/* Downgrade plan confirmation popup */}
             {
@@ -1491,7 +1531,7 @@ function AgencyPlansPayments({
                                     stop={stop}
                                     getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                                     handleClose={handleClose}
-                                    // togglePlan={""}
+                                // togglePlan={""}
                                 // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                                 />
                             </Elements>

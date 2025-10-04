@@ -158,6 +158,7 @@ export default function PlanConfiguration({
         console.log("features are", features)
         console.log("Custom features are", customFeatures)
 
+        //this might be problematic removing temporarily
         if (!features.allowTeamSeats) {
             setNoOfSeats("");
             setCostPerAdditionalSeat("");
@@ -285,8 +286,13 @@ export default function PlanConfiguration({
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemail || false,
                 twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
+                allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamSeats || false,
             });
             setTrialValidForDays(configurationData?.trialValidForDays);
+            setNoOfSeats(configurationData?.noOfSeats);
+            setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
+            setLanguageTitle(configurationData?.languageTitle);
+            setLanguage(configurationData?.language);
         }
     }, [configurationData])
 
@@ -323,7 +329,7 @@ export default function PlanConfiguration({
         const formData = new FormData();
         formData.append("title", basicsData?.title);
         formData.append("planDescription", basicsData?.planDescription);
-        formData.append("originalPrice", basicsData?.originalPrice);//replaced
+        formData.append("originalPrice", basicsData?.originalPrice || 0);//replaced
         formData.append("pricePerCredit", basicsData?.discountedPrice);
         if (selectedAgency) {
             formData.append("userId", selectedAgency.id);
@@ -499,8 +505,14 @@ export default function PlanConfiguration({
     const isFormValid = () => {
         const agentsStr = noOfAgents?.toString().trim();
         const contactsStr = noOfContacts?.toString().trim();
+        let seatsStr = noOfSeats?.toString().trim();
+        let costPerSeatStr = costPerAdditionalSeat?.toString().trim();
+        if(features.allowTeamSeats){
+            seatsStr = noOfSeats?.toString().trim();
+            costPerSeatStr = costPerAdditionalSeat?.toString().trim();
+        }
 
-        const requiredFieldsFilled = agentsStr && contactsStr && language;
+        const requiredFieldsFilled = agentsStr && contactsStr && language && seatsStr && costPerSeatStr;
         const trialValid = features.allowTrial ? trialValidForDays : true;
 
         return requiredFieldsFilled && trialValid;
@@ -534,7 +546,11 @@ export default function PlanConfiguration({
             costPerAdditionalSeat: costPerAdditionalSeat,
             language: language,
             features: features,
-            trialValidForDays: trialValidForDays
+            trialValidForDays: trialValidForDays,
+            noOfSeats: noOfSeats,
+            costPerAdditionalSeat: costPerAdditionalSeat,
+            languageTitle: languageTitle,
+            language: language
         });
         handleBack();
     }
