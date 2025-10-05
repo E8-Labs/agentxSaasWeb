@@ -707,7 +707,7 @@ export default function PlanConfiguration({
                                                     ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                                                     : sanitized;
                                                 // setOriginalPrice(valid);
-                                                setCostPerAdditionalAgent(valid ? Number(valid) : 0);
+                                                setCostPerAdditionalAgent(valid);
                                             }}
                                         />
                                     </div>

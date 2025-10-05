@@ -137,7 +137,7 @@ export default function PlanFeatures({
                                             value={costPerAdditionalSeat}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/[^0-9.]/g, "");
-                                                setCostPerAdditionalSeat(value ? Number(value) : 0);
+                                                setCostPerAdditionalSeat(value);
                                             }}
                                         />
                                     </div>

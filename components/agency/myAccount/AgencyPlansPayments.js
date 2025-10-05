@@ -1462,9 +1462,10 @@ function AgencyPlansPayments({
                 open={showDowngradePlanWarning}
                 handleClose={() => { setShowDowngradePlanWarning(false) }}
                 handleConfirmDownGrade={() => {
-                    setShowDowngradePlanWarning(false);
-                    setShowDowngradePlanPopup(true);
+                    // setShowDowngradePlanWarning(false);
+                    // setShowDowngradePlanPopup(true);
                     // handleSubscribePlan()
+                    window.location.href = "/agency/dashboard/subAccounts";
                 }}
                 from={"agencyPayments"}
             />

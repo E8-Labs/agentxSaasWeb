@@ -21,17 +21,20 @@ const UPSell = () => {
     const [allowUpSellPhone, setAllowUpSellPhone] = useState(false);
     const [addUpSellPhone, setAddUpSellPhone] = useState(false);
     const [savePhoneLoader, setSavePhoneLoader] = useState(false);
+    const [delPhoneLoader, setDelPhoneLoader] = useState(false);
     const [phonePrice, setPhonePrice] = useState("");
     //DNC
     const [dncPrice, setDncPrice] = useState()
     const [allowDNC, setAllowDNC] = useState(false);
     const [addDNC, setAddDNC] = useState(false);
     const [dNCLoader, setDNCLoader] = useState(false);
+    const [delDNCLoader, setDelDNCLoader] = useState(false);
     //Perplexity Enrichment 
     const [perplexityEnrichmentPrice, setPerplexityEnrichmentPrice] = useState()
     const [allowPerplexityEnrichment, setAllowPerplexityEnrichment] = useState(false);
     const [addPerplexityEnrichment, setAddPerplexityEnrichment] = useState(false);
     const [perplexityEnrichmentLoader, setPerplexityEnrichmentLoader] = useState(false);
+    const [delPerplexityEnrichmentLoader, setDelPerplexityEnrichmentLoader] = useState(false);
     //agency data
     const [agencyData, setAgencyData] = useState("");
     //initial loader
@@ -95,7 +98,7 @@ const UPSell = () => {
     };
 
     //user settings api data
-    const userSettingData = (from) => {
+    const userSettingDataUpgrade = (from) => {
         console.log("Api will run for", from);
         if (from === "phonePrice") {
             setSavePhoneLoader(true);
@@ -118,12 +121,42 @@ const UPSell = () => {
         }
     }
 
+    //for deleting data
+    const userSettingDataDel = (from) => {
+        console.log("Api will run for", from);
+        if (from === "phonePriceDel") {
+            setDelPhoneLoader(true);
+            return {
+                upsellPhoneNumber: false,
+                phonePrice: "",
+            }
+        } else if (from === "dncPriceDel") {
+            setDelDNCLoader(true);
+            return {
+                upsellDnc: false,
+                dncPrice: "",
+            }
+        } else if (from === "enrichmentPriceDel") {
+            setDelPerplexityEnrichmentLoader(true);
+            return {
+                upsellEnrichment: false,
+                enrichmentPrice: "",
+            }
+        }
+    }
+
     //user settings api
     const handleUserSettings = async (from) => {
         try {
             const Auth = AuthToken();
             const ApiPath = Apis.userSettings;
-            const ApiData = userSettingData(from);
+            // const ApiData = userSettingDataUpgrade(from);
+            let ApiData = null;
+            if (from?.endsWith("Del")) {
+                ApiData = userSettingDataDel(from);
+            } else {
+                ApiData = userSettingDataUpgrade(from);
+            }
             console.log("Api data sending in user setting api is", ApiData);
             const response = await axios.put(ApiPath, ApiData, {
                 headers: {
@@ -144,17 +177,23 @@ const UPSell = () => {
                     setShowSnackMessage(response.data.message);
                     setShowSnackType(SnackbarTypes.Error);
                 }
-                setSavePhoneLoader(false);
-                setDNCLoader(false);
-                setPerplexityEnrichmentLoader(false);
+                handleResetLoaders();
             }
         }
         catch (error) {
             console.error("Error occured in user settings api is", error);
-            setSavePhoneLoader(false);
-            setDNCLoader(false);
-            setPerplexityEnrichmentLoader(false);
+            handleResetLoaders();
         }
+    }
+
+    //reset loaders
+    const handleResetLoaders = () => {
+        setSavePhoneLoader(false);
+        setDNCLoader(false);
+        setPerplexityEnrichmentLoader(false);
+        setDelPhoneLoader(false);
+        setDelDNCLoader(false);
+        setDelPerplexityEnrichmentLoader(false);
     }
 
     return (
@@ -188,27 +227,38 @@ const UPSell = () => {
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
-                                            <Switch
-                                                checked={allowUpSellPhone}
-                                                onChange={(e) => {
-                                                    const checked = e.target.checked;
-                                                    setAllowUpSellPhone(checked);
+                                            {
+                                                delPhoneLoader ? (
+                                                    <CircularProgress size={20} />
+                                                ) : (
+                                                    <Switch
+                                                        checked={allowUpSellPhone}
+                                                        onChange={(e) => {
+                                                            const checked = e.target.checked;
+                                                            setAllowUpSellPhone(checked);
 
-                                                    if (allowUpSellPhone === false) {
-                                                        setAddUpSellPhone(true);
-                                                    } else {
-                                                        setAddUpSellPhone(false);
-                                                    }
-                                                }}
-                                                sx={{
-                                                    '& .MuiSwitch-switchBase.Mui-checked': {
-                                                        color: 'white',
-                                                    },
-                                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                                        backgroundColor: '#7902DF',
-                                                    },
-                                                }}
-                                            />
+                                                            if (allowUpSellPhone === false) {
+                                                                setAddUpSellPhone(true);
+                                                            } else {
+                                                                if (settingsData?.phonePrice) {
+                                                                    handleUserSettings("phonePriceDel");
+                                                                } else {
+                                                                    setPhonePrice("")
+                                                                    setAddUpSellPhone(false);
+                                                                }
+                                                            }
+                                                        }}
+                                                        sx={{
+                                                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                color: 'white',
+                                                            },
+                                                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                backgroundColor: '#7902DF',
+                                                            },
+                                                        }}
+                                                    />
+                                                )
+                                            }
                                         </div>
                                     </div>
                                     {
@@ -248,13 +298,7 @@ const UPSell = () => {
                                                             const value = e.target.value;
                                                             // Allow only digits and one optional period
                                                             const sanitized = value.replace(/[^0-9.]/g, '');
-
-                                                            // Prevent multiple periods
-                                                            const valid = sanitized.split('.')?.length > 2
-                                                                ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                                                                : sanitized;
-                                                            // setOriginalPrice(valid);
-                                                            setPhonePrice(valid ? Number(valid) : 0);
+                                                            setPhonePrice(sanitized);
                                                         }}
                                                     />
                                                 </div>
@@ -286,27 +330,38 @@ const UPSell = () => {
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
-                                            <Switch
-                                                checked={allowDNC}
-                                                onChange={(e) => {
-                                                    const checked = e.target.checked;
-                                                    setAllowDNC(checked);
+                                            {
+                                                delDNCLoader ? (
+                                                    <CircularProgress size={20} />
+                                                ) : (
+                                                    <Switch
+                                                        checked={allowDNC}
+                                                        onChange={(e) => {
+                                                            const checked = e.target.checked;
+                                                            setAllowDNC(checked);
 
-                                                    if (allowDNC === false) {
-                                                        setAddDNC(true);
-                                                    } else {
-                                                        setAddDNC(false);
-                                                    }
-                                                }}
-                                                sx={{
-                                                    '& .MuiSwitch-switchBase.Mui-checked': {
-                                                        color: 'white',
-                                                    },
-                                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                                        backgroundColor: '#7902DF',
-                                                    },
-                                                }}
-                                            />
+                                                            if (allowDNC === false) {
+                                                                setAddDNC(true);
+                                                            } else {
+                                                                if (settingsData?.dncPrice) {
+                                                                    handleUserSettings("dncPriceDel");
+                                                                } else {
+                                                                    setAddDNC("");
+                                                                    setAddDNC(false);
+                                                                }
+                                                            }
+                                                        }}
+                                                        sx={{
+                                                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                color: 'white',
+                                                            },
+                                                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                backgroundColor: '#7902DF',
+                                                            },
+                                                        }}
+                                                    />
+                                                )
+                                            }
                                         </div>
                                     </div>
                                     {
@@ -346,13 +401,7 @@ const UPSell = () => {
                                                             const value = e.target.value;
                                                             // Allow only digits and one optional period
                                                             const sanitized = value.replace(/[^0-9.]/g, '');
-
-                                                            // Prevent multiple periods
-                                                            const valid = sanitized.split('.')?.length > 2
-                                                                ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                                                                : sanitized;
-                                                            // setOriginalPrice(valid);
-                                                            setDncPrice(valid ? Number(valid) : 0);
+                                                            setDncPrice(sanitized);
                                                         }}
                                                     />
                                                 </div>
@@ -384,27 +433,38 @@ const UPSell = () => {
                                             </div>
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
-                                            <Switch
-                                                checked={allowPerplexityEnrichment}
-                                                onChange={(e) => {
-                                                    const checked = e.target.checked;
-                                                    setAllowPerplexityEnrichment(checked);
+                                            {
+                                                delPerplexityEnrichmentLoader ? (
+                                                    <CircularProgress size={20} />
+                                                ) : (
+                                                    <Switch
+                                                        checked={allowPerplexityEnrichment}
+                                                        onChange={(e) => {
+                                                            const checked = e.target.checked;
+                                                            setAllowPerplexityEnrichment(checked);
 
-                                                    if (allowPerplexityEnrichment === false) {
-                                                        setAddPerplexityEnrichment(true);
-                                                    } else {
-                                                        setAddPerplexityEnrichment(false);
-                                                    }
-                                                }}
-                                                sx={{
-                                                    '& .MuiSwitch-switchBase.Mui-checked': {
-                                                        color: 'white',
-                                                    },
-                                                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                                        backgroundColor: '#7902DF',
-                                                    },
-                                                }}
-                                            />
+                                                            if (allowPerplexityEnrichment === false) {
+                                                                setAddPerplexityEnrichment(true);
+                                                            } else {
+                                                                if (settingsData?.enrichmentPrice) {
+                                                                    handleUserSettings("enrichmentPriceDel");
+                                                                } else {
+                                                                    setPerplexityEnrichmentPrice("");
+                                                                    setAddPerplexityEnrichment(false);
+                                                                }
+                                                            }
+                                                        }}
+                                                        sx={{
+                                                            '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                color: 'white',
+                                                            },
+                                                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                backgroundColor: '#7902DF',
+                                                            },
+                                                        }}
+                                                    />
+                                                )
+                                            }
                                         </div>
                                     </div>
                                     {
@@ -444,13 +504,7 @@ const UPSell = () => {
                                                             const value = e.target.value;
                                                             // Allow only digits and one optional period
                                                             const sanitized = value.replace(/[^0-9.]/g, '');
-
-                                                            // Prevent multiple periods
-                                                            const valid = sanitized.split('.')?.length > 2
-                                                                ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                                                                : sanitized;
-                                                            // setOriginalPrice(valid);
-                                                            setPerplexityEnrichmentPrice(valid ? Number(valid) : 0);
+                                                            setPerplexityEnrichmentPrice(sanitized);
                                                         }}
                                                     />
                                                 </div>
