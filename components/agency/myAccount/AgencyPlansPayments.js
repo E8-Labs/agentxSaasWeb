@@ -1209,8 +1209,8 @@ function AgencyPlansPayments({
                 {getCurrentPlans().map((item, index) => (
                     <button
                         key={item.id}
-                        className="mt-4 outline-none flex-shrink-0 w-4/12"
-                        // style={{ width: "220px" }} // Fixed width for consistent card sizes
+                        className="mt-4 outline-none flex-shrink-0"
+                        style={{ width: "250px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div

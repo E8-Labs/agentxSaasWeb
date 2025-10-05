@@ -29,7 +29,7 @@ export const DurationView = ({
             </div>
 
             {/* Duration buttons row */}
-            <div className='flex flex-row items-center border bg-neutral-100 px-1 pb-0.5 rounded-full' style={{ gap: '8px' }}>
+            <div className='flex flex-row items-center border bg-neutral-100 px-2 pb-0.5 rounded-full' style={{ gap: '8px' }}>
                 {
                     duration.map((item) => (
                         <div key={`button-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>

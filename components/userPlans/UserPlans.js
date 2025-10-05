@@ -307,7 +307,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
 
     return (
-        <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
+        <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' || from === "subAccountPlans" ? 'h-full' : 'h-[100vh]'}`}>
             <div className='flex flex-col items-center w-[90%] h-full overflow-y-auto'
                 style={{
                     scrollbarWidth: 'none'
@@ -431,7 +431,9 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                         {/* Header section - fixed height */}
                                         <div className='flex flex-col items-center w-full flex-shrink-0'>
                                             <div className='text-3xl font-semibold mt-2 capitalize'>
-                                                {item.name || item.title}
+                                                {(item.name || item.title).length > 8
+                                                    ? (item.name || item.title).slice(0, 8) + "..."
+                                                    : (item.name || item.title)}
                                             </div>
 
                                             <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">

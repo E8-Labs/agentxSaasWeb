@@ -27,6 +27,10 @@ import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 import DowngradePlanPopup from "@/components/myAccount/cancelationFlow/DowngradePlanPopup";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
+import ViewSubAccountPlans from "@/components/agency/subaccount/ViewSubAccountPlans";
+import CloseBtn from "@/components/globalExtras/CloseBtn";
+import AgencyPlans from "@/components/plan/AgencyPlans";
+import UserPlans from "@/components/userPlans/UserPlans";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1190,12 +1194,12 @@ function SubAccountPlansAndPayments({
             ))*/}
 
             <div className="w-full flex flex-row justify-end mt-4">
-                <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+                <div className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
                 >
                     {
                         duration?.map((item) => (
                             <button key={item.id}
-                                className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-sm shadow-purple rounded-full" : "text-black"}`}
                                 onClick={() => {
                                     setSelectedDuration(item);
                                     getCurrentPlans(item);
@@ -1290,7 +1294,7 @@ function SubAccountPlansAndPayments({
 
                                     <div className="flex flex-row items-center justify-between w-full mb-4">
                                         <div className="text-[16px] font-semibold">
-                                            {item.title}
+                                            {item.title.length > 8 ? item.title.slice(0, 8) + "..." : item.title}
                                         </div>
                                         <div className="text-[16px] font-semibold">
                                             {item.minutes} AI credits
@@ -1382,6 +1386,7 @@ function SubAccountPlansAndPayments({
                                                 alignItems: 'center',
                                             }}
                                             onClick={() => {
+                                                console.log("Trigering open details view")
                                                 setShowPlanDetailsPopup(true);
                                             }}
                                         >
@@ -1489,6 +1494,46 @@ function SubAccountPlansAndPayments({
                     currentFullPlan={currentPlanDetails}
                 />
             </Elements>
+
+            {/* Plans details */}
+            <Modal
+                open={showPlanDetailsPopup}
+                onClose={() => {
+                    setShowPlanDetailsPopup(false);
+                }}
+            >
+                <Box className="bg-white rounded-xl w-[70%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <div className="w-full flex flex-row items-center justify-end px-6 pt-6 h-[8%]">
+                        <CloseBtn
+                            onClick={() => {
+                                setShowPlanDetailsPopup(false);
+                            }}
+                        />
+                    </div>
+                    <div className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}>
+                        <UserPlans
+                            handleContinue={() => {
+                                setShowPlanDetailsPopup(false);
+                                // refreshProfileAndState();
+                            }}
+                            handleBack={() => setShowPlanDetailsPopup(false)}
+                            isFrom="SubAccount"
+                            from="subAccountPlans"
+                            onPlanSelected={(plan) => {
+                                console.log('Plan selected from modal:', plan);
+                                // Close UserPlans modal
+                                setShowPlanDetailsPopup(false);
+                                // Set the selected plan
+                                setSelectedPlan(plan);
+                                setTogglePlan(plan.id);
+                                setCurrentPlanDetails(plan);
+                                // Open Upgrade modal
+                                setShowUpgradeModal(true);
+                            }}
+                        />
+                    </div>
+                </Box>
+            </Modal>
 
             {/* Downgrade plan confirmation popup */}
             {
