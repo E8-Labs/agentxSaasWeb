@@ -1169,7 +1169,7 @@ const AgencySignUp = ({
                   <div
                     className="
       truncate w-full
-      text-[28px] sm:text-[32px] md:text-[38px] lg:text-[43px] xl:text-[48px]
+      text-[23px] sm:text-[28px] md:text-[33px] lg:text-[38px] xl:text-[43px]
       text-transparent bg-clip-text bg-gradient-to-r from-[#23DEFF] to-[#7902DF]
       text-start
     "

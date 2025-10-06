@@ -107,6 +107,11 @@ function SubAccountPlansAndPayments({
     //plans details
     const [showPlanDetailsPopup, setShowPlanDetailsPopup] = useState(false);
 
+
+    useEffect(() => {
+       console.log('current full plan in subaccount plans and payments', currentPlanDetails)
+    }, [currentPlanDetails])
+
     useEffect(() => {
         let screenWidth = 1000;
         if (typeof window !== "undefined") {
@@ -212,7 +217,7 @@ function SubAccountPlansAndPayments({
         // Search inside yearly plans
         const yearlyMatch = yearlyPlans.find(p => p.id === currentPlan);
         if (yearlyMatch) {
-            // console.log("Matching yearlyMatch plan is", yearlyMatch)
+            console.log("Matching yearlyMatch plan is", yearlyMatch)
             setCurrentPlanDetails(yearlyMatch);
             setCurrentPlanSequenceId(yearlyMatch.sequenceId);
             return;

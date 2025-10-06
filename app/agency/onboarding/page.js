@@ -25,7 +25,7 @@ function Page() {
       } else if (Data.user.userRole == "Agency" && !needsOnboarding) {
         // Only redirect if user doesn't need onboarding
         // router.push("/agency/dashboard");
-        window.location.href = "/agency/dashboard";
+        // window.location.href = "/agency/dashboard";
       } else if (Data.user.userRole !== "Agency") {
         // router.push("/dashboard");
         window.location.href = "/dashboard";
