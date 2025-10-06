@@ -126,14 +126,45 @@ export default function PlanFeatures({
 
                                 {/* Price Additional Seats */}
                                 <div className="w-1/2">
-                                    <label style={styles.regular}>Price Additional Seats</label>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <label style={styles.regular}>Price Additional Seats</label>
+                                        <Tooltip
+                                            title={"Sell additional seats at an extra price per month."}
+                                            arrow
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "#ffffff", // Ensure white background
+                                                        color: "#333", // Dark text color
+                                                        fontSize: "14px",
+                                                        padding: "10px 15px",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                    },
+                                                },
+                                                arrow: {
+                                                    sx: {
+                                                        color: "#ffffff", // Match tooltip background
+                                                    },
+                                                },
+                                            }}
+                                        >
+                                            <Image
+                                                src="/otherAssets/infoLightDark.png"
+                                                alt="info"
+                                                width={14}
+                                                height={14}
+                                                className="cursor-pointer rounded-full"
+                                            />
+                                        </Tooltip>
+                                    </div>
                                     <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
                                         <div style={styles.inputs}>$</div>
                                         <input
                                             style={styles.inputs}
                                             type="text"
                                             className="w-full border-none outline-none focus:outline-none focus:ring-0"
-                                            placeholder="00"
+                                            placeholder=""
                                             value={costPerAdditionalSeat}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/[^0-9.]/g, "");
@@ -208,7 +239,7 @@ export default function PlanFeatures({
 
 const styles = {
     regular: {
-        fontSize: "15px", fontWeight: "500",color: "#00000050"
+        fontSize: "15px", fontWeight: "500", color: "#00000050"
     },
     inputs: {
         fontSize: "15px",

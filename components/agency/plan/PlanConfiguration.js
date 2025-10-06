@@ -279,11 +279,11 @@ export default function PlanConfiguration({
             setFeatures({
                 toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
                 calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
-                liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || false,
+                liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,
                 ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase || dynamicFeatures?.allowRAGKnowledgeBase || false,
                 embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
                 apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
-                voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemail || false,
+                voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
                 twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
                 allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamSeats || false,
@@ -504,15 +504,21 @@ export default function PlanConfiguration({
 
     const isFormValid = () => {
         const agentsStr = noOfAgents?.toString().trim();
+        const agentsStrPrice = costPerAdditionalAgent?.toString().trim();
         const contactsStr = noOfContacts?.toString().trim();
         let seatsStr = noOfSeats?.toString().trim();
         let costPerSeatStr = costPerAdditionalSeat?.toString().trim();
-        if(features.allowTeamSeats){
+        console.log("Status of features allow teams seats", features?.allowTeamSeats)
+        let requiredData;
+        if (features?.allowTeamSeats === true) {
             seatsStr = noOfSeats?.toString().trim();
             costPerSeatStr = costPerAdditionalSeat?.toString().trim();
+            requiredData = agentsStr && contactsStr && language && seatsStr && costPerSeatStr && agentsStrPrice && snackBannerMsg === null
+        } else {
+            requiredData = agentsStr && contactsStr && language && agentsStrPrice && snackBannerMsg === null
         }
 
-        const requiredFieldsFilled = agentsStr && contactsStr && language && seatsStr && costPerSeatStr;
+        const requiredFieldsFilled = requiredData;
         const trialValid = features.allowTrial ? trialValidForDays : true;
 
         return requiredFieldsFilled && trialValid;
@@ -686,7 +692,39 @@ export default function PlanConfiguration({
 
                                 {/* Tag Option */}
                                 <div className="w-1/2">
-                                    <label style={styles.labels}>Price Additional Agents</label>
+                                    <div className="flex flex-row items-center gap-2">
+                                        <label style={styles.labels}>Price Additional Agents</label>
+                                        <Tooltip
+                                            title={"Your cost for additional agents are $5. We don't charge you for this, we bill the customer when they optin to add additional agents."}
+                                            placement="top"
+                                            arrow
+                                            componentsProps={{
+                                                tooltip: {
+                                                    sx: {
+                                                        backgroundColor: "#ffffff", // Ensure white background
+                                                        color: "#333", // Dark text color
+                                                        fontSize: "14px",
+                                                        padding: "10px 15px",
+                                                        borderRadius: "8px",
+                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                    },
+                                                },
+                                                arrow: {
+                                                    sx: {
+                                                        color: "#ffffff", // Match tooltip background
+                                                    },
+                                                },
+                                            }}
+                                        >
+                                            <Image
+                                                src="/otherAssets/infoLightDark.png"
+                                                alt="info"
+                                                width={14}
+                                                height={14}
+                                                className="cursor-pointer rounded-full"
+                                            />
+                                        </Tooltip>
+                                    </div>
                                     <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
                                         <div className="" style={styles.inputs}>
                                             $
@@ -700,6 +738,12 @@ export default function PlanConfiguration({
                                             onChange={(e) => {
                                                 const value = e.target.value;
                                                 // Allow only digits and one optional period
+                                                if (value && value < 5) {
+                                                    setSnackBannerMsg("Price per agent cannot be less than $5.");
+                                                    setSnackBannerMsgType(SnackbarTypes.Error);
+                                                } else {
+                                                    setSnackBannerMsg(null);
+                                                }
                                                 const sanitized = value.replace(/[^0-9.]/g, '');
 
                                                 // Prevent multiple periods
