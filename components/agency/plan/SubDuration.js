@@ -120,6 +120,27 @@ export const LanguagesSelection = ({
             setLanguageTitle(item.label)
         }
     }
+
+    //css
+    const getLanguageBorderClass = (language, languageTitle, item) => {
+        const lang = typeof language === "string" ? language.toLowerCase() : "";
+        const title = typeof languageTitle === "string" ? languageTitle.toLowerCase() : "";
+        const itemValue = item?.value?.toLowerCase() || "";
+        const itemLabel = item?.label?.toLowerCase() || "";
+
+        if (title === "multilingual compatible" || lang === "multilingual") {
+            return "border-2 border-purple";
+        }
+
+        if (title === itemLabel || lang === itemValue) {
+            return "border-2 border-purple";
+        }
+
+        return "border-gray-200";
+    };
+// ${languageTitle === "Multilingual Compatible" ? "border-2 border-purple" : language === "multilingual" ? "border-2 border-purple" : languageTitle?.toLowerCase() === item.label?.toLowerCase() || language?.toLowerCase() === item.value?.toLowerCase() ? "border-2 border-purple" : "border-gray-200"}
+
+
     return (
         <div className='w-full'>
             <div style={styles.regular}>
@@ -132,7 +153,7 @@ export const LanguagesSelection = ({
                             <button
                                 key={item.id}
                                 style={styles.regular}
-                                className={`outline-none ${languageTitle === "Multilingual Compatible" ? "border-2 border-purple" : language === "multilingual" ? "border-2 border-purple" : languageTitle?.toLowerCase() === item.label?.toLowerCase() || language?.toLowerCase() === item.value?.toLowerCase() ? "border-2 border-purple" : "border-gray-200"} h-[40px] w-[150px] rounded-lg text-center border`}
+                                className={`outline-none h-[40px] w-[150px] rounded-lg text-center border ${getLanguageBorderClass(language, languageTitle, item)}`}
                                 onClick={() => { handleToggle(item) }}
                             >
                                 {item.title}

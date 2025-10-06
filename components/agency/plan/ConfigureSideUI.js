@@ -73,20 +73,37 @@ const ConfigureSideUI = ({
 
                         </div>
                         <div className='bg-white rounded-lg mt-2 mb-2 p-4 flex flex-col items-center w-[95%]'>
-                            <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>{basicsData?.title || "Title"}</div>
+                            <div className='flex flex-row items-center justify-between w-full'>
+                                <div />
+                                {
+                                    from === "dashboard" ? (
+                                        <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>
+                                            {basicsData.title.length > 8 ? basicsData.title.slice(0, 8) + "..." : basicsData.title || "Title"}
+                                        </div>
+                                    ) :
+                                        (
+                                            <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>
+                                                {basicsData.title || "Title"}
+                                            </div>
+                                        )
+                                }
+                                <div className="text-sm font-medium capitalize bg-[#A9A9A940] text-[#A9A9A9] rounded-full px-2 py-1">
+                                    {from === "dashboard" && (basicsData?.duration)}
+                                </div>
+                            </div>
                             <div
                                 style={{ fontWeight: "700", fontSize: "35px" }}
                                 className="text-center mt-4 font-bold text-[35px]"
                             >
                                 {
-                                    basicsData?.originalPrice && (
+                                    basicsData?.originalPrice > 0 && (
                                         <span className='text-[#00000020] line-through' style={{ fontWeight: "700", fontSize: "30px" }}>
-                                            ${from === "dashboard" ? basicsData?.originalPrice : formatFractional2(basicsData?.originalPrice) || ""}
+                                            ${formatFractional2(basicsData?.originalPrice) || ""}
                                         </span>
                                     )
                                 }
                                 <span className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2" style={{ fontWeight: "700", fontSize: "35px" }}>
-                                    ${from === "dashboard" ? basicsData?.discountedPrice : formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
+                                    ${formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
                                 </span>
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>

@@ -914,7 +914,7 @@ export default function PlanConfiguration({
                             setShowUpgradePlanPopup(false);
                         }}
                     >
-                        <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                        <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-y-auto">
                             <div className="w-full flex flex-row items-center justify-end px-4 pt-4 h-[5%]">
                                 <CloseBtn
                                     onClick={() => {

@@ -22,26 +22,47 @@
 //     return truncated.toString();
 // };
 
-export const formatFractional2 = (raw) => {
-    if (raw == null) return "";
-    const num = parseFloat(raw);
-    if (isNaN(num)) return "";
+// export const formatFractional2 = (raw) => {
+//     if (raw == null) return "";
+//     const num = parseFloat(raw);
+//     if (isNaN(num)) return "";
 
-    // Whole number → no decimals
-    if (num % 1 === 0) {
+//     // Whole number → no decimals
+//     if (num % 1 === 0) {
+//         return num.toString();
+//     }
+
+//     // Keep 2 decimals (round, not truncate)
+//     let fixed = num.toFixed(2);
+
+//     // If it ends with ".00" → strip decimals
+//     if (fixed.endsWith(".00")) {
+//         return parseInt(fixed, 10).toString();
+//     }
+
+//     // If it ends with "0" (like "6.50") → keep the zero
+//     // If it ends with ".50" → keep ".50"
+//     // If it ends with ".10", ".20" etc, also keep
+//     return fixed.replace(/(\.\d)0$/, "$1");
+// };
+
+export function formatFractional2(price) {
+    if (price == null || price === undefined) {
+        return "";
+    }
+
+    const num = Number(price);
+
+    if (isNaN(num)) {
+        return "";
+    }
+
+    // If whole number, return without decimals
+    if (Number.isInteger(num)) {
         return num.toString();
     }
 
-    // Keep 2 decimals (round, not truncate)
-    let fixed = num.toFixed(2);
+    // Otherwise, format with exactly 2 decimals
+    return num.toFixed(2);
+}
 
-    // If it ends with ".00" → strip decimals
-    if (fixed.endsWith(".00")) {
-        return parseInt(fixed, 10).toString();
-    }
-
-    // If it ends with "0" (like "6.50") → keep the zero
-    // If it ends with ".50" → keep ".50"
-    // If it ends with ".10", ".20" etc, also keep
-    return fixed.replace(/(\.\d)0$/, "$1");
-};
