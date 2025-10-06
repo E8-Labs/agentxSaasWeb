@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { PersistanceKeys } from '@/constants/Constants';
 import axios from 'axios';
 import Apis from '../apis/Apis';
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, Tooltip } from '@mui/material';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from '../createagent/addpayment/AddCardDetails';
@@ -384,7 +384,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                     </div>
 
                     <div>
-                        <div className='flex flex-row items-center justify-end gap-2 px-2'>
+                        <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
                             {
                                 durationSaving.map((item) => {
                                     return (
@@ -557,7 +557,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                                             console.error("Item or item.id is undefined:", currentItem);
                                                                         }
                                                                     }}>
-                                                                    {selectedPlan?.id === item.id ? "Continue" : "Claim Early Access"}
+                                                                    {selectedPlan?.id === item.id ? "Continue" : "Get Started"}
                                                                 </button>
                                                             )}
                                                         </div>
@@ -566,12 +566,12 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                             {
                                                                 item?.title?.toLowerCase() === "growth" ? (
                                                                     <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
-                                                                        Every thing in Starter, and
+                                                                        Everything in Starter, and
                                                                     </div>
                                                                 ) :
                                                                     item?.title?.toLowerCase() === "scale" ? (
                                                                         <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
-                                                                            Every thing in Growth, and
+                                                                            Everything in Growth, and
                                                                         </div>
                                                                     ) : ""
                                                             }
@@ -607,19 +607,60 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                                                 }}>
                                                                                 {item.text}
                                                                             </div>
-                                                                            <div
-                                                                                // style={{
-                                                                                //     fontSize: 13,
-                                                                                //     fontWeight: '500',
-                                                                                //     textAlign: 'left',
-                                                                                //     color: "#00000050"
-                                                                                // }}
-                                                                                style={{
-                                                                                    ...styles.regularFont, textAlign: 'left',
-                                                                                    borderWidth: 0, color: "#00000050"
-                                                                                }}>
-                                                                                {item.subtext}
-                                                                            </div>
+                                                                            {
+                                                                                item?.subtext && (
+                                                                                    <div
+                                                                                        // style={{
+                                                                                        //     fontSize: 13,
+                                                                                        //     fontWeight: '500',
+                                                                                        //     textAlign: 'left',
+                                                                                        //     color: "#00000050"
+                                                                                        // }}
+                                                                                        style={{
+                                                                                            ...styles.regularFont, textAlign: 'left',
+                                                                                            borderWidth: 0, color: "#00000050"
+                                                                                        }}>
+                                                                                        {
+                                                                                            item?.subtext?.toLowerCase() === "upsell" ? (
+                                                                                                "(Upsell)"
+                                                                                            ) : item?.subtext?.toLowerCase() === "coming soon" ? (
+                                                                                                "(coming soon)"
+                                                                                            ) : (
+                                                                                                <Tooltip
+                                                                                                    title={item.subtext}
+                                                                                                    placement="top"
+                                                                                                    arrow
+                                                                                                    componentsProps={{
+                                                                                                        tooltip: {
+                                                                                                            sx: {
+                                                                                                                backgroundColor: "#ffffff", // Ensure white background
+                                                                                                                color: "#333", // Dark text color
+                                                                                                                fontSize: "14px",
+                                                                                                                padding: "10px 15px",
+                                                                                                                borderRadius: "8px",
+                                                                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                                                            },
+                                                                                                        },
+                                                                                                        arrow: {
+                                                                                                            sx: {
+                                                                                                                color: "#ffffff", // Match tooltip background
+                                                                                                            },
+                                                                                                        },
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <Image
+                                                                                                        src="/otherAssets/infoLightDark.png"
+                                                                                                        alt="info"
+                                                                                                        width={14}
+                                                                                                        height={14}
+                                                                                                        className="cursor-pointer rounded-full"
+                                                                                                    />
+                                                                                                </Tooltip>
+                                                                                            )
+                                                                                        }
+                                                                                    </div>
+                                                                                )
+                                                                            }
                                                                         </div>
                                                                     </div>
                                                                 ))

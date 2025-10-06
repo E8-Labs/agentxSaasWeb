@@ -753,7 +753,7 @@ const AgencyAddCard = ({
                             className="mt-2 text-center"
                             style={{
                                 fontWeight: "400",
-                                fontSize: 13
+                                fontSize: 10
                             }}>
                             By continuing you agree to our
                             <a

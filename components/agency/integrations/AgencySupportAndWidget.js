@@ -183,7 +183,7 @@ const AgencySupportAndWidget = () => {
       console.log("Response of user settings api is", response);
       if (response) {
         if (response.data.status === true) {
-          setShowSnackMessage(response.data.message);
+          setShowSnackMessage("Link updated");
           setShowSnackType(SnackbarTypes.Success);
           setAddSuportWebCalendar(false);
           setAddSky(false);
