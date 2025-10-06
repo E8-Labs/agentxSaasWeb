@@ -1,5 +1,5 @@
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
-import { CircularProgress, Switch } from '@mui/material';
+import { CircularProgress, Switch, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import { AuthToken } from '../plan/AuthDetails';
@@ -240,8 +240,36 @@ const AgencySupportAndWidget = () => {
               <div className='border-b'>
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
-                    <div style={styles.subHeading}>
-                      Support webinar calendar
+                    <div className='flex flex-row items-center gap-2'>
+                      <div style={styles.subHeading}>
+                        Support webinar calendar
+                      </div>
+                      <Tooltip
+                        title="If you want to offer support calls, add your support calendar here."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#ffffff", // Ensure white background
+                              color: "#333", // Dark text color
+                              fontSize: "16px",
+                              fontWeight: '500',
+                              padding: "10px 15px",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: "#ffffff", // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <Image src={"/svgIcons/infoIcon.svg"}
+                          height={16} width={16} alt="*"
+                        />
+                      </Tooltip>
                     </div>
                     <div className="flex flex-row items-center gap-2">
                       {
@@ -348,9 +376,39 @@ const AgencySupportAndWidget = () => {
                 <div className='border-b'>
                   <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mt-4'>
                     <div className='flex flex-row items-center justify-between w-full'>
+                      <div className='flex flex-row items-center gap-2'>
                       <div style={styles.subHeading}>
                         Sky
                       </div>
+
+                      <Tooltip
+                      title="If you want to offer support calls, add your support calendar here."
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: "#ffffff", // Ensure white background
+                            color: "#333", // Dark text color
+                            fontSize: "16px",
+                            fontWeight: '500',
+                            padding: "10px 15px",
+                            borderRadius: "8px",
+                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: "#ffffff", // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <Image src={"/svgIcons/infoIcon.svg"}
+                        height={16} width={16} alt="*"
+                      />
+                    </Tooltip>
+                    </div>
+
                       <div className="flex flex-row items-center gap-2">
                         <Switch
                           checked={allowSky}
@@ -438,8 +496,36 @@ const AgencySupportAndWidget = () => {
               <div className='border-b'>
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
-                    <div style={styles.subHeading}>
-                      Give feedback
+                    <div className='flex flex-row items-center gap-2'>
+                      <div style={styles.subHeading}>
+                        Give feedback
+                      </div>
+                      <Tooltip
+                        title="This allows you to collect feedback from your users."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#ffffff", // Ensure white background
+                              color: "#333", // Dark text color
+                              fontSize: "16px",
+                              fontWeight: '500',
+                              padding: "10px 15px",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: "#ffffff", // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <Image src={"/svgIcons/infoIcon.svg"}
+                          height={16} width={16} alt="*"
+                        />
+                      </Tooltip>
                     </div>
                     <div className="flex flex-row items-center gap-2">
                       {
@@ -543,9 +629,38 @@ const AgencySupportAndWidget = () => {
               <div className='border-b'>
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
+                    <div className='flex flex-row items-center gap-2'>
                     <div style={styles.subHeading}>
                       Hire team
                     </div>
+
+                    <Tooltip
+                    title="Allow your users to get on a sales call to hire you for a white glove service."
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "16px",
+                          fontWeight: '500',
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
+                    }}
+                  >
+                    <Image src={"/svgIcons/infoIcon.svg"}
+                      height={16} width={16} alt="*"
+                    />
+                  </Tooltip>
+                  </div>
                     <div className="flex flex-row items-center gap-2">
                       {
                         delHireTeamLoader ? (
@@ -648,9 +763,37 @@ const AgencySupportAndWidget = () => {
               <div>
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
+                    <div className='flex flex-row items-center gap-2'>
                     <div style={styles.subHeading}>
                       Billing and Support
                     </div>
+                    <Tooltip
+                    title="Allow your users to get help with billing."
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: "#ffffff", // Ensure white background
+                          color: "#333", // Dark text color
+                          fontSize: "16px",
+                          fontWeight: '500',
+                          padding: "10px 15px",
+                          borderRadius: "8px",
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: "#ffffff", // Match tooltip background
+                        },
+                      },
+                    }}
+                  >
+                    <Image src={"/svgIcons/infoIcon.svg"}
+                      height={16} width={16} alt="*"
+                    />
+                  </Tooltip>
+                  </div>
                     <div className="flex flex-row items-center gap-2">
                       {
                         delBillingAndSupportLoader ? (
