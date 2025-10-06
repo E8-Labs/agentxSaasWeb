@@ -290,9 +290,6 @@ function UpgradePlanContent({
         return false;
     };
 
-    useEffect(() => {
-
-    }, [plan])
 
     // useEffect(() => {
     //     console.log('currentSelectedPlan', currentSelectedPlan)
@@ -302,10 +299,9 @@ function UpgradePlanContent({
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
-        if (open) {
-
+        // if (open && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
+        if (open && !currentSelectedPlan && selectedPlan) {
             // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
-            const currentPlans = getCurrentPlans();
             let planDuration = null
             if (selectedPlan) {
                 planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
@@ -325,27 +321,53 @@ function UpgradePlanContent({
                 }
             }
 
+            
+            const currentPlans = getCurrentPlans();
+          
+
+            console.log('currentPlans in useEffect', currentPlans)
+            console.log('selectedPlan in useEffect', selectedPlan)
             // Find the matching plan in current plans
-
-
             const matchingPlan = currentPlans.find(plan =>
-                plan.name === selectedPlan?.name ||
-                plan.id === selectedPlan?.id ||
-                plan.planType === selectedPlan?.planType
+                plan.title === selectedPlan?.title ||
+                plan.id === selectedPlan?.id //||
+                // plan.planType === selectedPlan?.planType
             );
 
-
+            console.log(' matching plan', matchingPlan)
 
             if (matchingPlan) {
                 setCurrentSelectedPlan(matchingPlan);
                 const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
                 setSelectedPlanIndex(planIndex);
                 setTogglePlan(matchingPlan.id);
-
-
             }
         }
-    }, [selectedPlan, open, monthlyPlans, quaterlyPlans, yearlyPlans, currentUserPlan])
+    }, [open])
+
+    // Handle default plan selection when no selectedPlan is provided
+    useEffect(() => {
+        // if (open && !selectedPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
+        if (open && !selectedPlan && !currentSelectedPlan) {
+            const currentPlans = getCurrentPlans();
+            if (currentPlans.length > 0 && !currentSelectedPlan) {
+                // Set duration based on current user plan or default to first available
+                let planDuration = null;
+                if (currentUserPlan && currentUserPlan.billingCycle) {
+                    planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
+                } else {
+                    planDuration = getDurationFromBillingCycle(currentPlans[0]?.billingCycle);
+                }
+                if (planDuration) {
+                    setSelectedDuration(planDuration);
+                }
+            }
+            // Select the first plan as default
+            setCurrentSelectedPlan(currentPlans[0]);
+            setSelectedPlanIndex(0);
+            setTogglePlan(currentPlans[0].id);
+        }
+    }, [open])
 
     useEffect(() => {
         if (!inviteCode || inviteCode.trim().length === 0) {
@@ -429,6 +451,37 @@ function UpgradePlanContent({
         return () => window.removeEventListener('resize', checkScreenHeight);
     }, []);
 
+
+          // Auto-select plan when switching billing cycles
+          useEffect(() => {
+            const currentPlans = getCurrentPlans();
+            if (currentPlans.length > 0 && currentSelectedPlan) {
+    
+                if (plan && currentFullPlan) {
+                    console.log('currentFullPlan in useEffect', currentFullPlan)
+                    setCurrentSelectedPlan(plan);
+                    setTogglePlan(plan?.id);
+                    setCurrentUserPlan(currentFullPlan);
+                }
+                // Find the plan with the same name in the new billing cycle
+                const matchingPlan = currentPlans.find(plan => plan.name === currentSelectedPlan.name);
+                if (matchingPlan) {
+                    const planIndex = currentPlans.findIndex(plan => plan.name === currentSelectedPlan.name);
+                    setCurrentSelectedPlan(matchingPlan);
+                    setSelectedPlanIndex(planIndex);
+                    setTogglePlan(matchingPlan.id);
+                } else {
+                    // If no matching plan found, select the first plan
+                    setCurrentSelectedPlan(currentPlans[0]);
+                    setSelectedPlanIndex(0);
+                    setTogglePlan(currentPlans[0].id);
+                }
+    
+    
+            }
+        }, [selectedDuration]);
+    
+
     const getCurrentUserPlan = () => {
         const localData = localStorage.getItem("User");
         if (localData) {
@@ -506,38 +559,12 @@ function UpgradePlanContent({
         }
     }
     const getCurrentPlans = () => {
+        console.log('selectedDuration in getCurrentPlans', selectedDuration)
         if (selectedDuration.id === 1) return monthlyPlans;
         if (selectedDuration.id === 2) return quaterlyPlans;
         if (selectedDuration.id === 3) return yearlyPlans;
         return [];
     };
-
-    // Auto-select plan when switching billing cycles
-    useEffect(() => {
-        const currentPlans = getCurrentPlans();
-        if (currentPlans.length > 0 && currentSelectedPlan) {
-            if (plan && currentFullPlan) {
-                setCurrentSelectedPlan(plan);
-                setTogglePlan(plan?.id);
-                setCurrentUserPlan(currentFullPlan);
-            }
-            // Find the plan with the same name in the new billing cycle
-            const matchingPlan = currentPlans.find(plan => plan.name === currentSelectedPlan.name);
-            if (matchingPlan) {
-                const planIndex = currentPlans.findIndex(plan => plan.name === currentSelectedPlan.name);
-                setCurrentSelectedPlan(matchingPlan);
-                setSelectedPlanIndex(planIndex);
-                setTogglePlan(matchingPlan.id);
-            } else {
-                // If no matching plan found, select the first plan
-                setCurrentSelectedPlan(currentPlans[0]);
-                setSelectedPlanIndex(0);
-                setTogglePlan(currentPlans[0].id);
-            }
-
-
-        }
-    }, [selectedDuration]);
 
 
 
@@ -557,22 +584,31 @@ function UpgradePlanContent({
     };
 
     const isPlanCurrent = (item) => {
+        console.log('🫣item in isPlanCurrent', item)
+        console.log('🫣currentUserPlan in isPlanCurrent', currentUserPlan)
+
         if (!currentUserPlan) return false;
 
-
-
-        // Handle free plan case
-        // if (item.isFree && (!currentUserPlan.planId || currentUserPlan.price <= 0)) {
-        //     return true;
-        // }
-
-        // Handle paid plans
-        if (item.id === currentUserPlan.planId) {
+        // Check if the item's id matches the current user's plan id
+        if (item.id === currentUserPlan.id) {
+            console.log('✅ Plan matches by id:', item.id);
             return true;
         }
-        return false;
+
+        // Check if the item's id matches the current user's planId
+        if (item.id === currentUserPlan.planId) {
+            console.log('✅ Plan matches by planId:', item.id);
+            return true;
+        }
+
         // Fallback comparison by name
-        return item.name === currentUserPlan.name;
+        if (item.title === currentUserPlan.title) {
+            console.log('✅ Plan matches by name:', item.title);
+            return true;
+        }
+
+        console.log('❌ Plan does not match current plan');
+        return false;
     };
 
     const getCardImage = (item) => {
@@ -595,6 +631,28 @@ function UpgradePlanContent({
         if (billingCycle === "yearly") return 12;
         return 1;
     }
+
+    // Function to get plan border styling based on selection state
+    const getPlanBorderStyle = (item, currentSelectedPlan, isCurrentPlan) => {
+        console.log('🫣item in getPlanBorderStyle', item?.id)
+        console.log('🫣currentSelectedPlan in getPlanBorderStyle', currentSelectedPlan?.id)
+        console.log('🫣isCurrentPlan in getPlanBorderStyle', isCurrentPlan)
+        // Base classes for all plan buttons
+        const baseClasses = "w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300";
+
+        // Current plan styling (disabled state)
+        if (isCurrentPlan) {
+            return `${baseClasses} border-gray-300 cursor-not-allowed opacity-60`;
+        }
+
+        // Selected plan styling (active state)
+        if (currentSelectedPlan?.id === item.id) {
+            return `${baseClasses} border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100`;
+        }
+
+        // Default plan styling (hover state)
+        return `${baseClasses} border-gray-200 hover:border-purple hover:shadow-md`;
+    };
 
     // Function to get duration object from billing cycle
     const getDurationFromBillingCycle = (billingCycle) => {
@@ -1048,13 +1106,7 @@ function UpgradePlanContent({
                                                 const isCurrentPlan = isPlanCurrent(item);
                                                 return (
                                                     <button
-                                                        className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
-                                                        ${isCurrentPlan
-                                                                ? "border-gray-300 cursor-not-allowed opacity-60"
-                                                                : currentSelectedPlan?.id === item.id
-                                                                    ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
-                                                                    : "border-gray-200 hover:border-purple hover:shadow-md"
-                                                            }`}
+                                                        className={getPlanBorderStyle(item, currentSelectedPlan, isCurrentPlan)}
                                                         key={item.id}
                                                         onClick={() => handleTogglePlanClick(item, index)}
                                                         disabled={isCurrentPlan}

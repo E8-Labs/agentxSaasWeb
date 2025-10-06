@@ -370,7 +370,7 @@ const Page = () => {
                     <div
                       style={{ fontSize: 15, fontWeight: "400", color: "#000" }}
                     >
-                      Total calls made
+                      Total Activity
                     </div>
                     <div
                       style={{
@@ -658,7 +658,7 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/creditsUsedIcons.png"
                       title="Credits Used"
-                      value={statsDetails?.creditsUsed}
+                      value={statsDetails?.creditsUsed || "-"}
                       borderSide="border-t-2"
                     />
 
@@ -666,7 +666,7 @@ const Page = () => {
                     <Card
                       icon="/otherAssets/emailSentIcon.png"
                       title="Emails Sent"
-                      value={statsDetails?.emailsSent}
+                      value={statsDetails?.emailsSent || "-"}
                       borderSide="border-l-2 border-t-2"
                     />
 
@@ -675,7 +675,7 @@ const Page = () => {
                       icon="/otherAssets/smsSentIcon.png"
                       title="Texts Sent"
                       
-                      value={statsDetails?.smsSents}
+                      value={statsDetails?.smsSents || "-"}
                       borderSide="border-l-2 border-t-2"
                     />
                   </div>
