@@ -301,6 +301,7 @@ const Apis = {
   getUserSettings: `${BasePath}api/settings`,
 
   calculateCreditCost: `${BasePath}api/user/calculate-charge`,
+  processPayment: `${BasePath}api/leads/process-enrichment-payment`,
 
 };
 
