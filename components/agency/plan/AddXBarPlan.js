@@ -483,7 +483,7 @@ export default function AddXBarPlan({
                   </div>
 
                   {/* Minutes */}
-                  <label style={styles.labels}>Bonus Minutes</label>
+                  <label style={styles.labels}>Bonus Credits</label>
                   <input
                     style={styles.inputs}
                     type="text"
@@ -618,7 +618,7 @@ export default function AddXBarPlan({
                             fontWeight: "600",
                           }}
                         >
-                          {title || "XBar"} | {minutes || "Bonus Mins"}
+                          {title || "XBar"} | {minutes || "Bonus Credits"}
                         </div>
                         {tag ? (
                           <div

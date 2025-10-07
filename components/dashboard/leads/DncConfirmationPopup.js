@@ -140,7 +140,7 @@ export default function DncConfirmationPopup({
           >
             <InfoOutlinedIcon sx={{ color: "transparent", fontSize: 20 }} />
             <Typography sx={{ fontSize: "14px", color: "#000" }}>
-              {`If less than 34 leads, it's $1.`}
+              {`If less than 20 leads, it's $1.`}
             </Typography>
           </Box>
         </Box>

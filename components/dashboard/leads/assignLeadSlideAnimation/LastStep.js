@@ -288,7 +288,7 @@ const LastStep = ({
               setIsDncChecked(false);
             }}
             onConfirm={() => {
-              setShowSuccessSnack("Numbers will be checked on the DNC list");
+              setShowSuccessSnack("DNC Enabled");
               setShowDncConfirmationPopup(false);
             }}
             leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}

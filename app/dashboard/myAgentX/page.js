@@ -2695,6 +2695,44 @@ function Page() {
 
   const handleDuplicate = async () => {
     // console.log("Duplicate agent clicked");
+
+    // Check agent limits before showing duplicate confirmation popup
+    // Use Redux plan capabilities as primary source
+    if (reduxUser?.planCapabilities) {
+      if (!canCreateAgent) {
+        if (isFreePlan && currentAgents >= 1) {
+          setShowUpgradeModal(true)
+          setShowDuplicateConfirmationPopup(false)
+          return
+        } else if (currentAgents >= maxAgents) {
+          setShowMoreAgentsPopup(true)
+          setShowDuplicateConfirmationPopup(false)
+          return
+        }
+      }
+    } else {
+      // Fallback to localStorage logic
+      const user = getUserLocalData();
+      if (user?.user?.planCapabilities) {
+        // Check if user is on free plan and has reached their limit
+        if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
+          if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+            setShowUpgradeModal(true)
+            setShowDuplicateConfirmationPopup(false)
+            return
+          }
+        }
+
+        // Check if paid plan user has reached their agent limit
+        if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
+          setShowMoreAgentsPopup(true)
+          setShowDuplicateConfirmationPopup(false)
+          return
+        }
+      }
+    }
+
+    // duplicate agent
     setDuplicateLoader(true);
     try {
       const data = localStorage.getItem("User");
@@ -2966,7 +3004,7 @@ function Page() {
               {`${agentsListSeparated.length}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
             </div>
           )}
-                
+
           {
             (reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000) && (
               <Tooltip

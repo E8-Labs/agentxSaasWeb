@@ -363,9 +363,9 @@ function UpgradePlanContent({
                 }
             }
             // Select the first plan as default
-            setCurrentSelectedPlan(currentPlans[0]);
+            setCurrentSelectedPlan(currentPlans[0]?.id);
             setSelectedPlanIndex(0);
-            setTogglePlan(currentPlans[0].id);
+            setTogglePlan(currentPlans[0]?.id);
         }
     }, [open])
 

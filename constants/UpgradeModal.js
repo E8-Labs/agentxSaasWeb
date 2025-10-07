@@ -65,7 +65,7 @@ const UpgradeModal = ({
             // }}
             >
                 {/*<Box className="bg-white rounded-xl p-6 max-w-md w-[95%] mx-auto mt-20 shadow-lg">*/}
-                <Box className="bg-white h-[90svh] overflow-hidden rounded-xl w-11/12 sm:w-10/12 md:w-8/12 lg:w-5/12 xl:w-5/12 2xl:w-4/12 border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                <Box className="bg-white max-h-[90svh] h-auto overflow-hidden rounded-xl w-11/12 sm:w-10/12 md:w-8/12 lg:w-5/12 xl:w-5/12 2xl:w-4/12 border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                     style={{
 
                         scrollbarWidth: "none",
@@ -74,7 +74,7 @@ const UpgradeModal = ({
                     <div className="w-full ">
 
                         <div
-                            className="w-full h-[95vh] flex flex-col items-center pb-6 justify-between border"
+                            className="w-full h-[80vh] flex flex-col items-center pb-6 justify-between border"
                             style={{
                                 backgroundImage: "url('/otherAssets/gradientBg.png')",
                                 backgroundSize: "cover",
@@ -82,7 +82,7 @@ const UpgradeModal = ({
                                 // borderRadius:'20px'
                             }}
                         >
-                            <div className='w-full flex flex-col items-center justify-center px-8 pt-4'>
+                            <div className='w-full flex flex-col items-center justify-center px-8 pt-4 overflow-y-auto max-h-[80vh]'>
                                 <div className='w-full flex flex-row items-start justify-end'>
                                     <CloseBtn
                                         onClick={
@@ -166,7 +166,7 @@ const UpgradeModal = ({
                                     Upgrade
                                 </button>
 
-                                <button className='text-purple mt-4 pb-8'
+                                <button className='text-purple mt-4'
                                     style={{ fontSize: "15px", fontWeight: "500" }}
                                     onClick={handleClose}
                                 >

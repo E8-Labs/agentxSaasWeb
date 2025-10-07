@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
+import { AuthToken } from "../plan/AuthDetails";
 
 export default function StripeDetailsCard({
     stripeData
@@ -14,27 +15,34 @@ export default function StripeDetailsCard({
         try {
             setLoader(true);
 
-            const stripSecretKey = stripeData?.keys?.secret;
-            console.log("stripSecretKey", stripeData);
+            console.log("stripeData", stripeData);
 
-            const path = Apis.createStripeLoginLink ;
+            const path = Apis.createStripeLoginLink;
 
 
             console.log("path", path);
-            const response = await axios.post(path,{
+            const response = await axios.post(path, {
                 accountId: stripeData?.id
             }, {
                 headers: {
-                    "Authorization": "Bearer " + stripSecretKey,
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Authorization": "Bearer " + AuthToken(),
+                    "Content-Type": "application/json"
                 }
             });
             if (response) {
 
                 console.log("response", response);
-                if (response.data.status === true) {
-                    window.open(response.data.data.url, "_blank");
+
+                console.log("response.data.url", response);
+                const newWindow = window.open();
+                if (newWindow) {
+                    newWindow.opener = null;
+                    newWindow.location = response.data.url;
+                } else {
+                    // fallback if popup blocked
+                    window.location.href = response.data.url;
                 }
+
             }
         } catch (error) {
             console.log("error", error);

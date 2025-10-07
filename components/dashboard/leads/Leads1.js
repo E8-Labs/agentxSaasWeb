@@ -1009,47 +1009,6 @@ const Leads1 = () => {
             </div>
           ) : (
             <div className="h-screen">
-              {reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxLeads < 10000000 && reduxUser?.plan.price !== 0 && (
-                <div className="p-6 flex flex-row items-center gap-2" style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-                  <div>
-                    {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
-                  </div>
-                  {(reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxLeads < 10000000) && (
-                    <Tooltip
-                      title={`Additional leads are $${reduxUser?.planCapabilities?.costPerAdditionalLead || 10}/month each.`}
-                      arrow
-                      componentsProps={{
-                        tooltip: {
-                          sx: {
-                            backgroundColor: "#ffffff", // Ensure white background
-                            color: "#333", // Dark text color
-                            fontSize: "14px",
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                          },
-                        },
-                        arrow: {
-                          sx: {
-                            color: "#ffffff", // Match tooltip background
-                          },
-                        },
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: "600",
-                          color: "#000000",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full" />
-                      </div>
-                    </Tooltip>
-                  )}
-                </div>
-              )}
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}
