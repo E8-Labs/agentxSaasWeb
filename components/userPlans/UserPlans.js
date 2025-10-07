@@ -381,7 +381,19 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                     </div>
                 </div>
 
-                <div className='flex flex-row gap-5 w-full h-auto mt-4 pb-8'>
+                <div
+                    className='flex flex-row gap-5 w-full h-auto mt-4 pb-8'
+                    style={{
+                        overflowX: "auto",
+                        overflowY: "hidden",
+                        display: "flex",
+                        scrollbarWidth: "none",
+                        WebkitOverflowScrolling: "touch",
+                        // marginTop: 20,
+                        flexShrink: 0,
+                        alignItems: "stretch", // This makes all cards the same height
+                    }}
+                >
                     {
                         getCurrentPlans()?.length > 0 && getCurrentPlans()?.map((item, index) => (
                             <button
@@ -390,10 +402,11 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
 
-                                className={`flex flex-col items-center w-3/12 rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
+                                className={`flex flex-col items-center rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
-                                `}
-                                style={{}}
+                                flex-shrink-0
+                                 `}
+                                style={{ width: "320px" }}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>
@@ -432,12 +445,21 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                         <div className='flex flex-col items-center w-full flex-shrink-0'>
                                             <div className='text-3xl font-semibold mt-2 capitalize'>
                                                 {(item.name || item.title).length > 8
-                                                    ? (item.name || item.title).slice(0, 8) + "..."
+                                                    ? (item.name || item.title).slice(0, 12) + "..."
                                                     : (item.name || item.title)}
                                             </div>
 
-                                            <div className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                ${item.discountPrice || item.discountedPrice}
+                                            <div className='flex flex-row items-center gap-2'>
+                                                {
+                                                    item?.originalPrice > 0 && (
+                                                        <span className='text-[#00000020] line-through'>
+                                                            ${item?.originalPrice || ""}
+                                                        </span>
+                                                    )
+                                                }
+                                                <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
+                                                    ${item.discountPrice || item.discountedPrice}
+                                                </span>
                                             </div>
 
                                             <div className='text-[14px] font-normal text-black/50 '>
@@ -481,6 +503,19 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                         {/* Features container - scrollable */}
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
+                                            {item?.hasTrial == true && (
+                                                <div
+                                                    className="mb-2 text-start"
+                                                    style={{
+                                                        fontWeight: "600",
+                                                        fontSize: 14,
+                                                        // color: "white",
+                                                    }}
+                                                >
+                                                    First {item.hasTrial == true && (`${item.trialValidForDays}`)} Days Free
+                                                </div>
+                                            )
+                                            }
                                             {
                                                 isFrom === "SubAccount" ? (
                                                     ""

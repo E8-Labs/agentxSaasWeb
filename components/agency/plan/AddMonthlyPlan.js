@@ -165,6 +165,7 @@ export default function AddMonthlyPlan({
     setIsDefault(false)
     setTrialValidForDays("")
     setCreatePlanLoader(false);
+    setPlanDuration("");
   }
 
 
