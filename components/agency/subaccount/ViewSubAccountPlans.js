@@ -240,7 +240,7 @@ const ViewSubAccountPlans = ({
                                             >
                                                 <div className="mt-1">
                                                     <div>
-                                                        {item.id === selectedUser?.plan?.id ? (
+                                                        {selectedPlans.includes(item.id)? (
                                                             <Image
                                                                 src={"/svgIcons/checkMark.svg"}
                                                                 height={24}

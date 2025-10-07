@@ -303,6 +303,8 @@ const Apis = {
   calculateCreditCost: `${BasePath}api/user/calculate-charge`,
   processPayment: `${BasePath}api/leads/process-enrichment-payment`,
 
+  //stripe apis
+  createStripeLoginLink: `${BasePath}/api/agency/createStripeLoginLink`,
 };
 
 export default Apis;
