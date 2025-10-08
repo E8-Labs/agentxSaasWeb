@@ -98,6 +98,7 @@ const ProfileNav = () => {
   const [showFailedPaymentBar, setShowFailedPaymentBar] = useState(false)
   const [showAssignBanner, setShowAssignBanner] = useState(false)
   const [bannerProgress, setBannerProgress] = useState(0);
+  const [isLeadUploading, setIsLeadUploading] = useState(false);
 
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
@@ -469,6 +470,27 @@ const ProfileNav = () => {
 
     return () => {
       window.removeEventListener(PersistanceKeys.LeadsAssigned, handleCloseBanner); // Clean up
+    };
+  }, []);
+
+  // Event listener for lead upload status
+  useEffect(() => {
+    const handleLeadUploadStart = (event) => {
+      console.log("Lead upload started - hiding dashboard slider");
+      setIsLeadUploading(true);
+    };
+
+    const handleLeadUploadComplete = (event) => {
+      console.log("Lead upload completed - showing dashboard slider");
+      setIsLeadUploading(false);
+    };
+
+    window.addEventListener("leadUploadStart", handleLeadUploadStart);
+    window.addEventListener("leadUploadComplete", handleLeadUploadComplete);
+
+    return () => {
+      window.removeEventListener("leadUploadStart", handleLeadUploadStart);
+      window.removeEventListener("leadUploadComplete", handleLeadUploadComplete);
     };
   }, []);
 
@@ -1287,7 +1309,7 @@ const ProfileNav = () => {
 
 
             {
-              !showAssignBanner && (
+              !showAssignBanner && !isLeadUploading && (
                 <div
                   style={{
                     position: "absolute",

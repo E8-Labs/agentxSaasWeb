@@ -1213,15 +1213,19 @@ function NewBilling() {
             if (planComparison === 'upgrade') {
                 setShowUpgradeModal(true)
             } else if (planComparison === 'downgrade') {
+                console.log("🔍 [PLAN-CHANGE] Downgrade plan:", selectedPlan);
                 // Set title based on target plan
                 setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`);
 
                 // Calculate features that would be lost
                 console.log('🔍 [DOWNGRADE] target plan before func:', selectedPlan);
                 const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan);
+                console.log("🔍 [PLAN-CHANGE] Features to lose:", featuresToLose);
                 setDowngradeFeatures(featuresToLose);
                 if (featuresToLose.length > 0) {
                     setShowDowngradeModal(true)
+                }else{
+                    setShowUpgradeModal(true)
                 }
             }
             // If 'same', do nothing (user selected their current plan in different billing cycle)

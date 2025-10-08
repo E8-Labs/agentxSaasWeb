@@ -170,6 +170,9 @@ const Leads1 = () => {
         setCurrentBatch(savedLeads.currentBatch);
         setTotalBatches(savedLeads.totalBatches);
         setUploadProgress(Math.floor((savedLeads.currentBatch / savedLeads.totalBatches) * 100));
+        
+        // Send custom event to hide dashboard slider for resumed upload
+        window.dispatchEvent(new CustomEvent("leadUploadStart"));
       }
       let resumeData = {
 
@@ -738,6 +741,9 @@ const Leads1 = () => {
     setUploadProgress(Math.floor((startIndex / totalBatches) * 100));
     console.log("data", data);
     console.log(`Uploading ${resumeData ? resumeData.data.length : data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
+    
+    // Send custom event to hide dashboard slider
+    window.dispatchEvent(new CustomEvent("leadUploadStart", { detail: { update: true } }));
 
     let uploadData = {
       uploading: true,
@@ -783,6 +789,9 @@ const Leads1 = () => {
         setSuccessSnack("Leads uploaded successfully");
         setShowSuccessSnack(true);
         setLoader(false);
+        
+        // Send custom event to show dashboard slider
+        window.dispatchEvent(new CustomEvent("leadUploadComplete", { detail: { update: true } }));
       }
     });
 
@@ -1005,6 +1014,7 @@ const Leads1 = () => {
                 newListAdded={userLeads}
                 shouldSet={setData}
                 setSetData={setSetData}
+                uploading={uploading}
               />
             </div>
           ) : (

@@ -60,6 +60,7 @@ const Userleads = ({
   handleShowUserLeads,
   newListAdded,
   shouldSet,
+  uploading,
   setSetData,
 }) => {
   const LimitPerPage = 30;
@@ -2212,6 +2213,12 @@ const Userleads = ({
                   style={styles.paragraph}
                   // onClick={() => { setShowAddNewSheetModal(true) }}
                   onClick={() => {
+                    if (uploading) {
+                      setSnackMessage("Please wait. Another Lead upload is in progress.");
+                      setShowSnackMessage(true);
+                      setMessageType(SnackbarTypes.Warning);
+                      return;
+                    }
                     if (user?.planCapabilities.maxLeads > user?.currentUsage.maxLeads) {
 
                       handleShowAddLeadModal(true);
@@ -2342,6 +2349,7 @@ const Userleads = ({
                 title={"You've Hit Your Leads Limit"}
                 subTitle={"Upgrade to add more Leads"}
                 buttonTitle={"No Thanks"}
+                functionality="webAgent"
               />
               <Modal
                 open={showFilterModal}

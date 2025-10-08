@@ -290,6 +290,9 @@ function UpgradePlanContent({
         return false;
     };
 
+    useEffect(() => {
+
+    }, [plan])
 
     // useEffect(() => {
     //     console.log('currentSelectedPlan', currentSelectedPlan)
@@ -299,9 +302,10 @@ function UpgradePlanContent({
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
-        // if (open && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
-        if (open && !currentSelectedPlan && selectedPlan) {
+        if (open) {
+
             // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
+            const currentPlans = getCurrentPlans();
             let planDuration = null
             if (selectedPlan) {
                 planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
@@ -321,53 +325,27 @@ function UpgradePlanContent({
                 }
             }
 
-            
-            const currentPlans = getCurrentPlans();
-          
-
-            console.log('currentPlans in useEffect', currentPlans)
-            console.log('selectedPlan in useEffect', selectedPlan)
             // Find the matching plan in current plans
+
+
             const matchingPlan = currentPlans.find(plan =>
-                plan.title === selectedPlan?.title ||
-                plan.id === selectedPlan?.id //||
-                // plan.planType === selectedPlan?.planType
+                plan.name === selectedPlan?.name ||
+                plan.id === selectedPlan?.id ||
+                plan.planType === selectedPlan?.planType
             );
 
-            console.log(' matching plan', matchingPlan)
+
 
             if (matchingPlan) {
                 setCurrentSelectedPlan(matchingPlan);
                 const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
                 setSelectedPlanIndex(planIndex);
                 setTogglePlan(matchingPlan.id);
-            }
-        }
-    }, [open])
 
-    // Handle default plan selection when no selectedPlan is provided
-    useEffect(() => {
-        // if (open && !selectedPlan && (monthlyPlans.length > 0 || quaterlyPlans.length > 0 || yearlyPlans.length > 0)) {
-        if (open && !selectedPlan && !currentSelectedPlan) {
-            const currentPlans = getCurrentPlans();
-            if (currentPlans.length > 0 && !currentSelectedPlan) {
-                // Set duration based on current user plan or default to first available
-                let planDuration = null;
-                if (currentUserPlan && currentUserPlan.billingCycle) {
-                    planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
-                } else {
-                    planDuration = getDurationFromBillingCycle(currentPlans[0]?.billingCycle);
-                }
-                if (planDuration) {
-                    setSelectedDuration(planDuration);
-                }
+
             }
-            // Select the first plan as default
-            setCurrentSelectedPlan(currentPlans[0]?.id);
-            setSelectedPlanIndex(0);
-            setTogglePlan(currentPlans[0]?.id);
         }
-    }, [open])
+    }, [selectedPlan, open, monthlyPlans, quaterlyPlans, yearlyPlans, currentUserPlan])
 
     useEffect(() => {
         if (!inviteCode || inviteCode.trim().length === 0) {
@@ -451,37 +429,6 @@ function UpgradePlanContent({
         return () => window.removeEventListener('resize', checkScreenHeight);
     }, []);
 
-
-          // Auto-select plan when switching billing cycles
-          useEffect(() => {
-            const currentPlans = getCurrentPlans();
-            if (currentPlans.length > 0 && currentSelectedPlan) {
-    
-                if (plan && currentFullPlan) {
-                    console.log('currentFullPlan in useEffect', currentFullPlan)
-                    setCurrentSelectedPlan(plan);
-                    setTogglePlan(plan?.id);
-                    setCurrentUserPlan(currentFullPlan);
-                }
-                // Find the plan with the same name in the new billing cycle
-                const matchingPlan = currentPlans.find(plan => plan.name === currentSelectedPlan.name);
-                if (matchingPlan) {
-                    const planIndex = currentPlans.findIndex(plan => plan.name === currentSelectedPlan.name);
-                    setCurrentSelectedPlan(matchingPlan);
-                    setSelectedPlanIndex(planIndex);
-                    setTogglePlan(matchingPlan.id);
-                } else {
-                    // If no matching plan found, select the first plan
-                    setCurrentSelectedPlan(currentPlans[0]);
-                    setSelectedPlanIndex(0);
-                    setTogglePlan(currentPlans[0].id);
-                }
-    
-    
-            }
-        }, [selectedDuration]);
-    
-
     const getCurrentUserPlan = () => {
         const localData = localStorage.getItem("User");
         if (localData) {
@@ -559,12 +506,50 @@ function UpgradePlanContent({
         }
     }
     const getCurrentPlans = () => {
-        console.log('selectedDuration in getCurrentPlans', selectedDuration)
         if (selectedDuration.id === 1) return monthlyPlans;
         if (selectedDuration.id === 2) return quaterlyPlans;
         if (selectedDuration.id === 3) return yearlyPlans;
         return [];
     };
+
+    // Auto-select plan when switching billing cycles
+    useEffect(() => {
+        const currentPlans = getCurrentPlans();
+
+        console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉")
+
+        console.log("currentPlans", currentPlans)
+        console.log("currentSelectedPlan", currentSelectedPlan)
+        console.log("plan", plan)
+        console.log("currentFullPlan", currentFullPlan)
+        console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉")
+
+
+        if (currentPlans.length > 0 && currentSelectedPlan) {
+            if (plan && currentFullPlan) {
+                setCurrentSelectedPlan(plan);
+                setTogglePlan(plan?.id);
+                // setCurrentUserPlan(currentFullPlan);
+            }
+            // Find the plan with the same name in the new billing cycle
+            const matchingPlan = currentPlans.find(plan => plan.name === currentSelectedPlan.name);
+            if (matchingPlan) {
+                const planIndex = currentPlans.findIndex(plan => plan.name === currentSelectedPlan.name);
+                setCurrentSelectedPlan(matchingPlan);
+                setSelectedPlanIndex(planIndex);
+                setTogglePlan(matchingPlan.id);
+            } else {
+                // If no matching plan found, select the first plan
+                setCurrentSelectedPlan(currentPlans[0]);
+                setSelectedPlanIndex(0);
+                setTogglePlan(currentPlans[0].id);
+            }
+
+
+        } else {
+            console.log("No current plans found or current selected plan is not set")
+        }
+    }, [selectedDuration]);
 
 
 
@@ -584,31 +569,22 @@ function UpgradePlanContent({
     };
 
     const isPlanCurrent = (item) => {
-        console.log('🫣item in isPlanCurrent', item)
-        console.log('🫣currentUserPlan in isPlanCurrent', currentUserPlan)
-
         if (!currentUserPlan) return false;
 
-        // Check if the item's id matches the current user's plan id
-        if (item.id === currentUserPlan.id) {
-            console.log('✅ Plan matches by id:', item.id);
-            return true;
-        }
 
-        // Check if the item's id matches the current user's planId
+
+        // Handle free plan case
+        // if (item.isFree && (!currentUserPlan.planId || currentUserPlan.price <= 0)) {
+        //     return true;
+        // }
+
+        // Handle paid plans
         if (item.id === currentUserPlan.planId) {
-            console.log('✅ Plan matches by planId:', item.id);
             return true;
         }
-
-        // Fallback comparison by name
-        if (item.title === currentUserPlan.title) {
-            console.log('✅ Plan matches by name:', item.title);
-            return true;
-        }
-
-        console.log('❌ Plan does not match current plan');
         return false;
+        // Fallback comparison by name
+        return item.name === currentUserPlan.name;
     };
 
     const getCardImage = (item) => {
@@ -631,28 +607,6 @@ function UpgradePlanContent({
         if (billingCycle === "yearly") return 12;
         return 1;
     }
-
-    // Function to get plan border styling based on selection state
-    const getPlanBorderStyle = (item, currentSelectedPlan, isCurrentPlan) => {
-        console.log('🫣item in getPlanBorderStyle', item?.id)
-        console.log('🫣currentSelectedPlan in getPlanBorderStyle', currentSelectedPlan?.id)
-        console.log('🫣isCurrentPlan in getPlanBorderStyle', isCurrentPlan)
-        // Base classes for all plan buttons
-        const baseClasses = "w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300";
-
-        // Current plan styling (disabled state)
-        if (isCurrentPlan) {
-            return `${baseClasses} border-gray-300 cursor-not-allowed opacity-60`;
-        }
-
-        // Selected plan styling (active state)
-        if (currentSelectedPlan?.id === item.id) {
-            return `${baseClasses} border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100`;
-        }
-
-        // Default plan styling (hover state)
-        return `${baseClasses} border-gray-200 hover:border-purple hover:shadow-md`;
-    };
 
     // Function to get duration object from billing cycle
     const getDurationFromBillingCycle = (billingCycle) => {
@@ -980,6 +934,125 @@ function UpgradePlanContent({
     console.log('price is ', (currentSelectedPlan?.discountPrice))
 
 
+    const comparePlans = (currentPlan, targetPlan) => {
+        if (!currentPlan || !targetPlan) {
+            return null; // Changed from 'same' to null to indicate loading state
+        }
+
+        // Get monthly prices (discountPrice is already per-month for all billing cycles)
+        const currentPrice = currentPlan.discountPrice || currentPlan.price || 0;
+        const targetPrice = targetPlan.discountPrice || targetPlan.price || 0;
+
+        // console.log('🔍 [PLAN-COMPARE] Current plan:', currentPlan.name, 'Price:', currentPrice, 'Billing:', currentPlan.billingCycle);
+        // console.log('🔍 [PLAN-COMPARE] Target plan:', targetPlan.name, 'Price:', targetPrice, 'Billing:', targetPlan.billingCycle);
+
+        // If same plan (by ID), it's the same
+        if (currentPlan.id === targetPlan.id || currentPlan.planId === targetPlan.id) {
+            return 'same';
+        }
+
+        // If target is free plan and current is paid, it's a downgrade
+        if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
+            return 'downgrade';
+        }
+
+        // If current is free and target is paid, it's an upgrade
+        if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
+            return 'upgrade';
+        }
+
+        // Get billing cycle order (monthly < quarterly < yearly)
+        const billingCycleOrder = {
+            'monthly': 1,
+            'quarterly': 2,
+            'yearly': 3
+        };
+
+        const currentBillingOrder = billingCycleOrder[currentPlan.billingCycle] || 1;
+        const targetBillingOrder = billingCycleOrder[targetPlan.billingCycle] || 1;
+
+        // If same name/tier but different billing cycle
+        if (currentPlan.name === targetPlan.name) {
+            // Longer billing cycle is considered an upgrade (more commitment)
+            if (targetBillingOrder > currentBillingOrder) {
+                return 'upgrade';
+            } else if (targetBillingOrder < currentBillingOrder) {
+                return 'downgrade';
+            } else {
+                return 'same';
+            }
+        }
+
+        // Compare prices
+        if (targetPrice > currentPrice) {
+            return 'upgrade';
+        } else if (targetPrice < currentPrice) {
+            return 'downgrade';
+        } else {
+            // Same price, different plans - consider billing cycle
+            if (targetBillingOrder > currentBillingOrder) {
+                return 'upgrade';
+            } else if (targetBillingOrder < currentBillingOrder) {
+                return 'downgrade';
+            } else {
+                return 'same';
+            }
+        }
+    };
+
+
+    // Function to determine button text and action
+    const getButtonConfig = () => {
+        console.log("currentPlan", currentFullPlan)
+        console.log("selectedPlan", selectedPlan)
+
+
+        // Compare plans based on price
+        const planComparison = comparePlans(currentFullPlan, selectedPlan);
+        console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison);
+
+        // If still loading (currentFullPlan not ready), don't show any button
+        if (planComparison === null) {
+            return null; // Will hide the button section while loading
+        }
+
+        // If it's an upgrade, show Upgrade button
+        if (planComparison === 'upgrade') {
+            return {
+                text: "Upgrade",
+                action: () => handleSubscribePlan(),
+                isLoading: subscribeLoader,
+                className: "rounded-xl w-full",
+                style: {
+                    height: "50px",
+                    fontSize: 16,
+                    fontWeight: "700",
+                    flexShrink: 0,
+                    backgroundColor: "#7902DF",
+                    color: "#ffffff",
+                }
+            };
+        }
+
+        // Otherwise it's a downgrade
+        return {
+            text: "Downgrade",
+
+            action: () => handleSubscribePlan(),
+            isLoading: subscribeLoader,
+            className: "rounded-xl w-full",
+            style: {
+                height: "50px",
+                fontSize: 16,
+                fontWeight: "700",
+                flexShrink: 0,
+                backgroundColor: "#7902DF",
+                color: "#ffffff",
+            }
+        };
+    }
+
+
     return (
         <Modal
             open={open}
@@ -1106,7 +1179,13 @@ function UpgradePlanContent({
                                                 const isCurrentPlan = isPlanCurrent(item);
                                                 return (
                                                     <button
-                                                        className={getPlanBorderStyle(item, currentSelectedPlan, isCurrentPlan)}
+                                                        className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
+                                                        ${isCurrentPlan
+                                                                ? "border-gray-300 cursor-not-allowed opacity-60"
+                                                                : currentSelectedPlan?.id === item.id
+                                                                    ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
+                                                                    : "border-gray-200 hover:border-purple hover:shadow-md"
+                                                            }`}
                                                         key={item.id}
                                                         onClick={() => handleTogglePlanClick(item, index)}
                                                         disabled={isCurrentPlan}
@@ -1304,7 +1383,7 @@ function UpgradePlanContent({
 
                                 {/* Upgrade Button Section - Fixed at bottom */}
                                 <div className='flex w-full flex-shrink-0 mt-4'>
-                                    <div className='w-1/2 '>
+                                    <div className='w-full'>
                                         {isAddingNewPaymentMethod && (
                                             <div className="w-full">
                                                 <div className="w-full mb-4 flex flex-row items-center gap-3">
@@ -1357,7 +1436,7 @@ function UpgradePlanContent({
                                         )}
 
                                     </div>
-                                    <div className='flex flex-row w-1/2 justify-between items-center mt-1 ps-4'>
+                                    <div className='flex flex-row w-full justify-between items-center mt-1 ps-4'>
                                         <div className=" text-3xl font-semibold  ">
                                             Total:
                                         </div>
@@ -1367,33 +1446,58 @@ function UpgradePlanContent({
                                     </div>
                                 </div>
 
-
-                                <div className='w-full flex flex-row items-end justify-end flex-shrink-0 mt-3'>
+                                <div className='w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3'>
+                                <div className="w-1/2"></div>
                                     {
                                         subscribeLoader ? (
-                                            <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
+                                            <div className="w-full flex flex-col items-center justify-center h-[53px]">
                                                 <CircularProgress size={25} />
                                             </div>
                                         ) : (
-                                            <button
-                                                className={`w-1/2 flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${isUpgradeButtonEnabled()
-                                                        ? "text-white bg-purple hover:bg-purple-700"
-                                                        : "text-black bg-[#00000050] cursor-not-allowed"
-                                                    }`}
-                                                disabled={!isUpgradeButtonEnabled()}
-                                                onClick={() => {
-                                                    if (isUpgradeButtonEnabled()) {
-                                                        handleSubscribePlan();
+                                            <div className="w-1/2">
+                                                {(() => {
+                                                    const buttonConfig = getButtonConfig();
+                                                    console.log('selected plan in button config', selectedPlan);
+
+                                                    // If buttonConfig is null (still loading), show loading spinner
+                                                    if (buttonConfig === null) {
+                                                        return (
+                                                            <div className="w-full">
+                                                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
+                                                                    <CircularProgress size={25} />
+                                                                </div>
+                                                            </div>
+                                                        );
                                                     }
-                                                }}
-                                            >
-                                                Upgrade
-                                            </button>
+
+                                                    // Only show button if user has a paid plan or if they have selected a different plan
+                                                    // Show cancel button if user is on paid plan and selected their own plan
+                                                    if (currentFullPlan?.name === "Free" && selectedPlan?.name === "Free") {
+                                                        return null;
+                                                    }
+
+                                                    return (
+                                                        <div className="w-full">
+                                                            {buttonConfig.isLoading ? (
+                                                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
+                                                                    <CircularProgress size={25} />
+                                                                </div>
+                                                            ) : (
+                                                                <button
+                                                                    className={buttonConfig.className}
+                                                                    onClick={buttonConfig.action}
+                                                                    style={buttonConfig.style}
+                                                                >
+                                                                    {buttonConfig.text}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </div>
                                         )
                                     }
                                 </div>
-
                             </div>
                         </div>
 
