@@ -439,7 +439,17 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                 // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                 >
                     <div
-                        className='w-full flex flex-row items-start gap-3 mt-10 mb-12 h-[100%] overflow-hidden'
+                        className='w-full flex flex-row items-start gap-3 mt-10 mb-12 h-[100%]'
+                        style={{
+                            overflowX: "auto",
+                            overflowY: "hidden",
+                            // display: "flex",
+                            scrollbarWidth: "none",
+                            WebkitOverflowScrolling: "touch",
+                            // marginTop: 20,
+                            // flexShrink: 0,
+                            // alignItems: "stretch", // This makes all cards the same height
+                        }}
                     >
                         {
                             loading ? (
@@ -453,7 +463,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                         onClick={() => handleTogglePlanClick(item, index)}
                                         onMouseEnter={() => { setHoverPlan(item) }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
-                                        className={`w-4/12 rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
+                                        className={`w-[370px] rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
                                         style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
                                     >
                                         <div className='flex flex-col items-center h-auto w-full'>

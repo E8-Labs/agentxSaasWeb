@@ -1740,6 +1740,9 @@ const Userleads = ({
             className="flex flex-row items-center justify-between w-full px-10 py-4 "
             style={{ borderBottom: "1px solid #15151510" }}
           >
+            <div className="text-2xl font-bold">
+              Leads
+            </div>
             <div className="flex fex-row items-center gap-6">
               <button
                 style={{

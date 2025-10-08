@@ -132,7 +132,10 @@ export default function PlanConfiguration({
             stateKey: "twilio",
         },
         {
-            label: "Allow Team Seats",
+            // label: "Allow Team Seats",
+            label: noOfSeats
+                ? `${noOfSeats} Team Seat${noOfSeats > 1 ? "s" : ""}`
+                : "Allow Team Seats",
             tooltip: "Allow sub accounts to add and invite teams.",
             stateKey: "allowTeamSeats",
         },
@@ -212,7 +215,7 @@ export default function PlanConfiguration({
             }));
 
         setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
-    }, [features, language, noOfAgents, noOfContacts, customFeatures]);
+    }, [features, language, noOfAgents, noOfContacts, customFeatures, noOfSeats]);
 
 
 

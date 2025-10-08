@@ -1,11 +1,12 @@
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
-import { CircularProgress, Switch, Tooltip } from '@mui/material';
+import { Box, CircularProgress, Modal, Switch, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react'
 import { AuthToken } from '../plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import { isValidUrl } from '@/constants/Constants';
+import CloseBtn from '@/components/globalExtras/CloseBtn';
 
 const AgencySupportAndWidget = () => {
 
@@ -21,12 +22,14 @@ const AgencySupportAndWidget = () => {
   const [delSuportWebCalendarLoader, setDelSuportWebCalendarLoader] = useState(false);
   const [suportWebCalendar, setSuportWebCalendar] = useState("");
   const [isInValidUrlSuportWebCalendar, setIsInValidUrlSuportWebCalendar] = useState(false);
+  const [supportCalTitle, setSupportCalTitle] = useState("");
   //sky
   const [allowSky, setAllowSky] = useState(false);
   const [addSky, setAddSky] = useState(false);
   const [addSkyLoader, setAddSkyLoader] = useState(false);
   const [sky, setSky] = useState("");
   const [delSkyLoader, setDelSkyLoader] = useState(false);
+  const [skyTitle, setSkyTitle] = useState("");
   //feedback
   const [allowFeedBack, setAllowFeedBack] = useState(false);
   const [addFeedBack, setAddFeedBack] = useState(false);
@@ -34,6 +37,7 @@ const AgencySupportAndWidget = () => {
   const [feedBack, setFeedBack] = useState("");
   const [delFeedBackLoader, setDelFeedBackLoader] = useState(false);
   const [isInValidUrlFeedBack, setIsInValidUrlFeedBack] = useState(false);
+  const [feedBackTitle, setFeedBackTitle] = useState("");
   //hire team
   const [allowHireTeam, setAllowHireTeam] = useState(false);
   const [addHireTeam, setAddHireTeam] = useState(false);
@@ -41,6 +45,7 @@ const AgencySupportAndWidget = () => {
   const [hireTeam, setHireTeam] = useState("");
   const [delHireTeamLoader, setDelHireTeamLoader] = useState(false);
   const [isInValidUrlHireTeam, setIsInValidUrlHireTeam] = useState(false);
+  const [hireTeamTitle, setHireTeamTitle] = useState("");
   //billing and support
   const [allowBillingAndSupport, setAllowBillingAndSupport] = useState(false);
   const [addBillingAndSupport, setAddBillingAndSupport] = useState(false);
@@ -48,8 +53,16 @@ const AgencySupportAndWidget = () => {
   const [billingAndSupport, setBillingAndSupport] = useState("");
   const [delBillingAndSupportLoader, setDelBillingAndSupportLoader] = useState(false);
   const [isInValidUrlBillingAndSupport, setIsInValidUrlBillingAndSupport] = useState(false);
+  const [billingAndSupportTitle, setBillingAndSupportTitle] = useState("");
   //initial loader
   const [initialLoader, setInitialLoader] = useState(false);
+  //edit title modal states
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showEditModalTitle, setShowEditModalTitle] = useState("");
+  const [showEditModalLoader, setShowEditModalLoader] = useState(false);
+  //edit title index
+  const [editTitleIndex, setEditTitleIndex] = useState(null);
+
 
   //get user settings
   useEffect(() => {
@@ -73,6 +86,7 @@ const AgencySupportAndWidget = () => {
         const Data = response?.data?.data;
         setAllowSuportWebCalendar(Data?.supportWebinarCalendar || false);
         setSuportWebCalendar(Data?.supportWebinarCalendarUrl || "");
+        setSupportCalTitle(Data?.supportWebinarTitle || "");
         setAllowSky(Data?.skyAgent || false);
         setSky(Data?.skyAgentId || "");
         setAllowFeedBack(Data?.giveFeedback || false);
@@ -83,6 +97,10 @@ const AgencySupportAndWidget = () => {
         setBillingAndSupport(Data?.billingAndSupportUrl || "");
         setSettingsData(Data);
         setInitialLoader(false);
+        setSkyTitle(Data?.skyAgentTitle);
+        setFeedBackTitle(Data?.giveFeedbackTitle);
+        setHireTeamTitle(Data?.hireTeamTitle);
+        setBillingAndSupportTitle(Data?.billingAndSupportTitle);
       }
     } catch (err) {
       console.log("Error occured in api is", err);
@@ -162,6 +180,28 @@ const AgencySupportAndWidget = () => {
     }
   }
 
+  //api data for updating support widget titles
+  const userSettingDataUpdateTitle = (from) => {
+    setShowEditModalLoader(true);
+    if (editTitleIndex === 0) {
+      return {
+        supportWebinarTitle: showEditModalTitle,
+      }
+    } else if (editTitleIndex === 1) {
+      return {
+        giveFeedbackTitle: showEditModalTitle,
+      }
+    } else if (editTitleIndex === 2) {
+      return {
+        hireTeamTitle: showEditModalTitle,
+      }
+    } else if (editTitleIndex === 3) {
+      return {
+        billingAndSupportTitle: showEditModalTitle,
+      }
+    }
+  }
+
   //user settings api
   const handleUserSettings = async (from) => {
     try {
@@ -170,6 +210,8 @@ const AgencySupportAndWidget = () => {
       let ApiData = null;
       if (from?.endsWith("Del")) {
         ApiData = userSettingDataDel(from);
+      } else if (from?.endsWith("UpdateTitle")) {
+        ApiData = userSettingDataUpdateTitle(from);
       } else {
         ApiData = userSettingDataUpgrade(from);
       }
@@ -191,6 +233,8 @@ const AgencySupportAndWidget = () => {
           setAddHireTeam(false);
           setAddBillingAndSupport(false);
           setSettingsData(response.data.data);
+          setShowEditModal(false);
+          setEditTitleIndex(null);
         } else {
           setShowSnackMessage(response.data.message);
           setShowSnackType(SnackbarTypes.Error);
@@ -216,6 +260,7 @@ const AgencySupportAndWidget = () => {
     setDelFeedBackLoader(false);
     setDelHireTeamLoader(false);
     setDelBillingAndSupportLoader(false);
+    setShowEditModalLoader(false);
   }
 
   return (
@@ -242,7 +287,7 @@ const AgencySupportAndWidget = () => {
                   <div className='flex flex-row items-center justify-between w-full'>
                     <div className='flex flex-row items-center gap-2'>
                       <div style={styles.subHeading}>
-                        Support webinar calendar
+                        {settingsData?.supportWebinarTitle}
                       </div>
                       <Tooltip
                         title="If you want to offer support calls, add your support calendar here."
@@ -270,6 +315,18 @@ const AgencySupportAndWidget = () => {
                           height={16} width={16} alt="*"
                         />
                       </Tooltip>
+                      <button onClick={() => {
+                        setEditTitleIndex(0);
+                        setShowEditModal(true);
+                        setShowEditModalTitle(supportCalTitle);
+                      }}>
+                        <Image
+                          alt="*"
+                          src={"/assets/editPen.png"}
+                          height={14}
+                          width={14}
+                        />
+                      </button>
                     </div>
                     <div className="flex flex-row items-center gap-2">
                       {
@@ -498,7 +555,7 @@ const AgencySupportAndWidget = () => {
                   <div className='flex flex-row items-center justify-between w-full'>
                     <div className='flex flex-row items-center gap-2'>
                       <div style={styles.subHeading}>
-                        Give feedback
+                        {settingsData?.giveFeedbackTitle}
                       </div>
                       <Tooltip
                         title="This allows you to collect feedback from your users."
@@ -526,6 +583,18 @@ const AgencySupportAndWidget = () => {
                           height={16} width={16} alt="*"
                         />
                       </Tooltip>
+                      <button onClick={() => {
+                        setEditTitleIndex(1);
+                        setShowEditModal(true);
+                        setShowEditModalTitle(feedBackTitle);
+                      }}>
+                        <Image
+                          alt="*"
+                          src={"/assets/editPen.png"}
+                          height={14}
+                          width={14}
+                        />
+                      </button>
                     </div>
                     <div className="flex flex-row items-center gap-2">
                       {
@@ -630,37 +699,49 @@ const AgencySupportAndWidget = () => {
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
                     <div className='flex flex-row items-center gap-2'>
-                    <div style={styles.subHeading}>
-                      Hire team
-                    </div>
+                      <div style={styles.subHeading}>
+                        {settingsData?.hireTeamTitle}
+                      </div>
 
-                    <Tooltip
-                    title="Allow your users to get on a sales call to hire you for a white glove service."
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: "#ffffff", // Ensure white background
-                          color: "#333", // Dark text color
-                          fontSize: "16px",
-                          fontWeight: '500',
-                          padding: "10px 15px",
-                          borderRadius: "8px",
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                        },
-                      },
-                      arrow: {
-                        sx: {
-                          color: "#ffffff", // Match tooltip background
-                        },
-                      },
-                    }}
-                  >
-                    <Image src={"/svgIcons/infoIcon.svg"}
-                      height={16} width={16} alt="*"
-                    />
-                  </Tooltip>
-                  </div>
+                      <Tooltip
+                        title="Allow your users to get on a sales call to hire you for a white glove service."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#ffffff", // Ensure white background
+                              color: "#333", // Dark text color
+                              fontSize: "16px",
+                              fontWeight: '500',
+                              padding: "10px 15px",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: "#ffffff", // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <Image src={"/svgIcons/infoIcon.svg"}
+                          height={16} width={16} alt="*"
+                        />
+                      </Tooltip>
+                      <button onClick={() => {
+                        setEditTitleIndex(2);
+                        setShowEditModal(true);
+                        setShowEditModalTitle(hireTeamTitle);
+                      }}>
+                        <Image
+                          alt="*"
+                          src={"/assets/editPen.png"}
+                          height={14}
+                          width={14}
+                        />
+                      </button>
+                    </div>
                     <div className="flex flex-row items-center gap-2">
                       {
                         delHireTeamLoader ? (
@@ -764,36 +845,48 @@ const AgencySupportAndWidget = () => {
                 <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4'>
                   <div className='flex flex-row items-center justify-between w-full'>
                     <div className='flex flex-row items-center gap-2'>
-                    <div style={styles.subHeading}>
-                      Billing and Support
+                      <div style={styles.subHeading}>
+                        {settingsData?.billingAndSupportTitle}
+                      </div>
+                      <Tooltip
+                        title="Allow your users to get help with billing."
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#ffffff", // Ensure white background
+                              color: "#333", // Dark text color
+                              fontSize: "16px",
+                              fontWeight: '500',
+                              padding: "10px 15px",
+                              borderRadius: "8px",
+                              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: "#ffffff", // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <Image src={"/svgIcons/infoIcon.svg"}
+                          height={16} width={16} alt="*"
+                        />
+                      </Tooltip>
+                      <button onClick={() => {
+                        setEditTitleIndex(3);
+                        setShowEditModal(true);
+                        setShowEditModalTitle(billingAndSupportTitle);
+                      }}>
+                        <Image
+                          alt="*"
+                          src={"/assets/editPen.png"}
+                          height={14}
+                          width={14}
+                        />
+                      </button>
                     </div>
-                    <Tooltip
-                    title="Allow your users to get help with billing."
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: "#ffffff", // Ensure white background
-                          color: "#333", // Dark text color
-                          fontSize: "16px",
-                          fontWeight: '500',
-                          padding: "10px 15px",
-                          borderRadius: "8px",
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                        },
-                      },
-                      arrow: {
-                        sx: {
-                          color: "#ffffff", // Match tooltip background
-                        },
-                      },
-                    }}
-                  >
-                    <Image src={"/svgIcons/infoIcon.svg"}
-                      height={16} width={16} alt="*"
-                    />
-                  </Tooltip>
-                  </div>
                     <div className="flex flex-row items-center gap-2">
                       {
                         delBillingAndSupportLoader ? (
@@ -892,6 +985,24 @@ const AgencySupportAndWidget = () => {
                       </div>
                     )
                   }
+
+                  <EditTitleModal
+                    open={showEditModal}
+                    handleClose={() => {
+                      setShowEditModal(false);
+                    }}
+                    title={showEditModalTitle}
+                    setTitle={setShowEditModalTitle}
+                    loader={showEditModalLoader}
+                    setLoader={setShowEditModalLoader}
+                    handleSave={() => {
+                      setShowEditModalLoader(true);
+                      handleUserSettings(`${showEditModalTitle}UpdateTitle`);
+                      // setShowEditModalLoader(false);
+                      // setShowEditModal(false);
+                    }}
+                  />
+
                 </div>
               </div>
             </div>
@@ -912,4 +1023,71 @@ const styles = {
   subHeading: {
     fontWeight: "500", fontSize: 15
   }
+}
+
+
+export const EditTitleModal = ({
+  open,
+  handleClose,
+  title,
+  setTitle,
+  loader,
+  setLoader,
+  handleSave
+}) => {
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      closeAfterTransition
+      BackdropProps={{
+        timeout: 100,
+        sx: {
+          backgroundColor: "#00000040",
+          backdropFilter: "blur(10px)",
+        },
+      }}
+    >
+      <Box className="flex justify-center items-center w-full h-full">
+        <div className="bg-white rounded-2xl p-8 max-w-lg w-[90%] relative shadow-2xl">
+          <div className="flex flex-row items-center justify-between w-full">
+            <div className="text-2xl font-bold">{title}</div>
+            <CloseBtn
+              onClick={handleClose}
+            />
+          </div>
+          <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-full mt-4">
+            <input
+              style={styles.inputs}
+              type="text"
+              className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+              placeholder="Enter your title"
+              value={title}
+              onChange={(e) => {
+                const value = e.target.value;
+                setTitle(value);
+              }}
+            />
+          </div>
+          {
+            loader ? (
+              <div className="flex flex-row items-center justify-center w-full mt-4">
+                <CircularProgress size={30} />
+              </div>
+            ) : (
+              <button className="bg-purple text-white px-4 h-[40px] rounded-lg mt-4 w-full"
+                onClick={() => {
+                  // setLoader(true);
+                  handleSave();
+                }}
+              >
+                Save
+              </button>
+            )
+          }
+        </div>
+      </Box>
+    </Modal>
+  )
 }

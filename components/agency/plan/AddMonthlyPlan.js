@@ -58,6 +58,32 @@ export default function AddMonthlyPlan({
   //plan passed is
   const [planPassed, setPlanPassed] = useState(null);
 
+  //allowed features check mark list
+  const [allowedFeatures, setAllowedFeatures] = useState([]);
+
+  //check marks list of allowed features
+  useEffect(() => {
+
+    const extraFeatures = [];
+
+    if (minutes) {
+      extraFeatures.push({
+        id: "minutes",
+        text: `${minutes} AI Credits`,
+      });
+    }
+
+    // if (noOfContacts) {
+    //   extraFeatures.push({
+    //     id: "contacts",
+    //     text: `${noOfContacts} Contact${noOfContacts > 1 ? "s" : ""}`,
+    //   });
+    // }
+
+
+    setAllowedFeatures([...extraFeatures]);
+  }, [minutes]);
+
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
     console.log("Test log monthlyplan ")
@@ -655,6 +681,7 @@ export default function AddMonthlyPlan({
               minutes={minutes}
               handleResetValues={handleResetValues}
               originalPrice={originalPrice}
+              allowedFeatures={allowedFeatures}
             />
           </div>
         </div>

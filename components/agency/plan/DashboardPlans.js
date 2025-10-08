@@ -43,6 +43,7 @@ function DashboardPlans({
     //selected plan details
     const [selectedPlan, setSelectedPlan] = useState(null);
     const [selectedPlanDetails, setSelectedPlanDetails] = useState(null);
+    const [customPlanFeatures, setCustomPlanFeatures] = useState([]);
 
     //agencyp plan cost
     const [agencyPlanCost, setAgencyPlanCost] = useState("");
@@ -51,7 +52,13 @@ function DashboardPlans({
     //search bar
     const [searchValue, setSearchValue] = useState("")
 
-
+    //set custom features
+    useEffect(() => {
+        if (selectedPlanDetails) {
+            
+            setCustomPlanFeatures(selectedPlanDetails.customFeatures);
+        }
+    }, [selectedPlanDetails]);
 
     //get local user data
     useEffect(() => {

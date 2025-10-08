@@ -315,15 +315,15 @@ function SubAccountPlansAndPayments({
     //get current plans
     const getCurrentPlans = (item) => {
         console.log("Item passed in bartender is", item)
-        if (item.title === "Monthly") {
+        if (item?.title === "Monthly") {
             console.log("Returning monthly plans are", monthlyPlans)
             return monthlyPlans;
         }
-        if (item.title === "Quarterly") {
+        if (item?.title === "Quarterly") {
             console.log("Returning quarterly plans are", quaterlyPlans)
             return quaterlyPlans;
         }
-        if (item.title === "Yearly") {
+        if (item?.title === "Yearly") {
             console.log("Returning yearly plans are", yearlyPlans)
             return yearlyPlans;
         }
@@ -1232,7 +1232,7 @@ function SubAccountPlansAndPayments({
                     <button
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0"
-                        style={{ width: "220px" }} // Fixed width for consistent card sizes
+                        style={{ width: "300px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div
@@ -1523,7 +1523,7 @@ function SubAccountPlansAndPayments({
                             }}
                             handleBack={() => setShowPlanDetailsPopup(false)}
                             isFrom="SubAccount"
-                            from="subAccountPlans"
+                            from="billing-modal"
                             onPlanSelected={(plan) => {
                                 console.log('Plan selected from modal:', plan);
                                 // Close UserPlans modal

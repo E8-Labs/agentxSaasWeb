@@ -13,7 +13,8 @@ const SideUI = ({
     handleClose,
     handleResetValues,
     minutes,
-    originalPrice
+    originalPrice,
+    allowedFeatures
 }) => {
 
     const price = discountedPrice * minutes;
@@ -75,6 +76,43 @@ const SideUI = ({
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{planDescription || "Desc text goes here"}</div>
                             <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {allowTrial ? <span>| {trialValidForDays}</span> : ""}</button>
+                            {
+                                allowedFeatures?.length > 0 && (
+                                    <div className='w-full'>
+                                        {
+                                            allowedFeatures.map((item) => {
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className="w-full flex flex-row items-center gap-2 mt-6"
+                                                    >
+                                                        <Image src="/otherAssets/selectedTickBtn.png" height={16} width={16} alt="✓" />
+                                                        <div
+                                                            className='flex flex-row items-center gap-2'
+                                                            style={{
+                                                                whiteSpace: 'nowrap',
+                                                                width: '100%',
+                                                                borderWidth: 0,
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                            }}
+                                                        >
+                                                            <div style={{
+                                                                fontSize: 13,
+                                                                fontWeight: '500',
+                                                                textAlign: 'left',
+                                                                borderWidth: 0,
+                                                            }}>
+                                                                {item.text}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                )
+                            }
                         </div>
                     </div>
                 </div>

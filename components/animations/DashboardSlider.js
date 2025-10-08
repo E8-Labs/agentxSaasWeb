@@ -3,10 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { PersistanceKeys } from "@/constants/Constants";
 import { SupportWidget } from "../askSky/support-widget";
-import { Box, Modal } from "@mui/material";
+import { Box, CircularProgress, Modal } from "@mui/material";
 import VapiChatWidget from "../askSky/VapiChatWidget";
 import UpgradeModal from "@/constants/UpgradeModal";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import { AuthToken } from "../agency/plan/AuthDetails";
+import Apis from "../apis/Apis";
+import axios from "axios";
 
 const DashboardSlider = ({
   onTop = false,
@@ -25,76 +28,12 @@ const DashboardSlider = ({
 
   const [showAskSkyConfirmation, setShowAskSkyConfirmation] = useState(false);
   const [showVapiChatWidget, setShowVapiChatWidget] = useState(false);
-  const [openUpgradePlan, setOpenUpgradePlan] = useState(false)
+  const [openUpgradePlan, setOpenUpgradePlan] = useState(false);
 
-  //fetch local details
-  useEffect(() => {
-    const localData = localStorage.getItem("User");
-    let AuthToken = null;
-    if (localData) {
-      const UserDetails = JSON.parse(localData);
-      // //console.log;
-      setUserDetails(UserDetails.user);
-      AuthToken = UserDetails.token;
-    }
-  }, []);
+  // initial loder for user settings
+  const [initialLoader, setInitialLoader] = useState(false);
 
-  useEffect(() => {
-    if (needHelp) {
-      setShowIcon(false);
-      setVisible(true);
-    } else {
-      setVisible(false);
-      setShowIcon(true);
-    }
-  }, [needHelp]);
-
-  //check if the call was initated then keep the slider and vapi-widget open
-  useEffect(() => {
-    const vapiValue = localStorage.getItem(PersistanceKeys.showVapiModal);
-    if (vapiValue) {
-      const d = JSON.parse(vapiValue);
-      console.log("Vapi-value is", d);
-    }
-  }, [])
-
-  const handleClose = () => {
-    setVisible(false);
-    setTimeout(() => {
-      if (onTop) {
-        closeHelp();
-      }
-    }, 300);
-    setTimeout(() => {
-      if (!onTop) {
-        setShowIcon(true);
-      }
-    }, 1000); // show icon after 1 sec
-  };
-
-  const handleReopen = () => {
-    setShowIcon(false);
-    setVisible(true);
-  };
-
-  const snackbarVariants = {
-    hidden: { x: "100%", opacity: 0 },
-    visible: { x: 0, opacity: 1 },
-    exit: { x: "100%", opacity: 0 },
-  };
-
-  //get position bassed on the components
-  const getPosition = () => {
-    if (onTop) {
-      const style = { position: "fixed", top: 50, right: 8, zIndex: 999 };
-      return style;
-    } else {
-      const style = { position: "fixed", bottom: 20, right: 8, zIndex: 999 };
-      return style;
-    }
-  };
-
-  const buttons = [
+  const [buttons, setButtons] = useState([
     {
       id: 1,
       label: "Resource Hub",
@@ -144,7 +83,70 @@ const DashboardSlider = ({
       image2: "/otherAssets/billingIconBlue.png",
       url: PersistanceKeys.BillingSupportUrl,
     },
-  ];
+  ]);
+
+  //fetch local details
+  useEffect(() => {
+    fetchLocalDetails();
+  }, []);
+
+  useEffect(() => {
+    if (needHelp) {
+      setShowIcon(false);
+      setVisible(true);
+    } else {
+      setVisible(false);
+      setShowIcon(true);
+    }
+  }, [needHelp]);
+
+  //check if the call was initated then keep the slider and vapi-widget open
+  useEffect(() => {
+    const vapiValue = localStorage.getItem(PersistanceKeys.showVapiModal);
+    if (vapiValue) {
+      const d = JSON.parse(vapiValue);
+      console.log("Vapi-value is", d);
+    }
+  }, [])
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(() => {
+      if (onTop) {
+        closeHelp();
+      }
+    }, 300);
+    setTimeout(() => {
+      if (!onTop) {
+        setShowIcon(true);
+      }
+    }, 1000); // show icon after 1 sec
+  };
+
+  const handleReopen = () => {
+    setShowIcon(false);
+    setVisible(true);
+    fetchLocalDetails();
+  };
+
+  const snackbarVariants = {
+    hidden: { x: "100%", opacity: 0 },
+    visible: { x: 0, opacity: 1 },
+    exit: { x: "100%", opacity: 0 },
+  };
+
+  //get position bassed on the components
+  const getPosition = () => {
+    if (onTop) {
+      const style = { position: "fixed", top: 50, right: 8, zIndex: 999 };
+      return style;
+    } else {
+      const style = { position: "fixed", bottom: 20, right: 8, zIndex: 999 };
+      return style;
+    }
+  };
+
+
 
   console.log('openUpgradePlan', openUpgradePlan)
 
@@ -170,10 +172,69 @@ const DashboardSlider = ({
     }
   }
 
-  const handleCloseUpgrade = ()=>{
+  const handleCloseUpgrade = () => {
     setOpenUpgradePlan(false)
   }
 
+  //fetch user local data
+  const fetchLocalDetails = () => {
+    const localData = localStorage.getItem("User");
+    let AuthToken = null;
+    if (localData) {
+      const UserDetailsLD = JSON.parse(localData);
+      // //console.log;
+      setUserDetails(UserDetailsLD.user);
+      AuthToken = UserDetailsLD.token;
+      console.log("Checking local data in slider", UserDetailsLD?.user?.userRole)
+      if (UserDetailsLD?.user?.userRole === "AgencySubAccount") {
+        const dynamicButtons = [];
+        const Data = UserDetailsLD?.user?.agencySettings;
+
+        if (Data.supportWebinarCalendar) {
+          dynamicButtons.push({
+            id: crypto.randomUUID(),
+            label: Data.supportWebinarTitle || "Support Webinar",
+            url: Data.supportWebinarCalendarUrl || PersistanceKeys.SupportWebinarUrl,
+            image: "/otherAssets/supportBlack.jpg",
+            image2: "/otherAssets/supportBlue.jpg",
+          });
+        }
+
+        if (Data.giveFeedback) {
+          dynamicButtons.push({
+            id: crypto.randomUUID(),
+            label: Data.giveFeedbackTitle || "Give Feedback",
+            url: Data.giveFeedbackUrl || PersistanceKeys.FeedbackFormUrl,
+            image: "/otherAssets/feedBackIcon.jpg",
+            image2: "/otherAssets/feedBackIconBlue.jpg",
+          });
+        }
+
+        if (Data.hireTeam) {
+          dynamicButtons.push({
+            id: crypto.randomUUID(),
+            label: Data.hireTeamTitle || "Hire the Team",
+            url: Data.hireTeamUrl || PersistanceKeys.HireTeamUrl,
+            image: "/otherAssets/hireTeamBlack.jpg",
+            image2: "/otherAssets/hireTeamBlue.jpg",
+          });
+        }
+
+        if (Data.billingAndSupport) {
+          dynamicButtons.push({
+            id: crypto.randomUUID(),
+            label: Data.billingAndSupportTitle || "Billing Support",
+            url: Data.billingAndSupportUrl || PersistanceKeys.BillingSupportUrl,
+            image: "/otherAssets/billingIcon.jpg",
+            image2: "/otherAssets/billingIconBlue.png",
+          });
+        }
+
+        // Replace static array with API-driven buttons
+        setButtons(dynamicButtons);
+      }
+    }
+  }
 
 
   const renderViews = () => {
@@ -208,45 +269,98 @@ const DashboardSlider = ({
               borderRadius: "8px", padding: "16px 24px",
             }}
           >
-            <div className="w-full flex flex-col items-start gap-4">
-              {buttons.map((item, index) => (
-                <div
-                  key={index}
-                  style={{ cursor: "pointer" }}
-                  onMouseEnter={() => setHoverIndex(index)}
-                  onMouseLeave={() => setHoverIndex(null)}
-                >
-                  <button
-                    className="w-full flex flex-row items-center gap-2"
-                    onClick={() => handleOnClick(item, index)}
-                  >
-                    <Image
-                      src={
-                        index === hoverIndex ? item.image2 : item.image
-                      }
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                    <div
-                      className="text-black hover:text-purple whitespace-nowrap"
-                      style={{ fontSize: 15, fontWeight: "500" }}
-                    >
-                      {item.label}
-                    </div>
-                    {
-                      item.id === 3 && (
+            {
+              userDetails?.userRole === "AgencySubAccount" ? (
+                <div className="w-full">
+                  {
+                    initialLoader ? (
+                      <div className="w-full flex flex-row items-center justify-center h-[100px] gap-2">
+                        <CircularProgress size={30} />
+                        <span className="text-black text-[12px] font-bold">Fetching Support Widgets...</span>
+                      </div>
+                    ) : (
+                      <div className="w-full flex flex-col items-start gap-4">
+                        {buttons.map((item, index) => (
+                          <div
+                            key={index}
+                            style={{ cursor: "pointer" }}
+                            onMouseEnter={() => setHoverIndex(index)}
+                            onMouseLeave={() => setHoverIndex(null)}
+                          >
+                            <button
+                              className="w-full flex flex-row items-center gap-2"
+                              onClick={() => handleOnClick(item, index)}
+                            >
+                              <Image
+                                src={
+                                  index === hoverIndex ? item.image2 : item.image
+                                }
+                                width={24}
+                                height={24}
+                                alt="*"
+                              />
+                              <div
+                                className="text-black hover:text-purple whitespace-nowrap"
+                                style={{ fontSize: 15, fontWeight: "500" }}
+                              >
+                                {item.label}
+                              </div>
+                              {
+                                item.id === 3 && (
 
-                        <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
-                          Beta
-                        </div>
-                      )}
-                  </button>
+                                  <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
+                                    Beta
+                                  </div>
+                                )}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  }
                 </div>
-              ))}
-            </div>
+              ) : (
+                <div className="w-full flex flex-col items-start gap-4">
+                  {buttons.map((item, index) => (
+                    <div
+                      key={index}
+                      style={{ cursor: "pointer" }}
+                      onMouseEnter={() => setHoverIndex(index)}
+                      onMouseLeave={() => setHoverIndex(null)}
+                    >
+                      <button
+                        className="w-full flex flex-row items-center gap-2"
+                        onClick={() => handleOnClick(item, index)}
+                      >
+                        <Image
+                          src={
+                            index === hoverIndex ? item.image2 : item.image
+                          }
+                          width={24}
+                          height={24}
+                          alt="*"
+                        />
+                        <div
+                          className="text-black hover:text-purple whitespace-nowrap"
+                          style={{ fontSize: 15, fontWeight: "500" }}
+                        >
+                          {item.label}
+                        </div>
+                        {
+                          item.id === 3 && (
+
+                            <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
+                              Beta
+                            </div>
+                          )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )
+            }
           </div>
-          <CloseBtn 
+          <CloseBtn
             onClick={handleClose}
             showWhiteCross={false}
           />

@@ -45,7 +45,13 @@ export default function PlanFeatures({
                             className="flex flex-row items-center justify-between w-full"
                         >
                             <div className="flex flex-row items-center gap-2">
-                                <div styles={{ fontSize: "10px", fontWeight: "900" }}>{item.label}</div>
+                                <div styles={{ fontSize: "10px", fontWeight: "900" }}>
+                                    {item.stateKey === "allowTeamSeats"
+                                        ? (noOfSeats
+                                            ? `${noOfSeats} Team Seat${noOfSeats > 1 ? "s" : ""}`
+                                            : "Allow Team Seats")
+                                        : item.label}
+                                </div>
                                 {
                                     item.tooltip && (
                                         <Tooltip

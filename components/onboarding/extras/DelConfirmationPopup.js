@@ -81,7 +81,7 @@ const DelConfirmationPopup = ({
                         </div>
 
                         {
-                            selectedPlan.subscriberCount === 0 && (
+                            !selectedPlan.subscriberCount > 0 && (
                                 <div className="mt-4 flex flex-row items-center gap-4 mt-6">
                                     <button
                                         onClick={handleClose}

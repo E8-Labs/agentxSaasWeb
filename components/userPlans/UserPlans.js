@@ -14,6 +14,7 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import getProfileDetails from '../apis/GetProfile';
 import { useUser } from '@/hooks/redux-hooks';
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 
 
 function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader, onPlanSelected }) {
@@ -307,7 +308,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
 
     return (
-        <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' || from === "subAccountPlans" ? 'h-full' : 'h-[100vh]'}`}>
+        <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
             <div className='flex flex-col items-center w-[90%] h-full overflow-y-auto'
                 style={{
                     scrollbarWidth: 'none'
@@ -453,12 +454,12 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                 {
                                                     item?.originalPrice > 0 && (
                                                         <span className='text-[#00000020] line-through'>
-                                                            ${item?.originalPrice || ""}
+                                                            ${formatDecimalValue(item?.originalPrice) || ""}
                                                         </span>
                                                     )
                                                 }
                                                 <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                    ${item.discountPrice || item.discountedPrice}
+                                                    ${formatDecimalValue(item.discountPrice || item.discountedPrice)}
                                                 </span>
                                             </div>
 
