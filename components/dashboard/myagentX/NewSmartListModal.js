@@ -77,10 +77,8 @@ const NewSmartListModal = ({
         AuthToken = UserDetails.token;
       }
       
-      // Combine predefined fields with custom fields, excluding default columns
-      const defaultColumns = ['First name', 'Last name', 'Email', 'Phone'];
-      const filteredPredefinedFields = predefinedFields.filter(field => !defaultColumns.includes(field));
-      const allFields = [...filteredPredefinedFields];
+      // Only include custom fields, excluding default columns
+      const allFields = [];
       customFields.forEach(field => {
         if (field.trim()) {
           allFields.push(field.trim());
@@ -96,6 +94,8 @@ const NewSmartListModal = ({
         tags: filteredTags,
         agentId: agentId
       };
+
+      console.log("payload", payload);
 
       const response = await axios.post(
         'https://apimyagentx.com/agentxtest/api/leads/addSmartList',
@@ -154,133 +154,146 @@ const NewSmartListModal = ({
         },
       }}
     >
-      <Box className="xl:w-6/12 lg:w-7/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
+      <Box className="xl:w-5/12 lg:w-6/12 sm:w-10/12 w-8/12" sx={styles.modalsStyle}>
         <div className="flex flex-row justify-center w-full">
           <div
             className="w-full"
             style={{
               backgroundColor: "#ffffff",
-              padding: 24,
               borderRadius: "13px",
               display: 'flex',
               flexDirection: 'column',
               maxHeight: '90vh',
-              overflow: 'auto',
+              overflow: 'hidden',
             }}
           >
-        {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-            New Smart List
-          </Typography>
-          <button onClick={handleClose}>
-            <Image
-              src={"/assets/crossIcon.png"}
-              height={40}
-              width={40}
-              alt="*"
-            />
-          </button>
-        </Box>
-
-        {/* Smart List Name */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
-            New Smart List
-          </Typography>
-          <input
-            className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-            style={{ border: "1px solid #00000020" }}
-            placeholder="Type name here"
-            value={sheetName}
-            onChange={(e) => setSheetName(e.target.value)}
-          />
-        </Box>
-
-        {/* Create Fields */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>
-            Create Fields
-          </Typography>
-          
-          {/* Predefined Fields */}
-          {predefinedFields.map((field, index) => (
-            <input
-              key={`predefined-${index}`}
-              className="outline-none bg-white w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px] mb-3"
-              style={{ 
-                border: "1px solid #00000020",
-                color: "#000"
-              }}
-              value={field}
-              disabled
-            />
-          ))}
-
-          {/* Custom Fields */}
-          {customFields.map((field, index) => (
-            <Box key={`custom-${index}`} sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-              <input
-                className="outline-none bg-white border-none focus:outline-none focus:ring-0 rounded-lg h-[50px] mr-1"
-                style={{ 
-                  border: "1px solid #00000020",
-                  width: "95%"
-                }}
-                placeholder="Custom Field"
-                value={field}
-                onChange={(e) => handleCustomFieldChange(index, e.target.value)}
-              />
-              <div style={{ width: "5%" }}>
-                <button
-                  className="outline-none border-none"
-                  onClick={() => handleRemoveCustomField(index)}
-                >
+            {/* Scrollable Content */}
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: 24,
+              paddingBottom: 0
+            }}>
+              {/* Header */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
+                  New Smart List
+                </Typography>
+                <button onClick={handleClose}>
                   <Image
-                    src={"/assets/blackBgCross.png"}
-                    height={20}
-                    width={20}
+                    src={"/assets/crossIcon.png"}
+                    height={40}
+                    width={40}
                     alt="*"
                   />
                 </button>
-              </div>
-            </Box>
-          ))}
+              </Box>
 
-          <button
-            className="text-purple underline text-transform-none font-medium hover:bg-purple hover:bg-opacity-10 p-2 rounded"
-            onClick={handleAddCustomField}
-          >
-            <Plus size={16} className="inline mr-1" />
-            New Field
-          </button>
-        </Box>
+              {/* Smart List Name */}
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                  New Smart List
+                </Typography>
+                <input
+                  className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                  style={{ border: "1px solid #00000020" }}
+                  placeholder="Type name here"
+                  value={sheetName}
+                  onChange={(e) => setSheetName(e.target.value)}
+                />
+              </Box>
 
-        {/* Tags */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>
-            Tags
-          </Typography>
-          
-          <TagsInput setTags={setTagsValue} tags={tagsValue} />
-        </Box>
+              {/* Create Fields */}
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>
+                  Create Fields
+                </Typography>
 
-        {/* Save Button */}
-        <button
-          className="w-full py-3 px-4 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-          onClick={handleSave}
-          disabled={loading || !sheetName.trim()}
-        >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
-        </button>
-        
-        {/* Snackbar */}
-        <AgentSelectSnackMessage
-          isVisible={snackbar.isVisible}
-          title={snackbar.title}
-          message={snackbar.message}
-          type={snackbar.type}
-          hide={hideSnackbar}
-        />
+                {/* Predefined Fields */}
+                {predefinedFields.map((field, index) => (
+                  <input
+                    key={`predefined-${index}`}
+                    className="outline-none bg-white w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px] mb-3"
+                    style={{
+                      border: "1px solid #00000020",
+                      color: "#000"
+                    }}
+                    value={field}
+                    disabled
+                  />
+                ))}
+
+                {/* Custom Fields */}
+                {customFields.map((field, index) => (
+                  <Box key={`custom-${index}`} sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <input
+                      className="outline-none bg-white border-none focus:outline-none focus:ring-0 rounded-lg h-[50px] mr-1"
+                      style={{
+                        border: "1px solid #00000020",
+                        width: "95%"
+                      }}
+                      placeholder="Custom Field"
+                      value={field}
+                      onChange={(e) => handleCustomFieldChange(index, e.target.value)}
+                    />
+                    <div style={{ width: "5%" }}>
+                      <button
+                        className="outline-none border-none"
+                        onClick={() => handleRemoveCustomField(index)}
+                      >
+                        <Image
+                          src={"/assets/blackBgCross.png"}
+                          height={20}
+                          width={20}
+                          alt="*"
+                        />
+                      </button>
+                    </div>
+                  </Box>
+                ))}
+
+                <button
+                  className="text-purple underline text-transform-none font-medium hover:bg-purple hover:bg-opacity-10 p-2 rounded"
+                  onClick={handleAddCustomField}
+                >
+                  <Plus size={16} className="inline mr-1" />
+                  New Field
+                </button>
+              </Box>
+
+              {/* Tags */}
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 2 }}>
+                  Tags
+                </Typography>
+
+                <TagsInput setTags={setTagsValue} tags={tagsValue} />
+              </Box>
+            </div>
+
+            {/* Fixed Save Button */}
+            <div style={{
+              padding: 24,
+              paddingTop: 16,
+              borderTop: '1px solid #00000010'
+            }}>
+              <button
+                className="w-full py-3 px-4 bg-purple text-white rounded-lg font-medium hover:bg-purple hover:opacity-90 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
+                onClick={handleSave}
+                disabled={loading || !sheetName.trim()}
+              >
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
+              </button>
+            </div>
+
+            {/* Snackbar */}
+            <AgentSelectSnackMessage
+              isVisible={snackbar.isVisible}
+              title={snackbar.title}
+              message={snackbar.message}
+              type={snackbar.type}
+              hide={hideSnackbar}
+            />
           </div>
         </div>
       </Box>

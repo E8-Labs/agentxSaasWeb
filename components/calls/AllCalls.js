@@ -647,7 +647,7 @@ function AllCalls({ user }) {
             </div>
 
             <div className="w-1/12">
-              <div style={styles.text}>Contact Number</div>
+              <div style={styles.text}>Contact</div>
             </div>
             <div className="w-1/12 ">
               <div style={styles.text}>Pipeline</div>

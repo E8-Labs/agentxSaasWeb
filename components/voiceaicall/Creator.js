@@ -412,13 +412,83 @@ const Creator = ({ agentId, name }) => {
   };
 
   // Handle button click
-  const handleInitiateVapi = () => {
+  const handleInitiateVapi = async () => {
     console.log("handleInitiateVapi called");
     console.log("Smart list data:", smartListData);
-    
+
     // Check if agent has smartList attached
     if (smartListData && smartListData.id) {
-      console.log("Agent has smart list, showing modal");
+      // Check if we have persisted data
+      const savedData = localStorage.getItem(`leadForm_${agentId}`);
+
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          const { formData: savedFormData, smartListFields: savedSmartListFields } = parsedData;
+
+          // Check if all required fields are filled
+          if (savedFormData?.firstName && savedFormData?.lastName && savedFormData?.email && savedFormData?.phone) {
+            console.log("Found persisted form data, submitting directly:", parsedData);
+
+            // Use the saved data to make API call directly
+            setIsSubmitting(true);
+            try {
+              const extraColumns = {};
+              Object.entries(savedSmartListFields || {}).forEach(([key, value]) => {
+                if (value && value.trim()) {
+                  extraColumns[key] = value;
+                }
+              });
+
+              const leadDetails = {
+                firstName: savedFormData.firstName,
+                lastName: savedFormData.lastName,
+                phone: savedFormData.phone,
+                email: savedFormData.email,
+                extraColumns: extraColumns
+              };
+
+              const response = await callApiPost(
+                `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}`,
+                { lead_details: leadDetails }
+              );
+
+              if (response && response.data && response.data.data) {
+                const { totalSecondsAvailable } = response.data.data.user;
+
+                if (totalSecondsAvailable < 120) {
+                  setSnackbarMessage("Insufficient Balance");
+                  setSnackbarSeverity("error");
+                  setSnackbarOpen(true);
+                  return;
+                }
+
+                const newAssistantOverrides = response.data.data.assistantOverrides;
+                if (newAssistantOverrides) {
+                  const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
+                  setAssistantOverrides(cleanedNewOverrides);
+                  handleStartCallWithOverrides(newAssistantOverrides);
+                } else {
+                  handleStartCall();
+                }
+              }
+            } catch (error) {
+              console.error("Error submitting persisted form data:", error);
+              setSnackbarMessage("Error starting call. Please try again.");
+              setSnackbarSeverity("error");
+              setSnackbarOpen(true);
+            } finally {
+              setIsSubmitting(false);
+            }
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing saved form data:", error);
+        }
+      }
+
+      // If no persisted data or incomplete data, show modal
+      console.log("No complete persisted data found, showing modal");
       handleModalOpen();
     } else {
       console.log("No smart list found, starting call directly");
@@ -958,7 +1028,7 @@ const Creator = ({ agentId, name }) => {
         }}
       >
         <Box
-          className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+          className="xl:w-5/12 lg:w-6/12 sm:w-10/12 w-8/12"
           sx={{
             position: 'absolute',
             top: '50%',
@@ -967,178 +1037,186 @@ const Creator = ({ agentId, name }) => {
             borderRadius: 2,
             border: "none",
             outline: "none",
-            scrollbarWidth: "none",
             backgroundColor: "white",
+            display: 'flex',
+            flexDirection: 'column',
+            maxHeight: '90vh',
+            overflow: 'hidden',
           }}
         >
-          <div
-            className="w-full flex flex-col items-center h-full justify-between"
-            style={{ backgroundColor: "white" }}
-          >
-            <div className="w-full">
-              <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
-                <div style={{ fontWeight: "500", fontSize: 15 }}>
-                  Lead Details
-                </div>
-                  <CloseBtn  onClick={handleModalClose}/>
-                 
+          {/* Scrollable Content */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: 24,
+            paddingBottom: 0
+          }}>
+            <div className="flex flex-row items-center justify-between w-full">
+              <div style={{ fontWeight: "500", fontSize: 15 }}>
+                Get Started
               </div>
-
-              <div className="px-4 w-full">
-                {/* Basic Fields */}
-                <div className="flex flex-row items-center justify-start mt-6 gap-2">
-                  <span style={{ fontWeight: "500", fontSize: 15 }}>Contact Information</span>
-                </div>
-                
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <input
-                      value={formData.firstName}
-                      onChange={(e) => handleFormDataChange('firstName', e.target.value)}
-                      placeholder="First Name"
-                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
-                      style={{
-                        fontWeight: "500",
-                        fontSize: 15,
-                        border: "1px solid #00000020",
-                      }}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <input
-                      value={formData.lastName}
-                      onChange={(e) => handleFormDataChange('lastName', e.target.value)}
-                      placeholder="Last Name"
-                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
-                      style={{
-                        fontWeight: "500",
-                        fontSize: 15,
-                        border: "1px solid #00000020",
-                      }}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <PhoneInput
-                      country={"us"}
-                      value={formData.phone}
-                      onChange={(value) => handleFormDataChange('phone', value)}
-                      placeholder="Enter Phone Number"
-                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl"
-                      style={{
-                        borderRadius: "12px",
-                        outline: "none",
-                        boxShadow: "none",
-                        border: "1px solid #00000020",
-                      }}
-                      inputStyle={{
-                        width: "100%",
-                        borderWidth: "0px",
-                        backgroundColor: "transparent",
-                        paddingLeft: "60px",
-                        paddingTop: "12px",
-                        paddingBottom: "12px",
-                        height: "53px",
-                        outline: "none",
-                        boxShadow: "none",
-                        fontWeight: "500",
-                        fontSize: 15,
-                      }}
-                      buttonStyle={{
-                        border: "none",
-                        backgroundColor: "transparent",
-                        outline: "none",
-                      }}
-                      dropdownStyle={{
-                        maxHeight: "150px",
-                        overflowY: "auto",
-                      }}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleFormDataChange('email', e.target.value)}
-                      placeholder="Email"
-                      className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
-                      style={{
-                        fontWeight: "500",
-                        fontSize: 15,
-                        border: "1px solid #00000020",
-                      }}
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Smart List Fields */}
-                {smartListData && smartListData.columns && smartListData.columns.length > 0 && (
-                  <>
-                    <div className="mt-8" style={{ fontWeight: "500", fontSize: 15 }}>
-                      Additional Information
-                    </div>
-                    <div className="mt-4 space-y-4">
-                      {smartListData.columns.map((column, index) => (
-                        <div key={index}>
-                          <input
-                            value={smartListFields[column.columnName] || ''}
-                            onChange={(e) => handleSmartListFieldChange(column.columnName, e.target.value)}
-                            placeholder={column.columnName.charAt(0).toUpperCase() + column.columnName.slice(1)}
-                            className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
-                            style={{
-                              fontWeight: "500",
-                              fontSize: 15,
-                              border: "1px solid #00000020",
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+              <CloseBtn onClick={handleModalClose}/>
             </div>
 
-            <div className="w-full pb-8 px-4 mt-4">
-              <div className="flex flex-row gap-3">
+            <div className="w-full">
+              {/* Basic Fields */}
+              <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                <span style={{ fontWeight: "500", fontSize: 15 }}>Contact Info</span>
+              </div>
+
+              <div className="mt-4 space-y-4">
+                <div>
+                  <input
+                    value={formData.firstName}
+                    onChange={(e) => handleFormDataChange('firstName', e.target.value)}
+                    placeholder="First Name"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    value={formData.lastName}
+                    onChange={(e) => handleFormDataChange('lastName', e.target.value)}
+                    placeholder="Last Name"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+                <div>
+                  <PhoneInput
+                    country={"us"}
+                    value={formData.phone}
+                    onChange={(value) => handleFormDataChange('phone', value)}
+                    placeholder="Enter Phone Number"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl"
+                    style={{
+                      borderRadius: "12px",
+                      outline: "none",
+                      boxShadow: "none",
+                      border: "1px solid #00000020",
+                    }}
+                    inputStyle={{
+                      width: "100%",
+                      borderWidth: "0px",
+                      backgroundColor: "transparent",
+                      paddingLeft: "60px",
+                      paddingTop: "12px",
+                      paddingBottom: "12px",
+                      height: "53px",
+                      outline: "none",
+                      boxShadow: "none",
+                      fontWeight: "500",
+                      fontSize: 15,
+                    }}
+                    buttonStyle={{
+                      border: "none",
+                      backgroundColor: "transparent",
+                      outline: "none",
+                    }}
+                    dropdownStyle={{
+                      maxHeight: "150px",
+                      overflowY: "auto",
+                    }}
+                    required
+                  />
+                </div>
+                <div>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleFormDataChange('email', e.target.value)}
+                    placeholder="Email"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Smart List Fields */}
+              {smartListData && smartListData.columns && smartListData.columns.length > 0 && (
+                <>
+                  <div className="mt-8" style={{ fontWeight: "500", fontSize: 15 }}>
+                    Additional Info
+                  </div>
+                  <div className="mt-4 space-y-4">
+                    {smartListData.columns.map((column, index) => (
+                      <div key={index}>
+                        <input
+                          value={smartListFields[column.columnName] || ''}
+                          onChange={(e) => handleSmartListFieldChange(column.columnName, e.target.value)}
+                          placeholder={column.columnName.charAt(0).toUpperCase() + column.columnName.slice(1)}
+                          className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                          style={{
+                            fontWeight: "500",
+                            fontSize: 15,
+                            border: "1px solid #00000020",
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Fixed Buttons */}
+          <div style={{
+            padding: 24,
+            paddingTop: 16,
+            borderTop: '1px solid #00000010'
+          }}>
+            <div className="flex flex-row gap-3">
+              <button
+                className="h-[50px] rounded-xl text-gray-600 border border-gray-300 flex-1"
+                style={{
+                  fontWeight: "600",
+                  fontSize: 16.8,
+                }}
+                onClick={handleClearForm}
+              >
+                Clear Form
+              </button>
+              {isSubmitting ? (
+                <div className="flex flex-row items-center justify-center flex-1 h-[50px]">
+                  <CircularProgress
+                    size={25}
+                    sx={{ color: "#7902DF" }}
+                  />
+                </div>
+              ) : (
                 <button
-                  className="h-[50px] rounded-xl text-gray-600 border border-gray-300 flex-1"
+                  className={`h-[50px] rounded-xl text-white flex-1 ${
+                    formData.firstName && formData.lastName && formData.email && formData.phone
+                      ? "bg-purple"
+                      : "bg-gray-400"
+                  }`}
                   style={{
                     fontWeight: "600",
                     fontSize: 16.8,
                   }}
-                  onClick={handleClearForm}
+                  onClick={handleFormSubmit}
+                  disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
                 >
-                  Clear Form
+                  Continue
                 </button>
-                {isSubmitting ? (
-                  <div className="flex flex-row items-center justify-center flex-1 h-[50px]">
-                    <CircularProgress
-                      size={25}
-                      sx={{ color: "#7902DF" }}
-                    />
-                  </div>
-                ) : (
-                  <button
-                    className={`h-[50px] rounded-xl text-white flex-1 ${
-                      formData.firstName && formData.lastName && formData.email && formData.phone
-                        ? "bg-purple"
-                        : "bg-gray-400"
-                    }`}
-                    style={{
-                      fontWeight: "600",
-                      fontSize: 16.8,
-                    }}
-                    onClick={handleFormSubmit}
-                    disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
-                  >
-                    Continue
-                  </button>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </Box>

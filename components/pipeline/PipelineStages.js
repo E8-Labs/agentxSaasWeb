@@ -148,8 +148,8 @@ const PipelineStages = ({
 
   const ACTIONS = [
     { value: "email", label: "Email", icon: '/otherAssets/@Icon.png', focusedIcon: '/otherAssets/blue@Icon.png' },
-    { value: "sms", label: "Text", icon: '/otherAssets/smsIcon.png', focusedIcon: '/otherAssets/blueSmsIcon.png' },
     { value: "call", label: "Call", icon: '/otherAssets/callIcon.png', focusedIcon: '/otherAssets/blueCallIcon.png' },
+    { value: "sms", label: "Text", icon: '/otherAssets/smsIcon.png', focusedIcon: '/otherAssets/blueSmsIcon.png' },
   ];
 
   const actionLabel = (v) => ACTIONS.find(a => a.value === v)?.label || "Make Call";
