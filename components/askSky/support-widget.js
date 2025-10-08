@@ -47,6 +47,29 @@ export function SupportWidget({
   const [smartListFields, setSmartListFields] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validation functions
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPhone = (phone) => {
+    // Phone number should be at least 10 digits (without country code prefix)
+    const phoneDigits = phone.replace(/\D/g, '');
+    return phoneDigits.length >= 10;
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.firstName?.trim() &&
+      formData.lastName?.trim() &&
+      formData.email?.trim() &&
+      isValidEmail(formData.email) &&
+      formData.phone?.trim() &&
+      isValidPhone(formData.phone)
+    );
+  };
+
   // User loading messages to fake feedback...
 
 
@@ -694,7 +717,7 @@ export function SupportWidget({
               </button>
               <button
                 onClick={handleFormSubmit}
-                disabled={isSubmitting || !formData.firstName || !formData.lastName || !formData.email || !formData.phone}
+                disabled={isSubmitting || !isFormValid()}
                 className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
               >
                 {isSubmitting && <CircularProgress size={16} color="inherit" />}

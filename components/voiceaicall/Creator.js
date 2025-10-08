@@ -104,6 +104,29 @@ const Creator = ({ agentId, name }) => {
   const [smartListData, setSmartListData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Validation functions
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPhone = (phone) => {
+    // Phone number should be at least 10 digits (without country code prefix)
+    const phoneDigits = phone.replace(/\D/g, '');
+    return phoneDigits.length >= 10;
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.firstName?.trim() &&
+      formData.lastName?.trim() &&
+      formData.email?.trim() &&
+      isValidEmail(formData.email) &&
+      formData.phone?.trim() &&
+      isValidPhone(formData.phone)
+    );
+  };
+
   //agent details by id
   const [agentDetails, setAgentDetails] = useState(null);
   const [profileLoader, setProfileLoader] = useState(true);
@@ -426,8 +449,17 @@ const Creator = ({ agentId, name }) => {
           const parsedData = JSON.parse(savedData);
           const { formData: savedFormData, smartListFields: savedSmartListFields } = parsedData;
 
-          // Check if all required fields are filled
-          if (savedFormData?.firstName && savedFormData?.lastName && savedFormData?.email && savedFormData?.phone) {
+          // Check if all required fields are filled and valid
+          const isValidSavedData = (
+            savedFormData?.firstName?.trim() &&
+            savedFormData?.lastName?.trim() &&
+            savedFormData?.email?.trim() &&
+            isValidEmail(savedFormData.email) &&
+            savedFormData?.phone?.trim() &&
+            isValidPhone(savedFormData.phone)
+          );
+
+          if (isValidSavedData) {
             console.log("Found persisted form data, submitting directly:", parsedData);
 
             // Use the saved data to make API call directly
@@ -1203,7 +1235,7 @@ const Creator = ({ agentId, name }) => {
               ) : (
                 <button
                   className={`h-[50px] rounded-xl text-white flex-1 ${
-                    formData.firstName && formData.lastName && formData.email && formData.phone
+                    isFormValid()
                       ? "bg-purple"
                       : "bg-gray-400"
                   }`}
@@ -1212,7 +1244,7 @@ const Creator = ({ agentId, name }) => {
                     fontSize: 16.8,
                   }}
                   onClick={handleFormSubmit}
-                  disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
+                  disabled={!isFormValid()}
                 >
                   Continue
                 </button>
