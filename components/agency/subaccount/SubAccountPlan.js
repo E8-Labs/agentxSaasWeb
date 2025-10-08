@@ -26,7 +26,7 @@ let stripePublickKey =
     : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-const SubAccountPlan = ({ handleContinue }) => {
+const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
   const router = useRouter();
 
   const [initialLoader, setInitialLoader] = useState(true);
@@ -281,7 +281,9 @@ const SubAccountPlan = ({ handleContinue }) => {
         isFrom={"SubAccount"}
         handleContinue={() => {
           // alert("This is working function") 
-          if (subaccount) {
+          if (isFrom === "UpgradePlanForTeam") {
+            handleClose();
+          } else if (subaccount) {
             handleContinue()
           } else {
             setPlanSubscribed(true);

@@ -167,7 +167,7 @@ const UPSell = () => {
             console.log("Response of user settings api is", response);
             if (response) {
                 if (response.data.status === true) {
-                    setShowSnackMessage(response.data.message);
+                    setShowSnackMessage("Upsell updated");
                     setShowSnackType(SnackbarTypes.Success);
                     setAddDNC(false);
                     setAddUpSellPhone(false);

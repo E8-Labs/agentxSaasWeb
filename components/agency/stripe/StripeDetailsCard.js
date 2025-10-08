@@ -4,6 +4,7 @@ import Apis from "@/components/apis/Apis";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 import { AuthToken } from "../plan/AuthDetails";
+import Image from "next/image";
 
 export default function StripeDetailsCard({
     stripeData
@@ -54,14 +55,25 @@ export default function StripeDetailsCard({
     return (
         <div className="flex items-center justify-center w-full" >
             <div className="w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200">
-                <img
-                    alt="*"
-                    src={"/agencyIcons/stripeConnected1.png"}
-                    className="rounded-t-2xl"
+                <div
+                    className="w-full flex flex-row items-start justify-end rounded-t-2xl h-[200px]"
                     style={{
-                        height: "100%", width: "100%", objectFit: "cover",
+                        backgroundImage: "url('/agencyIcons/stripeNotConnected.png')",///agencyIcons/subAccBg.jpg
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        // borderRadius:'20px'
                     }}
-                />
+                >
+                    <button className='bg-white text-black p-2 rounded-full px-2 py-1 mt-4 me-4 flex flex-row items-center justify-center'>
+                        <Image
+                            alt="*"
+                            src={"/agencyIcons/greenDot.png"}
+                            height={20}
+                            width={20}
+                        />
+                        <p style={{ fontSize: "12px", fontWeight: "400" }}>Connected</p>
+                    </button>
+                </div>
                 <div className="p-4 w-full">
                     <div className="space-y-4 text-gray-800 mt-2">
                         <div className="flex justify-between">

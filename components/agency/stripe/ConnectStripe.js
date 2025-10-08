@@ -133,20 +133,41 @@ const ConnectStripe = () => {
                     ) : (
                         <div className='h-full w-full flex flex-row items-center justify-center'>
                             {
-                                checkStripeStatus ? (
+                                !checkStripeStatus ? (
                                     <StripeDetailsCard
                                         stripeData={agencydata?.stripeAccount}
                                     />
                                 ) : (
                                     <div className="w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 mt-6">
-                                        <img
-                                            alt="*"
-                                            src={"/agencyIcons/stripeNotConnected.png"}
-                                            className="rounded-t-2xl"
+                                        <div
+                                            className="w-full flex flex-row items-start justify-end rounded-t-2xl h-[200px]"
                                             style={{
-                                                height: "100%", width: "100%", objectFit: "cover",
+                                                backgroundImage: "url('/agencyIcons/stripeNotConnected.png')",///agencyIcons/subAccBg.jpg
+                                                backgroundSize: "cover",
+                                                backgroundPosition: "center",
+                                                // borderRadius:'20px'
                                             }}
-                                        />
+                                        >
+                                            <button className='bg-white p-2 rounded-full px-2 py-1 mt-4 me-4 flex flex-row items-center justify-center'>
+                                                <Image
+                                                    alt="*"
+                                                    src={"/agencyIcons/redDot.png"}
+                                                    height={20}
+                                                    width={20}
+                                                />
+                                                <p className="text-black" style={{ fontSize: "12px", fontWeight: "400" }}>Not Connected</p>
+                                            </button>
+                                        </div>
+                                        {/*
+                                            <img
+                                                alt="*"
+                                                src={"/agencyIcons/stripeNotConnected.png"}
+                                                className="rounded-t-2xl"
+                                                style={{
+                                                    height: "100%", width: "100%", objectFit: "cover",
+                                                }}
+                                            />
+                                        */}
                                         <div className='flex flex-row items-center justify-center' style={{ marginTop: "-35px" }}>
                                             <Image
                                                 alt="*"

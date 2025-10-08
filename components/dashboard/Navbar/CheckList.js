@@ -18,7 +18,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
     const { user: reduxUser,setUser: setReduxUser } = useUser();
 
     // console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
-    const [showList, setShowList] = useState(true);
+    const [showList, setShowList] = useState(false);
     const [progressValue, setProgressValue] = useState(0);
     const [checkList, setCheckList] = useState([]);
 

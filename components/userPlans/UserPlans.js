@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import getProfileDetails from '../apis/GetProfile';
 import { useUser } from '@/hooks/redux-hooks';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
+import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 
 
 function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader, onPlanSelected }) {
@@ -454,12 +455,12 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                 {
                                                     item?.originalPrice > 0 && (
                                                         <span className='text-[#00000020] line-through'>
-                                                            ${formatDecimalValue(item?.originalPrice) || ""}
+                                                            ${formatFractional2(item?.originalPrice) || ""}
                                                         </span>
                                                     )
                                                 }
                                                 <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                    ${formatDecimalValue(item.discountPrice || item.discountedPrice)}
+                                                    ${formatFractional2(item.discountPrice || item.discountedPrice)}
                                                 </span>
                                             </div>
 

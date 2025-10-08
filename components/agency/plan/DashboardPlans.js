@@ -55,8 +55,19 @@ function DashboardPlans({
     //set custom features
     useEffect(() => {
         if (selectedPlanDetails) {
-            
-            setCustomPlanFeatures(selectedPlanDetails.customFeatures);
+
+            const featuresObj = selectedPlanDetails?.dynamicFeatures;
+
+            const featuresArray = Object.entries(featuresObj)
+                .filter(([_, value]) => value === true) // only true values
+                .map(([key, value]) => ({
+                    text: key,
+                    thumb: value
+                }));
+
+            console.log("Features array at dashboard plans is", featuresArray);
+
+            // setCustomPlanFeatures(selectedPlanDetails.customFeatures);
         }
     }, [selectedPlanDetails]);
 
@@ -380,15 +391,15 @@ function DashboardPlans({
         setSearchValue(value);
 
         if (!value) {
-      setFilteredList(plansList); // reset if empty
+            setFilteredList(plansList); // reset if empty
         } else {
             const lower = value.toLowerCase();
             setFilteredList(
-        plansList.filter(
+                plansList.filter(
                     (item) =>
                         item.title?.toLowerCase().includes(lower)
-                        // item.email?.toLowerCase().includes(lower) || // optional
-                        // item.phone?.toLowerCase().includes(lower)   // optional
+                    // item.email?.toLowerCase().includes(lower) || // optional
+                    // item.phone?.toLowerCase().includes(lower)   // optional
                 )
             );
         }

@@ -31,6 +31,7 @@ import ViewSubAccountPlans from "@/components/agency/subaccount/ViewSubAccountPl
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import AgencyPlans from "@/components/plan/AgencyPlans";
 import UserPlans from "@/components/userPlans/UserPlans";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1186,7 +1187,7 @@ function SubAccountPlansAndPayments({
 
                                         <div className="flex flex-row justify-start items-start ">
                                             <div style={styles.discountedPrice}>
-                                                ${item.discountedPrice}
+                                                ${formatFractional2(item.discountedPrice)}
                                             </div>
                                             <p style={{ color: "#15151580" }}>/mo*</p>
                                         </div>
@@ -1307,7 +1308,7 @@ function SubAccountPlansAndPayments({
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        ${`${item.discountedPrice || "0"}/mo`}
+                                        ${`${formatFractional2(item.discountedPrice) || "0"}/mo`}
                                     </div>
 
                                     {/*

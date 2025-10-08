@@ -26,11 +26,17 @@ import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import UpgradeModal from "@/constants/UpgradeModal";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { useUser } from "@/hooks/redux-hooks";
+import getProfileDetails from "@/components/apis/GetProfile";
+import MoreTeamMembers from "../MoreTeamMembers";
+import AgencyPlans from "@/components/plan/AgencyPlans";
+import UserPlans from "@/components/userPlans/UserPlans";
+import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan";
 
 
 function Teams({
   agencyData,
-  selectedAgency
+  selectedAgency,
+  from
 }) {
   const timerRef = useRef(null);
   const router = useRouter();
@@ -85,6 +91,8 @@ function Teams({
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
+  //upgrade user plan
+  const [upgradePlan, setUpgradePlan] = useState(false);
 
 
 
@@ -130,7 +138,9 @@ function Teams({
     },
   ];
 
-  useEffect(() => { });
+  useEffect(() => {
+    refreshUserData();
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -139,6 +149,42 @@ function Teams({
       getMyteam();
     }
   }, []);
+
+  //calling function to store and update data on redux
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
+    console.log('🔄 REFRESH USER DATA STARTED');
+    try {
+      console.log('🔄 Calling getProfileDetails...');
+      const profileResponse = await getProfileDetails();
+      console.log('🔄 getProfileDetails response:', profileResponse);
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
+
+        // Update Redux and localStorage with fresh data
+        console.log("updating redux user", freshUserData)
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+
+        // Update local state as well
+        setUserLocalData(updatedUserData);
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error);
+      return false;
+    }
+  };
 
   //functions handling popover
   const handlePopoverOpen = (event, team) => {
@@ -627,7 +673,7 @@ function Teams({
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
-          {(reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0)  && (
+          {(reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0) && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
               {`${reduxUser?.currentUsage?.maxTeamMembers}/${reduxUser?.planCapabilities?.maxTeamMembers || 0} used`}
             </div>
@@ -713,10 +759,14 @@ function Teams({
 
 
                   onClick={() => {
-                    if (maxTeamMembers >= currentMembers) {
-                      setOpenInvitePopup(true)
-                    } else {
+                    console.log("Current team members innvite are", reduxUser?.currentUsage?.maxTeamMembers)
+                    console.log("MAx team members invite are", reduxUser?.planCapabilities?.maxTeamMembers)
+                    if (reduxUser?.currentUsage?.maxTeamMembers >= reduxUser?.planCapabilities?.maxTeamMembers) {
                       setShowUpgradeModal(true)
+                      console.log("should open upgrade warning")
+                    } else {
+                      console.log("Should open invite")
+                      setOpenInvitePopup(true)
                     }
                   }}
                 >
@@ -939,10 +989,14 @@ function Teams({
                     }}
 
                     onClick={() => {
-                      if (!userLocalData?.plan.price) {
+                      if (!userLocalData?.plan?.price) {
+                        console.log("No plan price")
                         setShowUpgradeModal(true)
                         return
                       }
+
+                      console.log("Current team members are", currentMembers)
+                      console.log("MAx team members are", maxTeamMembers)
 
                       if (maxTeamMembers > currentMembers) {
                         setOpenInvitePopup(true)
@@ -957,21 +1011,38 @@ function Teams({
                 </div>
 
 
-                <UpgradeModal
-                  open={showUpgradeModal}
-                  handleClose={() => {
-                    setShowUpgradeModal(false)
-                  }}
+                {/*
+                  <UpgradeModal
+                    open={showUpgradeModal}
+                    handleClose={() => {
+                      setShowUpgradeModal(false)
+                    }}
+  
+                    title={"You've Hit Your Members Limit"}
+                    subTitle={"Upgrade to add more team members"}
+                    buttonTitle={"No Thanks"}
+                  />
+                */}
 
-                  title={"You've Hit Your Members Limit"}
-                  subTitle={"Upgrade to add more team members"}
-                  buttonTitle={"No Thanks"}
-                />
               </div>
             )}
           </div>
         )}
       </div>
+
+      <MoreTeamMembers
+        open={showUpgradeModal}
+        onClose={() => {
+          setShowUpgradeModal(false);
+        }}
+        onAddTeamSeat={() => {
+          setOpenInvitePopup(true);
+        }}
+        onUpgrade={() => {
+          setUpgradePlan(true);
+          setShowUpgradeModal(false);
+        }}
+      />
 
       <Modal
         open={openInvitePopup}
@@ -1249,6 +1320,68 @@ function Teams({
           </div>
         </Box>
       </Modal>
+
+      {/* Code for upgrade plan modal */}
+      <Modal
+        open={upgradePlan}
+        onClose={() => {
+          setUpgradePlan(false);
+        }}
+      >
+        <Box className="bg-white rounded-xl w-[70%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="w-full flex flex-row items-center justify-end px-6 pt-6 h-[8%]">
+            <CloseBtn
+              onClick={() => {
+                setUpgradePlan(false);
+              }}
+            />
+          </div>
+          <div className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}>
+            {
+              from === "agency" ? (
+                <AgencyPlans
+                  isFrom={"addPlan"}
+                  handleCloseModal={(d) => {
+                    setUpgradePlan(false);
+                    refreshUserData();
+                  }}
+                />
+              ) : from === "SubAccount" ? (
+                <SubAccountPlan
+                  isFrom={"UpgradePlanForTeam"}
+                  handleClose={() => {
+                    setUpgradePlan(false);
+                    refreshUserData();
+                  }}
+                />
+              ) : (
+                <UserPlans
+                  handleContinue={() => {
+                    setUpgradePlan(false);
+                    // refreshProfileAndState();
+                  }}
+                  handleBack={() => setUpgradePlan(false)}
+                  // isFrom="SubAccount"
+                  from="billing-modal"
+                  onPlanSelected={(plan) => {
+                    console.log('Plan selected from modal:', plan);
+                    // Close UserPlans modal
+                    setUpgradePlan(false);
+                    refreshUserData();
+                    // Set the selected plan
+                    // setSelectedPlan(plan);
+                    // setTogglePlan(plan.id);
+                    // setCurrentPlanDetails(plan);
+                    // // Open Upgrade modal
+                    // setShowUpgradeModal(true);
+                  }}
+                />
+              )
+            }
+          </div>
+        </Box>
+      </Modal>
+
     </div>
   );
 }

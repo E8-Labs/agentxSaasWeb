@@ -373,6 +373,11 @@ export default function PlanConfiguration({
         formData.append("allowVoicemail", features.voicemail);
         formData.append("allowTwilio", features.twilio);
         formData.append("allowTrial", features.allowTrial);
+        if (customFeatures?.length > 0) {
+            customFeatures.forEach((feature, index) => {
+                formData.append(`customFeature[${index + 1}]`, feature);
+            });
+        }
 
         return formData;
     }

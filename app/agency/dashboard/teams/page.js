@@ -17,7 +17,10 @@ function Page() {
 
   return (
     <div>
-      <Teams agencyData={agencyData} />
+      <Teams
+        agencyData={agencyData}
+        from={"agency"}
+      />
     </div>
   )
 }

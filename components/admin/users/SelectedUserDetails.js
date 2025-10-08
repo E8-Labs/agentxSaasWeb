@@ -26,7 +26,8 @@ function SelectedUserDetails({
     handleDel,
     from = "admin",
     handlePauseUser,
-    agencyUser = false
+    agencyUser = false,
+    hideViewDetails = false
 }) {
 
 
@@ -517,18 +518,22 @@ function SelectedUserDetails({
             </div>
 
             {/* View Details Button - Bottom Left */}
-            <div className="absolute bottom-4 left-4">
-                <button
-                    className="text-white bg-purple outline-none rounded-xl px-4 py-2 flex items-center gap-2"
-                    style={{ height: "40px" }}
-                    onClick={() => {
-                        setShowActivityLogs(true);
-                    }}
-                >
-                    <Image src={"/svgIcons/selectedCallIcon.svg"} height={16} width={16} alt="*" />
-                    View Details
-                </button>
-            </div>
+            {
+                !hideViewDetails && (
+                    <div className="absolute bottom-4 left-4">
+                        <button
+                            className="text-white bg-purple outline-none rounded-xl px-4 py-2 flex items-center gap-2"
+                            style={{ height: "40px" }}
+                            onClick={() => {
+                                setShowActivityLogs(true);
+                            }}
+                        >
+                            <Image src={"/svgIcons/selectedCallIcon.svg"} height={16} width={16} alt="*" />
+                            View Details
+                        </button>
+                    </div>
+                )
+            }
 
             {/* Code to del user */}
             <Modal

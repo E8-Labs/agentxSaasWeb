@@ -432,7 +432,7 @@ function AgencySubacount({
         <div
           className="w-full h-[130px] flex flex-row items-center justify-between rounded-lg px-6"
           style={{
-            backgroundImage: "url('/agencyIcons/subAccBg.jpg')",
+            backgroundImage: "url('/agencyIcons/plansBannerBg.png')",///agencyIcons/subAccBg.jpg
             backgroundSize: "cover",
             backgroundPosition: "center",
             // borderRadius:'20px'
@@ -442,7 +442,7 @@ function AgencySubacount({
             style={{
               fontSize: 29,
               fontWeight: "700",
-              color: "black",
+              color: "white",
             }}
           >
             Total Sub Accounts: {filteredList?.length || 0}
@@ -951,6 +951,7 @@ function AgencySubacount({
               from="subaccount"
               selectedUser={selectedUser}
               // agencyUser={true}
+              hideViewDetails={true}
               handleDel={() => {
                 // setUsers((prev) => prev.filter((u) =>
                 //     u.id != selectedUser.id
