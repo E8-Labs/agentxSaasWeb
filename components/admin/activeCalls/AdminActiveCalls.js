@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, CircularProgress, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import axios from 'axios';
 import Apis from '../../apis/Apis';
@@ -16,7 +16,7 @@ function AdminActiveCalls() {
         fetchCallAnalytics();
     }, [dateRange]);
 
-    const fetchCallAnalytics = async () => {
+    const fetchCallAnalytics = useCallback (async () => {
         try {
             setLoading(true);
             const userData = JSON.parse(localStorage.getItem('User'));
@@ -43,7 +43,7 @@ function AdminActiveCalls() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [dateRange]);
 
     const handleDateChange = (field, value) => {
         setDateRange(prev => ({
