@@ -307,7 +307,7 @@ function InviteAgentX({ isSubAccount }) {
           <div
             style={{ fontSize: "2vh", fontWeight: "700", marginBottom: "10px" }}
           >
-            Get 60 minutes when you invite an agent
+            Get 60 credits when you invite an agent
           </div>
           <p
             style={{

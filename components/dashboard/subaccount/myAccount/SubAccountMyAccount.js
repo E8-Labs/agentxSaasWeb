@@ -64,7 +64,7 @@ function SubAccountMyAccount() {
     {
       id: 6,
       heading: "Invite Agents",
-      subHeading: "Get 60 minutes ",
+      subHeading: "Get 60 credits ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
     // {
@@ -139,7 +139,7 @@ function SubAccountMyAccount() {
     {
       id: 6,
       heading: "Invite Agents",
-      subHeading: "Get 60 minutes ",
+      subHeading: "Get 60 credits ",
       icon: "/otherAssets/inviteAgentIcon.png",
     },
     {
