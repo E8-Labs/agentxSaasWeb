@@ -540,12 +540,10 @@ function EmailTempletePopup({
 
         if (response) {
             console.log('response', response);
-
-            setGoogleAccounts((prev) => [...prev, response]);
-
+            await getAccounts()
+            setShowChangeManu(null);
             setSelectedGoogleAccount(response);
 
-            setShowChangeManu(null);
         }
     }
 
@@ -867,7 +865,7 @@ function EmailTempletePopup({
                                         <span>{file.name || file.originalName}</span>
                                     </div>
                                     <span className="text-xs text-gray-500">
-                                        {formatDecimalValue(file.size/1024)} KB
+                                        {formatDecimalValue(file.size / 1024)} KB
                                     </span>
                                     <button onClick={() => removeAttachment(idx)}>
                                         <Image src={'/assets/cross.png'} height={14} width={14} alt="remove" />

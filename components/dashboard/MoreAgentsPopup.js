@@ -93,7 +93,7 @@ const MoreAgentsPopup = ({
 
               {/* Add Agent Button */}
               <Link
-                href="/createagent"
+                href=""
                 onClick={onAddAgent}
                 className="w-full text-purple-600 hover:text-purple-700 font-semibold py-2 px-6 rounded-lg transition-colors block text-center"
                 prefetch={true}

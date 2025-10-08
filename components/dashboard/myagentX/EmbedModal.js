@@ -28,12 +28,13 @@ const EmbedModal = ({
   agentName,
   agentId,
   onShowSmartList,
-  onShowAllSet
+  onShowAllSet,
+  agentSmartRefill
 }) => {
   const [buttonLabel, setButtonLabel] = useState('Get Help');
   const [requireForm, setRequireForm] = useState(false);
   const [smartLists, setSmartLists] = useState([]);
-  const [selectedSmartList, setSelectedSmartList] = useState('');
+  const [selectedSmartList, setSelectedSmartList] = useState("");
   const [loading, setLoading] = useState(false);
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -80,6 +81,7 @@ const EmbedModal = ({
 
       if (response.data && response.data.data && response.data.data.length > 0) {
         setSmartLists(response.data.data);
+        setSelectedSmartList(agentSmartRefill || response.data.data[0].id);
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
@@ -273,7 +275,7 @@ const EmbedModal = ({
             className="w-full px-[24px] pt-[24px] pb-[10px]"
             style={{
               backgroundColor: "#ffffff",
-             
+
               borderRadius: "13px",
               display: 'flex',
               maxHeight: '90vh',
@@ -343,8 +345,8 @@ const EmbedModal = ({
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <div style={{ width: 40, marginRight: 12 }}></div>
-                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', marginLeft: -6,flexDirection: 'row', alignItems: 'center',display: 'flex' }}>
-                  <Image src={"/assets/infoIcon.png"} height={12} width={12} alt="*" className="mr-1" />
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '12px', marginLeft: -6, flexDirection: 'row', alignItems: 'center', display: 'flex' }}>
+                    <Image src={"/assets/infoIcon.png"} height={12} width={12} alt="*" className="mr-1" />
                     Ensure Image is a 1:1 dimension for better quality
                   </Typography>
                 </Box>
@@ -353,7 +355,7 @@ const EmbedModal = ({
               {/* Button Label */}
               <Box sx={{ mb: 3 }}>
                 <div className="flex flex-row justify-between items-center mb-1">
-                  <Typography variant="body1" sx={{ fontWeight: 'medium'}}>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                     Button Label
                   </Typography>
                   <div style={{ marginLeft: '16px', fontSize: '12px', color: '#666' }}>
@@ -442,7 +444,7 @@ const EmbedModal = ({
                           setSelectedSmartList(e.target.value);
                         }}
                         onClick={(e) => e.stopPropagation()}
-                      
+
                         sx={{
                           height: "48px",
                           borderRadius: "13px",

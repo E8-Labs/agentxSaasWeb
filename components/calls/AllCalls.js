@@ -508,10 +508,10 @@ function AllCalls({ user }) {
     const phoneNumber = parsePhoneNumberFromString(
       rawNumber?.startsWith("+") ? rawNumber : `+${rawNumber}`
     );
-    //// //console.log;
+    // console.log('phoneNumber is', phoneNumber)
     return phoneNumber
       ? phoneNumber.formatInternational()
-      : "Invalid phone number";
+      : "Web Call";
   };
 
   const [filterData, setFilterData] = useState({
@@ -531,6 +531,7 @@ function AllCalls({ user }) {
         <LeadLoading />
       ) : (
         <>
+        
           <div className="flex w-full flex-row items-center gap-3">
             <div className="flex ml-10 flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
               <input
@@ -646,7 +647,7 @@ function AllCalls({ user }) {
               <div style={styles.text}>Agent</div>
             </div>
 
-            <div className="w-1/12">
+            <div className="w-2/12">
               <div style={styles.text}>Contact</div>
             </div>
             <div className="w-1/12 ">
@@ -737,7 +738,7 @@ function AllCalls({ user }) {
                         </div>
                       </div>
 
-                      <div className="w-1/1  truncate">
+                      <div className="w-2/12  truncate">
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
                           {item.LeadModel?.phone ? (
@@ -768,12 +769,12 @@ function AllCalls({ user }) {
                         </div>
 
                       </div>
-                      <div className="w-1/12 truncate ">
+                      <div className="w-1/12 truncate capitalize">
                         <div style={styles.text2}>
-                          {item.communicationType ? (item.communicationType.charAt(0).toUpperCase() + item.communicationType.slice(1)) : "-"}
+                          {item.communicationType ? (item.communicationType) : "-"}
                         </div>
                       </div>
-                      <div className="w-1/12 truncate">
+                      <div className="w-1/12 truncate capitalize">
                         <div style={styles.text2}>
                           {getStatus(item)}
                         </div>

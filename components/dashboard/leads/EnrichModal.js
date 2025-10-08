@@ -135,7 +135,7 @@ export default function EnrichModal({
                                 <div className="flex flex-row gap-2 items-center">
 
                                     <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060', }}>
-                                        credit cost (${creditCost.pricePerLead}/lead)
+                                        credit cost (${creditCost?.pricePerLead}/lead)
                                     </div>
 
                                     <Tooltip

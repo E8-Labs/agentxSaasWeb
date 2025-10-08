@@ -103,6 +103,7 @@ import { DEFAULT_ASSISTANT_ID } from "@/components/askSky/constants";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
 import LeadScoring from "@/components/dashboard/myagentX/leadScoring/LeadScoring";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
 
@@ -258,6 +259,8 @@ function Page() {
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false);
   const [showSaveChangesBtn, setShowSaveChangesBtn] = useState(false);
   const [UpdateAgentLoader, setUpdateAgentLoader] = useState(false);
+  const [fetureType, setFetureType] = useState("");
+  const [moreAgentsPopupType, setMoreAgentsPopupType] = useState("");
 
   //agent KYC's
   const [kYCList, setKYCList] = useState([]);
@@ -348,6 +351,7 @@ function Page() {
   const [showEmbed, setShowEmbed] = useState(false);
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showMoreAgentsPopup, setShowMoreAgentsPopup] = useState(false)
   const [title, setTitle] = useState(null)
   const [subTitle, setSubTitle] = useState(null)
@@ -373,10 +377,43 @@ function Page() {
   })
 
 
+
+   // Function to refresh user data after plan upgrade
+   const refreshUserData = async () => {
+    try {
+      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
+      const profileResponse = await getProfileDetails();
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+        
+        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
+        
+        // Update Redux with fresh data
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+        
+        setReduxUser(updatedUserData);
+        localStorage.setItem("User", JSON.stringify(updatedUserData));
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [UPGRADE-TAG] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
+
   // Web Agent Modal handlers
   const handleWebAgentClick = (agent) => {
     setSelectedAgentForWebAgent(agent);
     setShowWebAgentModal(true);
+    setFetureType("webagent")
   };
 
   const handleOpenAgentInNewTab = () => {
@@ -2693,23 +2730,26 @@ function Page() {
     }
   };
 
-  const handleDuplicate = async () => {
-    // console.log("Duplicate agent clicked");
-
-    // Check agent limits before showing duplicate confirmation popup
-    // Use Redux plan capabilities as primary source
+  const shouldDuplicateAgent = async () => {
+    console.log("shouldDuplicateAgent is called",reduxUser?.planCapabilities)
+    console.log("canCreateAgent",canCreateAgent)
+    console.log("isFreePlan",isFreePlan)
+    console.log("currentAgents",currentAgents)
+    console.log("maxAgents",maxAgents)
     if (reduxUser?.planCapabilities) {
       if (!canCreateAgent) {
         if (isFreePlan && currentAgents >= 1) {
-          setShowUpgradeModal(true)
+          setShowUpgradePlanModal(true)
           setShowDuplicateConfirmationPopup(false)
           return
         } else if (currentAgents >= maxAgents) {
           setShowMoreAgentsPopup(true)
-          setShowDuplicateConfirmationPopup(false)
+          setMoreAgentsPopupType("duplicate")
+          // setShowDuplicateConfirmationPopup(false)
           return
         }
       }
+      handleDuplicate()
     } else {
       // Fallback to localStorage logic
       const user = getUserLocalData();
@@ -2717,21 +2757,27 @@ function Page() {
         // Check if user is on free plan and has reached their limit
         if (user?.user?.plan === null || user?.user?.plan?.price === 0) {
           if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-            setShowUpgradeModal(true)
-            setShowDuplicateConfirmationPopup(false)
+            setShowUpgradePlanModal(true)
+            setMoreAgentsPopupType("duplicate")
+            // setShowDuplicateConfirmationPopup(false)
             return
           }
         }
 
         // Check if paid plan user has reached their agent limit
         if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
-          setShowMoreAgentsPopup(true)
-          setShowDuplicateConfirmationPopup(false)
+          setShowUpgradePlanModal(true)
+          setMoreAgentsPopupType("duplicate")
+          // setShowDuplicateConfirmationPopup(false)
           return
         }
+
+        handleDuplicate()
       }
     }
+  }
 
+  const handleDuplicate = async () => {
     // duplicate agent
     setDuplicateLoader(true);
     try {
@@ -2758,7 +2804,7 @@ function Page() {
 
           // console.log("duplicate agent data ", response);
           if (response.data.status === true) {
-
+            setMoreAgentsPopupType("")
             setShowSuccessSnack("Agent duplicated successfully");
             setIsVisibleSnack(true);
             const localAgentsList = localStorage.getItem(
@@ -2777,6 +2823,7 @@ function Page() {
               setMainAgentsList(updatedArray);
             }
           } else {
+            // setmoreAgentsPopupType("")
             setShowErrorSnack(response.data.message);
             setIsVisibleSnack2(true);
           }
@@ -2907,14 +2954,14 @@ function Page() {
 
   // ////console.log
 
-  const handleWebhookClick = (assistantId, baseUrl) => {
+  const handleWebhookClick = () => {
     if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle("Unlock your Web Agent")
       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
     } else {
 
-      let url = baseUrl + "api/agent/demoAi/" + assistantId
+      let url = demoBaseUrl + "api/agent/demoAi/" + showDrawerSelectedAgent?.modelIdVapi
       navigator.clipboard
         .writeText(url)
         .then(() => {
@@ -2999,14 +3046,14 @@ function Page() {
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
-          {reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000 && (
+          {reduxUser?.plan?.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000 && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
-              {`${agentsListSeparated.length}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
+              {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
             </div>
           )}
 
           {
-            (reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000) && (
+            (reduxUser?.plan?.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000) && (
               <Tooltip
                 title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
                 arrow
@@ -3554,15 +3601,37 @@ function Page() {
 
       />
 
+      <UpgradePlan
+        selectedPlan={null}
+        setSelectedPlan={() => {}}
+        open={showUpgradePlanModal}
+        handleClose={async (upgradeResult) => {
+          setShowUpgradePlanModal(false);
+          if (upgradeResult) {
+            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
+            setShowDuplicateConfirmationPopup(false);
+            await refreshUserData();
+          }
+        }}
+        plan={null}
+        currentFullPlan={reduxUser?.user?.plan}
+      />
+
       <MoreAgentsPopup
         open={showMoreAgentsPopup}
         onClose={() => setShowMoreAgentsPopup(false)}
         onUpgrade={() => {
           setShowMoreAgentsPopup(false);
-          setShowUpgradeModal(true);
+          setShowUpgradePlanModal(true);
         }}
         onAddAgent={() => {
-          handleAddAgentByMoreAgentsPopup()
+          console.log("moreAgentsPopupType", moreAgentsPopupType)
+          if (moreAgentsPopupType === "duplicate") {
+            setShowMoreAgentsPopup(false);
+            handleDuplicate()
+          } else {
+            handleAddAgentByMoreAgentsPopup()
+          }
         }}
         costPerAdditionalAgent={reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}
         from={"myAgentX"}
@@ -3778,7 +3847,7 @@ function Page() {
                   <DuplicateConfirmationPopup
                     open={showDuplicateConfirmationPopup}
                     handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                    handleDuplicate={handleDuplicate}
+                    handleDuplicate={shouldDuplicateAgent}
                     duplicateLoader={duplicateLoader}
                   />
                   <div className="flex flex-col gap-2  ">
@@ -3928,7 +3997,9 @@ function Page() {
                   <button
                     style={{ paddingLeft: "3px" }}
                     onClick={() => {
-                      handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                      // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                      setFetureType("webhook")
+                      setShowWebAgentModal(true)
                     }}
                   >
                     <Image src={'/svgIcons/webhook.svg'}
@@ -5893,6 +5964,10 @@ function Page() {
         agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
         onOpenAgent={handleOpenAgentInNewTab}
         onShowNewSmartList={handleShowNewSmartList}
+        agentSmartRefill={selectedAgentForWebAgent?.smartListId}
+        fetureType={fetureType}
+        onCopyUrl={handleWebhookClick}
+
       />
 
       <NewSmartListModal
@@ -5907,6 +5982,8 @@ function Page() {
         onClose={handleCloseAllSetModal}
         agentName={selectedAgentForWebAgent?.name || ""}
         onOpenAgent={handleOpenAgentInNewTab}
+        fetureType={fetureType}
+        onCopyUrl={handleWebhookClick}
       />
 
       {/* Embed Modals */}
@@ -5915,6 +5992,7 @@ function Page() {
         onClose={() => setShowEmbedModal(false)}
         agentName={selectedAgentForEmbed?.name || ""}
         agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
+        agentSmartRefill={selectedAgentForEmbed?.smartListId}
         onShowSmartList={handleShowEmbedSmartList}
         onShowAllSet={() => {
           setShowEmbedModal(false);
@@ -5932,6 +6010,7 @@ function Page() {
         onClose={() => setShowEmbedSmartListModal(false)}
         agentId={selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi}
         onSuccess={handleEmbedSmartListCreated}
+        fetureType={fetureType}
       />
 
       <AllSetModal

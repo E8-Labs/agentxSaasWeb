@@ -62,6 +62,7 @@ import SMSTempletePopup from "@/components/pipeline/SMSTempletePopup";
 import { getA2PNumbers, getGmailAccounts } from "@/components/pipeline/TempleteServices";
 import { UpgradeTagWithModal } from "@/components/constants/constants";
 import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
+import AuthSelectionPopup from "@/components/pipeline/AuthSelectionPopup";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -176,6 +177,8 @@ const LeadDetails = ({
     message: "",
     isVisible: false
   });
+
+  const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false);
 
   // Stripe configuration for upgrade modal
   let stripePublickKey =
@@ -1419,7 +1422,13 @@ const LeadDetails = ({
                                 {/* Send Email Button */}
                                 <button
                                   className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
-                                  onClick={() => setShowEmailModal(true)}
+                                  onClick={() => {
+                                    if (googleAccounts.length === 0) {
+                                        setShowAuthSelectionPopup(true)                                     
+                                    } else {
+                                      setShowEmailModal(true)
+                                    }
+                                  }}
                                   disabled={sendEmailLoader}
                                 >
                                   <Image
@@ -1955,6 +1964,24 @@ const LeadDetails = ({
                           </div>
                         )}
                       </div>
+
+                      <AuthSelectionPopup
+                        open={showAuthSelectionPopup}
+                        onClose={() => setShowAuthSelectionPopup(false)}
+                        onSuccess={() => {
+                          setShowEmailModal(true)
+                          setShowAuthSelectionPopup(false)
+                        }}
+                        setShowEmailTempPopup={(value) => {
+                          setShowEmailModal(value)
+                          setShowAuthSelectionPopup(false)
+                        }}
+                        showEmailTempPopup={showEmailModal}
+                        selectedGoogleAccount={selectedGoogleAccount}
+                        setSelectedGoogleAccount={(account) => {
+                          setSelectedGoogleAccount(account)
+                        }}
+                      />
 
                       {/* Modal for All Emails */}
                       <Modal

@@ -12,14 +12,17 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnac
 import Apis from '../../apis/Apis';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 
-const WebAgentModal = ({ 
-  open, 
-  onClose, 
-  agentName, 
-  modelId, 
+const WebAgentModal = ({
+  open,
+  onClose,
+  agentName,
+  modelId,
   agentId,
   onOpenAgent,
-  onShowNewSmartList 
+  onShowNewSmartList,
+  agentSmartRefill,
+  fetureType,
+  onCopyUrl,
 }) => {
   const [requireForm, setRequireForm] = useState(false);
   const [smartLists, setSmartLists] = useState([]);
@@ -74,6 +77,7 @@ const WebAgentModal = ({
       console.log("get sheets response is", response);
       if (response.data && response.data.data && response.data.data.length > 0) {
         setSmartLists(response.data.data);
+        setSelectedSmartList(agentSmartRefill || response.data.data[0].id);
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
@@ -94,7 +98,7 @@ const WebAgentModal = ({
     if (requireForm && !selectedSmartList) {
       return; // Don't open if form is required but no smart list selected
     }
-    
+
     // If form is required and a smart list is selected, attach it to the agent first
     if (requireForm && selectedSmartList) {
       try {
@@ -122,8 +126,13 @@ const WebAgentModal = ({
 
         if (response.data) {
           // Success - now open the agent
-          showSnackbar('Success', 'Smart list attached successfully!', SnackbarTypes.Success);
-          onOpenAgent();
+          if (fetureType === "webhook") {
+            onCopyUrl();
+          } else {
+            onOpenAgent();
+            showSnackbar('Success', 'Smart list attached successfully!', SnackbarTypes.Success);
+
+          }
         }
       } catch (error) {
         console.error('Error attaching smart list:', error);
@@ -189,7 +198,7 @@ const WebAgentModal = ({
           <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
             {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Browser Agent
           </h2>
-         <CloseBtn
+          <CloseBtn
             onClick={(e) => {
               e.stopPropagation();
               onClose();
@@ -263,20 +272,20 @@ const WebAgentModal = ({
                 <div>Loading...</div>
               </div>
             ) : smartLists.length > 0 ? (
-             <FormControl className='w-full h-[50px]'>
-              <Select
-                value={selectedSmartList}
-                onChange={(e) => setSelectedSmartList(e.target.value)}
-                style={{
-                  border: "1px solid #E5E7EB",
-                  fontSize: '14px',
-                  padding: '12px',
-                  backgroundColor: '#fff',
-                  width: '100%',
-                  borderRadius: '6px',
-                  outline: 'none'
-                }}
-                   sx={{
+              <FormControl className='w-full h-[50px]'>
+                <Select
+                  value={selectedSmartList}
+                  onChange={(e) => setSelectedSmartList(e.target.value)}
+                  style={{
+                    border: "1px solid #E5E7EB",
+                    fontSize: '14px',
+                    padding: '12px',
+                    backgroundColor: '#fff',
+                    width: '100%',
+                    borderRadius: '6px',
+                    outline: 'none'
+                  }}
+                  sx={{
                     height: "48px",
                     borderRadius: "13px",
                     border: "1px solid #00000020", // Default border
@@ -303,14 +312,14 @@ const WebAgentModal = ({
                       },
                     },
                   }}
-              >
-              
-                {smartLists.map((list, index) => (
-                  <MenuItem key={list.id || index} value={list.id}>
-                    {list.sheetName}
-                  </MenuItem>
-                ))}
-              </Select>
+                >
+
+                  {smartLists.map((list, index) => (
+                    <MenuItem key={list.id || index} value={list.id}>
+                      {list.sheetName}
+                    </MenuItem>
+                  ))}
+                </Select>
               </FormControl>
             ) : (
               <div style={{ padding: '16px 0', fontSize: '14px', color: '#666' }}>
@@ -363,11 +372,11 @@ const WebAgentModal = ({
               zIndex: 10
             }}
           >
-            Open agent in new tab
+            {fetureType === "webhook" ? "Copy Url" : "Open agent in new tab"}
             <ArrowUpRight size={16} style={{ marginLeft: 8 }} />
           </button>
         </div>
-        
+
         {/* Snackbar */}
         <AgentSelectSnackMessage
           isVisible={snackbar.isVisible}

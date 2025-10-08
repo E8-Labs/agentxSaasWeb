@@ -17,7 +17,7 @@ export default function EnrichConfirmModal({
     Loader,
     creditCost,
 }) {
-    let totalCost =creditCost.pricePerLead * creditCost.leadCount //processedData?.length * creditCost.pricePerLead
+    let totalCost =creditCost?.pricePerLead * creditCost?.leadCount //processedData?.length * creditCost.pricePerLead
     return (
         <Dialog
             open={showenrichConfirmModal}
@@ -76,7 +76,7 @@ export default function EnrichConfirmModal({
                 >
                     <InfoOutlinedIcon sx={{ color: "#7902DF", fontSize: 20 }} />
                     <Typography sx={{ fontSize: "14px", color: "#000" }}>
-                        {`Enrichment is $${creditCost.pricePerLead} / lead `}
+                        {`Enrichment is $${creditCost?.pricePerLead} / lead `}
                     </Typography>
 
                    
@@ -116,7 +116,7 @@ export default function EnrichConfirmModal({
                         Total Leads
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        {creditCost.leadCount}
+                        {creditCost?.leadCount}
                     </Typography>
                 </Box>
 
@@ -131,7 +131,7 @@ export default function EnrichConfirmModal({
                         Cost Per Lead
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        ${creditCost.pricePerLead}
+                    ${creditCost?.pricePerLead}
                     </Typography>
                 </Box>
 
@@ -148,7 +148,7 @@ export default function EnrichConfirmModal({
                         Total Cost
                     </Typography>
                     <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-                        ${creditCost.leadCount <= 10 ? "1" : totalCost.toFixed(2)}
+                        ${creditCost?.leadCount <= 10 ? "1" : totalCost.toFixed(2)}
                     </Typography>
                 </Box>
             </DialogContent>
