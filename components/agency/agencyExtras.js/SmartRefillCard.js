@@ -165,7 +165,7 @@ const SmartRefillCard = ({
             <div className="ms-2 w-8/12 text-[13px] font-normal text-white" style={{
                 
             }}>
-            Refill your AI mins when they run low. Keeps your calls going without interruption.
+            Refill your AI credits when they run low. Keeps your calls going without interruption.
             </div>
         </div>
     )

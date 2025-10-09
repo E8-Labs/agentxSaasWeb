@@ -74,7 +74,7 @@ function DowngradePlanPopup({
                                 <div
                                     className="text-center text-base font-normal mt-2"
                                 >
-                                    {`You’ll loose access to`}
+                                    {`You’ll lose access to`}
                                 </div>
 
                                 <div
