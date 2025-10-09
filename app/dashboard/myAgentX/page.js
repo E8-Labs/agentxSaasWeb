@@ -378,8 +378,8 @@ function Page() {
 
 
 
-   // Function to refresh user data after plan upgrade
-   const refreshUserData = async () => {
+  // Function to refresh user data after plan upgrade
+  const refreshUserData = async () => {
     try {
       console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
       const profileResponse = await getProfileDetails();
@@ -387,18 +387,18 @@ function Page() {
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = JSON.parse(localStorage.getItem("User") || '{}');
-        
+
         console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
-        
+
         // Update Redux with fresh data
         const updatedUserData = {
           token: localData.token,
           user: freshUserData
         };
-        
+
         setReduxUser(updatedUserData);
         localStorage.setItem("User", JSON.stringify(updatedUserData));
-        
+
         return true;
       }
       return false;
@@ -2543,6 +2543,8 @@ function Page() {
       localStorage.removeItem("AddAgentByPayingPerMonth");
       console.log("AddAgentByPayingPerMonth removed from local storage")
     }, 2 * 60 * 1000);
+
+    console.log("routing to createagent from add new agent function")
     router.push('/createagent');
 
   }
@@ -2567,6 +2569,7 @@ function Page() {
         } else if (currentAgents >= maxAgents) {
           // console.log('🚫 [DASHBOARD] Paid plan user is over the allowed capabilities');
           setShowMoreAgentsPopup(true)
+          setMoreAgentsPopupType("newagent")
           return
         }
       }
@@ -2587,6 +2590,7 @@ function Page() {
       if (user?.user?.currentUsage?.maxAgents >= user?.user?.planCapabilities?.maxAgents) {
         // console.log('Paid plan user is over the allowed capabilities');
         setShowMoreAgentsPopup(true)
+        setMoreAgentsPopupType("newagent")
         return
       }
     }
@@ -2598,7 +2602,7 @@ function Page() {
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     console.log("routing to createagent from add new agent function")
-    window.location.href = '/createagent'
+    router.push('/createagent');
   };
 
   const handlePopoverOpen = (event, item) => {
@@ -2731,11 +2735,11 @@ function Page() {
   };
 
   const shouldDuplicateAgent = async () => {
-    console.log("shouldDuplicateAgent is called",reduxUser?.planCapabilities)
-    console.log("canCreateAgent",canCreateAgent)
-    console.log("isFreePlan",isFreePlan)
-    console.log("currentAgents",currentAgents)
-    console.log("maxAgents",maxAgents)
+    console.log("shouldDuplicateAgent is called", reduxUser?.planCapabilities)
+    console.log("canCreateAgent", canCreateAgent)
+    console.log("isFreePlan", isFreePlan)
+    console.log("currentAgents", currentAgents)
+    console.log("maxAgents", maxAgents)
     if (reduxUser?.planCapabilities) {
       if (!canCreateAgent) {
         if (isFreePlan && currentAgents >= 1) {
@@ -3044,8 +3048,14 @@ function Page() {
       >
         <div className="flex flex-row items-center gap-3">
 
-
-          <div style={{ fontSize: 24, fontWeight: "600" }}>Agents</div>
+          <div style={{ fontSize: 24, fontWeight: "600" }}
+            onClick={() => {
+              console.log("routing to createagent from agents title")
+             router.push('/createagent')
+            }}
+          >
+            Agents
+          </div>
           {reduxUser?.plan?.planId != null && reduxUser?.planCapabilities?.maxAgents < 1000 && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
               {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
@@ -3603,7 +3613,7 @@ function Page() {
 
       <UpgradePlan
         selectedPlan={null}
-        setSelectedPlan={() => {}}
+        setSelectedPlan={() => { }}
         open={showUpgradePlanModal}
         handleClose={async (upgradeResult) => {
           setShowUpgradePlanModal(false);
@@ -3629,7 +3639,14 @@ function Page() {
           if (moreAgentsPopupType === "duplicate") {
             setShowMoreAgentsPopup(false);
             handleDuplicate()
+          } else if(moreAgentsPopupType === "newagent"){
+            handleAddAgentByMoreAgentsPopup()
+
+            // router.push('/createagent')
+            // setShowMoreAgentsPopup(false);
           } else {
+          //  router.push('/createagent')
+          //  setShowMoreAgentsPopup(false);
             handleAddAgentByMoreAgentsPopup()
           }
         }}

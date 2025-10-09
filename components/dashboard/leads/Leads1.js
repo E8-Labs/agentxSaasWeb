@@ -170,7 +170,7 @@ const Leads1 = () => {
         setCurrentBatch(savedLeads.currentBatch);
         setTotalBatches(savedLeads.totalBatches);
         setUploadProgress(Math.floor((savedLeads.currentBatch / savedLeads.totalBatches) * 100));
-        
+
         // Send custom event to hide dashboard slider for resumed upload
         window.dispatchEvent(new CustomEvent("leadUploadStart"));
       }
@@ -741,7 +741,7 @@ const Leads1 = () => {
     setUploadProgress(Math.floor((startIndex / totalBatches) * 100));
     console.log("data", data);
     console.log(`Uploading ${resumeData ? resumeData.data.length : data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`);
-    
+
     // Send custom event to hide dashboard slider
     window.dispatchEvent(new CustomEvent("leadUploadStart", { detail: { update: true } }));
 
@@ -789,7 +789,7 @@ const Leads1 = () => {
         setSuccessSnack("Leads uploaded successfully");
         setShowSuccessSnack(true);
         setLoader(false);
-        
+
         // Send custom event to show dashboard slider
         window.dispatchEvent(new CustomEvent("leadUploadComplete", { detail: { update: true } }));
       }
@@ -1019,6 +1019,14 @@ const Leads1 = () => {
             </div>
           ) : (
             <div className="h-screen">
+
+
+              {reduxUser?.planCapabilities?.maxLeads < 10000000 && (
+                <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080',padding:20 }}>
+                  {`${reduxUser?.currentUsage?.maxLeads}/${reduxUser?.planCapabilities?.maxLeads || 0} used`}
+                </div>
+              )}
+
               <div className="flex flex-row items-start justify-center mt-48 w-full">
                 <Image
                   src={"/assets/placeholder.png"}

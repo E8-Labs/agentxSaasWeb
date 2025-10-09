@@ -1448,7 +1448,7 @@ function UpgradePlanContent({
                                 </div>
 
                                 <div className='w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3'>
-                                <div className="w-1/2"></div>
+                                    <div className="w-1/2"></div>
                                     {
                                         subscribeLoader ? (
                                             <div className="w-full flex flex-col items-center justify-center h-[53px]">
@@ -1456,45 +1456,29 @@ function UpgradePlanContent({
                                             </div>
                                         ) : (
                                             <div className="w-1/2">
-                                                {(() => {
-                                                    const buttonConfig = getButtonConfig();
-                                                    console.log('selected plan in button config', selectedPlan);
-
-                                                    // If buttonConfig is null (still loading), show loading spinner
-                                                    if (buttonConfig === null) {
-                                                        return (
-                                                            <div className="w-full">
-                                                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
-                                                                    <CircularProgress size={25} />
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    }
-
-                                                    // Only show button if user has a paid plan or if they have selected a different plan
-                                                    // Show cancel button if user is on paid plan and selected their own plan
-                                                    if (currentFullPlan?.name === "Free" && selectedPlan?.name === "Free") {
-                                                        return null;
-                                                    }
-
-                                                    return (
-                                                        <div className="w-full">
-                                                            {buttonConfig.isLoading ? (
-                                                                <div className="w-full flex flex-col items-center justify-center h-[50px]">
-                                                                    <CircularProgress size={25} />
-                                                                </div>
-                                                            ) : (
-                                                                <button
-                                                                    className={buttonConfig.className}
-                                                                    onClick={buttonConfig.action}
-                                                                    style={buttonConfig.style}
-                                                                >
-                                                                    {buttonConfig.text}
-                                                                </button>
-                                                            )}
+                                                {
+                                                    subscribeLoader ? (
+                                                        <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
+                                                            <CircularProgress size={25} />
                                                         </div>
-                                                    );
-                                                })()}
+                                                    ) : (
+                                                        <button
+                                                            className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
+                                                    ${isUpgradeButtonEnabled()
+                                                                    ? "text-white bg-purple hover:bg-purple-700"
+                                                                    : "text-black bg-[#00000050] cursor-not-allowed"
+                                                                }`}
+                                                            disabled={!isUpgradeButtonEnabled()}
+                                                            onClick={() => {
+                                                                if (isUpgradeButtonEnabled()) {
+                                                                    handleSubscribePlan();
+                                                                }
+                                                            }}
+                                                        >
+                                                            {comparePlans(currentFullPlan, selectedPlan) === 'upgrade' ? "Upgrade" : "Downgrade"}
+                                                        </button>
+                                                    )
+                                                }
                                             </div>
                                         )
                                     }

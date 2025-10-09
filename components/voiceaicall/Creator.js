@@ -1163,21 +1163,6 @@ const Creator = ({ agentId, name }) => {
                     required
                   />
                 </div>
-                <div>
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleFormDataChange('email', e.target.value)}
-                    placeholder="Email"
-                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
-                    style={{
-                      fontWeight: "500",
-                      fontSize: 15,
-                      border: "1px solid #00000020",
-                    }}
-                    required
-                  />
-                </div>
               </div>
 
               {/* Smart List Fields */}
