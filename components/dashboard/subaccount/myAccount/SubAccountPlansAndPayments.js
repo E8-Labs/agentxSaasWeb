@@ -110,7 +110,7 @@ function SubAccountPlansAndPayments({
 
 
     useEffect(() => {
-       console.log('current full plan in subaccount plans and payments', currentPlanDetails)
+        console.log('current full plan in subaccount plans and payments', currentPlanDetails)
     }, [currentPlanDetails])
 
     useEffect(() => {
@@ -1199,6 +1199,13 @@ function SubAccountPlansAndPayments({
                 </button>
             ))*/}
 
+            {
+                monthlyPlans?.length > 0 &&
+                quaterlyPlans?.length > 0 &&
+                yearlyPlans?.length > 0 && (
+                    ""
+                )
+            }
             <div className="w-full flex flex-row justify-end mt-4">
                 <div className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
                 >
@@ -1217,6 +1224,7 @@ function SubAccountPlansAndPayments({
                     }
                 </div>
             </div>
+
 
             <div className="w-full flex flex-row gap-4"
                 style={{

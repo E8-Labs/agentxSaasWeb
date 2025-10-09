@@ -341,45 +341,55 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                         </div>
                     </div>
                     <div className='flex flex-col items-start'>
-                        <div className='flex flex-row items-center gap-10'>
-                            {
-                                duration?.map((item) => (
-                                    <div key={item.id}
-                                        className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
-                                    >
-                                        {item.save ? (
-                                            <div
-                                                className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
+                        {
+                            isFrom !== "SubAccount" && (
+                                <div className='flex flex-row items-center gap-10'>
+                                    {
+                                        duration?.map((item) => (
+                                            <div key={item.id}
+                                                className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
                                             >
-                                                Save {item.save}
+                                                {item.save ? (
+                                                    <div
+                                                        className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
+                                                    >
+                                                        Save {item.save}
+                                                    </div>
+                                                ) : (
+                                                    <div className='w-[7vw]'></div>
+                                                )}
                                             </div>
-                                        ) : (
-                                            <div className='w-[7vw]'></div>
-                                        )}
-                                    </div>
-                                ))}
-                        </div>
+                                        ))}
+                                </div>
+                            )
+                        }
 
-                        <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
-                            {
-                                duration?.map((item) => (
-                                    <div key={item.id}
-                                        className='flex-col'
-                                    >
+                        {
+                            monthlyPlans?.length > 0 &&
+                            quaterlyPlans?.length > 0 &&
+                            yearlyPlans?.length > 0 && (
+                                <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
+                                    {
+                                        duration?.map((item) => (
+                                            <div key={item.id}
+                                                className='flex-col'
+                                            >
 
-                                        <button
-                                            className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                            onClick={() => {
-                                                setSelectedDuration(item);
-                                                // getCurrentPlans();
-                                            }}
-                                        >
-                                            {item.title}
-                                        </button>
-                                    </div>
-                                ))
-                            }
-                        </div>
+                                                <button
+                                                    className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                    onClick={() => {
+                                                        setSelectedDuration(item);
+                                                        // getCurrentPlans();
+                                                    }}
+                                                >
+                                                    {item.title}
+                                                </button>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
+                            )
+                        }
                     </div>
                 </div>
 

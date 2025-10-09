@@ -1153,6 +1153,7 @@ function UpgradePlanContent({
                                         <DurationView
                                             selectedDuration={selectedDuration}
                                             handleDurationChange={(item) => setSelectedDuration(item)}
+                                            from={from}
                                         />
                                     </div>
                                 </div>

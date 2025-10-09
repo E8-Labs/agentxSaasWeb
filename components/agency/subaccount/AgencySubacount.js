@@ -450,7 +450,7 @@ function AgencySubacount({
 
           <button
             disabled={twililoConectedStatus}
-            className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
+            className="flex px-5 py-3 bg-white rounded-lg text-purple font-medium border-none outline-none"
             onClick={() => {
               handleCheckPlans();
             }}

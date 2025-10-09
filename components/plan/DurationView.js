@@ -2,31 +2,36 @@ import { duration } from "@/utilities/PlansService";
 
 export const DurationView = ({
     selectedDuration,
-    handleDurationChange
+    handleDurationChange,
+    from
 }) => {
     return (
 
         <div className='flex flex-col items-center plan-duration-container'>
             {/* Discount labels row */}
-            <div className='flex flex-row items-center mb-0' style={{ gap: '8px' }}>
-                {
-                    duration.map((item) => (
-                        <div key={`discount-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>
-                            {item.save ? (
-                                <div className={`bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px] rounded-tl-xl rounded-tr-xl px-2 py-0.5`}>
-                                    <div
-                                        className={`text-[11px] font-medium whitespace-nowrap ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400"}`}
-                                    >
-                                        Save {item.save}
-                                    </div>
+            {
+                from !== "SubAccount" && (
+                    <div className='flex flex-row items-center mb-0' style={{ gap: '8px' }}>
+                        {
+                            duration.map((item) => (
+                                <div key={`discount-${item.id}`} className='flex items-center justify-center' style={{ minWidth: '70px' }}>
+                                    {item.save ? (
+                                        <div className={`bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px] rounded-tl-xl rounded-tr-xl px-2 py-0.5`}>
+                                            <div
+                                                className={`text-[11px] font-medium whitespace-nowrap ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400"}`}
+                                            >
+                                                Save {item.save}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div style={{ height: '24px' }}></div>
+                                    )}
                                 </div>
-                            ) : (
-                                <div style={{ height: '24px' }}></div>
-                            )}
-                        </div>
-                    ))
-                }
-            </div>
+                            ))
+                        }
+                    </div>
+                )
+            }
 
             {/* Duration buttons row */}
             <div className='flex flex-row items-center border bg-neutral-100 px-2 pb-0.5 rounded-full' style={{ gap: '8px' }}>
