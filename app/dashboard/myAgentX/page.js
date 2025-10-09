@@ -2529,24 +2529,32 @@ function Page() {
 
   //function to add new agent by more agents popup
   const handleAddAgentByMoreAgentsPopup = () => {
-    setShowMoreAgentsPopup(false)
-    const data = {
-      status: true,
-    };
-    localStorage.setItem("fromDashboard", JSON.stringify(data));
+    try {
+      setShowMoreAgentsPopup(false)
+      console.log("handleAddAgentByMoreAgentsPopup is called")
+      const data = {
+        status: true,
+      };
+      localStorage.setItem("fromDashboard", JSON.stringify(data));
 
-    localStorage.setItem("AddAgentByPayingPerMonth", JSON.stringify({
-      status: true,
-    }));
-    //remove data from local storage after 2 minutes
-    setTimeout(() => {
-      localStorage.removeItem("AddAgentByPayingPerMonth");
-      console.log("AddAgentByPayingPerMonth removed from local storage")
-    }, 2 * 60 * 1000);
+      localStorage.setItem("AddAgentByPayingPerMonth", JSON.stringify({
+        status: true,
+      }));
+      //remove data from local storage after 2 minutes
+      setTimeout(() => {
+        localStorage.removeItem("AddAgentByPayingPerMonth");
+        console.log("AddAgentByPayingPerMonth removed from local storage")
+      }, 2 * 60 * 1000);
 
-    console.log("routing to createagent from add new agent function")
-    router.push('/createagent');
+      console.log("routing to createagent from add new agent function")
 
+      // Use setTimeout to ensure state updates complete before navigation
+      setTimeout(() => {
+        router.push('/createagent');
+      }, 0);
+    } catch (error) {
+      console.error("Error in handleAddAgentByMoreAgentsPopup:", error);
+    }
   }
 
   //function to add new agent - Combined Redux + localStorage logic
