@@ -60,7 +60,7 @@ function Teams({
 
   const [myTeam, setMyTeam] = useState([]);
 
-  const [getTeamLoader, setGetTeamLoader] = useState(false);
+  const [getTeamLoader, setGetTeamLoader] = useState(false);//allowTeamCollaboration
   const [inviteTeamLoader, setInviteTeamLoader] = useState(false);
   const [reInviteTeamLoader, setReInviteTeamLoader] = useState(false);
 
@@ -682,7 +682,7 @@ function Teams({
           {
             (reduxUser?.plan.planId != null && reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxTeamMembers < 1000) && (
               <Tooltip
-                title={`Additional team seats are $${userLocalData?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                title={`Additional team seats are $${reduxUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
                 arrow
                 componentsProps={{
                   tooltip: {
@@ -943,7 +943,7 @@ function Teams({
                   alt="*"
                 />
                 {
-                  maxTeamMembers <= currentMembers ? (
+                  reduxUser?.agencyCapabilities?.allowTeamCollaboration === false || reduxUser?.planCapabilities?.allowTeamCollaboration === false ? (
                     <div className="w-full flex flex-col items-center -mt-12 gap-4">
                       <Image src={"/otherAssets/starsIcon2.png"}
                         height={30} width={30} alt="*"
@@ -989,7 +989,7 @@ function Teams({
                     }}
 
                     onClick={() => {
-                      if (!userLocalData?.plan?.price) {
+                      if (!reduxUser?.plan?.price) {
                         console.log("No plan price")
                         setShowUpgradeModal(true)
                         return
@@ -998,15 +998,17 @@ function Teams({
                       console.log("Current team members are", currentMembers)
                       console.log("MAx team members are", maxTeamMembers)
 
-                      if (maxTeamMembers > currentMembers) {
-                        setOpenInvitePopup(true)
-                      } else {
+                      if (reduxUser?.currentUsage?.maxTeamMembers >= reduxUser?.planCapabilities?.maxTeamMembers) {
                         setShowUpgradeModal(true)
+                        console.log("should open upgrade warning")
+                      } else {
+                        console.log("Should open invite")
+                        setOpenInvitePopup(true)
                       }
                     }}
 
                   >
-                    {maxTeamMembers <= currentMembers ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
+                    {reduxUser?.agencyCapabilities?.allowTeamCollaboration === false || reduxUser?.planCapabilities?.allowTeamCollaboration === false ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
 
