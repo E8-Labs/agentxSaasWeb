@@ -15,7 +15,7 @@ import { useUser } from '@/hooks/redux-hooks';
 const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
     const router = useRouter();
-    const { user: reduxUser,setUser: setReduxUser } = useUser();
+    const { user: reduxUser, setUser: setReduxUser } = useUser();
 
     // console.log("User data recieved to check list is", userDetails?.user?.checkList?.checkList);
     const [showList, setShowList] = useState(false);
@@ -83,7 +83,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
             console.log("percentage of check list is", percentage);   // Output: 60
 
             // Get calendar usage info
-            const user =  LocalData?.user || reduxUser;
+            const user = LocalData?.user || reduxUser;
             const currentCalendars = user?.currentUsage?.maxCalendars || 0;
             const maxCalendars = user?.planCapabilities?.maxCalendars || 1;
             const calendarUsageText = maxCalendars >= 1000 ? "Unlimited" : `${currentCalendars}/${maxCalendars}`;
@@ -92,10 +92,10 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                 { id: 1, label: 'Create your agent', status: T?.agentCreated, route: "/createagent" },
                 { id: 2, label: 'Review your script', status: T?.scriptReviewed, route: "/dashboard/myAgentX" },
                 { id: 3, label: 'Intro video', status: LocalData?.user?.walkthroughWatched, route: "" },
-                { 
-                    id: 4, 
-                    label: 'Connect a calendar', 
-                    status: T?.calendarCreated, 
+                {
+                    id: 4,
+                    label: 'Connect a calendar',
+                    status: T?.calendarCreated,
                     route: "/pipeline",
                     usageText: calendarUsageText,
                     isAtLimit: !checkCalendarPlanCapabilities()
@@ -273,13 +273,9 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                                                         height={20}
                                                         width={20}
                                                     /> :
-                                                        <Image
-                                                            className='ms-2'
-                                                            src={"/agencyIcons/unCheck.jpg"}
-                                                            alt='*'
-                                                            height={20}
-                                                            width={20}
-                                                        />}
+                                                        <div className="h-[18px] w-[18px] rounded-full bg-btngray ms-2">
+                                                        </div>
+                                                    }
                                                     <div className="flex flex-col">
                                                         <div
                                                             // style={styles.text}
@@ -289,7 +285,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                                                         >
                                                             {item.label}
                                                         </div>
-                                                    
+
                                                     </div>
                                                 </div>
                                                 <CaretRight size={20} />

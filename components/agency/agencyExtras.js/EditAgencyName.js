@@ -1,3 +1,4 @@
+import getProfileDetails from '@/components/apis/GetProfile';
 import { UpdateProfile } from '@/components/apis/UpdateProfile';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import { Box, CircularProgress, Modal } from '@mui/material';
@@ -6,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 
 const EditAgencyName = ({
-    flex = false
+    flex = false,
 }) => {
 
     const [userData, setUserData] = useState(null);
@@ -19,14 +20,23 @@ const EditAgencyName = ({
     const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Success);
 
     useEffect(() => {
-        const localData = localStorage.getItem("User");
-        if (localData) {
-            const d = JSON.parse(localData);
-            console.log("User Data", d?.user);
-            setUserData(d);
-            setAgencyName(d?.user?.company)
-        }
+        fetchData();
+
     }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await getProfileDetails();
+            console.log("Response of get profile details is", response);
+            if (response) {
+                const F = response.data.data;
+                setUserData(F);
+                setAgencyName(F?.company)
+            }
+        } catch (err) {
+            console.log("Error occure in get profile details is", err)
+        }
+    }
 
 
 

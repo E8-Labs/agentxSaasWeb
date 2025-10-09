@@ -137,7 +137,7 @@ const AgencyChecklist = ({ userDetails }) => {
                                                             height={20}
                                                             width={20}
                                                         /> :
-                                                        <div className="h-[18px] w-[18px] rounded-full bg-btngray">
+                                                        <div className="h-[18px] w-[18px] rounded-full bg-btngray ms-2">
                                                         </div>
                                                     }
                                                     {/*

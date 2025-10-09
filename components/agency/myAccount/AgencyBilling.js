@@ -23,6 +23,7 @@ import { GetFormattedDateString } from "@/utilities/utility";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import SmartRefillCard from "../agencyExtras.js/SmartRefillCard";
 import { formatDecimalValue } from "../agencyServices/CheckAgencyData";
+import { formatFractional2 } from "../plan/AgencyUtilities";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -794,7 +795,7 @@ function AgencyBilling({
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${formatDecimalValue(item.price)}</div>
+                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-2/12 items-start">
                   <div

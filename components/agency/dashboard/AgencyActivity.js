@@ -34,6 +34,7 @@ import TopVoicesModal from "@/components/admin/dashboard/TopVoicesModal";
 import { AuthToken } from "../plan/AuthDetails";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
+import Image from "next/image";
 // import { stat } from "fs";
 
 const data = [
@@ -97,7 +98,7 @@ function AgencyActivity({
         let data = response.data.data
         console.log(data)
         setStats(data);
-        console.log('stats data is', data)
+        console.log('stats data is for activity tab is', data)
       } else {
         console.error("Failed to fetch admin stats:", data.error);
       }
@@ -556,7 +557,7 @@ function SubscriptionsStatsComponent({ stats, plans }) {
         </CardHeader>
         <CardContent>
           <h2 className="cursor-pointer text-3xl font-bold">
-            {stats?.totalUsers}
+            {stats?.totalUsers || <div><Image alt="placeholder" src="/agencyIcons/placeholderBox.png" width={150} height={90} /></div>}
           </h2>
         </CardContent>
       </Card>

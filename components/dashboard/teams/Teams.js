@@ -744,7 +744,7 @@ function Teams({
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            {canShowInviteButton() && myTeam.length !== 0 && (
+            {myTeam.length !== 0 && (
               <div className="w-full flex flex-row items-center justify-end">
                 <button
                   className="rounded-lg text-white bg-purple mt-8"
