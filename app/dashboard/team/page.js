@@ -3,7 +3,7 @@
 import Teams from '@/components/dashboard/teams/Teams'
 import React, { useEffect, useState } from 'react'
 
-function page() {
+function Page() {
 
   const [userRole, setUserRole] = useState(null);
 
@@ -26,4 +26,4 @@ function page() {
   )
 }
 
-export default page
+export default Page
