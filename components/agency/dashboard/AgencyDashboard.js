@@ -52,9 +52,9 @@ export default function AgencyDashboard({
 
   return (
     <div className="flex w-full items-center flex-row justify-start">
-      <div className="py-6">
+      <div className="py-6 w-full">
         <div
-          className="pl-10 flex flex-row items-cetner justify-between w-full"
+          className="px-10 flex flex-row items-cetner justify-between w-full"
           style={{ fontSize: 24, fontWeight: "600" }}
         >
           Analytics

@@ -782,7 +782,7 @@ const SolarRepAgentSignUp = ({
                 Installation Volume per Year
               </div>
               <input
-                type="number"
+                // type="number"
                 placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: "8px" }}
@@ -793,7 +793,7 @@ const SolarRepAgentSignUp = ({
               />
 
               <div style={styles.headingStyle} className="mt-6">
-                Average Project Size (kW)
+                Average Project Size (kw)
               </div>
               <input
                 // type="number"

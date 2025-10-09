@@ -1632,7 +1632,7 @@ function BasicInfo() {
               >
                 <input
                   ref={installationVolumeRef}
-                  type="number"
+                  // type="number"
                   className="w-11/12 outline-none focus:ring-0"
                   onFocus={() => setFocusedInstallationVolume(true)}
                   onBlur={() => setFocusedInstallationVolume(false)}
@@ -1690,7 +1690,7 @@ function BasicInfo() {
               >
                 {userType === UserTypes.DebtCollectorAgent
                   ? " Balance Size of Debts "
-                  : "Average Project Size (kW)"}
+                  : "Average Project Size (kw)"}
               </div>
 
               <div

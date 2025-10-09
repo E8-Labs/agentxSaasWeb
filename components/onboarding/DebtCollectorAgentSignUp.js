@@ -802,7 +802,7 @@ const DebtCollectorAgentSignUp = ({
               />
 
               {/* <div style={styles.headingStyle} className="mt-6">
-                Average Project Size (kW)
+                Average Project Size (kw)
               </div>
               <input
                 placeholder="Type here"

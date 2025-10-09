@@ -446,7 +446,7 @@ const AgencyNavBar = () => {
               </div>
               <Image
                 src={"/agencyIcons/poweredByIcon.png"}
-                alt="*"
+                alt="powered by logo"
                 height={33}
                 width={140}
                 objectFit="contain"

@@ -205,7 +205,14 @@ export default function PlanConfiguration({
                 text: `${languageTitle}`,
             });
         }
-
+        
+        if (basicsData?.minutes) {
+            extraFeatures.push({
+                id: "credits",
+                text: `${basicsData?.minutes} AI Credits`,
+            });
+        }
+        
         // Add custom features to the allowed features
         const customFeaturesList = customFeatures
             .filter(feature => feature.trim() !== "") // Filter out empty features
@@ -215,7 +222,7 @@ export default function PlanConfiguration({
             }));
 
         setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
-    }, [features, language, noOfAgents, noOfContacts, customFeatures, noOfSeats]);
+    }, [features, language, noOfAgents, noOfContacts, customFeatures, noOfSeats, basicsData]);
 
 
 
@@ -681,7 +688,7 @@ export default function PlanConfiguration({
                                     <input
                                         style={styles.inputs}
                                         className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                        placeholder="0"
+                                        placeholder=""
                                         value={noOfAgents}
                                         onChange={(e) => {
                                             const value = e.target.value;
@@ -693,7 +700,7 @@ export default function PlanConfiguration({
                                                 ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                                                 : sanitized;
                                             // setOriginalPrice(valid);
-                                            setNoOfAgents(valid ? Number(valid) : 0);
+                                            setNoOfAgents(valid);
                                         }}
                                     />
                                 </div>
@@ -733,7 +740,7 @@ export default function PlanConfiguration({
                                             />
                                         </Tooltip>
                                     </div>
-                                    <div className="border border-gray-200 rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full">
+                                    <div className={`border ${snackBannerMsg ? "border-red" : "border-gray-200"} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                                         <div className="" style={styles.inputs}>
                                             $
                                         </div>
@@ -741,7 +748,7 @@ export default function PlanConfiguration({
                                             style={styles.inputs}
                                             type="text"
                                             className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                                            placeholder="00"
+                                            placeholder=""
                                             value={costPerAdditionalAgent}
                                             onChange={(e) => {
                                                 const value = e.target.value;
@@ -772,7 +779,7 @@ export default function PlanConfiguration({
                                         <input
                                             style={styles.inputs}
                                             className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                                            placeholder="0"
+                                            placeholder=""
                                             value={noOfSeats}
                                             onChange={(e) => {
                                                 const value = e.target.value;
