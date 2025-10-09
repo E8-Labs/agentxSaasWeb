@@ -133,7 +133,7 @@ const ConnectStripe = () => {
                     ) : (
                         <div className='h-full w-full flex flex-row items-center justify-center'>
                             {
-                                !checkStripeStatus ? (
+                                checkStripeStatus ? (
                                     <StripeDetailsCard
                                         stripeData={agencydata?.stripeAccount}
                                     />
