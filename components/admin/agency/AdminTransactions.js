@@ -26,7 +26,7 @@ function AdminTransactions() {
     search: ''
   });
 
-  const typeOptions = ['all', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
+  const typeOptions = ['all','Agent', 'Xbar', 'Plan', 'Phone', 'Enrichment', 'DNC', 'Seat'];
   const statusOptions = ['all', 'pending', 'completed', 'failed', 'refunded'];
   const dateOptions = [
     { value: 'all', label: 'All Time' },
