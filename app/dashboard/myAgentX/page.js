@@ -2559,6 +2559,8 @@ function Page() {
 
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
+
+    try {
     // event.preventDefault();
     // setShowMoreAgentsPopup(true)
     // return
@@ -2610,7 +2612,12 @@ function Page() {
     };
     localStorage.setItem("fromDashboard", JSON.stringify(data));
     console.log("routing to createagent from add new agent function")
-    router.push('/createagent');
+    setTimeout(() => {
+      router.push('/createagent');
+    }, 0);
+    } catch (error) {
+      console.error("Error in handleAddNewAgent:", error);
+    }
   };
 
   const handlePopoverOpen = (event, item) => {
