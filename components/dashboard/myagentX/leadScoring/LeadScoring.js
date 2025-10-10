@@ -19,6 +19,7 @@ function LeadScoring({
     const [templatesLoading, setTemplatesLoading] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState('')
     const [showAddScoringModal, setShowAddScoringModal] = useState(false)
+    const [editingTemplate, setEditingTemplate] = useState(null)
     const [snackbar, setSnackbar] = useState({
         isVisible: false,
         title: '',
@@ -87,6 +88,11 @@ function LeadScoring({
         setSnackbar(prev => ({ ...prev, isVisible: false }));
     };
 
+    const handleEditTemplate = (template) => {
+        setEditingTemplate(template);
+        setShowAddScoringModal(true);
+    };
+
     const handleTemplateSelect = async (templateId) => {
         if (!templateId) {
             setSelectedTemplate('');
@@ -100,7 +106,7 @@ function LeadScoring({
 
         try {
             const token = AuthToken();
-            const path = `${Apis.copyAgentScoring}/${showDrawerSelectedAgent?.id}`;
+            const path = `${Apis.copyAgentScoring}/${showDrawerSelectedAgent?.id}/copy-template`;
 
             const response = await axios.post(path, {
                 agentId: showDrawerSelectedAgent?.id,
@@ -207,10 +213,20 @@ function LeadScoring({
                                                     },
                                                 }}
                                             >
-                                                <div className="w-full">
+                                                <div className="w-full flex items-center justify-between">
                                                     <div className="font-medium text-gray-900">
                                                         {template.templateName}
                                                     </div>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleEditTemplate(template);
+                                                        }}
+                                                        className="ml-2 text-base text-purple underline"
+                                                      
+                                                    >
+                                                        Edit
+                                                    </button>
                                                 </div>
                                             </MenuItem>
                                         ))}
@@ -232,17 +248,23 @@ function LeadScoring({
             {/* Add Scoring Modal */}
             <AddScoringModal
                 open={showAddScoringModal}
-                onClose={() => setShowAddScoringModal(false)}
+                onClose={() => {
+                    setShowAddScoringModal(false);
+                    setEditingTemplate(null);
+                }}
                 agentId={showDrawerSelectedAgent?.id}
                 selectedAgent={showDrawerSelectedAgent}
+                editingTemplate={editingTemplate}
                 onSubmit={(templateData) => {
-                    console.log('Template created:', templateData);
-                    // Refresh templates after creation
+                    console.log('Template created/updated:', templateData);
+                    // Refresh templates after creation/update
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
                     });
+                    // Reset editing state
+                    setEditingTemplate(null);
                 }}
             />
 

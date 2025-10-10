@@ -595,7 +595,7 @@ const Pipeline1 = () => {
           setStagesList(jsonData[index].stages);
           setOldStages(jsonData[index].stages);
           setLeadsList(jsonData[index].leads);
-          // //console.log;
+          console.log("Leads list is", jsonData[index].leads);
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -652,10 +652,10 @@ const Pipeline1 = () => {
           selectedPipelineIndex.current == -1 ||
           pipeline.id == PipeLines[selectedPipelineIndex].id
         ) {
-          // console.log(
-          //   "Current selected is same ",
-          //   PipeLines[selectedPipelineIndex].id
-          // );
+          console.log(
+            "leads list in getpipeline details is",
+            pipelineDetails.leads
+          );
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage);
           setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage);

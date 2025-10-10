@@ -10,12 +10,12 @@ function NoActionView({
         <div className='flex flex-col items-center justify-center mt-6 w-full'>
 
             <Image src={"/otherAssets/starImage.png"}   
-                height={50} width={50} alt='*'
+                height={100} width={100} alt='*'
             />
 
-            <div style={{ fontSize: 14, fontWeight: '400', color: '#151515' }}>
+            <h3 className="text-[15] font-[400] text-gray-900 italic">
                 {title}
-            </div>
+            </h3>
 
             {/* Button Section */}
             <button
