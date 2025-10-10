@@ -1257,6 +1257,34 @@ const LeadDetails = ({
 
           </div>
         )}
+
+        {
+          item.template?.attachments?.length > 0 && (
+            <div className="flex flex-col items-start gap-2">
+              <div className="text-base font-semibold text-[#00000050]">
+                Attachments
+              </div>
+
+              {/* Attachments */}
+              {item.template?.attachments.map((attachment, index) => (
+                <div key={index} className="flex flex-row items-center gap-2">
+
+                  <div key={index} className="text-base font-medium text-[#000000] w-6/12 truncate"
+                    onClick={() => {
+                      window.open(attachment.url, "_blank");
+                    }}
+                  >
+                    {attachment.fileName}
+                  </div>
+
+                  <div>
+                    {attachment.size}KB
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
+        }
       </div>
     )
   }
@@ -1424,7 +1452,7 @@ const LeadDetails = ({
                                   className="flex flex-row items-center gap-1 px-1 py-1 border text-purple rounded-lg  ml-4"
                                   onClick={() => {
                                     if (googleAccounts.length === 0) {
-                                        setShowAuthSelectionPopup(true)                                     
+                                      setShowAuthSelectionPopup(true)
                                     } else {
                                       setShowEmailModal(true)
                                     }

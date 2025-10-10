@@ -4,6 +4,7 @@ import AddScoringModalBase from "../ui/add-scoring-modal";
 import axios from "axios";
 import Apis from "../apis/Apis";
 import { fetchTemplates } from "@/services/leadScoringSerevices/FetchTempletes";
+import { Select } from "@mui/material";
 
 const PREDEFINED_QUESTIONS = [
   "Are they currently working with another agent?",
@@ -96,7 +97,7 @@ const AddScoringModal = ({
     } else {
       // Auto-generate template name based on agent name
       const agentName = selectedAgent?.name || "Agent";
-      const templateName = `${agentName}'s Scoring`;
+      const templateName = `${agentName}'s Score`;
 
       setFormData({
         templateName: templateName,
@@ -334,7 +335,7 @@ const AddScoringModal = ({
         <div className="flex items-center justify-end">
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600">Select</span>
-            <select
+            <Select
               value={selectedTemplateId}
               onChange={(e) => handleTemplateSelect(e.target.value)}
               className="outline-none focus:outline-none focus:ring-0 border rounded"
@@ -353,7 +354,7 @@ const AddScoringModal = ({
                   {template.templateName}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         </div>
 
@@ -377,7 +378,7 @@ const AddScoringModal = ({
           <div className="flex items-center justify-between">
             <span className="text-base font-semibold text-gray-900">Question</span>
             <span className="text-sm font-medium text-purple-600">
-              {totalScore}/10 Points
+              {totalScore?.toFixed(0)}/10 Points
             </span>
           </div>
 

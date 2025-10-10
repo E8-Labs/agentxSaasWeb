@@ -6,11 +6,12 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails';
 import Apis from '@/components/apis/Apis';
 import axios from 'axios';
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
+import NoActionView from './NoActionView';
 
 function LeadScoring({
     showDrawerSelectedAgent,
     activeTab,
-    }) {
+}) {
 
 
 
@@ -24,7 +25,7 @@ function LeadScoring({
         message: '',
         type: SnackbarTypes.Error
     });
-    
+
 
 
     useEffect(() => {
@@ -69,7 +70,7 @@ function LeadScoring({
             console.error('Error fetching agent scoring:', error);
         }
     };
-    
+
 
     console.log("templates", templates)
 
@@ -153,69 +154,77 @@ function LeadScoring({
                         <CircularProgress size={20} />
                     </div>
                 ) : (
-                    <div className="space-y-3">
-                        <Box className="w-full">
-                            <FormControl className="w-full">
-                                <Select
-                                    value={selectedTemplate}
-                                    onChange={(e) => handleTemplateSelect(e.target.value)}
-                                    displayEmpty
-                                    className="border-none rounded-lg outline-none"
-                                    renderValue={(selected) => {
-                                        if (selected === '' || !templates.length) {
-                                            return <div className="text-gray-500">Choose a template</div>;
-                                        }
-                                        const selectedTemplateObj = templates.find(t => t.id === selected);
-                                        return <div className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</div>;
-                                    }}
-                                    sx={{
-                                        backgroundColor: "#FFFFFF",
-                                        "& .MuiOutlinedInput-notchedOutline": {
-                                            border: "1px solid #E5E7EB",
-                                        },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": {
-                                            border: "1px solid #D1D5DB",
-                                        },
-                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                            border: "1px solid #7902DF",
-                                        },
-                                    }}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            style: {
-                                                maxHeight: "30vh",
-                                                overflow: "auto",
-                                                scrollbarWidth: "none",
-                                                borderRadius: "8px",
-                                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+                    templates.length > 0 ? (
+                        <div className="space-y-3">
+                            <Box className="w-full">
+                                <FormControl className="w-full">
+                                    <Select
+                                        value={selectedTemplate}
+                                        onChange={(e) => handleTemplateSelect(e.target.value)}
+                                        displayEmpty
+                                        className="border-none rounded-lg outline-none"
+                                        renderValue={(selected) => {
+                                            if (selected === '' || !templates.length) {
+                                                return <div className="text-gray-500">Choose a template</div>;
+                                            }
+                                            const selectedTemplateObj = templates.find(t => t.id === selected);
+                                            return <div className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</div>;
+                                        }}
+                                        sx={{
+                                            backgroundColor: "#FFFFFF",
+                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                border: "1px solid #E5E7EB",
                                             },
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value="">
-                                        <div className="text-gray-500">Choose a template</div>
-                                    </MenuItem>
-                                    {templates.map((template) => (
-                                        <MenuItem
-                                            key={template.id}
-                                            value={template.id}
-                                            sx={{
-                                                '&:hover': {
-                                                    backgroundColor: '#F3F4F6',
+                                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                                                border: "1px solid #D1D5DB",
+                                            },
+                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                border: "1px solid #7902DF",
+                                            },
+                                        }}
+                                        MenuProps={{
+                                            PaperProps: {
+                                                style: {
+                                                    maxHeight: "30vh",
+                                                    overflow: "auto",
+                                                    scrollbarWidth: "none",
+                                                    borderRadius: "8px",
+                                                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
                                                 },
-                                            }}
-                                        >
-                                            <div className="w-full">
-                                                <div className="font-medium text-gray-900">
-                                                    {template.templateName}
-                                                </div>
-                                            </div>
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="">
+                                            <div className="text-gray-500">Choose a template</div>
                                         </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Box>
-                    </div>
+                                        {templates.map((template) => (
+                                            <MenuItem
+                                                key={template.id}
+                                                value={template.id}
+                                                sx={{
+                                                    '&:hover': {
+                                                        backgroundColor: '#F3F4F6',
+                                                    },
+                                                }}
+                                            >
+                                                <div className="w-full">
+                                                    <div className="font-medium text-gray-900">
+                                                        {template.templateName}
+                                                    </div>
+                                                </div>
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                        </div>
+                    ) : (
+                        <NoActionView
+                            title="No scoring data available"
+                            featureName="Scoring"
+                            setShowAddScoringModal = {setShowAddScoringModal}
+                        />
+                    )
                 )}
 
             </div>

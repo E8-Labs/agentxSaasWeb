@@ -88,10 +88,10 @@ function AdminContainer() {
   const tabParam = searchParams.get("tab");
   const defaultTab = manuBar.find((item) => item.value === tabParam) || manuBar[0];
   const [selectedManu, setSelectedManu] = useState(defaultTab);
-  
+
   // Agency submenu state
   const [agencySubTab, setAgencySubTab] = useState('agencies');
-  
+
   const agencySubMenus = [
     { id: 1, name: "Agencies", value: 'agencies' },
     { id: 2, name: "Transactions", value: 'transactions' }
@@ -99,23 +99,23 @@ function AdminContainer() {
 
   // Billing submenu state
   const [billingSubTab, setBillingSubTab] = useState('upcoming-charges');
-  
+
   const billingSubMenus = [
     { id: 1, name: "Upcoming Charges", value: 'upcoming-charges' },
     { id: 2, name: "Payment Charges", value: 'payment-charges' },
-    { id: 3, name: "Active Calls", value: 'active-calls' }
+    // { id: 3, name: "Active Calls", value: 'active-calls' }
   ];
 
   // Plans submenu state
   const [plansSubTab, setPlansSubTab] = useState('agentx-plans');
-  
+
   const plansSubMenus = [
     { id: 1, name: "AgentX Plans", value: 'agentx-plans' },
     { id: 2, name: "Agency Plans", value: 'agency-plans' }
   ];
 
   return (
-    
+
     <ErrorBoundary>
       <div className="w-full flex flex-col items-center h-[100svh] overflow-hidden ">
         <div
@@ -146,7 +146,7 @@ function AdminContainer() {
                 } else {
                   setSelectedManu(item);
                   const newUrl = `?tab=${encodeURIComponent(item.value)}`;
-                  router.push(newUrl); 
+                  router.push(newUrl);
                 }
               }}
               className={`flex flex-row items-center gap-3 p-2 items-center 
@@ -257,12 +257,10 @@ function AdminContainer() {
           ) : selectedManu.name === "Billing" ? (
             billingSubTab === 'upcoming-charges' ? (
               <AdminUpcomingCharges />
-            ) : billingSubTab === 'payment-charges' ? (
-              <AdminPaymentCharges />
             ) : (
-              <AdminActiveCalls />
+              < AdminPaymentCharges />
             )
-          ): selectedManu.name === "Agency" ? (
+          ) : selectedManu.name === "Agency" ? (
             agencySubTab === 'agencies' ? (
               <AdminAgencyDetails />
             ) : (

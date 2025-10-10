@@ -34,6 +34,7 @@ import AdminDashboardScheduledCalls from "./AdminDashboardScheduledCalls";
 import { PersistanceKeys } from "@/constants/Constants";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import NotficationsDrawer from "@/components/notofications/NotficationsDrawer";
+import AdminActiveCalls from "../activeCalls/AdminActiveCalls";
 
 function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   const LimitPerPage = 30;
@@ -484,7 +485,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
         {(isFromAgency
           ? ["Activity Logs", "Activity"]
-          : ["All Calls", "Call Activities"]
+          : ["All Calls", "Call Activities", "Active Calls"]
         ).map((tab) => (//, "Scheduled"
           <button
             key={tab}
@@ -504,6 +505,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       <div className="w-full">
         {activeTab === "Call Activities" || activeTab === "Activity" ? (
           <AdminDashboardActiveCall isFromAgency={isFromAgency} />
+        ) : activeTab === "Active Calls" ? (
+
+          <AdminActiveCalls />
         ) : activeTab === "Scheduled" ? (
           <AdminDashboardScheduledCalls />
         ) : activeTab === "All Calls" || activeTab === "Activity Logs" ? (

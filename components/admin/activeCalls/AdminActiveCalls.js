@@ -16,11 +16,11 @@ function AdminActiveCalls() {
         fetchCallAnalytics();
     }, [dateRange]);
 
-    const fetchCallAnalytics = useCallback (async () => {
+    const fetchCallAnalytics = useCallback(async () => {
         try {
             setLoading(true);
             const userData = JSON.parse(localStorage.getItem('User'));
-            
+
             const params = new URLSearchParams({
                 startDate: dateRange.startDate,
                 endDate: dateRange.endDate
@@ -69,10 +69,12 @@ function AdminActiveCalls() {
     }
 
     return (
-        <div className="w-full p-6">
+        <div className="w-full p-6 h-[65vh] overflow-y-auto"
+            style={{ scrollbarWidth: "none" }}
+        >
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-800 mb-4">Active Calls Analytics</h1>
-                
+
                 {/* Date Range Selector */}
                 <div className="flex gap-4 mb-6">
                     <div>
@@ -120,8 +122,8 @@ function AdminActiveCalls() {
 
             {/* Users Table */}
             {callAnalytics?.userList && callAnalytics.userList.length > 0 && (
-                <Paper className="w-full overflow-hidden">
-                    <TableContainer className="max-h-[70vh]">
+                <Paper className="w-full ">
+                    <TableContainer className="">
                         <Table stickyHeader>
                             <TableHead>
                                 <TableRow>
@@ -153,23 +155,20 @@ function AdminActiveCalls() {
                                         <TableCell>{user.totalMinutes}</TableCell>
                                         <TableCell>{user.uniqueLeadsCalled}</TableCell>
                                         <TableCell>
-                                            <span className={`px-2 py-1 rounded-full text-xs ${
-                                                user.hotLeads > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-                                            }`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs ${user.hotLeads > 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
+                                                }`}>
                                                 {user.hotLeads}
                                             </span>
                                         </TableCell>
                                         <TableCell>
-                                            <span className={`px-2 py-1 rounded-full text-xs ${
-                                                user.bookedLeads > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                            }`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs ${user.bookedLeads > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                                }`}>
                                                 {user.bookedLeads}
                                             </span>
                                         </TableCell>
                                         <TableCell>
-                                            <span className={`px-2 py-1 rounded-full text-xs ${
-                                                user.successCallRate > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                            }`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs ${user.successCallRate > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                                }`}>
                                                 {user.successCallRate}%
                                             </span>
                                         </TableCell>
@@ -189,7 +188,7 @@ function AdminActiveCalls() {
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Agency Information</h3>
                     <p className="text-gray-600">
-                        <span className="font-medium">Agency:</span> {callAnalytics.agencyInfo.agencyName} 
+                        <span className="font-medium">Agency:</span> {callAnalytics.agencyInfo.agencyName}
                         <span className="ml-4 font-medium">ID:</span> {callAnalytics.agencyInfo.agencyId}
                     </p>
                 </div>

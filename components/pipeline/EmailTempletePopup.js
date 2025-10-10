@@ -316,11 +316,21 @@ function EmailTempletePopup({
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
         const maxSizeInBytes = 10 * 1024 * 1024; // 10MB in bytes
+        const maxAttachments = 5; // Maximum number of attachments
+
+        // Check if adding new files would exceed the attachment count limit
+        if (attachments.length + files.length > maxAttachments) {
+            setShowSnackBar({
+                message: `Maximum ${maxAttachments} attachments allowed`,
+                type: SnackbarTypes.Error,
+            });
+            return;
+        }
 
         // Calculate current total size of existing attachments
         const currentTotalSize = attachments.reduce((total, file) => total + file.size, 0);
 
-        // Check if adding new files would exceed the limit
+        // Check if adding new files would exceed the size limit
         const newFilesTotalSize = files.reduce((total, file) => total + file.size, 0);
         const wouldExceedLimit = currentTotalSize + newFilesTotalSize > maxSizeInBytes;
 
@@ -853,7 +863,7 @@ function EmailTempletePopup({
                                 />
                             </label>
                             <div className="text-[12px] font-[400] text-[#00000060]">
-                                Max Size 10 MB
+                                Max 5 files, 10 MB total
                             </div>
                         </div>
 
@@ -861,7 +871,7 @@ function EmailTempletePopup({
                             {attachments?.map((file, idx) => (
                                 <div key={idx} className="flex flex-row gap-4 items-center p-2 text-sm">
 
-                                    <div className="flex flex-col">
+                                    <div className="flex flex-col min-w-4/12 max-w-/12 truncate">
                                         <span>{file.name || file.originalName}</span>
                                     </div>
                                     <span className="text-xs text-gray-500">
