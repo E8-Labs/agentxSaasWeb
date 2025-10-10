@@ -672,7 +672,7 @@ const AddScoringModal = ({
               </a>
             </div>
             <p className="text-xs text-gray-600">
-              This help your agent quickly assess lead quality, next steps, and confidence level. Only ask "Yes" questions to score your lead. 
+              {`This help your agent quickly assess lead quality, next steps, and confidence level. Only ask "Yes" questions to score your lead. `}
             </p>
           </div>
 
