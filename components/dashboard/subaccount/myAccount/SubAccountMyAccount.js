@@ -220,7 +220,7 @@ function SubAccountMyAccount() {
         return <SubAccountBasicInfo />;
       case 2:
         return <SubAccountPlansAndPayments
-          selectedUser={selectedUserData}
+          // selectedUser={selectedUserData}
         />;
       case 3:
         return <SubAccountBilling

@@ -18,7 +18,7 @@ import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 
 
-function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader, onPlanSelected }) {
+function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader, onPlanSelected, selectedUser }) {
 
     const router = useRouter();
 
@@ -184,7 +184,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
 
     const getPlans = async () => {
-        let plansList = await getUserPlans(isFrom);
+        let plansList = await getUserPlans(isFrom, selectedUser);
         console.log("Plans list found is", plansList)
         if (plansList) {
             console.log("isFrom is", isFrom)
@@ -247,6 +247,27 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                 yearly.unshift({ ...freePlan, billingCycle: "yearly" });
             }
 
+            //select duration selection dynamically
+            if (isFrom === "SubAccount") {
+                if (monthly.length > 0 && quarterly.length === 0 && yearly.length === 0) {
+                    setSelectedDuration({ id: 1, title: "Monthly" });
+                } else {
+                    if (monthly.length > 0) {
+                        console.log("Should select the 0 index")
+                        setSelectedDuration({ id: 1, title: "Monthly" });
+                    }
+                    // Check inside quarterly plans
+                    else if (quarterly.length > 0) {
+                        console.log("Should select the 2 index")
+                        setSelectedDuration({ id: 2, title: "Quarterly" });
+                    }
+                    // Check inside yearly plans
+                    else if (yearly.length > 0) {
+                        console.log("Should select the 3 index")
+                        setSelectedDuration({ id: 3, title: "Yearly" });
+                    }
+                }
+            }
 
             setMonthlyPlans(monthly);
             setQuaterlyPlans(quarterly);
@@ -390,6 +411,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                 </div>
                             )
                         }
+
                     </div>
                 </div>
 
@@ -463,7 +485,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
 
                                             <div className='flex flex-row items-center gap-2'>
                                                 {
-                                                    item?.originalPrice > 0 && (
+                                                    isFrom === "SubAccount" && item?.originalPrice > 0 && (
                                                         <span className='text-[#00000020] line-through'>
                                                             ${formatFractional2(item?.originalPrice) || ""}
                                                         </span>

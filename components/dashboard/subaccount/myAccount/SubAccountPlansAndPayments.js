@@ -96,7 +96,20 @@ function SubAccountPlansAndPayments({
     const [monthlyPlans, setMonthlyPlans] = useState([]);
     const [quaterlyPlans, setQuaterlyPlans] = useState([]);
     const [yearlyPlans, setYearlyPlans] = useState([]);
-    const [duration, setDuration] = useState([]);
+    const [duration, setDuration] = useState([
+        {
+            id: 1,
+            title: "Monthly"
+        },
+        {
+            id: 2,
+            title: "Quarterly"
+        },
+        {
+            id: 3,
+            title: "Yearly"
+        }
+    ]);
     const [selectedDuration, setSelectedDuration] = useState([]);
 
     //delreason extra variables
@@ -146,15 +159,21 @@ function SubAccountPlansAndPayments({
 
         // Check inside monthly plans
         if (monthlyPlans.some(p => p.id === currentPlan)) {
-            setSelectedDuration(duration[0]);
+            console.log("Should select the 0 index")
+            setSelectedDuration({ id: 1, title: "Monthly" });
+            getCurrentPlans({ id: 1, title: "Monthly" });
         }
         // Check inside quarterly plans
         else if (quaterlyPlans.some(p => p.id === currentPlan)) {
-            setSelectedDuration(duration[1]);
+            console.log("Should select the 2 index")
+            setSelectedDuration({ id: 2, title: "Quarterly" });
+            getCurrentPlans({ id: 2, title: "Quarterly" });
         }
         // Check inside yearly plans
         else if (yearlyPlans.some(p => p.id === currentPlan)) {
-            setSelectedDuration(duration[2]);
+            console.log("Should select the 3 index")
+            setSelectedDuration({ id: 3, title: "Yearly" });
+            getCurrentPlans({ id: 3, title: "Yearly" });
         }
 
         sequenceIdDetecter();
@@ -299,7 +318,7 @@ function SubAccountPlansAndPayments({
                 console.log("Quarterly Plans:", quarterly);
                 console.log("Yearly Plans:", yearly);
                 console.log("Available Durations:", availableDurations);
-                setDuration(availableDurations);
+                // setDuration(availableDurations);
                 setMonthlyPlans(monthly);
                 setQuaterlyPlans(quarterly);
                 setYearlyPlans(yearly);
@@ -540,7 +559,10 @@ function SubAccountPlansAndPayments({
 
             // //console.log;
 
-            const ApiPath = Apis.subAgencyAndSubAccountPlans;
+            let ApiPath = Apis.subAgencyAndSubAccountPlans;
+            if (selectedUser) {
+                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+            }
             const formData = new FormData();
             formData.append("planId", togglePlan);
             for (let [key, value] of formData.entries()) {
@@ -1203,27 +1225,26 @@ function SubAccountPlansAndPayments({
                 monthlyPlans?.length > 0 &&
                 quaterlyPlans?.length > 0 &&
                 yearlyPlans?.length > 0 && (
-                    ""
+                    <div className="w-full flex flex-row justify-end mt-4">
+                        <div className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
+                        >
+                            {
+                                duration?.map((item) => (
+                                    <button key={item.id}
+                                        className={`px-4 py-1 ${selectedDuration?.id === item.id ? "text-white bg-purple shadow-sm shadow-purple rounded-full" : "text-black"}`}
+                                        onClick={() => {
+                                            setSelectedDuration(item);
+                                            getCurrentPlans(item);
+                                        }}
+                                    >
+                                        {item.title}
+                                    </button>
+                                ))
+                            }
+                        </div>
+                    </div>
                 )
             }
-            <div className="w-full flex flex-row justify-end mt-4">
-                <div className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
-                >
-                    {
-                        duration?.map((item) => (
-                            <button key={item.id}
-                                className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-sm shadow-purple rounded-full" : "text-black"}`}
-                                onClick={() => {
-                                    setSelectedDuration(item);
-                                    getCurrentPlans(item);
-                                }}
-                            >
-                                {item.title}
-                            </button>
-                        ))
-                    }
-                </div>
-            </div>
 
 
             <div className="w-full flex flex-row gap-4"
@@ -1493,6 +1514,7 @@ function SubAccountPlansAndPayments({
                     from={"SubAccount"}
                     selectedPlan={selectedPlan}
                     setSelectedPlan={setSelectedPlan}
+                    selectedUser={selectedUser}
                     open={showUpgradeModal}
                     handleClose={async (upgradeResult) => {
                         setShowUpgradeModal(false);
@@ -1530,6 +1552,7 @@ function SubAccountPlansAndPayments({
                                 setShowPlanDetailsPopup(false);
                                 // refreshProfileAndState();
                             }}
+                            selectedUser={selectedUser}
                             handleBack={() => setShowPlanDetailsPopup(false)}
                             isFrom="SubAccount"
                             from="billing-modal"
@@ -1560,6 +1583,7 @@ function SubAccountPlansAndPayments({
                         features={currentPlanDetails?.features}
                         subscribePlanLoader={subscribePlanLoader}
                         isFrom={true}
+                        selectedUser={selectedUser}
                     />
                 )
             }

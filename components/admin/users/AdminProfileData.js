@@ -12,6 +12,7 @@ import SubAccountBilling from "@/components/dashboard/subaccount/myAccount/SubAc
 import DashboardSlider from "@/components/animations/DashboardSlider";
 import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 import SubAccountBarServices from "@/components/dashboard/subaccount/myAccount/SubAccountBarServices";
+import SubAccountPlansAndPayments from "@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -26,24 +27,29 @@ function AdminProfileData({ selectedUser, from }) {
         },
         {
             id: 2,
-            heading: "Billing",
-            subHeading: "Manage your billing and payment methods",
+            heading: "Payments",
+            subHeading: "Manage your plans and payment method",
             icon: "/otherAssets/walletIcon.png",
         }, {
             id: 3,
+            heading: "Billing",
+            subHeading: "Manage your billing transactions",
+            icon: "/otherAssets/billingIcon.png",
+        }, {
+            id: 4,
             heading: "Phone Numbers",
             subHeading: "All agent phone numbers",
             icon: "/assets/unSelectedCallIcon.png",
         },
         {
-            id: 4,
+            id: 5,
             heading: "Twilio Trust Hub",
             subHeading: "Caller ID & compliance for trusted calls",
             icon: "/svgIcons/twilioHub.svg",
         },
 
         {
-            id: 5,
+            id: 6,
             heading: "Bar Services",
             subHeading: "Our version of the genius bar",
             icon: "/assets/X.svg",
@@ -73,6 +79,25 @@ function AdminProfileData({ selectedUser, from }) {
                     <div>
                         {
                             from === "subaccount" ? (
+                                // <SubAccountBilling hideBtns={true} selectedUser={selectedUser} />
+                                <SubAccountPlansAndPayments
+                                    selectedUser={selectedUser}
+                                    hideBtns={true}
+                                    agencyView={true}
+                                />
+                            ) : (
+                                // <AdminBilling selectedUser={selectedUser} from={from} />
+                                "Show the Simple User Payments here"
+                            )
+                        }
+                    </div>
+                );
+            case 3:
+                // return <AdminBilling selectedUser={selectedUser} from={from} />;
+                return (
+                    <div>
+                        {
+                            from === "subaccount" ? (
                                 <SubAccountBilling hideBtns={true} selectedUser={selectedUser} />
                             ) : (
                                 <AdminBilling selectedUser={selectedUser} from={from} />
@@ -80,7 +105,7 @@ function AdminProfileData({ selectedUser, from }) {
                         }
                     </div>
                 );
-            case 3:
+            case 4:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 5:
                 if (from === "subaccount") {
@@ -88,7 +113,7 @@ function AdminProfileData({ selectedUser, from }) {
                 } else {
                     return <AdminXbarServices selectedUser={selectedUser} />;
                 }
-            case 4:
+            case 6:
                 return <TwilioTrustHub selectedUser={selectedUser} />
 
             default:

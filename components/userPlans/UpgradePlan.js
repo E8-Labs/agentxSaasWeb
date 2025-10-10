@@ -175,8 +175,8 @@ function UpgradePlanContent({
     setSelectedPlan = null,
     from,
     setShowSnackMsg = null,
-    showSnackMsg = null
-
+    showSnackMsg = null,
+    selectedUser
 }) {
 
     const stripeReact = useStripe();
@@ -440,7 +440,7 @@ function UpgradePlanContent({
     }
 
     const getPlans = async () => {
-        let plansList = await getUserPlans(from)
+        let plansList = await getUserPlans(from, selectedUser)
         if (plansList) {
             console.log("Plans list found is", plansList);
             const monthly = [];
@@ -885,6 +885,10 @@ function UpgradePlanContent({
                 ApiPath = Apis.subAgencyAndSubAccountPlans;
             }
             console.log("Api data for upgrade plan", DataToSendInApi);
+
+            if (selectedUser) {
+                ApiPath = `${ApiPath}?userId=${selectedUser.id}`;
+            }
 
             //headers for api
             let headers = {
@@ -1538,6 +1542,7 @@ function UpgradePlan({
     selectedPlan = null, // Pre-selected plan from previous screen
     setSelectedPlan = null,
     from = "User",
+    selectedUser
     // setShowSnackMsg = null
 }) {
     let stripePublickKey =
@@ -1570,6 +1575,7 @@ function UpgradePlan({
                 from={from}
                 setShowSnackMsg={setShowSnackMsg}
                 showSnackMsg={showSnackMsg}
+                selectedUser={selectedUser}
             />
         </Elements>
     );

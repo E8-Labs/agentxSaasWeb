@@ -12,7 +12,8 @@ function DowngradePlanPopup({
     downgradeTitle,
     features,
     subscribePlanLoader,
-    isFrom
+    isFrom,
+    selectedUser
 }) {
 
     console.log("Features of plans passed are", features)
@@ -114,34 +115,6 @@ function DowngradePlanPopup({
                                             )
                                         }
                                     </div>
-                                    <div className='flex flex-row items-center w-full justify-start mt-2 gap-2'>
-                                        <button onClick={() => {
-                                            setConfirmChecked(!confirmChecked)
-                                        }}>
-                                            {confirmChecked ? (
-                                                <div
-                                                    className="bg-purple flex flex-row items-center justify-center rounded"
-                                                    style={{ height: "17px", width: "17px" }}
-                                                >
-                                                    <Image
-                                                        src={"/assets/whiteTick.png"}
-                                                        height={6}
-                                                        width={8}
-                                                        alt="*"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div
-                                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                                    style={{ height: "17px", width: "17px" }}
-                                                ></div>
-                                            )}
-                                        </button>
-
-                                        <div className='text-xs font-normal'>
-                                            {`I confirm that i’ll lose access to features.`}
-                                        </div>
-                                    </div>
                                 </div>
 
 
@@ -150,33 +123,61 @@ function DowngradePlanPopup({
 
 
 
-                        </div >
+                        </div>
                     </div>
                     <div className='h-[10%] w-full pb-4 px-4'>
-                    {
-                        subscribePlanLoader ? (
-                            <div className="w-full flex flex-row items-center justify-center mt-5 h-[40px]">
-                                <CircularProgress size={30} />
-                            </div>
-                        ) : (
-                            <button
-                                className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[40px] ${!confirmChecked ? "bg-btngray text-black" : "bg-purple text-white"}`}
-                                style={{
-                                    fontWeight: "400",
-                                    fontSize: 15.8,
-                                    outline: "none",
-                                }}
-
-                                disabled={!confirmChecked}
-
-                                onClick={() => {
-                                    onConfirm()
-                                }}
-                            >
-                                Confirm Cancellation
+                        <div className='flex flex-row items-center w-full justify-start mt-2 gap-2'>
+                            <button onClick={() => {
+                                setConfirmChecked(!confirmChecked)
+                            }}>
+                                {confirmChecked ? (
+                                    <div
+                                        className="bg-purple flex flex-row items-center justify-center rounded"
+                                        style={{ height: "17px", width: "17px" }}
+                                    >
+                                        <Image
+                                            src={"/assets/whiteTick.png"}
+                                            height={6}
+                                            width={8}
+                                            alt="*"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                        style={{ height: "17px", width: "17px" }}
+                                    ></div>
+                                )}
                             </button>
-                        )
-                    }
+
+                            <div className='text-xs font-normal'>
+                                {`I confirm that i’ll lose access to features.`}
+                            </div>
+                        </div>
+                        {
+                            subscribePlanLoader ? (
+                                <div className="w-full flex flex-row items-center justify-center mt-5 h-[40px]">
+                                    <CircularProgress size={30} />
+                                </div>
+                            ) : (
+                                <button
+                                    className={`w-full flex items-center rounded-lg justify-center mt-5 border h-[40px] ${!confirmChecked ? "bg-btngray text-black" : "bg-purple text-white"}`}
+                                    style={{
+                                        fontWeight: "400",
+                                        fontSize: 15.8,
+                                        outline: "none",
+                                    }}
+
+                                    disabled={!confirmChecked}
+
+                                    onClick={() => {
+                                        onConfirm()
+                                    }}
+                                >
+                                    Confirm Cancellation
+                                </button>
+                            )
+                        }
                     </div>
                 </div>
             </Box>

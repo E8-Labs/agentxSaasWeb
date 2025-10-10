@@ -63,18 +63,19 @@ const setCachedPlans = (data, from) => {
     }
 };
 
-export const getUserPlans = async (from) => {
+export const getUserPlans = async (from, selectedUser) => {
     try {
         const cached = getCachedPlans(from);
         const UserLocalData = getUserLocalData();
+        // console.log("Selected user passed in get plans in details view", selectedUser)
 
         // If cache exists and is fresh (< 5 minutes), return cached data
-        if (UserLocalData?.userRole === "AgencySubAccount") {
-            if (cached && !cached.isStale) {
-                console.log(`Returning cached plans (${Math.floor(cached.age / 1000)}s old)`);
-                return cached.data;
-            }
-        }
+        // if (UserLocalData?.userRole === "AgencySubAccount") {
+        //     if (cached && !cached.isStale) {
+        //         console.log(`Returning cached plans (${Math.floor(cached.age / 1000)}s old)`);
+        //         return cached.data;
+        //     }
+        // }
 
         // If cache is stale or doesn't exist, make API call
         let token = AuthToken();
@@ -88,7 +89,13 @@ export const getUserPlans = async (from) => {
         } else if (from === "agency") {
             path = Apis.getPlansForAgency;
         }
+
         console.log('path of get plans', path);
+        if (selectedUser) {
+            path = `${path}?userId=${selectedUser.id}`;
+        }
+
+        console.log("Api path for user details view", path);
 
         const response = await axios.get(path, {
             headers: {
