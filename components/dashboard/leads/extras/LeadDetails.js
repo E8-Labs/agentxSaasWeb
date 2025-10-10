@@ -63,6 +63,7 @@ import { getA2PNumbers, getGmailAccounts } from "@/components/pipeline/TempleteS
 import { UpgradeTagWithModal } from "@/components/constants/constants";
 import { calculateCreditCost } from "@/services/LeadsServices/LeadsServices";
 import AuthSelectionPopup from "@/components/pipeline/AuthSelectionPopup";
+import ScoringProgress from "@/components/ui/ScoringProgress";
 
 const LeadDetails = ({
   showDetailsModal,
@@ -1386,6 +1387,14 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.firstName}{" "}
                               {selectedLeadsDetails?.lastName}
                             </div>
+
+                            {
+                              selectedLeadsDetails?.scores.length > 0 && (
+                                <ScoringProgress value={selectedLeadsDetails?.scores[0]?.score} maxValue={10} questions={selectedLeadsDetails?.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
+                              )
+                            }
+
+
                             {selectedLeadsDetails?.isOnDncList && (
                               <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
                                 DNC

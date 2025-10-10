@@ -1137,7 +1137,7 @@ const PipelineStages = ({
                                     >
                                       <div>
                                         <MenuItem
-                                          disabled={shouldDisable(a)}
+                                          // disabled={shouldDisable(a)}
                                           key={a.value}
                                           sx={{
                                             width: 180,

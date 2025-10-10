@@ -2871,15 +2871,15 @@ function Page() {
       // Use Redux plan capabilities as primary source
       if (reduxUser?.planCapabilities) {
         if (!isFeatureAllowed('allowLanguageSelection')) {
-          setShowErrorSnack("Multilingual support requires a plan upgrade.");
-          setIsVisibleSnack2(true);
+          // Trigger the upgrade modal from UpgradeTagWithModal
+          setShowUpgradePlanModal(true);
           return
         }
       } else {
         // Fallback to localStorage logic
         if (user?.user?.planCapabilities?.allowLanguageSelection === false) {
-          setShowErrorSnack("Multilingual support requires a plan upgrade.");
-          setIsVisibleSnack2(true);
+          // Trigger the upgrade modal from UpgradeTagWithModal
+          setShowUpgradePlanModal(true);
           return
         }
       }
@@ -4285,7 +4285,8 @@ function Page() {
                                       )
                                     ) && (
                                       <UpgradeTagWithModal
-
+                                        externalTrigger={showUpgradePlanModal}
+                                        onModalClose={() => setShowUpgradePlanModal(false)}
                                         reduxUser={reduxUser}
                                         setReduxUser={setReduxUser}
                                       />

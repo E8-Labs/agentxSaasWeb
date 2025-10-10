@@ -61,6 +61,7 @@ import ConfigurePopup from "./ConfigurePopup";
 import { getUserLocalData } from "../constants/constants";
 import UpgradeModal from "@/constants/UpgradeModal";
 import CloseBtn from "../globalExtras/CloseBtn";
+import ScoringProgress from "../ui/ScoringProgress";
 
 const Pipeline1 = () => {
   const bottomRef = useRef();
@@ -2445,33 +2446,40 @@ const Pipeline1 = () => {
                                     key={leadIndex}
                                   >
                                     <div className="border rounded-xl px-4 py-2 h-full">
-                                      <button
-                                        className="flex flex-row items-center gap-3"
-                                        onClick={() => {
-                                          // console.log(
-                                          //   "Selected lead details are:",
-                                          //   lead
-                                          // );
-                                          setShowDetailsModal(true);
-                                          setSelectedLeadsDetails(lead.lead);
-                                          setPipelineId(lead.lead.pipeline.id);
-                                          setNoteDetails(lead.lead.notes);
-                                        }}
-                                      >
-                                        {/* T is center aligned */}
-                                        <div
-                                          className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                          style={{
-                                            height: "27px",
-                                            width: "27px",
+                                      <div className="flex flex-row items-center justify-between w-full">
+
+                                        <button
+                                          className="flex flex-row items-center gap-3"
+                                          onClick={() => {
+                                            // console.log(
+                                            //   "Selected lead details are:",
+                                            //   lead
+                                            // );
+                                            setShowDetailsModal(true);
+                                            setSelectedLeadsDetails(lead.lead);
+                                            setPipelineId(lead.lead.pipeline.id);
+                                            setNoteDetails(lead.lead.notes);
                                           }}
                                         >
-                                          {lead.lead.firstName.slice(0, 1)}
-                                        </div>
-                                        <div style={styles.paragraph}>
-                                          {lead.lead.firstName}
-                                        </div>
-                                      </button>
+                                          {/* T is center aligned */}
+                                          <div
+                                            className="bg-black text-white rounded-full flex flex-row item-center justify-center"
+                                            style={{
+                                              height: "27px",
+                                              width: "27px",
+                                            }}
+                                          >
+                                            {lead.lead.firstName.slice(0, 1)}
+                                          </div>
+                                          <div style={styles.paragraph}>
+                                            {lead.lead.firstName}
+                                          </div>
+                                        </button>
+                                        {/* show results on hover */}
+                                        {lead.lead.scoringDetails && lead.lead.scoringDetails?.questions?.length > 0 && (
+                                          <ScoringProgress value={lead.lead.scoringDetails?.totalScore} maxValue={10} questions={lead.lead.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
+                                        )}
+                                      </div>
                                       <div className="flex flex-row items-center justify-between w-full mt-2">
                                         <div
                                           className="text-[#00000060]"

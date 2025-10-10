@@ -170,7 +170,7 @@ export const UpgradeTag = ({ onClick, className = "",reduxUser,setReduxUser }) =
 }
 
 // Wrapper component that handles upgrade modal functionality
-export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser  }) => {
+export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser, externalTrigger = false, onModalClose }) => {
   const [showUpgradeModal, setShowUpgradeModal] = React.useState(false);
   
   // Import necessary components dynamically to avoid circular dependencies
@@ -208,12 +208,24 @@ export const UpgradeTagWithModal = ({ className = "",reduxUser,setReduxUser  }) 
     }
   };
 
+  // Handle external trigger to open modal
+  React.useEffect(() => {
+    if (externalTrigger) {
+      setShowUpgradeModal(true);
+    }
+  }, [externalTrigger]);
+
   const handleUpgradeClick = () => {
     setShowUpgradeModal(true);
   };
 
   const handleModalClose = async (upgradeResult) => {
     setShowUpgradeModal(false);
+    
+    // Call external callback if provided
+    if (onModalClose) {
+      onModalClose();
+    }
     
     // If upgrade was successful, refresh user data
     if (upgradeResult) {
