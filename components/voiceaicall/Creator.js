@@ -121,7 +121,7 @@ const Creator = ({ agentId, name }) => {
       formData.firstName?.trim() &&
       formData.lastName?.trim() &&
       // formData.email?.trim() &&
-      isValidEmail(formData.email) &&
+      // isValidEmail(formData.email) &&
       formData.phone?.trim() &&
       isValidPhone(formData.phone)
     );
