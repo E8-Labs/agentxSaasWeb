@@ -223,7 +223,7 @@ function LeadScoring({
                                                             handleEditTemplate(template);
                                                         }}
                                                         className="ml-2 text-base text-purple underline"
-                                                      
+
                                                     >
                                                         Edit
                                                     </button>
@@ -238,7 +238,7 @@ function LeadScoring({
                         <NoActionView
                             title="No scoring data available"
                             featureName="Scoring"
-                            setShowAddScoringModal = {setShowAddScoringModal}
+                            setShowAddScoringModal={setShowAddScoringModal}
                         />
                     )
                 )}
@@ -262,7 +262,12 @@ function LeadScoring({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
+                        setSelectedTemplate: (templateId) => {
+                            console.log('Setting selected template in LeadScoring:', templateId);
+                            setSelectedTemplate(templateId);
+                        }
                     });
+                    fetchAgentScoring();
                     // Reset editing state
                     setEditingTemplate(null);
                 }}
