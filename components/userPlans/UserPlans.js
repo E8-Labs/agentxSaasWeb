@@ -386,9 +386,14 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                         }
 
                         {
-                            monthlyPlans?.length > 0 &&
-                            quaterlyPlans?.length > 0 &&
-                            yearlyPlans?.length > 0 && (
+                            (
+                                // count how many have length > 0
+                                [
+                                    monthlyPlans?.length > 0,
+                                    quaterlyPlans?.length > 0,
+                                    yearlyPlans?.length > 0
+                                ].filter(Boolean).length >= 2
+                            ) && (
                                 <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
                                     {
                                         duration?.map((item) => (

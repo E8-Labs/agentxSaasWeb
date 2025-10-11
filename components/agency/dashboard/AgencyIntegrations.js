@@ -8,11 +8,14 @@ import AgencySupportAndWidget from '../integrations/AgencySupportAndWidget';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import AgencyLinkWarning from '@/components/globalExtras/AgencyLinkWarning';
 
 function AgencyIntegrations({ selectedAgency }) {
 
     const [currentTab, setCurrentTab] = useState(1);
     const [linkCopied, setLinkCopied] = useState(false);
+    //code for copy link one time warning modal
+    const [showCopyLinkWarning, setShowCopyLinkWarning] = useState(false);
 
     const DuplicateButton = dynamic(
         () => import("@/components/animation/DuplicateButton"),
@@ -137,7 +140,8 @@ function AgencyIntegrations({ selectedAgency }) {
                             <button
                                 className="flex flex-row items-center justify-center gap-2 bg-[#7804DF05] rounded-lg p-2"
                                 onClick={() => {
-                                    copyAgencyOnboardingLink({ setLinkCopied })
+                                    setShowCopyLinkWarning(true);
+                                    // copyAgencyOnboardingLink({ setLinkCopied })
                                 }}
                             >
                                 <Image alt="*" src={"/assets/copyIconPurple.png"} height={20} width={20} />
@@ -171,6 +175,20 @@ function AgencyIntegrations({ selectedAgency }) {
                         <AgencySupportAndWidget />
                     </div>
                 ) : "No Tab Selected"
+            }
+
+            {
+                showCopyLinkWarning && (
+                    <AgencyLinkWarning
+                        open={showCopyLinkWarning}
+                        handleClose={() => {
+                            setShowCopyLinkWarning(false);
+                        }}
+                        handleCopyLink={() => {
+                            copyAgencyOnboardingLink({ setLinkCopied })
+                        }}
+                    />
+                )
             }
 
         </div>

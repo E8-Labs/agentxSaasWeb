@@ -1222,9 +1222,14 @@ function SubAccountPlansAndPayments({
             ))*/}
 
             {
-                monthlyPlans?.length > 0 &&
-                quaterlyPlans?.length > 0 &&
-                yearlyPlans?.length > 0 && (
+                (
+                    // count how many have length > 0
+                    [
+                        monthlyPlans?.length > 0,
+                        quaterlyPlans?.length > 0,
+                        yearlyPlans?.length > 0
+                    ].filter(Boolean).length >= 2
+                ) && (
                     <div className="w-full flex flex-row justify-end mt-4">
                         <div className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
                         >

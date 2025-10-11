@@ -1392,11 +1392,11 @@ function AgencyPlansPayments({
                                     handleCancelPlanClick()
                                 } else if (title === "Downgrade") {
                                     console.log("Currenlty selectd plan is", selectedPlan?.capabilities?.maxSubAccounts);
-                                    if (selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
-                                        setShowDowngradePlanWarning(true)
-                                    } else {
-                                        setShowDowngradePlanPopup(true)
-                                    }
+                                    // if (selectedPlan?.capabilities?.maxSubAccounts < currentSubAccounts?.length) {
+                                    //     setShowDowngradePlanWarning(true)
+                                    // } else {
+                                    // }
+                                    setShowDowngradePlanPopup(true)
                                 } else {
                                     // handleSubscribePlan()
                                     setShowUpgradeModal(true);
