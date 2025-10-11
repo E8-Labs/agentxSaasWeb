@@ -219,7 +219,7 @@ const AdminCallDetails = ({
               color: "#00000070",
             }}
           >
-            Transcript
+            Call ID
           </div>
 
           <button
