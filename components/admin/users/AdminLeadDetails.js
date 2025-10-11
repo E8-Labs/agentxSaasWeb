@@ -1259,7 +1259,7 @@ const AdminLeadDetails = ({
                                                                                                             column?.title
                                                                                                         )
                                                                                                             ? "Read Less"
-                                                                                                            : "Read More"}
+                                                                                                            : "Read Transcript"}
                                                                                                     </button>
                                                                                                 </div>
                                                                                             )}

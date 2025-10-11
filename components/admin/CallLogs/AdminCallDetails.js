@@ -310,7 +310,7 @@ const AdminCallDetails = ({
                 }}
                 className="mt-2 text-black underline"
               >
-                {"Read more"}
+                {"Read Transcript"}
               </button>
             </div>
           </div>
