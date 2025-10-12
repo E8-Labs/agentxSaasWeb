@@ -14,7 +14,7 @@ export const DurationView = ({
                     <div className='flex flex-row items-center justify-end gap-2 px-2 mt-2 me-[7px]'>
                         {
                             duration.map((item) => (
-                                item.save ? (
+                                item.save && (
                                     <div
                                         key={`discount-${item.id}`}
                                         // className={`bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px] rounded-tl-xl rounded-tr-xl px-2 py-0.5`}
@@ -23,8 +23,6 @@ export const DurationView = ({
                                     >
                                         Save {item.save}
                                     </div>
-                                ) : (
-                                    <div style={{ height: '24px' }}></div>
                                 )
                             ))
                         }

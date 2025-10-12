@@ -367,7 +367,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                 <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
                                     {
                                         duration?.map((item) => (
-                                            item.save ? (
+                                            item.save && (
                                                 <div
                                                     key={item.id}
                                                     // className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
@@ -376,8 +376,6 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                 >
                                                     Save {item.save}
                                                 </div>
-                                            ) : (
-                                                <div className='w-[7vw]'></div>
                                             )
                                         ))}
                                 </div>
