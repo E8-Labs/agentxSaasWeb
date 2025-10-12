@@ -673,7 +673,7 @@ function Teams({
 
 
           <div style={{ fontSize: 24, fontWeight: "600" }}>Teams</div>
-          {(reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0) && (
+          {(reduxUser?.planCapabilities?.allowTeamCollaboration && reduxUser?.plan.planId != null && reduxUser?.planCapabilities?.maxTeamMembers < 1000 && reduxUser?.plan.price !== 0) && (
             <div style={{ fontSize: 14, fontWeight: "400", color: '#0000080' }}>
               {`${reduxUser?.currentUsage?.maxTeamMembers}/${reduxUser?.planCapabilities?.maxTeamMembers || 0} used`}
             </div>
@@ -942,8 +942,11 @@ function Teams({
                   width={240}
                   alt="*"
                 />
+                {/*
+                  reduxUser?.agencyCapabilities?.allowTeamCollaboration === false ||
+                */}
                 {
-                  reduxUser?.agencyCapabilities?.allowTeamCollaboration === false || reduxUser?.planCapabilities?.allowTeamCollaboration === false ? (
+                  reduxUser?.planCapabilities?.allowTeamCollaboration === false ? (
                     <div className="w-full flex flex-col items-center -mt-12 gap-4">
                       <Image src={"/otherAssets/starsIcon2.png"}
                         height={30} width={30} alt="*"
@@ -1008,7 +1011,7 @@ function Teams({
                     }}
 
                   >
-                    {reduxUser?.agencyCapabilities?.allowTeamCollaboration === false || reduxUser?.planCapabilities?.allowTeamCollaboration === false ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
+                    {reduxUser?.planCapabilities?.allowTeamCollaboration === false ? "Upgrade Plan" : agencyData?.sellSeats || userLocalData?.sellSeats ? `Add Team $${userLocalData.costPerSeat}/mo` : "+ Invite Team"}
                   </button>
                 </div>
 

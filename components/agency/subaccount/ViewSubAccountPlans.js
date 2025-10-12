@@ -125,9 +125,12 @@ const ViewSubAccountPlans = ({
             if (response) {
                 console.log("Response of update agency subaccount plans api is", response.data);
                 if (response.data.status === true) {
-                    setSnackMsg(response.data.message);
+                    setSnackMsg("Plans Updated.");
                     setSnackMsgType(SnackbarTypes.Success);
                     setUpdatePlansLoader(false);
+                    setTimeout(() => {
+                        hidePlans();
+                    }, 400);
                 } else {
                     setSnackMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Error);
@@ -345,7 +348,7 @@ const ViewSubAccountPlans = ({
                                             {updatePlansLoader ? (
                                                 <CircularProgress size={25} sx={{ color: "white" }} />
                                             ) : (
-                                                "Save"
+                                                "Upgrade"
                                             )}
                                         </button>
                                     )}

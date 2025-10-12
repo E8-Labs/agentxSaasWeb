@@ -505,6 +505,10 @@ export default function AddXBarPlan({
                         ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                         : sanitized;
                       setMinutes(valid);
+                      if (valid > 0 && valid < agencyPlanCost) {
+                        setSnackBannerMsg(`Price/Min should be $ ${agencyPlanCost.toFixed(2)} or less than  ${(originalPrice / agencyPlanCost).toFixed(2)}`);
+                        setSnackBannerMsgType(SnackbarTypes.Warning);
+                      }
                     }}
                   />
                 </div>
