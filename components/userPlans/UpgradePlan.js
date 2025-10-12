@@ -1479,7 +1479,7 @@ function UpgradePlanContent({
                                                                 }
                                                             }}
                                                         >
-                                                            {comparePlans(currentFullPlan, selectedPlan) === 'upgrade' ? "Upgrade" : "Downgrade"}
+                                                            {comparePlans(currentFullPlan, currentSelectedPlan) === 'downgrade' ? "Downgrade" : "Upgrade"}
                                                         </button>
                                                     )
                                                 }

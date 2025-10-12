@@ -1946,7 +1946,7 @@ function NewBilling() {
                                     alt="*"
                                 />
                             </button>
-                            <div className="w-full h-full -mt-[5vh]"
+                            <div className="w-full h-full -mt-5"
                             >
                                 <Elements stripe={stripePromise}>
                                     <UserPlans

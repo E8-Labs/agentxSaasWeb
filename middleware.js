@@ -94,7 +94,9 @@ export function middleware(request) {
   if (
     pathname.startsWith("/createagent") ||
     pathname.startsWith("/pipeline") ||
-    pathname.startsWith("/plan")
+    pathname.startsWith("/plan")||
+    pathname.startsWith("/web-agent")
+
   ) {
     return NextResponse.next();
   }

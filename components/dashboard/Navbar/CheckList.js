@@ -215,7 +215,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                             onClick={() => { setShowList(!showList) }}>
                             <div>
                                 <div className='font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px] whitespace-nowrap overflow-hidden text-ellipsis'>
-                                    Agentx Checklist
+                                    Checklist
                                 </div>
                                 <div className='mt-2'>
                                     <ProgressBar value={progressValue} />

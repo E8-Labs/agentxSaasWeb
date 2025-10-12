@@ -120,7 +120,7 @@ function LeadScoring({
 
             if (response) {
                 if (response.data.status === true) {
-                    showSnackbar('Success', response.data.message || 'Template applied successfully', SnackbarTypes.Success);
+                    showSnackbar("","Lead Score Added",SnackbarTypes.Success);
                     // Refresh templates and agent scoring after applying
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,

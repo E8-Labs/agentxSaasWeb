@@ -341,7 +341,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                     style={{ backgroundColor: '' }}>
                     <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
 
-                    <div className="w-[100%]">
+                    <div className={`w-[${from === "billing-modal" ? "80%" : "100%"}]`}>
                         <ProgressBar value={100} />
                     </div>
                 </div>
@@ -431,6 +431,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                         // marginTop: 20,
                         flexShrink: 0,
                         alignItems: "stretch", // This makes all cards the same height
+                        justifyContent: "center",
                     }}
                 >
                     {
@@ -445,7 +446,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
                                 flex-shrink-0
                                  `}
-                                style={{ width: "billing-modal"? "250px" : "320px" }}
+                                style={{ width: "billing-modal" ? "280px" : "320px" }}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>
@@ -598,13 +599,22 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                                             title={feature.subtext}
                                                                             arrow
                                                                             placement="top"
-                                                                            sx={{
-                                                                                '& .MuiTooltip-tooltip': {
-                                                                                    fontSize: '12px',
-                                                                                    backgroundColor: '#333',
-                                                                                    color: '#fff',
-                                                                                    maxWidth: '200px'
-                                                                                }
+                                                                            componentsProps={{
+                                                                                tooltip: {
+                                                                                    sx: {
+                                                                                        backgroundColor: "#ffffff", // Ensure white background
+                                                                                        color: "#333", // Dark text color
+                                                                                        fontSize: "14px",
+                                                                                        padding: "10px 15px",
+                                                                                        borderRadius: "8px",
+                                                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                                    },
+                                                                                },
+                                                                                arrow: {
+                                                                                    sx: {
+                                                                                        color: "#ffffff", // Match tooltip background
+                                                                                    },
+                                                                                },
                                                                             }}
                                                                         >
                                                                             <div

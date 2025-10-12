@@ -327,7 +327,7 @@ const AddScoringModal = ({
   };
 
   const removeQuestion = (index) => {
-    if (questions.length > 4) {
+    if (questions.length > 1 && index !== 0) {
       const newQuestions = questions.filter((_, i) => i !== index);
       setQuestions(newQuestions);
     }
@@ -818,13 +818,15 @@ const AddScoringModal = ({
                   </div>
 
                   {/* Remove Button */}
-                  {questions.length > 4 && (
+                  {questions.length > 1 && index !== 0 ? (
                     <button
                       onClick={() => removeQuestion(index)}
-                      className="p-2 text-gray-400 hover:text-red-500 text-lg font-bold"
+                      className="p-2 text-gray-400 text-lg font-bold"
                     >
                       ×
                     </button>
+                  ):(
+                    <div className="w-5"></div>
                   )}
                 </div>
               </div>
