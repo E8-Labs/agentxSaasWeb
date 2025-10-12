@@ -317,6 +317,9 @@ const Userleads = ({
     getProfile();
     getPipelines();
     getSheets();
+    
+    // Check localStorage usage for debugging
+    checkLocalStorageUsage();
   }, []);
 
   useEffect(() => {
@@ -414,7 +417,120 @@ const Userleads = ({
   };
 
   function SetSheetsToLocalStorage(data) {
-    localStorage.setItem("sheets", JSON.stringify(data));
+    try {
+      localStorage.setItem("sheets", JSON.stringify(data));
+    } catch (error) {
+      console.warn("⚠️ Failed to store sheets in localStorage:", error.message);
+    }
+  }
+
+  // Utility function to safely store large data in localStorage
+  function safeLocalStorageSet(key, data, maxRetries = 2) {
+    try {
+      const dataString = JSON.stringify(data);
+      console.log(`💾 Attempting to store ${key}, size: ${dataString.length} characters`);
+      
+      // Check if data is too large (localStorage typically has 5-10MB limit)
+      if (dataString.length > 4 * 1024 * 1024) { // 4MB threshold
+        console.warn(`⚠️ Data for ${key} is very large (${Math.round(dataString.length / 1024 / 1024)}MB), may cause quota issues`);
+      }
+      
+      localStorage.setItem(key, dataString);
+      return true;
+    } catch (error) {
+      console.warn(`⚠️ localStorage quota exceeded for ${key}:`, error.message);
+      
+      if (maxRetries > 0) {
+        console.log(`🔄 Attempting cleanup and retry for ${key}`);
+        try {
+          // Clean up old cached leads data to free space
+          cleanupOldCachedLeads();
+          
+          // Remove old data for this key
+          localStorage.removeItem(key);
+          // Try again
+          localStorage.setItem(key, JSON.stringify(data));
+          console.log(`✅ Successfully stored ${key} after cleanup`);
+          return true;
+        } catch (retryError) {
+          console.warn(`❌ Still unable to store ${key} after cleanup:`, retryError.message);
+          return false;
+        }
+      }
+      return false;
+    }
+  }
+
+  // Function to check localStorage usage
+  function checkLocalStorageUsage() {
+    try {
+      let totalSize = 0;
+      const keysToCheck = [];
+      
+      // Get all localStorage keys and calculate total size
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const value = localStorage.getItem(key);
+          const size = key.length + value.length;
+          totalSize += size;
+          keysToCheck.push({ key, size });
+        }
+      }
+      
+      console.log(`📊 localStorage usage: ${Math.round(totalSize / 1024)}KB total`);
+      console.log(`📊 localStorage keys: ${keysToCheck.length}`);
+      
+      // Show leads-related keys specifically
+      const leadsKeys = keysToCheck.filter(item => item.key.startsWith('Leads'));
+      leadsKeys.forEach(item => {
+        console.log(`📋 ${item.key}: ${Math.round(item.size / 1024)}KB`);
+      });
+      
+      return { totalSize, keysCount: keysToCheck.length, leadsKeys: leadsKeys.length };
+    } catch (error) {
+      console.warn("⚠️ Error checking localStorage usage:", error.message);
+      return null;
+    }
+  }
+
+  // Function to clean up old cached leads data to free localStorage space
+  function cleanupOldCachedLeads() {
+    try {
+      console.log("🧹 Cleaning up old cached leads data");
+      const usageBefore = checkLocalStorageUsage();
+      
+      const keysToCheck = [];
+      
+      // Get all localStorage keys
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('Leads')) {
+          keysToCheck.push(key);
+        }
+      }
+      
+      // Remove old cached data (keep only the most recent 2 sheets)
+      if (keysToCheck.length > 2) {
+        keysToCheck.sort(); // Sort to get consistent order
+        const keysToRemove = keysToCheck.slice(0, keysToCheck.length - 2); // Keep last 2
+        
+        keysToRemove.forEach(key => {
+          console.log(`🗑️ Removing old cached data: ${key}`);
+          localStorage.removeItem(key);
+        });
+      }
+      
+      const usageAfter = checkLocalStorageUsage();
+      console.log(`✅ Cleanup completed. Remaining cached sheets: ${keysToCheck.length}`);
+      
+      if (usageBefore && usageAfter) {
+        const savedSpace = usageBefore.totalSize - usageAfter.totalSize;
+        console.log(`💾 Freed up: ${Math.round(savedSpace / 1024)}KB`);
+      }
+    } catch (error) {
+      console.warn("⚠️ Error during localStorage cleanup:", error.message);
+    }
   }
 
   function GetAndSetDataFromLocalStorage() {
@@ -934,10 +1050,15 @@ const Userleads = ({
 
               if (sheetId == SelectedSheetId) {
                 LeadsInSheet[SelectedSheetId] = response.data;
-                localStorage.setItem(
-                  `Leads${SelectedSheetId}`,
-                  JSON.stringify(response.data)
-                );
+                
+                // Try to save to localStorage with error handling
+                const storageKey = `Leads${SelectedSheetId}`;
+                const storageSuccess = safeLocalStorageSet(storageKey, response.data);
+                
+                if (!storageSuccess) {
+                  console.warn("⚠️ Failed to store in localStorage, data will be available in memory cache only");
+                }
+                
                 setLeadsList(data);
                 setFilterLeads(data);
               }
