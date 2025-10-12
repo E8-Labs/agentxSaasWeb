@@ -1389,7 +1389,7 @@ const LeadDetails = ({
                             </div>
 
                             {
-                              selectedLeadsDetails?.scores.length > 0 && (
+                              selectedLeadsDetails?.scores && selectedLeadsDetails.scores.length > 0 && (
                                 <ScoringProgress value={selectedLeadsDetails?.scores[0]?.score} maxValue={10} questions={selectedLeadsDetails?.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
                               )
                             }
