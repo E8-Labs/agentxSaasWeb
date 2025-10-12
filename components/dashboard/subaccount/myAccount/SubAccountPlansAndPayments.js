@@ -1267,7 +1267,7 @@ function SubAccountPlansAndPayments({
                     <button
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0"
-                        style={{ width: "300px" }} // Fixed width for consistent card sizes
+                        style={{ width: "250px" }} // Fixed width for consistent card sizes
                         onClick={(e) => handleTogglePlanClick(item)}
                     >
                         <div

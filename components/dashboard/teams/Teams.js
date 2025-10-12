@@ -680,7 +680,7 @@ function Teams({
           )}
 
           {
-            (reduxUser?.plan.planId != null && reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxTeamMembers < 1000) && (
+            (reduxUser?.planCapabilities?.allowTeamCollaboration && reduxUser?.plan.planId != null && reduxUser?.plan.price !== 0 && reduxUser?.planCapabilities?.maxTeamMembers < 1000) && (
               <Tooltip
                 title={`Additional team seats are $${reduxUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
                 arrow

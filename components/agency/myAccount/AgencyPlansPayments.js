@@ -1072,7 +1072,7 @@ function AgencyPlansPayments({
                     }
                 </div>
                 <div
-                    // className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+                    // className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'  //No plans available for no plans
                     className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
                 >
                     {

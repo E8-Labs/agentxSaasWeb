@@ -27,7 +27,7 @@ function AdminProfileData({ selectedUser, from }) {
         },
         {
             id: 2,
-            heading: "Payments",
+            heading: "Plans & Payment",
             subHeading: "Manage your plans and payment method",
             icon: "/otherAssets/walletIcon.png",
         }, {

@@ -65,16 +65,12 @@ export default function AddXBarPlan({
         const cal = originalPrice * minutes;
         setMinCostErr(true);
         // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
-        setSnackBannerMsg(`Price/Min should be $ ${agencyPlanCost.toFixed(2)} or less than  ${(originalPrice / agencyPlanCost).toFixed(2)}`);
+        setSnackBannerMsg(`Bonus credits should be less than ${(originalPrice / agencyPlanCost).toFixed(2)}`);  //${agencyPlanCost.toFixed(2)} or less than //add formatfractional function here to remove extra .00
         setSnackBannerMsgType(SnackbarTypes.Warning);
       } else if (P > agencyPlanCost) {
         setSnackBannerMsg(null);
         setMinCostErr(false);
       }
-    }
-    if (minutes && minutes < agencyPlanCost) {
-      setSnackBannerMsg(`Price cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
-      setSnackBannerMsgType(SnackbarTypes.Warning);
     }
   }, [minutes, originalPrice]);
 
@@ -505,10 +501,6 @@ export default function AddXBarPlan({
                         ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                         : sanitized;
                       setMinutes(valid);
-                      if (valid > 0 && valid < agencyPlanCost) {
-                        setSnackBannerMsg(`Price/Min should be $ ${agencyPlanCost.toFixed(2)} or less than  ${(originalPrice / agencyPlanCost).toFixed(2)}`);
-                        setSnackBannerMsgType(SnackbarTypes.Warning);
-                      }
                     }}
                   />
                 </div>

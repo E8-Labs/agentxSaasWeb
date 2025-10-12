@@ -1651,7 +1651,7 @@ function NewBilling() {
                     <div
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0 cursor-pointer"
-                        style={{ width: "220px" }} // Fixed width for consistent card sizes
+                        style={{ width: "250px" }} // Fixed width for consistent card sizes
                         onClick={(e) => {
                             // Only handle click if it's not from the View Details button
                             if (!e.target.closest('.view-details-btn')) {

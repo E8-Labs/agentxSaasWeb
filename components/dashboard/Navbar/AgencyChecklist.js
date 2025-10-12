@@ -94,11 +94,11 @@ const AgencyChecklist = ({ userDetails }) => {
                 progressValue < 100 && (
                     <div className='bg-[#F7F7FD] w-full rounded-md mb-2 py-2'>
                         <button
-                            className='w-full flex flex-rw items-center justify-between outline-none border-none ps-2'
+                            className='w-full flex flex-rw items-center justify-between outline-none border-none px-4'
                             onClick={() => { setShowList(!showList) }}>
                             <div>
                                 <div className='font-semibold text-xs sm:text-sm md:text-[13px] lg:text-[15px] whitespace-nowrap overflow-hidden text-ellipsis'>
-                                    Agency Checklist
+                                    Checklist
                                 </div>
                                 <div>
                                     <ProgressBar value={progressValue} />
