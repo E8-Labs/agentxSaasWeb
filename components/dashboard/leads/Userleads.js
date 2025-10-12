@@ -94,6 +94,7 @@ const Userleads = ({
   const [needHelp, setNeedHelp] = useState(false);
 
   const requestVersion = useRef(0);
+  const loadingTimeoutRef = useRef(null);
 
   const [filtersSelected, setFiltersSelected] = useState([]);
 
@@ -226,9 +227,10 @@ const Userleads = ({
   };
 
   useEffect(() => {
-
+    console.log("🔍 Search useEffect triggered - searchLead:", searchLead);
     //check the render
     if (isFirstRender.current) {
+      console.log("🔄 First render, skipping search effect");
       isFirstRender.current = false;
       return;
     }
@@ -237,22 +239,59 @@ const Userleads = ({
       clearTimeout(filterRef.current);
     }
     filterRef.current = setTimeout(() => {
-      //console.log;
+      console.log("⏰ Search timeout triggered");
       if (SelectedSheetId) {
+        console.log("🔍 Search effect - calling handleFilterLeads with SelectedSheetId:", SelectedSheetId);
         setHasMore(true);
         setFilterLeads([]);
         setLeadsList([]);
         let filterText = getFilterText();
-        //console.log;
+        console.log("🔍 Filter text for search:", filterText);
         handleFilterLeads(0, filterText);
         setShowNoLeadsLabel(false);
+      } else {
+        console.log("⚠️ Search effect - no SelectedSheetId available");
       }
     }, 400);
   }, [searchLead]);
 
   useEffect(() => {
-    console.log("totalLeads is", totalLeads);
+    console.log("📈 totalLeads changed to:", totalLeads);
   }, [totalLeads]);
+
+  useEffect(() => {
+    console.log("📋 LeadsList changed:", {
+      length: LeadsList.length,
+      firstLead: LeadsList[0] ? { id: LeadsList[0].id, firstName: LeadsList[0].firstName } : null
+    });
+  }, [LeadsList]);
+
+  useEffect(() => {
+    console.log("🔍 FilterLeads changed:", {
+      length: FilterLeads.length,
+      firstLead: FilterLeads[0] ? { id: FilterLeads[0].id, firstName: FilterLeads[0].firstName } : null
+    });
+  }, [FilterLeads]);
+
+  useEffect(() => {
+    console.log("📊 SelectedSheetId changed to:", SelectedSheetId);
+  }, [SelectedSheetId]);
+
+  useEffect(() => {
+    console.log("🔄 showNoLeadsLabel changed to:", showNoLeadsLabel);
+  }, [showNoLeadsLabel]);
+
+  useEffect(() => {
+    console.log("⏳ moreLeadsLoader changed to:", moreLeadsLoader);
+  }, [moreLeadsLoader]);
+
+  useEffect(() => {
+    console.log("📋 sheetsLoader changed to:", sheetsLoader);
+  }, [sheetsLoader]);
+
+  useEffect(() => {
+    console.log("🚀 initialLoader changed to:", initialLoader);
+  }, [initialLoader]);
 
   useEffect(() => {
     // getLeads();
@@ -264,6 +303,16 @@ const Userleads = ({
     getProfile();
     getPipelines();
     getSheets();
+    
+    // Check localStorage usage for debugging
+    checkLocalStorageUsage();
+    
+    // Cleanup function
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -327,12 +376,38 @@ const Userleads = ({
   }, [inputs]);
 
   useEffect(() => {
+    console.log("🎯 Filters/Sheet useEffect triggered:", {
+      filtersSelected: filtersSelected.length,
+      SelectedSheetId,
+      trigger: "filtersSelected or SelectedSheetId changed"
+    });
+    
+    // Only proceed if we have a SelectedSheetId
+    if (!SelectedSheetId) {
+      console.log("⚠️ No SelectedSheetId, skipping filter effect");
+      return;
+    }
+    
+    // Clear any existing timeout
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    
+    // Set a timeout to prevent infinite loading
+    loadingTimeoutRef.current = setTimeout(() => {
+      console.log("⏰ Loading timeout reached, stopping loaders");
+      setMoreLeadsLoader(false);
+      setSheetsLoader(false);
+      setInitialLoader(false);
+    }, 10000); // 10 second timeout
+    
     // Scroll to the bottom when inputs change
     setFilterLeads([]);
     setLeadsList([]);
     // console.log("Hello here");
     // return;
     let filterText = getFilterText();
+    console.log("🎯 Filter text generated:", filterText);
 
     // //console.log;
     handleFilterLeads(0, filterText);
@@ -361,24 +436,146 @@ const Userleads = ({
   };
 
   function SetSheetsToLocalStorage(data) {
-    localStorage.setItem("sheets", JSON.stringify(data));
+    try {
+      localStorage.setItem("sheets", JSON.stringify(data));
+    } catch (error) {
+      console.warn("⚠️ Failed to store sheets in localStorage:", error.message);
+    }
+  }
+
+  // Utility function to safely store large data in localStorage
+  function safeLocalStorageSet(key, data, maxRetries = 2) {
+    try {
+      const dataString = JSON.stringify(data);
+      console.log(`💾 Attempting to store ${key}, size: ${dataString.length} characters`);
+      
+      // Check if data is too large (localStorage typically has 5-10MB limit)
+      if (dataString.length > 4 * 1024 * 1024) { // 4MB threshold
+        console.warn(`⚠️ Data for ${key} is very large (${Math.round(dataString.length / 1024 / 1024)}MB), may cause quota issues`);
+      }
+      
+      localStorage.setItem(key, dataString);
+      return true;
+    } catch (error) {
+      console.warn(`⚠️ localStorage quota exceeded for ${key}:`, error.message);
+      
+      if (maxRetries > 0) {
+        console.log(`🔄 Attempting cleanup and retry for ${key}`);
+        try {
+          // Clean up old cached leads data to free space
+          cleanupOldCachedLeads();
+          
+          // Remove old data for this key
+          localStorage.removeItem(key);
+          // Try again
+          localStorage.setItem(key, JSON.stringify(data));
+          console.log(`✅ Successfully stored ${key} after cleanup`);
+          return true;
+        } catch (retryError) {
+          console.warn(`❌ Still unable to store ${key} after cleanup:`, retryError.message);
+          return false;
+        }
+      }
+      return false;
+    }
+  }
+
+  // Function to check localStorage usage
+  function checkLocalStorageUsage() {
+    try {
+      let totalSize = 0;
+      const keysToCheck = [];
+      
+      // Get all localStorage keys and calculate total size
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const value = localStorage.getItem(key);
+          const size = key.length + value.length;
+          totalSize += size;
+          keysToCheck.push({ key, size });
+        }
+      }
+      
+      console.log(`📊 localStorage usage: ${Math.round(totalSize / 1024)}KB total`);
+      console.log(`📊 localStorage keys: ${keysToCheck.length}`);
+      
+      // Show leads-related keys specifically
+      const leadsKeys = keysToCheck.filter(item => item.key.startsWith('Leads'));
+      leadsKeys.forEach(item => {
+        console.log(`📋 ${item.key}: ${Math.round(item.size / 1024)}KB`);
+      });
+      
+      return { totalSize, keysCount: keysToCheck.length, leadsKeys: leadsKeys.length };
+    } catch (error) {
+      console.warn("⚠️ Error checking localStorage usage:", error.message);
+      return null;
+    }
+  }
+
+  // Function to clean up old cached leads data to free localStorage space
+  function cleanupOldCachedLeads() {
+    try {
+      console.log("🧹 Cleaning up old cached leads data");
+      const usageBefore = checkLocalStorageUsage();
+      
+      const keysToCheck = [];
+      
+      // Get all localStorage keys
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('Leads')) {
+          keysToCheck.push(key);
+        }
+      }
+      
+      // Remove old cached data (keep only the most recent 2 sheets)
+      if (keysToCheck.length > 2) {
+        keysToCheck.sort(); // Sort to get consistent order
+        const keysToRemove = keysToCheck.slice(0, keysToCheck.length - 2); // Keep last 2
+        
+        keysToRemove.forEach(key => {
+          console.log(`🗑️ Removing old cached data: ${key}`);
+          localStorage.removeItem(key);
+        });
+      }
+      
+      const usageAfter = checkLocalStorageUsage();
+      console.log(`✅ Cleanup completed. Remaining cached sheets: ${keysToCheck.length}`);
+      
+      if (usageBefore && usageAfter) {
+        const savedSpace = usageBefore.totalSize - usageAfter.totalSize;
+        console.log(`💾 Freed up: ${Math.round(savedSpace / 1024)}KB`);
+      }
+    } catch (error) {
+      console.warn("⚠️ Error during localStorage cleanup:", error.message);
+    }
   }
 
   function GetAndSetDataFromLocalStorage() {
+    console.log("💾 GetAndSetDataFromLocalStorage called");
     let d = localStorage.getItem("sheets");
     if (d) {
+      console.log("💾 Found cached sheets in localStorage");
       // //console.log;
       let data = JSON.parse(d);
       let ind = 0;
       if (sheetIndexSelected < data.length) {
         ind = sheetIndexSelected;
       }
+      console.log("💾 Setting cached data:", {
+        sheetsCount: data.length,
+        selectedIndex: ind,
+        selectedSheetId: data[ind].id,
+        selectedSheetName: data[ind].sheetName
+      });
       setSheetsList(data);
       setCurrentSheet(data[ind]);
       setSelectedSheetId(data[ind].id);
       setParamsInSearchBar(ind);
       return true; //
     } else {
+      console.log("💾 No cached sheets found in localStorage");
       // //console.log;
       return false;
     }
@@ -758,27 +955,43 @@ const Userleads = ({
   }
 
   function getLocallyCachedLeads() {
+    console.log("💾 getLocallyCachedLeads called for SelectedSheetId:", SelectedSheetId);
     // return;
     // //console.log;
     const id = SelectedSheetId;
     //Set leads in cache
     let leadsData = LeadsInSheet[SelectedSheetId] || null;
+    console.log("💾 LeadsInSheet data:", leadsData ? "exists" : "null");
     // //console.log;
     if (!leadsData) {
+      console.log("💾 No LeadsInSheet data, checking localStorage");
       // //console.log;
       let d = localStorage.getItem(`Leads${SelectedSheetId}`);
       if (d) {
         leadsData = JSON.parse(d);
+        console.log("💾 Found localStorage data:", {
+          hasData: !!leadsData?.data,
+          dataLength: leadsData?.data?.length || 0,
+          hasColumns: !!leadsData?.columns,
+          columnsLength: leadsData?.columns?.length || 0
+        });
         // //console.log;
+      } else {
+        console.log("💾 No localStorage data found");
       }
     }
     // //console.log;
     let leads = leadsData?.data || [];
     let leadColumns = leadsData?.columns || [];
+    console.log("💾 Processed data:", {
+      leadsLength: leads.length,
+      leadColumnsLength: leadColumns.length
+    });
     // setSelectedSheetId(item.id);
     // setLeadsList([]);
     // setFilterLeads([]);
     if (leads && leads.length > 0 && leadColumns && leadColumns.length > 0) {
+      console.log("✅ Setting cached leads to state");
       // //console.log;
       setLeadsList((prevDetails) => [...prevDetails, ...leads]);
       setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
@@ -796,8 +1009,10 @@ const Userleads = ({
       // setLeadColumns(response.data.columns);
       // //console.log;
       setLeadColumns(dynamicColumns);
+      console.log("✅ Cached leads set successfully");
       // return
     } else {
+      console.log("❌ No valid cached leads found");
       // //console.log;
     }
   }
@@ -806,6 +1021,15 @@ const Userleads = ({
   const handleFilterLeads = async (offset = 0, filterText = null) => {
     //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
     const currentRequestVersion = ++requestVersion.current;
+    
+    console.log("🚀 handleFilterLeads called with:", {
+      offset,
+      filterText,
+      currentRequestVersion,
+      SelectedSheetId,
+      trigger: new Error().stack?.split('\n')[2]?.trim() // Get calling function
+    });
+    
     try {
       setMoreLeadsLoader(true);
 
@@ -827,17 +1051,18 @@ const Userleads = ({
       //   //////console.log;
       let ApiPath = null;
       if (filterText) {
-        //console.log;
+        console.log("📝 Using filterText:", filterText);
         ApiPath = `${Apis.getLeads}?${filterText}`; //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
         ApiPath = ApiPath + "&noStage=" + noStageSelected;
         ApiPath = ApiPath + `&offset=${offset}`;
       } else {
         if (offset == 0) {
+          console.log("💾 Getting locally cached leads for sheetId:", SelectedSheetId);
           getLocallyCachedLeads();
         }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`;
       }
-      console.log("ApiPath is", ApiPath);
+      console.log("🌐 ApiPath is", ApiPath);
 
       // return
       const response = await axios.get(ApiPath, {
@@ -848,16 +1073,22 @@ const Userleads = ({
       });
 
       if (response) {
-        // console.log(
-        //   "Response of get leads filter api is api is :",
-        //   response.data
-        // );
-        if (currentRequestVersion === requestVersion.current) {
+        console.log(
+          "📊 Response of get leads filter api is api is :",
+          response.data
+        );
+        console.log("🔢 currentRequestVersion is", currentRequestVersion);
+        console.log("🔢 requestVersion.current is", requestVersion.current);
+        
+        // Always process the response if it's the latest request
+        if (currentRequestVersion >= requestVersion.current) {
+          console.log("✅ Processing response for version:", currentRequestVersion);
           if (response.data.status === true) {
             setShowFilterModal(false);
             let count = response.data.leadCount;
             if (offset == 0) {
               setTotalLeads(count);
+              console.log("📈 Total leads count set to:", count);
             }
             // setLeadsList(response.data.data);
             // setFilterLeads(response.data.data);
@@ -867,23 +1098,40 @@ const Userleads = ({
             //   setShowNoLeadErr("No leads found");
 
             const data = response.data.data;
+            console.log("📋 Data received:", {
+              dataLength: data.length,
+              hasColumns: !!response.data.columns,
+              columnsLength: response.data.columns?.length
+            });
+            
             if (offset == 0) {
               let sheetId = null;
               if (data.length > 0) {
                 sheetId = data[0].sheetId;
                 setShowNoLeadsLabel(null);
+                console.log("📝 Found leads, sheetId:", sheetId, "SelectedSheetId:", SelectedSheetId);
               } else {
                 setShowNoLeadsLabel(true);
+                console.log("❌ No leads found, setting showNoLeadsLabel to true");
               }
 
               if (sheetId == SelectedSheetId) {
+                console.log("✅ SheetId matches, updating state with leads");
                 LeadsInSheet[SelectedSheetId] = response.data;
-                localStorage.setItem(
-                  `Leads${SelectedSheetId}`,
-                  JSON.stringify(response.data)
-                );
+                
+                // Try to save to localStorage with error handling
+                const storageKey = `Leads${SelectedSheetId}`;
+                const storageSuccess = safeLocalStorageSet(storageKey, response.data);
+                
+                if (!storageSuccess) {
+                  console.warn("⚠️ Failed to store in localStorage, data will be available in memory cache only");
+                }
+                
                 setLeadsList(data);
                 setFilterLeads(data);
+                console.log("🎯 Leads state updated - LeadsList length:", data.length);
+              } else {
+                console.log("⚠️ SheetId mismatch - not updating state. SheetId:", sheetId, "SelectedSheetId:", SelectedSheetId);
               }
 
               let leads = data;
@@ -892,6 +1140,7 @@ const Userleads = ({
               //   setLeadsList([]);
               //   setFilterLeads([]);
               if (leads && leadColumns) {
+                console.log("🔧 Setting up columns for leads");
                 // //////console.log
                 // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
                 // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
@@ -908,11 +1157,13 @@ const Userleads = ({
                 }
                 // setLeadColumns(response.data.columns);
                 setLeadColumns(dynamicColumns);
+                console.log("📊 Columns set:", dynamicColumns.length);
                 // return
               } else {
-                //////console.log;
+                console.log("❌ No leads or columns to process");
               }
             } else {
+              console.log("📄 Pagination - appending leads to existing list");
               setShowNoLeadsLabel(false);
               setLeadsList((prevDetails) => [...prevDetails, ...data]);
               setFilterLeads((prevDetails) => [...prevDetails, ...data]);
@@ -920,21 +1171,32 @@ const Userleads = ({
 
             if (data.length < LimitPerPage) {
               setHasMore(false);
+              console.log("🏁 No more leads to load");
             } else {
               setHasMore(true);
+              console.log("➡️ More leads available");
               // handleFilterLeads(offset + 30, filterText);
             }
           } else {
-            // //console.log;
+            console.log("❌ API returned status false:", response.data);
           }
+        } else {
+          console.log("⏭️ Request version mismatch - ignoring response. Current:", currentRequestVersion, "Latest:", requestVersion.current);
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is :", error);
+      console.error("💥 Error occurred in handleFilterLeads:", error);
     } finally {
       setMoreLeadsLoader(false);
       setSheetsLoader(false);
-      //////console.log;
+      
+      // Clear the loading timeout since we've completed
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
+      
+      console.log("🏁 handleFilterLeads completed for version:", currentRequestVersion);
     }
   };
 
@@ -1345,8 +1607,10 @@ const Userleads = ({
 
   //code for getting the sheets
   const getSheets = async () => {
+    console.log("📋 getSheets called");
     try {
       let alreadyCached = GetAndSetDataFromLocalStorage();
+      console.log("📋 Already cached:", alreadyCached);
       // return;
       setInitialLoader(!alreadyCached);
       const localData = localStorage.getItem("User");
@@ -1359,6 +1623,7 @@ const Userleads = ({
       //////console.log;
 
       const ApiPath = Apis.getSheets;
+      console.log("📋 Fetching sheets from API");
       //////console.log;
 
       // return
@@ -1370,10 +1635,16 @@ const Userleads = ({
       });
 
       if (response) {
+        console.log("📋 Sheets API response:", {
+          sheetsCount: response.data.data.length,
+          sheets: response.data.data.map(s => ({ id: s.id, name: s.sheetName }))
+        });
         //////console.log;
         if (response.data.data.length === 0) {
+          console.log("📋 No sheets found");
           handleShowUserLeads(null);
         } else {
+          console.log("📋 Sheets found, setting up");
           handleShowUserLeads("leads exist");
           setSheetsList(response.data.data);
           let sheets = response.data.data;
@@ -1383,6 +1654,11 @@ const Userleads = ({
             if (sheetIndexSelected < sheets.length) {
               ind = sheetIndexSelected;
             }
+            console.log("📋 Setting selected sheet:", {
+              index: ind,
+              sheetId: response.data.data[ind].id,
+              sheetName: response.data.data[ind].sheetName
+            });
             setCurrentSheet(response.data.data[ind]);
             setSelectedSheetId(response.data.data[ind].id);
             // setParamsInSearchBar(ind);
@@ -1392,9 +1668,10 @@ const Userleads = ({
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is :", error);
+      console.error("💥 Error in getSheets:", error);
     } finally {
       setInitialLoader(false);
+      console.log("📋 getSheets completed");
       //////console.log;
     }
   };
