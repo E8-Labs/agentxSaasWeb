@@ -84,7 +84,7 @@ export default function AgentSelectSnackMessage({
         }}
       >
         <div
-          className="flex items-center space-x-4 p-2 bg-white  rounded-md shadow-md"
+          className="flex items-center space-x-4 p-1 bg-white  rounded-lg shadow-md"
           style={{ width: "fit-content" }}
         >
           {/* Icon Section */}
@@ -97,14 +97,14 @@ export default function AgentSelectSnackMessage({
           {/* Text Section */}
           <div style={{ width: "fit-content" }}>
             {/* {title && ( */}
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-[16px] font-[500] text-gray-900">
               {title || message}
             </h3>
             {/* // )} */}
             <p
-              className={`${!title ? "text-lg" : "text-sm"} text-gray-600`}
+              className={`${!title ? "text-[14px" : "text-sm"} text-gray-600`}
               style={{
-                fontWeight: !title ? "600" : "500",
+                fontWeight: !title ? "250" : "500",
               }}
             >
               {title && message}

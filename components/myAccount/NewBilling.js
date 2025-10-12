@@ -132,7 +132,7 @@ function NewBilling() {
     }, [showUserPlansModal]);
 
 
-    
+
 
     useEffect(() => {
         const d = localStorage.getItem("User");
@@ -421,7 +421,7 @@ function NewBilling() {
         console.log('quaterlyPlans length:', quaterlyPlans.length);
         console.log('yearlyPlans length:', yearlyPlans.length);
 
-        if(reduxUser && reduxUser.plan){
+        if (reduxUser && reduxUser.plan) {
             setTogglePlan(reduxUser.plan.planId)
             setToggleFullPlan(reduxUser.plan)
             setSelectedPlan(reduxUser.plan)
@@ -1224,7 +1224,7 @@ function NewBilling() {
                 setDowngradeFeatures(featuresToLose);
                 if (featuresToLose.length > 0) {
                     setShowDowngradeModal(true)
-                }else{
+                } else {
                     setShowUpgradeModal(true)
                 }
             }
@@ -1946,27 +1946,30 @@ function NewBilling() {
                                     alt="*"
                                 />
                             </button>
-                            <Elements stripe={stripePromise}>
-                                <UserPlans
-                                    handleContinue={() => {
-                                        setShowUserPlansModal(false);
-                                        refreshProfileAndState();
-                                    }}
-                                    handleBack={() => setShowUserPlansModal(false)}
-                                    from="billing-modal"
-                                    onPlanSelected={(plan) => {
-                                        console.log('Plan selected from modal:', plan);
-                                        // Close UserPlans modal
-                                        setShowUserPlansModal(false);
-                                        // Set the selected plan
-                                        setSelectedPlan(plan);
-                                        setTogglePlan(plan.id);
-                                        setToggleFullPlan(plan);
-                                        // Open Upgrade modal
-                                        setShowUpgradeModal(true);
-                                    }}
-                                />
-                            </Elements>
+                            <div className="w-full h-full -mt-[5vh]"
+                            >
+                                <Elements stripe={stripePromise}>
+                                    <UserPlans
+                                        handleContinue={() => {
+                                            setShowUserPlansModal(false);
+                                            refreshProfileAndState();
+                                        }}
+                                        handleBack={() => setShowUserPlansModal(false)}
+                                        from="billing-modal"
+                                        onPlanSelected={(plan) => {
+                                            console.log('Plan selected from modal:', plan);
+                                            // Close UserPlans modal
+                                            setShowUserPlansModal(false);
+                                            // Set the selected plan
+                                            setSelectedPlan(plan);
+                                            setTogglePlan(plan.id);
+                                            setToggleFullPlan(plan);
+                                            // Open Upgrade modal
+                                            setShowUpgradeModal(true);
+                                        }}
+                                    />
+                                </Elements>
+                            </div>
                         </div>
                     </Box>
                 </Modal>
