@@ -87,8 +87,14 @@ const ConfigureSideUI = ({
                                             </div>
                                         )
                                 }
-                                <div className="text-sm font-medium capitalize bg-[#A9A9A940] text-[#A9A9A9] rounded-full px-2 py-1">
-                                    {from === "dashboard" && (basicsData?.duration)}
+                                <div>
+                                    {
+                                        from === "dashboard" && (
+                                            <div className="text-sm font-medium capitalize bg-[#A9A9A940] text-[#A9A9A9] rounded-full px-2 py-1">
+                                                {basicsData?.duration}
+                                            </div>
+                                        )
+                                    }
                                 </div>
                             </div>
                             <div
@@ -107,7 +113,7 @@ const ConfigureSideUI = ({
                                 </span>
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>
-                            <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">Get Started {allowTrial && trialValidForDays ? <span>| {trialValidForDays} Day Free Trial</span> : ""}</button>
+                            <button className="bg-purple h-[41px] mt-4 rounded-lg text-center text-white w-full">{allowTrial && trialValidForDays ? <span>{trialValidForDays} Day Free Trial</span> : "Get Started"}</button>
                             {
                                 allowedFeatures?.length > 0 && (
                                     <div className='w-full'>

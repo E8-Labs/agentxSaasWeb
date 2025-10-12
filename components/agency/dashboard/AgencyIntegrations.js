@@ -181,11 +181,15 @@ function AgencyIntegrations({ selectedAgency }) {
                 showCopyLinkWarning && (
                     <AgencyLinkWarning
                         open={showCopyLinkWarning}
+                        linkCopied={linkCopied}
                         handleClose={() => {
                             setShowCopyLinkWarning(false);
                         }}
                         handleCopyLink={() => {
-                            copyAgencyOnboardingLink({ setLinkCopied })
+                            copyAgencyOnboardingLink({ setLinkCopied });
+                            setTimeout(() => {
+                                setShowCopyLinkWarning(false);
+                            }, 500);
                         }}
                     />
                 )

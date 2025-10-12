@@ -12,7 +12,7 @@ import { getStripeLink } from '@/components/onboarding/services/apisServices/Api
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage';
 import StripeDetailsCard from './StripeDetailsCard';
 
-const ConnectStripe = () => {
+const ConnectStripe = ({ fullScreen = false }) => {
 
     const router = useRouter();
     const [loader, setLoader] = useState(false);
@@ -107,7 +107,7 @@ const ConnectStripe = () => {
 
     return (
         <div
-            className='w-full flex flex-row items-center justify-center'
+            className={`w-full flex flex-row items-center justify-center ${fullScreen ? "h-screen" : ""}`}
         // style={{
         //     height: '100svh',
         //     width: '100%',
@@ -138,7 +138,7 @@ const ConnectStripe = () => {
                                         stripeData={agencydata?.stripeAccount}
                                     />
                                 ) : (
-                                    <div className="w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 mt-6">
+                                    <div className={`w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 ${fullScreen ? "" : "mt-6"}`}>
                                         <div
                                             className="w-full flex flex-row items-start justify-end rounded-t-2xl h-[200px]"
                                             style={{
@@ -189,7 +189,7 @@ const ConnectStripe = () => {
                                                         <CircularProgress size={30} />
                                                     </div> :
                                                     <button
-                                                        className='bg-purple text-white p-2 rounded-md w-20vw mt-4 h-[40px]'
+                                                        className='bg-purple text-white py-2 px-4 rounded-md w-20vw mt-4 h-[40px]'
                                                         style={styles.btnText}
                                                         onClick={() => {
                                                             if (agencydata?.canAcceptPaymentsAgencyccount) {

@@ -17,6 +17,7 @@ import AddMonthlyPlanAnimation from './AddMonthlyPlanAnimation';
 import { formatFractional2 } from './AgencyUtilities';
 import ConfigureSideUI from './ConfigureSideUI';
 import EditPlanWarning from './EditPlanWarning';
+import XBarSideUI from './XBarSideUI';
 
 
 function DashboardPlans({
@@ -54,7 +55,7 @@ function DashboardPlans({
 
     //set custom features
     useEffect(() => {
-        if (selectedPlanDetails) {
+        if (selectedPlanDetails && planType === "monthly") {
 
             const featuresObj = selectedPlanDetails?.dynamicFeatures;
 
@@ -383,6 +384,7 @@ function DashboardPlans({
             setSelectedPlanDetails(item);
         } else {
             console.log("This is XBas so no details view")
+            setSelectedPlanDetails(item);
         }
     }
 
@@ -776,18 +778,33 @@ function DashboardPlans({
                             onClose={() => { setSelectedPlanDetails(null) }}
                         >
                             <Box className="bg-transparent rounded-xl max-w-[80%] w-[34%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                                <ConfigureSideUI
-                                    handleClose={() => { setSelectedPlanDetails(null) }}
-                                    // handleResetValues={handleResetValues}
-                                    allowedFeatures={selectedPlanDetails?.features}
-                                    noOfAgents={selectedPlanDetails?.maxAgents}
-                                    noOfContacts={selectedPlanDetails?.maxLeads}
-                                    basicsData={selectedPlanDetails}
-                                    // features={features}
-                                    allowTrial={selectedPlanDetails?.dynamicFeatures?.allowTrial}
-                                    trialValidForDays={selectedPlanDetails?.trialValidForDays}
-                                    from={"dashboard"}
-                                />
+                                {
+                                    planType === "monthly" ? (
+                                        <ConfigureSideUI
+                                            handleClose={() => { setSelectedPlanDetails(null) }}
+                                            // handleResetValues={handleResetValues}
+                                            allowedFeatures={selectedPlanDetails?.features}
+                                            noOfAgents={selectedPlanDetails?.maxAgents}
+                                            noOfContacts={selectedPlanDetails?.maxLeads}
+                                            basicsData={selectedPlanDetails}
+                                            // features={features}
+                                            allowTrial={selectedPlanDetails?.dynamicFeatures?.allowTrial}
+                                            trialValidForDays={selectedPlanDetails?.trialValidForDays}
+                                            from={"dashboard"}
+                                        />
+                                    ) : (
+                                        <XBarSideUI
+                                            handleClose={() => { setSelectedPlanDetails(null) }}
+                                            title={selectedPlanDetails?.title}
+                                            tag={selectedPlanDetails?.tag}
+                                            planDescription={selectedPlanDetails?.planDescription}
+                                            originalPrice={selectedPlanDetails?.discountedPrice}
+                                            discountedPrice={selectedPlanDetails?.originalPrice}
+                                            minutes={selectedPlanDetails?.minutes}
+                                            from={"dashboard"}
+                                        />
+                                    )
+                                }
                             </Box>
                         </Modal>
                     )

@@ -460,7 +460,16 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                 getCurrentPlans().length > 0 && getCurrentPlans()?.map((item, index) => item ? (
                                     <button
                                         key={item.id}
-                                        onClick={() => handleTogglePlanClick(item, index)}
+                                        onClick={() => {
+                                            handleTogglePlanClick(item, index);
+                                            const currentItem = item;
+                                            const currentIndex = index;
+                                            if (currentItem && currentItem.id) {
+                                                handleClaimEarlyAccess(currentItem, currentIndex);
+                                            } else {
+                                                console.error("Item or item.id is undefined:", currentItem);
+                                            }
+                                        }}
                                         onMouseEnter={() => { setHoverPlan(item) }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
                                         className={`w-[370px] rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}

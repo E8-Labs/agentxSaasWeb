@@ -15,7 +15,7 @@ const Page = () => {
 
 
     return (
-        <ConnectStripe />
+        <ConnectStripe fullScreen={true} />
     )
 }
 

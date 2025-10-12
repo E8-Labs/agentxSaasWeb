@@ -46,23 +46,45 @@
 //     return fixed.replace(/(\.\d)0$/, "$1");
 // };
 
+// export function formatFractional2(price) {
+//     if (price == null || price === undefined) {
+//         return "";
+//     }
+
+//     const num = Number(price);
+
+//     if (isNaN(num)) {
+//         return "";
+//     }
+
+//     // If whole number, return without decimals
+//     if (Number.isInteger(num)) {
+//         return num.toString();
+//     }
+
+//     // Otherwise, format with exactly 2 decimals
+//     return num.toFixed(2);
+// }
+
 export function formatFractional2(price) {
     if (price == null || price === undefined) {
         return "";
     }
 
     const num = Number(price);
-
     if (isNaN(num)) {
         return "";
     }
 
-    // If whole number, return without decimals
-    if (Number.isInteger(num)) {
-        return num.toString();
+    // Round to 2 decimal places
+    const rounded = Number(num.toFixed(2));
+
+    // If it's a whole number after rounding, return integer only
+    if (Number.isInteger(rounded)) {
+        return rounded.toString();
     }
 
-    // Otherwise, format with exactly 2 decimals
-    return num.toFixed(2);
+    // Otherwise, show up to 2 decimals
+    return rounded.toFixed(2);
 }
 

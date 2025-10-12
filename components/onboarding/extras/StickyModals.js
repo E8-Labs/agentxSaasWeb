@@ -26,10 +26,34 @@ export const TwilioWarning = ({
 
   useEffect(() => {
 
-    let data = localStorage.getItem("User");
+    // let data = localStorage.getItem("User");
+    // if (data) {
+    //   const agencyData = JSON.parse(data)
+    //   // console.log("Agency data for checking twilio is", agencyData)
+    //   if (agencyData.user.isTwilioConnected === false) {
+    //     setShowAddTwiliowarning(true);
+    //     isTwilioAdded({ status: true });
+    //   } else {
+    //     setShowAddTwiliowarning(false);
+    //     isTwilioAdded({ status: false });
+    //   }
+    // }
+
+    fetchData();
+
+  }, []);
+
+  let attempts = 0;
+  const maxAttempts = 5;
+
+  const fetchData = () => {
+    attempts++;
+    const data = localStorage.getItem("User");
+
     if (data) {
-      const agencyData = JSON.parse(data)
-      // console.log("Agency data for checking twilio is", agencyData)
+      const agencyData = JSON.parse(data);
+      console.log(`✅ Data fetched on ${attempts}${attempts === 1 ? "st" : attempts === 2 ? "nd" : attempts === 3 ? "rd" : "th"} try`);
+
       if (agencyData.user.isTwilioConnected === false) {
         setShowAddTwiliowarning(true);
         isTwilioAdded({ status: true });
@@ -37,9 +61,18 @@ export const TwilioWarning = ({
         setShowAddTwiliowarning(false);
         isTwilioAdded({ status: false });
       }
+    } else {
+      if (attempts < maxAttempts) {
+        console.log(`⏳ Data not found on try ${attempts}, retrying...`);
+        setTimeout(fetchData, 1000); // retry after 1 second
+      } else {
+        console.log("❌ Data not found after 5 tries");
+        alert("Data not fetched ⛔");
+        setShowAddTwiliowarning(true);
+        isTwilioAdded({ status: true });
+      }
     }
-
-  }, []);
+  };
 
   return (
     <div className="w-full">

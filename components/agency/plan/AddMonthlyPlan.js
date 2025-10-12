@@ -116,10 +116,8 @@ export default function AddMonthlyPlan({
       setIsDefault(basicsData?.isDefault);
       setTag(basicsData?.tag ?? "");
       setPlanDescription(basicsData?.planDescription);
-      const OriginalPrice = basicsData?.originalPrice;
-      setOriginalPrice(
-        selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : ""
-      );
+      const OriginalPrice = basicsData?.originalPrice || (selectedPlan?.originalPrice !== undefined ? selectedPlan.originalPrice : "");
+      setOriginalPrice(OriginalPrice);
       // if (OriginalPrice > 0) {
       // }
       const DiscountedPrice = basicsData?.discountedPrice

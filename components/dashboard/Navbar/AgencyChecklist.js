@@ -31,14 +31,19 @@ const AgencyChecklist = ({ userDetails }) => {
             const LocalData = JSON.parse(D);
             const LD = LocalData?.user;
             const T = LocalData?.user?.checkList?.checkList;
+            const canAcceptPaymentsAgencyccount = LD?.canAcceptPaymentsAgencyccount;
             console.log("Agency checklist is", T);
             // const T = userDetails?.checkList?.checkList;
             console.log("Check list on main check list screen is", T);
             let percentage = 0;
 
+            if (canAcceptPaymentsAgencyccount) {
+                percentage = 20
+            }
+
             for (let key in T) {
                 if (T[key]) {
-                    percentage += 25; //16.67;
+                    percentage += 20; //16.67;
                 }
             }
 

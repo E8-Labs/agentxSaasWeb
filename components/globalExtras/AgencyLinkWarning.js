@@ -1,11 +1,17 @@
 import { Box, Modal } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import CloseBtn from './CloseBtn';
 
 const AgencyLinkWarning = ({
     open,
     handleClose,
-    handleCopyLink
+    linkCopied,
+    handleCopyLink,
 }) => {
+
+    const [confirmChecked, setConfirmChecked] = useState(false);
+
     return (
         <Modal
             open={open}
@@ -20,11 +26,55 @@ const AgencyLinkWarning = ({
             }}
         >
             <Box className="flex justify-center items-center w-full h-full">
-                <div className="bg-white rounded-2xl p-8 max-w-lg w-[90%] relative shadow-2xl">
-                    <div style={styles.heading}>warning</div>
-                    <div style={styles.subHeading}>Descriptiom</div>
-                    <button>
-                        Continue
+                <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
+                    <div className='flex flex-row justify-end w-full'>
+                        <CloseBtn
+                            onClick={handleClose}
+                        />
+                    </div>
+                    {/*
+                        <div style={styles.heading}>warning</div>
+                    */}
+                    <div
+                        className="mt-4"
+                        style={styles.subHeading}
+                    >
+                        {`If your subaaccount limit exceeds {num} your account will automatically be upgraded to the next plan to prevent service interruptions`}
+                    </div>
+                    <div className='flex flex-row items-center w-full justify-start mt-4 gap-2'>
+                        <button onClick={() => {
+                            setConfirmChecked(!confirmChecked)
+                        }}>
+                            {confirmChecked ? (
+                                <div
+                                    className="bg-purple flex flex-row items-center justify-center rounded"
+                                    style={{ height: "17px", width: "17px" }}
+                                >
+                                    <Image
+                                        src={"/assets/whiteTick.png"}
+                                        height={6}
+                                        width={8}
+                                        alt="*"
+                                    />
+                                </div>
+                            ) : (
+                                <div
+                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                    style={{ height: "17px", width: "17px" }}
+                                ></div>
+                            )}
+                        </button>
+
+                        <div className='text-xs font-normal'>
+                            {`I agree to terms and conditions.`}
+                        </div>
+                    </div>
+                    <button
+                        className={`${confirmChecked ? "bg-purple" : "bg-btngray"} ${confirmChecked ? "text-white" : "text-black"} px-4 h-[40px] rounded-lg mt-4 w-full`}
+                        onClick={handleCopyLink}
+                        disabled={!confirmChecked}
+                    >
+                        {linkCopied ? "Link Copied" : "Copy Link"}
                     </button>
                 </div>
             </Box>

@@ -9,6 +9,7 @@ import AgentSelectSnackMessage, {
 import Image from "next/image";
 import { min } from "draft-js/lib/DefaultDraftBlockRenderMap";
 import CloseBtn from "@/components/globalExtras/CloseBtn";
+import XBarSideUI from "./XBarSideUI";
 // import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 export default function AddXBarPlan({
@@ -64,12 +65,16 @@ export default function AddXBarPlan({
         const cal = originalPrice * minutes;
         setMinCostErr(true);
         // setSnackBannerMsg(`Price/min can't be less than ${agencyPlanCost.toFixed(2)} cents or more then ${minutes}`);
-        setSnackBannerMsg(`Price/Min should be $ ${agencyPlanCost.toFixed(2)} or less than  ${originalPrice / agencyPlanCost.toFixed(2)}`);
+        setSnackBannerMsg(`Price/Min should be $ ${agencyPlanCost.toFixed(2)} or less than  ${(originalPrice / agencyPlanCost).toFixed(2)}`);
         setSnackBannerMsgType(SnackbarTypes.Warning);
       } else if (P > agencyPlanCost) {
         setSnackBannerMsg(null);
         setMinCostErr(false);
       }
+    }
+    if (minutes && minutes < agencyPlanCost) {
+      setSnackBannerMsg(`Price cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
+      setSnackBannerMsgType(SnackbarTypes.Warning);
     }
   }, [minutes, originalPrice]);
 
@@ -542,136 +547,16 @@ export default function AddXBarPlan({
             </div>
           </div>
 
-          <div
-            className="w-5/12 h-full rounded-tr-xl rounded-br-xl shadow-lg"
-            style={{
-              // backgroundImage: "url('/agencyIcons/addPlanBg4.png')",
-              backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="p-4 flex flex-col items-center h-[100%]">
-              <div className="flex justify-end w-full items-center h-[5%]">
-                <CloseBtn
-                  onClick={() => {
-                    handleResetValues();
-                    handleClose("");
-                  }}
-                  showWhiteCross={true}
-                />
-              </div>
-              {/*
-                            (allowTrial && trialValidForDays) && (
-                                <div className='w-11/12 rounded-t-xl bg-gradient-to-r from-[#7902DF] to-[#C502DF] px-4 py-2'>
-                                    <div className='flex flex-row items-center gap-2'>
-                                        <Image
-                                            src={"/agencyIcons/batchIcon.jpg"}
-                                            alt='*'
-                                            height={24}
-                                            width={24}
-                                        />
-                                        <div style={{ fontWeight: "600", fontSize: 18, color: "white" }}>
-                                            First {trialValidForDays} Days Free
-                                        </div>
-                                    </div>
-                                </div>
-                            )
-                        */}
-              <div className="w-11/12 h-[80%] flex flex-col items-center justify-center">
-                <div
-                  className="px-4 py-1 pb-4"
-                  style={{
-                    ...styles.pricingBox,
-                    border: "none",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <div
-                    style={{
-                      ...styles.triangleLabel,
-                      borderTopRightRadius: "15px",
-                    }}
-                  ></div>
-                  {/* Triangle price here */}
-                  {
-                    discountedPrice && originalPrice && (
-                      <span style={styles.labelText}>
-                        {(
-                          ((discountedPrice - originalPrice) / discountedPrice) *
-                          100
-                        ).toFixed(0) || "-"}
-                        %
-                      </span>
-                    )
-                  }
-                  <div
-                    className="flex flex-row items-start gap-3"
-                    style={styles.content}
-                  >
-                    <div className="w-full">
-                      <div className="flex flex-row items-center gap-3">
-                        <div
-                          style={{
-                            color: "#151515",
-                            fontSize: 22,
-                            fontWeight: "600",
-                          }}
-                        >
-                          {title || "XBar"} | {minutes || "Bonus Credits"}
-                        </div>
-                        {tag ? (
-                          <div
-                            className="rounded-full bg-purple text-white p-3 py-1"
-                            style={{ fontSize: 14, fontWeight: "500" }}
-                          >
-                            {tag}
-                          </div>
-                        ) : (
-                          <div className="rounded-md bg-gray-200 text-white w-[127px] h-[28px]" />
-                        )}
-                      </div>
-                      <div className="flex flex-row items-center justify-between mt-2">
-                        <div className="flex flex-col justify-start">
-                          {planDescription ? (
-                            <div
-                              className=""
-                              style={{
-                                color: "#00000060",
-                                fontSize: 15,
-                                //   width: "60%",
-                                fontWeight: "500",
-                              }}
-                            >
-                              {planDescription}
-                            </div>
-                          ) : (
-                            <div className="rounded-md bg-gray-200 text-white w-[150px] h-[32px]" />
-                          )}
-                        </div>
-                        <div className="flex flex-row items-center gap-2">
-                          {discountedPrice && (
-                            <div style={styles.originalPrice} className="line-through">
-                              ${discountedPrice}
-                            </div>
-                          )}
-                          {originalPrice && (
-                            <div className="flex flex-row justify-start items-start ">
-                              <div style={styles.discountedPrice}>
-                                ${originalPrice}
-                              </div>
-                              <p style={{ color: "#15151580" }}></p>
-                            </div>
-                          )}
-
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <XBarSideUI
+            handleResetValues={handleResetValues}
+            handleClose={handleClose}
+            title={title}
+            tag={tag}
+            planDescription={planDescription}
+            originalPrice={originalPrice}
+            discountedPrice={discountedPrice}
+            minutes={minutes}
+          />
         </div>
       </Box>
     </Modal>

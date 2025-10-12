@@ -506,7 +506,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                             </div>
 
                                             <div
-                                                className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white text-base font-normal cursor-pointer"
+                                                className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white cursor-pointer"
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     e.stopPropagation();
@@ -535,7 +535,21 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                     }
                                                 }}
                                             >
-                                                Get Started
+                                                {item?.hasTrial == true ? (
+                                                    <span
+                                                        style={{
+                                                            fontWeight: "600",
+                                                            fontSize: 14,
+                                                            // color: "white",
+                                                        }}
+                                                    >
+                                                        {item?.trialValidForDays} Day Free Trial
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-base font-normal">
+                                                        Get Started
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
 

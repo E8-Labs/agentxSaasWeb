@@ -39,12 +39,16 @@ export default function AddMonthlyPlanAnimation({
     useEffect(() => {
         console.log("Status of edit plans is", isEditPlan)
         if (isEditPlan) {
+            console.log("Plan to edit is", selectedPlan);
             const object = {
                 maxAgents: selectedPlan?.dynamicFeatures?.maxAgents,
                 maxLeads: selectedPlan?.dynamicFeatures?.maxLeads,
                 language: selectedPlan?.dynamicFeatures?.allowLanguageSelection,
                 features: selectedPlan?.dynamicFeatures,
-                trialValidForDays: selectedPlan?.trialValidForDays
+                trialValidForDays: selectedPlan?.trialValidForDays, //costPerAdditionalAgent
+                costPerAdditionalAgent: selectedPlan?.dynamicFeatures?.costPerAdditionalAgent,
+                noOfSeats: selectedPlan?.dynamicFeatures?.maxTeamMembers,
+                costPerAdditionalSeat: selectedPlan?.dynamicFeatures?.costPerAdditionalTeamSeat,
             }
             console.log("Object for edit plan is", object)
             setConfigurationData(object);

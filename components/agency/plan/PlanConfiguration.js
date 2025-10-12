@@ -296,7 +296,7 @@ export default function PlanConfiguration({
                 voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
                 twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
                 allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
-                allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamSeats || false,
+                allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
             });
             setTrialValidForDays(configurationData?.trialValidForDays);
             setNoOfSeats(configurationData?.noOfSeats);
@@ -829,7 +829,7 @@ export default function PlanConfiguration({
                                 <input
                                     style={styles.inputs}
                                     className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
-                                    placeholder="0"
+                                    placeholder=""
                                     value={noOfContacts}
                                     onChange={(e) => {
                                         setNoOfContacts(e.target.value);
