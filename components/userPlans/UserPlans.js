@@ -361,25 +361,24 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                             {`AI Agents from just $1.50 per day — gets more done than coffee. Cheaper too. 😉`}
                         </div>
                     </div>
-                    <div className='flex flex-col items-start'>
+                    <div className='flex flex-col items-end'>
                         {
                             isFrom !== "SubAccount" && (
-                                <div className='flex flex-row items-center gap-10'>
+                                <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
                                     {
                                         duration?.map((item) => (
-                                            <div key={item.id}
-                                                className={`px-2 py-1 ${item.id != 1 ? "bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px]" : ''} rounded-tl-xl rounded-tr-xl `}
-                                            >
-                                                {item.save ? (
-                                                    <div
-                                                        className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
-                                                    >
-                                                        Save {item.save}
-                                                    </div>
-                                                ) : (
-                                                    <div className='w-[7vw]'></div>
-                                                )}
-                                            </div>
+                                            item.save ? (
+                                                <div
+                                                    key={item.id}
+                                                    // className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
+                                                    className={`px-2 py-1 ${selectedDuration?.id === item.id ? "text-white bg-purple shadow-sm shadow-purple" : "text-black"} rounded-tl-lg rounded-tr-lg`}
+                                                    style={{ fontWeight: "600", fontSize: "13px" }}
+                                                >
+                                                    Save {item.save}
+                                                </div>
+                                            ) : (
+                                                <div className='w-[7vw]'></div>
+                                            )
                                         ))}
                                 </div>
                             )
@@ -394,23 +393,23 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                     yearlyPlans?.length > 0
                                 ].filter(Boolean).length >= 2
                             ) && (
-                                <div className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'>
+                                <div
+                                    // className='flex flex-row items-center border gap-2 bg-neutral-100 px-2 py-1 rounded-full'
+                                    className='border flex flex-row items-center bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
+                                >
                                     {
                                         duration?.map((item) => (
-                                            <div key={item.id}
-                                                className='flex-col'
+                                            <button
+                                                key={item.id}
+                                                // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                                onClick={() => {
+                                                    setSelectedDuration(item);
+                                                    // getCurrentPlans();
+                                                }}
                                             >
-
-                                                <button
-                                                    className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                                                    onClick={() => {
-                                                        setSelectedDuration(item);
-                                                        // getCurrentPlans();
-                                                    }}
-                                                >
-                                                    {item.title}
-                                                </button>
-                                            </div>
+                                                {item.title}
+                                            </button>
                                         ))
                                     }
                                 </div>

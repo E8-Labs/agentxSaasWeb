@@ -115,10 +115,10 @@ function AgencyPlansPayments({
 
     const durationSaving = [
         {
-            id: 1,
+            id: 2,
             title: "save 20%",
         }, {
-            id: 2,
+            id: 3,
             title: "save 30%",
         },
     ]
@@ -1051,13 +1051,14 @@ function AgencyPlansPayments({
             {/*<SmartRefillCard />*/}
 
             <div className="w-full flex flex-col items-end mt-2">
-                <div className='flex flex-row items-center justify-end gap-2 px-2'>
+                <div className='flex flex-row items-center justify-end gap-2 px-2 me-[7px]'>
                     {
                         durationSaving.map((item) => {
                             return (
                                 <button
                                     key={item.id}
-                                    className={`px-2 py-1 text-[#8A8A8A] rounded-tl-lg rounded-tr-lg`}
+                                    // className={`px-2 py-1 text-[#8A8A8A] rounded-tl-lg rounded-tr-lg`}
+                                    className={`px-2 py-1 ${selectedDuration?.id === item.id ? "text-white bg-purple shadow-sm shadow-purple" : "text-black"} rounded-tl-lg rounded-tr-lg`}
                                     style={{ fontWeight: "600", fontSize: "13px" }}
                                     onClick={() => {
                                         setSelectedDuration(item);
@@ -1070,12 +1071,14 @@ function AgencyPlansPayments({
                         })
                     }
                 </div>
-                <div className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+                <div
+                    // className='flex flex-row items-center gap-2 bg-[#DFDFDF20] p-2 rounded-full'
+                    className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
                 >
                     {
                         duration.map((item) => (
                             <button key={item.id}
-                                className={`px-4 py-2 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
+                                className={`px-4 py-1 ${selectedDuration.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
                                 onClick={() => {
                                     setSelectedDuration(item);
                                     getCurrentPlans();

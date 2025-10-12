@@ -1236,7 +1236,7 @@ function SubAccountPlansAndPayments({
                             {
                                 duration?.map((item) => (
                                     <button key={item.id}
-                                        className={`px-4 py-1 ${selectedDuration?.id === item.id ? "text-white bg-purple shadow-sm shadow-purple rounded-full" : "text-black"}`}
+                                        className={`px-4 py-1 ${selectedDuration?.id === item.id ? "text-white bg-purple shadow-md shadow-purple rounded-full" : "text-black"}`}
                                         onClick={() => {
                                             setSelectedDuration(item);
                                             getCurrentPlans(item);
