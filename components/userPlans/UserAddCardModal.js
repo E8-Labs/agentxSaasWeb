@@ -254,7 +254,13 @@ const UserAddCard = ({
         }
     };
 
-
+    //build err fix issue
+    const GetMonthCountFronBillingCycle = (billingCycle) => {
+        if (billingCycle === "monthly") return 1;
+        if (billingCycle === "quarterly") return 3;
+        if (billingCycle === "yearly") return 12;
+        return 1;
+    }
 
     const refreshUserData = async () => {
         try {
