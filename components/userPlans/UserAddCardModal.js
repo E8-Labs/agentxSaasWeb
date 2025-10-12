@@ -632,18 +632,35 @@ const UserAddCard = ({
                 </div>
                 <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg mt-5" style={{ backgroundColor: 'transparent' }}>
                     <div className="rounded-lg p-2 w-[90%] flex flex-col" style={{ backgroundColor: '#ffffff' }}>
-                        <div style={{ fontSize: 22, fontWeight: "600" }}>Order Summary</div>
-
-                        {/* Scrollable content area */}
-                        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                        <div className={`w-[50%] flex flex-col items-start text-[#8a8a8a]`}>
+                            <div className=' text-xl font-semibold '>
+                                Order Summary
+                            </div>
                             <div className="flex flex-row items-start justify-between w-full mt-6">
                                 <div>
-                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                        {selectedPlan?.name || 'Plan'}
+                                    <div className=' text-lg font-semibold'>
+                                        {selectedPlan ? `${selectedPlan?.name || selectedPlan?.title} Plan` : "No Plan Selected"}
                                     </div>
-                                    <div className="capitalize" style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>{selectedPlan?.billingCycle || selectedPlan?.duration} Subscription</div>
+                                    <div className=' text-xs font-regular capitalize'>
+                                        {selectedPlan ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription` : ""}
+                                    </div>
+                                    {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                                 </div>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>{`${getMonthsCount()} x $${getMonthlyPrice(selectedPlan)}`}</div>
+                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                    {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration)} x ${selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice}` : ""}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-row items-start justify-between w-full mt-6">
+                                <div>
+                                    <div className='capitalize' style={{ fontWeight: "600", fontSize: 15 }}>
+                                        {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
+                                    </div>
+                                    <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
+                                </div>
+                                <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
+                                    {selectedPlan ? `$${(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice)).toLocaleString()}` : "$0"}
+                                </div>
                             </div>
 
                             {inviteCode && (
@@ -661,21 +678,13 @@ const UserAddCard = ({
                                 </div>
                             )}
 
-                            <div className="flex flex-row items-start justify-between w-full mt-6">
-                                <div>
-                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
-                                        Total Billed {selectedPlan?.billingCycle || selectedPlan?.duration}
-                                    </div>
-                                    <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
-                                </div>
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>{`$${getTotalPrice(selectedPlan)}`}</div>
-                            </div>
-                            <div className="mt-6 h-[2px] w-full bg-[#00000060]"></div>
+                            <div className='w-full h-[1px] bg-gray-200 my-2'></div>
+
                         </div>
 
                         {/* Fixed bottom section */}
                         <div className="flex-shrink-0 mt-4">
-                            
+
                             <div className="flex flex-row items-start justify-between w-full mt-6 mb-2">
                                 <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
                                 <div className="flex flex-col items-end ">

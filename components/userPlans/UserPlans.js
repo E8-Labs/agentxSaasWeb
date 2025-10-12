@@ -497,7 +497,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                     )
                                                 }
                                                 <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                    ${formatFractional2(item.discountPrice || item.discountedPrice)}
+                                                    ${formatFractional2(item.discountPrice || item.discountedPrice||0)}
                                                 </span>
                                             </div>
 
