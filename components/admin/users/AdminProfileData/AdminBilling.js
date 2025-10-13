@@ -25,6 +25,7 @@ import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import SmartRefillCard from "@/components/agency/agencyExtras.js/SmartRefillCard";
 import PlansService from "@/utilities/PlansService";
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1009,7 +1010,7 @@ function AdminBilling({ selectedUser, from }) {
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className="w-full flex flex-row items-center justify-between mt-10 px-10"
               >
                 <div className="w-3/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -1017,7 +1018,7 @@ function AdminBilling({ selectedUser, from }) {
                   </div>
                 </div>
                 <div className="w-3/12">
-                  <div style={styles.text2}>${formatDecimalValue(item.price)}</div>
+                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-3/12 items-start">
                   <div

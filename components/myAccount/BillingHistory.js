@@ -4,6 +4,7 @@ import Apis from '../apis/Apis';
 import axios from 'axios';
 import { CircularProgress } from '@mui/material';
 import moment from 'moment';
+import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 
 function BillingHistory() {
 
@@ -107,7 +108,7 @@ function BillingHistory() {
                         {PaymentHistoryData.map((item) => (
                             <div
                                 key={item.id}
-                                className="w-full flex flex-row gap-3 mt-10 px-6"
+                                className="w-full flex flex-row items-center gap-3 mt-10 px-6"
                             >
                                 <div className="w-4/12 flex flex-row gap-2">
                                     <div className="truncate" style={styles.text2}>
@@ -115,7 +116,7 @@ function BillingHistory() {
                                     </div>
                                 </div>
                                 <div className="w-2/12">
-                                    <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                                    <div style={styles.text2}>${formatFractional2(item.price)}</div>
                                 </div>
                                 <div className="w-2/12 items-start">
                                     <div
