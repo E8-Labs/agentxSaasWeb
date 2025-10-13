@@ -4031,6 +4031,7 @@ function Page() {
                     onClick={() => {
                       // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
                       setFetureType("webhook")
+                      setSelectedAgentForWebAgent(showDrawerSelectedAgent)
                       setShowWebAgentModal(true)
                     }}
                   >
@@ -6052,6 +6053,8 @@ function Page() {
         agentName={selectedAgentForEmbed?.name || ""}
         isEmbedFlow={true}
         embedCode={embedCode}
+        // fetureType={fetureType}
+        // onCopyUrl={handleWebhookClick}
       />
 
 

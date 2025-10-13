@@ -49,6 +49,17 @@ const WebAgentModal = ({
   };
 
   useEffect(() => {
+    console.log("agent name is", agentName)
+    if(agentSmartRefill){
+      setRequireForm(true);
+      setSelectedSmartList(agentSmartRefill);
+    } else {
+      setRequireForm(false);
+      setSelectedSmartList('');
+    }
+  }, [agentSmartRefill]);
+
+  useEffect(() => {
     if (open && requireForm) {
       fetchSmartLists();
     }
@@ -81,16 +92,51 @@ const WebAgentModal = ({
       }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
-      showSnackbar('Error', 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
+      showSnackbar('', 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleChange = (event) => {
-    setRequireForm(event.target.checked);
-    if (!event.target.checked) {
-      setSelectedSmartList('');
+  const handleToggleChange = async (event) => {
+    if(agentSmartRefill && event.target.checked === false){
+      // attach smart list to the agent with the agentSmartRefill id null
+      try {
+        let AuthToken = null;
+        const localData = localStorage.getItem("User");
+        if (localData) {
+          const UserDetails = JSON.parse(localData);
+          AuthToken = UserDetails.token;
+        }
+
+        const response = await axios.post(
+          `${Apis.attachSmartList}`,
+          {
+            agentId: agentId,
+            smartListId: null
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${AuthToken}`
+            }
+          }
+        );
+
+        if (response.data) {
+          setRequireForm(false);
+          setSelectedSmartList('');
+          showSnackbar('', 'Smart list detached successfully!', SnackbarTypes.Success);
+        }
+      } catch (error) {
+        console.error('Error detaching smart list:', error);
+        showSnackbar('', 'Error detaching smart list. Please try again.', SnackbarTypes.Error);
+      }
+    } else {
+      setRequireForm(event.target.checked);
+      if (!event.target.checked) {
+        setSelectedSmartList('');
+      }
     }
   };
 
@@ -130,13 +176,13 @@ const WebAgentModal = ({
             onCopyUrl();
           } else {
             onOpenAgent();
-            showSnackbar('Success', 'Smart list attached successfully!', SnackbarTypes.Success);
+            showSnackbar('', 'Smart list attached successfully!', SnackbarTypes.Success);
 
           }
         }
       } catch (error) {
         console.error('Error attaching smart list:', error);
-        showSnackbar('Error', 'Error attaching smart list. Please try again.', SnackbarTypes.Error);
+        showSnackbar('', 'Error attaching smart list. Please try again.', SnackbarTypes.Error);
         return;
       }
     } else {
@@ -195,8 +241,9 @@ const WebAgentModal = ({
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
-            {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Browser Agent
+          <h2 className='capitalize' style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
+          //show first 20 characters of the agentName
+            {agentName.slice(0, 20)} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
           </h2>
           <CloseBtn
             onClick={(e) => {
@@ -372,7 +419,7 @@ const WebAgentModal = ({
               zIndex: 10
             }}
           >
-            {fetureType === "webhook" ? "Copy Url" : "Open agent in new tab"}
+            {fetureType === "webhook" ? "Copy Webhook Url" : "Open agent in new tab"}
             <ArrowUpRight size={16} style={{ marginLeft: 8 }} />
           </button>
         </div>

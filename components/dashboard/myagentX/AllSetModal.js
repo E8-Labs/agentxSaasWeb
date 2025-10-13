@@ -16,7 +16,9 @@ const AllSetModal = ({
   agentName,
   onOpenAgent,
   isEmbedFlow = false,
-  embedCode = ''
+  embedCode = '',
+  fetureType = '',
+  onCopyUrl = () => {}
 }) => {
   const [codeCopied, setCodeCopied] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -84,7 +86,7 @@ const AllSetModal = ({
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-            {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | Browser Agent
+            {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
           </Typography>
           <CloseBtn
              onClick={onClose}
@@ -137,11 +139,12 @@ const AllSetModal = ({
             <Copy size={16} className="ml-2" />
           </button>
         ) : (
+
           <button
             className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
-            onClick={onOpenAgent}
+            onClick={fetureType === "webagent" ? onOpenAgent : onCopyUrl}
           >
-            Open agent in new tab
+            {fetureType === "webagent" ? "Open agent in new tab" : "Copy Webhook Url"}
             <ArrowUpRight size={16} className="ml-2 inline" />
           </button>
         )}

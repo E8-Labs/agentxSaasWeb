@@ -176,7 +176,7 @@ const PipelineStages = ({
   };
 
   const handleSelectAdd = async (stageIndex, value) => {
-    if (user?.planCapabilities.allowTextMessages === false && value == "sms") {
+    if ((user?.planCapabilities.allowTextMessages === false || phoneNumbers.length === 0) && value == "sms") {
       // Upgrade modal is now handled by UpgradeTagWithModal component
       return
     }
@@ -1062,7 +1062,7 @@ const PipelineStages = ({
                                               <div className="flex flex-row bg-[#7902df10] items-cetner gap-2 p-2 rounded">
                                                 <div className="text-purple text-[12px]">
                                                   {
-                                                    (row.communicationType && row.communicationTyp != "call") ? (
+                                                    (row.communicationType && row.communicationType != "call" || (row.action && row.action != "call")) ? (
                                                       `Send ${actionLabel(row.communicationType)}`
                                                     ) : (
                                                       `Make Call`

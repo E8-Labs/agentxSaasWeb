@@ -45,6 +45,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import CloseBtn from "../globalExtras/CloseBtn";
+import parsePhoneNumberFromString from "libphonenumber-js";
 
 const backgroundImage = {
   backgroundImage: 'url("/backgroundImage.png")', // Ensure the correct path
@@ -91,7 +92,7 @@ const Creator = ({ agentId, name }) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
   const [vapiAgent, setVapiAgent] = useState(null);
   const [assistantOverrides, setAssistantOverrides] = useState(null);
-  
+
   // Modal and form states
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -110,10 +111,43 @@ const Creator = ({ agentId, name }) => {
     return emailRegex.test(email);
   };
 
+  const validatePhoneNumber = (phoneNumber) => {
+    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode?.toUpperCase()
+    );
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      setErrorMessage("Invalid");
+    } else {
+      setErrorMessage("");
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+
+      // setCheckPhoneResponse(null);
+      // //console.log;
+
+      timerRef.current = setTimeout(() => {
+        checkPhoneNumber(phoneNumber);
+      }, 300);
+    }
+  };
+
   const isValidPhone = (phone) => {
-    // Phone number should be at least 10 digits (without country code prefix)
-    const phoneDigits = phone.replace(/\D/g, '');
-    return phoneDigits.length >= 10;
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phone}`,
+    );
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      return false;
+    } else {
+      return true;
+    }
   };
 
   const isFormValid = () => {
@@ -194,31 +228,31 @@ const Creator = ({ agentId, name }) => {
     }
 
     const analysisPlan = assistantOverrides.analysisPlan;
-    
+
     // Remove duplicates from structuredDataPlan.schema.required array
-    if (analysisPlan.structuredDataPlan && 
-        analysisPlan.structuredDataPlan.schema && 
-        analysisPlan.structuredDataPlan.schema.required && 
-        Array.isArray(analysisPlan.structuredDataPlan.schema.required)) {
-      
+    if (analysisPlan.structuredDataPlan &&
+      analysisPlan.structuredDataPlan.schema &&
+      analysisPlan.structuredDataPlan.schema.required &&
+      Array.isArray(analysisPlan.structuredDataPlan.schema.required)) {
+
       const originalLength = analysisPlan.structuredDataPlan.schema.required.length;
       analysisPlan.structuredDataPlan.schema.required = [...new Set(analysisPlan.structuredDataPlan.schema.required)];
       const newLength = analysisPlan.structuredDataPlan.schema.required.length;
-      
+
       if (originalLength !== newLength) {
         console.log(`Removed ${originalLength - newLength} duplicate values from analysisPlan.structuredDataPlan.schema.required`);
       }
     }
 
     // Ensure unique properties in structuredDataPlan.schema.properties
-    if (analysisPlan.structuredDataPlan && 
-        analysisPlan.structuredDataPlan.schema && 
-        analysisPlan.structuredDataPlan.schema.properties && 
-        typeof analysisPlan.structuredDataPlan.schema.properties === 'object') {
-      
+    if (analysisPlan.structuredDataPlan &&
+      analysisPlan.structuredDataPlan.schema &&
+      analysisPlan.structuredDataPlan.schema.properties &&
+      typeof analysisPlan.structuredDataPlan.schema.properties === 'object') {
+
       const uniqueProperties = {};
       const seenKeys = new Set();
-      
+
       for (const [key, value] of Object.entries(analysisPlan.structuredDataPlan.schema.properties)) {
         if (!seenKeys.has(key)) {
           uniqueProperties[key] = value;
@@ -227,7 +261,7 @@ const Creator = ({ agentId, name }) => {
           console.warn(`Duplicate property key found in analysisPlan.structuredDataPlan.schema.properties: ${key}`);
         }
       }
-      
+
       analysisPlan.structuredDataPlan.schema.properties = uniqueProperties;
       console.log(`Ensured unique properties in analysisPlan.structuredDataPlan.schema.properties. Total properties: ${Object.keys(uniqueProperties).length}`);
     }
@@ -247,11 +281,11 @@ const Creator = ({ agentId, name }) => {
       if (response) {
         setAgentDetails(response)
         setVapiAgent(response?.data?.data?.agent)
-        
+
         // Clean assistantOverrides to remove duplicates
         const cleanedOverrides = removeDuplicatesFromAnalysisPlan(response?.data?.data?.assistantOverrides);
         setAssistantOverrides(cleanedOverrides)
-        
+
         setSmartListData(response?.data?.data?.smartList)
         console.log("Smart list data:", response?.data?.data?.smartList);
       }
@@ -264,14 +298,14 @@ const Creator = ({ agentId, name }) => {
     }
   }
 
-  const callApiGet = async(path) => {
+  const callApiGet = async (path) => {
     const response = await axios.get(
       path
     );
     return response;
   }
-  const callApiPost = async(path, data) => {
-    
+  const callApiPost = async (path, data) => {
+
     const response = await axios.post(
       path,
       data
@@ -287,7 +321,7 @@ const Creator = ({ agentId, name }) => {
       [field]: value
     };
     setFormData(newFormData);
-    
+
     // Save to localStorage
     localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
       formData: newFormData,
@@ -302,7 +336,7 @@ const Creator = ({ agentId, name }) => {
       [field]: value
     };
     setSmartListFields(newSmartListFields);
-    
+
     // Save to localStorage
     localStorage.setItem(`leadForm_${agentId}`, JSON.stringify({
       formData: formData,
@@ -358,7 +392,7 @@ const Creator = ({ agentId, name }) => {
   const handleFormSubmit = async () => {
     console.log("Submitting form data:", { formData, smartListFields });
     setIsSubmitting(true);
-    
+
     try {
       // Prepare extraColumns from smart list fields
       const extraColumns = {};
@@ -405,25 +439,25 @@ const Creator = ({ agentId, name }) => {
           const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(newAssistantOverrides);
           setAssistantOverrides(cleanedNewOverrides);
           console.log("Updated assistant overrides:", cleanedNewOverrides);
-          
+
           // Keep form data persistent - don't clear after submission
           console.log("Form submitted successfully, keeping data persistent");
-          
+
           // Close modal and start call with new overrides
           handleModalClose();
           handleStartCallWithOverrides(newAssistantOverrides);
         } else {
           // Keep form data persistent - don't clear after submission
           console.log("Form submitted successfully, keeping data persistent");
-          
+
           // Close modal and start call with existing overrides
           handleModalClose();
           handleStartCall();
         }
       }
 
-      
-      
+
+
     } catch (error) {
       console.error("Error submitting form:", error);
       setSnackbarMessage("Error submitting lead details. Please try again.");
@@ -454,7 +488,7 @@ const Creator = ({ agentId, name }) => {
             savedFormData?.firstName?.trim() &&
             savedFormData?.lastName?.trim() &&
             savedFormData?.email?.trim() &&
-            isValidEmail(savedFormData.email) &&
+            // isValidEmail(savedFormData.email) &&
             savedFormData?.phone?.trim() &&
             isValidPhone(savedFormData.phone)
           );
@@ -572,7 +606,7 @@ const Creator = ({ agentId, name }) => {
   async function handleStartCall(voice) {
     console.log("handleStartCall called with voice:", voice);
     try {
-     
+
       setOpen(true);
       console.log("Setting up call UI and starting call");
       setLoading(true);
@@ -600,7 +634,7 @@ const Creator = ({ agentId, name }) => {
     if (vapi) {
       // Use overrides passed as parameter (from form submission) or fall back to state
       const overridesToUse = overrides || assistantOverrides;
-      
+
       // Remove variableValues field before passing to VAPI
       let cleanedOverrides = overridesToUse;
       if (overridesToUse && overridesToUse.variableValues !== undefined) {
@@ -608,15 +642,15 @@ const Creator = ({ agentId, name }) => {
         delete cleanedOverrides.variableValues;
         console.log("Removed variableValues from overrides:", cleanedOverrides);
       }
-      
+
       console.log("Current assistant overrides:", overridesToUse);
       console.log("Cleaned overrides for VAPI:", cleanedOverrides);
       console.log("Using overrides for VAPI start:", cleanedOverrides ? cleanedOverrides : agentId);
-      if(agentDetails?.data?.data?.smartList){//change this to check if agent has smart list attached
+      if (agentDetails?.data?.data?.smartList) {//change this to check if agent has smart list attached
 
         console.log('agentId before starting call', agentId)
         vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
-      }else{
+      } else {
         console.log("Agent has no smart list, starting call directly");
         vapi.start(agentId)
       }
@@ -1087,7 +1121,7 @@ const Creator = ({ agentId, name }) => {
               <div style={{ fontWeight: "500", fontSize: 15 }}>
                 Get Started
               </div>
-              <CloseBtn onClick={handleModalClose}/>
+              <CloseBtn onClick={handleModalClose} />
             </div>
 
             <div className="w-full">
@@ -1219,11 +1253,10 @@ const Creator = ({ agentId, name }) => {
                 </div>
               ) : (
                 <button
-                  className={`h-[50px] rounded-xl text-white flex-1 ${
-                    isFormValid()
-                      ? "bg-purple"
-                      : "bg-gray-400"
-                  }`}
+                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid()
+                    ? "bg-purple"
+                    : "bg-gray-400"
+                    }`}
                   style={{
                     fontWeight: "600",
                     fontSize: 16.8,
