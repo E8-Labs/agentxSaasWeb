@@ -25,6 +25,7 @@ import { RemoveSmartRefillApi, SmartRefillApi } from "../onboarding/extras/Smart
 import SmartRefillCard from "../agency/agencyExtras.js/SmartRefillCard";
 import UpgradePlanConfirmation from "./UpgradePlanConfirmation";
 import PlansService from "@/utilities/PlansService";
+import { formatFractional2 } from "../agency/plan/AgencyUtilities";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1183,7 +1184,7 @@ function Billing() {
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className="w-full flex flex-row items-center justify-between mt-10 px-10"
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -1191,7 +1192,7 @@ function Billing() {
                   </div>
                 </div>
                 <div className="w-2/12">
-                  <div style={styles.text2}>${item.price.toFixed(2)}</div>
+                  <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-2/12 items-start">
                   <div

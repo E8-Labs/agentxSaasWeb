@@ -712,7 +712,7 @@ function SubAccountBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row justify-between mt-10 px-10"
+                className="w-full flex flex-row items-center justify-between mt-10 px-10"
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
