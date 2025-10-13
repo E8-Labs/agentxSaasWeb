@@ -64,7 +64,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
     const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
     const [showYearlyPlanModal, setShowYearlyPlanModal] = useState(false)
     const [selectedMonthlyPlan, setSelectedMonthlyPlan] = useState(null)
-    const [subscribeLoader, setSubscribeLoader] = useState(false)
+    const [subscribeLoader, setSubscribeLoader] = useState(null)
 
 
 
@@ -73,7 +73,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
         if (reduxUser?.plan && from !== "billing-modal") {
             if (handleContinue) {
-                // handleContinue()
+                handleContinue()
             }
         }
         getPlans()
@@ -124,7 +124,8 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
             let planType = selectedPlan?.planType;
 
 
-            setSubscribeLoader(true);
+            setSubscribeLoader(selectedPlan?.id);
+            console.log("subscribeLoader", subscribeLoader)
             let AuthToken = null;
             const localData = localStorage.getItem("User");
             if (localData) {
@@ -178,7 +179,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         } catch (error) {
             console.error("Error occured in api is:", error);
         } finally {
-            setSubscribeLoader(false);
+            setSubscribeLoader(null);
         }
     };
 
@@ -512,7 +513,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                             </div>
 
                                             {
-                                                subPlanLoader ? (
+                                                subscribeLoader === item.id ? (
                                                     <CircularProgress size={20} />
                                                 ) : (
                                                     <div
