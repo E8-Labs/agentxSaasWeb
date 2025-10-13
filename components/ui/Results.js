@@ -80,7 +80,7 @@ const Results = ({
             >
               {/* Status Indicator */}
             
-                {question.answer ? (
+                {question.statue === "answered" ? (
                     <Image 
                     src={"/otherAssets/greenTickIcon.png"}
                     height={24}

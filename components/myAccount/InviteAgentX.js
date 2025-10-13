@@ -317,7 +317,7 @@ function InviteAgentX({ isSubAccount }) {
               width: "90%",
             }}
           >
-            You and the agent you invite both get 30 minutes of talk time. The
+            You and the agent you invite both get 30 AI credits. The
             more agents you invite, the more you get. Everybody wins. The agents
             can use this code at checkout.
           </p>

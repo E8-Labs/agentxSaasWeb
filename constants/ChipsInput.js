@@ -18,7 +18,7 @@ export default function ChipInput({ ccEmails, setccEmails }) {
   };
 
   const handleKeyDown = (e) => {
-    if ((e.key === "Enter" || e.key === ",") && inputValue.trim() !== "") {
+    if ((e.key === "Enter" || e.key === ",") && inputValue.trim() !== "" || e.key === " ") {
       e.preventDefault();
       addEmail(inputValue);
     }

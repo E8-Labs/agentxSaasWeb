@@ -10,15 +10,15 @@ import Image from 'next/image';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../leads/AgentSelectSnackMessage';
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 
-const AllSetModal = ({ 
-  open, 
-  onClose, 
+const AllSetModal = ({
+  open,
+  onClose,
   agentName,
   onOpenAgent,
   isEmbedFlow = false,
   embedCode = '',
   fetureType = '',
-  onCopyUrl = () => {}
+  onCopyUrl = () => { }
 }) => {
   const [codeCopied, setCodeCopied] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -85,13 +85,13 @@ const AllSetModal = ({
       >
         {/* Header */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-            {agentName?.charAt(0).toUpperCase() + agentName?.slice(1)} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
+          <Typography className='capitalize' variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
+            {agentName.slice(0, 20)} {agentName.length > 20 ? "..." : ""} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
           </Typography>
           <CloseBtn
-             onClick={onClose}
+            onClick={onClose}
           />
-         
+
         </Box>
 
         {/* Animated Orb */}
@@ -105,11 +105,11 @@ const AllSetModal = ({
         </Box>
 
         {/* Success Message */}
-        <Typography 
-          variant="h5" 
-          component="h3" 
-          sx={{ 
-            fontWeight: 'bold', 
+        <Typography
+          variant="h5"
+          component="h3"
+          sx={{
+            fontWeight: 'bold',
             mb: 3,
             color: 'text.primary'
           }}
@@ -148,7 +148,7 @@ const AllSetModal = ({
             <ArrowUpRight size={16} className="ml-2 inline" />
           </button>
         )}
-        
+
         {/* Snackbar */}
         <AgentSelectSnackMessage
           isVisible={snackbar.isVisible}

@@ -82,13 +82,20 @@ export default function AddMcpPopup({
 
                         <div className='w-full flex flex-col gap-2 mt-4'>
 
-                            <div className='text-[15px] font-[500] text-black mt-2'>
-                                Name
-                            </div>
 
+                            <div className='flex flex-row items-center justify-between w-full'>
+                                <div className='text-[15px] font-[500] text-black mt-2'>
+                                    Name
+                                </div>
+                                <div className='text-[14px] font-[400] text-black'>
+                                    {mcpName?.length}/60
+                                </div>
+                            </div>
+                            {/* max 60 characters */}
                             <input type="text" placeholder='Type here...'
                                 value={mcpName}
                                 onChange={(e) => setMcpName(e.target.value)}
+                                maxLength={60}
                                 className='w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2' />
 
                             <div className='text-[15px] font-[500] text-black mt-3'>

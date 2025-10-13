@@ -637,7 +637,7 @@ function AllCalls({ user }) {
             </div>
           </div>
 
-          <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
+          <div className="w-full flex flex-row gap-2 mt-2 px-10 mt-12">
 
             <div className="w-2/12">
               <div style={styles.text}>Name</div>
@@ -713,10 +713,10 @@ function AllCalls({ user }) {
                     <div
                       key={item.id}
                       style={{ cursor: "pointer" }}
-                      className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
+                      className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                     >
                       <div
-                        className="w-2/12 flex flex-row gap-3 items-center cursor-pointer flex-shrink-0"
+                        className="w-2/12 border truncate flex flex-row gap-3 items-center cursor-pointer flex-shrink-0"
                         onClick={() => {
                           // //console.log;
                           setselectedLeadsDetails(item);
@@ -726,19 +726,19 @@ function AllCalls({ user }) {
                         <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
                           {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                         </div>
-                        <div style={{ ...styles.text2, ...{ width: "80%" } }}>
+                        <div className="truncate" style={{ ...styles.text2, ...{ width: "65%" } }}>
+                        
                           {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                         </div>
                       </div>
-                      <div
-                        className="w-1/12 flex flex-row gap-2 items-center flex-shrink-0 truncat"
+                      <div style={{ ...styles.text2, }}
+                        className="w-1/12 border truncate flex flex-row items-center flex-shrink-0 "
                       >
-                        <div style={{ ...styles.text2, }}>
                           {item.agent?.name}
-                        </div>
+
                       </div>
 
-                      <div className="w-2/12  truncate">
+                      <div className="w-2/12 border truncate">
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
                           {item.LeadModel?.phone ? (
@@ -751,7 +751,7 @@ function AllCalls({ user }) {
                         </div>
                       </div>
 
-                      <div className="w-1/12 truncate">
+                      <div className="w-2/12 border truncate">
                         <div style={styles.text2}>
                           {item.pipeline ? (
                             <div>{item.pipeline?.title}</div>
@@ -761,7 +761,7 @@ function AllCalls({ user }) {
                         </div>
                       </div>
 
-                      <div className="w-1/12 truncate">
+                      <div className="w-1/12 border truncate">
                         <div style={styles.text2}>
                           {item?.callStage?.stageTitle
                             ? item.callStage?.stageTitle
@@ -769,22 +769,22 @@ function AllCalls({ user }) {
                         </div>
 
                       </div>
-                      <div className="w-1/12 truncate capitalize">
+                      <div className="w-1/12 border truncate capitalize">
                         <div style={styles.text2}>
                           {item.communicationType ? (item.communicationType) : "-"}
                         </div>
                       </div>
-                      <div className="w-1/12 truncate capitalize">
+                      <div className="w-1/12 border truncate capitalize">
                         <div style={styles.text2}>
-                          {getStatus(item)}
+                          {getStatus(item) || "-"}
                         </div>
                       </div>
-                      <div className="w-2/12 truncate">
+                      <div className="w-2/12 border truncate">
                         <div style={styles.text2}>
                           {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                         </div>
                       </div>
-                      <div className="w-1/12 truncate">
+                      <div className="w-1/12 border truncate">
                         <button
                           onClick={() => {
                             // //console.log;

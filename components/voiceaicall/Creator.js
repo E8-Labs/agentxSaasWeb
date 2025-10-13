@@ -1094,7 +1094,7 @@ const Creator = ({ agentId, name }) => {
         }}
       >
         <Box
-          className="xl:w-5/12 lg:w-6/12 sm:w-10/12 w-8/12"
+          className="xl:w-4/12 lg:w-4/12 sm:w-6/12 w-5/12"
           sx={{
             position: 'absolute',
             top: '50%',
@@ -1234,16 +1234,7 @@ const Creator = ({ agentId, name }) => {
             borderTop: '1px solid #00000010'
           }}>
             <div className="flex flex-row gap-3">
-              <button
-                className="h-[50px] rounded-xl text-gray-600 border border-gray-300 flex-1"
-                style={{
-                  fontWeight: "600",
-                  fontSize: 16.8,
-                }}
-                onClick={handleClearForm}
-              >
-                Clear Form
-              </button>
+             
               {isSubmitting ? (
                 <div className="flex flex-row items-center justify-center flex-1 h-[50px]">
                   <CircularProgress

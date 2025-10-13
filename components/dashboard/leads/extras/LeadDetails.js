@@ -1388,11 +1388,9 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.lastName}
                             </div>
 
-                            {
-                              selectedLeadsDetails?.scores && selectedLeadsDetails.scores.length > 0 && (
-                                <ScoringProgress value={selectedLeadsDetails?.scores[0]?.score} maxValue={10} questions={selectedLeadsDetails?.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
-                              )
-                            }
+                            {selectedleadsdetails.scoringDetails && selectedleadsdetails.scoringDetails?.questions?.length > 0 && (
+                              <ScoringProgress value={selectedleadsdetails.scoringDetails?.totalScore} maxValue={10} questions={selectedleadsdetails.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
+                            )}
 
 
                             {selectedLeadsDetails?.isOnDncList && (
