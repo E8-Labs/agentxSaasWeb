@@ -20,6 +20,7 @@ function LeadScoring({
     const [selectedTemplate, setSelectedTemplate] = useState('')
     const [showAddScoringModal, setShowAddScoringModal] = useState(false)
     const [editingTemplate, setEditingTemplate] = useState(null)
+    const [isApplyingTemplate, setIsApplyingTemplate] = useState(false)
     const [snackbar, setSnackbar] = useState({
         isVisible: false,
         title: '',
@@ -102,7 +103,8 @@ function LeadScoring({
         const template = templates.find(t => t.id === templateId);
         if (!template) return;
 
-        setSelectedTemplate(templateId);
+        // Set loading state to prevent dropdown from closing
+        setIsApplyingTemplate(true);
 
         try {
             const token = AuthToken();
@@ -120,14 +122,19 @@ function LeadScoring({
 
             if (response) {
                 if (response.data.status === true) {
-                    showSnackbar("","Lead Score Added",SnackbarTypes.Success);
+                    showSnackbar("", "Lead Score Added", SnackbarTypes.Success);
+                    fetchAgentScoring(); // Refresh agent's current scoring
+
                     // Refresh templates and agent scoring after applying
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
                         setTemplatesLoading: setTemplatesLoading,
+                        setSelectedTemplate: (templateId) => {
+                            console.log('Setting selected template in LeadScoring:', templateId);
+                            setSelectedTemplate(templateId);
+                        }
                     });
-                    fetchAgentScoring(); // Refresh agent's current scoring
                 } else {
                     showSnackbar('Error', response.data.message || 'Failed to apply template', SnackbarTypes.Error);
                     setSelectedTemplate(''); // Reset selection on error
@@ -136,6 +143,9 @@ function LeadScoring({
         } catch (error) {
             console.error('Error applying template:', error);
             showSnackbar('Error', 'Failed to apply template. Please try again.', SnackbarTypes.Error);
+        } finally {
+            // Clear loading state after API calls complete
+            setIsApplyingTemplate(false);
         }
     };
 
@@ -168,13 +178,21 @@ function LeadScoring({
                                         value={selectedTemplate}
                                         onChange={(e) => handleTemplateSelect(e.target.value)}
                                         displayEmpty
+                                        disabled={isApplyingTemplate}
                                         className="border-none rounded-lg outline-none"
                                         renderValue={(selected) => {
                                             if (selected === '' || !templates.length) {
                                                 return <div className="text-gray-500">Choose a template</div>;
                                             }
                                             const selectedTemplateObj = templates.find(t => t.id === selected);
-                                            return <div className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</div>;
+                                            return (
+                                                <div className="flex items-center">
+                                                    <span className="text-gray-900">{selectedTemplateObj?.templateName || 'Choose a template'}</span>
+                                                    {isApplyingTemplate && (
+                                                        <CircularProgress size={16} className="ml-2" />
+                                                    )}
+                                                </div>
+                                            );
                                         }}
                                         sx={{
                                             backgroundColor: "#FFFFFF",
@@ -207,10 +225,12 @@ function LeadScoring({
                                             <MenuItem
                                                 key={template.id}
                                                 value={template.id}
+                                                disabled={isApplyingTemplate}
                                                 sx={{
                                                     '&:hover': {
-                                                        backgroundColor: '#F3F4F6',
+                                                        backgroundColor: isApplyingTemplate ? 'transparent' : '#F3F4F6',
                                                     },
+                                                    opacity: isApplyingTemplate ? 0.6 : 1,
                                                 }}
                                             >
                                                 <div className="w-full flex items-center justify-between">
@@ -220,10 +240,12 @@ function LeadScoring({
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleEditTemplate(template);
+                                                            if (!isApplyingTemplate) {
+                                                                handleEditTemplate(template);
+                                                            }
                                                         }}
-                                                        className="ml-2 text-base text-purple underline"
-
+                                                        disabled={isApplyingTemplate}
+                                                        className={`ml-2 text-base text-purple underline ${isApplyingTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                     >
                                                         Edit
                                                     </button>

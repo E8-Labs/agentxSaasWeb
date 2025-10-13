@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import Image from 'next/image';
 import { getUserPlans } from './UserPlanServices';
-import { Modal, Box, Tooltip } from '@mui/material';
+import { Modal, Box, Tooltip, CircularProgress } from '@mui/material';
 import { Elements } from '@stripe/react-stripe-js';
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard';
 import { loadStripe } from '@stripe/stripe-js';
@@ -73,7 +73,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
         if (reduxUser?.plan && from !== "billing-modal") {
             if (handleContinue) {
-                handleContinue()
+                // handleContinue()
             }
         }
         getPlans()
@@ -293,7 +293,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         setSelectedPlan(item);
     };
 
-    const handleContinueYearly = () => {
+    const handleContinueYearly = async () => {
         // Switch to yearly billing and find matching plan
         setSelectedDuration(duration[2]); // Switch to yearly
 
@@ -313,7 +313,15 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         }
 
         setShowYearlyPlanModal(false);
-        setAddPaymentPopUp(true);
+        
+        // Check if the yearly plan is free before showing payment popup
+        if (selectedPlan && !selectedPlan.discountPrice) {
+            // Free yearly plan - subscribe directly
+            await handleSubscribePlan();
+        } else {
+            // Paid yearly plan - show payment popup
+            setAddPaymentPopUp(true);
+        }
     };
 
     const handleContinueMonthly = async () => {
@@ -495,7 +503,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                     )
                                                 }
                                                 <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-[#DF02BA] to-purple bg-clip-text text-transparent">
-                                                    ${formatFractional2(item.discountPrice || item.discountedPrice||0)}
+                                                    ${formatFractional2(item.discountPrice || item.discountedPrice || 0)}
                                                 </span>
                                             </div>
 
@@ -503,52 +511,62 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                 {item.details || item.description}
                                             </div>
 
-                                            <div
-                                                className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white cursor-pointer"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    e.stopPropagation();
-                                                    handleTogglePlanClick(item, index);
+                                            {
+                                                subPlanLoader ? (
+                                                    <CircularProgress size={20} />
+                                                ) : (
+                                                    <div
+                                                        className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white cursor-pointer"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            handleTogglePlanClick(item, index);
+                                                            console.log("item.discountPrice", item.discountPrice)
+                                                            if (isFrom == "SubAccount") {
+                                                                setTimeout(() => {
+                                                                    setAddPaymentPopUp(true)
+                                                                }, 300)
+                                                                return;
+                                                            }
 
-                                                    if (isFrom == "SubAccount") {
-                                                        setTimeout(() => {
-                                                            setAddPaymentPopUp(true)
-                                                        }, 300)
-                                                        return;
-                                                    }
+                                                            // If opened from billing modal, callback with selected plan
+                                                            if (from === 'billing-modal' && onPlanSelected) {
+                                                                onPlanSelected(item);
+                                                                return;
+                                                            }
 
-                                                    // If opened from billing modal, callback with selected plan
-                                                    if (from === 'billing-modal' && onPlanSelected) {
-                                                        onPlanSelected(item);
-                                                        return;
-                                                    }
-
-                                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
-                                                        // Monthly plan selected - show yearly plan modal
-                                                        setSelectedMonthlyPlan(item);
-                                                        setShowYearlyPlanModal(true);
-                                                    } else {
-                                                        // Quarterly or Yearly plan - proceed directly
-                                                        setAddPaymentPopUp(true)
-                                                    }
-                                                }}
-                                            >
-                                                {item?.hasTrial == true ? (
-                                                    <span
-                                                        style={{
-                                                            fontWeight: "600",
-                                                            fontSize: 14,
-                                                            // color: "white",
+                                                            if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                                                // Monthly plan selected - show yearly plan modal
+                                                                setSelectedMonthlyPlan(item);
+                                                                setShowYearlyPlanModal(true);
+                                                            } else {
+                                                                if (item.discountPrice > 0) {
+                                                                    // Quarterly or Yearly plan - proceed directly
+                                                                    setAddPaymentPopUp(true)
+                                                                } else {
+                                                                    handleSubscribePlan()
+                                                                }
+                                                            }
                                                         }}
                                                     >
-                                                        {item?.trialValidForDays} Day Free Trial
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-base font-normal">
-                                                        Get Started
-                                                    </span>
+                                                        {item?.hasTrial == true ? (
+                                                            <span
+                                                                style={{
+                                                                    fontWeight: "600",
+                                                                    fontSize: 14,
+                                                                    // color: "white",
+                                                                }}
+                                                            >
+                                                                {item?.trialValidForDays} Day Free Trial
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-base font-normal">
+                                                                Get Started
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 )}
-                                            </div>
+
                                         </div>
 
                                         {/* Features container - scrollable */}

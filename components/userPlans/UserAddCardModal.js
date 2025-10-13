@@ -638,7 +638,7 @@ const UserAddCard = ({
                 </div>
                 <div className="w-[45%] flex flex-col justify-center items-center pe-4 rounded-lg mt-5" style={{ backgroundColor: 'transparent' }}>
                     <div className="rounded-lg p-2 w-[90%] flex flex-col" style={{ backgroundColor: '#ffffff' }}>
-                        <div className={`w-[50%] flex flex-col items-start text-[#8a8a8a]`}>
+                        <div className={`w-full flex flex-col items-start text-[#000]`}>
                             <div className=' text-xl font-semibold '>
                                 Order Summary
                             </div>
@@ -653,7 +653,7 @@ const UserAddCard = ({
                                     {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                                 </div>
                                 <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                    {selectedPlan ? `${GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration)} x ${selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice}` : ""}
+                                    {selectedPlan ? `$${selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice}` : ""}
                                 </div>
                             </div>
 
@@ -692,9 +692,9 @@ const UserAddCard = ({
                         <div className="flex-shrink-0 mt-4">
 
                             <div className="flex flex-row items-start justify-between w-full mt-6 mb-2">
-                                <div style={{ fontWeight: "600", fontSize: 15 }}>Total:</div>
+                                <div className=" text-3xl font-semibold  ">Total:</div>
                                 <div className="flex flex-col items-end ">
-                                    <div style={{ fontWeight: "600", fontSize: 15 }}>
+                                    <div className=" text-3xl font-semibold  ">
                                         ${getTotalPrice(selectedPlan)}
                                     </div>
                                     <div style={{ fontWeight: "400", fontSize: 13, marginTop: "", color: "#8A8A8A" }}>Due Today</div>
