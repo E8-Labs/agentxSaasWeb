@@ -1388,8 +1388,8 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.lastName}
                             </div>
 
-                            {selectedleadsdetails?.scoringDetails && selectedleadsdetails?.scoringDetails?.questions?.length > 0 && (
-                              <ScoringProgress value={selectedleadsdetails?.scoringDetails?.totalScore} maxValue={10} questions={selectedleadsdetails?.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
+                            {selectedLeadsDetails?.scoringDetails && selectedLeadsDetails?.scoringDetails?.questions?.length > 0 && (
+                              <ScoringProgress value={selectedLeadsDetails?.scoringDetails?.totalScore} maxValue={10} questions={selectedLeadsDetails?.scoringDetails?.questions} showTooltip={true} tooltipTitle="Results" />
                             )}
 
 
