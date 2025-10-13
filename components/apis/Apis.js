@@ -305,6 +305,9 @@ const Apis = {
 
   //stripe apis
   createStripeLoginLink: `${BasePath}/api/agency/createStripeLoginLink`,
+  
+  //transaction details
+  getTransactionDetails: `${BasePath}api/user/getTransactionDetails`,
 };
 
 export default Apis;
