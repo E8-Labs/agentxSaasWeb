@@ -36,7 +36,7 @@ function Page() {
         className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: "600" }}>All Activities</div>
+        <div style={{ fontSize: 24, fontWeight: "600" }}>Activity</div>
 
         <div className="flex flex-row items-center gap-4">
           <NotficationsDrawer user={user} />

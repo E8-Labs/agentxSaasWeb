@@ -650,7 +650,7 @@ function AllCalls({ user }) {
             <div className="w-2/12">
               <div style={styles.text}>Contact</div>
             </div>
-            <div className="w-1/12 ">
+            <div className="w-2/12 ">
               <div style={styles.text}>Pipeline</div>
             </div>
             <div className="w-1/12">

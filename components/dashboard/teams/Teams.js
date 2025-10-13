@@ -1047,6 +1047,7 @@ function Teams({
           setUpgradePlan(true);
           setShowUpgradeModal(false);
         }}
+       costPerAdditionalTeamSeat={reduxUser?.planCapabilities?.costPerAdditionalTeamSeat || 10}
       />
 
       <Modal

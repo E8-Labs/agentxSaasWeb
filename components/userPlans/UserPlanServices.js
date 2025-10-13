@@ -1,6 +1,7 @@
 import axios from "axios"
 import { AuthToken } from "../agency/plan/AuthDetails"
 import Apis from "../apis/Apis"
+import { formatFractional2 } from "../agency/plan/AgencyUtilities"
 
 //use the dynamic values here  @arslan
 
@@ -391,18 +392,20 @@ export const getTotalPrice = (selectedPlan) => {
         return 0;
     }
 
-    const price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
+    let price = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0;
     const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
 
     if (billingCycle === "monthly") {
-        return price;
+         price = price * 1;
     } else if (billingCycle === "quarterly") {
-        return price * 3;
+        price = price * 3;
     } else if (billingCycle === "yearly") {
-        return price * 12;
+        price = price * 12;
     } else {
-        return price;
+        price = price;
     }
+
+    return formatFractional2(price);
 }
 
 

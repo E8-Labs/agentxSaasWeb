@@ -313,6 +313,7 @@ function UpgradePlanContent({
                     setSelectedDuration(planDuration);
                 }
             } else {
+                setCurrentSelectedPlan(currentPlans[0]);
                 // if selectedPlan is null then set selected duration of current plan
                 // here set duration of current plan
                 if (currentUserPlan && currentUserPlan.billingCycle) {

@@ -945,7 +945,7 @@ function SheduledCalls({ user }) {
                         fontSize: 17,
                       }}
                     >
-                      {getAgentNameForActiviti(SelectedAgent)} call activity
+                      {getAgentNameForActiviti(SelectedAgent)} Activity
                     </div>
                     <button
                       onClick={() => {

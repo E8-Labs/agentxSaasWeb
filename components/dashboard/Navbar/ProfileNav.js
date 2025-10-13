@@ -1163,7 +1163,7 @@ const ProfileNav = () => {
           }}
         >
           <div className="w-full flex flex-row gap-3 items-center justify-center">
-            <div className="w-9/12">
+            <div className="w-11/12">
               <Image
                 src={"/assets/assignX.png"}
                 alt="profile"
@@ -1174,7 +1174,7 @@ const ProfileNav = () => {
             </div>
           </div>
 
-          <div className="w-full mt-3 flex flex-col items-center gap-3">
+          <div className="w-full mt-8 flex flex-col items-center gap-3">
             {showLinks().map((item) => (
               <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
                 <Link

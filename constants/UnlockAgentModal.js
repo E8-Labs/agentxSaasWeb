@@ -42,12 +42,19 @@ function UnlockAgentModal({
                             <div className='w-full flex flex-row items-start justify-end'>
                                 <CloseBtn
                                     onClick={
-                                        ()=> {
+                                        () => {
                                             handleClose()
                                         }
                                     }
                                 />
                             </div>
+                            <Image
+                                src="/otherAssets/unlockAgents.png"
+                                height={100}
+                                width={300}
+                                alt="Axel"
+                            />
+
                             <div className="flex flex-row items-center">
                                 <div
                                     className="text-purple"
@@ -67,7 +74,7 @@ function UnlockAgentModal({
                                 style={{ fontSize: "13px", fontWeight: "400", color: "#00000050" }}>
                                 {subTitle}
                             </div>
-                            <div className="mt-4 w-full text-center" style={{ fontSize: "16px", fontWeight: "400" }}>
+                            <div className="mt-3 w-full text-center" style={{ fontSize: "16px", fontWeight: "400" }}>
                                 {desc} <br /> Please upgrade your plan to add additional agents.
                             </div>
                         </div>
@@ -83,7 +90,7 @@ function UnlockAgentModal({
                             }}
                         >
                             <button
-                                className="h-[54px] w-[90%] px-10 rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
+                                className="h-[54px] w-[50%] px-10 rounded-xl bg-purple text-white text-center flex flex-row items-center justify-center"
                                 style={{ fontSize: "15px", fontWeight: "500" }}
                                 onClick={() => {
                                     setShowUpgradeModal(true)
@@ -95,9 +102,9 @@ function UnlockAgentModal({
                             <button className='text-purple mt-4 pb-8'
                                 style={{ fontSize: "15px", fontWeight: "500" }}
                                 onClick={
-                                    ()=> {
+                                    () => {
                                         handleClose()
-                                }}
+                                    }}
                             >
                                 {buttonTitle}
                             </button>

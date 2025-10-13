@@ -242,8 +242,7 @@ const WebAgentModal = ({
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <h2 className='capitalize' style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>
-          //show first 20 characters of the agentName
-            {agentName.slice(0, 20)} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
+            {agentName.slice(0, 20)} {agentName.length > 20 ? "..." : ""} | {`${fetureType === "webhook" ? "Webhook Agent" : "Browser Agent"}`}
           </h2>
           <CloseBtn
             onClick={(e) => {
