@@ -17,6 +17,7 @@ function BillingHistory() {
     const [transactionDetailsModal, setTransactionDetailsModal] = useState(false);
     const [transactionDetails, setTransactionDetails] = useState(null);
     const [transactionDetailsLoader, setTransactionDetailsLoader] = useState(false);
+    const [clickedTransactionId, setClickedTransactionId] = useState(null);
 
     useEffect(()=>{
         getPaymentHistory()
@@ -93,12 +94,14 @@ function BillingHistory() {
             console.error("Error occurred in get transaction details api:", error);
         } finally {
             setTransactionDetailsLoader(false);
+            setClickedTransactionId(null);
         }
     };
 
     //function to handle transaction click
     const handleTransactionClick = (item) => {
         if (item.transactionId) {
+            setClickedTransactionId(item.transactionId);
             getTransactionDetails(item.transactionId);
         } else {
             console.error("Transaction ID not available");
@@ -161,8 +164,10 @@ function BillingHistory() {
                         {PaymentHistoryData.map((item) => (
                             <div
                                 key={item.id}
-                                className="w-full flex flex-row items-center gap-3 mt-10 px-6 cursor-pointer hover:bg-gray-50 rounded-lg py-2 transition-colors"
-                                onClick={() => handleTransactionClick(item)}
+                                className={`w-full flex flex-row items-center gap-3 mt-10 px-6 rounded-lg py-2 transition-colors ${
+                                    transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
+                                }`}
+                                onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
                             >
                                 <div className="w-4/12 flex flex-row gap-2">
                                     <div className="truncate" style={styles.text2}>
@@ -173,28 +178,34 @@ function BillingHistory() {
                                     <div style={styles.text2}>${formatFractional2(item.price)}</div>
                                 </div>
                                 <div className="w-2/12 items-start">
-                                    <div
-                                        className="p-2 flex flex-row gap-2 items-center justify-center"
-                                        style={{
-                                            backgroundColor: item.processingStatus === 'failed' ? "#FF000010" : "#01CB7610",
-                                            borderRadius: 20,
-                                            // padding: '2px',
-                                            width: "4vw",
-                                        }}
-                                    >
+                                    {clickedTransactionId === item.transactionId && transactionDetailsLoader ? (
+                                        <div className="flex items-center justify-center">
+                                            <CircularProgress size={20} thickness={2} />
+                                        </div>
+                                    ) : (
                                         <div
+                                            className="p-2 flex flex-row gap-2 items-center justify-center"
                                             style={{
-                                                fontSize: 15,
-                                                color: item.processingStatus === 'failed' ? "#FF0000" : "#01CB76",
-                                                fontWeight: 500,
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                textAlign: 'center',
+                                                backgroundColor: item.processingStatus === 'failed' ? "#FF000010" : "#01CB7610",
+                                                borderRadius: 20,
+                                                // padding: '2px',
+                                                width: "4vw",
                                             }}
                                         >
-                                            {item.processingStatus === 'failed' ? 'Failed' : 'Paid'}
+                                            <div
+                                                style={{
+                                                    fontSize: 15,
+                                                    color: item.processingStatus === 'failed' ? "#FF0000" : "#01CB76",
+                                                    fontWeight: 500,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    textAlign: 'center',
+                                                }}
+                                            >
+                                                {item.processingStatus === 'failed' ? 'Failed' : 'Paid'}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                                 <div className="w-4/12">
                                     <div style={styles.text2}>

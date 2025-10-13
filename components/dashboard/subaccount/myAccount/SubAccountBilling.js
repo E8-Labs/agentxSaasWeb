@@ -83,6 +83,7 @@ function SubAccountBilling({
   const [transactionDetailsModal, setTransactionDetailsModal] = useState(false)
   const [transactionDetails, setTransactionDetails] = useState(null)
   const [transactionDetailsLoader, setTransactionDetailsLoader] = useState(false)
+  const [clickedTransactionId, setClickedTransactionId] = useState(null)
 
   useEffect(() => {
     let screenWidth = 1000;
@@ -627,12 +628,14 @@ function SubAccountBilling({
       setErrorSnack("Failed to fetch transaction details");
     } finally {
       setTransactionDetailsLoader(false);
+      setClickedTransactionId(null);
     }
   };
 
   //function to handle transaction click
   const handleTransactionClick = (item) => {
     if (item.transactionId) {
+      setClickedTransactionId(item.transactionId);
       getTransactionDetails(item.transactionId);
     } else {
       setErrorSnack("Transaction ID not available");
@@ -759,8 +762,10 @@ function SubAccountBilling({
             {PaymentHistoryData.map((item) => (
               <div
                 key={item.id}
-                className="w-full flex flex-row items-center justify-between mt-10 px-10 cursor-pointer hover:bg-gray-50 rounded-lg py-2 transition-colors"
-                onClick={() => handleTransactionClick(item)}
+                className={`w-full flex flex-row items-center justify-between mt-10 px-10 rounded-lg py-2 transition-colors ${
+                  transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
+                }`}
+                onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
               >
                 <div className="w-5/12 flex flex-row gap-2">
                   <div className="truncate" style={styles.text2}>
@@ -771,32 +776,38 @@ function SubAccountBilling({
                   <div style={styles.text2}>${formatFractional2(item.price)}</div>
                 </div>
                 <div className="w-2/12 items-start">
-                  <div
-                    className="p-2 flex flex-row gap-2 items-center"
-                    style={{
-                      backgroundColor: "#01CB7610",
-                      borderRadius: 20,
-                      width: "5vw",
-                    }}
-                  >
+                  {clickedTransactionId === item.transactionId && transactionDetailsLoader ? (
+                    <div className="flex items-center justify-center">
+                      <CircularProgress size={20} thickness={2} />
+                    </div>
+                  ) : (
                     <div
+                      className="p-2 flex flex-row gap-2 items-center"
                       style={{
-                        height: 8,
-                        width: 8,
-                        borderRadius: 5,
-                        background: "#01CB76",
-                      }}
-                    ></div>
-                    <div
-                      style={{
-                        fontSize: 15,
-                        color: "#01CB76",
-                        fontWeight: 500,
+                        backgroundColor: "#01CB7610",
+                        borderRadius: 20,
+                        width: "5vw",
                       }}
                     >
-                      Paid
+                      <div
+                        style={{
+                          height: 8,
+                          width: 8,
+                          borderRadius: 5,
+                          background: "#01CB76",
+                        }}
+                      ></div>
+                      <div
+                        style={{
+                          fontSize: 15,
+                          color: "#01CB76",
+                          fontWeight: 500,
+                        }}
+                      >
+                        Paid
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <div className="w-3/12">
                   <div style={styles.text2}>
