@@ -552,12 +552,12 @@ function UserPlans({
                                                 {item.details || item.description}
                                             </div>
 
-                                            {
+                                            {!disAblePlans && (
                                                 subscribeLoader === item.id ? (
                                                     <CircularProgress size={20} />
                                                 ) : (
                                                     <div
-                                                        className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white cursor-pointer"
+                                                        className="w-[95%] py-3.5 h-[50px] mt-3 bg-purple rounded-lg text-white cursor-pointer"
                                                         disabled={disAblePlans}
                                                         onClick={(e) => {
                                                             e.preventDefault();
@@ -609,7 +609,8 @@ function UserPlans({
                                                             )
                                                         )}
                                                     </div>
-                                                )}
+                                                )
+                                            )}
 
                                         </div>
 
