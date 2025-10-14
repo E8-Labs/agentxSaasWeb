@@ -73,7 +73,7 @@ function NoPerplexity({ setshowConfirmPerplexity, handleEnrichLead, loading, cre
           color: "black",
           alignSelf: "flex-end",
           marginTop: "10px",
-          marginBottom: "50px",
+          marginBottom: "30px",
         }}
       >
         Credits: {userLocalData?.enrichCredits || 0}
