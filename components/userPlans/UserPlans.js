@@ -26,7 +26,8 @@ function UserPlans({
     subPlanLoader,
     onPlanSelected,
     selectedUser,
-    disAblePlans = false
+    disAblePlans = false,
+    hideProgressBar = false
 }) {
 
     const router = useRouter();
@@ -354,17 +355,20 @@ function UserPlans({
                     scrollbarWidth: 'none'
                 }}
             >
+                {
+                    !hideProgressBar && (
+                        <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
+                            style={{ backgroundColor: '' }}>
+                            <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
 
-                <div className="flex w-full flex-row items-center gap-2 mt-[5vh]"
-                    style={{ backgroundColor: '' }}>
-                    <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
+                            <div className={`w-[${from === "billing-modal" ? "80%" : "100%"}]`}>
+                                <ProgressBar value={100} />
+                            </div>
+                        </div>
+                    )
+                }
 
-                    <div className={`w-[${from === "billing-modal" ? "80%" : "100%"}]`}>
-                        <ProgressBar value={100} />
-                    </div>
-                </div>
-
-                <div className='flex flex-row items-center justify-between w-full mt-10'>
+                <div className={`flex flex-row items-center justify-between w-full ${!hideProgressBar && "mt-10"}`}>
 
 
                     <div className='flex flex-col items-start'>

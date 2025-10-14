@@ -422,11 +422,17 @@ export default function AddMonthlyPlan({
               </div>
 
               {/* Description */}
-              <label style={styles.labels}>Description</label>
+              <div className="w-full flex flex-row items-center justify-between">
+                <label style={styles.labels}>Description</label>
+                <div style={styles.labels}>
+                  ({planDescription?.length || 0}/15)
+                </div>
+              </div>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                 placeholder="Type here"
+                maxLength={15}
                 value={planDescription}
                 onChange={(e) => {
                   setPlanDescription(e.target.value);

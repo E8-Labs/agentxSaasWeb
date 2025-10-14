@@ -32,6 +32,7 @@ import CloseBtn from "@/components/globalExtras/CloseBtn";
 import AgencyPlans from "@/components/plan/AgencyPlans";
 import UserPlans from "@/components/userPlans/UserPlans";
 import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
+import ProgressBar from "@/components/onboarding/ProgressBar";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1544,14 +1545,22 @@ function SubAccountPlansAndPayments({
                 }}
             >
                 <Box className="bg-white rounded-xl w-[70%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-full flex flex-row items-center justify-end px-6 pt-6 h-[8%]">
+                    <div className="w-full flex flex-row items-center justify-between px-6 pt-6 h-[8%]">
+                        <div className="flex w-full flex-row items-center gap-2"
+                            style={{ backgroundColor: '' }}>
+                            <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
+
+                            <div className={`w-[80%]`}>
+                                <ProgressBar value={100} />
+                            </div>
+                        </div>
                         <CloseBtn
                             onClick={() => {
                                 setShowPlanDetailsPopup(false);
                             }}
                         />
                     </div>
-                    <div className={`w-full h-[88%] mt-4 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}>
+                    <div className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}>
                         <UserPlans
                             handleContinue={() => {
                                 setShowPlanDetailsPopup(false);
@@ -1573,6 +1582,7 @@ function SubAccountPlansAndPayments({
                                 setShowUpgradeModal(true);
                             }}
                             disAblePlans={true}
+                            hideProgressBar={true}
                         />
                     </div>
                 </Box>
