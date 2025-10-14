@@ -7,7 +7,7 @@ import moment from 'moment';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 import TransactionDetailsModal from '../modals/TransactionDetailsModal';
 
-function BillingHistory() {
+function BillingHistory({ selectedUser }) {
 
     //stoores payment history
     const [PaymentHistoryData, setPaymentHistoryData] = useState([]);
@@ -19,14 +19,16 @@ function BillingHistory() {
     const [transactionDetailsLoader, setTransactionDetailsLoader] = useState(false);
     const [clickedTransactionId, setClickedTransactionId] = useState(null);
 
-    useEffect(()=>{
+    useEffect(() => {
+        console.log("Billing history page loading")
         getPaymentHistory()
-    },[])
+    }, [])
 
     //function to get payment history
     const getPaymentHistory = async () => {
         try {
             setHistoryLoader(true);
+            console.log("transaction api trigered")
 
             let AuthToken = null;
             let localDetails = null;
@@ -37,7 +39,11 @@ function BillingHistory() {
                 AuthToken = LocalDetails.token;
             }
 
-            const ApiPath = Apis.getPaymentHistory;
+            let ApiPath = Apis.getPaymentHistory;
+            if (selectedUser) {
+                ApiPath = ApiPath + `?userId=${selectedUser.id}`;
+            }
+            console.log("Api path for get transaction history is", ApiPath)
 
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -47,13 +53,13 @@ function BillingHistory() {
             });
 
             if (response) {
-                // //console.log;
+                console.log("Response of transaction history is", response);
                 if (response.data.status === true) {
                     setPaymentHistoryData(response.data.data);
                 }
             }
         } catch (error) {
-            // console.error("Error occured in get history api is", error);
+            console.error("Error occured in get history api is", error);
         } finally {
             setHistoryLoader(false);
         }
@@ -63,14 +69,14 @@ function BillingHistory() {
     const getTransactionDetails = async (transactionId) => {
         try {
             setTransactionDetailsLoader(true);
-            
+
             const localData = localStorage.getItem("User");
             let AuthToken = null;
             if (localData) {
                 const Data = JSON.parse(localData);
                 AuthToken = Data.token;
             }
-            
+
             const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`;
             console.log("Api path for transaction details is", ApiPath);
 
@@ -164,9 +170,8 @@ function BillingHistory() {
                         {PaymentHistoryData.map((item) => (
                             <div
                                 key={item.id}
-                                className={`w-full flex flex-row items-center gap-3 mt-10 px-6 rounded-lg py-2 transition-colors ${
-                                    transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
-                                }`}
+                                className={`w-full flex flex-row items-center gap-3 mt-10 px-6 rounded-lg py-2 transition-colors ${transactionDetailsLoader ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-50'
+                                    }`}
                                 onClick={() => !transactionDetailsLoader && handleTransactionClick(item)}
                             >
                                 <div className="w-4/12 flex flex-row gap-2">

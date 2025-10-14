@@ -1572,6 +1572,7 @@ function SubAccountPlansAndPayments({
                                 // Open Upgrade modal
                                 setShowUpgradeModal(true);
                             }}
+                            disAblePlans={true}
                         />
                     </div>
                 </Box>

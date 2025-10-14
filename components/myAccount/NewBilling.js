@@ -1967,6 +1967,7 @@ function NewBilling() {
                                             // Open Upgrade modal
                                             setShowUpgradeModal(true);
                                         }}
+                                        disAblePlans={true}
                                     />
                                 </Elements>
                             </div>

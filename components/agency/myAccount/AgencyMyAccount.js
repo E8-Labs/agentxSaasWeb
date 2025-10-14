@@ -20,6 +20,7 @@ import AgencyBarServices from "./AgencyBarServices";
 import AgencyBasicInfo from "./AgencyBasicInfo";
 import AgencyPlansPayments from "./AgencyPlansPayments";
 import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
+import BillingHistory from "@/components/myAccount/BillingHistory";
 
 function AgencyMyAccount({
   selectedAgency
@@ -102,7 +103,7 @@ function AgencyMyAccount({
       case 2:
         return <AgencyPlansPayments selectedAgency={selectedAgency} />;
       case 3:
-        return <AgencyBilling selectedAgency={selectedAgency} />;
+        return <BillingHistory selectedUser={selectedAgency} />;
 
       // case 3:
       //   return <AgencySupport />;

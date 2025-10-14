@@ -2,6 +2,7 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import Image from 'next/image'
 import React from 'react'
 import { formatFractional2 } from './AgencyUtilities';
+import { Tooltip } from '@mui/material';
 
 const ConfigureSideUI = ({
     tag,
@@ -109,7 +110,7 @@ const ConfigureSideUI = ({
                                     )
                                 }
                                 <span className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2" style={{ fontWeight: "700", fontSize: "35px" }}>
-                                    ${formatFractional2(basicsData?.discountedPrice) || "0"}
+                                    ${formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
                                 </span>
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>
@@ -143,6 +144,40 @@ const ConfigureSideUI = ({
                                                             }}>
                                                                 {item.text}
                                                             </div>
+                                                            {
+                                                                from === "dashboard" && item?.subtext && (
+                                                                    <Tooltip
+                                                                        title={item?.subtext}
+                                                                        placement="top"
+                                                                        arrow
+                                                                        componentsProps={{
+                                                                            tooltip: {
+                                                                                sx: {
+                                                                                    backgroundColor: "#ffffff", // Ensure white background
+                                                                                    color: "#333", // Dark text color
+                                                                                    fontSize: "14px",
+                                                                                    padding: "10px 15px",
+                                                                                    borderRadius: "8px",
+                                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                                },
+                                                                            },
+                                                                            arrow: {
+                                                                                sx: {
+                                                                                    color: "#ffffff", // Match tooltip background
+                                                                                },
+                                                                            },
+                                                                        }}
+                                                                    >
+                                                                        <Image
+                                                                            src="/otherAssets/infoLightDark.png"
+                                                                            alt="info"
+                                                                            width={14}
+                                                                            height={14}
+                                                                            className="cursor-pointer rounded-full"
+                                                                        />
+                                                                    </Tooltip>
+                                                                )
+                                                            }
                                                         </div>
                                                     </div>
                                                 )

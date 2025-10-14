@@ -18,7 +18,16 @@ import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 
 
-function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoader, onPlanSelected, selectedUser }) {
+function UserPlans({
+    handleContinue,
+    handleBack,
+    from = "",
+    isFrom,
+    subPlanLoader,
+    onPlanSelected,
+    selectedUser,
+    disAblePlans = false
+}) {
 
     const router = useRouter();
 
@@ -314,7 +323,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
         }
 
         setShowYearlyPlanModal(false);
-        
+
         // Check if the yearly plan is free before showing payment popup
         if (selectedPlan && !selectedPlan.discountPrice) {
             // Free yearly plan - subscribe directly
@@ -444,9 +453,40 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                         getCurrentPlans()?.length > 0 && getCurrentPlans()?.map((item, index) => (
                             <button
                                 key={index}
-                                onClick={() => handleTogglePlanClick(item, index)}
+                                onClick={() => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleTogglePlanClick(item, index);
+                                    console.log("item.discountPrice", item.discountPrice)
+                                    if (isFrom == "SubAccount") {
+                                        setTimeout(() => {
+                                            setAddPaymentPopUp(true)
+                                        }, 300)
+                                        return;
+                                    }
+
+                                    // If opened from billing modal, callback with selected plan
+                                    if (from === 'billing-modal' && onPlanSelected) {
+                                        onPlanSelected(item);
+                                        return;
+                                    }
+
+                                    if (selectedDuration.id === 1 || selectedDuration.id === 2) {
+                                        // Monthly plan selected - show yearly plan modal
+                                        setSelectedMonthlyPlan(item);
+                                        setShowYearlyPlanModal(true);
+                                    } else {
+                                        if (item.discountPrice > 0) {
+                                            // Quarterly or Yearly plan - proceed directly
+                                            setAddPaymentPopUp(true)
+                                        } else {
+                                            handleSubscribePlan()
+                                        }
+                                    }
+                                }}
                                 onMouseEnter={() => { setHoverPlan(item) }}
                                 onMouseLeave={() => { setHoverPlan(null) }}
+                                disabled={disAblePlans}
 
                                 className={`flex flex-col items-center rounded-lg hover:p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF]
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
@@ -518,6 +558,7 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                 ) : (
                                                     <div
                                                         className="w-[95%] py-3.5 mt-3 bg-purple rounded-lg text-white cursor-pointer"
+                                                        disabled={disAblePlans}
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             e.stopPropagation();
@@ -561,9 +602,11 @@ function UserPlans({ handleContinue, handleBack, from = "", isFrom, subPlanLoade
                                                                 {item?.trialValidForDays} Day Free Trial
                                                             </span>
                                                         ) : (
-                                                            <span className="text-base font-normal">
-                                                                Get Started
-                                                            </span>
+                                                            !disAblePlans && (
+                                                                <span className="text-base font-normal">
+                                                                    Get Started
+                                                                </span>
+                                                            )
                                                         )}
                                                     </div>
                                                 )}

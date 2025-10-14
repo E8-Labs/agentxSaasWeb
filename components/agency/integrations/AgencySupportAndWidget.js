@@ -333,32 +333,34 @@ const AgencySupportAndWidget = () => {
                         delSuportWebCalendarLoader ? (
                           <CircularProgress size={20} />
                         ) : (
-                          <Switch
-                            checked={allowSuportWebCalendar}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setAllowSuportWebCalendar(checked);
+                          settingsData?.supportWebinarTitle && (
+                            <Switch
+                              checked={allowSuportWebCalendar}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setAllowSuportWebCalendar(checked);
 
-                              if (allowSuportWebCalendar === false) {
-                                setAddSuportWebCalendar(true);
-                              } else {
-                                if (settingsData?.supportWebinarCalendarUrl) {
-                                  handleUserSettings("suportWebCalendarDel")
+                                if (allowSuportWebCalendar === false) {
+                                  setAddSuportWebCalendar(true);
                                 } else {
-                                  setSuportWebCalendar("");
-                                  setAddSuportWebCalendar(false);
+                                  if (settingsData?.supportWebinarCalendarUrl) {
+                                    handleUserSettings("suportWebCalendarDel")
+                                  } else {
+                                    setSuportWebCalendar("");
+                                    setAddSuportWebCalendar(false);
+                                  }
                                 }
-                              }
-                            }}
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                              },
-                            }}
-                          />
+                              }}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                  backgroundColor: '#7902DF',
+                                },
+                              }}
+                            />
+                          )
                         )
                       }
                     </div>
@@ -601,32 +603,34 @@ const AgencySupportAndWidget = () => {
                         delFeedBackLoader ? (
                           <CircularProgress size={20} />
                         ) : (
-                          <Switch
-                            checked={allowFeedBack}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setAllowFeedBack(checked);
+                          settingsData?.giveFeedbackTitle && (
+                            <Switch
+                              checked={allowFeedBack}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setAllowFeedBack(checked);
 
-                              if (allowFeedBack === false) {
-                                setAddFeedBack(true);
-                              } else {
-                                if (settingsData?.giveFeedbackUrl) {
-                                  handleUserSettings("feedBackDel")
+                                if (allowFeedBack === false) {
+                                  setAddFeedBack(true);
                                 } else {
-                                  setFeedBack("");
-                                  setAddFeedBack(false);
+                                  if (settingsData?.giveFeedbackUrl) {
+                                    handleUserSettings("feedBackDel")
+                                  } else {
+                                    setFeedBack("");
+                                    setAddFeedBack(false);
+                                  }
                                 }
-                              }
-                            }}
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                              },
-                            }}
-                          />
+                              }}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                  backgroundColor: '#7902DF',
+                                },
+                              }}
+                            />
+                          )
                         )
                       }
                     </div>
@@ -747,32 +751,34 @@ const AgencySupportAndWidget = () => {
                         delHireTeamLoader ? (
                           <CircularProgress size={20} />
                         ) : (
-                          <Switch
-                            checked={allowHireTeam}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setAllowHireTeam(checked);
+                          settingsData?.hireTeamTitle && (
+                            <Switch
+                              checked={allowHireTeam}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setAllowHireTeam(checked);
 
-                              if (allowHireTeam === false) {
-                                setAddHireTeam(true);
-                              } else {
-                                if (settingsData?.hireTeamUrl) {
-                                  handleUserSettings("hireTeamDel")
+                                if (allowHireTeam === false) {
+                                  setAddHireTeam(true);
                                 } else {
-                                  setHireTeam("");
-                                  setAddHireTeam(false);
+                                  if (settingsData?.hireTeamUrl) {
+                                    handleUserSettings("hireTeamDel")
+                                  } else {
+                                    setHireTeam("");
+                                    setAddHireTeam(false);
+                                  }
                                 }
-                              }
-                            }}
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                              },
-                            }}
-                          />
+                              }}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                  backgroundColor: '#7902DF',
+                                },
+                              }}
+                            />
+                          )
                         )
                       }
                     </div>
@@ -892,32 +898,34 @@ const AgencySupportAndWidget = () => {
                         delBillingAndSupportLoader ? (
                           <CircularProgress size={20} />
                         ) : (
-                          <Switch
-                            checked={allowBillingAndSupport}
-                            onChange={(e) => {
-                              const checked = e.target.checked;
-                              setAllowBillingAndSupport(checked);
+                          settingsData?.billingAndSupportTitle && (
+                            <Switch
+                              checked={allowBillingAndSupport}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setAllowBillingAndSupport(checked);
 
-                              if (allowBillingAndSupport === false) {
-                                setAddBillingAndSupport(true);
-                              } else {
-                                if (settingsData?.billingAndSupportUrl) {
-                                  handleUserSettings("billingAndSupportDel")
+                                if (allowBillingAndSupport === false) {
+                                  setAddBillingAndSupport(true);
                                 } else {
-                                  setBillingAndSupport("");
-                                  setAddBillingAndSupport(false);
+                                  if (settingsData?.billingAndSupportUrl) {
+                                    handleUserSettings("billingAndSupportDel")
+                                  } else {
+                                    setBillingAndSupport("");
+                                    setAddBillingAndSupport(false);
+                                  }
                                 }
-                              }
-                            }}
-                            sx={{
-                              '& .MuiSwitch-switchBase.Mui-checked': {
-                                color: 'white',
-                              },
-                              '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                backgroundColor: '#7902DF',
-                              },
-                            }}
-                          />
+                              }}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: 'white',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                  backgroundColor: '#7902DF',
+                                },
+                              }}
+                            />
+                          )
                         )
                       }
                     </div>

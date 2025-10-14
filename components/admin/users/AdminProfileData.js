@@ -13,6 +13,7 @@ import DashboardSlider from "@/components/animations/DashboardSlider";
 import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 import SubAccountBarServices from "@/components/dashboard/subaccount/myAccount/SubAccountBarServices";
 import SubAccountPlansAndPayments from "@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments";
+import BillingHistory from "@/components/myAccount/BillingHistory";
 
 function AdminProfileData({ selectedUser, from }) {
     let searchParams = useSearchParams();
@@ -79,7 +80,6 @@ function AdminProfileData({ selectedUser, from }) {
                     <div>
                         {
                             from === "subaccount" ? (
-                                // <SubAccountBilling hideBtns={true} selectedUser={selectedUser} />
                                 <SubAccountPlansAndPayments
                                     selectedUser={selectedUser}
                                     hideBtns={true}
@@ -98,7 +98,7 @@ function AdminProfileData({ selectedUser, from }) {
                     <div>
                         {
                             from === "subaccount" ? (
-                                <SubAccountBilling hideBtns={true} selectedUser={selectedUser} />
+                                <BillingHistory hideBtns={true} selectedUser={selectedUser} />
                             ) : (
                                 <AdminBilling selectedUser={selectedUser} from={from} />
                             )

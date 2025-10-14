@@ -66,8 +66,8 @@ const UPSell = () => {
                 console.log("response of get user settings api is", response)
                 const Data = response?.data?.data;
                 setPhonePrice(Data?.phonePrice || "");
-                setDncPrice(Data?.dncPrice || "");
-                setPerplexityEnrichmentPrice(Data?.enrichmentPrice || "");
+                setDncPrice(settingsData?.upsellDnc ? settingsData?.dncPrice : 0.03);
+                setPerplexityEnrichmentPrice(settingsData?.upsellEnrichment ? settingsData?.enrichmentPrice : 0.05);
                 setSettingsData(Data);
                 setAllowUpSellPhone(Data?.upsellPhoneNumber);
                 setAllowDNC(Data?.upsellDnc);
@@ -99,7 +99,7 @@ const UPSell = () => {
 
     //user settings api data
     const userSettingDataUpgrade = (from) => {
-        console.log("Api will run for", from);
+        console.log("Api will run for upgrade", from);
         if (from === "phonePrice") {
             setSavePhoneLoader(true);
             return {
@@ -232,20 +232,18 @@ const UPSell = () => {
                                                     <CircularProgress size={20} />
                                                 ) : (
                                                     <Switch
-                                                        checked={allowUpSellPhone}
+                                                        checked={allowUpSellPhone || settingsData?.upsellPhoneNumber}
                                                         onChange={(e) => {
                                                             const checked = e.target.checked;
                                                             setAllowUpSellPhone(checked);
 
-                                                            if (allowUpSellPhone === false) {
+                                                            if (addUpSellPhone === false && settingsData?.upsellPhoneNumber === false) {
                                                                 setAddUpSellPhone(true);
+                                                            } else if (settingsData?.phonePrice) {
+                                                                handleUserSettings("phonePriceDel");
                                                             } else {
-                                                                if (settingsData?.phonePrice) {
-                                                                    handleUserSettings("phonePriceDel");
-                                                                } else {
-                                                                    setPhonePrice("")
-                                                                    setAddUpSellPhone(false);
-                                                                }
+                                                                // setPhonePrice("")
+                                                                setAddUpSellPhone(false);
                                                             }
                                                         }}
                                                         sx={{
@@ -335,20 +333,18 @@ const UPSell = () => {
                                                     <CircularProgress size={20} />
                                                 ) : (
                                                     <Switch
-                                                        checked={allowDNC}
+                                                        checked={allowDNC || settingsData?.upsellDnc}
                                                         onChange={(e) => {
                                                             const checked = e.target.checked;
                                                             setAllowDNC(checked);
 
-                                                            if (allowDNC === false) {
+                                                            if (addDNC === false && settingsData?.upsellDnc === false) {
                                                                 setAddDNC(true);
+                                                            } else if (settingsData?.dncPrice) {
+                                                                handleUserSettings("dncPriceDel");
                                                             } else {
-                                                                if (settingsData?.dncPrice) {
-                                                                    handleUserSettings("dncPriceDel");
-                                                                } else {
-                                                                    setAddDNC("");
-                                                                    setAddDNC(false);
-                                                                }
+                                                                // setAddDNC("");
+                                                                setAddDNC(false);
                                                             }
                                                         }}
                                                         sx={{
@@ -368,7 +364,7 @@ const UPSell = () => {
                                         settingsData?.dncPrice && (
                                             <div className="w-full flex flex-row items-center justify-between">
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.dncPrice || 0}
+                                                    Your cost is ${settingsData?.upsellDnc ? settingsData?.dncPrice : 0.03}
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddDNC(true);
@@ -438,20 +434,18 @@ const UPSell = () => {
                                                     <CircularProgress size={20} />
                                                 ) : (
                                                     <Switch
-                                                        checked={allowPerplexityEnrichment}
+                                                        checked={allowPerplexityEnrichment || settingsData?.upsellEnrichment}
                                                         onChange={(e) => {
                                                             const checked = e.target.checked;
                                                             setAllowPerplexityEnrichment(checked);
 
-                                                            if (allowPerplexityEnrichment === false) {
+                                                            if (addPerplexityEnrichment === false && settingsData?.upsellEnrichment === false) {
                                                                 setAddPerplexityEnrichment(true);
+                                                            } else if (settingsData?.enrichmentPrice) {
+                                                                handleUserSettings("enrichmentPriceDel");
                                                             } else {
-                                                                if (settingsData?.enrichmentPrice) {
-                                                                    handleUserSettings("enrichmentPriceDel");
-                                                                } else {
-                                                                    setPerplexityEnrichmentPrice("");
-                                                                    setAddPerplexityEnrichment(false);
-                                                                }
+                                                                // setPerplexityEnrichmentPrice("");
+                                                                setAddPerplexityEnrichment(false);
                                                             }
                                                         }}
                                                         sx={{
@@ -471,7 +465,7 @@ const UPSell = () => {
                                         settingsData?.enrichmentPrice && (
                                             <div className='flex flex-row items-center justify-between w-full mt-2'>
                                                 <div style={styles.subHeading}>
-                                                    Your cost is ${settingsData?.enrichmentPrice || 0}
+                                                    Your cost is ${settingsData?.upsellEnrichment ? settingsData?.enrichmentPrice : 0.05}
                                                 </div>
                                                 <button className="flex flex-row items-center gap-2" onClick={() => {
                                                     setAddPerplexityEnrichment(true);

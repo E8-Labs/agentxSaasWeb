@@ -321,6 +321,7 @@ function DashboardPlans({
         }
         setmoreDropdown(null);
         setSelectedPlan(null);
+        setSelectedPlanDetails(null);
     }
 
     //code to del plan
@@ -360,8 +361,9 @@ function DashboardPlans({
                     setSnackMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Success);
                     getPlanApiTrigerer();
-                    setmoreDropdown(null);
                     setSelectedPlan(null);
+                    setSelectedPlanDetails(null);
+                    setmoreDropdown(null);
                     setShowDeleteModal(false);
                 } else if (response.data.status === false) {
                     setSnackMsg(response.data.message);
@@ -380,12 +382,12 @@ function DashboardPlans({
     //code to show plan details only
     const showPlanDetails = (item) => {
         console.log("Select plan is", item);
-        if (planType === "monthly") {
-            setSelectedPlanDetails(item);
-        } else {
-            console.log("This is XBas so no details view")
-            setSelectedPlanDetails(item);
-        }
+        setSelectedPlanDetails(item);
+        // if (planType === "monthly") {
+        // } else {
+        //     console.log("This is XBas so no details view")
+        //     setSelectedPlanDetails(item);
+        // }
     }
 
     //search change

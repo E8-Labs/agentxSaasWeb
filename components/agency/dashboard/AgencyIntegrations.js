@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import AgencyLinkWarning from '@/components/globalExtras/AgencyLinkWarning';
+import CustomNotifications from '../integrations/CustomNotifications';
 
 function AgencyIntegrations({ selectedAgency }) {
 
@@ -40,6 +41,10 @@ function AgencyIntegrations({ selectedAgency }) {
         {
             id: 4,
             tab: "Support Widget"
+        },
+        {
+            id: 5,
+            tab: "Notifications"
         },
     ]
 
@@ -173,6 +178,10 @@ function AgencyIntegrations({ selectedAgency }) {
                 ) : currentTab === 4 ? (
                     <div className='w-full'>
                         <AgencySupportAndWidget />
+                    </div>
+                ) : currentTab === 5 ? (
+                    <div className='w-full'>
+                        <CustomNotifications />
                     </div>
                 ) : "No Tab Selected"
             }

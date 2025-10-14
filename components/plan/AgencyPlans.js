@@ -25,7 +25,7 @@ let stripePublickKey =
         : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
 const stripePromise = loadStripe(stripePublickKey);
 
-function AgencyPlans({ isFrom, handleCloseModal }) {
+function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
 
     const router = useRouter();
     const duration = [
@@ -470,6 +470,7 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                 console.error("Item or item.id is undefined:", currentItem);
                                             }
                                         }}
+                                        disabled={disAblePlans}
                                         onMouseEnter={() => { setHoverPlan(item) }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
                                         className={`w-[370px] rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
@@ -545,41 +546,45 @@ function AgencyPlans({ isFrom, handleCloseModal }) {
                                                             </div>
                                                         */}
 
-                                                        <div className="mt-3 mb-3">
-                                                            {subPlanLoader === item.id ? (
-                                                                <div>
-                                                                    <CircularProgress size={30} />
-                                                                </div>
-                                                            ) : (
+                                                        {
+                                                            !disAblePlans && (
+                                                                <div className="mt-3 mb-3">
+                                                                    {subPlanLoader === item.id ? (
+                                                                        <div>
+                                                                            <CircularProgress size={30} />
+                                                                        </div>
+                                                                    ) : (
 
-                                                                <button
-                                                                    // disabled={!togglePlan}
-                                                                    className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 bg-purple rounded-lg text-white
-                                                                    flex items-center"
-                                                                    style={{
-                                                                        fontSize: 16.8,
-                                                                        fontWeight: "600",
-                                                                        // backgroundColor:  "#00000020",
-                                                                        // color:  "#000000",
-                                                                        alignSelf: 'center'
-                                                                    }}
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                        const currentItem = item;
-                                                                        const currentIndex = index;
-                                                                        console.log("selected duration is", selectedDuration);
-                                                                        console.log("currentItem:", currentItem, "currentIndex:", currentIndex);
-                                                                        if (currentItem && currentItem.id) {
-                                                                            handleClaimEarlyAccess(currentItem, currentIndex);
-                                                                        } else {
-                                                                            console.error("Item or item.id is undefined:", currentItem);
-                                                                        }
-                                                                    }}>
-                                                                    {selectedPlan?.id === item.id ? "Continue" : "Get Started"}
-                                                                </button>
-                                                            )}
-                                                        </div>
+                                                                        <button
+                                                                            // disabled={!togglePlan}
+                                                                            className="w-[95%] px-5 flex flex-row items-center justify-center py-3 mt-3 bg-purple rounded-lg text-white
+                                                                            flex items-center"
+                                                                            style={{
+                                                                                fontSize: 16.8,
+                                                                                fontWeight: "600",
+                                                                                // backgroundColor:  "#00000020",
+                                                                                // color:  "#000000",
+                                                                                alignSelf: 'center'
+                                                                            }}
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                e.stopPropagation();
+                                                                                const currentItem = item;
+                                                                                const currentIndex = index;
+                                                                                console.log("selected duration is", selectedDuration);
+                                                                                console.log("currentItem:", currentItem, "currentIndex:", currentIndex);
+                                                                                if (currentItem && currentItem.id) {
+                                                                                    handleClaimEarlyAccess(currentItem, currentIndex);
+                                                                                } else {
+                                                                                    console.error("Item or item.id is undefined:", currentItem);
+                                                                                }
+                                                                            }}>
+                                                                            {selectedPlan?.id === item.id ? "Continue" : "Get Started"}
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                            )
+                                                        }
 
                                                         <div className='flex flex-col gap-2'>
                                                             {

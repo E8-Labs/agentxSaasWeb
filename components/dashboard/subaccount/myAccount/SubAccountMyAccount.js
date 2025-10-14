@@ -21,6 +21,7 @@ import SubAccountBarServices from "./SubAccountBarServices";
 import TwilioTrustHub from "@/components/myAccount/TwilioTrustHub";
 import { CancellationAndRefundUrl, termsAndConditionUrl } from "@/constants/Constants";
 import SubAccountPlansAndPayments from "./SubAccountPlansAndPayments";
+import BillingHistory from "@/components/myAccount/BillingHistory";
 
 function SubAccountMyAccount() {
   let searchParams = useSearchParams();
@@ -223,7 +224,7 @@ function SubAccountMyAccount() {
           // selectedUser={selectedUserData}
         />;
       case 3:
-        return <SubAccountBilling
+        return <BillingHistory
           selectedUser={selectedUserData}
         />;
       case 4:
