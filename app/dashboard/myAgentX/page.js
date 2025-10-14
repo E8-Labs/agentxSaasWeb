@@ -2823,6 +2823,7 @@ function Page() {
 
           // console.log("duplicate agent data ", response);
           if (response.data.status === true) {
+            await refreshUserData();
             setMoreAgentsPopupType("")
             setShowSuccessSnack("Agent duplicated successfully");
             setIsVisibleSnack(true);
