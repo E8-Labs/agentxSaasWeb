@@ -321,7 +321,7 @@ const agentMemoji = (agent) => {
   );
   console.log("Avatar got details", agent);
   if (selectedVoice && selectedVoice.img) {
-    console.log("showing the compared avatar")
+    // console.log("showing the compared avatar")
     return (
       <div
         className="flex flex-row items-center justify-center"

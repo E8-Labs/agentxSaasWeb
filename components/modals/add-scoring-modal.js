@@ -192,6 +192,7 @@ const AddScoringModal = ({
     templateName: "",
     description: "",
     maxPoints: 10,
+    agentId: "",
   });
 
   const [questions, setQuestions] = useState([
@@ -257,6 +258,7 @@ const AddScoringModal = ({
         templateName: templateToLoad.templateName || "",
         description: templateToLoad.description || "",
         maxPoints: templateToLoad.maxPoints || 10,
+        agentId: templateToLoad.agentId || "",
       });
 
       console.log('Loading template:', templateToLoad);
@@ -266,7 +268,7 @@ const AddScoringModal = ({
           templateToLoad.questions.map(q => ({
             question: q.question || "",
             // fix points to zero decimal places
-            points: q.points ? parseFloat(q.points).toFixed(0) : "0",
+            points: q.points ? parseFloat(q.points): "0",
             showSuggestions: false
           }))
         );
@@ -280,6 +282,7 @@ const AddScoringModal = ({
         templateName: templateName,
         description: "",
         maxPoints: 10,
+        agentId: agentId || "",
       });
       setQuestions([
         { question: "", points: "", showSuggestions: false },
@@ -362,6 +365,7 @@ const AddScoringModal = ({
         templateName: defaultTemplateName,
         description: "",
         maxPoints: 10,
+        agentId: agentId || "",
       });
 
       setQuestions([
@@ -386,7 +390,8 @@ const AddScoringModal = ({
         templateName: newTemplateName,
         description: template.description || "",
         maxPoints: template.maxPoints || 10,
-      });
+        agentId: agentId || "",
+        });
 
       if (template.questions && Array.isArray(template.questions) && template.questions.length > 0) {
         console.log('Template questions found:', template.questions);
@@ -515,6 +520,8 @@ const AddScoringModal = ({
         questions: validQuestions,
         isTemplate: true,
       };
+
+      console.log('Submission data:', submissionData);
 
       // If editing, we don't need to specify isTemplate since we're updating an existing template
       // If creating new, specify isTemplate: true
@@ -821,7 +828,7 @@ const AddScoringModal = ({
                   {questions.length > 1 && index !== 0 ? (
                     <button
                       onClick={() => removeQuestion(index)}
-                      className="p-2 text-gray-400 text-lg font-bold"
+                      className="w-5 p-2 text-gray-400 text-lg font-bold"
                     >
                       ×
                     </button>
