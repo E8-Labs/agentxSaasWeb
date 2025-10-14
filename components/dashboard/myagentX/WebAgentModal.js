@@ -93,11 +93,12 @@ const WebAgentModal = ({
         setSmartLists(response.data.data);
         console.log('agentSmartRefillId', agentSmartRefillId);
         console.log('agentSmartRefill', agentSmartRefill);
-        if (agentSmartRefillId !== "undefined" || agentSmartRefill) {
-          setRequireForm(true);
+
+        if ( typeof agentSmartRefillId !== "undefined" || agentSmartRefill) {
+            setRequireForm(true);
+          }
+          setSelectedSmartList(agentSmartRefillId || agentSmartRefill || response.data.data[0].id);
         }
-        setSelectedSmartList(agentSmartRefillId || agentSmartRefill || response.data.data[0].id);
-      }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
       showSnackbar('', 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
