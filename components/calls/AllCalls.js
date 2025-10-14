@@ -716,7 +716,7 @@ function AllCalls({ user }) {
                       className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                     >
                       <div
-                        className="w-2/12 border truncate flex flex-row gap-3 items-center cursor-pointer flex-shrink-0"
+                        className="w-2/12 truncate flex flex-row gap-3 items-center cursor-pointer"
                         onClick={() => {
                           // //console.log;
                           setselectedLeadsDetails(item);
@@ -732,13 +732,13 @@ function AllCalls({ user }) {
                         </div>
                       </div>
                       <div style={{ ...styles.text2, }}
-                        className="w-1/12 border truncate flex flex-row items-center flex-shrink-0 "
+                        className="w-1/12 truncate flex flex-row items-center flex-shrink-0 "
                       >
                           {item.agent?.name}
 
                       </div>
 
-                      <div className="w-2/12 border truncate">
+                      <div className="w-2/12 truncate">
                         {/* (item.LeadModel?.phone) */}
                         <div style={styles.text2}>
                           {item.LeadModel?.phone ? (
@@ -751,7 +751,7 @@ function AllCalls({ user }) {
                         </div>
                       </div>
 
-                      <div className="w-2/12 border truncate">
+                      <div className="w-2/12 truncate">
                         <div style={styles.text2}>
                           {item.pipeline ? (
                             <div>{item.pipeline?.title}</div>
@@ -761,7 +761,7 @@ function AllCalls({ user }) {
                         </div>
                       </div>
 
-                      <div className="w-1/12 border truncate">
+                      <div className="w-1/12 truncate">
                         <div style={styles.text2}>
                           {item?.callStage?.stageTitle
                             ? item.callStage?.stageTitle
@@ -769,22 +769,22 @@ function AllCalls({ user }) {
                         </div>
 
                       </div>
-                      <div className="w-1/12 border truncate capitalize">
+                      <div className="w-1/12 truncate capitalize">
                         <div style={styles.text2}>
                           {item.communicationType ? (item.communicationType) : "-"}
                         </div>
                       </div>
-                      <div className="w-1/12 border truncate capitalize">
+                      <div className="w-1/12 truncate capitalize">
                         <div style={styles.text2}>
                           {getStatus(item) || "-"}
                         </div>
                       </div>
-                      <div className="w-2/12 border truncate">
+                      <div className="w-2/12 truncate">
                         <div style={styles.text2}>
                           {GetFormattedDateString(item?.createdAt)} {GetFormattedTimeString(item?.createdAt)}
                         </div>
                       </div>
-                      <div className="w-1/12 border truncate">
+                      <div className="w-1/12 truncate">
                         <button
                           onClick={() => {
                             // //console.log;
