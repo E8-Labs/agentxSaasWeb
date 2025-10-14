@@ -2,12 +2,14 @@ import { Box, Modal } from '@mui/material';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import CloseBtn from './CloseBtn';
+import { PersistanceKeys } from '@/constants/Constants';
 
 const AgencyLinkWarning = ({
     open,
     handleClose,
     linkCopied,
     handleCopyLink,
+    userData
 }) => {
 
     const [confirmChecked, setConfirmChecked] = useState(false);
@@ -32,14 +34,12 @@ const AgencyLinkWarning = ({
                             onClick={handleClose}
                         />
                     </div>
-                    {/*
-                        <div style={styles.heading}>warning</div>
-                    */}
+                    <div style={styles.heading}>Heads up</div>
                     <div
                         className="mt-4"
                         style={styles.subHeading}
                     >
-                        {`If your subaaccount limit exceeds {num} your account will automatically be upgraded to the next plan to prevent service interruptions`}
+                        {`If your subaccount limit exceeds ${userData?.planCapabilities?.maxSubAccounts} your account will automatically be upgraded to the next plan to prevent service interruptions`}
                     </div>
                     <div className='flex flex-row items-center w-full justify-start mt-4 gap-2'>
                         <button onClick={() => {
@@ -65,9 +65,12 @@ const AgencyLinkWarning = ({
                             )}
                         </button>
 
-                        <div className='text-xs font-normal'>
-                            {`I agree to terms and conditions.`}
-                        </div>
+                        <button
+                            className='text-xs font-normal'
+                            onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
+                        >
+                            I agree to <span className='text-purple underline ms-1'>Terms and Conditions</span>.
+                        </button>
                     </div>
                     <button
                         className={`${confirmChecked ? "bg-purple" : "bg-btngray"} ${confirmChecked ? "text-white" : "text-black"} px-4 h-[40px] rounded-lg mt-4 w-full`}

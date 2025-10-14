@@ -40,6 +40,7 @@ import Link from "next/link";
 import { getFeaturesToLose } from "@/utilities/PlanComparisonUtils";
 import { DurationView } from "../plan/DurationView";
 import UserPlans from "../userPlans/UserPlans";
+import ProgressBar from "../onboarding/ProgressBar";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -1935,18 +1936,22 @@ function NewBilling() {
                         }}
                     >
                         <div className="flex flex-col bg-white rounded-lg overflow-hidden relative" style={{ width: '90%', height: '90%' }}>
-                            <button
-                                onClick={() => setShowUserPlansModal(false)}
-                                className="absolute top-5 right-5 z-10"
-                            >
-                                <Image
-                                    src={"/assets/crossIcon.png"}
-                                    height={40}
-                                    width={40}
-                                    alt="*"
+                            <div className="w-full flex flex-row items-center justify-between px-6 pt-6 h-[8%]">
+                                <div className="flex w-full flex-row items-center gap-2"
+                                    style={{ backgroundColor: '' }}>
+                                    <Image src={"/assets/assignX.png"} height={30} width={130} alt="*" style={{ backgroundColor: '' }} />
+
+                                    <div className={`w-[80%]`}>
+                                        <ProgressBar value={100} />
+                                    </div>
+                                </div>
+                                <CloseBtn
+                                    onClick={() => {
+                                        setShowUserPlansModal(false);
+                                    }}
                                 />
-                            </button>
-                            <div className="w-full h-full -mt-5"
+                            </div>
+                            <div className={`w-full h-[88%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-scrollBarPurple`}
                             >
                                 <Elements stripe={stripePromise}>
                                     <UserPlans
@@ -1968,6 +1973,7 @@ function NewBilling() {
                                             setShowUpgradeModal(true);
                                         }}
                                         disAblePlans={true}
+                                        hideProgressBar={true}
                                     />
                                 </Elements>
                             </div>

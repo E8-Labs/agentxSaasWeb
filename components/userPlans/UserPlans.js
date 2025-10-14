@@ -350,7 +350,7 @@ function UserPlans({
 
     return (
         <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
-            <div className='flex flex-col items-center w-[90%] h-full overflow-y-auto'
+            <div className={`flex flex-col items-center ${from === 'billing-modal' ? "w-full px-6" : "w-[90%]"} h-full overflow-y-auto`}
                 style={{
                     scrollbarWidth: 'none'
                 }}
@@ -368,19 +368,27 @@ function UserPlans({
                     )
                 }
 
-                <div className={`flex flex-row items-center justify-between w-full ${!hideProgressBar && "mt-10"}`}>
+                <div className={`flex flex-row items-end justify-between w-full ${hideProgressBar ? "mt-6" : "mt-10"}`}>
 
 
                     <div className='flex flex-col items-start'>
-                        <div className='text-4xl font-semibold'
-                        // onClick={getPlans}
+                        <div //className='text-4xl font-semibold'
+                            // onClick={getPlans}
+                            style={{
+                                fontSize: 22,
+                                fontWeight: "600",
+                                // marginTop: 20,
+                            }}
                         >
                             {`Grow Your Business`}
                         </div>
-
-                        <div className='text-base font-medium mt-1 text-[#00000060]'
-                        >
-                            {`AI Agents from just $1.50 per day — gets more done than coffee. Cheaper too. 😉`}
+                        <div className="flex flex-row items-center gap-1 mt-1">
+                            <span style={{
+                                fontSize: 16,
+                                fontWeight: "500",
+                                color: '#808080'
+                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}</span>
+                            <span>😉</span>
                         </div>
                     </div>
                     <div className='flex flex-col items-end'>

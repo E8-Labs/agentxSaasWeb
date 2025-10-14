@@ -340,7 +340,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
     return (
         <div
             // style={backgroundImage}
-            className={`flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-8 max-h-[100%]" : "w-[90%] h-[90%]"}`}
+            className={`flex flex-col items-center ${isFrom === "addPlan" ? "w-[100%] px-6 max-h-[100%]" : "w-[90%] h-[90%]"}`}
         >
 
             <div
@@ -358,7 +358,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                     type={snackMsgType}
                 />
 
-                <div className='flex flex-row w-full items-center justify-between'>
+                <div className='flex flex-row w-full items-end justify-between'>
 
                     <div className='flex flex-col items-start'>
                         <div
@@ -372,14 +372,13 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                             Get an AI AaaS Agency
                         </div>
 
-                        <div
-                            style={{
+                        <div className="flex flex-row items-center gap-1">
+                            <span style={{
                                 fontSize: 16,
                                 fontWeight: "500",
                                 color: '#808080'
-                            }}
-                        >
-                            {`Gets more done than coffee. Cheaper too. Cancel anytime. 😉`}
+                            }}>{`Gets more done than coffee. Cheaper too. Cancel anytime.`}</span>
+                            <span>😉</span>
                         </div>
                     </div>
 

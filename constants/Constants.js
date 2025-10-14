@@ -46,6 +46,8 @@ export const PersistanceKeys = {
   LeadsAssigned: "LeadsAssigned",
 
   SubaccoutDetails: "SubaccoutDetails",
+  //link for agency copy link terms and conditions
+  CopyLinkTerms: "https://www.assignx.ai/terms-and-condition",
 
   GlobalSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalSupportUrl,
   GlobalConsultationUrl: process.env.NEXT_PUBLIC_REACT_APP_GlobalConsultationUrl,

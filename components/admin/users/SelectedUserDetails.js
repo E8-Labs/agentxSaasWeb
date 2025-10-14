@@ -49,7 +49,7 @@ function SelectedUserDetails({
             unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg'
         }, {
             id: 4,
-            name: 'Call Log',
+            name: 'Activity',
             selectedImage: '/svgIcons/selectedCallIcon.svg',
             unSelectedImage: '/svgIcons/unSelectedCallIcon.svg'
         }, {
@@ -64,7 +64,7 @@ function SelectedUserDetails({
             unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg'
         }, {
             id: 7,
-            name: 'Staff',
+            name: 'Team',
             selectedImage: '/svgIcons/selectedTeam.svg',
             unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg'
         }, {
@@ -489,7 +489,7 @@ function SelectedUserDetails({
                                                 from={from}
                                                 agencyUser={agencyUser}
                                             />
-                                        ) : selectedManu.name == "Call Log" ? (
+                                        ) : selectedManu.name == "Activity" ? (
                                             <AdminCallLogs selectedUser={selectedUser} />
                                         ) : (
                                             selectedManu.name == "Dashboard" ? (
@@ -498,7 +498,7 @@ function SelectedUserDetails({
                                                 selectedManu.name == "Integration" ? (
                                                     <AdminIntegration selectedUser={selectedUser} />
                                                 ) : (
-                                                    selectedManu.name == "Staff" ? (
+                                                    selectedManu.name == "Team" ? (
                                                         <AdminTeam selectedUser={selectedUser} />
                                                     ) : (
                                                         selectedManu.name == "Account" ? (

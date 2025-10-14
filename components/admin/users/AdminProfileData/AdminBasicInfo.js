@@ -588,7 +588,7 @@ function AdminBasicInfo({ selectedUser }) {
             // setEmail(event.target.value)
           }}
           type="text"
-          placeholder="Email"
+          placeholder="Phone"
           style={{ border: "0px solid #000000", outline: "none" }}
         />
       </div>

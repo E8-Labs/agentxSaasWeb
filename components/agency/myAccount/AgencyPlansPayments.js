@@ -1442,7 +1442,7 @@ function AgencyPlansPayments({
                     setShowPlanDetailsPopup(false);
                 }}
             >
-                <Box className="bg-white rounded-xl w-[70%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                <Box className="bg-white rounded-xl w-[90%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                     <div className="w-full flex flex-row items-center justify-between px-6 pt-6 h-[8%]">
                         <div className="flex w-full flex-row items-center gap-2"
                             style={{ backgroundColor: '' }}>

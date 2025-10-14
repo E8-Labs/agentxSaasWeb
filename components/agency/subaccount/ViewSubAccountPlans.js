@@ -128,9 +128,7 @@ const ViewSubAccountPlans = ({
                     setSnackMsg("Plans Updated.");
                     setSnackMsgType(SnackbarTypes.Success);
                     setUpdatePlansLoader(false);
-                    setTimeout(() => {
-                        hidePlans();
-                    }, 400);
+                    hidePlans(response?.data);
                 } else {
                     setSnackMsg(response.data.message);
                     setSnackMsgType(SnackbarTypes.Error);
@@ -160,7 +158,7 @@ const ViewSubAccountPlans = ({
     return (
         <Modal
             open={showPlans}
-            onClose={hidePlans}
+            onClose={() => { hidePlans() }}
             closeAfterTransition
             BackdropProps={{
                 timeout: 500,
@@ -183,7 +181,7 @@ const ViewSubAccountPlans = ({
                     <div style={{ fontWeight: "600", fontSize: 18 }}>
                         View Plans
                     </div>
-                    <CloseBtn onClick={hidePlans} />
+                    <CloseBtn onClick={() => { hidePlans() }} />
                 </div>
                 {/*selectedUser.plan.map((plan, index) => ())*/}
                 {
@@ -243,7 +241,7 @@ const ViewSubAccountPlans = ({
                                             >
                                                 <div className="mt-1">
                                                     <div>
-                                                        {selectedPlans.includes(item.id)? (
+                                                        {selectedPlans.includes(item.id) ? (
                                                             <Image
                                                                 src={"/svgIcons/checkMark.svg"}
                                                                 height={24}

@@ -127,8 +127,7 @@ function AdminProfileData({ selectedUser, from }) {
             className="w-full flex flex-col items-center"
             style={{ overflow: "hidden", height: "100vh" }}
         >
-            {/* Slider code */}
-            <div
+            {/* Slider code<div
                 style={{
                     position: "absolute",
                     right: 0,
@@ -136,7 +135,8 @@ function AdminProfileData({ selectedUser, from }) {
                 }}>
                 <DashboardSlider
                     needHelp={false} />
-            </div>
+            </div> */}
+            
             <div
                 className=" w-full flex flex-row justify-between items-center py-4 px-10"
                 style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
@@ -146,7 +146,7 @@ function AdminProfileData({ selectedUser, from }) {
             <div className="w-12/12">
             </div>
             <div className="w-full flex flex-row item-center pl-4">
-                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[850%] overflow-auto"
+                <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[85%] overflow-auto"
                     style={{ scrollbarWidth: 'none' }}
                 >
                     {manuBar.map((item, index) => (
@@ -207,7 +207,7 @@ function AdminProfileData({ selectedUser, from }) {
                     className="w-8/12 "
                     style={{
                         overflow: "auto",
-                        height: "60vh",
+                        height: "90%",
                         borderLeftWidth: 1,
                         borderBottomColor: "#00000010",
                     }}

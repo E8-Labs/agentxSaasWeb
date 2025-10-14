@@ -2,7 +2,7 @@ import Integrations from '@/components/agency/integrations/Integrations';
 import ConnectStripe from '@/components/agency/stripe/ConnectStripe';
 import { copyAgencyOnboardingLink } from '@/components/constants/constants';
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UPSell from '../integrations/UPSell';
 import AgencySupportAndWidget from '../integrations/AgencySupportAndWidget';
 import { motion } from 'framer-motion';
@@ -17,6 +17,37 @@ function AgencyIntegrations({ selectedAgency }) {
     const [linkCopied, setLinkCopied] = useState(false);
     //code for copy link one time warning modal
     const [showCopyLinkWarning, setShowCopyLinkWarning] = useState(false);
+    //local data
+    const [agencyData, setAgencyData] = useState(null);
+
+    //fetch local data
+    useEffect(() => {
+        getLocalData();
+    }, [])
+
+    const getLocalData = (retries = 5, delay = 300) => {
+        let attempt = 0;
+
+        const tryFetch = () => {
+            let data = localStorage.getItem("User");
+            if (data) {
+                let u = JSON.parse(data);
+                setAgencyData(u.user);
+                console.log("✅ Data fetched successfully on attempt", attempt + 1);
+            } else {
+                attempt++;
+                if (attempt < retries) {
+                    console.warn(`Attempt ${attempt} failed, retrying...`);
+                    setTimeout(tryFetch, delay);
+                } else {
+                    console.error("❌ Failed to fetch User data after 5 attempts");
+                }
+            }
+        };
+
+        tryFetch();
+    };
+
 
     const DuplicateButton = dynamic(
         () => import("@/components/animation/DuplicateButton"),
@@ -200,6 +231,7 @@ function AgencyIntegrations({ selectedAgency }) {
                                 setShowCopyLinkWarning(false);
                             }, 500);
                         }}
+                        userData={agencyData}
                     />
                 )
             }

@@ -838,7 +838,13 @@ function AgencySubacount({
               showPlans && (
                 <ViewSubAccountPlans
                   showPlans={setShowPlans}
-                  hidePlans={() => { setShowPlans(false) }}
+                  hidePlans={(d) => {
+                    if (d) {
+                      setShowSnackMessage("Plans Updated");
+                      setShowSnackType(SnackbarTypes.Success);
+                    }
+                    setShowPlans(false)
+                  }}
                   selectedUser={userData}
                 />
               )
