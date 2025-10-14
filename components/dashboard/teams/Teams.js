@@ -31,6 +31,7 @@ import MoreTeamMembers from "../MoreTeamMembers";
 import AgencyPlans from "@/components/plan/AgencyPlans";
 import UserPlans from "@/components/userPlans/UserPlans";
 import SubAccountPlan from "@/components/agency/subaccount/SubAccountPlan";
+import UpgradePlan from "@/components/userPlans/UpgradePlan";
 
 
 function Teams({
@@ -93,6 +94,7 @@ function Teams({
 
   //upgrade user plan
   const [upgradePlan, setUpgradePlan] = useState(false);
+  const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false)
 
 
 
@@ -762,7 +764,7 @@ function Teams({
                     console.log("Current team members innvite are", reduxUser?.currentUsage?.maxTeamMembers)
                     console.log("MAx team members invite are", reduxUser?.planCapabilities?.maxTeamMembers)
                     if (reduxUser?.currentUsage?.maxTeamMembers >= reduxUser?.planCapabilities?.maxTeamMembers) {
-                      setShowUpgradeModal(true)
+                      setShowUpgradeModalMore(true)
                       console.log("should open upgrade warning")
                     } else {
                       console.log("Should open invite")
@@ -992,17 +994,24 @@ function Teams({
                     }}
 
                     onClick={() => {
-                      if (!reduxUser?.plan?.price) {
-                        console.log("No plan price")
+                      // if (!reduxUser?.plan?.price) {
+                      //   console.log("No plan price")
+                      //   setShowUpgradeModal(true)
+                      //   return
+                      // }
+
+
+                      if(reduxUser?.planCapabilities?.allowTeamCollaboration === false){
+                        console.log("should open upgrade plan")
                         setShowUpgradeModal(true)
                         return
                       }
-
                       console.log("Current team members are", currentMembers)
                       console.log("MAx team members are", maxTeamMembers)
 
                       if (reduxUser?.currentUsage?.maxTeamMembers >= reduxUser?.planCapabilities?.maxTeamMembers) {
-                        setShowUpgradeModal(true)
+                        console.log("should open upgrade more")
+                        setShowUpgradeModalMore(true)
                         console.log("should open upgrade warning")
                       } else {
                         console.log("Should open invite")
@@ -1016,7 +1025,6 @@ function Teams({
                 </div>
 
 
-                {/*
                   <UpgradeModal
                     open={showUpgradeModal}
                     handleClose={() => {
@@ -1027,7 +1035,7 @@ function Teams({
                     subTitle={"Upgrade to add more team members"}
                     buttonTitle={"No Thanks"}
                   />
-                */}
+                
 
               </div>
             )}
@@ -1036,18 +1044,34 @@ function Teams({
       </div>
 
       <MoreTeamMembers
-        open={showUpgradeModal}
+        open={showUpgradeModalMore}
         onClose={() => {
-          setShowUpgradeModal(false);
+          setShowUpgradeModalMore(false);
         }}
         onAddTeamSeat={() => {
           setOpenInvitePopup(true);
+          setShowUpgradeModalMore(false)
         }}
         onUpgrade={() => {
-          setUpgradePlan(true);
-          setShowUpgradeModal(false);
+          setShowUpgradeModal(true)
+          setShowUpgradeModalMore(false)
         }}
        costPerAdditionalTeamSeat={reduxUser?.planCapabilities?.costPerAdditionalTeamSeat || 10}
+      />
+
+      <UpgradePlan
+        selectedPlan={null}
+        setSelectedPlan={() => { }}
+        open={showUpgradeModal}
+        handleClose={async (upgradeResult) => {
+          setShowUpgradeModal(false);
+          if (upgradeResult) {
+            console.log('🔄 [NEW-BILLING] Upgrade successful, refreshing profile...', upgradeResult);
+            await refreshUserData();
+          }
+        }}
+        plan={null}
+        currentFullPlan={reduxUser?.user?.plan}
       />
 
       <Modal
