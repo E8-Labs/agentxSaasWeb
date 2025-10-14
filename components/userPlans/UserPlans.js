@@ -504,7 +504,7 @@ function UserPlans({
                                  ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border p-2"}
                                 flex-shrink-0
                                  `}
-                                style={{ width: from === "billing-modal" ? "280px" : "320px" }}
+                                style={{ width: from === "billing-modal" ? "280px" : "280px" }}
                             >
                                 <div className='flex flex-col items-center w-full h-full'>
                                     <div className='pb-2'>

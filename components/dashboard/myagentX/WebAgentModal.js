@@ -24,6 +24,8 @@ const WebAgentModal = ({
   fetureType,
   onCopyUrl,
 }) => {
+
+  const [agentSmartRefillId, setAgentSmartRefillId] = useState(agentSmartRefill);
   const [requireForm, setRequireForm] = useState(false);
   const [smartLists, setSmartLists] = useState([]);
   const [selectedSmartList, setSelectedSmartList] = useState('');
@@ -50,20 +52,21 @@ const WebAgentModal = ({
 
   useEffect(() => {
     console.log("agent name is", agentName)
-    if(agentSmartRefill){
-      setRequireForm(true);
-      setSelectedSmartList(agentSmartRefill);
-    } else {
-      setRequireForm(false);
-      setSelectedSmartList('');
-    }
-  }, [agentSmartRefill]);
+    // if(agentSmartRefill){
+    //   setRequireForm(true);
+    //   setSelectedSmartList(agentSmartRefill);
+    // }
+    //  else {
+    //   setRequireForm(false);
+    //   setSelectedSmartList('');
+    // }
+  }, [agentSmartRefillId]);
 
   useEffect(() => {
-    if (open && requireForm) {
+    if (open) {
       fetchSmartLists();
     }
-  }, [open, requireForm]);
+  }, [open]);
 
   const fetchSmartLists = async () => {
     try {
@@ -88,8 +91,14 @@ const WebAgentModal = ({
       console.log("get sheets response is", response);
       if (response.data && response.data.data && response.data.data.length > 0) {
         setSmartLists(response.data.data);
-        setSelectedSmartList(agentSmartRefill || response.data.data[0].id);
-      }
+        console.log('agentSmartRefillId', agentSmartRefillId);
+        console.log('agentSmartRefill', agentSmartRefill);
+
+        if ( typeof agentSmartRefillId !== "undefined" || agentSmartRefill) {
+            setRequireForm(true);
+          }
+          setSelectedSmartList(agentSmartRefillId || agentSmartRefill || response.data.data[0].id);
+        }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
       showSnackbar('', 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
@@ -99,7 +108,9 @@ const WebAgentModal = ({
   };
 
   const handleToggleChange = async (event) => {
-    if(agentSmartRefill && event.target.checked === false){
+    console.log('handleToggleChange', event.target.checked);
+    console.log('agentSmartRefill', agentSmartRefillId);
+    if (event.target.checked === false) {
       // attach smart list to the agent with the agentSmartRefill id null
       try {
         let AuthToken = null;
@@ -124,7 +135,7 @@ const WebAgentModal = ({
         );
 
         if (response.data) {
-          setRequireForm(false);
+          setRequireForm(!event.target.checked);
           setSelectedSmartList('');
           showSnackbar('', 'Smart list detached successfully!', SnackbarTypes.Success);
         }

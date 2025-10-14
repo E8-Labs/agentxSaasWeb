@@ -10,7 +10,7 @@ const YearlyPlanModal = ({ open, handleClose, onContinueYearly, onContinueMonthl
 }) => {
 
     let description = isFree ? "We have our free plan available for users that want to try before committing. Enjoy!" :
-        `All annual plans get 35% discount compared to ${selectedDuration ? selectedDuration.title : "monthly"} plans`
+        `All annual plans get 30% discount compared to ${selectedDuration ? selectedDuration.title : "monthly"} plans`
 
     let title = isFree ? "Get started for free!" : "Pay less with annual billing"
     let heading = isFree ? "No Credit Card Required " : "Subscribe to yearly plan"
