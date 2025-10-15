@@ -10,6 +10,8 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import AgencyLinkWarning from '@/components/globalExtras/AgencyLinkWarning';
 import CustomNotifications from '../integrations/CustomNotifications';
+import Apis from '@/components/apis/Apis';
+import { UpdateProfile } from '@/components/apis/UpdateProfile';
 
 function AgencyIntegrations({ selectedAgency }) {
 
@@ -19,6 +21,8 @@ function AgencyIntegrations({ selectedAgency }) {
     const [showCopyLinkWarning, setShowCopyLinkWarning] = useState(false);
     //local data
     const [agencyData, setAgencyData] = useState(null);
+    //copy link loader
+    const [copyLinkLoader, setCopyLinkLoader] = useState(false);
 
     //fetch local data
     useEffect(() => {
@@ -47,6 +51,43 @@ function AgencyIntegrations({ selectedAgency }) {
 
         tryFetch();
     };
+
+    //upgrade copy link
+    const upgradeProfile = async () => {
+        try {
+            let UUIDLink = ""
+            const d = localStorage.getItem("User");
+            const BasePath =
+                process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
+                    ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
+                    : "http://dev.assignx.ai/";
+            // ? "https://app.assignx.ai/" //"https://www.blindcircle.com/agentx/"
+            // : "https://agentx-git-test-salman-majid-alis-projects.vercel.app/";
+            // console.log("Agency uuid link copied check 2", d)
+            if (d) {
+                console.log("Agency uuid link copied check 3")
+                const Data = JSON.parse(d);
+                // console.log("Agency uuid link copied check 4")
+                UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
+            }
+            setCopyLinkLoader(true);
+            const apidata = {
+                agencyOnboardingLink: UUIDLink
+            }
+            console.log("Data sending in updatee api is", apidata);
+            const response = await UpdateProfile(apidata);
+            if (response) {
+                if (response.status === true) {
+                    getLocalData();
+                    setCopyLinkLoader(false);
+                    console.log("Update api resopnse before copy link is", response);
+                }
+            }
+        } catch (err) {
+            setCopyLinkLoader(false);
+            console.log("Eror occured in update profile api is", err)
+        }
+    }
 
 
     const DuplicateButton = dynamic(
@@ -176,8 +217,12 @@ function AgencyIntegrations({ selectedAgency }) {
                             <button
                                 className="flex flex-row items-center justify-center gap-2 bg-[#7804DF05] rounded-lg p-2"
                                 onClick={() => {
-                                    setShowCopyLinkWarning(true);
-                                    // copyAgencyOnboardingLink({ setLinkCopied })
+                                    if (agencyData?.agencyOnboardingLink === null) {
+                                        setShowCopyLinkWarning(true);
+                                        upgradeProfile();
+                                    } else {
+                                        copyAgencyOnboardingLink({ setLinkCopied })
+                                    }
                                 }}
                             >
                                 <Image alt="*" src={"/assets/copyIconPurple.png"} height={20} width={20} />
@@ -221,6 +266,7 @@ function AgencyIntegrations({ selectedAgency }) {
                 showCopyLinkWarning && (
                     <AgencyLinkWarning
                         open={showCopyLinkWarning}
+                        copyLinkLoader={copyLinkLoader}
                         linkCopied={linkCopied}
                         handleClose={() => {
                             setShowCopyLinkWarning(false);

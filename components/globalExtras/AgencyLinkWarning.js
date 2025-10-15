@@ -1,4 +1,4 @@
-import { Box, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal } from '@mui/material';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import CloseBtn from './CloseBtn';
@@ -9,7 +9,8 @@ const AgencyLinkWarning = ({
     handleClose,
     linkCopied,
     handleCopyLink,
-    userData
+    userData,
+    agencyOnboardingLink
 }) => {
 
     const [confirmChecked, setConfirmChecked] = useState(false);
@@ -29,56 +30,66 @@ const AgencyLinkWarning = ({
         >
             <Box className="flex justify-center items-center w-full h-full">
                 <div className="bg-white rounded-2xl p-6 max-w-lg w-[90%] relative shadow-2xl">
-                    <div className='flex flex-row justify-end w-full'>
+                    <div className='flex flex-row justify-between items-center w-full'>
+                        <div style={styles.heading}>Heads up</div>
                         <CloseBtn
                             onClick={handleClose}
                         />
                     </div>
-                    <div style={styles.heading}>Heads up</div>
                     <div
                         className="mt-4"
                         style={styles.subHeading}
                     >
                         {`If your subaccount limit exceeds ${userData?.planCapabilities?.maxSubAccounts} your account will automatically be upgraded to the next plan to prevent service interruptions`}
                     </div>
-                    <div className='flex flex-row items-center w-full justify-start mt-4 gap-2'>
-                        <button onClick={() => {
-                            setConfirmChecked(!confirmChecked)
-                        }}>
-                            {confirmChecked ? (
-                                <div
-                                    className="bg-purple flex flex-row items-center justify-center rounded"
-                                    style={{ height: "17px", width: "17px" }}
-                                >
-                                    <Image
-                                        src={"/assets/whiteTick.png"}
-                                        height={6}
-                                        width={8}
-                                        alt="*"
-                                    />
-                                </div>
-                            ) : (
-                                <div
-                                    className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                                    style={{ height: "17px", width: "17px" }}
-                                ></div>
-                            )}
-                        </button>
+                    {
+                        agencyOnboardingLink ? (
+                            <div className="w-full mt-4 flex flex-row justify-center items-center">
+                                <CircularProgress size={25} />
+                            </div>
+                        ) : (
+                            <div className="w-full">
+                                <div className='flex flex-row items-center w-full justify-start mt-4 gap-2'>
+                                    <button onClick={() => {
+                                        setConfirmChecked(!confirmChecked)
+                                    }}>
+                                        {confirmChecked ? (
+                                            <div
+                                                className="bg-purple flex flex-row items-center justify-center rounded"
+                                                style={{ height: "17px", width: "17px" }}
+                                            >
+                                                <Image
+                                                    src={"/assets/whiteTick.png"}
+                                                    height={6}
+                                                    width={8}
+                                                    alt="*"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div
+                                                className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                                                style={{ height: "17px", width: "17px" }}
+                                            ></div>
+                                        )}
+                                    </button>
 
-                        <button
-                            className='text-xs font-normal'
-                            onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
-                        >
-                            I agree to <span className='text-purple underline ms-1'>Terms and Conditions</span>.
-                        </button>
-                    </div>
-                    <button
-                        className={`${confirmChecked ? "bg-purple" : "bg-btngray"} ${confirmChecked ? "text-white" : "text-black"} px-4 h-[40px] rounded-lg mt-4 w-full`}
-                        onClick={handleCopyLink}
-                        disabled={!confirmChecked}
-                    >
-                        {linkCopied ? "Link Copied" : "Copy Link"}
-                    </button>
+                                    <button
+                                        className='text-xs font-normal'
+                                        onClick={() => { window.open(PersistanceKeys.CopyLinkTerms, "_blank") }}
+                                    >
+                                        I agree to <span className='text-purple underline ms-1'>Terms and Conditions</span>.
+                                    </button>
+                                </div>
+                                <button
+                                    className={`${confirmChecked ? "bg-purple" : "bg-btngray"} ${confirmChecked ? "text-white" : "text-black"} px-4 h-[40px] rounded-lg mt-4 w-full`}
+                                    onClick={handleCopyLink}
+                                    disabled={!confirmChecked}
+                                >
+                                    {linkCopied ? "Link Copied" : "Copy Link"}
+                                </button>
+                            </div>
+                        )
+                    }
                 </div>
             </Box>
         </Modal>

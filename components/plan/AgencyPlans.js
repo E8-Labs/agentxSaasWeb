@@ -79,11 +79,12 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
         getPlans();
     }, []);
 
+    //if Noah said to resume this then apply this for yearly plan
     const selectDefaultPlan = (monthly) => {
         // if (monthlyPlans.length > 0) {
-        setSelectedPlanIndex(1);
-        setTogglePlan(monthly[1]?.id);
-        setSelectedPlan(monthly[1]);
+        // setSelectedPlanIndex(1);
+        // setTogglePlan(monthly[1]?.id);
+        // setSelectedPlan(monthly[1]);
         // console.log('monthlyPlans', monthlyPlans)
         // }else{
         //     console.log('no plan')
@@ -438,7 +439,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                 // style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
                 >
                     <div
-                        className='w-full flex flex-row items-start gap-3 mt-10 mb-12 h-[100%]'
+                        className='w-full flex flex-row items-start justify-center gap-3 mt-10 mb-12 h-[100%]'
                         style={{
                             overflowX: "auto",
                             overflowY: "hidden",
@@ -460,6 +461,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                     <button
                                         key={item.id}
                                         onClick={() => {
+                                            if (disAblePlans) { return };
                                             handleTogglePlanClick(item, index);
                                             const currentItem = item;
                                             const currentIndex = index;
@@ -469,8 +471,11 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                 console.error("Item or item.id is undefined:", currentItem);
                                             }
                                         }}
-                                        disabled={disAblePlans}
-                                        onMouseEnter={() => { setHoverPlan(item) }}
+                                        // disabled={disAblePlans}
+                                        onMouseEnter={() => {
+                                            console.log("Hover entered on plan", item.tag);
+                                            setHoverPlan(item)
+                                        }}
                                         onMouseLeave={() => { setHoverPlan(null) }}
                                         className={`w-[370px] rounded-2xl p-2 hover:bg-gradient-to-t from-purple to-[#C73BFF] ${selectedPlan?.id === item.id ? "bg-gradient-to-t from-purple to-[#C73BFF] p-2" : "border py-2"}`}
                                         style={{ overflow: 'hidden', scrollbarWidth: 'none' }}
@@ -526,7 +531,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                                         : "-"*/}
                                                         </div>
 
-                                                        <div className='text-center mt-1' style={{ fontSize: 15, fontWeight: '400' }}>
+                                                        <div className={`text-center mt-1 ${disAblePlans && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}>
                                                             {selectedDuration.title === "Monthly"
                                                                 ? "Billed Monthly"
                                                                 : selectedDuration.title === "Quarterly"
@@ -547,7 +552,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
 
                                                         {
                                                             !disAblePlans && (
-                                                                <div className="mt-3 mb-3">
+                                                                <div className="mt-3">
                                                                     {subPlanLoader === item.id ? (
                                                                         <div>
                                                                             <CircularProgress size={30} />
@@ -585,7 +590,7 @@ function AgencyPlans({ isFrom, handleCloseModal, disAblePlans = false }) {
                                                             )
                                                         }
 
-                                                        <div className='flex flex-col gap-2'>
+                                                        <div className='flex flex-col gap-2 mt-3'>
                                                             {
                                                                 item?.title?.toLowerCase() === "growth" ? (
                                                                     <div className='flex flex-row items-center gap-2' style={styles.regularFont}>
