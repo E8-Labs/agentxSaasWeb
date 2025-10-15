@@ -101,7 +101,7 @@ const WebAgentModal = ({
         }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
-      showSnackbar('', 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
+      showSnackbar('', error.response?.data?.message || 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
     } finally {
       setLoading(false);
     }

@@ -76,8 +76,7 @@ const MoreTeamMembers = ({
                         {/* Description */}
                         <div className="text-center text-gray-600 mb-8 space-y-2">
                             <p>
-                                You have reached the maximum number of team seats on your current plan. You can upgrade your plan or add team seats for
-                                <span className="font-semibold text-purple-600 ms-1">{" "}${costPerAdditionalTeamSeat}</span> per month.
+                                You have reached the maximum number of team seats on your current plan. You can upgrade your plan or add team seats for{" "}<span className="font-semibold text-purple-600">${costPerAdditionalTeamSeat}</span> per month.
                             </p>
                         </div>
 
