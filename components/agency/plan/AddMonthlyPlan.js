@@ -394,7 +394,12 @@ export default function AddMonthlyPlan({
               <div className="w-full flex flex-row items-center justify-center gap-2">
                 {/* Plan Name */}
                 <div className="w-1/2">
-                  <label style={styles.labels}>Plan Name</label>
+                  <div className="w-full flex flex-row items-center justify-between pe-2">
+                    <label style={styles.labels}>Plan Name</label>
+                    <div style={styles.labels}>
+                      {title?.length || 0}/12
+                    </div>
+                  </div>
                   <input
                     style={styles.inputs}
                     className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
@@ -403,6 +408,7 @@ export default function AddMonthlyPlan({
                     onChange={(e) => {
                       setTitle(e.target.value);
                     }}
+                    maxLength={12}
                   />
                 </div>
 
@@ -425,14 +431,14 @@ export default function AddMonthlyPlan({
               <div className="w-full flex flex-row items-center justify-between">
                 <label style={styles.labels}>Description</label>
                 <div style={styles.labels}>
-                  ({planDescription?.length || 0}/15)
+                  ({planDescription?.length || 0}/30)
                 </div>
               </div>
               <input
                 style={styles.inputs}
                 className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
                 placeholder="Type here"
-                maxLength={15}
+                maxLength={30}
                 value={planDescription}
                 onChange={(e) => {
                   setPlanDescription(e.target.value);
@@ -512,7 +518,7 @@ export default function AddMonthlyPlan({
                       style={styles.inputs}
                       type="text"
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                      placeholder="000"
+                      placeholder="0.00"
                       value={minutes}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -601,7 +607,7 @@ export default function AddMonthlyPlan({
                   type="text"
                   className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none ${originalPrice > 0 && "line-through" //replced
                     }`}
-                  placeholder="00"
+                  placeholder="0.00"
                   value={originalPrice} //replaced
                   onChange={(e) => {
                     const value = e.target.value;

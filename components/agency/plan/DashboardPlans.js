@@ -549,7 +549,7 @@ function DashboardPlans({
                                     <div style={styles.text}>Accounts</div>
                                 </div>
                                 <div className="w-1/12">
-                                    <div style={styles.text}>Minutes</div>
+                                    <div style={styles.text}>Credits</div>
                                 </div>
                                 <div className="w-1/12">
                                     <div style={styles.text}>Action</div>
@@ -615,7 +615,7 @@ function DashboardPlans({
                                                                     console.log("Item is", item)
                                                                     showPlanDetails(item);
                                                                 }}>
-                                                                {item.minutes || "X"}-Mins
+                                                                {item.minutes || "X"}-Credits
                                                             </div>
 
                                                             <div className="w-1/12 relative">

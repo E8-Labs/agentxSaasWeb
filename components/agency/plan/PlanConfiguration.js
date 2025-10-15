@@ -919,6 +919,7 @@ export default function PlanConfiguration({
                             features={features}
                             allowTrial={features.allowTrial}
                             trialValidForDays={trialValidForDays}
+                            from={"addPlan"}
                         />
                     </div>
 

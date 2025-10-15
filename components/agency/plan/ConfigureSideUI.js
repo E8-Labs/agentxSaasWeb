@@ -79,7 +79,7 @@ const ConfigureSideUI = ({
                                 {
                                     from === "dashboard" ? (
                                         <div className="text-center" style={{ fontWeight: "700", fontSize: "29px" }}>
-                                            {basicsData.title.length > 8 ? basicsData.title.slice(0, 8) + "..." : basicsData.title || "Title"}
+                                            {basicsData.title || "Title"}
                                         </div>
                                     ) :
                                         (
@@ -110,7 +110,7 @@ const ConfigureSideUI = ({
                                     )
                                 }
                                 <span className="bg-gradient-to-l from-[#7902DF] to-[#C73BFF] bg-clip-text text-transparent ms-2" style={{ fontWeight: "700", fontSize: "35px" }}>
-                                    ${formatFractional2(basicsData?.discountedPrice * basicsData?.minutes) || "0"}
+                                    ${formatFractional2(from === "addPlan" ? basicsData?.discountedPrice * basicsData?.minutes : basicsData?.discountedPrice || 0)}
                                 </span>
                             </div>
                             <div className="text-center" style={{ fontWeight: "500", fontSize: "15px" }}>{basicsData?.planDescription || "Desc text goes here"}</div>

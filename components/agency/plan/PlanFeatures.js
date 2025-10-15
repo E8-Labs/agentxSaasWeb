@@ -189,7 +189,7 @@ export default function PlanFeatures({
                     <div className="w-full">
                         <div className="mt-2" styles={{
                             fontSize: "15px", fontWeight: "500",
-                        }}>Duration of Trial</div>
+                        }}>Duration of Trial [{trialValidForDays}]</div>
                         <div className="w-full">
                             <input
                                 style={styles.inputs}
