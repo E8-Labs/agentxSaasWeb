@@ -135,6 +135,7 @@ function NewBilling() {
 
 
 
+
     useEffect(() => {
         const d = localStorage.getItem("User");
         if (d) {
@@ -170,7 +171,7 @@ function NewBilling() {
         let userData = getUserLocalData()
         if (plansList) {
             // Filter features in each plan to only show features where thumb = true
-            const filteredPlans = plansList.map(plan => ({
+            const filteredPlans = plansList?.map(plan => ({
                 ...plan,
                 features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
             }));
@@ -1504,7 +1505,7 @@ function NewBilling() {
                                     flexShrink: 0,
                                 }}
                             >
-                                {cards.map((item) => (
+                                {cards?.map((item) => (
                                     <div className="flex-shrink-0 w-5/12" key={item.id}>
                                         <button
                                             className="w-full outline-none"
@@ -1610,6 +1611,7 @@ function NewBilling() {
             <div className="w-full flex flex-row items-center justify-end">
                 <div className="flex flex-col items-end  w-full mt-4">
                     <DurationView
+                        duration={duration}
                         selectedDuration={selectedDuration}
                         handleDurationChange={(item) => {
                             setSelectedDuration(item);
@@ -1648,7 +1650,7 @@ function NewBilling() {
                     flexShrink: 0,
                     alignItems: "stretch", // This makes all cards the same height
                 }}>
-                {getCurrentPlans().map((item, index) => (
+                {getCurrentPlans()?.map((item, index) => (
                     <div
                         key={item.id}
                         className="mt-4 outline-none flex-shrink-0 cursor-pointer"
@@ -1750,7 +1752,7 @@ function NewBilling() {
                                     {item.features && item.features.length > 0 && (
                                         <div className="mt-6 flex-1">
                                             <div className="flex flex-col gap-3">
-                                                {item.features.map((feature, featureIndex) => (
+                                                {item.features?.map((feature, featureIndex) => (
                                                     <div key={featureIndex} className="flex flex-row items-start gap-1">
                                                         <Image
                                                             src="/svgIcons/selectedTickBtn.svg"

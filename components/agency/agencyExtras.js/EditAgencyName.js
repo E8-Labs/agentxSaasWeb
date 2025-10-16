@@ -73,7 +73,7 @@ const EditAgencyName = ({
                 type={snackMsgType}
             />
             <div className='flex w-full flex-row items-center gap-2'>
-                <div className='sm:text-lg lg:text-2xl lg:font-bold w-[90%] truncate overflow-hidden whitespace-nowrap'>
+                <div className='sm:text-lg lg:text-2xl lg:font-bold truncate overflow-hidden whitespace-nowrap'>
                     {agencyName}
                 </div>
                 {

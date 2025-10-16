@@ -474,7 +474,7 @@ function UserPlans({
                         // marginTop: 20,
                         flexShrink: 0,
                         alignItems: "stretch", // This makes all cards the same height
-                        justifyContent: "center",
+                        justifyContent: "start",
                     }}
                 >
                     {

@@ -217,7 +217,7 @@ function AgencyIntegrations({ selectedAgency }) {
                             <button
                                 className="flex flex-row items-center justify-center gap-2 bg-[#7804DF05] rounded-lg p-2"
                                 onClick={() => {
-                                    if (agencyData?.agencyOnboardingLink === null) {
+                                    if (agencyData?.plan?.title !== "Scale" && agencyData?.agencyOnboardingLink === null) {
                                         setShowCopyLinkWarning(true);
                                         upgradeProfile();
                                     } else {
@@ -276,6 +276,7 @@ function AgencyIntegrations({ selectedAgency }) {
                             setTimeout(() => {
                                 setShowCopyLinkWarning(false);
                             }, 500);
+                            getLocalData();
                         }}
                         userData={agencyData}
                     />

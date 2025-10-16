@@ -96,7 +96,7 @@ function AgencyPlansPayments({
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
 
-    const duration = [
+    let duration = [
         {
             id: 1,
             title: "Monthly",
@@ -114,7 +114,7 @@ function AgencyPlansPayments({
         },
     ]
 
-    const durationSaving = [
+    let durationSaving = [
         {
             id: 2,
             title: "save 20%",
@@ -218,7 +218,7 @@ function AgencyPlansPayments({
                             break;
                     }
                 });
-                setPlans(response.data.data)
+                setPlans(response.data.data);
                 setMonthlyPlans(monthly);
                 setQuaterlyPlans(quarterly);
                 setYearlyPlans(yearly);

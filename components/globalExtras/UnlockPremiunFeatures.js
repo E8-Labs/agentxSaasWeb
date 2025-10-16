@@ -47,6 +47,10 @@ const UnlockPremiunFeatures = ({
                 if (!Data?.allowVoicemail) {
                     setFeatureTitleValue("Voicemail");
                 }
+            } else if (title === "Unlock Live Support Webinar") {
+                setFeatureTitleValue("SupportSettings");
+                // if (!Data?.allowLiveSupportWebinar) {
+                // }
             }
         }
     }, [localUserData]);

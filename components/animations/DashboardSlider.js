@@ -10,6 +10,7 @@ import CloseBtn from "@/components/globalExtras/CloseBtn";
 import { AuthToken } from "../agency/plan/AuthDetails";
 import Apis from "../apis/Apis";
 import axios from "axios";
+import UnlockPremiunFeatures from "../globalExtras/UnlockPremiunFeatures";
 
 const DashboardSlider = ({
   onTop = false,
@@ -29,6 +30,7 @@ const DashboardSlider = ({
   const [showAskSkyConfirmation, setShowAskSkyConfirmation] = useState(false);
   const [showVapiChatWidget, setShowVapiChatWidget] = useState(false);
   const [openUpgradePlan, setOpenUpgradePlan] = useState(false);
+  const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] = useState(false)
 
   // initial loder for user settings
   const [initialLoader, setInitialLoader] = useState(false);
@@ -183,6 +185,7 @@ const DashboardSlider = ({
     if (localData) {
       const UserDetailsLD = JSON.parse(localData);
       // //console.log;
+      setInitialLoader(true);
       setUserDetails(UserDetailsLD.user);
       AuthToken = UserDetailsLD.token;
       console.log("Checking local data in slider", UserDetailsLD?.user?.userRole)
@@ -233,6 +236,7 @@ const DashboardSlider = ({
         // Replace static array with API-driven buttons
         setButtons(dynamicButtons);
       }
+      setInitialLoader(false);
     }
   }
 
@@ -279,43 +283,58 @@ const DashboardSlider = ({
                         <span className="text-black text-[12px] font-bold">Fetching Support Widgets...</span>
                       </div>
                     ) : (
-                      <div className="w-full flex flex-col items-start gap-4">
-                        {buttons.map((item, index) => (
-                          <div
-                            key={index}
-                            style={{ cursor: "pointer" }}
-                            onMouseEnter={() => setHoverIndex(index)}
-                            onMouseLeave={() => setHoverIndex(null)}
-                          >
-                            <button
-                              className="w-full flex flex-row items-center gap-2"
-                              onClick={() => handleOnClick(item, index)}
+                      buttons.length > 0 ? (
+                        <div className="w-full flex flex-col items-start gap-4">
+                          {buttons.map((item, index) => (
+                            <div
+                              key={index}
+                              style={{ cursor: "pointer" }}
+                              onMouseEnter={() => setHoverIndex(index)}
+                              onMouseLeave={() => setHoverIndex(null)}
                             >
-                              <Image
-                                src={
-                                  index === hoverIndex ? item.image2 : item.image
-                                }
-                                width={24}
-                                height={24}
-                                alt="*"
-                              />
-                              <div
-                                className="text-black hover:text-purple whitespace-nowrap"
-                                style={{ fontSize: 15, fontWeight: "500" }}
+                              <button
+                                className="w-full flex flex-row items-center gap-2"
+                                onClick={() => handleOnClick(item, index)}
                               >
-                                {item.label}
-                              </div>
-                              {
-                                item.id === 3 && (
+                                <Image
+                                  src={
+                                    index === hoverIndex ? item.image2 : item.image
+                                  }
+                                  width={24}
+                                  height={24}
+                                  alt="*"
+                                />
+                                <div
+                                  className="text-black hover:text-purple whitespace-nowrap"
+                                  style={{ fontSize: 15, fontWeight: "500" }}
+                                >
+                                  {item.label}
+                                </div>
+                                {
+                                  item.id === 3 && (
 
-                                  <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
-                                    Beta
-                                  </div>
-                                )}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                                    <div className="px-3 py-1 rounded-lg bg-purple text-white text-[12px] font-[300] ml-5">
+                                      Beta
+                                    </div>
+                                  )}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="w-full flex flex-col items-center justify-center gap-2">
+                          <div className="text-black text-[16px] font-semibold text-center w-full">No Support Widgets Found</div>
+                          <div className="text-black text-[12px] font-medium mt-2 text-center w-full">Please contact your admin to add support widgets</div>
+                          <button className="text-white bg-purple outline-none rounded-lg w-full mt-4"
+                            style={{ height: "50px" }}
+                            onClick={() => {
+                              setShowUnlockPremiumFeaturesPopup(true);
+                            }}
+                          >
+                            Request
+                          </button>
+                        </div>
+                      )
                     )
                   }
                 </div>
@@ -359,6 +378,19 @@ const DashboardSlider = ({
                 </div>
               )
             }
+
+            {
+              showUnlockPremiumFeaturesPopup && (
+                <UnlockPremiunFeatures
+                  title={"Unlock Live Support Webinar"}
+                  open={showUnlockPremiumFeaturesPopup}
+                  handleClose={() => {
+                    setShowUnlockPremiumFeaturesPopup(false)
+                  }}
+                />
+              )
+            }
+
           </div>
           <CloseBtn
             onClick={handleClose}

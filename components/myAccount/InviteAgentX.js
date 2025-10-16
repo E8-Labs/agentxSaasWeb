@@ -363,7 +363,7 @@ function InviteAgentX({ isSubAccount }) {
                     marginTop: 5,
                   }}
                 >
-                  {`You currently don't have an active AgentX plan, to take advantage of this discount you will need an active plan.`}
+                  {`You currently don't have an active AssignX plan, to take advantage of this discount you will need an active plan.`}
                 </div>
               </div>
             </div>

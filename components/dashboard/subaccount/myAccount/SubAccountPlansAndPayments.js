@@ -303,15 +303,24 @@ function SubAccountPlansAndPayments({
                     });
                 });
 
-                // build the durations array dynamically
-                if (monthly.length > 0) {
-                    availableDurations.push({ id: 1, title: "Monthly" });
-                }
-                if (quarterly.length > 0) {
-                    availableDurations.push({ id: 2, title: "Quarterly" });
-                }
-                if (yearly.length > 0) {
-                    availableDurations.push({ id: 3, title: "Yearly" });
+                const emptyDurations = [monthly, quarterly, yearly].filter(arr => arr.length === 0).length;
+                console.log("Empty durations are", emptyDurations);
+                if (emptyDurations >= 2) {
+                    setDuration([]);
+                } else {
+                    if (monthly.length === 0) {
+                        console.log("Remove monthly");
+                        setDuration(prev => prev.filter(item => item.id !== 1));
+                    }
+                    if (quarterly.length === 0) {
+                        console.log("Remove quarterly");
+                        setDuration(prev => prev.filter(item => item.id !== 2));
+                    }
+                    if (yearly.length === 0) {
+                        console.log("Remove yearly");
+                        setDuration(prev => prev.filter(item => item.id !== 3));
+                    }
+
                 }
 
 
@@ -319,7 +328,6 @@ function SubAccountPlansAndPayments({
                 console.log("Quarterly Plans:", quarterly);
                 console.log("Yearly Plans:", yearly);
                 console.log("Available Durations:", availableDurations);
-                // setDuration(availableDurations);
                 setMonthlyPlans(monthly);
                 setQuaterlyPlans(quarterly);
                 setYearlyPlans(yearly);

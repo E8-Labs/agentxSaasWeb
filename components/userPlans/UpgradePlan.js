@@ -13,9 +13,10 @@ import UserAddCard from './UserAddCardModal'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import getProfileDetails from '../apis/GetProfile'
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
-import { duration } from '@/utilities/PlansService'
+// import { duration } from '@/utilities/PlansService'
 import CloseBtn from '../globalExtras/CloseBtn'
 import { DurationView } from '../plan/DurationView'
+import { formatFractional2 } from '../agency/plan/AgencyUtilities'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -182,7 +183,22 @@ function UpgradePlanContent({
     const stripeReact = useStripe();
     const elements = useElements();
 
-
+    //plans durations view
+    const [duration, setDuration] = useState([
+        {
+            id: 1,
+            title: "Monthly",
+            save: ""
+        }, {
+            id: 2,
+            title: "Quarterly",
+            save: "20%"
+        }, {
+            id: 3,
+            title: "Yearly",
+            save: '30%'
+        },
+    ]);
 
     const [selectedDuration, setSelectedDuration] = useState(duration[0])
 
@@ -309,6 +325,7 @@ function UpgradePlanContent({
             let planDuration = null
             if (selectedPlan) {
                 planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
+                console.log("Billing bicycle of selected plan", planDuration)
                 if (planDuration) {
                     setSelectedDuration(planDuration);
                 }
@@ -318,11 +335,13 @@ function UpgradePlanContent({
                 // here set duration of current plan
                 if (currentUserPlan && currentUserPlan.billingCycle) {
                     planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
+                    console.log("Billing bicycle of current user plan", planDuration)
                 } else {
                     planDuration = getDurationFromBillingCycle(currentPlans[0]?.billingCycle);
                 }
                 if (planDuration) {
                     setSelectedDuration(planDuration);
+                    console.log("Billing bicycle of current plan2", planDuration)
                 }
             }
 
@@ -411,6 +430,8 @@ function UpgradePlanContent({
 
 
     useEffect(() => {
+        console.log("Open rerendered")
+        if (!open || currentSelectedPlan) return;
         if (open) {
             getPlans()
             getCardsList()
@@ -501,6 +522,28 @@ function UpgradePlanContent({
             setQuaterlyPlans(quarterly);
             setYearlyPlans(yearly);
 
+            const emptyDurations = [monthly, quarterly, yearly].filter(arr => arr.length === 0).length;
+            console.log("Empty durations are", emptyDurations);
+            if (from === "SubAccount") {
+                if (emptyDurations >= 2) {
+                    setDuration([]);
+                } else {
+                    if (monthly.length === 0) {
+                        console.log("Remove monthly");
+                        setDuration(prev => prev.filter(item => item.id !== 1));
+                    }
+                    if (quarterly.length === 0) {
+                        console.log("Remove quarterly");
+                        setDuration(prev => prev.filter(item => item.id !== 2));
+                    }
+                    if (yearly.length === 0) {
+                        console.log("Remove yearly");
+                        setDuration(prev => prev.filter(item => item.id !== 3));
+                    }
+
+                }
+            }
+
             console.log('monthly', monthly)
             console.log('quarterly', quarterly)
             console.log('yearly', yearly)
@@ -513,44 +556,7 @@ function UpgradePlanContent({
         return [];
     };
 
-    // Auto-select plan when switching billing cycles
-    useEffect(() => {
-        const currentPlans = getCurrentPlans();
 
-        console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉")
-
-        console.log("currentPlans", currentPlans)
-        console.log("currentSelectedPlan", currentSelectedPlan)
-        console.log("plan", plan)
-        console.log("currentFullPlan", currentFullPlan)
-        console.log("🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉🎉")
-
-
-        if (currentPlans.length > 0 && currentSelectedPlan) {
-            if (plan && currentFullPlan) {
-                setCurrentSelectedPlan(plan);
-                setTogglePlan(plan?.id);
-                // setCurrentUserPlan(currentFullPlan);
-            }
-            // Find the plan with the same name in the new billing cycle
-            const matchingPlan = currentPlans.find(plan => plan.name === currentSelectedPlan.name);
-            if (matchingPlan) {
-                const planIndex = currentPlans.findIndex(plan => plan.name === currentSelectedPlan.name);
-                setCurrentSelectedPlan(matchingPlan);
-                setSelectedPlanIndex(planIndex);
-                setTogglePlan(matchingPlan.id);
-            } else {
-                // If no matching plan found, select the first plan
-                setCurrentSelectedPlan(currentPlans[0]);
-                setSelectedPlanIndex(0);
-                setTogglePlan(currentPlans[0].id);
-            }
-
-
-        } else {
-            console.log("No current plans found or current selected plan is not set")
-        }
-    }, [selectedDuration]);
 
 
 
@@ -563,10 +569,10 @@ function UpgradePlanContent({
             return;
         }
         console.log("Selected plan index is", index, item);
-        setSelectedPlanIndex(index);
+        setSelectedPlan(item);
+        // setSelectedPlanIndex(index);
         setTogglePlan(item.id);
         setCurrentSelectedPlan(item);
-        setSelectedPlan(item);
     };
 
     const isPlanCurrent = (item) => {
@@ -775,7 +781,7 @@ function UpgradePlanContent({
                 if (response.data.status === true) {
                     // Update cards state to reflect the change
                     setCards(prevCards =>
-                        prevCards.map(card => ({
+                        prevCards?.map(card => ({
                             ...card,
                             isDefault: card.id === item.id
                         }))
@@ -1159,6 +1165,7 @@ function UpgradePlanContent({
                                             selectedDuration={selectedDuration}
                                             handleDurationChange={(item) => setSelectedDuration(item)}
                                             from={from}
+                                            duration={duration}
                                         />
                                     </div>
                                 </div>
@@ -1181,7 +1188,7 @@ function UpgradePlanContent({
                                         }}
                                     >
                                         {
-                                            getCurrentPlans().map((item, index) => {
+                                            getCurrentPlans()?.map((item, index) => {
                                                 const isCurrentPlan = isPlanCurrent(item);
                                                 return (
                                                     <button
@@ -1193,7 +1200,12 @@ function UpgradePlanContent({
                                                                     : "border-gray-200 hover:border-purple hover:shadow-md"
                                                             }`}
                                                         key={item.id}
-                                                        onClick={() => handleTogglePlanClick(item, index)}
+                                                        onClick={() => {
+                                                            handleTogglePlanClick(item, index)
+                                                            // setSelectedDuration(getDurationFromBillingCycle((item.billingCycle)))
+                                                            console.log("Selected item billing cycle is", item.billingCycle)
+                                                            setSelectedDuration(item.billingCycle)
+                                                        }}
                                                         disabled={isCurrentPlan}
                                                     >
                                                         <div className='w-full flex flex-row items-center justify-between'>
@@ -1202,7 +1214,7 @@ function UpgradePlanContent({
                                                             </div>
 
                                                             <div className='text-[15px] font-semibold'>
-                                                                {`$${item.discountPrice || item.discountedPrice || item.originalPrice}`}
+                                                                {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
                                                             </div>
                                                         </div>
 
@@ -1268,7 +1280,7 @@ function UpgradePlanContent({
                                                                 + Add Payment
                                                             </button>
                                                         </div>
-                                                        {cards.map((item) => (
+                                                        {cards?.map((item) => (
                                                             <div className="w-full" key={item.id}>
                                                                 <button
                                                                     className="w-full outline-none"
@@ -1347,7 +1359,7 @@ function UpgradePlanContent({
                                                         {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                                                     </div>
                                                     <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                                        {currentSelectedPlan ? `$${currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice}` : ""}
+                                                        {currentSelectedPlan ? `$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}` : ""}
                                                     </div>
                                                 </div>
 

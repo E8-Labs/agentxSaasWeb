@@ -1,9 +1,10 @@
-import { duration } from "@/utilities/PlansService";
+// import { duration } from "@/utilities/PlansService";
 
 export const DurationView = ({
     selectedDuration,
     handleDurationChange,
-    from
+    from,
+    duration
 }) => {
     return (
 
@@ -13,7 +14,7 @@ export const DurationView = ({
                 from !== "SubAccount" && (
                     <div className='flex flex-row items-center justify-end gap-2 px-2 mt-2 me-[7px]'>
                         {
-                            duration.map((item) => (
+                            duration?.map((item) => (
                                 item.save && (
                                     <div
                                         key={`discount-${item.id}`}
@@ -31,10 +32,9 @@ export const DurationView = ({
             }
 
             {/* Duration buttons row */}
-            <div className='border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5'
-            >
+            <div className={`${duration?.length > 0 && "border bg-neutral-100 px-2 flex flex-row items-center gap-[8px] rounded-full py-1.5"}`}>
                 {
-                    duration.map((item) => (
+                    duration?.map((item) => (
 
                         <button
                             key={item.id}
