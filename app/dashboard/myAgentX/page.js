@@ -418,8 +418,13 @@ function Page() {
 
   const handleOpenAgentInNewTab = () => {
     if (selectedAgentForWebAgent) {
-      const modelId = encodeURIComponent(selectedAgentForWebAgent?.modelIdVapi || "");
+      const modelId = encodeURIComponent(selectedAgentForWebAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || "");
+      // console.log('selectedAgentForWebAgent', selectedAgentForWebAgent)
+      console.log('selectedAgentForWebAgent?.modelIdVapi', selectedAgentForWebAgent?.modelIdVapi)
+      console.log('selectedAgentForWebAgent?.agentUuid', selectedAgentForWebAgent?.agentUuid)
+      console.log('modelId', modelId)
       const name = encodeURIComponent(selectedAgentForWebAgent?.name || "");
+      // return;
       window.open(`/web-agent/${modelId}?name=${name}`, "_blank");
     }
     setShowWebAgentModal(false);
@@ -5995,7 +6000,7 @@ function Page() {
         open={showWebAgentModal}
         onClose={() => setShowWebAgentModal(false)}
         agentName={selectedAgentForWebAgent?.name || ""}
-        modelId={selectedAgentForWebAgent?.modelIdVapi || ""}
+        modelId={selectedAgentForWebAgent?.modelIdVapi ||selectedAgentForWebAgent?.agentUuid || ""}
         agentId={selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi}
         onOpenAgent={handleOpenAgentInNewTab}
         onShowNewSmartList={handleShowNewSmartList}
