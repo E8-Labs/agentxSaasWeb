@@ -2763,7 +2763,9 @@ function Page() {
     if (reduxUser?.planCapabilities) {
       if (!canCreateAgent) {
         if (isFreePlan && currentAgents >= 1) {
-          setShowUpgradePlanModal(true)
+          setShowUpgradeModal(true)
+          setTitle("Unlock your Web Agent")
+          setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
           setShowDuplicateConfirmationPopup(false)
           return
         } else if (currentAgents >= maxAgents) {
@@ -4036,9 +4038,16 @@ function Page() {
                     style={{ paddingLeft: "3px" }}
                     onClick={() => {
                       // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                      if (reduxUser?.planCapabilities?.allowEmbedAndWebAgents === false) {
+                        setShowUpgradeModal(true)
+                        setTitle("Unlock your Web Agent")
+                        setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
+                      } else {
+                      
                       setFetureType("webhook")
                       setSelectedAgentForWebAgent(showDrawerSelectedAgent)
                       setShowWebAgentModal(true)
+                      }
                     }}
                   >
                     <Image src={'/svgIcons/webhook.svg'}

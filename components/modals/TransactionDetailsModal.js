@@ -108,10 +108,7 @@ const TransactionDetailsModal = ({
                     <span className="text-sm text-gray-600">Description:</span>
                     <p className="font-medium text-sm">{transactionDetails.database?.description}</p>
                   </div>
-                  <div className="mt-2">
-                    <span className="text-sm text-gray-600">Type:</span>
-                    <p className="font-medium text-sm">{transactionDetails.database?.type}</p>
-                  </div>
+                  
                 </div>
 
                 {/* Agent Information */}

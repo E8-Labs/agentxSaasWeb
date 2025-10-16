@@ -447,30 +447,28 @@ const PipelineStages = ({
         AuthToken = UserDetails.token;
       }
 
-      // //console.log;
+     // console.log("auth token", AuthToken)
 
-      // const ApiData = {
-      //     stageTitle: renameStage,
-      //     stageId: selectedStage.id,
-      //     color: updateStageColor
-      // }
-
-      const formData = new FormData();
-      formData.append("stageTitle", renameStage);
-      formData.append("stageId", selectedStage.id);
-      formData.append("color", updateStageColor);
-
-      //// //console.log;
-
-      for (let [key, value] of formData.entries()) {
-        // //console.log;
+      let ApiData = {
+          stageTitle: renameStage,
+          stageId: selectedStage.id,
+          color: updateStageColor||""
       }
+
+      const selectedUser = localStorage.getItem(PersistanceKeys.selectedUser);
+      if(selectedUser){
+        const selectedUserData = JSON.parse(selectedUser);
+        // ApiData.userId = selectedUserData.id;
+      }
+      
+
+      console.log("api data", ApiData)
 
       const ApiPath = Apis.UpdateStage;
 
       // //console.log;
       // return
-      const response = await axios.post(ApiPath, formData, {
+      const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: "Bearer " + AuthToken,
           "Content-Type": "application/json",
@@ -478,13 +476,17 @@ const PipelineStages = ({
       });
 
       if (response) {
-        // //console.log;
+        console.log('response.data', response.data)
         setPipelineStages(response.data.data.stages);
         setShowRenamePopup(false);
-        // setSuccessSnack(response.data.message);
+        setSuccessSnack(response.data.message);
         // handleCloseStagePopover();
       }
     } catch (error) {
+      console.log('Rename stage error:', error);
+      console.log('Error response:', error.response?.data);
+      console.log('Error status:', error.response?.status);
+      setRenameStageLoader(false);
       // //console.log;
     } finally {
       setRenameStageLoader(false);
