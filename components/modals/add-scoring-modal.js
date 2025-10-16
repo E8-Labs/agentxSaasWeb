@@ -852,7 +852,7 @@ const AddScoringModal = ({
           <div className="flex gap-3 px-6 mb-4">
             <button
               onClick={onClose}
-              className="flex-1 h-12 text-gray-800 bg-white border border-gray-300 rounded-lg font-medium hover:bg-gray-50"
+              className="flex-1 h-12 text-gray-800 bg-white  font-medium hover:bg-gray-50"
             >
               Cancel
             </button>

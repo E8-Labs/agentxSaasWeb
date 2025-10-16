@@ -1654,7 +1654,7 @@ const Leads1 = () => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
                     onClick={() => {
                       setShowDelCol(false);
                     }}
@@ -1662,7 +1662,7 @@ const Leads1 = () => {
                     Cancel
                   </button>
                   <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-1/2 text-red font-bold text-xl text-[#6b7280] h-[50px]"
                     onClick={() => {
                       ChangeColumnName(null);
                       setShowDelCol(false);
@@ -1859,7 +1859,7 @@ const Leads1 = () => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-full bg-purple font-bold text-white text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-full bg-purple font-bold text-white text-xl rounded-xl h-[50px]"
                     onClick={() => {
                       setWarningModal(false);
                     }}

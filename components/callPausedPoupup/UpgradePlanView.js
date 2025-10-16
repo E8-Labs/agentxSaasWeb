@@ -281,7 +281,7 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
               </button>
           }
           <button
-            className="w-full text-purple  text-base font-medium bg-transparent"
+            className="w-full text-[#6b7280] text-base font-medium bg-transparent"
             onClick={onCancel}
           >
             Cancel

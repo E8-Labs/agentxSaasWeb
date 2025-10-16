@@ -5365,7 +5365,7 @@ function Page() {
             </div>
 
             <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2 outline-none border rounded-lg h-[50px] outline-none">
+              <button className="w-1/2 text-[#6b7280] outline-none  h-[50px] outline-none">
                 Cancel
               </button>
               <div className="w-1/2">

@@ -70,7 +70,7 @@ const DuplicateConfirmationPopup = ({
 
                         <div className="mt-4 flex flex-row items-center gap-4 mt-6 ">
                             <button
-                                className="w-1/2 hover:text-purple outline-none border rounded-lg h-[50px]"
+                                className="w-1/2 text-[#6b7280] h-[50px]"
                                 onClick={handleClose}
                             >
                                 Cancel

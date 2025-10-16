@@ -652,7 +652,7 @@ export default function AddMonthlyPlan({
                   handleClose("");
                   handleResetValues();
                 }}
-                className="text-purple-600 font-semibold border rounded-lg w-[12vw]"
+                className="text-[#6b7280] font-semibold w-[12vw]"
               >
                 Cancel
               </button>

@@ -247,7 +247,7 @@ const ObtainOffer = ({
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowDeleteAgentsModal(false)}
-                                className="flex-1 h-12 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                                className="flex-1 h-12 bg-gray-100 text-[#6b7280] font-medium hover:bg-gray-200 transition-colors"
                             >
                                 Cancel
                             </button>

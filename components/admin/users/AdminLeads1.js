@@ -1583,7 +1583,7 @@ const AdminLeads1 = ({ selectedUser }) => {
                 </div>
                 <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                   <button
-                    className="w-1/2 font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    className="w-1/2 font-bold text-xl text-[#6b7280] rounded-xl h-[50px]"
                     onClick={() => {
                       setShowDelCol(false);
                     }}

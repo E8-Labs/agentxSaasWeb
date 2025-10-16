@@ -436,7 +436,7 @@ function SMSTempletePopup({
 
                     </div>
                     <div className='w-full flex  flex-row items-center w-full gap-6 mt-4'>
-                        <button className='w-1/2 h-[53px] text-[15px] font-[700] border rounded-lg'
+                        <button className='w-1/2 h-[53px] text-[15px] font-[700]'
                             onClick={onClose}
                         >
                             Cancel

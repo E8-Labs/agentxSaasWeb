@@ -136,7 +136,7 @@ export default function AddMcpPopup({
                                 className="w-full border focus:outline-none focus:ring-0 border-gray-300 rounded-md p-2" />
 
                             <div className='w-full flex flex-row items-center justify-between gap-8 mt-3'>
-                                <button className='w-1/2 border text-black rounded-md p-2 h-[55px] text-[15px] font-[500]'
+                                <button className='w-1/2 text-[#6b7280] p-2 h-[55px] text-[15px] font-[500]'
                                     onClick={handleClose}
                                 >
                                     Cancel

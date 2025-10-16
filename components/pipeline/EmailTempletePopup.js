@@ -886,7 +886,7 @@ function EmailTempletePopup({
 
                     </div>
                     <div className='w-full flex flex-row items-center w-full gap-6 mt-4 h-[20%]'>
-                        <button className='w-1/2 h-[53px] border rounded-lg text-[15px] font-[700]'
+                        <button className='w-1/2 h-[53px] text-[15px] font-[700]'
                             onClick={onClose}
                         >
                             Cancel

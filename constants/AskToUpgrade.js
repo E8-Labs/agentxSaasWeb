@@ -48,7 +48,7 @@ function AskToUpgrade({
 
 
                             <div className='flex flex-row items-center gap-6 w-full'>
-                                <button className='flex flex-col h-[50px] items-center justify-center border rounded-lg w-1/2'>
+                                <button className='flex flex-col h-[50px] items-center justify-center w-1/2'>
                                     Cancel
                                 </button>
 

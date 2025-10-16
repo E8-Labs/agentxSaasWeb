@@ -199,7 +199,7 @@ export default function DncConfirmationPopup({
         <DialogActions sx={{ justifyContent: "space-between", mt: 3 }}>
           <div
             onClick={onClose}
-            className=" flex w-[45%] text-black font-bold text-[16px]  hover:text-[#7902DF] py-3 rounded-lg
+            className=" flex w-[45%] text-[#6b7280] font-bold text-[16px]  py-3
                      items-center justify-center"
             style={{ textTransform: "none", cursor: 'pointer' }}
           >
