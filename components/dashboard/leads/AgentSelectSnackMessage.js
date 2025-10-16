@@ -84,12 +84,12 @@ export default function AgentSelectSnackMessage({
         }}
       >
         <div
-          className="flex items-center space-x-4 p-1 pe-2 bg-white  rounded-lg shadow-md"
+          className="flex items-center space-x-2 p-1 pe-2 bg-white  rounded-lg shadow-md"
           style={{ width: "fit-content" }}
         >
           {/* Icon Section */}
           <div className="flex-shrink-0">
-            <div className="w-10 h-10 flex items-center justify-center bg-red-100 rounded-full">
+            <div className="w-10 h-10 flex items-center justify-center rounded-full">
               <img src={GetIcon()}></img>
             </div>
           </div>

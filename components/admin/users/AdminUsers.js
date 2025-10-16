@@ -584,6 +584,9 @@ function AdminUsers() {
               // ✅ Re-send updated user to child
               setSelectedUser(updatedUser);
             }}
+            handleClose={() => {
+              setSelectedUser(null);
+            }}
 
           // handlePauseUser={(d) => {
           //   console.log("User paused");

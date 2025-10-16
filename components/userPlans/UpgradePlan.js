@@ -1339,7 +1339,7 @@ function UpgradePlanContent({
                                                 <div className="flex flex-row items-start justify-between w-full mt-6">
                                                     <div>
                                                         <div className=' text-lg font-semibold'>
-                                                            {currentSelectedPlan ? `${currentSelectedPlan?.name || currentSelectedPlan?.title} Plan` : "No Plan Selected"}
+                                                            {currentSelectedPlan ? `${currentSelectedPlan?.name || currentSelectedPlan?.title}` : "No Plan Selected"}
                                                         </div>
                                                         <div className=' text-xs font-regular capitalize'>
                                                             {currentSelectedPlan ? `${currentSelectedPlan?.billingCycle || currentSelectedPlan?.duration} subscription` : ""}

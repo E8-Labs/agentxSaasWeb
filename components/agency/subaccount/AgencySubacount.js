@@ -964,6 +964,9 @@ function AgencySubacount({
                 // ))
                 // setSelectedUser(null)
               }}
+              handleClose={() => {
+                setSelectedUser(null);
+              }}
             />
           </Box>
         </Modal>

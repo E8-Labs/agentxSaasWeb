@@ -38,7 +38,7 @@ function AdminCallLogs({ selectedUser }) {
       </div>
 
       <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10">
-        {["All Calls", "Call Activities",].map((tab) => (
+        {["All Activities", "Campaign Activity"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -55,15 +55,11 @@ function AdminCallLogs({ selectedUser }) {
 
       <div className='w-full'>
         {
-          activeTab === "All Calls" ? (
+          activeTab === "All Activities" ? (
             <AdminAllCalls selectedUser={selectedUser} />
           ) : (
-            activeTab === "Scheduled" ? (
-              <AdminScheduledCalls selectedUser={selectedUser} />
-            ) : (
               <AdminActiveCalls selectedUser={selectedUser} />
             )
-          )
         }
       </div>
 

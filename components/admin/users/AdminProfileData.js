@@ -138,14 +138,14 @@ function AdminProfileData({ selectedUser, from }) {
             </div> */}
             
             <div
-                className=" w-full flex flex-row justify-between items-center py-4 px-10"
+                className=" w-full flex flex-row justify-between items-center py-4 px-10 h-full"
                 style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
             >
                 <div style={{ fontSize: 24, fontWeight: "600" }}>My Account</div>
             </div>
-            <div className="w-12/12">
+            <div className="w-12/12 h-full">
             </div>
-            <div className="w-full flex flex-row item-center pl-4">
+            <div className="w-full flex flex-row item-center pl-4 h-full">
                 <div className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[85%] overflow-auto"
                     style={{ scrollbarWidth: 'none' }}
                 >
@@ -204,7 +204,7 @@ function AdminProfileData({ selectedUser, from }) {
                 </div>
 
                 <div
-                    className="w-8/12 "
+                    className="w-8/12 h-fu''"
                     style={{
                         overflow: "auto",
                         height: "90%",

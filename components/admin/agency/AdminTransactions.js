@@ -512,6 +512,9 @@ function AdminTransactions() {
               // ✅ Re-send updated user to child
               setSelectedSubAccount(updatedUser);
             }}
+            handleClose={() => {
+              setSelectedSubAccount(null);
+            }}
           />
         </Box>
       </Modal>

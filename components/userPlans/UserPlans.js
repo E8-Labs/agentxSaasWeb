@@ -16,6 +16,7 @@ import getProfileDetails from '../apis/GetProfile';
 import { useUser } from '@/hooks/redux-hooks';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 
 
 function UserPlans({
@@ -76,6 +77,10 @@ function UserPlans({
     const [selectedMonthlyPlan, setSelectedMonthlyPlan] = useState(null)
     const [subscribeLoader, setSubscribeLoader] = useState(null)
 
+    const [credentialsErr, setCredentialsErr] = useState(false)
+    const [addCardFailure, setAddCardFailure] = useState(false)
+    const [addCardSuccess, setAddCardSuccess] = useState(false)
+    const [addCardErrtxt, setAddCardErrtxt] = useState("")
 
 
     useEffect(() => {
@@ -350,6 +355,17 @@ function UserPlans({
 
     return (
         <div className={`flex flex-col items-center w-full bg-white ${from === 'billing-modal' ? 'h-full' : 'h-[100vh]'}`}>
+            <AgentSelectSnackMessage
+                isVisible={addCardFailure}
+                hide={() => setAddCardFailure(false)}
+                message={addCardErrtxt}
+            />
+            <AgentSelectSnackMessage
+                isVisible={addCardSuccess}
+                hide={() => setAddCardSuccess(false)}
+                type={SnackbarTypes.Success}
+                message={"Card added successfully"}
+            />
             <div className={`flex flex-col items-center ${from === 'billing-modal' ? "w-full px-6" : "w-[90%]"} h-full overflow-y-auto`}
                 style={{
                     scrollbarWidth: 'none'
@@ -762,6 +778,7 @@ function UserPlans({
                     className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
                     sx={styles.paymentModal}
                 >
+
                     <div className="flex flex-row justify-center w-full ">
                         <div
                             className="w-full border-white"
@@ -789,6 +806,14 @@ function UserPlans({
                                     handleClose={handleClose}
                                     selectedPlan={selectedPlan}
                                     isFrom={isFrom}
+                                    setCredentialsErr={setCredentialsErr}
+                                    setAddCardFailure={setAddCardFailure}
+                                    setAddCardSuccess={setAddCardSuccess}
+                                    setAddCardErrtxt={setAddCardErrtxt}
+                                    credentialsErr={credentialsErr}
+                                    addCardFailure={addCardFailure}
+                                    addCardSuccess={addCardSuccess}
+                                    addCardErrtxt={addCardErrtxt}
                                 // togglePlan={togglePlan}
                                 />
                             </Elements>

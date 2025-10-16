@@ -617,17 +617,14 @@ function AdminAllCalls({ selectedUser }) {
       </div>
 
       <div className="w-full flex flex-row justify-between mt-2 px-10 mt-12">
-        <div className="w-2/12">
-          <div style={styles.text}>Account Name</div>
-        </div>
         <div className="w-1/12 ">
-          <div style={styles.text}>Agent Name</div>
+          <div style={styles.text}>Agent</div>
         </div>
         <div className="w-1/12 ">
           <div style={styles.text}>Pipeline</div>
         </div>
         <div className="w-2/12">
-          <div style={styles.text}>Contact Number</div>
+          <div style={styles.text}>Contact</div>
         </div>
         <div className="w-1/12">
           <div style={styles.text}>Stage</div>
@@ -698,14 +695,7 @@ function AdminAllCalls({ selectedUser }) {
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                   >
-                    <div className="w-2/12 flex flex-row gap-2 items-center">
-                      <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                        {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
-                      </div>
-                      <div style={styles.text2}>
-                        {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
-                      </div>
-                    </div>
+                    
                     <div className="w-1/12 ">
                       <div style={styles.text2}>
                         {item.pipeline ? (

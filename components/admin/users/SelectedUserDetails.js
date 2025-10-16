@@ -27,7 +27,8 @@ function SelectedUserDetails({
     from = "admin",
     handlePauseUser,
     agencyUser = false,
-    hideViewDetails = false
+    hideViewDetails = false,
+    handleClose
 }) {
 
 
@@ -306,8 +307,13 @@ function SelectedUserDetails({
                         </div>
                     */}
 
+                    <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
+                    <div className='w-1/2'></div>
+                        <CloseBtn onClick={handleClose} />
+                    </div>
+
                     <div className='flex flex-row items-start w-full'>
-                        <div className='flex flex-col items-start justify-center w-2/12 px-6 pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
+                        <div className='flex flex-col items-start justify-center w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
                             <div className='flex flex-row gap-2 items-center justify-start w-full'>
                                 <div className='flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white'>
                                     {selectedUser.name[0]}
@@ -342,6 +348,7 @@ function SelectedUserDetails({
                                         </button>
                                     )
                                 }
+
 
                             </div>
                             <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
@@ -602,7 +609,7 @@ function SelectedUserDetails({
                                     </div>
                                 ) : (
                                     <button
-                                        className="mt-4 outline-none bg-red"
+                                        className="mt-4 outline-none"
                                         style={{
                                             color: "white",
                                             height: "50px",

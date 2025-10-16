@@ -29,6 +29,7 @@ import { calculatePlanPrice, getMonthlyPrice, getTotalPrice, checkReferralCode, 
 import { useUser } from '@/hooks/redux-hooks';
 // import Apis from '../Apis/Apis';
 import getProfileDetails from "../apis/GetProfile";
+import { formatFractional2 } from "../agency/plan/AgencyUtilities";
 const UserAddCard = ({
     handleClose,
     togglePlan,
@@ -36,7 +37,13 @@ const UserAddCard = ({
     isFrom,
     selectedUser,
     fromAdmin = false,
-    selectedPlan
+    selectedPlan,
+    setAddCardFailure,
+    setAddCardSuccess,
+    setAddCardErrtxt,
+    addCardFailure,
+    addCardSuccess,
+    addCardErrtxt
 }) => {
     const stripeReact = useStripe();
     const elements = useElements();
@@ -50,11 +57,7 @@ const UserAddCard = ({
     const referralRequestSeqRef = useRef(0);
 
     const [addCardLoader, setAddCardLoader] = useState(false);
-    const [credentialsErr, setCredentialsErr] = useState(false);
-    const [addCardSuccess, setAddCardSuccess] = useState(false);
-    const [addCardFailure, setAddCardFailure] = useState(false);
     const [addCardDetails, setAddCardDetails] = useState(null);
-    const [addCardErrtxt, setAddCardErrtxt] = useState(null);
     const [isWideScreen, setIsWideScreen] = useState(false);
     const cardNumberRef = useRef(null);
     const cardExpiryRef = useRef(null);
@@ -384,22 +387,6 @@ const UserAddCard = ({
 
     return (
         <div className="-mt-10" style={{ width: "100%" }}>
-            <AgentSelectSnackMessage
-                isVisible={credentialsErr}
-                hide={() => setCredentialsErr(false)}
-                message={addCardErrtxt}
-            />
-            <AgentSelectSnackMessage
-                isVisible={addCardFailure}
-                hide={() => setAddCardFailure(false)}
-                message={addCardErrtxt}
-            />
-            <AgentSelectSnackMessage
-                isVisible={addCardSuccess}
-                hide={() => setAddCardSuccess(false)}
-                type={SnackbarTypes.Success}
-                message={"Card added successfully"}
-            />
 
             <div className="w-full flex flex-row items-center" style={{ backgroundColor: 'transparent' }}>
                 <div className="flex w-[55%] flex-row LeftDiv" style={{ backgroundColor: 'transparent' }}>
@@ -645,7 +632,7 @@ const UserAddCard = ({
                             <div className="flex flex-row items-start justify-between w-full mt-6">
                                 <div>
                                     <div className=' text-lg font-semibold'>
-                                        {selectedPlan ? `${selectedPlan?.name || selectedPlan?.title} Plan` : "No Plan Selected"}
+                                        {selectedPlan ? `${selectedPlan?.name || selectedPlan?.title}` : "No Plan Selected"}
                                     </div>
                                     <div className=' text-xs font-regular capitalize'>
                                         {selectedPlan ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription` : ""}
@@ -653,7 +640,7 @@ const UserAddCard = ({
                                     {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
                                 </div>
                                 <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                    {selectedPlan ? `$${selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice}` : ""}
+                                    {selectedPlan ? `$${formatFractional2(selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice)}` : ""}
                                 </div>
                             </div>
 

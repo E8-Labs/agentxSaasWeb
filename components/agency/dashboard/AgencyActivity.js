@@ -429,9 +429,9 @@ function AgencyActivity({
         </div>
       </div >
     ) : (
-      <div className="w-[100%] h-[84svh]">
+      <div className="w-[90%] h-[84svh] flex items-center justify-center ml-5">
         <Image
-          alt="placeholder" src="/agencyIcons/activityPlaceholder2.png" width={1200} height={900}
+          alt="placeholder" src="/agencyIcons/activityPlaceholder2.png" width={900} height={900}
           style={{ width: "100%", height: "100%" }}
         />
       </div>
