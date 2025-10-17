@@ -779,7 +779,7 @@ function DashboardPlans({
                             open={selectedPlanDetails !== null}
                             onClose={() => { setSelectedPlanDetails(null) }}
                         >
-                            <Box className="bg-transparent rounded-xl max-w-[80%] w-[34%] max-h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                            <Box className={`bg-transparent rounded-xl max-w-[80%] w-[34%] ${ planType === "monthly" ? "h-[90vh]" : "h-[35vh]"} border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}>
                                 {
                                     planType === "monthly" ? (
                                         <ConfigureSideUI

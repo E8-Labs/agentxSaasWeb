@@ -44,7 +44,7 @@ function UserPlans({
 
 
 
-    const duration = [
+    const [duration, setDuration] = useState([
         {
             id: 1,
             title: "Monthly",
@@ -58,7 +58,7 @@ function UserPlans({
             title: "Yearly",
             save: '30%'
         },
-    ]
+    ]);
 
     const [selectedDuration, setSelectedDuration] = useState(duration[0])
 
@@ -264,6 +264,7 @@ function UserPlans({
             }
 
             //select duration selection dynamically
+            console.log("Isfrom is", isFrom);
             if (isFrom === "SubAccount") {
                 if (monthly.length > 0 && quarterly.length === 0 && yearly.length === 0) {
                     setSelectedDuration({ id: 1, title: "Monthly" });
@@ -283,6 +284,26 @@ function UserPlans({
                         setSelectedDuration({ id: 3, title: "Yearly" });
                     }
                 }
+            }
+
+            const emptyDurations = [monthly, quarterly, yearly].filter(arr => arr.length === 0).length;
+            console.log("Empty durations are", emptyDurations);
+            if (emptyDurations >= 2) {
+                setDuration([]);
+            } else {
+                if (monthly.length === 0) {
+                    console.log("Remove monthly");
+                    setDuration(prev => prev.filter(item => item.id !== 1));
+                }
+                if (quarterly.length === 0) {
+                    console.log("Remove quarterly");
+                    setDuration(prev => prev.filter(item => item.id !== 2));
+                }
+                if (yearly.length === 0) {
+                    console.log("Remove yearly");
+                    setDuration(prev => prev.filter(item => item.id !== 3));
+                }
+
             }
 
             setMonthlyPlans(monthly);
@@ -474,14 +495,14 @@ function UserPlans({
                         // marginTop: 20,
                         flexShrink: 0,
                         alignItems: "stretch", // This makes all cards the same height
-                        justifyContent: "start",
+                        justifyContent: getCurrentPlans()?.length > 3 ? "start" : "center",
                     }}
                 >
                     {
                         getCurrentPlans()?.length > 0 && getCurrentPlans()?.map((item, index) => (
                             <button
                                 key={index}
-                                onClick={() => {
+                                onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
                                     handleTogglePlanClick(item, index);
@@ -576,8 +597,11 @@ function UserPlans({
                                                 </span>
                                             </div>
 
-                                            <div className='text-[14px] font-normal text-black/50 '>
-                                                {item.details || item.description}
+                                            <div
+                                                //  className='text-[14px] font-normal text-black/50 '
+                                                className={`text-center mt-1 ${disAblePlans && "w-full border-b border-[#00000040] pb-2"}`} style={{ fontSize: 15, fontWeight: '400' }}
+                                            >
+                                                {item.details || item.description || item.planDescription}
                                             </div>
 
                                             {!disAblePlans && (

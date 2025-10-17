@@ -1,6 +1,6 @@
 import CloseBtn from '@/components/globalExtras/CloseBtn';
 import { next30Days } from '@/constants/Constants'
-import { Box, CircularProgress, Modal } from '@mui/material';
+import { Box, CircularProgress, Modal, Tooltip } from '@mui/material';
 import moment from 'moment';
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -96,8 +96,44 @@ function DowngradePlanPopup({
                                                         <Image src="/svgIcons/selectedTickBtn.svg"
                                                             height={16} width={16} alt="cross"
                                                         />
-                                                        <div className="text-[13px] font-normal">
-                                                            {item?.text}
+                                                        <div className="text-[13px] font-normal flex flex-row items-center gap-2">
+                                                            <span>{item?.text}</span>
+                                                            {item.subtext && (
+                                                                <Tooltip
+                                                                    title={item.subtext}
+                                                                    arrow
+                                                                    placement="top"
+                                                                    componentsProps={{
+                                                                        tooltip: {
+                                                                            sx: {
+                                                                                backgroundColor: "#ffffff", // Ensure white background
+                                                                                color: "#333", // Dark text color
+                                                                                fontSize: "14px",
+                                                                                padding: "10px 15px",
+                                                                                borderRadius: "8px",
+                                                                                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                            },
+                                                                        },
+                                                                        arrow: {
+                                                                            sx: {
+                                                                                color: "#ffffff", // Match tooltip background
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    <div
+                                                                        style={{
+                                                                            fontSize: 12,
+                                                                            fontWeight: "600",
+                                                                            color: "#000000",
+                                                                            cursor: "pointer",
+                                                                        }}
+                                                                    >
+                                                                        <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                                                                        />
+                                                                    </div>
+                                                                </Tooltip>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ))

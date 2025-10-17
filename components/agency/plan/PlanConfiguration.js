@@ -205,21 +205,28 @@ export default function PlanConfiguration({
                 text: `${languageTitle}`,
             });
         }
-        
+
         if (basicsData?.minutes) {
             extraFeatures.push({
                 id: "credits",
                 text: `${basicsData?.minutes} AI Credits`,
             });
         }
-        
+
         // Add custom features to the allowed features
-        const customFeaturesList = customFeatures
-            .filter(feature => feature.trim() !== "") // Filter out empty features
-            .map((feature, index) => ({
-                id: `custom_${index}`,
-                text: feature,
-            }));
+        // const customFeaturesList = customFeatures?.filter(feature => feature.trim() !== "")?.map((feature, index) => ({
+        //         id: `custom_${index}`,
+        //         text: feature,
+        //     }));
+
+        const customFeaturesList = Array.isArray(customFeatures)
+            ? customFeatures
+                .filter((feature) => feature?.trim?.() !== "")
+                .map((feature, index) => ({
+                    id: `custom_${index}`,
+                    text: feature,
+                }))
+            : [];
 
         setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
     }, [features, language, noOfAgents, noOfContacts, customFeatures, noOfSeats, basicsData]);
@@ -239,7 +246,7 @@ export default function PlanConfiguration({
 
     // scroll when new custom feature is added
     useEffect(() => {
-        if (customFeatures.length > 0) {
+        if (customFeatures?.length > 0) {
             setTimeout(() => {
                 if (scrollContainerRef.current) {
                     scrollContainerRef.current.scrollTo({
@@ -279,7 +286,7 @@ export default function PlanConfiguration({
     useEffect(() => {
         fetchAgencyAllowedFeatures();
         if (configurationData) {
-            // console.log("Selected configurationData data passed is", configurationData);
+            console.log("Selected configurationData data passed is", configurationData);
             const dynamicFeatures = configurationData?.features;
             console.log("dynamic features are", dynamicFeatures)
             setNoOfAgents(configurationData?.maxAgents);
@@ -303,8 +310,9 @@ export default function PlanConfiguration({
             setCostPerAdditionalSeat(configurationData?.costPerAdditionalSeat);
             setLanguageTitle(configurationData?.languageTitle);
             setLanguage(configurationData?.language);
+            setCustomFeatures(configurationData?.customFeatures || []);
         }
-    }, [configurationData])
+    }, [configurationData]);
 
     //reset values after plan added
     const handleResetValues = () => {
@@ -381,7 +389,7 @@ export default function PlanConfiguration({
         formData.append("allowTwilio", features.twilio);
         formData.append("allowTrial", features.allowTrial);
         if (customFeatures?.length > 0) {
-            customFeatures.forEach((feature, index) => {
+            customFeatures?.forEach((feature, index) => {
                 formData.append(`customFeatures[${index}]`, feature);
             });
         }
@@ -542,7 +550,8 @@ export default function PlanConfiguration({
 
     //add custom features
     const handleAddCustomFeature = () => {
-        setCustomFeatures((prev) => [...prev, ""]); // add empty field
+        // setCustomFeatures((prev) => [...prev, ""]); // add empty field
+        setCustomFeatures((prev) => ([...(prev || []), ""]));
     };
 
     //handle custom field change
@@ -550,6 +559,11 @@ export default function PlanConfiguration({
         setCustomFeatures((prev) =>
             prev.map((f, i) => (i === index ? value : f))
         );
+        // setCustomFeatures((prev) => {
+        //     const newFeatures = [...prev];
+        //     newFeatures[index] = value;
+        //     return newFeatures;
+        // });
     };
 
     //remove custom field
@@ -571,7 +585,8 @@ export default function PlanConfiguration({
             noOfSeats: noOfSeats,
             costPerAdditionalSeat: costPerAdditionalSeat,
             languageTitle: languageTitle,
-            language: language
+            language: language,
+            customFeatures: customFeatures
         });
         handleBack();
     }

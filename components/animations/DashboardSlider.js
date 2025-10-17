@@ -324,9 +324,9 @@ const DashboardSlider = ({
                       ) : (
                         <div className="w-full flex flex-col items-center justify-center gap-2">
                           <div className="text-black text-[16px] font-semibold text-center w-full">No Support Widgets Found</div>
-                          <div className="text-black text-[12px] font-medium mt-2 text-center w-full">Please contact your admin to add support widgets</div>
+                          <div className="text-black text-[12px] font-medium mt-2 text-center w-full">Please contact your admin user to get access to the support widget.</div>
                           <button className="text-white bg-purple outline-none rounded-lg w-full mt-4"
-                            style={{ height: "50px" }}
+                            style={{ height: "40px" }}
                             onClick={() => {
                               setShowUnlockPremiumFeaturesPopup(true);
                             }}

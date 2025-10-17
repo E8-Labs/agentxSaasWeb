@@ -11,6 +11,7 @@ import {
     Snackbar,
     Switch,
     TextField,
+    Tooltip,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
@@ -1386,15 +1387,44 @@ function SubAccountPlansAndPayments({
                                                                 alt="✓"
                                                                 className="mt-0.5 flex-shrink-0"
                                                             />
-                                                            <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                                {feature.text}
-                                                                {/*
-                                                                 feature.thumb && (
-                                                                     <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                                         {feature.text}
-                                                                     </div>
-                                                                 )
-                                                             */}
+                                                            <div className="text-sm font-normal text-gray-700 leading-relaxed flex flex-row items-center gap-2 text-start">
+                                                                <span>{feature.text}</span>
+                                                                {feature.subtext && (
+                                                                    <Tooltip
+                                                                        title={feature.subtext}
+                                                                        arrow
+                                                                        placement="top"
+                                                                        componentsProps={{
+                                                                            tooltip: {
+                                                                                sx: {
+                                                                                    backgroundColor: "#ffffff", // Ensure white background
+                                                                                    color: "#333", // Dark text color
+                                                                                    fontSize: "14px",
+                                                                                    padding: "10px 15px",
+                                                                                    borderRadius: "8px",
+                                                                                    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                                },
+                                                                            },
+                                                                            arrow: {
+                                                                                sx: {
+                                                                                    color: "#ffffff", // Match tooltip background
+                                                                                },
+                                                                            },
+                                                                        }}
+                                                                    >
+                                                                        <div
+                                                                            style={{
+                                                                                fontSize: 12,
+                                                                                fontWeight: "600",
+                                                                                color: "#000000",
+                                                                                cursor: "pointer",
+                                                                            }}
+                                                                        >
+                                                                            <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                                                                            />
+                                                                        </div>
+                                                                    </Tooltip>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     ))}
@@ -1530,7 +1560,7 @@ function SubAccountPlansAndPayments({
                     setSelectedPlan={setSelectedPlan}
                     open={showUpgradeModal}
                     selectedUser={selectedUser}
-                    allPlans = {plans}
+                    allPlans={plans}
                     handleClose={async (upgradeResult) => {
                         setShowUpgradeModal(false);
 

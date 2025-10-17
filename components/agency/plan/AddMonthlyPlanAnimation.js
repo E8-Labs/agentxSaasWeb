@@ -40,6 +40,11 @@ export default function AddMonthlyPlanAnimation({
         console.log("Status of edit plans is", isEditPlan)
         if (isEditPlan) {
             console.log("Plan to edit is", selectedPlan);
+            const featuresList = selectedPlan?.features;
+            const filterCustomFeatures = featuresList?.filter(feature => feature?.isCustom === true);
+            console.log("Custom features filtered from plan to edit are", filterCustomFeatures);
+            const customFeatures = filterCustomFeatures?.map(feature => feature?.text);
+            console.log("Custom features filtered are P_2", customFeatures);
             const object = {
                 maxAgents: selectedPlan?.dynamicFeatures?.maxAgents,
                 maxLeads: selectedPlan?.dynamicFeatures?.maxLeads,
@@ -49,6 +54,7 @@ export default function AddMonthlyPlanAnimation({
                 costPerAdditionalAgent: selectedPlan?.dynamicFeatures?.costPerAdditionalAgent,
                 noOfSeats: selectedPlan?.dynamicFeatures?.maxTeamMembers,
                 costPerAdditionalSeat: selectedPlan?.dynamicFeatures?.costPerAdditionalTeamSeat,
+                customFeatures: customFeatures,
             }
             console.log("Object for edit plan is", object)
             setConfigurationData(object);

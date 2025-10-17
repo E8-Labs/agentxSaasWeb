@@ -48,6 +48,7 @@ import SupportFile from "@/components/agency/plan/SupportFile";
 import UpgradePlan from "@/components/userPlans/UpgradePlan";
 import { GetFormattedDateString } from "@/utilities/utility";
 import { useUser } from "@/hooks/redux-hooks";
+import moment from "moment";
 
 let stripePublickKey =
   process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -346,6 +347,20 @@ const ProfileNav = () => {
     }
   };
 
+  //trial days counter
+  const checkTrialDays = (userData) => {
+    if (userData?.plan?.trialUsed === false) { return 0 }
+    console.log("user data passed to counter is", userData);
+    const todayDate = moment();
+    console.log("Trial days Today date is", todayDate);
+    const trialStartDate = moment(userData?.plan?.createdAt);
+    console.log("Trial days start date is", trialStartDate);
+    // const trialDays = Math.floor((todayDate - trialStartDate) / (1000 * 60 * 60 * 24));
+    const trialDays = todayDate.diff(trialStartDate, "days");
+    console.log(`Trial days left are: ${trialDays} days`);
+    return trialDays;
+  }
+
   const getUserProfile = async () => {
     await getProfile();
     const data = localStorage.getItem("User");
@@ -362,6 +377,7 @@ const ProfileNav = () => {
         router.push("/");
         return;
       }
+      // checkTrialDays(LocalData.user);
       setUserDetails(LocalData);
       if (LocalData.user.plan == null) {
         // user haven't subscribed to any plan - load plans with trial
@@ -1096,7 +1112,7 @@ const ProfileNav = () => {
                 {userDetails?.user?.plan?.price === 0 ? "Your free AI Credits have expired" : `Your subscription payment could not be processed.`}
               </div>
               <div style={{ fontSize: 14, fontWeight: '600', color: "#00000080" }}>
-                {userDetails?.user?.plan?.price === 0 ?"Please Upgrade or wait for next renewal date" :"Please update your payment method to continue making calls" }
+                {userDetails?.user?.plan?.price === 0 ? "Please Upgrade or wait for next renewal date" : "Please update your payment method to continue making calls"}
                 <span
                   className="text-purple underline cursor-pointer"
                   onClick={() => {
@@ -1270,17 +1286,26 @@ const ProfileNav = () => {
               )}
 
               <div>
-                <div
-                  className="truncate"
-                  style={{
-                    fontSize: 15,
-                    fontWeight: "500",
-                    color: "",
-                    width: "100px",
-                    color: "black",
-                  }}
-                >
-                  {userDetails?.user?.name?.split(" ")[0]}
+                <div className="flex flex-row items-center gap-2">
+                  <div
+                    className="truncate"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: "500",
+                      color: "",
+                      width: "100px",
+                      color: "black",
+                    }}
+                  >
+                    {userDetails?.user?.name?.split(" ")[0]}
+                  </div>
+                  {
+                    checkTrialDays(userDetails?.user) > 0 && (
+                      <div>
+                        {checkTrialDays(userDetails?.user)} Days
+                      </div>
+                    )
+                  }
                 </div>
                 <div
                   className="truncate w-[120px]"
@@ -1683,7 +1708,7 @@ const ProfileNav = () => {
           <UpgradePlan
             open={showUpgradePlanModal}
             handleClose={() => setShowUpgradePlanModal(false)}
-            setShowSnackMsg={()=>{
+            setShowSnackMsg={() => {
               console.log("setShowSnackMsg is called")
             }}
           />

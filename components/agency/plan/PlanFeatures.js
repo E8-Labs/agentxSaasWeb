@@ -206,7 +206,7 @@ export default function PlanFeatures({
             }
             <div className="w-ful pb-2l">
                 <div className="flex flex-col gap-2">
-                    {customFeatures.map((feature, index) => (
+                    {customFeatures?.map((feature, index) => (
                         <div
                             key={index}
                             className="w-full">
