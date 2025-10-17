@@ -1528,8 +1528,8 @@ function SubAccountPlansAndPayments({
                     from={"SubAccount"}
                     selectedPlan={selectedPlan}
                     setSelectedPlan={setSelectedPlan}
-                    selectedUser={selectedUser}
                     open={showUpgradeModal}
+                    selectedUser={selectedUser}
                     handleClose={async (upgradeResult) => {
                         setShowUpgradeModal(false);
 

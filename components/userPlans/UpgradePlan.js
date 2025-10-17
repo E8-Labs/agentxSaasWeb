@@ -431,7 +431,11 @@ function UpgradePlanContent({
 
     useEffect(() => {
         console.log("Open rerendered")
-        if (!open || currentSelectedPlan) return;
+        // if (!open || currentSelectedPlan) return;
+        // if (!plan && !currentFullPlan) {
+        //     console.log("No plan or current full plan")
+        //     return;
+        // }
         if (open) {
             getPlans()
             getCardsList()
@@ -1202,9 +1206,9 @@ function UpgradePlanContent({
                                                         key={item.id}
                                                         onClick={() => {
                                                             handleTogglePlanClick(item, index)
-                                                            // setSelectedDuration(getDurationFromBillingCycle((item.billingCycle)))
-                                                            console.log("Selected item billing cycle is", item.billingCycle)
-                                                            setSelectedDuration(item.billingCycle)
+                                                            // console.log("Selected item billing cycle is", item.billingCycle)
+                                                            // const planDuration = getDurationFromBillingCycle(item?.billingCycle);
+                                                            // setSelectedDuration(planDuration)
                                                         }}
                                                         disabled={isCurrentPlan}
                                                     >
