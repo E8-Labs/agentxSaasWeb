@@ -832,7 +832,7 @@ function AdminScheduledCalls({ selectedUser }) {
                         </div>
                       ) : !leadsLoading ? (
                         <div className="text-center mt-6 text-3xl">
-                          No Call Found
+                          No activities found
                         </div>
                       ) : (
                         <div className="text-center mt-6 text-3xl">

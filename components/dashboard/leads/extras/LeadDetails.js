@@ -936,6 +936,18 @@ const LeadDetails = ({
     return color;
   };
 
+  const getCommunicationTypeIcon = (item) => {
+    if (item.communicationType == "sms") {
+      return "/otherAssets/smsIcon.png" 
+    } else if (item.communicationType == "email") {
+      return "/otherAssets/email.png"
+    } else if (item.callOutcome) {
+      return "/otherAssets/callIcon.png"
+    }else if(item.communicationType == "web") {
+      return "/otherAssets/webhook2.svg"
+    }else return "/otherAssets/callIcon.png"
+  }
+
   const handleCopy = async (id) => {
     try {
       await navigator.clipboard.writeText(id);
@@ -2693,6 +2705,12 @@ const LeadDetails = ({
                                             <div className="h-full w-full">
                                               <div className="flex flex-row items-center justify-between">
                                                 <div className="flex flex-row items-center gap-1">
+                                                 <Image
+                                                    src={getCommunicationTypeIcon(item)}
+                                                    height={15}
+                                                    width={15}
+                                                    alt="*"
+                                                  />
                                                   <div
                                                     style={{
                                                       fontWeight: "600",
@@ -2725,6 +2743,7 @@ const LeadDetails = ({
                                                         showColor(item),
                                                     }}
                                                   ></div>
+                                                 
                                                   {
                                                     getOutcome(item)
                                                   }

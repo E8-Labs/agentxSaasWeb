@@ -177,7 +177,8 @@ function UpgradePlanContent({
     from,
     setShowSnackMsg = null,
     showSnackMsg = null,
-    selectedUser
+    selectedUser,
+
 }) {
 
     const stripeReact = useStripe();
@@ -249,6 +250,8 @@ function UpgradePlanContent({
     const [referralMessage, setReferralMessage] = useState("");
     const referralRequestSeqRef = useRef(0);
     const [isSmallScreen, setIsSmallScreen] = useState(false);
+    const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     let haveCards = cards && cards.length > 0 ? true : false;
 
@@ -318,54 +321,86 @@ function UpgradePlanContent({
 
     // Handle pre-selected plan from previous screen
     useEffect(() => {
-        if (open) {
+        const initializePlans = async () => {
+            if (open) {
+                setLoading(true);
+                // Load plans and wait for completion
+                const plansData = await getPlans();
+                getCardsList();
+                getCurrentUserPlan();
 
-            // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
-            const currentPlans = getCurrentPlans();
-            let planDuration = null
-            if (selectedPlan) {
-                planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
-                console.log("Billing bicycle of selected plan", planDuration)
-                if (planDuration) {
-                    setSelectedDuration(planDuration);
+                // Only proceed with plan selection if we have plans data and haven't triggered yet
+                if (plansData && !isPreSelectedPlanTriggered) {
+                    setIsPreSelectedPlanTriggered(true);
+
+                    console.log("selected plan from previous screen in pre selected plan useeffect is ", selectedPlan);
+
+                    // Set selected duration based on the plan's billing cycle if selectedPlan is not null 
+                    let planDuration = null;
+
+                    if (selectedPlan) {
+                        planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle);
+                        console.log("Billing bicycle of selected plan", planDuration);
+                        if (planDuration) {
+                            setSelectedDuration(planDuration);
+                        }
+                    } else {
+                        console.log("no selected plan, set first plan as current selected plan ");
+                        // if selectedPlan is null then set selected duration of current plan
+                        if (currentUserPlan && currentUserPlan.billingCycle) {
+                            planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
+                            console.log("Billing bicycle of current user plan", planDuration);
+                        } else {
+                            // Use the first available plan from the loaded data
+                            const firstPlan = plansData.monthly[0] || plansData.quarterly[0] || plansData.yearly[0];
+                            if (firstPlan) {
+                                planDuration = getDurationFromBillingCycle(firstPlan.billingCycle);
+                            }
+                        }
+                        if (planDuration) {
+                            setSelectedDuration(planDuration);
+                            console.log("Billing bicycle of current plan2", planDuration);
+                        }
+                    }
+
+                    // Wait a bit for selectedDuration to update, then find matching plan
+                    setTimeout(() => {
+                        // Get current plans based on the updated selectedDuration
+                        let currentPlans = [];
+                        if (planDuration?.id === 1) currentPlans = plansData.monthly;
+                        else if (planDuration?.id === 2) currentPlans = plansData.quarterly;
+                        else if (planDuration?.id === 3) currentPlans = plansData.yearly;
+
+                        console.log("current plans are before checking matching plan", currentPlans);
+
+                        const matchingPlan = currentPlans.find(plan =>
+                            // plan.name === selectedPlan?.name ||
+                            plan.id === selectedPlan?.id //||
+                            // plan.planType === selectedPlan?.planType
+                        );
+
+                        if (matchingPlan) {
+                            console.log("matching plan found is", matchingPlan);
+                            console.log("selected duration is", planDuration);
+                            setCurrentSelectedPlan(matchingPlan);
+                            const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
+                            setSelectedPlanIndex(planIndex);
+                            setTogglePlan(matchingPlan.id);
+                        } else {
+                            console.log("no matching plan found");
+                        }
+                    }, 100);
                 }
-            } else {
-                setCurrentSelectedPlan(currentPlans[0]);
-                // if selectedPlan is null then set selected duration of current plan
-                // here set duration of current plan
-                if (currentUserPlan && currentUserPlan.billingCycle) {
-                    planDuration = getDurationFromBillingCycle(currentUserPlan.billingCycle);
-                    console.log("Billing bicycle of current user plan", planDuration)
-                } else {
-                    planDuration = getDurationFromBillingCycle(currentPlans[0]?.billingCycle);
-                }
-                if (planDuration) {
-                    setSelectedDuration(planDuration);
-                    console.log("Billing bicycle of current plan2", planDuration)
-                }
+                setLoading(false);
             }
+        };
 
-            // Find the matching plan in current plans
+        initializePlans();
+    }, [open])
 
-
-            const matchingPlan = currentPlans.find(plan =>
-                plan.name === selectedPlan?.name ||
-                plan.id === selectedPlan?.id ||
-                plan.planType === selectedPlan?.planType
-            );
-
-
-
-            if (matchingPlan) {
-                setCurrentSelectedPlan(matchingPlan);
-                const planIndex = currentPlans.findIndex(plan => plan.id === matchingPlan.id);
-                setSelectedPlanIndex(planIndex);
-                setTogglePlan(matchingPlan.id);
-
-
-            }
-        }
-    }, [selectedPlan, open, monthlyPlans, quaterlyPlans, yearlyPlans, currentUserPlan])
+    useEffect(() => {
+        console.log("usercurrentplanselected is", currentSelectedPlan)
+    }, [currentSelectedPlan])
 
     useEffect(() => {
         if (!inviteCode || inviteCode.trim().length === 0) {
@@ -437,9 +472,7 @@ function UpgradePlanContent({
         //     return;
         // }
         if (open) {
-            getPlans()
-            getCardsList()
-            getCurrentUserPlan()
+
         }
     }, [open])
 
@@ -551,17 +584,20 @@ function UpgradePlanContent({
             console.log('monthly', monthly)
             console.log('quarterly', quarterly)
             console.log('yearly', yearly)
+
+            // Return the plans data for immediate use
+            return { monthly, quarterly, yearly, freePlan };
         }
+        return null;
     }
     const getCurrentPlans = () => {
+        console.log("selected duration in get current plans is", selectedDuration)
         if (selectedDuration.id === 1) return monthlyPlans;
         if (selectedDuration.id === 2) return quaterlyPlans;
         if (selectedDuration.id === 3) return yearlyPlans;
+        // console.log("selected duration invalid", selectedDuration)
         return [];
     };
-
-
-
 
 
 
@@ -739,7 +775,11 @@ function UpgradePlanContent({
             const result2 = await addCardRes.json();
             if (result2.status) {
                 setAddCardSuccess(true);
-                if (!togglePlan) handleClose(result);
+                setIsPreSelectedPlanTriggered(false);
+                if (!togglePlan) {
+                    setIsPreSelectedPlanTriggered(false);
+                    handleClose(result);
+                }
                 if (togglePlan) {
                     setShowAddCard(false);
                     getCardsList()
@@ -934,6 +974,7 @@ function UpgradePlanContent({
                     isVisible: true
                 })
                 setTimeout(() => {
+                    setIsPreSelectedPlanTriggered(false);
                     handleClose(true)
                 }, 3000)
                 return
@@ -1115,6 +1156,7 @@ function UpgradePlanContent({
                         <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
                             <CloseBtn
                                 onClick={() => {
+                                    setIsPreSelectedPlanTriggered(false);
                                     // setShowRenameAgentPopup(null);
                                     handleClose()
                                 }}
@@ -1192,50 +1234,57 @@ function UpgradePlanContent({
                                         }}
                                     >
                                         {
-                                            getCurrentPlans()?.map((item, index) => {
-                                                const isCurrentPlan = isPlanCurrent(item);
-                                                return (
-                                                    <button
-                                                        className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
+                                            loading ? (
+
+                                                <div className="w-full flex flex-row items-center justify-center h-[50px]">
+                                                    <CircularProgress className="flex-shrink-0" size={24} />
+                                                </div>
+                                            ) : (
+                                                getCurrentPlans()?.map((item, index) => {
+                                                    const isCurrentPlan = isPlanCurrent(item);
+                                                    return (
+                                                        <button
+                                                            className={`w-3/12 flex flex-col items-start justify-between border-2 p-3 rounded-lg text-left transition-all duration-300
                                                         ${isCurrentPlan
-                                                                ? "border-gray-300 cursor-not-allowed opacity-60"
-                                                                : currentSelectedPlan?.id === item.id
-                                                                    ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
-                                                                    : "border-gray-200 hover:border-purple hover:shadow-md"
-                                                            }`}
-                                                        key={item.id}
-                                                        onClick={() => {
-                                                            handleTogglePlanClick(item, index)
-                                                            // console.log("Selected item billing cycle is", item.billingCycle)
-                                                            // const planDuration = getDurationFromBillingCycle(item?.billingCycle);
-                                                            // setSelectedDuration(planDuration)
-                                                        }}
-                                                        disabled={isCurrentPlan}
-                                                    >
-                                                        <div className='w-full flex flex-row items-center justify-between'>
-                                                            <div className='text-[15px] font-semibold'>
-                                                                {item.name || item.title}
+                                                                    ? "border-gray-300 cursor-not-allowed opacity-60"
+                                                                    : currentSelectedPlan?.id === item.id
+                                                                        ? "border-purple bg-gradient-to-r from-purple-25 to-purple-50 shadow-lg shadow-purple-100"
+                                                                        : "border-gray-200 hover:border-purple hover:shadow-md"
+                                                                }`}
+                                                            key={item.id}
+                                                            onClick={() => {
+                                                                handleTogglePlanClick(item, index)
+                                                                // console.log("Selected item billing cycle is", item.billingCycle)
+                                                                // const planDuration = getDurationFromBillingCycle(item?.billingCycle);
+                                                                // setSelectedDuration(planDuration)
+                                                            }}
+                                                            disabled={isCurrentPlan}
+                                                        >
+                                                            <div className='w-full flex flex-row items-center justify-between'>
+                                                                <div className='text-[15px] font-semibold'>
+                                                                    {item.name || item.title}
+                                                                </div>
+
+                                                                <div className='text-[15px] font-semibold'>
+                                                                    {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
+                                                                </div>
                                                             </div>
 
-                                                            <div className='text-[15px] font-semibold'>
-                                                                {`$${formatFractional2(item.discountPrice || item.discountedPrice || item.originalPrice)}`}
+                                                            <div className='text-[13px] font-[500] mt-1'>
+                                                                {item.details || item.description}
                                                             </div>
-                                                        </div>
 
-                                                        <div className='text-[13px] font-[500] mt-1'>
-                                                            {item.details || item.description}
-                                                        </div>
-
-                                                        <div className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
+                                                            <div className={`py-2 mt-2 flex flex-col items-center justify-center w-full rounded-lg text-[13px] font-semibold
                                                         ${isCurrentPlan
-                                                                ? "bg-gray-400 text-white cursor-not-allowed"
-                                                                : "bg-purple text-white"
-                                                            }`}>
-                                                            {isCurrentPlan ? "Current Plan" : "Select Plan"}
-                                                        </div>
-                                                    </button>
-                                                );
-                                            })
+                                                                    ? "bg-gray-400 text-white cursor-not-allowed"
+                                                                    : "bg-purple text-white"
+                                                                }`}>
+                                                                {isCurrentPlan ? "Current Plan" : "Select Plan"}
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })
+                                            )
                                         }
 
                                     </div>
@@ -1559,7 +1608,7 @@ function UpgradePlan({
     selectedPlan = null, // Pre-selected plan from previous screen
     setSelectedPlan = null,
     from = "User",
-    selectedUser
+    selectedUser,
     // setShowSnackMsg = null
 }) {
     let stripePublickKey =

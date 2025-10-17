@@ -111,6 +111,8 @@ const Creator = ({ agentId, name }) => {
     return emailRegex.test(email);
   };
 
+
+
   const validatePhoneNumber = (phoneNumber) => {
     // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
     // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
@@ -155,7 +157,7 @@ const Creator = ({ agentId, name }) => {
       formData.firstName?.trim() &&
       formData.lastName?.trim() &&
       // formData.email?.trim() &&
-      // isValidEmail(formData.email) &&
+      isValidEmail(formData.email) &&
       formData.phone?.trim() &&
       isValidPhone(formData.phone)
     );
@@ -488,7 +490,7 @@ const Creator = ({ agentId, name }) => {
             savedFormData?.firstName?.trim() &&
             savedFormData?.lastName?.trim() &&
             savedFormData?.email?.trim() &&
-            // isValidEmail(savedFormData.email) &&
+            isValidEmail(savedFormData.email) &&
             savedFormData?.phone?.trim() &&
             isValidPhone(savedFormData.phone)
           );
@@ -1150,6 +1152,22 @@ const Creator = ({ agentId, name }) => {
                     value={formData.lastName}
                     onChange={(e) => handleFormDataChange('lastName', e.target.value)}
                     placeholder="Last Name"
+                    className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 15,
+                      border: "1px solid #00000020",
+                    }}
+                    required
+                  />
+                </div>
+
+
+                <div>
+                  <input
+                    value={formData.email}
+                    onChange={(e) => handleFormDataChange('email', e.target.value)}
+                    placeholder="Email"
                     className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-4"
                     style={{
                       fontWeight: "500",

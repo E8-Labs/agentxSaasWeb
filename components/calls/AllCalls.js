@@ -531,7 +531,7 @@ function AllCalls({ user }) {
         <LeadLoading />
       ) : (
         <>
-        
+
           <div className="flex w-full flex-row items-center gap-3">
             <div className="flex ml-10 flex-row items-center gap-1  w-[22vw] flex-shrink-0 border rounded-full px-4">
               <input
@@ -727,14 +727,14 @@ function AllCalls({ user }) {
                           {item.LeadModel?.firstName.slice(0, 1).toUpperCase()}
                         </div>
                         <div className="truncate" style={{ ...styles.text2, ...{ width: "65%" } }}>
-                        
+
                           {item.LeadModel?.firstName}{" "}{item.LeadModel?.lastName}
                         </div>
                       </div>
                       <div style={{ ...styles.text2, }}
                         className="w-1/12 truncate flex flex-row items-center flex-shrink-0 "
                       >
-                          {item.agent?.name}
+                        {item.agent?.name}
 
                       </div>
 
@@ -811,7 +811,7 @@ function AllCalls({ user }) {
                   className="text-center mt-4"
                   style={{ fontWeight: "bold", fontSize: 20 }}
                 >
-                  No call log found
+                  No activities found
                 </div>
               )}
             </InfiniteScroll>

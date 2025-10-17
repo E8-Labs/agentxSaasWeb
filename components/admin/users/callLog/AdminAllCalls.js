@@ -695,7 +695,7 @@ function AdminAllCalls({ selectedUser }) {
                     style={{ cursor: "pointer" }}
                     className="w-full flex flex-row justify-between items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
                   >
-                    
+
                     <div className="w-1/12 ">
                       <div style={styles.text2}>
                         {item.pipeline ? (
@@ -776,7 +776,7 @@ function AdminAllCalls({ selectedUser }) {
                 className="text-center mt-4"
                 style={{ fontWeight: "bold", fontSize: 20 }}
               >
-                No call log found
+                No activities found
               </div>
             )}
           </InfiniteScroll>
@@ -812,11 +812,11 @@ function AdminAllCalls({ selectedUser }) {
               <div className="mt-2 w-full">
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>Filter</div>
-                 <CloseBtn
-                  onClick={() => {
-                    setShowFilterModal(false);
-                  }}
-                 />
+                  <CloseBtn
+                    onClick={() => {
+                      setShowFilterModal(false);
+                    }}
+                  />
                 </div>
 
                 <div className="flex flex-row items-start gap-4">

@@ -905,7 +905,7 @@ function SheduledCalls({ user }) {
                     marginTop: 20,
                   }}
                 >
-                  No Call Activity Found
+                   No activities found
                 </div>
               )}
             </div>
