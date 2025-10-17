@@ -432,7 +432,8 @@ const AgentsListPaginated = ({
                         } else {
                           setOpenTestAiModal(true);
                         }
-
+                        
+                        setSelectedAgent(item);
                         const callScript =
                           item.prompt.callScript + " " + item.prompt.greeting;
                         const regex = /\{(.*?)\}/g;
@@ -476,7 +477,6 @@ const AgentsListPaginated = ({
                           }
                         }
                         setScriptKeys(keys);
-                        setSelectedAgent(item);
                       }}
                     >
                       <div
