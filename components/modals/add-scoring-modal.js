@@ -551,7 +551,7 @@ const AddScoringModal = ({
 
         // Call onSubmit callback if provided
         if (onSubmit) {
-          onSubmit(submissionData);
+          onSubmit(response.data);
         }
 
         // Close modal

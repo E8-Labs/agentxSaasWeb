@@ -280,6 +280,7 @@ function LeadScoring({
                 onSubmit={(templateData) => {
                     console.log('Template created/updated:', templateData);
                     // Refresh templates after creation/update
+                    showSnackbar("", "Lead Score Added",SnackbarTypes.Success);
                     fetchTemplates({
                         agentId: showDrawerSelectedAgent?.id,
                         setTemplates: setTemplates,
