@@ -87,7 +87,7 @@ const AgentsListPaginated = ({
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam);
-      console.log('agentsListSeperatedParam', agentsListSeparatedParam)
+    console.log('agentsListSeperatedParam', agentsListSeparatedParam)
   }, [agentsListSeparatedParam]);
 
   useEffect(() => {
@@ -135,7 +135,7 @@ const AgentsListPaginated = ({
 
   return (
     <div
-      className={`${agencyUser ? "h-[55vh]" : from === "Admin" ? "h-[43svh]" :agentsListSeparated.length > 0?  "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" ? "" : "pb-12"}`}
+      className={`${agencyUser ? "h-[55vh]" : from === "Admin" ? "h-[43svh]" : agentsListSeparated.length > 0 ? "h-[75svh]" : "h-[90svh]"} overflow-auto ${!initialLoader && agentsListSeparated.length > 0 && "pt-10"} ${agencyUser ? "" : from === "Admin" ? "" : "pb-12"}`}
       style={{ scrollbarWidth: "none" }}
       id="scrollableAgentDiv"
     >
@@ -427,13 +427,15 @@ const AgentsListPaginated = ({
                     <button
                       className="bg-purple px-4 py-2 rounded-lg"
                       onClick={() => {
+                        console.log("Show test ai modal", item);
                         if (!item.phoneNumber) {
                           console.log("Show warning modal");
                           setShowWarningModal(item);
                         } else {
                           setOpenTestAiModal(true);
                         }
-
+                        
+                        setSelectedAgent(item);
                         const callScript =
                           item.prompt.callScript + " " + item.prompt.greeting;
                         const regex = /\{(.*?)\}/g;
@@ -477,7 +479,6 @@ const AgentsListPaginated = ({
                           }
                         }
                         setScriptKeys(keys);
-                        setSelectedAgent(item);
                       }}
                     >
                       <div
@@ -549,7 +550,7 @@ const AgentsListPaginated = ({
         <NoAgent showBtn={
           search ? false : true
         }
-          from = {from}
+          from={from}
           title={
             search ? "No agent found" : "You have no active agents"
           }
