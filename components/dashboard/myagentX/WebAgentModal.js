@@ -94,11 +94,11 @@ const WebAgentModal = ({
         console.log('agentSmartRefillId', agentSmartRefillId);
         console.log('agentSmartRefill', agentSmartRefill);
 
-        if ( typeof agentSmartRefillId !== "undefined" || agentSmartRefill) {
-            setRequireForm(true);
-          }
-          setSelectedSmartList(agentSmartRefillId || agentSmartRefill || response.data.data[0].id);
+        if (typeof agentSmartRefillId !== "undefined" || agentSmartRefill) {
+          setRequireForm(true);
         }
+        setSelectedSmartList(agentSmartRefillId || agentSmartRefill || response.data.data[0].id);
+      }
     } catch (error) {
       console.error('Error fetching smart lists:', error);
       showSnackbar('', error.response?.data?.message || 'Failed to fetch smart lists. Please try again.', SnackbarTypes.Error);
@@ -152,6 +152,7 @@ const WebAgentModal = ({
   };
 
   const handleOpenAgent = async () => {
+    console.log("handleOpenAgent called")
     if (requireForm && !selectedSmartList) {
       return; // Don't open if form is required but no smart list selected
     }
@@ -182,6 +183,8 @@ const WebAgentModal = ({
         );
 
         if (response.data) {
+          console.log("feature type is", fetureType)
+          // return;
           // Success - now open the agent
           if (fetureType === "webhook") {
             onCopyUrl();
@@ -197,8 +200,12 @@ const WebAgentModal = ({
         return;
       }
     } else {
-      // No form required or no smart list selected, just open the agent
-      onOpenAgent();
+      console.log("no form required or no smart list selected, just open the agent")
+      if (fetureType === "webhook") {
+        onCopyUrl();
+      } else {
+        onOpenAgent();
+      }
     }
   };
 

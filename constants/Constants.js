@@ -257,3 +257,189 @@ export const next30Days = moment().add(30, "days").format("MM/DD/YYYY");
 export const ScrollBarCss = () => {
   return "scrollbar scrollbar-track-scrollBarPurple scrollbar-thin scrollbar-thumb-transparent"
 }
+
+
+export const allIntegrations = [
+  {
+    title: "Mailchimp",
+    url: "https://zapier.com/apps/mailchimp/integrations/myagentx",
+    description:
+      "Automatically nurture AssignX leads with targeted email campaigns in Mailchimp to stay top-of-mind.",
+    icon: "/svgIcons/MailchimpIcon.svg",
+  },
+  {
+    title: "ActiveCampaign",
+    url: "https://zapier.com/apps/activecampaign/integrations/myagentx",
+    description:
+      "Send AssignX leads to ActiveCampaign to trigger automated email sequences and track engagement.",
+    icon: "/svgIcons/ActiveCampaignIcon.svg",
+  },
+  {
+    title: "ClickUp",
+    url: "https://zapier.com/apps/clickup/integrations/myagentx",
+    description:
+      "Create follow-up tasks in ClickUp for AssignX leads to ensure no opportunity is missed.",
+    icon: "/svgIcons/ClickUpIcon.svg",
+  },
+  {
+    title: "Trello",
+    url: "https://zapier.com/apps/trello/integrations/myagentx",
+    description:
+      "Organize AssignX leads into Trello boards for tracking follow-up actions and collaboration with your team.",
+    icon: "/svgIcons/TrelloIcon.svg",
+  },
+  {
+    title: "Asana",
+    url: "https://zapier.com/apps/asana/integrations/myagentx",
+    description:
+      "Add tasks for AssignX lead follow-ups in Asana to keep your pipeline moving forward.",
+    icon: "/svgIcons/AsanaIcon.svg",
+  },
+  {
+    title: "Slack",
+    url: "https://zapier.com/apps/slack/integrations/myagentx",
+    description:
+      "Receive instant updates in Slack when AssignX nurtures a lead or books an appointment.",
+    icon: "/svgIcons/SlackIcon.svg",
+  },
+  {
+    title: "Shopify",
+    url: "https://zapier.com/apps/shopify/integrations/myagentx",
+    description:
+      "Sync Shopify customers to AssignX for personalized follow-ups and repeat business outreach.",
+    icon: "/svgIcons/ShopifyIcon.svg",
+  },
+  {
+    title: "Stripe",
+    url: "https://zapier.com/apps/stripe/integrations/myagentx",
+    description:
+      "Automatically update AssignX lead profiles when payments are received through Stripe for nurturing upsell opportunities.",
+    icon: "/svgIcons/StripeIcon.svg",
+  },
+  {
+    title: "PayPal",
+    url: "https://zapier.com/apps/paypal/integrations/myagentx",
+    description:
+      "Track PayPal transactions in AssignX and follow up with leads to build long-term relationships",
+    icon: "/svgIcons/PayPalIcon.svg",
+  },
+  {
+    title: "Google Sheets",
+    url: "https://zapier.com/apps/google-sheets/integrations/myagentx",
+    description:
+      "Add new leads from Google Sheets to AssignX for AI-driven follow-ups and nurturing.",
+    icon: "/svgIcons/GoogleSheetsIcon.svg",
+  },
+  {
+    title: "Zoho",
+    url: "https://zapier.com/apps/zoho-forms/integrations/myagentx",
+    description:
+      "Sync Zoho CRM leads with AssignX for automated follow-ups and timely engagement.",
+    icon: "/svgIcons/ZohoIcon.svg",
+  },
+  {
+    title: "FUB",
+    url: "https://zapier.com/apps/follow-up-boss/integrations/myagentx",
+    description:
+      "Send FUB leads to AssignX to ensure consistent nurturing through AI-powered communication.",
+    icon: "/svgIcons/FUBIcon.svg",
+  },
+  {
+    title: "HubSpot",
+    url: "https://zapier.com/apps/hubspot/integrations/myagentx",
+    description:
+      "Integrate HubSpot contacts with AssignX to automate follow-ups and streamline your pipeline.",
+    icon: "/svgIcons/HubSpotIcon.svg",
+  },
+  {
+    title: "Clio Grow",
+    url: "https://zapier.com/apps/clio/integrations/myagentx",
+    description:
+      "Capture Clio Grow client leads and let AssignX handle the nurturing and scheduling.",
+    icon: "/svgIcons/ClioGrowIcon.svg",
+  },
+  {
+    title: "Close",
+    url: "https://zapier.com/apps/close/integrations/myagentx",
+    description:
+      "Update Close opportunities with AssignX follow-up progress to streamline sales efforts.",
+    icon: "/svgIcons/closeIcon.svg",
+  },
+  {
+    title: "KV Core",
+    url: "https://zapier.com/apps/kvcore/integrations/myagentx",
+    description:
+      "Send KV Core leads to AssignX to automate follow-ups and improve conversion rates.",
+    icon: "/svgIcons/KVCoreIcon.svg",
+  },
+  {
+    title: "Typeform",
+    url: "https://zapier.com/apps/typeform/integrations/myagentx",
+    description:
+      "Capture Typeform responses as leads in AssignX for instant follow-up and nurturing.",
+    icon: "/svgIcons/Typeform.svg",
+  },
+  {
+    title: "JotForm",
+    url: "https://zapier.com/apps/jotform/integrations/myagentx",
+    description:
+      "Add Jotform submissions to AssignX to kickstart AI-driven lead engagement and follow-up.",
+    icon: "/svgIcons/JotformIcon.svg",
+  },
+  {
+    title: "Facebook Ads (Instant form)",
+    url: "https://zapier.com/apps/facebook-lead-ads/integrations/myagentx",
+    description:
+      "Sync Facebook leads to AssignX for immediate qualifying, follow-ups and lead nurturing. Speed to lead! ",
+    icon: "/svgIcons/FacebookIcon.svg",
+  },
+  {
+    title: "Wix forms",
+    url: "https://zapier.com/apps/wix/integrations/myagentx",
+    description:
+      "Turn Wix form submissions into AssignX leads for automated nurturing and engagement.",
+    icon: "/svgIcons/WixformsIcon.svg",
+  },
+  {
+    title: "Calendly",
+    url: "https://zapier.com/apps/calendly/integrations/myagentx",
+    description:
+      "Automatically update AssignX when appointments are scheduled in Calendly to ensure timely follow-ups.",
+    icon: "/svgIcons/CalendlyIcon.svg",
+  },
+  {
+    title: "Cal.com",
+    url: "https://zapier.com/apps/calcom/integrations/myagentx",
+    description:
+      "Sync Cal.com bookings with AssignX for seamless scheduling and lead engagement.",
+    icon: "/svgIcons/Cal.comIcon.svg",
+  },
+  {
+    title: "GHL",
+    url: "https://zapier.com/apps/leadconnector/integrations/myagentx",
+    description:
+      "Integrate with AssignX to streamline lead management, automate follow-ups, and boost conversions effortlessly.",
+    icon: "/svgIcons/GHLIcon.svg",
+  },
+  {
+    title: "Pipedrive",
+    url: "https://zapier.com/apps/pipedrive/integrations/myagentx",
+    description:
+      "Connect Pipedrive with AssignX for seamless deal tracking and smart sales automation.",
+    icon: "/svgIcons/PipedriveIcon.svg",
+  },
+  {
+    title: "Salesforce",
+    url: "https://zapier.com/apps/salesforce/integrations/myagentx",
+    description:
+      "Streamline Salesforce CRM with AssignX for effortless lead tracking and workflow automation.",
+    icon: "/svgIcons/SalesforceIcon.svg",
+  },
+  {
+    title: "Gmail",
+    url: "",
+    description:
+      "Connect Gmail to send automated emails and Google Calendar to schedule events for seamless lead management and follow-ups.",
+    icon: "/otherAssets/gmailIcon.png",
+  },
+];

@@ -2988,13 +2988,17 @@ function Page() {
       setSubTitle("Bring your AI agent to your website allowing them to engage with leads and customers")
     } else {
 
-      let url = demoBaseUrl + "api/agent/demoAi/" + showDrawerSelectedAgent?.modelIdVapi
+      let modelId = showDrawerSelectedAgent?.modelIdVapi || selectedAgentForWebAgent?.agentUuid || ""
+
+      let url = demoBaseUrl + "api/agent/demoAi/" + modelId
       navigator.clipboard
         .writeText(url)
         .then(() => {
           // alert("Embed code copied to clipboard!");
           setShowSuccessSnack("Webhook URL Copied");
           setIsVisibleSnack(true);
+          setShowWebAgentModal(false);
+          setShowAllSetModal(false);
         })
         .catch((err) => {
           console.error("Failed to copy text: ", err);
