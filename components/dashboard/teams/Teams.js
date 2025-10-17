@@ -1026,7 +1026,7 @@ function Teams({
 
 
                   <UpgradeModal
-                    open={showUpgradeModal}
+                    open={false}
                     handleClose={() => {
                       setShowUpgradeModal(false)
                     }}
