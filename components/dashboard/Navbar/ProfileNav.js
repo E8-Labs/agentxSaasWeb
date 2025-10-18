@@ -348,18 +348,39 @@ const ProfileNav = () => {
   };
 
   //trial days counter
+  // const checkTrialDays = (userData) => {
+  //   if (userData?.isTrial === false) { return 0 }
+  //   console.log("user data passed to counter is", userData);
+  //   const todayDate = moment();
+  //   console.log("Trial days Today date is", todayDate);
+  //   const trialStartDate = moment(userData?.plan?.createdAt);
+  //   console.log("Trial days start date is", trialStartDate);
+  //   // const trialDays = Math.floor((todayDate - trialStartDate) / (1000 * 60 * 60 * 24));
+  //   const trialDays = todayDate.diff(trialStartDate, "days");
+  //   console.log(`Trial days left are: ${trialDays} days`);
+  //   return trialDays;
+  // }
+
   const checkTrialDays = (userData) => {
-    if (userData?.plan?.trialUsed === false) { return 0 }
-    console.log("user data passed to counter is", userData);
-    const todayDate = moment();
-    console.log("Trial days Today date is", todayDate);
-    const trialStartDate = moment(userData?.plan?.createdAt);
-    console.log("Trial days start date is", trialStartDate);
-    // const trialDays = Math.floor((todayDate - trialStartDate) / (1000 * 60 * 60 * 24));
-    const trialDays = todayDate.diff(trialStartDate, "days");
-    console.log(`Trial days left are: ${trialDays} days`);
-    return trialDays;
-  }
+    const trialStart = moment(userData?.plan?.createdAt); // e.g. 2025-10-15T22:34:04.000Z
+    const today = moment();
+    const totalTrialDays = userData?.trialValidForDays;
+    // const totalTrialDays = 10;
+
+    // Calculate how many full days have passed since start
+    const daysElapsed = today.diff(trialStart, "days");
+
+    // Calculate how many trial days remain
+    const daysLeft = Math.max(totalTrialDays - daysElapsed, 0);
+
+    console.log(`Trial days total: ${totalTrialDays}`);
+    console.log(`Trial days started: ${trialStart.format("MMMM DD")}`);
+    console.log(`Trial days Today: ${today.format("MMMM DD")}`);
+    console.log(`Trial days Days elapsed: ${daysElapsed}`);
+    console.log(`Trial days Days left: ${daysLeft}`);
+
+    return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
+  };
 
   const getUserProfile = async () => {
     await getProfile();
@@ -1299,13 +1320,9 @@ const ProfileNav = () => {
                   >
                     {userDetails?.user?.name?.split(" ")[0]}
                   </div>
-                  {
-                    checkTrialDays(userDetails?.user) > 0 && (
-                      <div>
-                        {checkTrialDays(userDetails?.user)} Days
-                      </div>
-                    )
-                  }
+                  <div className="text-xs font-medium text-purple">
+                    {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : "334"}
+                  </div>
                 </div>
                 <div
                   className="truncate w-[120px]"
