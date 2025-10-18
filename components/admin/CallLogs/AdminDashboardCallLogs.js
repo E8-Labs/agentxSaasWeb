@@ -569,7 +569,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                         )
                       }
                       <div className="min-w-[200px] flex-shrink-0">
-                        <div style={styles.text}>Test Name</div>
+                        <div style={styles.text}>List Name</div>
                       </div>
                       <div className="min-w-[200px] flex-shrink-0">
                         <div style={styles.text}>Agent Name</div>
