@@ -683,6 +683,20 @@ function UserPlans({
 
                                         </div>
 
+                                        {disAblePlans && item?.hasTrial == true && (
+                                            <div
+                                                className="mb-2 text-start"
+                                                style={{
+                                                    fontWeight: "600",
+                                                    fontSize: 14,
+                                                    // color: "white",
+                                                }}
+                                            >
+                                                {item.hasTrial == true && (`${item.trialValidForDays}`)} Day Free Trial
+                                            </div>
+                                        )
+                                        }
+
                                         {/* Features container - scrollable */}
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
