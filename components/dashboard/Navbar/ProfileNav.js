@@ -744,7 +744,7 @@ const ProfileNav = () => {
           if (response?.data?.data.userType != "admin") {
             console.log('🔍 [getProfile] User is not an admin, checking plan...', { userPlan, userRole: Data?.userRole })
 
-            if (!userPlan) {
+            if (!userPlan && Data?.userRole !== "AgencySubAccount") {
               console.log('❌ [getProfile] No user plan found, redirecting to /plan');
               router.push("/plan")
               return

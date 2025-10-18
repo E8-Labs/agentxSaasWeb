@@ -83,6 +83,8 @@ function UserPlans({
     const [addCardErrtxt, setAddCardErrtxt] = useState("")
 
 
+
+
     useEffect(() => {
         console.log("reduxUser", reduxUser)
         // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
@@ -90,6 +92,20 @@ function UserPlans({
             if (handleContinue) {
                 handleContinue()
             }
+        }
+        if (!isFrom) {
+
+            let data = localStorage.getItem("User")
+            if (data) {
+                let user = JSON.parse(data)
+                console.log("user.user.userRole", user.user.userRole)
+                if (user.user.userRole === "AgencySubAccount") {
+                    isFrom = "SubAccount"
+                } else {
+                    isFrom = "User"
+                }
+            }
+
         }
         getPlans()
     }, [])

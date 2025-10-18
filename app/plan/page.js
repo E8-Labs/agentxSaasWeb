@@ -1,11 +1,15 @@
 'use client'
 import UserPlans from '@/components/userPlans/UserPlans'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 function page() {
+
+  let isFrom = ""
+
+
   return (
     <div>
-        <UserPlans from = "dashboard" />
+      <UserPlans from="dashboard" />
     </div>
   )
 }
