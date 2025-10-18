@@ -11,6 +11,7 @@ import {
     Snackbar,
     Switch,
     TextField,
+    Tooltip,
 } from "@mui/material";
 import { Elements } from "@stripe/react-stripe-js";
 import AddCardDetails from "../createagent/addpayment/AddCardDetails";
@@ -41,6 +42,8 @@ import { getFeaturesToLose } from "@/utilities/PlanComparisonUtils";
 import { DurationView } from "../plan/DurationView";
 import UserPlans from "../userPlans/UserPlans";
 import ProgressBar from "../onboarding/ProgressBar";
+import { isSubaccountTeamMember } from "@/constants/teamTypes/TeamTypes";
+import { formatFractional2 } from "@/components/agency/plan/AgencyUtilities";
 
 let stripePublickKey =
     process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
@@ -168,17 +171,32 @@ function NewBilling() {
 
     const getPlans = async () => {
         let plansList = await getUserPlans()
+        console.log('plansList are', plansList)
         let userData = getUserLocalData()
+
+        console.log('isSubaccountTeamMember', isSubaccountTeamMember(userData.user))
+        let filteredPlans = []
         if (plansList) {
             // Filter features in each plan to only show features where thumb = true
-            const filteredPlans = plansList?.map(plan => ({
-                ...plan,
-                features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
-            }));
+            if (!isSubaccountTeamMember(userData.user)) {
+                filteredPlans = plansList?.map(plan => ({
+                    ...plan,
+                    features: plan.features ? plan.features.filter(feature => feature.thumb === true) : []
+                }));
 
-            setPlans(filteredPlans)
+                // console.log('filteredPlans', filteredPlans)
+                setPlans(filteredPlans)
+            } else {
+                // filter the plans and show only first 6 features of each plan
+                filteredPlans = plansList.monthlyPlans.map(plan => ({
+                    ...plan,
+                    features: plan.features ? plan.features.slice(0, 6) : []
+                }));
+                setPlans(filteredPlans)
+            }
 
-            console.log('filteredPlans', filteredPlans)
+            console.log('filteredPlans after filtering', filteredPlans)
+
 
             let currentPlan = userData?.user?.plan?.planId;
 
@@ -221,6 +239,8 @@ function NewBilling() {
             console.log('monthly', monthly)
             console.log('quarterly', quarterly)
             console.log('yearly', yearly)
+        } else {
+            setPlans(plansList)
         }
     }
 
@@ -1725,15 +1745,15 @@ function NewBilling() {
 
                                     <div className="flex flex-row items-center justify-between w-full mb-4">
                                         <div className="text-[16px] font-semibold">
-                                            {item.name}
+                                            {item.name || item.title}
                                         </div>
                                         <div className="text-[16px] font-semibold">
-                                            {item.mints} AI credits
+                                            {item.mints || item.minutes} AI credits
                                         </div>
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">
-                                        ${`${item.discountPrice || "0"}/mo`}
+                                        ${formatFractional2(item.discountPrice || item.discountedPrice || 0) || "0"}/mo
                                     </div>
 
                                     {/*
@@ -1763,9 +1783,45 @@ function NewBilling() {
                                                         />
                                                         <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
                                                             {
-                                                                feature.thumb && (
-                                                                    <div className="text-sm font-normal text-gray-700 leading-relaxed flex-1 text-start">
-                                                                        {feature.text}
+                                                                (
+                                                                    <div className="text-sm font-normal text-gray-700 leading-relaxed flex flex-row items-center gap-2 text-start">
+                                                                        <span>{feature.text}</span>
+                                                                        {feature.subtext && (
+                                                                            <Tooltip
+                                                                                title={feature.subtext}
+                                                                                arrow
+                                                                                placement="top"
+                                                                                componentsProps={{
+                                                                                    tooltip: {
+                                                                                        sx: {
+                                                                                            backgroundColor: "#ffffff", // Ensure white background
+                                                                                            color: "#333", // Dark text color
+                                                                                            fontSize: "14px",
+                                                                                            padding: "10px 15px",
+                                                                                            borderRadius: "8px",
+                                                                                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                                                                                        },
+                                                                                    },
+                                                                                    arrow: {
+                                                                                        sx: {
+                                                                                            color: "#ffffff", // Match tooltip background
+                                                                                        },
+                                                                                    },
+                                                                                }}
+                                                                            >
+                                                                                <div
+                                                                                    style={{
+                                                                                        fontSize: 12,
+                                                                                        fontWeight: "600",
+                                                                                        color: "#000000",
+                                                                                        cursor: "pointer",
+                                                                                    }}
+                                                                                >
+                                                                                    <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
+                                                                                    />
+                                                                                </div>
+                                                                            </Tooltip>
+                                                                        )}
                                                                     </div>
                                                                 )
                                                             }
@@ -1976,6 +2032,7 @@ function NewBilling() {
                                         }}
                                         disAblePlans={true}
                                         hideProgressBar={true}
+                                        isFrom={isSubaccountTeamMember(userLocalData) ? "SubAccount" : "User"}
                                     />
                                 </Elements>
                             </div>

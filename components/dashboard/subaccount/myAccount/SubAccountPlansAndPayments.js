@@ -1544,7 +1544,7 @@ function SubAccountPlansAndPayments({
                                      //// //console.log
                                  }}
                              >
-                                 Cancel AgentX
+                                 Cancel Subscription
                              </button>
                          )}
                      </div>

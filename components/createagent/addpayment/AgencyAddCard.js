@@ -27,6 +27,7 @@ import AgentSelectSnackMessage, {
 } from "@/components/dashboard/leads/AgentSelectSnackMessage";
 import { formatDecimalValue } from "@/components/agency/agencyServices/CheckAgencyData";
 import moment from "moment";
+import { getNextChargeDate } from "@/components/userPlans/UserPlanServices";
 // import Apis from '../Apis/Apis';
 
 const AgencyAddCard = ({
@@ -704,7 +705,7 @@ const AgencyAddCard = ({
                                 <div className="capitalize" style={{ fontWeight: "600", fontSize: 15 }}>
                                     Total Billed {selectedPlan.duration}
                                 </div>
-                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {moment(timeCalculator()).format("MMMM DD YYYY")}</div>{/* hh:mma */}
+                                <div style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>{/* hh:mma */}
                             </div>
                             <div style={{ fontWeight: "600", fontSize: 15 }}>{scalePlanValue()}</div>
                         </div>

@@ -15,7 +15,9 @@ import { CancellationAndRefundUrl, privacyPollicyUrl, termsAndConditionUrl } fro
 import TwilioTrustHub from "./TwilioTrustHub";
 import NewBilling from "./NewBilling";
 import BillingHistory from "./BillingHistory";
-
+import { isSubaccountTeamMember } from "@/constants/teamTypes/TeamTypes";
+import SubAccountPlansAndPayments from "@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments";    
+import { getUserLocalData } from "../constants/constants";
 function MyAccount() {
   let searchParams = useSearchParams();
   const router = useRouter();
@@ -99,9 +101,13 @@ function MyAccount() {
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected]);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
-
+  const [userLocalData, setUserLocalData] = useState(null);
   //select the invite teams by default
   useEffect(() => {
+
+    const data = getUserLocalData();
+    setUserLocalData(data.user);
+
     const tab = searchParams.get("tab");
     const number = Number(tab);
 
@@ -134,6 +140,11 @@ function MyAccount() {
       case 1:
         return <BasicInfo />;
       case 2:
+        if (isSubaccountTeamMember(userLocalData)) {
+          return <SubAccountPlansAndPayments />;
+        } else {
+          return <NewBilling />;
+        }
         return <NewBilling />;
       case 3:
         return <BillingHistory />;

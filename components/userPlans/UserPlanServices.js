@@ -2,6 +2,7 @@ import axios from "axios"
 import { AuthToken } from "../agency/plan/AuthDetails"
 import Apis from "../apis/Apis"
 import { formatFractional2 } from "../agency/plan/AgencyUtilities"
+import { isAgencyTeamMember, isSubaccountTeamMember, isTeamMember } from "@/constants/teamTypes/TeamTypes"
 
 //use the dynamic values here  @arslan
 
@@ -82,13 +83,22 @@ export const getUserPlans = async (from, selectedUser) => {
         let token = AuthToken();
 
         let path = Apis.getPlans;
-        if (UserLocalData?.userRole === "AgencySubAccount") {
-            path = Apis.getSubAccountPlans;
-        }
-        if (from === "SubAccount") {
-            path = Apis.getSubAccountPlans;
-        } else if (from === "agency") {
-            path = Apis.getPlansForAgency;
+
+        if (isTeamMember(UserLocalData)) {
+            if (isAgencyTeamMember(UserLocalData)) {
+                path = Apis.getPlansForAgency;
+            } else if (isSubaccountTeamMember(UserLocalData)) {
+                path = Apis.getSubAccountPlans;
+            }
+        } else {
+            if (UserLocalData?.userRole === "AgencySubAccount") {
+                path = Apis.getSubAccountPlans;
+            }
+            if (from === "SubAccount") {
+                path = Apis.getSubAccountPlans;
+            } else if (from === "agency") {
+                path = Apis.getPlansForAgency;
+            }
         }
 
         console.log('path of get plans', path);
@@ -105,8 +115,8 @@ export const getUserPlans = async (from, selectedUser) => {
         });
 
         if (response) {
+            console.log('user plans are', response.data);
             if (response.data.status == true) {
-                console.log('user plans are', response.data);
                 const plansData = response.data.data;
 
                 // Cache the fresh data
@@ -396,7 +406,7 @@ export const getTotalPrice = (selectedPlan) => {
     const billingCycle = selectedPlan.billingCycle || selectedPlan.duration;
 
     if (billingCycle === "monthly") {
-         price = price * 1;
+        price = price * 1;
     } else if (billingCycle === "quarterly") {
         price = price * 3;
     } else if (billingCycle === "yearly") {

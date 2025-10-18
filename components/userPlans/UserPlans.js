@@ -17,7 +17,7 @@ import { useUser } from '@/hooks/redux-hooks';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
-import { Textfit } from 'react-textfit';
+import { isSubaccountTeamMember, isTeamMember } from '@/constants/teamTypes/TeamTypes';
 
 
 function UserPlans({
@@ -100,7 +100,12 @@ function UserPlans({
             if (data) {
                 let user = JSON.parse(data)
                 console.log("user.user.userRole", user.user.userRole)
-                if (user.user.userRole === "AgencySubAccount") {
+                if(isTeamMember(user.user)) {
+                    if(isSubaccountTeamMember(user.user)) { 
+                        isFrom = "SubAccount"
+                    }
+                }
+                 else if (user.user.userRole === "AgencySubAccount") {
                     isFrom = "SubAccount"
                 } else {
                     isFrom = "User"
@@ -683,20 +688,6 @@ function UserPlans({
 
                                         </div>
 
-                                        {disAblePlans && item?.hasTrial == true && (
-                                            <div
-                                                className="mb-2 text-start"
-                                                style={{
-                                                    fontWeight: "600",
-                                                    fontSize: 14,
-                                                    // color: "white",
-                                                }}
-                                            >
-                                                {item.hasTrial == true && (`${item.trialValidForDays}`)} Day Free Trial
-                                            </div>
-                                        )
-                                        }
-
                                         {/* Features container - scrollable */}
                                         <div className='flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0'>
                                             {/* Previous plan heading */}
@@ -722,36 +713,8 @@ function UserPlans({
                                                         <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
                                                             <Image src="/svgIcons/selectedTickBtn.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
                                                             <div className='flex flex-col items-start gap-1 w-full min-w-0 text-left'>
-                                                                <div className='leading-relaxed break-words flex items-center gap-2'>
-                                                                    {/*
-                                                                        <span>{feature.text}</span>
-                                                                    */}
-                                                                    <div
-                                                                        className="relative flex-1 min-w-0"
-                                                                        style={{
-                                                                            width: "100%",
-                                                                            maxWidth: feature.subtext ? "140px" : "230px"
-                                                                        }}
-                                                                    >
-                                                                        <Textfit
-                                                                            mode="single"
-                                                                            min={9}
-                                                                            max={14}
-                                                                            style={{
-                                                                                width: "100%",
-                                                                                display: "block",
-                                                                                whiteSpace: "nowrap",
-                                                                                overflow: "hidden",
-                                                                                textOverflow: "ellipsis",
-                                                                                lineHeight: "1.4",
-                                                                                fontWeight: 400,
-                                                                                color: "#000",
-                                                                                textAlign: "left",
-                                                                            }}
-                                                                        >
-                                                                            {feature.text}
-                                                                        </Textfit>
-                                                                    </div>
+                                                                <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
+                                                                    <span>{feature.text}</span>
                                                                     {feature.subtext && (
                                                                         <Tooltip
                                                                             title={feature.subtext}
