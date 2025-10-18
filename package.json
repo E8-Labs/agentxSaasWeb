@@ -101,7 +101,6 @@
     "react-redux": "^9.2.0",
     "react-select": "^5.8.3",
     "react-spring": "^9.7.5",
-    "react-textfit": "^1.1.1",
     "react-toastify": "^11.0.0",
     "recharts": "^2.15.1",
     "redux-persist": "^6.0.0",
