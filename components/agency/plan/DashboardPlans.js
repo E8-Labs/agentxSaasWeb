@@ -729,7 +729,7 @@ function DashboardPlans({
                                             width={420}
                                         />
                                         <div className='-mt-32' style={{ fontWeight: "600", fontSize: 22 }}>
-                                            No Xbar
+                                            No XBar
                                         </div>
                                         <div className='mt-4' style={{ fontWeight: "600", fontSize: 16 }}>
                                             You have no Xbars created
@@ -738,7 +738,7 @@ function DashboardPlans({
                                             className='mt-3 bg-purple text-white rounded-lg h-[50px] w-[209px]'
                                             style={{ fontWeight: "500", fontSize: 15 }}
                                             onClick={handleAddPlan}>
-                                            Create Xbar
+                                            Create XBar
                                         </button>
                                     </div>
                                 )

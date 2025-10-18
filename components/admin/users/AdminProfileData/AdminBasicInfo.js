@@ -210,7 +210,7 @@ function AdminBasicInfo({ selectedUser }) {
   const getProfile = async () => {
     try {
       let LocalData = await AdminGetProfileDetails(selectedUser.id);
-
+      console.log("Local data for selected user", LocalData);
       if (LocalData) {
         const userData = LocalData;
         await getAgentDefaultData(userData);
@@ -299,7 +299,7 @@ function AdminBasicInfo({ selectedUser }) {
         });
 
         if (response) {
-          //console.log;
+          console.log("Default agent data", response.data.data);
           setAgentServices(response.data.data.agentServices);
           setAgentAreasOfFocus(response.data.data.areaOfFocus);
           setAgentIndustries(response.data.data.userIndustry);

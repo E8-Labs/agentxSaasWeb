@@ -362,7 +362,7 @@ const ProfileNav = () => {
   // }
 
   const checkTrialDays = (userData) => {
-    if (userData?.hasTrial) {
+    if (userData?.isTrial) {
       const trialStart = moment(userData?.plan?.createdAt); // e.g. 2025-10-15T22:34:04.000Z
       const today = moment();
       const totalTrialDays = userData?.plan?.trialValidForDays;
@@ -1327,7 +1327,7 @@ const ProfileNav = () => {
                     })()}
                   </div>
                   <div className="text-xs font-medium text-purple">
-                    {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : "334"}
+                    {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : ""}
                   </div>
                 </div>
                 <div

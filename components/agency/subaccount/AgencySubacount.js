@@ -417,7 +417,7 @@ function AgencySubacount({
 
       {/* Code for twilio warning */}
       <TwilioWarning
-        agencyData={agencyData}
+        // agencyData={agencyData}
         showSuccess={(d) => {
           setShowSnackMessage(d);
           setShowSnackType(SnackbarTypes.Success);
@@ -799,20 +799,22 @@ function AgencySubacount({
                 />
                 <div className="flex flex-col items-center gap-6" style={{ marginTop: "-120px" }}>
                   <div style={{ fontWeight: "600", fontSize: "22px" }} className="text-center">
-                    No Sub-Account Added
+                    No Sub-Account Found
                   </div>
-                  <div style={{ fontWeight: "600", fontSize: "12px" }} className="text-center">
-                    {`Looks like you don’t have any sub-accounts`}
-                  </div>
-                  <button
-                    disabled={twililoConectedStatus}
-                    className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
-                    onClick={() => {
-                      handleCheckPlans();
-                    }}
-                  >
-                    Create Subaccount
-                  </button>
+                 {/*
+                   <div style={{ fontWeight: "600", fontSize: "12px" }} className="text-center">
+                     {`Looks like you don’t have any sub-accounts`}
+                   </div>
+                   <button
+                     disabled={twililoConectedStatus}
+                     className="flex px-5 py-3 bg-purple rounded-lg text-white font-medium border-none outline-none"
+                     onClick={() => {
+                       handleCheckPlans();
+                     }}
+                   >
+                     Create Subaccount
+                   </button>
+                 */}
                 </div>
               </div>
             )}

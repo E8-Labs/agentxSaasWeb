@@ -40,6 +40,7 @@ export const TwilioWarning = ({
     // }
 
     fetchData();
+    fetchProfileData();
 
   }, []);
 
@@ -73,6 +74,11 @@ export const TwilioWarning = ({
       }
     }
   };
+
+  const fetchProfileData = async () => {
+    const profileData = await getProfileDetails();
+    console.log("Response of user profile us", profileData)
+  }
 
   return (
     <div className="w-full">

@@ -714,7 +714,10 @@ function UserPlans({
                                                                     */}
                                                                     <div
                                                                         className="relative flex-1 min-w-0"
-                                                                        style={{ width: "100%", maxWidth: "230px" }} // ✅ fixed width context
+                                                                        style={{
+                                                                            width: "100%",
+                                                                            maxWidth: feature.subtext ? "140px" : "230px"
+                                                                        }}
                                                                     >
                                                                         <Textfit
                                                                             mode="single"
