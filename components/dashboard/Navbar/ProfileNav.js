@@ -362,24 +362,26 @@ const ProfileNav = () => {
   // }
 
   const checkTrialDays = (userData) => {
-    const trialStart = moment(userData?.plan?.createdAt); // e.g. 2025-10-15T22:34:04.000Z
-    const today = moment();
-    const totalTrialDays = userData?.trialValidForDays;
-    // const totalTrialDays = 10;
+    if (userData?.hasTrial) {
+      const trialStart = moment(userData?.plan?.createdAt); // e.g. 2025-10-15T22:34:04.000Z
+      const today = moment();
+      const totalTrialDays = userData?.plan?.trialValidForDays;
+      // const totalTrialDays = 10;
 
-    // Calculate how many full days have passed since start
-    const daysElapsed = today.diff(trialStart, "days");
+      // Calculate how many full days have passed since start
+      const daysElapsed = today.diff(trialStart, "days");
 
-    // Calculate how many trial days remain
-    const daysLeft = Math.max(totalTrialDays - daysElapsed, 0);
+      // Calculate how many trial days remain
+      const daysLeft = Math.max(totalTrialDays - daysElapsed, 0);
 
-    console.log(`Trial days total: ${totalTrialDays}`);
-    console.log(`Trial days started: ${trialStart.format("MMMM DD")}`);
-    console.log(`Trial days Today: ${today.format("MMMM DD")}`);
-    console.log(`Trial days Days elapsed: ${daysElapsed}`);
-    console.log(`Trial days Days left: ${daysLeft}`);
+      console.log(`Trial days total: ${totalTrialDays}`);
+      console.log(`Trial days started: ${trialStart.format("MMMM DD")}`);
+      console.log(`Trial days Today: ${today.format("MMMM DD")}`);
+      console.log(`Trial days Days elapsed: ${daysElapsed}`);
+      console.log(`Trial days Days left: ${daysLeft}`);
 
-    return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
+      return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
+    }
   };
 
   const getUserProfile = async () => {
@@ -1314,11 +1316,15 @@ const ProfileNav = () => {
                       fontSize: 15,
                       fontWeight: "500",
                       color: "",
-                      width: "100px",
+                      // width: "100px",
                       color: "black",
                     }}
                   >
-                    {userDetails?.user?.name?.split(" ")[0]}
+                    {/*userDetails?.user?.name?.split(" ")[0]*/}
+                    {(() => {
+                      const name = userDetails?.user?.name?.split(" ")[0] || "";
+                      return name.length > 10 ? `${name.slice(0, 7)}...` : name;
+                    })()}
                   </div>
                   <div className="text-xs font-medium text-purple">
                     {checkTrialDays(userDetails?.user) ? `${checkTrialDays(userDetails?.user)}` : "334"}
