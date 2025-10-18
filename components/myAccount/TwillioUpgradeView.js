@@ -8,7 +8,7 @@ import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
 // Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
-function TwillioUpgradeView() {
+function TwillioUpgradeView({ title }) {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false);
     const [showUnlockPremiumFeaturesBtn, setShowUnlockPremiumFeaturesBtn] = useState(false);
     const [showSnackMsg, setShowSnackMsg] = useState({
@@ -128,7 +128,7 @@ function TwillioUpgradeView() {
                     handleClose={() => setShowUpgradeModal(false)}
                     plan={null}
                     currentFullPlan={null}
-                    // setShowSnackMsg={setShowSnackMsg}
+                // setShowSnackMsg={setShowSnackMsg}
                 />
             </Elements>
         </div>

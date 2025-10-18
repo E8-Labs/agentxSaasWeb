@@ -652,7 +652,7 @@ const UserAddCard = ({
                                     <div className='' style={{ fontWeight: "400", fontSize: 13, marginTop: "" }}>Next Charge Date {getNextChargeDate(selectedPlan)}</div>
                                 </div>
                                 <div className='' style={{ fontWeight: "600", fontSize: 15 }}>
-                                    {selectedPlan ? `$${(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice)).toLocaleString()}` : "$0"}
+                                    {selectedPlan ? `$${formatFractional2(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice))}` : "$0"}
                                 </div>
                             </div>
 

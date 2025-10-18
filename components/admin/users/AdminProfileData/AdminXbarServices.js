@@ -166,7 +166,7 @@ function AdminXbarServices({ selectedUser }) {
             planType = 3;
           }
         } else {
-          let type = plans?.find((item) => item.title === togglePlan);
+          let type = plans?.find((item) => item?.title === togglePlan);
           // planType = type?.id;
           console.log("Passed support plan id is", selectedUser?.supportPlan)
           planType = selectedUser?.supportPlan;
@@ -541,7 +541,7 @@ function AdminXbarServices({ selectedUser }) {
                               fontWeight: "600",
                             }}
                           >
-                            {role === "Agency" || selectedUser.agencyTeamMember === true?item.title:item.PlanTitle}
+                            {role === "Agency" || selectedUser.agencyTeamMember === true?item?.title:item.PlanTitle}
                           </div>
                           {item.status && (
                             <div

@@ -108,13 +108,13 @@ function AdminProfileData({ selectedUser, from }) {
             case 4:
                 return <AdminPhoneNumber selectedUser={selectedUser} />;
             case 5:
+                return <TwilioTrustHub selectedUser={selectedUser} />
+            case 6:
                 if (from === "subaccount") {
                     return <SubAccountBarServices selectedUser={selectedUser} />;
                 } else {
                     return <AdminXbarServices selectedUser={selectedUser} />;
                 }
-            case 6:
-                return <TwilioTrustHub selectedUser={selectedUser} />
 
             default:
                 return <div>Please select an option.</div>;
