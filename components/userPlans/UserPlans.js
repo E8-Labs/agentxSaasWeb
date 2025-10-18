@@ -17,6 +17,7 @@ import { useUser } from '@/hooks/redux-hooks';
 import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
+import { Textfit } from 'react-textfit';
 
 
 function UserPlans({
@@ -707,8 +708,33 @@ function UserPlans({
                                                         <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
                                                             <Image src="/svgIcons/selectedTickBtn.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
                                                             <div className='flex flex-col items-start gap-1 w-full min-w-0 text-left'>
-                                                                <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
-                                                                    <span>{feature.text}</span>
+                                                                <div className='leading-relaxed break-words flex items-center gap-2'>
+                                                                    {/*
+                                                                        <span>{feature.text}</span>
+                                                                    */}
+                                                                    <div
+                                                                        className="relative flex-1 min-w-0"
+                                                                        style={{ width: "100%", maxWidth: "230px" }} // ✅ fixed width context
+                                                                    >
+                                                                        <Textfit
+                                                                            mode="single"
+                                                                            min={9}
+                                                                            max={14}
+                                                                            style={{
+                                                                                width: "100%",
+                                                                                display: "block",
+                                                                                whiteSpace: "nowrap",
+                                                                                overflow: "hidden",
+                                                                                textOverflow: "ellipsis",
+                                                                                lineHeight: "1.4",
+                                                                                fontWeight: 400,
+                                                                                color: "#000",
+                                                                                textAlign: "left",
+                                                                            }}
+                                                                        >
+                                                                            {feature.text}
+                                                                        </Textfit>
+                                                                    </div>
                                                                     {feature.subtext && (
                                                                         <Tooltip
                                                                             title={feature.subtext}
