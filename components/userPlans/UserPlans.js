@@ -18,6 +18,8 @@ import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData';
 import { formatFractional2 } from '../agency/plan/AgencyUtilities';
 import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage';
 import { isSubaccountTeamMember, isTeamMember } from '@/constants/teamTypes/TeamTypes';
+import FitText from './FitText';
+import FeatureLine from './FeatureLine';
 
 
 function UserPlans({
@@ -100,12 +102,12 @@ function UserPlans({
             if (data) {
                 let user = JSON.parse(data)
                 console.log("user.user.userRole", user.user.userRole)
-                if(isTeamMember(user.user)) {
-                    if(isSubaccountTeamMember(user.user)) { 
+                if (isTeamMember(user.user)) {
+                    if (isSubaccountTeamMember(user.user)) {
                         isFrom = "SubAccount"
                     }
                 }
-                 else if (user.user.userRole === "AgencySubAccount") {
+                else if (user.user.userRole === "AgencySubAccount") {
                     isFrom = "SubAccount"
                 } else {
                     isFrom = "User"
@@ -710,49 +712,27 @@ function UserPlans({
                                             <div className='flex flex-col items-start w-full flex-1 pr-2'>
                                                 {
                                                     item.features?.map((feature, featureIndex) => (
-                                                        <div key={feature.text} className="flex flex-row items-start gap-3 mb-3 w-full">
-                                                            <Image src="/svgIcons/selectedTickBtn.svg" height={14} width={14} alt="✓" className="mt-1 flex-shrink-0" />
-                                                            <div className='flex flex-col items-start gap-1 w-full min-w-0 text-left'>
-                                                                <div className='text-sm font-normal leading-relaxed break-words flex items-center gap-2'>
-                                                                    <span>{feature.text}</span>
-                                                                    {feature.subtext && (
-                                                                        <Tooltip
-                                                                            title={feature.subtext}
-                                                                            arrow
-                                                                            placement="top"
-                                                                            componentsProps={{
-                                                                                tooltip: {
-                                                                                    sx: {
-                                                                                        backgroundColor: "#ffffff", // Ensure white background
-                                                                                        color: "#333", // Dark text color
-                                                                                        fontSize: "14px",
-                                                                                        padding: "10px 15px",
-                                                                                        borderRadius: "8px",
-                                                                                        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
-                                                                                    },
-                                                                                },
-                                                                                arrow: {
-                                                                                    sx: {
-                                                                                        color: "#ffffff", // Match tooltip background
-                                                                                    },
-                                                                                },
-                                                                            }}
-                                                                        >
-                                                                            <div
-                                                                                style={{
-                                                                                    fontSize: 12,
-                                                                                    fontWeight: "600",
-                                                                                    color: "#000000",
-                                                                                    cursor: "pointer",
-                                                                                }}
-                                                                            >
-                                                                                <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={16} height={16} className="cursor-pointer rounded-full"
-                                                                                />
-                                                                            </div>
-                                                                        </Tooltip>
-                                                                    )}
-                                                                </div>
-                                                            </div>
+                                                        <div
+                                                            key={feature.text}
+                                                            className="flex flex-row items-start gap-3 mb-3 w-full"
+                                                        >
+                                                            <Image
+                                                                src="/svgIcons/selectedTickBtn.svg"
+                                                                height={14}
+                                                                width={14}
+                                                                alt="✓"
+                                                                className="mt-1 flex-shrink-0"
+                                                            />
+
+                                                            <FeatureLine
+                                                                text={feature.text}
+                                                                info={feature.subtext}
+                                                                max={16}
+                                                                min={10}
+                                                                gap={6}
+                                                                iconSize={16}
+                                                            />
+
                                                         </div>
                                                     ))
                                                 }
