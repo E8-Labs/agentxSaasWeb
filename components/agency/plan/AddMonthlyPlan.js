@@ -549,7 +549,7 @@ export default function AddMonthlyPlan({
                     style={styles.inputs}
                   >
                     <div>Your Credit</div>
-                    <div>${formatFractional2(discountedPrice)}/Credit</div>
+                    <div>${discountedPrice ? formatFractional2(discountedPrice) : "0.00"}/Credit</div>
                     {
                       discountedPrice && minutes && (
                         <div>${formatDecimalValue(discountedPrice * minutes)}</div>

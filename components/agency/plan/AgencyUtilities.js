@@ -67,24 +67,20 @@
 // }
 
 export function formatFractional2(price) {
-    if (price == null || price === undefined) {
-        return "";
+    // Handle null, undefined, or empty string
+    if (price == null || price === undefined || price === "") {
+        return "0.00";
     }
 
     const num = Number(price);
-    if (isNaN(num)) {
-        return "";
+    if (isNaN(num) || num === 0) {
+        return "0.00";
     }
 
-    // Round to 2 decimal places
+    // Round to 2 decimal places and always show 2 decimal places
     const rounded = Number(num.toFixed(2));
 
-    // If it's a whole number after rounding, return integer only
-    if (Number.isInteger(rounded)) {
-        return rounded.toString();
-    }
-
-    // Otherwise, show up to 2 decimals
+    // Always return with 2 decimal places for consistency in price display
     return rounded.toFixed(2);
 }
 
