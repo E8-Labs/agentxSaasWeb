@@ -62,8 +62,99 @@ export default function AddMonthlyPlan({
   //allowed features check mark list
   const [allowedFeatures, setAllowedFeatures] = useState([]);
 
+  //agency features
+  const [features, setFeatures] = useState({
+    toolsActions: false,
+    calendars: false,
+    liveTransfer: false,
+    ragKnowledgeBase: false,
+    embedBrowserWebhookAgent: false,
+    apiKey: false,
+    voicemail: false,
+    twilio: false,
+    allowTrial: false,
+    allowTeamSeats: false,
+  });
+
+  //custom featurs
+  const [customFeatures, setCustomFeatures] = useState([]);
+
+  //features list
+  const featuresList = [
+    {
+      label: "Tools & Actions",
+      tooltip: "Bring your AI to work in apps like hubspot, slack, apollo and 10k+ options.",// "Maximize revenue by selling seats per month to any org.",
+      stateKey: "toolsActions",
+    },
+    {
+      label: "Calendars",
+      tooltip: "Sync calendars for bookings and scheduling.",
+      stateKey: "calendars",
+    },
+    {
+      label: "Live Transfer",
+      tooltip: " Allow agents to make live transfers.", //"Enable live call transfers between agents.",
+      stateKey: "liveTransfer",
+    },
+    {
+      label: "RAG Knowledge Base",
+      tooltip: "Allow users to train agents on their own custom data. Add Youtube videos, website links, documents and more.", //"Use knowledge base for better responses.",
+      stateKey: "ragKnowledgeBase",
+    },
+    {
+      label: "Embed / Browser / Webhook Agent",
+      tooltip: "Allow AI agent on websites to engage with leads and customers.", //"Embed the agent into sites, browsers, or trigger webhooks.",
+      stateKey: "embedBrowserWebhookAgent",
+    },
+    {
+      label: "API Key",
+      tooltip: "",//Enable API access for integrations.
+      stateKey: "apiKey",
+    },
+    {
+      label: "Voicemail",
+      tooltip: "Allow agents to leave voicemails",//Enable voicemail recording.
+      stateKey: "voicemail",
+    },
+    {
+      label: "Twilio",
+      tooltip: "Import your Twilio phone numbers and access all Trust Hub features to increase answer rate.", //"Integrate with Twilio for calls & SMS.",
+      stateKey: "twilio",
+    },
+    {
+      // label: "Allow Team Seats",
+      label: `${basicsData?.maxTeamMembers} Team Seat${basicsData?.maxTeamMembers > 1 ? "s" : ""}`,
+      tooltip: "Allow sub accounts to add and invite teams.",
+      stateKey: "allowTeamSeats",
+    },
+    {
+      label: "Allow Trial",
+      tooltip: "",//Allow trial access for users.
+      stateKey: "allowTrial",
+    },
+  ];
+
+  //set features data
+  useEffect(() => {
+    setFeaturesData();
+  }, [selectedPlan, configurationData, open])
+
   //check marks list of allowed features
   useEffect(() => {
+
+    console.log("configuration data passed is 99", configurationData);
+
+    // setFeaturesData();
+
+    const coreFeatures = featuresList
+      .filter(item => item.stateKey !== "allowTrial") // exclude Allow Trial
+      .filter(item => features[item.stateKey])
+      .map(item => ({
+        id: item.stateKey,
+        text: item.label,
+      }));
+
+    console.log("Yalla yalla habibi core features", coreFeatures)
 
     const extraFeatures = [];
 
@@ -74,39 +165,41 @@ export default function AddMonthlyPlan({
       });
     }
 
-    console.log("configuration data passed is", configurationData);
+    if (configurationData?.language) {
+      extraFeatures.push({
+        id: "language",
+        text: `${configurationData?.language?.toUpperCase()}`,
+      });
+    }
 
-    // if (object?.maxAgents) {
-    //   extraFeatures.push({
-    //     id: "agents",
-    //     text: `${object?.maxAgents} AI Agent${object?.maxAgents > 1 ? "s" : ""}`,
-    //   });
-    // }
+    if (configurationData?.maxAgents) {
+      extraFeatures.push({
+        id: "agents",
+        text: `${configurationData?.maxAgents} AI Agent${configurationData?.maxAgents > 1 ? "s" : ""}`,
+      });
+    }
 
-    // if (object?.maxLeads) {
-    //   extraFeatures.push({
-    //     id: "contacts",
-    //     text: `${object?.maxLeads} Contact${object?.maxLeads > 1 ? "s" : ""}`,
-    //   });
-    // }
+    if (configurationData?.maxLeads) {
+      extraFeatures.push({
+        id: "contacts",
+        text: `${configurationData?.maxLeads} Contact${configurationData?.maxLeads > 1 ? "s" : ""}`,
+      });
+    }
 
-    // if (basicsData?.allowLanguageSelection) {
-    //   extraFeatures.push({
-    //     id: "language",
-    //     text: `${basicsData?.allowLanguageSelection}`,
-    //   });
-    // }
-
-    // if (basicsData?.maxTeamMembers) {
-    //   extraFeatures.push({
-    //     id: "credits",
-    //     text: `${basicsData?.maxTeamMembers} AI Credits`,
-    //   });
-    // }
+    const customFeaturesList = Array.isArray(customFeatures)
+      ? customFeatures
+        .filter((feature) => feature?.trim?.() !== "")
+        .map((feature, index) => ({
+          id: `custom_${index}`,
+          text: feature,
+        }))
+      : [];
 
 
-    setAllowedFeatures([...extraFeatures]);
-  }, [minutes, selectedPlan, configurationData]);
+
+    // setAllowedFeatures([...extraFeatures]);
+    setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
+  }, [minutes, selectedPlan, configurationData, open, features, customFeatures]);
 
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
@@ -180,6 +273,25 @@ export default function AddMonthlyPlan({
       const percentage = (originalPrice - (discountedPrice * minutes)) / originalPrice * 100 //replace the op * min done
       console.log("Percenage of addmonthly plan is", percentage)
     }
+  }
+
+  //sets the addition data
+  const setFeaturesData = () => {
+    console.log("Yalla yalla")
+    setCustomFeatures(configurationData?.customFeatures || []);
+    const dynamicFeatures = configurationData?.features;
+    setFeatures({
+      toolsActions: dynamicFeatures?.toolsActions || dynamicFeatures?.allowToolsAndActions || false,
+      calendars: dynamicFeatures?.calendars || dynamicFeatures?.allowCalendars || false,
+      liveTransfer: dynamicFeatures?.liveTransfer || dynamicFeatures?.allowLiveTransfer || dynamicFeatures?.allowLiveCallTransfer || false,
+      ragKnowledgeBase: dynamicFeatures?.ragKnowledgeBase || dynamicFeatures?.allowRAGKnowledgeBase || false,
+      embedBrowserWebhookAgent: dynamicFeatures?.embedBrowserWebhookAgent || dynamicFeatures?.allowEmbedBrowserWebhookAgent || false,
+      apiKey: dynamicFeatures?.apiKey || dynamicFeatures?.allowAPIKey || false,
+      voicemail: dynamicFeatures?.voicemail || dynamicFeatures?.allowVoicemailSettings || false,
+      twilio: dynamicFeatures?.twilio || dynamicFeatures?.allowTwilio || false,
+      allowTrial: dynamicFeatures?.allowTrial || dynamicFeatures?.allowTrial || false,
+      allowTeamSeats: dynamicFeatures?.allowTeamSeats || dynamicFeatures?.allowTeamCollaboration || false,
+    });
   }
 
   //profit text color

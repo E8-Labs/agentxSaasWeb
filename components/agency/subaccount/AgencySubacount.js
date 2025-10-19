@@ -24,6 +24,9 @@ import DelAdminUser from "@/components/onboarding/extras/DelAdminUser";
 import { CheckStripe, convertTime } from "../agencyServices/CheckAgencyData";
 import { copyAgencyOnboardingLink } from "@/components/constants/constants";
 import SubAccountFilters from "./SubAccountFilters";
+import { useUser } from "@/hooks/redux-hooks";
+import TwillioWarning from "@/components/onboarding/extras/TwillioWarning";
+import getProfileDetails from "@/components/apis/GetProfile";
 
 
 function AgencySubacount({
@@ -84,6 +87,30 @@ function AgencySubacount({
   //local plans
   const [plansList, setPlansList] = useState([]);
 
+  //stores redux data
+  const { user: reduxUser, setUser: setReduxUser } = useUser();
+  //twilio warning modal
+  const [noTwillio, setNoTwillio] = useState(false);
+
+  //redux data
+  useEffect(() => {
+    refreshUserData()
+  }, [])
+
+  //prints the reduux local data
+  // useEffect(() => {
+  //   console.log("Yalla habibi redux data", reduxUser)
+  //   if (reduxUser?.isTwilioConnected) {
+  //     setNoTwillio(false);
+  //   } else {
+  //     setNoTwillio(true);
+  //   }
+  // }, [reduxUser]);
+
+  //user profile data
+  useEffect(() => {
+    fetchProfileData();
+  }, [])
 
   useEffect(() => {
     getLocalData();
@@ -385,6 +412,50 @@ function AgencySubacount({
     }
   };
 
+  const refreshUserData = async () => {
+    console.log('🔄 REFRESH USER DATA STARTED');
+    try {
+      console.log('🔄 Calling getProfileDetails...');
+      const profileResponse = await getProfileDetails();
+      console.log('🔄 getProfileDetails response:', profileResponse);
+
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data;
+        const localData = JSON.parse(localStorage.getItem("User") || '{}');
+
+        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
+
+        // Update Redux and localStorage with fresh data
+        console.log("updating redux user", freshUserData)
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData
+        };
+
+        setReduxUser(updatedUserData);
+
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('🔴 [CREATE-AGENT] Error refreshing user data:', error);
+      return false;
+    }
+  };
+
+  const fetchProfileData = async () => {
+    const profileResponse = await getProfileDetails();
+    if (profileResponse) {
+      console.log("habibi twilio status is", profileResponse?.data?.data?.isTwilioConnected);
+      if (profileResponse?.data?.data?.isTwilioConnected) {
+        setNoTwillio(false);
+      } else {
+        setNoTwillio(true);
+        // setUserProfile(profileResponse.data.data);
+      }
+    }
+  }
+
   return (
     <div className="w-full flex flex-col items-center ">
       <AgentSelectSnackMessage
@@ -415,8 +486,7 @@ function AgencySubacount({
         </div>
       </div>
 
-      {/* Code for twilio warning */}
-      <TwilioWarning
+      {/* Code for twilio warning <TwilioWarning
         // agencyData={agencyData}
         showSuccess={(d) => {
           setShowSnackMessage(d);
@@ -426,6 +496,23 @@ function AgencySubacount({
           console.log("Twilio connected status", d);
           setTwilioConnectedStatus(d.status);
         }}
+      /> */}
+
+
+      <TwillioWarning
+        open={noTwillio}
+        handleClose={(d) => {
+          setNoTwillio(false);
+          if (d) {
+            // refreshUserData();
+            setShowSnackMessage("Twilio Connected");
+            setShowSnackType(SnackbarTypes.Success);
+          }
+        }}
+      // showSuccess={(d) => {
+      //   setShowSnackMessage(d);
+      //   setShowSnackType(SnackbarTypes.Success);
+      // }}
       />
 
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
@@ -801,7 +888,7 @@ function AgencySubacount({
                   <div style={{ fontWeight: "600", fontSize: "22px" }} className="text-center">
                     No Sub-Account Found
                   </div>
-                 {/*
+                  {/*
                    <div style={{ fontWeight: "600", fontSize: "12px" }} className="text-center">
                      {`Looks like you don’t have any sub-accounts`}
                    </div>

@@ -40,7 +40,12 @@ const SideUI = ({
                         showWhiteCross={true}
                     />
                 </div>
-                <div className="w-9/12 h-[80%] flex flex-col items-center justify-start pt-4">
+                <div className="w-9/12 h-[95%] flex flex-col items-center justify-start pt-4 overflow-auto scrollbar-hide"
+                    style={{
+                        scrollbarWidth: "none",
+                        msOverflowStyle: "none",
+                    }}
+                >
                     <div
                         className="w-full bg-gradient-to-b from-[#C73BFF] to-[#7902DF] rounded-lg flex flex-col items-center "
                     >
