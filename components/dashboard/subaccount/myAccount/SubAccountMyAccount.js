@@ -62,12 +62,12 @@ function SubAccountMyAccount() {
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
-    {
-      id: 6,
-      heading: "Invite Agents",
-      subHeading: "Get 60 credits ",
-      icon: "/otherAssets/inviteAgentIcon.png",
-    },
+    // {
+    //   id: 6,
+    //   heading: "Invite Agents",
+    //   subHeading: "Get 60 credits ",
+    //   icon: "/otherAssets/inviteAgentIcon.png",
+    // },
     // {
     //   id: 6,
     //   heading: "Support",
@@ -137,12 +137,12 @@ function SubAccountMyAccount() {
       subHeading: "All agent phone numbers",
       icon: "/assets/unSelectedCallIcon.png",
     },
-    {
-      id: 6,
-      heading: "Invite Agents",
-      subHeading: "Get 60 credits ",
-      icon: "/otherAssets/inviteAgentIcon.png",
-    },
+    // {
+    //   id: 6,
+    //   heading: "Invite Agents",
+    //   subHeading: "Get 60 credits ",
+    //   icon: "/otherAssets/inviteAgentIcon.png",
+    // },
     {
       id: 7,
       heading: "Terms & Condition",

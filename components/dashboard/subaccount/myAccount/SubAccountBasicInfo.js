@@ -701,7 +701,7 @@ function SubAccountBasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       };
-      //console.log;
+      console.log("Data to update area is", data);
 
       // return
       await UpdateProfile(data);
@@ -717,7 +717,7 @@ function SubAccountBasicInfo() {
       let data = {
         userIndustry: selectedIndustries, //[selectedArea.join()]
       };
-      //console.log;
+      console.log("Data to update area is", data);
 
       // return
       await UpdateProfile(data);
@@ -734,7 +734,7 @@ function SubAccountBasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       };
-      //console.log;
+      console.log("Data to update service is", data);
 
       // return
       await UpdateProfile(data);

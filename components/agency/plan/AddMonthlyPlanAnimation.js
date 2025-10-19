@@ -107,6 +107,7 @@ export default function AddMonthlyPlanAnimation({
                                 canAddPlan={canAddPlan}
                                 agencyPlanCost={agencyPlanCost}
                                 isEditPlan={isEditPlan}
+                                configurationData={configurationData}
                                 selectedPlan={selectedPlan}
                                 selectedAgency={selectedAgency}
                                 basicsData={basicsData}

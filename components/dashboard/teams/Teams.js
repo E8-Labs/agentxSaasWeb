@@ -726,15 +726,17 @@ function Teams({
         </div>
 
       </div>
-      <div
-        style={{
-          position: "absolute",
-          right: 0,
-          bottom: 0
-        }}>
-        <DashboardSlider
-          needHelp={false} />
-      </div>
+      {/*
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            bottom: 0
+          }}>
+          <DashboardSlider
+            needHelp={false} />
+        </div>
+      */}
 
       <div
         className="flex h-[90vh] w-full justify-center overflow-auto pb-50"

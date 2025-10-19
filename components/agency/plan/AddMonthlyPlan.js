@@ -24,7 +24,8 @@ export default function AddMonthlyPlan({
   selectedPlan,
   selectedAgency,
   handleContinue,
-  basicsData
+  basicsData,
+  configurationData
 }) {
 
   //auto scroll to bottom
@@ -73,16 +74,39 @@ export default function AddMonthlyPlan({
       });
     }
 
-    // if (noOfContacts) {
+    console.log("configuration data passed is", configurationData);
+
+    // if (object?.maxAgents) {
+    //   extraFeatures.push({
+    //     id: "agents",
+    //     text: `${object?.maxAgents} AI Agent${object?.maxAgents > 1 ? "s" : ""}`,
+    //   });
+    // }
+
+    // if (object?.maxLeads) {
     //   extraFeatures.push({
     //     id: "contacts",
-    //     text: `${noOfContacts} Contact${noOfContacts > 1 ? "s" : ""}`,
+    //     text: `${object?.maxLeads} Contact${object?.maxLeads > 1 ? "s" : ""}`,
+    //   });
+    // }
+
+    // if (basicsData?.allowLanguageSelection) {
+    //   extraFeatures.push({
+    //     id: "language",
+    //     text: `${basicsData?.allowLanguageSelection}`,
+    //   });
+    // }
+
+    // if (basicsData?.maxTeamMembers) {
+    //   extraFeatures.push({
+    //     id: "credits",
+    //     text: `${basicsData?.maxTeamMembers} AI Credits`,
     //   });
     // }
 
 
     setAllowedFeatures([...extraFeatures]);
-  }, [minutes]);
+  }, [minutes, selectedPlan, configurationData]);
 
   //check if is edit plan is true then store the predefault values
   useEffect(() => {

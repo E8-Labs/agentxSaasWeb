@@ -87,7 +87,7 @@ const SubAccountFilters = ({
                                         style={styles.inputs}
                                         type="text"
                                         className="w-full border-none outline-none focus:outline-none focus:ring-0"
-                                        placeholder="00"
+                                        placeholder=""
                                         value={minSpent}
                                         onChange={(e) => {
                                             const value = e.target.value.replace(/[^0-9.]/g, "");
@@ -104,7 +104,7 @@ const SubAccountFilters = ({
                                         style={styles.inputs}
                                         type="text"
                                         className="w-full border-none outline-none focus:outline-none focus:ring-0"
-                                        placeholder="00"
+                                        placeholder=""
                                         value={maxSpent}
                                         onChange={(e) => {
                                             const value = e.target.value.replace(/[^0-9.]/g, "");
@@ -119,12 +119,11 @@ const SubAccountFilters = ({
                             <div className="w-1/2">
                                 <label style={styles.regular}>Min Balance</label>
                                 <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
-                                    <div style={styles.inputs}>$</div>
                                     <input
                                         style={styles.inputs}
                                         type="text"
                                         className="w-full border-none outline-none focus:outline-none focus:ring-0"
-                                        placeholder="00"
+                                        placeholder=""
                                         value={minBalance}
                                         onChange={(e) => {
                                             const value = e.target.value.replace(/[^0-9.]/g, "");
@@ -138,12 +137,11 @@ const SubAccountFilters = ({
                             <div className="w-1/2">
                                 <label style={styles.regular}>Max Balance</label>
                                 <div className="border border-gray-200 rounded px-2 py-0 mt-1 flex flex-row items-center w-full">
-                                    <div style={styles.inputs}>$</div>
                                     <input
                                         style={styles.inputs}
                                         type="text"
                                         className="w-full border-none outline-none focus:outline-none focus:ring-0"
-                                        placeholder="00"
+                                        placeholder=""
                                         value={maxBalance}
                                         onChange={(e) => {
                                             const value = e.target.value.replace(/[^0-9.]/g, "");

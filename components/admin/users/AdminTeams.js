@@ -122,7 +122,7 @@ function AdminTeam({ selectedUser }) {
 
         let path = Apis.getTeam;
         path = path + "?userId=" + selectedUser.id;
-        // //console.log
+        console.log("Api path for get admin team members is", path);
 
         const response = await axios.get(path, {
           headers: {
@@ -132,7 +132,7 @@ function AdminTeam({ selectedUser }) {
 
         if (response) {
           setGetTeamLoader(false);
-
+          console.log("Response os get admin team members is", response?.data)
           if (response.data.status === true) {
             //console.log;
             let admin = response.data.admin;

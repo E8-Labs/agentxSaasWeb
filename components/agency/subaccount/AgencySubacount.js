@@ -221,7 +221,7 @@ function AgencySubacount({
         setInitialLoader(false);
         if (filterData) {
           setShowFilterModal(false)
-          setShowSnackMessage(response.data.message);
+          setShowSnackMessage("Filter Applied");
           setShowSnackType(SnackbarTypes.Success);
         }
       }

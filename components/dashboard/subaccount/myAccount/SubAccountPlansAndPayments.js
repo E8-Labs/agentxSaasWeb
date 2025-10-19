@@ -1344,11 +1344,13 @@ function SubAccountPlansAndPayments({
 
                                     <div className="flex flex-row items-center justify-between w-full mb-4">
                                         <div className="text-[16px] font-semibold">
-                                            {item.title.length > 8 ? item.title.slice(0, 8) + "..." : item.title}
+                                            {item.title.length > 13 ? item.title.slice(0, 13) + "..." : item.title}
                                         </div>
-                                        <div className="text-[16px] font-semibold">
-                                            {item.minutes} AI credits
-                                        </div>
+                                        {/*
+                                            <div className="text-[16px] font-semibold">
+                                                {item.minutes} AI credits
+                                            </div>
+                                        */}
                                     </div>
 
                                     <div className="text-xl font-bold text-left mb-2">

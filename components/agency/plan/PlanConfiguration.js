@@ -228,6 +228,8 @@ export default function PlanConfiguration({
                 }))
             : [];
 
+        // console.log("custom features list 2.1", customFeaturesList)
+
         setAllowedFeatures([...extraFeatures, ...coreFeatures, ...customFeaturesList]);
     }, [features, language, noOfAgents, noOfContacts, customFeatures, noOfSeats, basicsData]);
 

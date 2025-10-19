@@ -208,6 +208,7 @@ const AdminCallDetails = ({
   }
 
   const callTranscript = (item) => {
+    console.log("Call transcript item is", item)
     return (
       <div className="flex flex-col">
         <div className="flex mt-4 flex-row items-center gap-4">
@@ -289,7 +290,8 @@ const AdminCallDetails = ({
               }}
             >
               {/* {item.transcript} */}
-              {`${initialText}...`}
+              Test chek 1
+              {/*`${initialText}...`*/}
               {/* {isExpanded.includes(
                                                         item.id
                                                       )
@@ -329,6 +331,7 @@ const AdminCallDetails = ({
   }
 
   const emailSmsTranscript = (item) => {
+    console.log("Email sms transcript item is", item)
     return (
       <div className="flex flex-col items-start gap-2">
         {item.sentSubject && (

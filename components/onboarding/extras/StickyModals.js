@@ -54,7 +54,7 @@ export const TwilioWarning = ({
     if (data) {
       const agencyData = JSON.parse(data);
       console.log(`✅ Data fetched on ${attempts}${attempts === 1 ? "st" : attempts === 2 ? "nd" : attempts === 3 ? "rd" : "th"} try`);
-
+      console.log("Agency data for checking twilio is", agencyData.user.isTwilioConnected)
       if (agencyData.user.isTwilioConnected === false) {
         setShowAddTwiliowarning(true);
         isTwilioAdded({ status: true });
