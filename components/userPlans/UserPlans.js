@@ -603,9 +603,9 @@ function UserPlans({
                                         {/* Header section - fixed height */}
                                         <div className='flex flex-col items-center w-full flex-shrink-0'>
                                             <div className='text-3xl font-semibold mt-2 capitalize'>
-                                                {(item.name || item.title).length > 8
-                                                    ? (item.name || item.title).slice(0, 12) + "..."
-                                                    : (item.name || item.title)}
+                                                {
+                                                    (item.name || item.title)
+                                                }
                                             </div>
 
                                             <div className='flex flex-row items-center gap-2'>

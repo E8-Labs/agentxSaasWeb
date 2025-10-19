@@ -207,7 +207,7 @@ const AdminCallDetails = ({
     }
   }
 
-  const callTranscript = (item) => {
+  const callTranscript = (item, initialText) => {
     console.log("Call transcript item is", item)
     return (
       <div className="flex flex-col">
@@ -291,12 +291,12 @@ const AdminCallDetails = ({
             >
               {/* {item.transcript} */}
               Test chek 1
-              {/*`${initialText}...`*/}
-              {/* {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`} */}
+              `${initialText}...`
+              {isExpanded.includes(
+                item.id
+              )
+                ? `${item.transcript}`
+                : `${initialText}...`}
             </div>
             <div className="w-full flex flex-row items-center justify-between">
               <button
@@ -707,7 +707,7 @@ const AdminCallDetails = ({
 
                                                     emailSmsTranscript(item)
                                                   ) : (
-                                                    callTranscript(item)
+                                                    callTranscript(item, initialText)
                                                   )
 
                                                 }

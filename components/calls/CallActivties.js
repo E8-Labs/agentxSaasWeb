@@ -853,7 +853,7 @@ function SheduledCalls({ user }) {
                                       {item?.totalLeads}
                                     </button>
                                   </div>
-                                  <div className="w-1/12">
+                                  <div className="w-1/12 truncate">
                                     {item.Sheet?.sheetName || "-"}
                                   </div>
                                   <div className="w-2/12">

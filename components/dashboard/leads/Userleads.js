@@ -2169,13 +2169,13 @@ const Userleads = ({
                                 alt="*"
                               />
                             </button>
-                            <div style={{ fontSize: "15", fontWeight: "600" }}>
+                            <div style={{ fontSize: "15", fontWeight: "600" ,whiteSpace: "nowrap"}}>
                               Select All
                             </div>
 
                             <div
                               className="text-purple"
-                              style={{ fontSize: "15", fontWeight: "600" }}
+                              style={{ fontSize: "15", fontWeight: "600" ,whiteSpace: "nowrap"}}
                             >
                               {/* {LeadsList.length} */}
                               {getLeadSelectedCount()}

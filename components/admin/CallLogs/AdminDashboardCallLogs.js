@@ -41,7 +41,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
   const [searchValue, setSearchValue] = useState("");
 
-  const [activeTab, setActiveTab] = useState(isFromAgency ? "Activity Logs" : "All Calls");
+  const [activeTab, setActiveTab] = useState(isFromAgency ? "All Activities" : "All Calls");
 
 
   const [callDetails, setCallDetails] = useState([]);
@@ -483,10 +483,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className=" w-full flex mt-10  gap-8 pb-2 mb-4 pl-10">
-        {(isFromAgency
-          ? ["Activity Logs", "Activity"]
-          : ["All Calls", "Call Activities", "Active Calls"]
-        ).map((tab) => (//, "Scheduled"
+        {["All Activities", "Campaign Activities"].map((tab) => (//, "Scheduled"
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -503,23 +500,16 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
 
       <div className="w-full">
-        {activeTab === "Call Activities" || activeTab === "Activity" ? (
+        {activeTab === "Campaign Activities" ? (
           <AdminDashboardActiveCall isFromAgency={isFromAgency} />
-        ) : activeTab === "Active Calls" ? (
-
-          <AdminActiveCalls />
-        ) : activeTab === "Scheduled" ? (
-          <AdminDashboardScheduledCalls />
-        ) : activeTab === "All Calls" || activeTab === "Activity Logs" ? (
-
+        ) : activeTab === "All Activities" ? (
           <div className="w-full">
             <div
-              className={`h-[67vh] border overflow-y-auto w-full`}
+              className="h-[67vh] overflow-y-auto w-full"
               id="scrollableDiv1"
               style={{ scrollbarWidth: "none" }}
             >
-              <InfiniteScroll
-                className="lg:flex hidden flex-col w-full"
+              <InfiniteScroll className="lg:flex hidden flex-col w-full"
                 endMessage={
                   <p
                     style={{
@@ -994,7 +984,8 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             )}
 
           </div>
-        ) : "No call log"}
+        
+        ) : "No Activities found"}
       </div>
     </div>
 

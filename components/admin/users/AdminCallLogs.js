@@ -13,7 +13,7 @@ import DashboardSlider from '@/components/animations/DashboardSlider';
 
 function AdminCallLogs({ selectedUser }) {
 
-  const [activeTab, setActiveTab] = useState("All Calls");
+  const [activeTab, setActiveTab] = useState("All Activities");
 
 
   return (

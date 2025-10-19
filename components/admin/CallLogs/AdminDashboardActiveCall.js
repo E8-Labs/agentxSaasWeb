@@ -573,7 +573,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
     if (callsLoading) {
       return <div className="text-center mt-6 text-3xl">Loading...</div>;
     } else if (!callsLoading && sheduledCalllogs.length == 0) {
-      return <div className="text-center mt-6 text-3xl">No Call Found</div>;
+      return <div className="text-center mt-6 text-3xl">No Activity Found</div>;
     }
   }
 
@@ -942,7 +942,7 @@ function AdminDashboardActiveCall({ isFromAgency }) {
                     marginTop: 20,
                   }}
                 >
-                  No Call Activity Found
+                  No Activity Found
                 </div>
               )}
             </InfiniteScroll>
