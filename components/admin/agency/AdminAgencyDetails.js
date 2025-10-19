@@ -7,6 +7,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import moment from 'moment';
 import SelectedUserDetails from '../users/SelectedUserDetails';
 import SelectedAgencyDetails from './adminAgencyView/SelectedAgencyDetails';
+import { Searchbar } from '@/components/general/MuiSearchBar';
 
 
 function AdminAgencyDetails() {
@@ -22,6 +23,9 @@ function AdminAgencyDetails() {
 
   //selected item
   const [selectedUser, setSelectedUser] = useState(null);
+
+  //search query
+  const [searchQuery, setSearchQuery] = useState("");
 
 
   const getAgencyDetails = async (offset = 0, loading = true) => {
@@ -56,10 +60,29 @@ function AdminAgencyDetails() {
       setLoading(false);
     }
   };
+
+  // Filter agencies based on search query
+  const filteredAgencies = agencies.filter((agency) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      agency.agencyName?.toLowerCase().includes(query) ||
+      agency.plan?.title?.toLowerCase().includes(query) ||
+      agency.email?.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="w-full items-start">
-      <div className="py-4 px-10" style={{ fontSize: 24, fontWeight: "600" }}>
-        Agency
+      <div className="py-4 px-10 flex flex-row items-center gap-4">
+        <div style={{ fontSize: 24, fontWeight: "600" }}>
+          Agency
+        </div>
+        <Searchbar
+          value={searchQuery}
+          setValue={setSearchQuery}
+          placeholder="Search by agency name or email"
+        />
       </div>
 
       <div className="w-full flex flex-row mt-3 px-10 mt-12">
@@ -91,8 +114,8 @@ function AdminAgencyDetails() {
             </p>
           }
         >
-          {agencies.length > 0 ? (
-            agencies.map((item) => (
+          {filteredAgencies.length > 0 ? (
+            filteredAgencies.map((item) => (
               <div
                 key={item.id}
                 className="w-full flex flex-row items-center mt-5 px-10 hover:bg-[#402FFF05] py-2"
@@ -110,13 +133,13 @@ function AdminAgencyDetails() {
                   <div style={styles.text2}>{item.subAccountsCount}</div>
                 </div>
                 <div className="w-1/12"><div style={styles.text2}>{item.plan.title}</div></div>
-                <div className="w-1/12"><div style={styles.text2}>${item.totalSpent}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>${Number(item.totalSpent).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
                 <div className="w-1/12"><div style={styles.text2}>{item.minutesUsed} min</div></div>
-                <div className="w-1/12"><div style={styles.text2}>{item.renewal}</div></div>
+                <div className="w-1/12"><div style={styles.text2}>{moment(item.renewal).format("MM/DD/YYYY")}</div></div>
                 <div className="w-1/12"><div style={styles.text2}>{item.agentsCount}</div></div>
                 <div className="w-2/12">
                   <div style={styles.text2}>
-                    {moment(item.createdAt).format("MMM DD, YYYY")}
+                    {moment(item.createdAt).format("MM/DD/YYYY")}
                   </div>
                 </div>
               </div>
