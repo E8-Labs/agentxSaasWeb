@@ -638,16 +638,9 @@ const AssignLead = ({
           <div className="text-purple" style={styles.paragraph}>
             {getLeadSelectedCount()} Contacts Selected
           </div>
-          <button
-            className="outline-none border-none"
-            onClick={handleCloseAssignLeadModal}>
-            <Image
-              src={"/assets/cross.png"}
-              alt="*"
-              height={15}
-              width={15}
-            />
-          </button>
+          <CloseBtn
+            onClick={handleCloseAssignLeadModal}
+          />
         </div>
       </div>
       <div

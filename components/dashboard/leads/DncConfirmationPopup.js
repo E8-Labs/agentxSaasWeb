@@ -173,7 +173,7 @@ export default function DncConfirmationPopup({
               Cost Per Lead
             </Typography>
             <Typography sx={{ fontWeight: "medium", fontSize: "16px" }}>
-              ${creditCost?.pricePerLead||0}
+              ${(creditCost?.pricePerLead||0).toFixed(2)}
             </Typography>
           </Box>
 

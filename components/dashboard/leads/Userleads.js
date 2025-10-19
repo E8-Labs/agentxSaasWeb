@@ -2004,7 +2004,7 @@ const Userleads = ({
                 </div>
               </div>
               <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[80%]">
+                <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[70%]">
                   <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
                     <input
                       style={styles.paragraph}
