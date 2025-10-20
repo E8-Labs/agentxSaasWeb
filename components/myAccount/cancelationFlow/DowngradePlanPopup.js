@@ -79,7 +79,7 @@ function DowngradePlanPopup({
                                 </div>
 
                                 <div
-                                    className='max-h-[300px] overflow-y-auto  '
+                                    className=' overflow-y-auto  '
                                     style={{
                                         scrollbarWidth: "none",
                                         msOverflowStyle: "none",
