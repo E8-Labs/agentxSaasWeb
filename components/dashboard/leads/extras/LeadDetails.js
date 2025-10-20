@@ -942,7 +942,6 @@ const LeadDetails = ({
               message={showErrorSnack2}
               type={SnackbarTypes.Error}
             />
-
             <div className="w-full">
               {initialLoader ? (
                 <div className="w-full flex flex-row items-center justify-center mt-24">
