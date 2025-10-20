@@ -661,6 +661,25 @@ const Leads1 = () => {
     setSheetName(e);
   };
 
+  const processEnrichmentPayment = async () => {
+    const localData = localStorage.getItem("User");
+    let AuthToken = null;
+    if (localData) {
+      const UserDetails = JSON.parse(localData);
+      AuthToken = UserDetails.token;
+    }
+    const response = await axios.post(Apis.processPayment, {
+      totalLeadsCount: processedData.length,
+    }, {
+      headers: {
+        Authorization: "Bearer " + AuthToken,
+      }
+    });
+    if (response.data) {
+      return response.data;
+    }
+  }
+
   const handleAddLead = async (enrich = false, startIndex = 0, resumeData = null) => {
     let pd = processedData;
     let data = [];
@@ -679,6 +698,19 @@ const Leads1 = () => {
     });
 
     setLoader(true);
+
+
+
+  if (isEnrichToggle) {
+    let enrichmentPayment = await processEnrichmentPayment();
+    console.log("enrichmentPayment", enrichmentPayment);
+
+    if (enrichmentPayment.status === false) {
+      setShowErrSnack(enrichmentPayment.message);
+      setLoader(false);
+      return;
+    }
+  }
 
     const localData = localStorage.getItem("User");
     let AuthToken = null;

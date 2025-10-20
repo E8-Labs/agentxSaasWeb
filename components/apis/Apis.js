@@ -225,6 +225,8 @@ const Apis = {
   //recordings
   getCallRecordings: `${BasePath}api/leads/getCall`,
   handleMultipleCharge: `${BasePath}api/user/handle-multiple-charge-action`,
+  processPayment: `${BasePath}api/leads/process-enrichment-payment`,
+  
 
   getAdminAgencies: `${BasePath}api/admin/agencies`,
 
