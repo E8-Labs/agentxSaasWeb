@@ -180,7 +180,8 @@ function EmailTempletePopup({
         !body?.trim() ||
         //    (!ccEmails || ccEmails.length === 0) ||
         saveEmailLoader ||
-        invalidEmails.length > 0
+        invalidEmails.length > 0 ||
+        !selectedGoogleAccount?.id
     );
 
     console.log('ccEmails', ccEmails)
@@ -511,7 +512,7 @@ function EmailTempletePopup({
                 if (addRow) {
                     const templateDataForNewRow = {
                         templateId: createdTemplate.id,
-                        emailAccountId: accountId,
+                        emailAccountId: accountId || googleAccounts[0]?.id,
                         communicationType: 'email',
                     };
                     console.log('Adding new row with templateData:', templateDataForNewRow);
