@@ -72,8 +72,6 @@ Author: [Author/Team Name]
 8. **Success Criteria**: Measurable completion checklist
 9. **Cross-References**: Links to related planning documents
 
----
-
 ## Pre-Planning Research
 
 Before creating planning documents:
@@ -95,8 +93,6 @@ Before creating planning documents:
    - Data flow diagrams
    - State machine diagrams for complex interactions
    - Sequence diagrams for multi-step processes
-
----
 
 ## Architecture Documents
 
@@ -129,7 +125,7 @@ interface ExampleProps {
 
 export function Example({ onSubmit, className }: ExampleProps) {
   const [value, setValue] = useState('');
-  
+
   const handleSubmit = useCallback(async () => {
     await onSubmit(value);
     setValue(''); // Reset after submission
@@ -137,8 +133,8 @@ export function Example({ onSubmit, className }: ExampleProps) {
 
   return (
     <div className={cn('space-y-4', className)}>
-      <input 
-        value={value} 
+      <input
+        value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full"
       />
@@ -157,8 +153,6 @@ function Example() {
   return <div>...</div>
 }
 ```
-
----
 
 ## Implementation Plans
 
@@ -191,19 +185,19 @@ Detailed checklist of deliverables:
    # Create file
    touch src/components/foo.tsx
    ```
-   
+
    ```typescript
    // src/components/foo.tsx
    import { forwardRef } from 'react';
-   
+
    export interface FooProps {
      // ... type definitions
    }
-   
+
    export const Foo = forwardRef<HTMLDivElement, FooProps>((props, ref) => {
      // ... implementation
    });
-   
+
    Foo.displayName = 'Foo';
    ```
 
@@ -212,13 +206,13 @@ Detailed checklist of deliverables:
    # Create test file
    touch src/components/foo.test.tsx
    ```
-   
+
    ```typescript
    // src/components/foo.test.tsx
    import { describe, it, expect } from 'vitest';
    import { render, screen } from '@testing-library/react';
    import { Foo } from './foo';
-   
+
    describe('Foo', () => {
      it('renders correctly', () => {
        render(<Foo />);
@@ -231,13 +225,13 @@ Detailed checklist of deliverables:
    ```bash
    # Type check
    npm run type-check
-   
+
    # Run tests
    npm run test -- foo.test.tsx
-   
+
    # Lint
    npm run lint
-   
+
    # Build
    npm run build
    ```
@@ -258,8 +252,6 @@ Detailed checklist of deliverables:
 **Issue**: Build fails
 **Solution**: Check that all imports use correct paths and exports are defined
 ```
-
----
 
 ## Current State Documentation
 
@@ -287,8 +279,6 @@ Brief description of how the system currently works.
 - Migration guide will be provided
 - Codemods will be offered for automatic migration
 ```
-
----
 
 ## Code Block Guidelines
 
@@ -344,11 +334,11 @@ interface UserStore {
 
 export const useUserStore = create<UserStore>((set) => ({
   users: [],
-  addUser: (user) => set((state) => ({ 
-    users: [...state.users, user] 
+  addUser: (user) => set((state) => ({
+    users: [...state.users, user]
   })),
-  removeUser: (id) => set((state) => ({ 
-    users: state.users.filter(u => u.id !== id) 
+  removeUser: (id) => set((state) => ({
+    users: state.users.filter(u => u.id !== id)
   })),
 }));
 
@@ -379,7 +369,7 @@ export function calculateDiscount(price: number, tier: string): number {
     gold: 0.15,
     platinum: 0.20,
   };
-  
+
   const rate = discountRates[tier.toLowerCase()] ?? 0;
   return price * (1 - rate);
 }
@@ -397,14 +387,14 @@ Use `// ...` to indicate intentionally omitted code:
 ```typescript
 export function ComplexComponent({ data }: Props) {
   // ... state declarations
-  
+
   useEffect(() => {
     // Fetch data when component mounts
     fetchData();
   }, []);
-  
+
   // ... other hooks and logic
-  
+
   return (
     <div>
       {/* ... render logic */}
@@ -412,8 +402,6 @@ export function ComplexComponent({ data }: Props) {
   );
 }
 ```
-
----
 
 ## Project-Specific Requirements
 
@@ -432,7 +420,7 @@ All UI components MUST follow these patterns:
    // ✅ GOOD
    className="bg-primary text-primary-foreground"
    className="bg-success-light text-success-dark"
-   
+
    // ❌ BAD
    className="bg-blue-500 text-white"
    className="bg-green-100 text-green-900"
@@ -445,7 +433,7 @@ All UI components MUST follow these patterns:
      --primary: 220 70% 50%;
      --primary-foreground: 0 0% 100%;
    }
-   
+
    .dark {
      --primary: 220 70% 60%;
      --primary-foreground: 0 0% 10%;
@@ -455,7 +443,7 @@ All UI components MUST follow these patterns:
 4. **Use `cn()` utility for dynamic classes**
    ```typescript
    import { cn } from '@workspace/ui/lib/utils';
-   
+
    export function Component({ className, isActive }: Props) {
      return (
        <div className={cn(
@@ -472,7 +460,7 @@ All UI components MUST follow these patterns:
 5. **Class Variance Authority (CVA) for variants**
    ```typescript
    import { cva, type VariantProps } from 'class-variance-authority';
-   
+
    const buttonVariants = cva(
      'inline-flex items-center justify-center rounded-md',
      {
@@ -493,8 +481,8 @@ All UI components MUST follow these patterns:
        },
      }
    );
-   
-   export interface ButtonProps 
+
+   export interface ButtonProps
      extends React.ButtonHTMLAttributes<HTMLButtonElement>,
        VariantProps<typeof buttonVariants> {}
    ```
@@ -502,7 +490,7 @@ All UI components MUST follow these patterns:
 6. **Use Radix Slot (`asChild`) for polymorphic components**
    ```typescript
    import { Slot } from '@radix-ui/react-slot';
-   
+
    export function Button({ asChild, ...props }: ButtonProps) {
      const Comp = asChild ? Slot : 'button';
      return <Comp {...props} />;
@@ -512,7 +500,7 @@ All UI components MUST follow these patterns:
 7. **Interactive components: `forwardRef` + `className`**
    ```typescript
    import { forwardRef } from 'react';
-   
+
    export const Input = forwardRef<HTMLInputElement, InputProps>(
      ({ className, ...props }, ref) => {
        return (
@@ -524,7 +512,7 @@ All UI components MUST follow these patterns:
        );
      }
    );
-   
+
    Input.displayName = 'Input';
    ```
 
@@ -582,7 +570,7 @@ import { brandConfig } from '@/config/branding';
 
 export function Logo() {
   return (
-    <img 
+    <img
       src={brandConfig.logo.light}
       alt={brandConfig.logo.alt}
       className="dark:hidden"
@@ -614,7 +602,7 @@ export function Logo() {
      }
      throw new Error('Invalid data type');
    }
-   
+
    // ❌ BAD
    function process(data: any): any {
      return processString(data);
@@ -627,8 +615,6 @@ export function Logo() {
    npm run test:watch  # Watch mode during development
    npm run test:coverage  # Generate coverage report
    ```
-
----
 
 ## File Organization
 
@@ -661,8 +647,6 @@ planning/
 │       └── error-handling-pattern.md
 ```
 
----
-
 ## Pull Request Checklist
 
 When implementing from planning documents, verify:
@@ -690,15 +674,11 @@ When implementing from planning documents, verify:
 - [ ] Planning document updated if implementation diverged
 ```
 
----
-
 ## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | TBD | Initial version with Codex-specific guidelines |
-
----
 
 ## Cross-References
 
